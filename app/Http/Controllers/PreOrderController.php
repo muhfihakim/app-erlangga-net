@@ -1,0 +1,254 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\PreOrder;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use App\Models\ActivityLog;
+
+class PreOrderController extends Controller
+{
+
+    public function index()
+    {
+        if (auth()->check()) {
+            $user = auth()->user();
+
+            // Ambil ID PO yang sudah diaktivasi
+            $activatedPOIds = \App\Models\Customer::pluck('pre_order_id'); // <-- Pastikan Customer Model dipanggil
+
+            if ($user->jabatan === 'Administrator') {
+                $preOrders = PreOrder::all()->map(function ($po) use ($activatedPOIds) {
+
+                    // --- INFROMASI STATUS ---
+                    $po->is_active = $activatedPOIds->contains($po->id); // PO SUDAH AKTIF
+                    $po->is_expired = false;
+                    $po->is_segera_expired = false;
+
+                    // Hanya cek deadline jika didelegasikan dan BELUM aktif
+                    if ($po->delegated_at && !$po->is_active) {
+                        $delegationDate = Carbon::parse($po->delegated_at);
+                        $deadline = $delegationDate->copy()->addDays(2);
+                        $now = Carbon::now();
+
+                        if ($now->greaterThan($deadline)) {
+                            $po->is_expired = true; // EXPIRED (Merah)
+                        } elseif ($now->diffInHours($deadline) <= 24) {
+                            $po->is_segera_expired = true; // SEGERA EXPIRED (Kuning)
+                        }
+                    }
+
+                    return $po;
+                });
+            } else {
+                // Logika untuk Sales
+                $preOrders = PreOrder::where('id_sales', $user->id)->get();
+            }
+
+            $teknisiUsers = User::where('jabatan', 'Teknisi')->orderBy('nama_lengkap')->get();
+
+            return view('preorders', compact('preOrders', 'teknisiUsers'));
+        }
+    }
+
+    public function store(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->jabatan !== 'Sales' && $user->jabatan !== 'Administrator') {
+            return redirect()->route('pre_orders.index')->with('error', 'Akses ditolak.');
+        }
+
+        try {
+            $validatedData = $request->validate([
+                'paket_internet' => 'required|string|max:255',
+                'nama_lengkap' => 'required|string|max:255',
+                'no_identitas' => 'required|string|max:255',
+                'no_whatsapp' => 'required|string|max:255',
+                'alamat_email' => 'required|string|email|max:255',
+                'alamat_lengkap' => 'required|string',
+                'titik_koordinat' => 'required|string',
+                'foto_ktp' => 'nullable|image|max:2048', // max 2MB
+                'foto_rumah' => 'nullable|image|max:2048', // max 2MB
+            ]);
+
+            // Perbaikan di sini: Simpan ke disk 'public'
+            if ($request->hasFile('foto_ktp')) {
+                $fotoKtpPath = $request->file('foto_ktp')->store('pre_orders/ktp', 'public');
+                $validatedData['foto_ktp'] = $fotoKtpPath;
+            }
+
+            // Perbaikan di sini: Simpan ke disk 'public'
+            if ($request->hasFile('foto_rumah')) {
+                $fotoRumahPath = $request->file('foto_rumah')->store('pre_orders/rumah', 'public');
+                $validatedData['foto_rumah'] = $fotoRumahPath;
+            }
+
+            PreOrder::create(array_merge($validatedData, [
+                'id_sales' => $user->id,
+                'nama_sales' => $user->nama_lengkap,
+            ]));
+
+            ActivityLog::create([
+                'user_id' => $user->id,
+                'activity_type' => 'preorder_create',
+                'description' => 'Menambahkan PreOrder untuk ' . $validatedData['nama_lengkap'],
+                'logged_at' => now(),
+            ]);
+
+            return redirect()->route('pre_orders.index')->with('success', 'Pre-order berhasil ditambahkan!');
+        } catch (ValidationException $e) {
+            // Ini akan secara otomatis mengembalikan ke halaman sebelumnya dengan error
+            return redirect()->back()->withInput()->withErrors($e->validator);
+        } catch (\Exception $e) {
+            // Menangani kesalahan umum lainnya
+            return redirect()->route('pre_orders.index')->with('error', 'Terjadi kesalahan saat menyimpan data.');
+        }
+    }
+
+    public function update(Request $request, PreOrder $preOrder)
+    {
+        if (Auth::user()->jabatan !== 'Sales' && Auth::user()->jabatan !== 'Administrator') {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $validatedData = $request->validate([
+            'paket_internet' => 'sometimes|string|max:255',
+            'nama_lengkap' => 'sometimes|string|max:255',
+            'no_identitas' => 'sometimes|string|max:255',
+            'no_whatsapp' => 'sometimes|string|max:255',
+            'alamat_email' => 'sometimes|string|email|max:255',
+            'alamat_lengkap' => 'sometimes|string',
+            'titik_koordinat' => 'sometimes|string',
+            'foto_ktp' => 'sometimes|image|max:2048',
+            'foto_rumah' => 'sometimes|image|max:2048',
+        ]);
+
+        $preOrder->fill($validatedData);
+
+        // ==== FOTO KTP ====
+        if ($request->hasFile('foto_ktp')) {
+            // Hapus file lama jika ada
+            if (!empty($preOrder->getOriginal('foto_ktp')) && Storage::disk('public')->exists($preOrder->getOriginal('foto_ktp'))) {
+                Storage::disk('public')->delete($preOrder->getOriginal('foto_ktp'));
+            }
+
+            // Simpan file baru
+            $path = $request->file('foto_ktp')->store('pre_orders/ktp', 'public');
+            $preOrder->foto_ktp = $path;
+        }
+
+        // ==== FOTO RUMAH ====
+        if ($request->hasFile('foto_rumah')) {
+            if (!empty($preOrder->getOriginal('foto_rumah')) && Storage::disk('public')->exists($preOrder->getOriginal('foto_rumah'))) {
+                Storage::disk('public')->delete($preOrder->getOriginal('foto_rumah'));
+            }
+
+            $path = $request->file('foto_rumah')->store('pre_orders/rumah', 'public');
+            $preOrder->foto_rumah = $path;
+        }
+
+        if ($preOrder->isDirty()) {
+            $preOrder->save();
+
+            // Log hanya kalau memang ada perubahan
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'activity_type' => 'preorder_update',
+                'description' => 'Mengubah PreOrder: ' . $preOrder->nama_lengkap,
+                'logged_at' => now(),
+            ]);
+
+            return redirect()->route('pre_orders.index')->with('success', 'Data pre-order berhasil diperbarui.');
+        }
+
+
+        return redirect()->route('pre_orders.index')->with('success', 'Tidak ada perubahan pada data pre-order.');
+    }
+
+
+    public function destroy(PreOrder $preOrder)
+    {
+        // Otorisasi, hanya Sales dan Admin yang bisa menghapus
+        if (Auth::user()->jabatan !== 'Sales' && Auth::user()->jabatan !== 'Administrator') {
+            abort(403, 'Akses ditolak.');
+        }
+
+        // Hapus file foto KTP jika ada
+        if ($preOrder->foto_ktp) {
+            Storage::disk('public')->delete($preOrder->foto_ktp);
+        }
+
+        // Hapus file foto rumah jika ada
+        if ($preOrder->foto_rumah) {
+            Storage::disk('public')->delete($preOrder->foto_rumah);
+        }
+
+        // Hapus record dari database
+        $preOrder->delete();
+
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'activity_type' => 'preorder_delete',
+            'description' => 'Menghapus PreOrder: ' . $preOrder->nama_lengkap,
+            'logged_at' => now(),
+        ]);
+
+        return redirect()->route('pre_orders.index')->with('success', 'Data pre-order berhasil dihapus.');
+    }
+
+    public function delegate(Request $request, PreOrder $preOrder)
+    {
+        // Otorisasi: Hanya Administrator yang bisa mendelegasikan
+        if (auth()->user()->jabatan !== 'Administrator') {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $request->validate([
+            'id_teknisi' => 'required|exists:users,id',
+        ]);
+
+        // Update kolom id_teknisi_delegasi
+        $preOrder->update([
+            'id_teknisi_delegasi' => $request->id_teknisi,
+            'delegated_at' => Carbon::now(), // <-- Catat waktu saat ini
+        ]);
+
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity_type' => 'delegasi',
+            'description' => 'Delegasi PO "' . $preOrder->nama_lengkap . '" ke teknisi ID: ' . $request->id_teknisi,
+            'logged_at' => now(),
+        ]);
+
+
+        return redirect()->back()->with('success', 'Tugas berhasil didelegasikan ke Teknisi.');
+    }
+
+    public function resetDelegation(PreOrder $preOrder)
+    {
+        // Otorisasi: Hanya Administrator yang bisa mereset tugas
+        if (auth()->user()->jabatan !== 'Administrator') {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $preOrder->update([
+            'id_teknisi_delegasi' => null,
+            'delegated_at' => null,
+        ]);
+
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity_type' => 'delegasi_reset',
+            'description' => 'Reset delegasi PO "' . $preOrder->nama_lengkap . '"',
+            'logged_at' => now(),
+        ]);
+
+
+        return redirect()->back()->with('success', 'Tugas PO berhasil direset dan siap didelegasikan ulang atau diambil umum.');
+    }
+}
