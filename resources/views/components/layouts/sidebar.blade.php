@@ -80,6 +80,34 @@
 
                      <li class="nav-header">LAPORAN</li>
                      <li class="nav-item">
+                         <a href="{{ route('activitylog.aktivasi') }}"
+                             class="nav-link {{ Request::is('laporan/aktivasi') ? 'active' : '' }}">
+                             <i class="bi bi-clock-history"></i>
+                             <p>Aktivasi</p>
+                         </a>
+                     </li>
+                     <li class="nav-item">
+                         <a href="{{ route('activitylog.expired') }}"
+                             class="nav-link {{ Request::is('laporan/expired') ? 'active' : '' }}">
+                             <i class="bi bi-clock-history"></i>
+                             <p>Pemeliharaan</p>
+                         </a>
+                     </li>
+                     <li class="nav-item">
+                         <a href="{{ route('activitylog.expired') }}"
+                             class="nav-link {{ Request::is('laporan/expired') ? 'active' : '' }}">
+                             <i class="bi bi-clock-history"></i>
+                             <p>Dismantle</p>
+                         </a>
+                     </li>
+                     <li class="nav-item">
+                         <a href="{{ route('activitylog.expired') }}"
+                             class="nav-link {{ Request::is('laporan/expired') ? 'active' : '' }}">
+                             <i class="bi bi-clock-history"></i>
+                             <p>Pre-Order</p>
+                         </a>
+                     </li>
+                     <li class="nav-item">
                          <a href="{{ route('activitylog.expired') }}"
                              class="nav-link {{ Request::is('laporan/expired') ? 'active' : '' }}">
                              <i class="bi bi-clock-history"></i>
@@ -88,7 +116,7 @@
                      </li>
                      <li class="nav-item">
                          <a href="{{ route('activitylog.expired') }}"
-                             class="nav-link {{ Request::is('laporan/expired') ? 'active' : '' }}">
+                             class="nav-link {{ Request::is('laporan/mt-expired') ? 'active' : '' }}">
                              <i class="bi bi-clock-history"></i>
                              <p>MT Expired</p>
                          </a>

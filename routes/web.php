@@ -46,6 +46,10 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/laporan/expired', [ActivityLogController::class, 'laporanExpired'])->name('activitylog.expired');
     Route::get('/laporan/expired/export', [ActivityLogController::class, 'exportExpired'])->name('activitylog.expired.export');
 
+    Route::get('/laporan/aktivasi', [ActivityLogController::class, 'laporanAktivasi'])->name('activitylog.aktivasi');
+    Route::get('/laporan/aktivasi/export', [ActivityLogController::class, 'exportAktivasi'])->name('activitylog.aktivasi.export');
+
+
     Route::post('/location/update', [LocationController::class, 'update'])->name('location.update');
     Route::get('/tracking', [LocationController::class, 'showTrackingMap'])->name('accounts.tracking');
     Route::get('/locations/all', [LocationController::class, 'getAllLocations'])->name('api.locations.all');
