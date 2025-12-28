@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Customer extends Model
 {
+    use HasFactory, SoftDeletes;
+
     protected $fillable = [
         'pre_order_id',
         'id_sales',
@@ -29,23 +32,39 @@ class Customer extends Model
         'foto_speedtest',
     ];
 
-    // public function preOrder()
-    // {
-    //     return $this->belongsTo(PreOrder::class);
-    // }
-
-    // Sangat penting agar data ID tersimpan sebagai JSON di DB dan Array di PHP
     protected $casts = [
         'partner_ids' => 'array',
+        'deleted_at'  => 'datetime',
     ];
 
-    public function preorder()
+    // public function preorder()
+    // {
+    //     return $this->belongsTo(PreOrder::class, 'pre_order_id');
+    // }
+
+    public function preOrder()
     {
         return $this->belongsTo(PreOrder::class, 'pre_order_id');
+    }
+
+
+    public function sales()
+    {
+        return $this->belongsTo(User::class, 'id_sales');
     }
 
     public function teknisiUtama()
     {
         return $this->belongsTo(User::class, 'id_teknisi');
+    }
+
+    public function maintenances()
+    {
+        return $this->hasMany(Maintenance::class, 'customer_id');
+    }
+
+    public function dismantles()
+    {
+        return $this->hasMany(Dismantle::class, 'customer_id');
     }
 }

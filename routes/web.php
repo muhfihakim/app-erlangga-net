@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DismantleController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\PreOrderController;
@@ -58,6 +59,8 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/laporan/maintenance-expired', [ActivityLogController::class, 'laporanMaintenanceExpired'])->name('activitylog.maintenance_expired');
     Route::get('/laporan/maintenance-expired/export', [ActivityLogController::class, 'exportMaintenanceExpired'])->name('activitylog.maintenance_expired.export');
 
+    Route::get('/laporan/dismantle', [ActivityLogController::class, 'laporanDismantle'])->name('activitylog.dismantle');
+    Route::get('/laporan/dismantle/export', [ActivityLogController::class, 'exportDismantle'])->name('activitylog.dismantle.export');
 
     Route::get('/maintenances', [MaintenanceController::class, 'index'])->name('maintenances.index');
     Route::get('/maintenances/customer/{id}', [MaintenanceController::class, 'getCustomerData']);
@@ -66,6 +69,13 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('/maintenances/{maintenance}/reset', [MaintenanceController::class, 'resetDelegation'])->name('maintenances.reset');
     Route::post('/maintenances/{id}/reassign', [MaintenanceController::class, 'reassign'])->name('maintenances.reassign');
     Route::delete('/maintenances/{id}', [MaintenanceController::class, 'destroy'])->name('maintenances.destroy');
+
+    Route::get('/dismantles', [DismantleController::class, 'index'])->name('dismantles.index');
+    Route::get('/dismantles/customer/{id}', [DismantleController::class, 'getCustomerData']);
+    Route::post('/dismantles', [DismantleController::class, 'store'])->name('dismantles.store');
+    Route::post('/dismantles/{id}/complete', [DismantleController::class, 'complete'])->name('dismantles.complete');
+    Route::delete('/dismantles/{id}', [DismantleController::class, 'destroy'])->name('dismantles.destroy');
+    Route::delete('/dismantles/customer/{id}', [DismantleController::class, 'deleteCustomer'])->name('dismantles.deleteCustomer');
 
     Route::post('/location/update', [LocationController::class, 'update'])->name('location.update');
     Route::get('/tracking', [LocationController::class, 'showTrackingMap'])->name('accounts.tracking');

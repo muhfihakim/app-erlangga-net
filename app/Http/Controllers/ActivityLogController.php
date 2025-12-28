@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ActivityLog;
+use App\Models\Dismantle;
 use App\Models\Maintenance;
 use App\Models\Customer;
 use App\Models\User;
@@ -111,16 +112,81 @@ class ActivityLogController extends Controller
         return $pdf->download("laporan-expired-po-{$request->start_date}_to_{$request->end_date}.pdf");
     }
 
+    // public function laporanAktivasi(Request $request)
+    // {
+    //     $teknisiId = $request->input('teknisi_id');
+    //     $start = $request->input('start_date');
+    //     $end = $request->input('end_date');
+
+    //     // Query ke tabel Customers karena ini adalah data aktivasi riil
+    //     $query = Customer::with(['teknisiUtama', 'preorder']);
+
+    //     // Filter berdasarkan Teknisi (Sebagai Utama ATAU Partner)
+    //     if ($teknisiId) {
+    //         $query->where(function ($q) use ($teknisiId) {
+    //             $q->where('id_teknisi', $teknisiId)
+    //                 ->orWhereJsonContains('partner_ids', (string)$teknisiId);
+    //         });
+    //     }
+
+    //     // Filter Tanggal
+    //     if ($start) {
+    //         $query->whereDate('created_at', '>=', $start);
+    //     }
+    //     if ($end) {
+    //         $query->whereDate('created_at', '<=', $end);
+    //     }
+
+    //     $customers = $query->orderBy('created_at', 'desc')->get();
+    //     $totalAktivasi = $customers->count(); // Menghitung total hasil filter
+
+    //     $teknisis = User::where('jabatan', 'Teknisi')->get();
+
+    //     return view('activitylog.aktivasi-log', compact('customers', 'teknisis', 'teknisiId', 'start', 'end', 'totalAktivasi'));
+    // }
+
+    // public function exportAktivasi(Request $request)
+    // {
+    //     $request->validate([
+    //         'start_date' => 'required|date',
+    //         'end_date' => 'required|date|after_or_equal:start_date',
+    //     ]);
+
+    //     $query = Customer::with(['teknisiUtama', 'preorder'])
+    //         ->whereBetween('created_at', [
+    //             Carbon::parse($request->start_date)->startOfDay(),
+    //             Carbon::parse($request->end_date)->endOfDay(),
+    //         ]);
+
+    //     if ($request->teknisi_id) {
+    //         $query->where(function ($q) use ($request) {
+    //             $q->where('id_teknisi', $request->teknisi_id)
+    //                 ->orWhereJsonContains('partner_ids', (string)$request->teknisi_id);
+    //         });
+    //     }
+
+    //     $customers = $query->orderBy('created_at', 'asc')->get();
+
+    //     $pdf = PDF::loadView('activitylog.export-aktivasi', [
+    //         'customers' => $customers,
+    //         'start' => $request->start_date,
+    //         'end' => $request->end_date,
+    //         'teknisi' => User::find($request->teknisi_id),
+    //         'total' => $customers->count()
+    //     ]);
+
+    //     return $pdf->download("laporan-aktivasi-{$request->start_date}_to_{$request->end_date}.pdf");
+    // }
+
     public function laporanAktivasi(Request $request)
     {
         $teknisiId = $request->input('teknisi_id');
         $start = $request->input('start_date');
         $end = $request->input('end_date');
 
-        // Query ke tabel Customers karena ini adalah data aktivasi riil
-        $query = Customer::with(['teknisiUtama', 'preorder']);
+        // Gunakan withTrashed() agar pelanggan yang sudah di-dismantle tetap muncul di laporan aktivasi
+        $query = Customer::withTrashed()->with(['teknisiUtama', 'sales']);
 
-        // Filter berdasarkan Teknisi (Sebagai Utama ATAU Partner)
         if ($teknisiId) {
             $query->where(function ($q) use ($teknisiId) {
                 $q->where('id_teknisi', $teknisiId)
@@ -128,17 +194,11 @@ class ActivityLogController extends Controller
             });
         }
 
-        // Filter Tanggal
-        if ($start) {
-            $query->whereDate('created_at', '>=', $start);
-        }
-        if ($end) {
-            $query->whereDate('created_at', '<=', $end);
-        }
+        if ($start) $query->whereDate('created_at', '>=', $start);
+        if ($end) $query->whereDate('created_at', '<=', $end);
 
         $customers = $query->orderBy('created_at', 'desc')->get();
-        $totalAktivasi = $customers->count(); // Menghitung total hasil filter
-
+        $totalAktivasi = $customers->count();
         $teknisis = User::where('jabatan', 'Teknisi')->get();
 
         return view('activitylog.aktivasi-log', compact('customers', 'teknisis', 'teknisiId', 'start', 'end', 'totalAktivasi'));
@@ -146,15 +206,13 @@ class ActivityLogController extends Controller
 
     public function exportAktivasi(Request $request)
     {
-        $request->validate([
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-        ]);
+        $request->validate(['start_date' => 'required|date', 'end_date' => 'required|date']);
 
-        $query = Customer::with(['teknisiUtama', 'preorder'])
+        // Gunakan withTrashed() juga saat melakukan ekspor PDF
+        $query = Customer::withTrashed()->with(['teknisiUtama', 'sales'])
             ->whereBetween('created_at', [
                 Carbon::parse($request->start_date)->startOfDay(),
-                Carbon::parse($request->end_date)->endOfDay(),
+                Carbon::parse($request->end_date)->endOfDay()
             ]);
 
         if ($request->teknisi_id) {
@@ -174,7 +232,7 @@ class ActivityLogController extends Controller
             'total' => $customers->count()
         ]);
 
-        return $pdf->download("laporan-aktivasi-{$request->start_date}_to_{$request->end_date}.pdf");
+        return $pdf->download("laporan-aktivasi-{$request->start_date}.pdf");
     }
 
     public function laporanMaintenance(Request $request)
@@ -288,5 +346,64 @@ class ActivityLogController extends Controller
         ]);
 
         return $pdf->download("laporan-maintenance-expired.pdf");
+    }
+
+    public function laporanDismantle(Request $request)
+    {
+        $teknisiId = $request->input('teknisi_id');
+        $start = $request->input('start_date');
+        $end = $request->input('end_date');
+
+        $query = Dismantle::with(['customer', 'teknisiEksekutor'])
+            ->where('status', 'Selesai');
+
+        // Filter berdasarkan Teknisi Eksekutor
+        if ($teknisiId) {
+            $query->where('id_teknisi_eksekutor', $teknisiId);
+        }
+
+        // Filter berdasarkan Periode Selesai
+        if ($start) $query->whereDate('completed_at', '>=', $start);
+        if ($end) $query->whereDate('completed_at', '<=', $end);
+
+        $dismantles = $query->orderBy('completed_at', 'desc')->get();
+        $total = $dismantles->count();
+        $teknisis = User::where('jabatan', 'Teknisi')->get();
+
+        return view('activitylog.dismantle-log', compact('dismantles', 'teknisis', 'teknisiId', 'start', 'end', 'total'));
+    }
+
+    /**
+     * Export PDF Laporan Dismantle
+     */
+    public function exportDismantle(Request $request)
+    {
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date'
+        ]);
+
+        $query = Dismantle::with(['customer', 'teknisiEksekutor'])
+            ->where('status', 'Selesai')
+            ->whereBetween('completed_at', [
+                Carbon::parse($request->start_date)->startOfDay(),
+                Carbon::parse($request->end_date)->endOfDay()
+            ]);
+
+        if ($request->teknisi_id) {
+            $query->where('id_teknisi_eksekutor', $request->teknisi_id);
+        }
+
+        $dismantles = $query->orderBy('completed_at', 'asc')->get();
+
+        $pdf = PDF::loadView('activitylog.export-dismantle', [
+            'dismantles' => $dismantles,
+            'start' => $request->start_date,
+            'end' => $request->end_date,
+            'teknisi' => User::find($request->teknisi_id),
+            'total' => $dismantles->count()
+        ]);
+
+        return $pdf->download("laporan-dismantle-{$request->start_date}-ke-{$request->end_date}.pdf");
     }
 }

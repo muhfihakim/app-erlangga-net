@@ -61,8 +61,8 @@
                          </a>
                      </li>
                      <li class="nav-item">
-                         <a href="{{ route('maintenances.index') }}"
-                             class="nav-link {{ Request::is('maintenances') ? 'active' : '' }}">
+                         <a href="{{ route('dismantles.index') }}"
+                             class="nav-link {{ Request::is('dismantles') ? 'active' : '' }}">
                              <i class="bi bi-person-x"></i>
                              <p>Dismantle</p>
                          </a>
@@ -109,8 +109,8 @@
                          </a>
                      </li>
                      <li class="nav-item">
-                         <a href="{{ route('activitylog.expired') }}"
-                             class="nav-link {{ Request::is('laporan/expired') ? 'active' : '' }}">
+                         <a href="{{ route('activitylog.dismantle') }}"
+                             class="nav-link {{ Request::is('laporan/dismantle') ? 'active' : '' }}">
                              <i class="bi bi-person-fill-x"></i>
                              <p>Dismantle</p>
                          </a>

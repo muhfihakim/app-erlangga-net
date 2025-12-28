@@ -36,8 +36,14 @@ class Maintenance extends Model
 
     public function customer()
     {
-        return $this->belongsTo(Customer::class, 'customer_id');
+        // Menggunakan withTrashed() agar data pelanggan yang dihapus tetap muncul di laporan
+        return $this->belongsTo(Customer::class, 'customer_id')->withTrashed();
     }
+
+    // public function customer()
+    // {
+    //     return $this->belongsTo(Customer::class, 'customer_id');
+    // }
     public function teknisiDelegasi()
     {
         return $this->belongsTo(User::class, 'id_teknisi_delegasi');
