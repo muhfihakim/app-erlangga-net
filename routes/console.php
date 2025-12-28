@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('log:expired-delegasi')->everyMinute();
+Schedule::command('log:expired-maintenance')->everyMinute();

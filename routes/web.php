@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\PreOrderController;
 use App\Http\Controllers\TwoFactorController;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
@@ -49,6 +50,22 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/laporan/aktivasi', [ActivityLogController::class, 'laporanAktivasi'])->name('activitylog.aktivasi');
     Route::get('/laporan/aktivasi/export', [ActivityLogController::class, 'exportAktivasi'])->name('activitylog.aktivasi.export');
 
+    // Laporan Maintenance (Selesai)
+    Route::get('/laporan/maintenance', [ActivityLogController::class, 'laporanMaintenance'])->name('activitylog.maintenance');
+    Route::get('/laporan/maintenance/export', [ActivityLogController::class, 'exportMaintenance'])->name('activitylog.maintenance.export');
+
+    // Laporan Maintenance Expired
+    Route::get('/laporan/maintenance-expired', [ActivityLogController::class, 'laporanMaintenanceExpired'])->name('activitylog.maintenance_expired');
+    Route::get('/laporan/maintenance-expired/export', [ActivityLogController::class, 'exportMaintenanceExpired'])->name('activitylog.maintenance_expired.export');
+
+
+    Route::get('/maintenances', [MaintenanceController::class, 'index'])->name('maintenances.index');
+    Route::get('/maintenances/customer/{id}', [MaintenanceController::class, 'getCustomerData']);
+    Route::post('/maintenances', [MaintenanceController::class, 'store'])->name('maintenances.store');
+    Route::post('/maintenances/{id}/complete', [MaintenanceController::class, 'complete'])->name('maintenances.complete');
+    Route::post('/maintenances/{maintenance}/reset', [MaintenanceController::class, 'resetDelegation'])->name('maintenances.reset');
+    Route::post('/maintenances/{id}/reassign', [MaintenanceController::class, 'reassign'])->name('maintenances.reassign');
+    Route::delete('/maintenances/{id}', [MaintenanceController::class, 'destroy'])->name('maintenances.destroy');
 
     Route::post('/location/update', [LocationController::class, 'update'])->name('location.update');
     Route::get('/tracking', [LocationController::class, 'showTrackingMap'])->name('accounts.tracking');

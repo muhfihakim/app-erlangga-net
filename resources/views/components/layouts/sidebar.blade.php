@@ -24,6 +24,15 @@
                      </a>
                  </li>
                  <li class="nav-header">PELANGGAN</li>
+                 @if (auth()->check() && in_array(auth()->user()->jabatan, ['Administrator', 'Sales']))
+                     <li class="nav-item">
+                         <a href="{{ route('pre_orders.index') }}"
+                             class="nav-link {{ Request::is('pre-orders') ? 'active' : '' }}">
+                             <i class="bi bi-person-plus"></i>
+                             <p>Pre-Order</p>
+                         </a>
+                     </li>
+                 @endif
                  @if (auth()->check() && auth()->user()->jabatan === 'Teknisi')
                      <li class="nav-item">
                          <a href="{{ route('customers.index') }}"
@@ -38,17 +47,24 @@
                      <li class="nav-item">
                          <a href="{{ route('customers.active_list') }}"
                              class="nav-link {{ Request::is('customers/active-list') ? 'active' : '' }}">
-                             <i class="bi bi-people-fill"></i>
+                             <i class="bi bi-person-check"></i>
                              <p>Aktivasi</p>
                          </a>
                      </li>
                  @endif
-                 @if (auth()->check() && in_array(auth()->user()->jabatan, ['Administrator', 'Sales']))
+                 @if (auth()->check() && (auth()->user()->jabatan === 'Administrator' || auth()->user()->jabatan === 'Teknisi'))
                      <li class="nav-item">
-                         <a href="{{ route('pre_orders.index') }}"
-                             class="nav-link {{ Request::is('pre-orders') ? 'active' : '' }}">
-                             <i class="bi bi-file-earmark-text"></i>
-                             <p>Pre-Order</p>
+                         <a href="{{ route('maintenances.index') }}"
+                             class="nav-link {{ Request::is('maintenances') ? 'active' : '' }}">
+                             <i class="bi bi-person-gear"></i>
+                             <p>Pemeliharaan</p>
+                         </a>
+                     </li>
+                     <li class="nav-item">
+                         <a href="{{ route('maintenances.index') }}"
+                             class="nav-link {{ Request::is('maintenances') ? 'active' : '' }}">
+                             <i class="bi bi-person-x"></i>
+                             <p>Dismantle</p>
                          </a>
                      </li>
                  @endif
@@ -57,7 +73,7 @@
                      <li class="nav-item">
                          <a href="{{ route('accounts.index') }}"
                              class="nav-link {{ Request::is('accounts') ? 'active' : '' }}">
-                             <i class="bi bi-person-gear"></i>
+                             <i class="bi bi-people"></i>
                              <p>Akun</p>
                          </a>
                      </li>
@@ -77,33 +93,32 @@
                              <p>Aktivitas Log</p>
                          </a>
                      </li>
-
                      <li class="nav-header">LAPORAN</li>
                      <li class="nav-item">
                          <a href="{{ route('activitylog.aktivasi') }}"
                              class="nav-link {{ Request::is('laporan/aktivasi') ? 'active' : '' }}">
-                             <i class="bi bi-clock-history"></i>
+                             <i class="bi bi-person-check-fill"></i>
                              <p>Aktivasi</p>
                          </a>
                      </li>
                      <li class="nav-item">
-                         <a href="{{ route('activitylog.expired') }}"
-                             class="nav-link {{ Request::is('laporan/expired') ? 'active' : '' }}">
-                             <i class="bi bi-clock-history"></i>
+                         <a href="{{ route('activitylog.maintenance') }}"
+                             class="nav-link {{ Request::is('laporan/maintenance') ? 'active' : '' }}">
+                             <i class="bi bi-person-fill-gear"></i>
                              <p>Pemeliharaan</p>
                          </a>
                      </li>
                      <li class="nav-item">
                          <a href="{{ route('activitylog.expired') }}"
                              class="nav-link {{ Request::is('laporan/expired') ? 'active' : '' }}">
-                             <i class="bi bi-clock-history"></i>
+                             <i class="bi bi-person-fill-x"></i>
                              <p>Dismantle</p>
                          </a>
                      </li>
                      <li class="nav-item">
                          <a href="{{ route('activitylog.expired') }}"
                              class="nav-link {{ Request::is('laporan/expired') ? 'active' : '' }}">
-                             <i class="bi bi-clock-history"></i>
+                             <i class="bi bi-person-fill-add"></i>
                              <p>Pre-Order</p>
                          </a>
                      </li>
@@ -115,8 +130,8 @@
                          </a>
                      </li>
                      <li class="nav-item">
-                         <a href="{{ route('activitylog.expired') }}"
-                             class="nav-link {{ Request::is('laporan/mt-expired') ? 'active' : '' }}">
+                         <a href="{{ route('activitylog.maintenance_expired') }}"
+                             class="nav-link {{ Request::is('laporan/maintenance-expired') ? 'active' : '' }}">
                              <i class="bi bi-clock-history"></i>
                              <p>MT Expired</p>
                          </a>

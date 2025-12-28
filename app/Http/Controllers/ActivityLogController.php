@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ActivityLog;
+use App\Models\Maintenance;
 use App\Models\Customer;
 use App\Models\User;
 use PDF;
@@ -174,5 +175,118 @@ class ActivityLogController extends Controller
         ]);
 
         return $pdf->download("laporan-aktivasi-{$request->start_date}_to_{$request->end_date}.pdf");
+    }
+
+    public function laporanMaintenance(Request $request)
+    {
+        $teknisiId = $request->input('teknisi_id');
+        $start = $request->input('start_date');
+        $end = $request->input('end_date');
+
+        $query = Maintenance::with(['customer', 'teknisiEksekutor'])
+            ->where('status', 'Selesai');
+
+        if ($teknisiId) {
+            $query->where(function ($q) use ($teknisiId) {
+                $q->where('id_teknisi_eksekutor', $teknisiId)
+                    ->orWhereJsonContains('partner_ids', (string)$teknisiId);
+            });
+        }
+
+        if ($start) $query->whereDate('completed_at', '>=', $start);
+        if ($end) $query->whereDate('completed_at', '<=', $end);
+
+        $maintenances = $query->orderBy('completed_at', 'desc')->get();
+        $total = $maintenances->count();
+        $teknisis = User::where('jabatan', 'Teknisi')->get();
+
+        return view('activitylog.maintenance-log', compact('maintenances', 'teknisis', 'teknisiId', 'start', 'end', 'total'));
+    }
+
+    public function exportMaintenance(Request $request)
+    {
+        $request->validate(['start_date' => 'required|date', 'end_date' => 'required|date']);
+
+        $query = Maintenance::with(['customer', 'teknisiEksekutor'])
+            ->where('status', 'Selesai')
+            ->whereBetween('completed_at', [
+                Carbon::parse($request->start_date)->startOfDay(),
+                Carbon::parse($request->end_date)->endOfDay()
+            ]);
+
+        if ($request->teknisi_id) {
+            $query->where(function ($q) use ($request) {
+                $q->where('id_teknisi_eksekutor', $request->teknisi_id)
+                    ->orWhereJsonContains('partner_ids', (string)$request->teknisi_id);
+            });
+        }
+
+        $maintenances = $query->orderBy('completed_at', 'asc')->get();
+        $pdf = PDF::loadView('activitylog.export-maintenance', [
+            'maintenances' => $maintenances,
+            'start' => $request->start_date,
+            'end' => $request->end_date,
+            'teknisi' => User::find($request->teknisi_id),
+            'total' => $maintenances->count()
+        ]);
+
+        return $pdf->download("laporan-maintenance-{$request->start_date}.pdf");
+    }
+
+    public function laporanMaintenanceExpired(Request $request)
+    {
+        $teknisiId = $request->input('teknisi_id');
+        $start = $request->input('start_date');
+        $end = $request->input('end_date');
+
+        $query = ActivityLog::with('user')
+            ->where('activity_type', 'maintenance_expired')
+            ->orderByDesc('logged_at');
+
+        if ($teknisiId) $query->where('user_id', $teknisiId);
+        if ($start) $query->whereDate('logged_at', '>=', $start);
+        if ($end) $query->whereDate('logged_at', '<=', $end);
+
+        // Ambil data dan pastikan kolom 'data' diproses sebagai array
+        $logs = $query->get()->map(function ($log) {
+            if (is_string($log->data)) {
+                $log->data = json_decode($log->data, true) ?: [];
+            }
+            return $log;
+        });
+
+        $teknisis = User::where('jabatan', 'Teknisi')->get();
+
+        return view('activitylog.maintenance-expired-log', compact('logs', 'teknisis', 'teknisiId', 'start', 'end'));
+    }
+
+    public function exportMaintenanceExpired(Request $request)
+    {
+        $request->validate(['start_date' => 'required|date', 'end_date' => 'required|date']);
+
+        $query = ActivityLog::with('user')
+            ->where('activity_type', 'maintenance_expired')
+            ->whereBetween('logged_at', [
+                Carbon::parse($request->start_date)->startOfDay(),
+                Carbon::parse($request->end_date)->endOfDay()
+            ]);
+
+        if ($request->teknisi_id) $query->where('user_id', $request->teknisi_id);
+
+        $logs = $query->get()->map(function ($log) {
+            if (is_string($log->data)) {
+                $log->data = json_decode($log->data, true) ?: [];
+            }
+            return $log;
+        });
+
+        $pdf = PDF::loadView('activitylog.export-maintenance-expired', [
+            'logs' => $logs,
+            'start' => $request->start_date,
+            'end' => $request->end_date,
+            'teknisi' => User::find($request->teknisi_id)
+        ]);
+
+        return $pdf->download("laporan-maintenance-expired.pdf");
     }
 }
