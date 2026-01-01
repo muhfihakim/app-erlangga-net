@@ -20,8 +20,7 @@
         .header h2 {
             margin: 0;
             text-transform: uppercase;
-            color: #c0392b;
-            /* Warna merah gelap untuk indikasi expired */
+            color: #2c3e50;
         }
 
         .header p {
@@ -48,30 +47,26 @@
         .table td {
             border: 1px solid #bdc3c7;
             padding: 8px;
+            text-align: left;
         }
 
         .table th {
-            background-color: #f2f2f2;
+            background-color: #ecf0f1;
             color: #2c3e50;
             font-weight: bold;
             text-align: center;
         }
 
-        .table td {
-            text-align: left;
-        }
-
         .table tr:nth-child(even) {
-            background-color: #fcfcfc;
+            background-color: #f9f9f9;
         }
 
         .summary {
             margin-top: 20px;
             padding: 10px;
-            background-color: #f8d7da;
-            /* Warna merah muda transparan */
-            border: 1px solid #f5c6cb;
-            color: #721c24;
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
             font-weight: bold;
             display: inline-block;
         }
@@ -96,7 +91,9 @@
 <body>
     <div class="header">
         <h2>Laporan PO Expired Delegasi</h2>
-        <p>Sistem Manajemen Monitoring Pengerjaan Teknisi</p>
+        <p>ERLANGGA NETWORK | www.erlangga.net</p>
+        <p>office@erlangga.net</p>
+        <p>0851 1742 4407</p>
     </div>
 
     <table class="info-table">
@@ -132,14 +129,15 @@
         <tbody>
             @forelse ($logs as $log)
                 <tr>
-                    <td class="text-center">{{ $loop->iteration }}</td>
-                    <td class="text-center">{{ $log->logged_at->format('d/m/Y H:i') }}</td>
-                    <td class="fw-bold">{{ $log->user->nama_lengkap ?? 'N/A' }}</td>
-                    <td class="text-center">{{ $log->data['po_id'] ?? '-' }}</td>
-                    <td class="text-center">
+                    <td style="text-align: center; vertical-align: middle">{{ $loop->iteration }}</td>
+                    <td style="text-align: center; vertical-align: middle">{{ $log->logged_at->format('d/m/Y H:i') }}
+                    </td>
+                    <td>{{ $log->user->nama_lengkap ?? 'N/A' }}</td>
+                    <td>{{ $log->data['po_id'] ?? '-' }}</td>
+                    <td>
                         {{ isset($log->data['delegated_at']) ? \Carbon\Carbon::parse($log->data['delegated_at'])->format('d/m/Y H:i') : '-' }}
                     </td>
-                    <td class="text-center" style="color: #c0392b;">
+                    <td class="text-center">
                         {{ isset($log->data['expired_at']) ? \Carbon\Carbon::parse($log->data['expired_at'])->format('d/m/Y H:i') : '-' }}
                     </td>
                 </tr>
@@ -156,7 +154,8 @@
     </div>
 
     <div class="footer">
-        Dokumen ini dihasilkan secara otomatis oleh sistem pada {{ now()->format('d/m/Y H:i:s') }}
+        Dokumen ini dihasilkan secara otomatis oleh sistem pada {{ now()->format('d/m/Y H:i:s') }} - Powered: PT.
+        Baraya Bareng Sadulur
     </div>
 </body>
 

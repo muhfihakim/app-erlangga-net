@@ -22,7 +22,13 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-sm-6">
-                        <h3 class="mb-0">Pemeliharaan (Maintenance)</h3>
+                        <h3 class="mb-0">Pemeliharaan</h3>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-end">
+                            <li class="breadcrumb-item"><a href="#">Home</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Pemeliharaan</li>
+                        </ol>
                     </div>
                 </div>
             </div>
@@ -35,22 +41,23 @@
                 {{-- TAMPILAN ADMINISTRATOR --}}
                 <div class="card card-primary">
                     <div class="card-header">
-                        <h3 class="card-title">Data Keseluruhan Maintenance</h3>
+                        <h3 class="card-title">Data Keseluruhan Pemeliharaan</h3>
                     </div>
                     <div class="card-body">
                         <button class="btn btn-success btn-sm mb-3" data-bs-toggle="modal"
                             data-bs-target="#addMaintenanceModal">
-                            <i class="bi bi-plus-square"></i> Tambah Penugasan
+                            <i class="bi bi-plus-square"></i> Tambah Pemeliharaan
                         </button>
                         <a href="{{ route('dashboards.index') }}" class="btn btn-secondary mb-3 btn-sm">← Kembali</a>
-                        <table id="adminTable" class="table table-bordered table-striped">
+                        <table id="adminTable" class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th>No</th>
-                                    <th>Pelanggan</th>
-                                    <th>Teknisi (Delegasi)</th>
-                                    <th>Status</th>
-                                    <th style="text-align: center">Opsi</th>
+                                    <th style="text-align: center; vertical-align: middle">No</th>
+                                    <th style="text-align: center; vertical-align: middle">Pelanggan</th>
+                                    <th style="text-align: center; vertical-align: middle">Status</th>
+                                    <th style="text-align: center; vertical-align: middle">Teknisi</th>
+                                    <th style="text-align: center; vertical-align: middle">Waktu Selesai</th>
+                                    <th style="text-align: center; vertical-align: middle">Opsi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -61,32 +68,50 @@
                                             : null;
                                         $isLocked =
                                             $m->status === 'Pending' && $deadline && now()->greaterThan($deadline);
+
+                                        // Cek apakah pelanggan sudah di-softdelete
+                                        $isTrashed = $m->customer && $m->customer->trashed();
                                     @endphp
                                     <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $m->customer->nama_lengkap }} / {{ $m->customer->pppoe_username }}</td>
-                                        <td>{{ $m->teknisiDelegasi->nama_lengkap ?? 'Tugas Umum' }}
-                                            @if ($m->customer->partner)
-                                                <br><small class="text-muted">Partner:
-                                                    {{ $m->customer->partner }}</small>
-                                            @endif
+                                        <td style="text-align: center; vertical-align: middle">{{ $loop->iteration }}
                                         </td>
-                                        <td>
+                                        <td style="vertical-align: middle">
+                                            <strong>{{ $m->customer->nama_lengkap ?? 'N/A' }}</strong>
+                                            @if ($isTrashed)
+                                                <span class="badge bg-secondary ms-1">Non-Aktif</span>
+                                            @endif
+                                            <br>
+                                            <small class="text-muted">ID: {{ $m->customer->id_pelanggan ?? '-' }} -
+                                                PPPOE:
+                                                {{ $m->customer->pppoe_username ?? '-' }}</small>
+                                        </td>
+                                        <td style="text-align: center; vertical-align: middle">
                                             <span
                                                 class="badge {{ $m->status === 'Selesai' ? 'bg-success' : ($isLocked ? 'bg-danger' : 'bg-warning') }}">
                                                 {{ $m->status === 'Selesai' ? 'SELESAI' : ($isLocked ? 'LOCKED' : 'PENDING') }}
                                             </span>
                                         </td>
-                                        <td style="text-align: center">
-                                            {{-- Detail Tugas (Admin) --}}
+                                        <td style="text-align: center; vertical-align: middle">
+                                            {{ $m->teknisiDelegasi->nama_lengkap ?? 'Tugas Umum' }} -
+                                            {{ $m->teknisiEksekutor->nama_lengkap ?? 'N/A' }}
+                                            @if ($m->customer && $m->customer->partner)
+                                                <br><small class="text-muted">Partner:
+                                                    {{ $m->customer->partner }}</small>
+                                            @endif
+                                        </td>
+                                        <td style="text-align: center; vertical-align: middle">
+                                            {{ \Carbon\Carbon::parse($m->completed_at)->format('d-m-Y H:i') }}
+                                        </td>
+                                        <td style="text-align: center; vertical-align: middle">
+                                            {{-- Detail Tugas --}}
                                             <button type="button" class="btn btn-secondary btn-sm"
                                                 data-bs-toggle="modal" data-bs-target="#detailMaintenanceModal"
-                                                data-nama="{{ $m->customer->nama_lengkap }}"
-                                                data-id-pel="{{ $m->customer->id_pelanggan }}"
-                                                data-pppoe="{{ $m->customer->pppoe_username }}"
-                                                data-wa="{{ $m->customer->no_whatsapp }}"
+                                                data-nama="{{ $m->customer->nama_lengkap ?? 'N/A' }}"
+                                                data-id-pel="{{ $m->customer->id_pelanggan ?? '-' }}"
+                                                data-pppoe="{{ $m->customer->pppoe_username ?? '-' }}"
+                                                data-wa="{{ $m->customer->no_whatsapp ?? '-' }}"
                                                 data-tikor="{{ $m->customer->preOrder->titik_koordinat ?? 'N/A' }}"
-                                                data-alamat="{{ $m->customer->alamat_lengkap }}"
+                                                data-alamat="{{ $m->customer->alamat_lengkap ?? '-' }}"
                                                 data-kendala="{{ $m->keterangan_kendala }}"
                                                 data-foto="{{ $m->foto_kendala_awal ? asset('storage/' . $m->foto_kendala_awal) : '' }}">
                                                 <i class="bi bi-person-lines-fill"></i>
@@ -96,9 +121,9 @@
                                                 {{-- Tombol Lihat Hasil Pengerjaan --}}
                                                 <button type="button" class="btn btn-success btn-sm"
                                                     data-bs-toggle="modal" data-bs-target="#resultMaintenanceModal"
-                                                    data-nama="{{ $m->customer->nama_lengkap }}"
+                                                    data-nama="{{ $m->customer->nama_lengkap ?? 'N/A' }}"
                                                     data-eksekutor="{{ $m->teknisiEksekutor->nama_lengkap ?? 'N/A' }}"
-                                                    data-partner="{{ $m->partner ?: '-' }}"
+                                                    data-partner="{{ $m->customer->partner ?: '-' }}"
                                                     data-solusi="{{ $m->solusi_kendala }}"
                                                     data-waktu="{{ \Carbon\Carbon::parse($m->completed_at)->format('d-m-Y H:i') }}"
                                                     data-foto-before="{{ asset('storage/' . $m->foto_sebelum_perbaikan) }}"
@@ -111,14 +136,14 @@
                                                 <button class="btn {{ $isLocked ? 'btn-danger' : 'btn-info' }} btn-sm"
                                                     data-bs-toggle="modal" data-bs-target="#reassignModal"
                                                     data-id="{{ $m->id }}"
-                                                    data-nama="{{ $m->customer->nama_lengkap }}">
+                                                    data-nama="{{ $m->customer->nama_lengkap ?? 'N/A' }}">
                                                     <i
                                                         class="bi {{ $isLocked ? 'bi-x-circle' : 'bi-person-badge' }}"></i>
+                                                    Tugas
                                                 </button>
                                             @endif
-
                                             <button type="button" class="btn btn-danger btn-sm"
-                                                onclick="confirmDelete({{ $m->id }}, '{{ $m->customer->nama_lengkap }}')">
+                                                onclick="confirmDelete({{ $m->id }}, '{{ $m->customer->nama_lengkap ?? 'N/A' }}')">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                             <form id="delete-form-{{ $m->id }}"
@@ -231,8 +256,8 @@
         <div class="modal fade" id="detailMaintenanceModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-md">
                 <div class="modal-content">
-                    <div class="modal-header bg-secondary text-white">
-                        <h5 class="modal-title"><i class="bi bi-info-circle"></i> Detail Pemeliharaan</h5>
+                    <div class="modal-header">
+                        <h5 class="modal-title">Detail Pemeliharaan</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                             aria-label="Close"></button>
                     </div>
@@ -273,11 +298,6 @@
                                 <td>: <span id="det_alamat"></span></td>
                             </tr>
                             <tr>
-                                <td colspan="2">
-                                    <hr class="my-1">
-                                </td>
-                            </tr>
-                            <tr>
                                 <th>Keterangan Kendala</th>
                                 <td>: <span id="det_kendala"></span></td>
                             </tr>
@@ -299,12 +319,15 @@
                 <form id="reassignForm" method="POST">
                     @csrf
                     <div class="modal-content">
-                        <div class="modal-header bg-danger text-white">
-                            <h5>Tugaskan Ulang: <span id="re_nama"></span></h5>
+                        <div class="modal-header">
+                            <h5 class="modal-title">Tugaskan Ulang: <span id="re_nama"></span></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <label>Pilih Teknisi</label>
                             <select name="id_teknisi_delegasi" class="form-control" required>
+                                <option value="">-- Pilih Teknisi --</option>
                                 @foreach ($teknisis as $t)
                                     <option value="{{ $t->id }}">{{ $t->nama_lengkap }}</option>
                                 @endforeach
@@ -313,7 +336,7 @@
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary btn-sm"
                                 data-bs-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-danger btn-sm">Tugaskan & Unlock</button>
+                            <button type="submit" class="btn btn-primary btn-sm">Tugaskan</button>
                         </div>
                     </div>
                 </form>
@@ -323,8 +346,8 @@
         <div class="modal fade" id="resultMaintenanceModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
-                    <div class="modal-header bg-success text-white">
-                        <h5 class="modal-title"><i class="bi bi-check-all"></i> Hasil Pengerjaan Maintenance</h5>
+                    <div class="modal-header">
+                        <h5 class="modal-title">Hasil Pengerjaan Pemeliharaan</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                             aria-label="Close"></button>
                     </div>
@@ -339,7 +362,8 @@
                                     </tr>
                                     <tr>
                                         <th>Teknisi Utama</th>
-                                        <td>: <strong id="res_eksekutor"></strong></td>
+                                        <td>: <span id="res_eksekutor"></sp>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <th>Partner</th>
@@ -351,7 +375,7 @@
                                     </tr>
                                     <tr>
                                         <th>Solusi</th>
-                                        <td>: <p id="res_solusi" class="text-muted small"></p>
+                                        <td>: <span id="res_solusi"></span>
                                         </td>
                                     </tr>
                                 </table>
@@ -383,6 +407,8 @@
                             </div>
                         </div>
                     </div>
+                    <div class="modal-footer"><button type="button" class="btn btn-secondary btn-sm"
+                            data-bs-dismiss="modal">Tutup</button></div>
                 </div>
             </div>
         </div>
@@ -394,7 +420,9 @@
                     @csrf
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5>Buat Tugas Maintenance</h5>
+                            <h5>Buat Tugas Pemeliharaan</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
@@ -417,7 +445,6 @@
                             <div class="mb-3"><label>Alamat</label>
                                 <textarea id="alamat_val" class="form-control" rows="2" readonly></textarea>
                             </div>
-
                             <div class="mb-3">
                                 <label>Tugaskan Ke (Opsional)</label>
                                 <select name="id_teknisi_delegasi" class="form-control">
@@ -429,7 +456,6 @@
                                 <small class="text-muted italic">*Jika kosong, semua teknisi dapat mengerjakan tugas
                                     ini.</small>
                             </div>
-
                             <div class="mb-3">
                                 <label>Keterangan Kendala</label>
                                 <textarea name="keterangan_kendala" class="form-control" required
@@ -441,8 +467,8 @@
                                     accept="image/*">
                             </div>
                         </div>
-                        <div class="modal-footer"><button type="submit" class="btn btn-success">Simpan
-                                Penugasan</button></div>
+                        <div class="modal-footer"><button type="submit"
+                                class="btn btn-primary btn-sm">Simpan</button></div>
                     </div>
                 </form>
             </div>
@@ -496,6 +522,31 @@
                                 Selesai</button></div>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel">Konfirmasi Hapus</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Apakah Anda yakin ingin menghapus pemeliharaan ini?
+                    </div>
+                    <div class="modal-footer">
+                        <form id="deleteForm" method="POST" action="">
+                            @csrf
+                            @method('DELETE')
+                            <button type="button" class="btn btn-secondary btn-sm"
+                                data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
@@ -683,10 +734,19 @@
                     text: "Tugas pemeliharaan " + name + " akan dibatalkan.",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    confirmButtonText: 'Ya, Batalkan!'
+                    confirmButtonText: 'Ya, Batalkan!',
+                    cancelButtonText: 'Batal',
+                    // Menonaktifkan style bawaan SweetAlert agar class Bootstrap bisa bekerja
+                    buttonsStyling: false,
+                    // Menambahkan class Bootstrap btn-sm pada tombol
+                    customClass: {
+                        confirmButton: 'btn btn-danger btn-sm mx-1',
+                        cancelButton: 'btn btn-secondary btn-sm mx-1'
+                    }
                 }).then((result) => {
-                    if (result.isConfirmed) document.getElementById('delete-form-' + id).submit();
+                    if (result.isConfirmed) {
+                        document.getElementById('delete-form-' + id).submit();
+                    }
                 })
             }
         </script>

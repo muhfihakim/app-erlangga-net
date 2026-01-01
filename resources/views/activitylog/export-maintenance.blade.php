@@ -2,53 +2,120 @@
 <html>
 
 <head>
-    <title>Laporan Maintenance</title>
+    <title>Laporan Pemeliharaan</title>
     <style>
         body {
-            font-family: sans-serif;
-            font-size: 11px;
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 12px;
             color: #333;
         }
 
         .header {
             text-align: center;
+            margin-bottom: 30px;
             border-bottom: 2px solid #444;
             padding-bottom: 10px;
+        }
+
+        .header h2 {
+            margin: 0;
+            text-transform: uppercase;
+            color: #2c3e50;
+        }
+
+        .header p {
+            margin: 5px 0;
+            color: #7f8c8d;
+        }
+
+        .info-table {
+            width: 100%;
             margin-bottom: 20px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .info-table td {
+            padding: 3px 0;
         }
 
-        th,
-        td {
-            border: 1px solid #ccc;
-            padding: 6px;
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .table th,
+        .table td {
+            border: 1px solid #bdc3c7;
+            padding: 8px;
             text-align: left;
         }
 
-        th {
-            background-color: #f2f2f2;
+        .table th {
+            background-color: #ecf0f1;
+            color: #2c3e50;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
         }
 
         .summary {
-            margin-top: 15px;
-            font-weight: bold;
-            background: #e8f5e9;
+            margin-top: 20px;
             padding: 10px;
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            font-weight: bold;
             display: inline-block;
+        }
+
+        .footer {
+            margin-top: 50px;
+            text-align: right;
+            font-style: italic;
+            font-size: 10px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .fw-bold {
+            font-weight: bold;
         }
     </style>
 </head>
 
 <body>
     <div class="header">
-        <h2>LAPORAN PENGERJAAN MAINTENANCE</h2>
-        <p>Periode: {{ $start }} s/d {{ $end }} | Teknisi: {{ $teknisi->nama_lengkap ?? 'Semua' }}</p>
+        <h2>Laporan Aktivasi Pelanggan</h2>
+        <p>ERLANGGA NETWORK | www.erlangga.net</p>
+        <p>office@erlangga.net</p>
+        <p>0851 1742 4407</p>
     </div>
-    <table>
+
+    <table class="info-table">
+        <tr>
+            <td width="15%">Periode Laporan</td>
+            <td width="2%">:</td>
+            <td>{{ \Carbon\Carbon::parse($start)->format('d F Y') }} s/d
+                {{ \Carbon\Carbon::parse($end)->format('d F Y') }}</td>
+        </tr>
+        <tr>
+            <td>Nama Teknisi</td>
+            <td>:</td>
+            <td>{{ $teknisi ? $teknisi->nama_lengkap : 'Semua Teknisi' }}</td>
+        </tr>
+        <tr>
+            <td>Tanggal Cetak</td>
+            <td>:</td>
+            <td>{{ now()->format('d/m/Y H:i') }}</td>
+        </tr>
+    </table>
+
+    <table class="table">
         <thead>
             <tr>
                 <th>No</th>
@@ -62,8 +129,9 @@
         <tbody>
             @foreach ($maintenances as $m)
                 <tr>
-                    <td>{{ $loop->iteration }}</td>
-                    <td>{{ $m->completed_at->format('d/m/Y H:i') }}</td>
+                    <td style="text-align: center; vertical-align: middle">{{ $loop->iteration }}</td>
+                    <td style="text-align: center; vertical-align: middle">{{ $m->completed_at->format('d/m/Y H:i') }}
+                    </td>
                     <td>{{ $m->customer->nama_lengkap }}</td>
                     <td>{{ $m->teknisiEksekutor->nama_lengkap }}</td>
                     <td>{{ $m->partner ?: '-' }}</td>
@@ -72,7 +140,14 @@
             @endforeach
         </tbody>
     </table>
-    <div class="summary">Total Pengerjaan Selesai: {{ $total }} Data</div>
+
+    <div class="summary">
+        Total Pemeliharaan: {{ $total }} Data
+    </div>
+
+    <div class="footer">
+        Dicetak otomatis oleh Sistem pada {{ now()->format('d/m/Y H:i:s') }} - Powered: PT. Baraya Bareng Sadulur
+    </div>
 </body>
 
 </html>

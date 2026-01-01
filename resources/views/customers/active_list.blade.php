@@ -33,7 +33,6 @@
                 </div>
                 <div class="card-body">
                     <a href="{{ route('dashboards.index') }}" class="btn btn-secondary mb-3 btn-sm">← Kembali</a>
-
                     <table id="example1" class="table table-bordered">
                         <thead>
                             <tr>
@@ -49,21 +48,29 @@
                         </thead>
                         <tbody>
                             @foreach ($customers as $customer)
-                                <tr>
+                                <tr class="{{ $customer->trashed() ?: '' }}">
                                     <td style="text-align: center; vertical-align: middle">{{ $loop->iteration }}</td>
                                     <td style="text-align: center; vertical-align: middle">{{ $customer->id_pelanggan }}
                                     </td>
-                                    <td>{{ $customer->nama_lengkap }}</td>
-                                    <td>{{ $customer->paket_internet }}</td>
-                                    <td style="text-align: center">
+                                    <td style="vertical-align: middle">
+                                        <strong>{{ $customer->nama_lengkap }}</strong>
+                                        @if ($customer->trashed())
+                                            <span class="badge bg-secondary ms-1">Non-Aktif</span>
+                                        @endif
+                                        <br>
+                                        <small class="text-muted">PPPOE:
+                                            {{ $customer->pppoe_username ?? '-' }}</small>
+                                    </td>
+                                    <td style="text-align: center; vertical-align: middle">
+                                        {{ $customer->paket_internet }}</td>
+                                    <td style="text-align: center; vertical-align: middle">
                                         <a href="https://wa.me/{{ $customer->no_whatsapp }}" target="_blank"
                                             class="btn btn-success btn-sm">
                                             <i class="bi bi-whatsapp"></i> {{ $customer->no_whatsapp }}
                                         </a>
                                     </td>
-                                    {{-- <td>{{ App\Models\User::find($customer->id_teknisi)->nama_lengkap ?? 'N/A' }}</td> --}}
-                                    <td style="vertical-align: middle">
-                                        <strong>{{ App\Models\User::find($customer->id_teknisi)->nama_lengkap ?? 'N/A' }}</strong>
+                                    <td style="text-align: center; vertical-align: middle">
+                                        <strong>{{ $customer->teknisiUtama->nama_lengkap ?? 'N/A' }}</strong>
                                         @if ($customer->partner)
                                             <br><small class="text-muted">Partner: {{ $customer->partner }}</small>
                                         @endif
@@ -72,7 +79,7 @@
                                         {{ \Carbon\Carbon::parse($customer->created_at)->format('d-m-Y') }}</td>
                                     <td style="text-align: center; vertical-align: middle">
                                         <button type="button" class="btn btn-sm btn-info detail-po-btn"
-                                            data-bs-toggle="modal" data-bs-target="#poDetailModal" {{-- Data Pelanggan Aktif --}}
+                                            data-bs-toggle="modal" data-bs-target="#poDetailModal"
                                             data-customer-id="{{ $customer->id_pelanggan }}"
                                             data-pppoe-user="{{ $customer->pppoe_username }}"
                                             data-pppoe-pass="{{ $customer->pppoe_password }}"
@@ -80,21 +87,41 @@
                                             data-sn-perangkat="{{ $customer->sn_perangkat }}"
                                             data-pembayaran="{{ $customer->pembayaran }}"
                                             data-tgl-aktivasi="{{ \Carbon\Carbon::parse($customer->created_at)->format('d-m-Y') }}"
-                                            {{-- Data Pre-Order (Ambil dari Relasi) --}} {{-- PASTIKAN $customer->preOrder ADA (load relasi di controller!) --}}
                                             data-po-paket="{{ $customer->paket_internet }}"
-                                            data-po-sales="{{ App\Models\User::find($customer->id_sales)->nama_lengkap ?? 'N/A' }}"
+                                            data-po-sales="{{ $customer->sales->nama_lengkap ?? 'N/A' }}"
                                             data-po-nik="{{ $customer->preOrder->no_identitas ?? 'N/A' }}"
                                             data-po-email="{{ $customer->preOrder->alamat_email ?? 'N/A' }}"
                                             data-po-alamat="{{ $customer->alamat_lengkap }}"
                                             data-po-wa="{{ $customer->no_whatsapp }}"
                                             data-po-tgl-po="{{ \Carbon\Carbon::parse($customer->preOrder->created_at ?? $customer->created_at)->format('d-m-Y') }}"
                                             data-po-tikor="{{ $customer->preOrder->titik_koordinat ?? 'N/A' }}"
-                                            {{-- Foto --}}
                                             data-foto-petugas="{{ asset('storage/' . $customer->foto_petugas) }}"
                                             data-foto-terpasang="{{ asset('storage/' . $customer->foto_terpasang) }}"
                                             data-foto-speedtest="{{ asset('storage/' . $customer->foto_speedtest) }}">
-                                            <i class="bi bi-search"></i> Detail
+                                            <i class="bi bi-search"></i>
                                         </button>
+
+                                        @if (auth()->user()->jabatan === 'Administrator')
+                                            @if ($customer->trashed())
+                                                {{-- Tombol Aktifkan Kembali --}}
+                                                <button class="btn btn-success btn-sm"
+                                                    onclick="confirmRestore({{ $customer->id }}, '{{ $customer->nama_lengkap }}')">
+                                                    <i class="bi bi-arrow-counterclockwise"></i> Aktifkan
+                                                </button>
+                                                <form id="restore-form-{{ $customer->id }}"
+                                                    action="{{ route('customers.restore', $customer->id) }}"
+                                                    method="POST" style="display: none;">@csrf</form>
+                                            @else
+                                                {{-- Tombol Nonaktifkan (Destroy) --}}
+                                                <button class="btn btn-danger btn-sm"
+                                                    onclick="confirmDelete({{ $customer->id }}, '{{ $customer->nama_lengkap }}')">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                                <form id="delete-form-{{ $customer->id }}"
+                                                    action="{{ route('customers.destroy', $customer->id) }}"
+                                                    method="POST" style="display: none;">@csrf @method('DELETE')</form>
+                                            @endif
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
@@ -231,6 +258,8 @@
         <script src="{{ asset('dist/js/dataTables.responsive.min.js') }}"></script>
         <script src="{{ asset('dist/js/responsive.bootstrap4.min.js') }}"></script>
         <script src="{{ asset('dist/js/dataTables.buttons.min.js') }}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
         <script>
             $(function() {
                 $("#example1").DataTable({
@@ -323,6 +352,33 @@
                     });
                 }
             });
+        </script>
+        <script>
+            function confirmDelete(id, name) {
+                Swal.fire({
+                    title: 'Nonaktifkan?',
+                    text: "Pelanggan " + name + " akan dipindahkan ke daftar Non-Aktif.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Ya, Nonaktifkan'
+                }).then((r) => {
+                    if (r.isConfirmed) document.getElementById('delete-form-' + id).submit();
+                });
+            }
+
+            function confirmRestore(id, name) {
+                Swal.fire({
+                    title: 'Aktifkan Kembali?',
+                    text: "Pelanggan " + name + " akan berlangganan kembali.",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#28a745',
+                    confirmButtonText: 'Ya, Aktifkan'
+                }).then((r) => {
+                    if (r.isConfirmed) document.getElementById('restore-form-' + id).submit();
+                });
+            }
         </script>
     @endsection
 </x-layouts.app>

@@ -260,28 +260,26 @@
 <div class="modal fade" id="delegateModal" tabindex="-1" aria-labelledby="delegateModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title" id="delegateModalLabel">Delegasi Tugas PO</h5>
+            <div class="modal-header">
+                <h5 class="modal-title" id="delegateModalLabel">Delegasi Tugas PO: <span
+                        id="delegate_po_name"></span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="delegateForm" method="POST" action="">
                 @csrf
                 <div class="modal-body">
-                    <p>Anda akan mendelegasikan tugas untuk pelanggan: <strong id="delegate_po_name"></strong></p>
-                    <div class="mb-3">
-                        <label for="teknisi_pilihan" class="form-label">Pilih Teknisi Tujuan</label>
-                        <select class="form-control" id="teknisi_pilihan" name="id_teknisi" required>
-                            <option value="">-- Pilih Teknisi --</option>
-                            {{-- Data teknisi diisi dari Controller --}}
-                            @foreach ($teknisiUsers as $teknisi)
-                                <option value="{{ $teknisi->id }}">{{ $teknisi->nama_lengkap }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                    <label for="teknisi_pilihan" class="form-label">Pilih Teknisi</label>
+                    <select class="form-control" id="teknisi_pilihan" name="id_teknisi" required>
+                        <option value="">-- Pilih Teknisi --</option>
+                        {{-- Data teknisi diisi dari Controller --}}
+                        @foreach ($teknisiUsers as $teknisi)
+                            <option value="{{ $teknisi->id }}">{{ $teknisi->nama_lengkap }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary btn-sm">Delegasikan Tugas</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Tugaskan</button>
                 </div>
             </form>
         </div>

@@ -6,13 +6,13 @@
     <style>
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
-            font-size: 11px;
+            font-size: 12px;
             color: #333;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
             border-bottom: 2px solid #444;
             padding-bottom: 10px;
         }
@@ -51,36 +51,39 @@
         }
 
         .table th {
-            background-color: #f8f9fa;
+            background-color: #ecf0f1;
             color: #2c3e50;
             font-weight: bold;
             text-align: center;
         }
 
         .table tr:nth-child(even) {
-            background-color: #fcfcfc;
+            background-color: #f9f9f9;
         }
 
         .summary {
             margin-top: 20px;
             padding: 10px;
-            background-color: #e3f2fd;
-            border: 1px solid #bbdefb;
-            color: #0d47a1;
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
             font-weight: bold;
             display: inline-block;
         }
 
         .footer {
-            margin-top: 40px;
+            margin-top: 50px;
             text-align: right;
             font-style: italic;
-            font-size: 9px;
-            color: #95a5a6;
+            font-size: 10px;
         }
 
         .text-center {
             text-align: center;
+        }
+
+        .fw-bold {
+            font-weight: bold;
         }
     </style>
 </head>
@@ -88,25 +91,27 @@
 <body>
     <div class="header">
         <h2>Laporan Pencabutan Perangkat (Dismantle)</h2>
-        <p>Sistem Operasional Jaringan - Erlangga Net</p>
+        <p>ERLANGGA NETWORK | www.erlangga.net</p>
+        <p>office@erlangga.net</p>
+        <p>0851 1742 4407</p>
     </div>
 
     <table class="info-table">
         <tr>
-            <td width="20%">Periode Laporan</td>
+            <td width="15%">Periode Laporan</td>
             <td width="2%">:</td>
             <td>{{ \Carbon\Carbon::parse($start)->format('d F Y') }} s/d
                 {{ \Carbon\Carbon::parse($end)->format('d F Y') }}</td>
         </tr>
         <tr>
-            <td>Filter Teknisi</td>
+            <td>Nama Teknisi</td>
             <td>:</td>
             <td>{{ $teknisi ? $teknisi->nama_lengkap : 'Semua Teknisi' }}</td>
         </tr>
         <tr>
-            <td>Waktu Cetak</td>
+            <td>Tanggal Cetak</td>
             <td>:</td>
-            <td>{{ now()->format('d/m/Y H:i') }} WIB</td>
+            <td>{{ now()->format('d/m/Y H:i') }}</td>
         </tr>
     </table>
 
@@ -124,8 +129,9 @@
         <tbody>
             @forelse ($dismantles as $d)
                 <tr>
-                    <td class="text-center">{{ $loop->iteration }}</td>
-                    <td class="text-center">{{ $d->completed_at->format('d/m/Y H:i') }}</td>
+                    <td style="text-align: center; vertical-align: middle">{{ $loop->iteration }}</td>
+                    <td style="text-align: center; vertical-align: middle">{{ $d->completed_at->format('d/m/Y H:i') }}
+                    </td>
                     <td>{{ $d->customer->nama_lengkap ?? 'Data Terhapus' }}</td>
                     <td class="text-center">{{ $d->customer->id_pelanggan ?? '-' }}</td>
                     <td>{{ $d->teknisiEksekutor->nama_lengkap ?? 'N/A' }}</td>
@@ -144,7 +150,8 @@
     </div>
 
     <div class="footer">
-        Dokumen ini dihasilkan secara otomatis oleh sistem pada {{ now()->format('d/m/Y H:i:s') }}
+        Dokumen ini dihasilkan secara otomatis oleh sistem pada {{ now()->format('d/m/Y H:i:s') }} - Powered: PT.
+        Baraya Bareng Sadulur
     </div>
 </body>
 

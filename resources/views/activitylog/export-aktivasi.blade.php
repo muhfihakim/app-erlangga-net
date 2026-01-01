@@ -91,7 +91,9 @@
 <body>
     <div class="header">
         <h2>Laporan Aktivasi Pelanggan</h2>
-        <p>Sistem Manajemen Aktivasi Internet</p>
+        <p>ERLANGGA NETWORK | www.erlangga.net</p>
+        <p>office@erlangga.net</p>
+        <p>0851 1742 4407</p>
     </div>
 
     <table class="info-table">
@@ -128,13 +130,14 @@
         <tbody>
             @foreach ($customers as $c)
                 <tr>
-                    <td class="text-center">{{ $loop->iteration }}</td>
-                    <td class="text-center">{{ $c->created_at->format('d/m/Y H:i') }}</td>
+                    <td style="text-align: center; vertical-align: middle">{{ $loop->iteration }}</td>
+                    <td style="text-align: center; vertical-align: middle">{{ $c->created_at->format('d/m/Y H:i') }}
+                    </td>
                     <td>{{ $c->nama_lengkap }}</td>
                     <td>{{ $c->paket_internet }}</td>
-                    <td class="fw-bold">{{ $c->teknisiUtama->nama_lengkap ?? 'N/A' }}</td>
+                    <td>{{ $c->teknisiUtama->nama_lengkap ?? 'N/A' }}</td>
                     <td>{{ $c->partner ?: '-' }}</td>
-                    <td class="text-center">{{ $c->id_pelanggan }}</td>
+                    <td style="text-align: center; vertical-align: middle">{{ $c->id_pelanggan }}</td>
                 </tr>
             @endforeach
         </tbody>
@@ -145,7 +148,7 @@
     </div>
 
     <div class="footer">
-        Dicetak otomatis oleh Sistem pada {{ now()->format('d/m/Y H:i:s') }}
+        Dicetak otomatis oleh Sistem pada {{ now()->format('d/m/Y H:i:s') }} - Powered: PT. Baraya Bareng Sadulur
     </div>
 </body>
 

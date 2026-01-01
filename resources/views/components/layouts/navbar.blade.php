@@ -9,8 +9,8 @@
                     <i class="bi bi-list"></i>
                 </a>
             </li>
-            <li class="nav-item d-none d-md-block"><a href="#" class="nav-link">PT. Baraya Bareng Sadulur | BBS
-                    Network</a>
+            <li class="nav-item d-none d-md-block"><a href="#" class="nav-link">PT. Baraya Bareng Sadulur |
+                    Erlangga Network</a>
             </li>
         </ul>
         <!--end::Start Navbar Links-->

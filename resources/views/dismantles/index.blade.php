@@ -9,60 +9,71 @@
             }
         </style>
     @endsection
-
     <main class="app-main">
         <div class="app-content-header">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-sm-6">
-                        <h3>Pencabutan Perangkat (Dismantle)</h3>
+                        <h3 class="mb-0">Dismantle</h3>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-end">
+                            <li class="breadcrumb-item"><a href="#">Home</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Dismantle</li>
+                        </ol>
                     </div>
                 </div>
             </div>
         </div>
-
         <div class="app-content">
             <div class="card card-primary">
                 <div class="card-header">
-                    @if (auth()->user()->jabatan === 'Administrator')
-                        <button class="btn btn-success btn-sm" data-bs-toggle="modal"
-                            data-bs-target="#addDismantleModal"><i class="bi bi-plus-square"></i> Tambah
-                            Dismantle</button>
-                    @endif
+                    <h3 class="card-title">Data Keseluruhan Dismantle</h3>
                 </div>
                 <div class="card-body">
-                    <table id="dismantleTable" class="table table-bordered table-striped">
+                    @if (auth()->user()->jabatan === 'Administrator')
+                        <button class="btn btn-success btn-sm mb-3" data-bs-toggle="modal"
+                            data-bs-target="#addDismantleModal">
+                            <i class="bi bi-plus-square"></i> Tambah Dismantle</button>
+                    @endif
+                    <a href="{{ route('dashboards.index') }}" class="btn btn-secondary mb-3 btn-sm">← Kembali</a>
+                    <table id="dismantleTable" class="table table-bordered table-hover">
                         <thead>
                             <tr>
-                                <th style="text-align: center">No</th>
-                                <th>Pelanggan</th>
-                                <th>Status</th>
-                                <th>Teknisi</th>
-                                <th>Waktu Selesai</th>
-                                <th style="text-align: center">Opsi</th>
+                                <th style="text-align: center; vertical-align: middle">No</th>
+                                <th style="text-align: center; vertical-align: middle">Pelanggan</th>
+                                <th style="text-align: center; vertical-align: middle">Status</th>
+                                <th style="text-align: center; vertical-align: middle">Teknisi</th>
+                                <th style="text-align: center; vertical-align: middle">Waktu Selesai</th>
+                                <th style="text-align: center; vertical-align: middle">Opsi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($dismantles as $d)
                                 <tr>
-                                    <td style="text-align: center">{{ $loop->iteration }}</td>
-                                    <td>
+                                    <td style="text-align: center; vertical-align: middle">
+                                        {{ $loop->iteration }}</td>
+                                    <td style="vertical-align: middle">
                                         <strong>{{ $d->customer->nama_lengkap }}</strong>
                                         @if ($d->customer->trashed())
                                             <span class="badge bg-secondary">Non-Aktif</span>
                                         @endif
                                         <br>
-                                        <small class="text-muted">{{ $d->customer->id_pelanggan }}</small>
+                                        <small class="text-muted">ID: {{ $d->customer->id_pelanggan }} -
+                                            PPPOE: {{ $d->customer->pppoe_username }} </small>
                                     </td>
-                                    <td>
+                                    <td style="text-align: center; vertical-align: middle">
                                         <span class="badge {{ $d->status == 'Selesai' ? 'bg-success' : 'bg-warning' }}">
                                             {{ $d->status }}
                                         </span>
                                     </td>
-                                    <td>{{ $d->teknisiEksekutor->nama_lengkap ?? ($d->teknisiDelegasi->nama_lengkap ?? 'Tugas Umum') }}
+                                    <td style="text-align: center; vertical-align: middle">
+                                        {{ $d->teknisiEksekutor->nama_lengkap ?? ($d->teknisiDelegasi->nama_lengkap ?? 'Tugas Umum') }}
                                     </td>
-                                    <td>{{ $d->completed_at ? $d->completed_at->format('d/m/Y H:i') : '-' }}</td>
-                                    <td style="text-align: center">
+                                    <td style="text-align: center; vertical-align: middle">
+                                        {{ $d->completed_at ? $d->completed_at->format('d/m/Y H:i') : '-' }}
+                                    </td>
+                                    <td style="text-align: center; vertical-align: middle">
                                         {{-- Tombol Detail --}}
                                         <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal"
                                             data-bs-target="#detailDismantleModal"
@@ -103,7 +114,8 @@
                                                     </button>
                                                     <form id="del-cust-{{ $d->customer_id }}"
                                                         action="{{ route('dismantles.deleteCustomer', $d->customer_id) }}"
-                                                        method="POST" style="display: none;">@csrf @method('DELETE')
+                                                        method="POST" style="display: none;">@csrf
+                                                        @method('DELETE')
                                                     </form>
                                                 @endif
                                             @elseif ($d->status === 'Pending')
@@ -113,7 +125,8 @@
                                                 </button>
                                                 <form id="cancel-task-{{ $d->id }}"
                                                     action="{{ route('dismantles.destroy', $d->id) }}" method="POST"
-                                                    style="display: none;">@csrf @method('DELETE')</form>
+                                                    style="display: none;">@csrf
+                                                    @method('DELETE')</form>
                                             @endif
                                         @endif
                                     </td>
@@ -125,12 +138,14 @@
             </div>
         </div>
 
+
         <!-- MODAL DETAIL DISMANTLE -->
         <div class="modal fade" id="detailDismantleModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-md">
                 <div class="modal-content">
-                    <div class="modal-header bg-secondary text-white">
-                        <h5 class="modal-title"><i class="bi bi-info-circle"></i> Info Lengkap Pelanggan</h5>
+                    <div class="modal-header">
+                        <h5 class="modal-title"> Info Lengkap Pelanggan
+                        </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -151,12 +166,14 @@
                                 <th>WhatsApp</th>
                                 <td>: <a href="#" id="det_wa_link" target="_blank"
                                         class="btn btn-xs btn-success text-white"><i class="bi bi-whatsapp"></i> <span
-                                            id="det_wa"></span></a></td>
+                                            id="det_wa"></span></a>
+                                </td>
                             </tr>
                             <tr>
                                 <th>Lokasi</th>
                                 <td>: <a href="#" id="det_tikor_link" target="_blank"
-                                        class="btn btn-xs btn-primary text-white"><i class="bi bi-geo-alt"></i> Maps</a>
+                                        class="btn btn-xs btn-primary text-white"><i class="bi bi-geo-alt"></i>
+                                        Maps</a>
                                 </td>
                             </tr>
                             <tr>
@@ -168,17 +185,13 @@
                                 <td>: <span id="det_alamat"></span></td>
                             </tr>
                             <tr>
-                                <td colspan="2">
-                                    <hr class="my-1">
-                                </td>
-                            </tr>
-                            <tr>
                                 <th>Ket. Admin</th>
                                 <td>: <span id="det_keterangan"></span></td>
                             </tr>
                         </table>
                         <div id="det_foto_container" class="mt-2 text-center" style="display: none;">
-                            <label class="d-block text-start small fw-bold">Bukti Perangkat Dicabut:</label>
+                            <label class="d-block text-start fw-bold">Bukti Perangkat
+                                Dicabut:</label>
                             <a href="#" id="det_foto_link" target="_blank">
                                 <img src="" id="det_foto" class="img-fluid rounded border shadow-sm"
                                     style="max-height: 200px;">
@@ -228,14 +241,17 @@
                             <div class="mb-2">
                                 <label>Tugaskan Ke (Opsional)</label>
                                 <select name="id_teknisi_delegasi" class="form-control">
-                                    <option value="">-- Tugas Umum (Bisa diambil siapa saja) --</option>
+                                    <option value="">-- Tugas Umum (Bisa diambil siapa saja) --
+                                    </option>
                                     @foreach ($teknisis as $t)
-                                        <option value="{{ $t->id }}">{{ $t->nama_lengkap }}</option>
+                                        <option value="{{ $t->id }}">{{ $t->nama_lengkap }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
-                        <div class="modal-footer"><button type="submit" class="btn btn-success">Kirim Tugas</button>
+                        <div class="modal-footer"><button type="submit" class="btn btn-success">Kirim
+                                Tugas</button>
                         </div>
                     </div>
                 </form>
@@ -252,7 +268,8 @@
                             <h5>Konfirmasi Pencabutan: <span id="n_pel"></span></h5>
                         </div>
                         <div class="modal-body">
-                            <p class="small text-muted">Pastikan semua perangkat (ONT/Router) sudah diambil kembali.
+                            <p class="small text-muted">Pastikan semua perangkat (ONT/Router) sudah diambil
+                                kembali.
                             </p>
                             <label>Foto Bukti Perangkat Dicabut</label>
                             <input type="file" name="foto_pencabutan" class="form-control" required

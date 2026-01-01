@@ -58,7 +58,7 @@
         <div class="form-container sign-in">
             <form method="POST" action="{{ route('login') }}">
                 @csrf
-                <h1>BBS NET</h1>
+                <h1>ERLANGGA NET</h1>
                 <p>Manage Your Internet Service Provider</p>
                 <span></span>
                 <input type="email" placeholder="Masukkan Email Anda" name="email" autocomplete="off" required>

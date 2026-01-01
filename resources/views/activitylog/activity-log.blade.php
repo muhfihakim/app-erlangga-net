@@ -32,10 +32,10 @@
                     <h3 class="card-title">Aktivitas Log</h3>
                 </div>
                 <div class="card-body">
-                    <button type="button" class="btn btn-success mb-3 btn-sm" data-bs-toggle="modal"
+                    {{-- <button type="button" class="btn btn-success mb-3 btn-sm" data-bs-toggle="modal"
                         data-bs-target="#exportLogModal">
                         <i class="bi bi-file-earmark-pdf"></i> Export PDF
-                    </button>
+                    </button> --}}
                     <a href="{{ route('dashboards.index') }}" class="btn btn-secondary mb-3 btn-sm">← Kembali</a>
                     <div class="table-responsive">
                         <table id="activity-log-table" class="table table-bordered table-striped">
@@ -96,10 +96,9 @@
         <script>
             $(document).ready(function() {
                 $('#activity-log-table').DataTable({
-                    "pageLength": 20,
-                    "lengthChange": false,
+                    "responsive": true,
                     "ordering": false,
-                    "info": false
+                    "pageLength": 10
                 });
             });
         </script>

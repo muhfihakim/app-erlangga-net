@@ -45,8 +45,12 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('/accounts/{user}/2fa/reset', [AccountController::class, 'reset2FA'])->name('admin.users.2fa.reset');
     Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activitylog.index');
     Route::get('/activity-logs/export', [ActivityLogController::class, 'export'])->name('activitylog.export');
-    Route::get('/laporan/expired', [ActivityLogController::class, 'laporanExpired'])->name('activitylog.expired');
-    Route::get('/laporan/expired/export', [ActivityLogController::class, 'exportExpired'])->name('activitylog.expired.export');
+
+    Route::get('/laporan/preorder', [ActivityLogController::class, 'laporanPreOrder'])->name('activitylog.preorder');
+    Route::get('/laporan/preorder/export', [ActivityLogController::class, 'exportPreOrder'])->name('activitylog.preorder.export');
+
+    Route::get('/laporan/preorder-expired', [ActivityLogController::class, 'laporanExpired'])->name('activitylog.expired');
+    Route::get('/laporan/preorder-expired/export', [ActivityLogController::class, 'exportExpired'])->name('activitylog.expired.export');
 
     Route::get('/laporan/aktivasi', [ActivityLogController::class, 'laporanAktivasi'])->name('activitylog.aktivasi');
     Route::get('/laporan/aktivasi/export', [ActivityLogController::class, 'exportAktivasi'])->name('activitylog.aktivasi.export');
@@ -92,6 +96,8 @@ Route::middleware(['auth.custom'])->group(function () {
 
     // Rute untuk Modul Pelanggan Aktif (Akses untuk Sales & Admin)
     Route::get('customers/active-list', [CustomerController::class, 'activeList'])->name('customers.active_list');
+    Route::post('/customers/{id}/restore', [CustomerController::class, 'restore'])->name('customers.restore');
+
 
     Route::resource('customers', CustomerController::class)->except(['create', 'edit', 'show']);
 });

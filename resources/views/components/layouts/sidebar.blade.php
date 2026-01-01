@@ -69,6 +69,35 @@
                      </li>
                  @endif
                  @if (auth()->check() && auth()->user()->jabatan === 'Administrator')
+                     <li class="nav-header">PERANGKAT</li>
+                     <li class="nav-item">
+                         <a href="#" class="nav-link {{ Request::is('#') ? 'active' : '' }} disabled">
+                             <i class="bi bi-router"></i>
+                             <p>Router <span class="badge badge-info right"> Soon</span></p>
+                             </p>
+                         </a>
+                     </li>
+                     <li class="nav-item">
+                         <a href="#" class="nav-link {{ Request::is('#') ? 'active' : '' }} disabled">
+                             <i class="bi bi-router"></i>
+                             <p>PPPoE <span class="badge badge-info right"> Soon</span></p>
+                             </p>
+                         </a>
+                     </li>
+                     <li class="nav-item">
+                         <a href="#" class="nav-link {{ Request::is('#') ? 'active' : '' }} disabled">
+                             <i class="bi bi-router"></i>
+                             <p>Log <span class="badge badge-info right"> Soon</span></p>
+                             </p>
+                         </a>
+                     </li>
+                     <li class="nav-item">
+                         <a href="#" class="nav-link {{ Request::is('#') ? 'active' : '' }} disabled">
+                             <i class="bi bi-router"></i>
+                             <p>Traffic <span class="badge badge-info right"> Soon</span></p>
+                             </p>
+                         </a>
+                     </li>
                      <li class="nav-header">MANAJEMEN</li>
                      <li class="nav-item">
                          <a href="{{ route('accounts.index') }}"
@@ -116,8 +145,8 @@
                          </a>
                      </li>
                      <li class="nav-item">
-                         <a href="{{ route('activitylog.expired') }}"
-                             class="nav-link {{ Request::is('laporan/expired') ? 'active' : '' }}">
+                         <a href="{{ route('activitylog.preorder') }}"
+                             class="nav-link {{ Request::is('laporan/preorder-expired') ? 'active' : '' }}">
                              <i class="bi bi-person-fill-add"></i>
                              <p>Pre-Order</p>
                          </a>

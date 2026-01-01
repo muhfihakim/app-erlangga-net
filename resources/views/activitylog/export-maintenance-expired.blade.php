@@ -2,25 +2,25 @@
 <html>
 
 <head>
-    <title>Laporan Maintenance Expired</title>
+    <title>Laporan Pemeliharaan Expired</title>
     <style>
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
-            font-size: 11px;
+            font-size: 12px;
             color: #333;
         }
 
         .header {
             text-align: center;
             margin-bottom: 30px;
-            border-bottom: 2px solid #c0392b;
+            border-bottom: 2px solid #444;
             padding-bottom: 10px;
         }
 
         .header h2 {
             margin: 0;
             text-transform: uppercase;
-            color: #c0392b;
+            color: #2c3e50;
         }
 
         .header p {
@@ -51,8 +51,8 @@
         }
 
         .table th {
-            background-color: #fdedec;
-            color: #c0392b;
+            background-color: #ecf0f1;
+            color: #2c3e50;
             font-weight: bold;
             text-align: center;
         }
@@ -64,9 +64,9 @@
         .summary {
             margin-top: 20px;
             padding: 10px;
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
             font-weight: bold;
             display: inline-block;
         }
@@ -90,8 +90,10 @@
 
 <body>
     <div class="header">
-        <h2>Laporan Maintenance Expired (Locked)</h2>
-        <p>Sistem Manajemen Pemeliharaan Jaringan</p>
+        <h2>Laporan Pemeliharaan Expired</h2>
+        <p>ERLANGGA NETWORK | www.erlangga.net</p>
+        <p>office@erlangga.net</p>
+        <p>0851 1742 4407</p>
     </div>
 
     <table class="info-table">
@@ -126,16 +128,21 @@
         <tbody>
             @forelse($logs as $log)
                 @php
-                    // Decode data JSON jika tersimpan sebagai string
+                    // Decode data JSON jika tersimpan sebagai string (Fallback jika casting model belum jalan)
                     $data = is_array($log->data) ? $log->data : json_decode($log->data, true);
                 @endphp
                 <tr>
-                    <td class="text-center">{{ $loop->iteration }}</td>
-                    <td class="text-center">{{ $log->logged_at->format('d/m/Y H:i') }}</td>
-                    <td class="fw-bold">{{ $log->user->nama_lengkap ?? 'N/A' }}</td>
+                    <td style="text-align: center; vertical-align: middle">{{ $loop->iteration }}</td>
+                    <td style="text-align: center; vertical-align: middle">>{{ $log->logged_at->format('d/m/Y H:i') }}
+                    </td>
+                    <td>{{ $log->user->nama_lengkap ?? 'N/A' }}</td>
                     <td>
-                        ID: {{ $data['maintenance_id'] ?? '-' }} <br>
-                        Pelanggan: {{ $data['customer_name'] ?? '-' }}
+                        @if (isset($data['customer_name']))
+                            <span class="fw-bold">ID:</span> {{ $data['maintenance_id'] ?? '-' }} <br>
+                            <span class="fw-bold">Pelanggan:</span> {{ $data['customer_name'] }}
+                        @else
+                            {{ $log->description }}
+                        @endif
                     </td>
                     <td class="text-center">
                         {{ isset($data['delegated_at']) ? \Carbon\Carbon::parse($data['delegated_at'])->format('d/m/Y H:i') : '-' }}
@@ -143,7 +150,8 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" class="text-center">Tidak ada data maintenance expired ditemukan.</td>
+                    <td colspan="5" class="text-center">Tidak ada data maintenance expired ditemukan pada periode
+                        ini.</td>
                 </tr>
             @endforelse
         </tbody>
@@ -154,7 +162,7 @@
     </div>
 
     <div class="footer">
-        Dicetak otomatis oleh Sistem pada {{ now()->format('d/m/Y H:i:s') }}
+        Dicetak otomatis oleh Sistem pada {{ now()->format('d/m/Y H:i:s') }} - Powered: PT. Baraya Bareng Sadulur
     </div>
 </body>
 
