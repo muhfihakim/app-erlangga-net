@@ -25,7 +25,7 @@ class UsersSeeder extends Seeder
 
         // Seeder untuk Sales
         DB::table('users')->insert([
-            'nama_lengkap' => 'Sales Hebat',
+            'nama_lengkap' => 'Sistem',
             'email' => 'sales@mail.id',
             'password' => Hash::make('password123'),
             'jabatan' => 'Sales',
@@ -35,7 +35,7 @@ class UsersSeeder extends Seeder
 
         // Seeder untuk Teknisi
         DB::table('users')->insert([
-            'nama_lengkap' => 'Teknisi Handal',
+            'nama_lengkap' => 'Sistem',
             'email' => 'teknisi@mail.id',
             'password' => Hash::make('password123'),
             'jabatan' => 'Teknisi',
@@ -43,24 +43,24 @@ class UsersSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
-        // Seeder untuk Teknisi
-        DB::table('users')->insert([
-            'nama_lengkap' => 'Teknisi Handal 2',
-            'email' => 'teknisi2@mail.id',
-            'password' => Hash::make('password123'),
-            'jabatan' => 'Teknisi',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // // Seeder untuk Teknisi
+        // DB::table('users')->insert([
+        //     'nama_lengkap' => 'Teknisi Handal 2',
+        //     'email' => 'teknisi2@mail.id',
+        //     'password' => Hash::make('password123'),
+        //     'jabatan' => 'Teknisi',
+        //     'created_at' => now(),
+        //     'updated_at' => now(),
+        // ]);
 
-        // Seeder untuk Teknisi
-        DB::table('users')->insert([
-            'nama_lengkap' => 'Teknisi Handal 3',
-            'email' => 'teknisi3@mail.id',
-            'password' => Hash::make('password123'),
-            'jabatan' => 'Teknisi',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // // Seeder untuk Teknisi
+        // DB::table('users')->insert([
+        //     'nama_lengkap' => 'Teknisi Handal 3',
+        //     'email' => 'teknisi3@mail.id',
+        //     'password' => Hash::make('password123'),
+        //     'jabatan' => 'Teknisi',
+        //     'created_at' => now(),
+        //     'updated_at' => now(),
+        // ]);
     }
 }

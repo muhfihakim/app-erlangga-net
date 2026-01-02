@@ -42,30 +42,31 @@
                     <table id="example1" class="table table-bordered table-striped">
                         <thead>
                             <tr>
-                                <th style="text-align: center">No</th>
-                                <th style="text-align: center">Nama Lengkap</th>
-                                <th style="text-align: center">NIK</th>
-                                <th style="text-align: center">Alamat</th>
-                                <th style="text-align: center">Jenis Kelamin</th>
-                                <th style="text-align: center">Tanggal Lahir</th>
-                                <th style="text-align: center">Email</th>
-                                <th style="text-align: center">Jabatan</th>
-                                <th style="text-align: center">Opsi</th>
+                                <th style="text-align: center; vertical-align: middle">No</th>
+                                <th style="text-align: center; vertical-align: middle">Nama Lengkap</th>
+                                <th style="text-align: center; vertical-align: middle">NIK</th>
+                                <th style="text-align: center; vertical-align: middle">Alamat</th>
+                                <th style="text-align: center; vertical-align: middle">Jenis Kelamin</th>
+                                <th style="text-align: center; vertical-align: middle">Tanggal Lahir</th>
+                                <th style="text-align: center; vertical-align: middle">Email</th>
+                                <th style="text-align: center; vertical-align: middle">Jabatan</th>
+                                <th style="text-align: center; vertical-align: middle">Opsi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($users as $user)
                                 <tr>
                                     <td style="text-align: center; vertical-align: middle">{{ $loop->iteration }}</td>
-                                    <td>{{ $user->nama_lengkap }}</td>
+                                    <td style="text-align: center; vertical-align: middle">{{ $user->nama_lengkap }}
+                                    </td>
                                     <td style="text-align: center; vertical-align: middle">{{ $user->nik }}</td>
-                                    <td>{{ $user->alamat }}</td>
+                                    <td style="text-align: center; vertical-align: middle">{{ $user->alamat }}</td>
                                     <td style="text-align: center; vertical-align: middle">{{ $user->jenis_kelamin }}
                                     </td>
                                     <td style="text-align: center; vertical-align: middle">
                                         {{ \Carbon\Carbon::parse($user->tanggal_lahir)->format('d-m-Y') }}
                                     </td>
-                                    <td>{{ $user->email }}</td>
+                                    <td style="text-align: center; vertical-align: middle">{{ $user->email }}</td>
                                     <td style="text-align: center; vertical-align: middle">{{ $user->jabatan }}</td>
                                     <td style="text-align: center; vertical-align: middle">
                                         <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal"

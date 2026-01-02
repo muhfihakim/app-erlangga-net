@@ -15,23 +15,23 @@ return new class extends Migration
             $table->id();
 
             // --- Data Pelanggan yang Diambil dari PO (Foreign Key) ---
-            $table->foreignId('pre_order_id')->unique()->constrained('pre_orders')->onDelete('cascade');
-            $table->foreignId('id_sales')->constrained('users'); // Sales yang membuat PO
-            $table->foreignId('id_teknisi')->constrained('users'); // Teknisi yang mengaktifkan
-            $table->string('nama_lengkap', 255);
-            $table->string('alamat_lengkap', 500);
-            $table->string('no_whatsapp', 20);
-            $table->string('paket_internet', 255);
+            $table->foreignId('pre_order_id')->unique()->constrained('pre_orders')->onDelete('cascade')->nullable();
+            $table->foreignId('id_sales')->constrained('users')->nullable(); // Sales yang membuat PO
+            $table->foreignId('id_teknisi')->constrained('users')->nullable(); // Teknisi yang mengaktifkan
+            $table->string('nama_lengkap', 255)->nullable();
+            $table->string('alamat_lengkap', 500)->nullable();
+            $table->string('no_whatsapp', 20)->nullable();
+            $table->string('paket_internet', 255)->nullable();
 
             // --- Data Aktivasi Teknis ---
-            $table->string('id_pelanggan')->unique();
-            $table->string('pppoe_username')->unique();
-            $table->string('pppoe_password');
-            $table->enum('jenis_modem', ['EPON', 'GPON']);
-            $table->string('sn_perangkat');
+            $table->string('id_pelanggan')->unique()->nullable();
+            $table->string('pppoe_username')->unique()->nullable();
+            $table->string('pppoe_password')->nullable();
+            $table->enum('jenis_modem', ['EPON', 'GPON'])->nullable();
+            $table->string('sn_perangkat')->nullable();
 
             // --- Data Administrasi ---
-            $table->enum('pembayaran', ['Cash', 'Transfer', 'Aplikasi']);
+            $table->enum('pembayaran', ['Cash', 'Aplikasi']);
             $table->string('partner', 255)->nullable(); // Misal: Nama partner/partner kedua
             $table->text('keterangan')->nullable();
 

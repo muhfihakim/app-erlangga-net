@@ -49,7 +49,9 @@
                         <tbody>
                             @foreach ($customers as $customer)
                                 <tr class="{{ $customer->trashed() ?: '' }}">
-                                    <td style="text-align: center; vertical-align: middle">{{ $loop->iteration }}</td>
+                                    <td style="text-align: center; vertical-align: middle;">
+                                        {{ $customers->count() - $loop->index }}
+                                    </td>
                                     <td style="text-align: center; vertical-align: middle">{{ $customer->id_pelanggan }}
                                     </td>
                                     <td style="vertical-align: middle">

@@ -33,22 +33,23 @@
                 </div>
             </div>
         </div>
-
+        {{-- TAMPILAN ADMINISTRATOR --}}
         <div class="app-content">
-            @php $is_admin = Auth::user()->jabatan === 'Administrator'; @endphp
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Data Keseluruhan Pemeliharaan</h3>
+                </div>
+                <div class="card-body">
+                    @php $is_admin = Auth::user()->jabatan === 'Administrator'; @endphp
 
-            @if ($is_admin)
-                {{-- TAMPILAN ADMINISTRATOR --}}
-                <div class="card card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title">Data Keseluruhan Pemeliharaan</h3>
-                    </div>
-                    <div class="card-body">
+                    @if ($is_admin)
                         <button class="btn btn-success btn-sm mb-3" data-bs-toggle="modal"
                             data-bs-target="#addMaintenanceModal">
                             <i class="bi bi-plus-square"></i> Tambah Pemeliharaan
                         </button>
-                        <a href="{{ route('dashboards.index') }}" class="btn btn-secondary mb-3 btn-sm">← Kembali</a>
+                        <a href="{{ route('dashboards.index') }}" class="btn btn-secondary mb-3 btn-sm">←
+                            Kembali</a>
+
                         <table id="adminTable" class="table table-bordered">
                             <thead>
                                 <tr>
@@ -73,7 +74,8 @@
                                         $isTrashed = $m->customer && $m->customer->trashed();
                                     @endphp
                                     <tr>
-                                        <td style="text-align: center; vertical-align: middle">{{ $loop->iteration }}
+                                        <td style="text-align: center; vertical-align: middle">
+                                            {{ $loop->iteration }}
                                         </td>
                                         <td style="vertical-align: middle">
                                             <strong>{{ $m->customer->nama_lengkap ?? 'N/A' }}</strong>
@@ -154,103 +156,104 @@
                                 @endforeach
                             </tbody>
                         </table>
-                    </div>
                 </div>
-            @else
-                {{-- TAMPILAN TEKNISI --}}
-                <div class="card card-info">
-                    <div class="card-header">
-                        <h3 class="card-title">Tugas Delegasi Khusus</h3>
-                    </div>
-                    <div class="card-body">
-                        <table id="delegatedTable" class="table table-bordered table-striped">
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Pelanggan</th>
-                                    <th>Deadline</th>
-                                    <th style="text-align: center">Opsi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($delegatedTasks as $m)
-                                    @php $isLocked = now()->greaterThan(\Carbon\Carbon::parse($m->delegated_at)->addDays(2)); @endphp
-                                    <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $m->customer->nama_lengkap }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($m->delegated_at)->addDays(2)->format('d/m H:i') }}
-                                        </td>
-                                        <td style="text-align: center">
-                                            <button type="button" class="btn btn-secondary btn-sm"
-                                                data-bs-toggle="modal" data-bs-target="#detailMaintenanceModal"
-                                                data-nama="{{ $m->customer->nama_lengkap }}"
-                                                data-id-pel="{{ $m->customer->id_pelanggan }}"
-                                                data-pppoe="{{ $m->customer->pppoe_username }}"
-                                                data-wa="{{ $m->customer->no_whatsapp }}"
-                                                data-tikor="{{ $m->customer->preOrder->titik_koordinat ?? 'N/A' }}"
-                                                data-alamat="{{ $m->customer->alamat_lengkap }}"
-                                                data-kendala="{{ $m->keterangan_kendala }}"
-                                                data-foto="{{ $m->foto_kendala_awal ? asset('storage/' . $m->foto_kendala_awal) : '' }}">
-                                                <i class="bi bi-person-lines-fill"></i>
-                                            </button>
-                                            @if ($isLocked)
-                                                <button class="btn btn-danger btn-sm" disabled><i
-                                                        class="bi bi-lock-fill"></i> Locked</button>
-                                            @else
-                                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                                    data-bs-target="#completeModal" data-id="{{ $m->id }}"
-                                                    data-nama="{{ $m->customer->nama_lengkap }}">Selesai</button>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+            </div>
+        @else
+            {{-- TAMPILAN TEKNISI --}}
+            <div class="card card-info">
+                <div class="card-header">
+                    <h3 class="card-title">1. Tugas Delegasi Khusus (Prioritas)</h3>
                 </div>
-
-                <div class="card card-secondary mt-4">
-                    <div class="card-header">
-                        <h3 class="card-title">Tugas Umum</h3>
-                    </div>
-                    <div class="card-body">
-                        <table id="generalTable" class="table table-bordered table-striped">
-                            <thead>
+                <div class="card-body">
+                    <table id="delegatedTable" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Pelanggan</th>
+                                <th>Deadline</th>
+                                <th style="text-align: center">Opsi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($delegatedTasks as $m)
+                                @php $isLocked = now()->greaterThan(\Carbon\Carbon::parse($m->delegated_at)->addDays(2)); @endphp
                                 <tr>
-                                    <th>No</th>
-                                    <th>Pelanggan</th>
-                                    <th style="text-align: center">Opsi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($generalTasks as $m)
-                                    <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $m->customer->nama_lengkap }}</td>
-                                        <td style="text-align: center">
-                                            <button type="button" class="btn btn-secondary btn-sm"
-                                                data-bs-toggle="modal" data-bs-target="#detailMaintenanceModal"
-                                                data-nama="{{ $m->customer->nama_lengkap }}"
-                                                data-id-pel="{{ $m->customer->id_pelanggan }}"
-                                                data-pppoe="{{ $m->customer->pppoe_username }}"
-                                                data-wa="{{ $m->customer->no_whatsapp }}"
-                                                data-tikor="{{ $m->customer->preOrder->titik_koordinat ?? 'N/A' }}"
-                                                data-alamat="{{ $m->customer->alamat_lengkap }}"
-                                                data-kendala="{{ $m->keterangan_kendala }}"
-                                                data-foto="{{ $m->foto_kendala_awal ? asset('storage/' . $m->foto_kendala_awal) : '' }}">
-                                                <i class="bi bi-person-lines-fill"></i>
-                                            </button>
-                                            <button class="btn btn-success btn-sm" data-bs-toggle="modal"
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $m->customer->nama_lengkap }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($m->delegated_at)->addDays(2)->format('d/m H:i') }}
+                                    </td>
+                                    <td style="text-align: center">
+                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal"
+                                            data-bs-target="#detailMaintenanceModal"
+                                            data-nama="{{ $m->customer->nama_lengkap }}"
+                                            data-id-pel="{{ $m->customer->id_pelanggan }}"
+                                            data-pppoe="{{ $m->customer->pppoe_username }}"
+                                            data-wa="{{ $m->customer->no_whatsapp }}"
+                                            data-tikor="{{ $m->customer->preOrder->titik_koordinat ?? 'N/A' }}"
+                                            data-alamat="{{ $m->customer->alamat_lengkap }}"
+                                            data-kendala="{{ $m->keterangan_kendala }}"
+                                            data-foto="{{ $m->foto_kendala_awal ? asset('storage/' . $m->foto_kendala_awal) : '' }}">
+                                            <i class="bi bi-person-lines-fill"></i>
+                                        </button>
+                                        @if ($isLocked)
+                                            <button class="btn btn-danger btn-sm" disabled><i
+                                                    class="bi bi-lock-fill"></i> Locked</button>
+                                        @else
+                                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                                 data-bs-target="#completeModal" data-id="{{ $m->id }}"
-                                                data-nama="{{ $m->customer->nama_lengkap }}">Ambil</button>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                                                data-nama="{{ $m->customer->nama_lengkap }}">Selesai</button>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
-            @endif
+            </div>
+
+            <div class="card card-secondary mt-4">
+                <div class="card-header">
+                    <h3 class="card-title">2. Tugas Umum</h3>
+                </div>
+                <div class="card-body">
+                    <table id="generalTable" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Pelanggan</th>
+                                <th style="text-align: center">Opsi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($generalTasks as $m)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $m->customer->nama_lengkap }}</td>
+                                    <td style="text-align: center">
+                                        <button type="button" class="btn btn-secondary btn-sm"
+                                            data-bs-toggle="modal" data-bs-target="#detailMaintenanceModal"
+                                            data-nama="{{ $m->customer->nama_lengkap }}"
+                                            data-id-pel="{{ $m->customer->id_pelanggan }}"
+                                            data-pppoe="{{ $m->customer->pppoe_username }}"
+                                            data-wa="{{ $m->customer->no_whatsapp }}"
+                                            data-tikor="{{ $m->customer->preOrder->titik_koordinat ?? 'N/A' }}"
+                                            data-alamat="{{ $m->customer->alamat_lengkap }}"
+                                            data-kendala="{{ $m->keterangan_kendala }}"
+                                            data-foto="{{ $m->foto_kendala_awal ? asset('storage/' . $m->foto_kendala_awal) : '' }}">
+                                            <i class="bi bi-person-lines-fill"></i>
+                                        </button>
+                                        <button class="btn btn-success btn-sm" data-bs-toggle="modal"
+                                            data-bs-target="#completeModal" data-id="{{ $m->id }}"
+                                            data-nama="{{ $m->customer->nama_lengkap }}">Ambil</button>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        @endif
         </div>
 
         <div class="modal fade" id="detailMaintenanceModal" tabindex="-1" aria-hidden="true">
@@ -453,7 +456,8 @@
                                         <option value="{{ $t->id }}">{{ $t->nama_lengkap }}</option>
                                     @endforeach
                                 </select>
-                                <small class="text-muted italic">*Jika kosong, semua teknisi dapat mengerjakan tugas
+                                <small class="text-muted italic">*Jika kosong, semua teknisi dapat mengerjakan
+                                    tugas
                                     ini.</small>
                             </div>
                             <div class="mb-3">

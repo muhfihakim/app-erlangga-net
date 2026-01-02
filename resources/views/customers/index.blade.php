@@ -24,7 +24,7 @@
         <div class="app-content">
             <div class="card card-primary">
                 <div class="card-header">
-                    <h3 class="card-title">Daftar Pre-Order Siap Aktivasi</h3>
+                    <h3 class="card-title">Data Keseluruhan Aktivasi</h3>
                 </div>
                 <div class="card-body">
                     @if (Auth::user()->jabatan === 'Administrator')
@@ -57,9 +57,6 @@
                                             @else
                                                 <span class="badge bg-secondary">Belum Ditunjuk</span>
                                             @endif
-                                        </td>
-                                        <td>
-                                            {{-- ... (Tombol Opsi Admin: Delegasikan, Edit, Hapus) ... --}}
                                         </td>
                                     </tr>
                                 @endforeach
@@ -114,6 +111,13 @@
                                     </td>
 
                                     <td style="text-align: center; vertical-align: middle">
+                                        <a href="https://wa.me/{{ $po->no_whatsapp }}" target="_blank"
+                                            class="btn btn-success btn-sm"><i class="bi bi-whatsapp"></i>
+                                        </a>
+                                        <a href="https://www.google.com/maps/search/?api=1&query={{ $po->titik_koordinat }}"
+                                            target="_blank" class="btn btn-sm btn-info">
+                                            <i class="bi bi-geo-alt-fill"></i>
+                                        </a>
                                         {{-- LOGIKA LOCKED STATUS --}}
                                         @if ($po->is_locked)
                                             <button type="button" class="btn btn-danger btn-sm" disabled>
@@ -128,7 +132,7 @@
                                                 data-po-sales-id="{{ $po->id_sales }}"
                                                 data-po-nama="{{ $po->nama_lengkap }}"
                                                 data-po-paket="{{ $po->paket_internet }}">
-                                                Aktivasi
+                                                <i class="bi bi-person-check"></i> Aktivasi
                                             </button>
                                         @endif
                                     </td>
@@ -151,7 +155,6 @@
                                 <th style="text-align: center">Sales</th>
                                 <th style="text-align: center">Nama</th>
                                 <th style="text-align: center">Paket</th>
-                                <th style="text-align: center">Tikor</th>
                                 <th style="text-align: center">Opsi</th>
                             </tr>
                         </thead>
@@ -165,19 +168,20 @@
                                     <td style="text-align: center; vertical-align: middle">{{ $po->nama_lengkap }}</td>
                                     <td style="text-align: center; vertical-align: middle">{{ $po->paket_internet }}
                                     </td>
-                                    <td style="text-align: center; vertical-align: middle">
+                                    <td style="text-align: center; vertical-align: middle;">
+                                        <a href="https://wa.me/{{ $po->no_whatsapp }}" target="_blank"
+                                            class="btn btn-success btn-sm"><i class="bi bi-whatsapp"></i>
+                                        </a>
                                         <a href="https://www.google.com/maps/search/?api=1&query={{ $po->titik_koordinat }}"
                                             target="_blank" class="btn btn-sm btn-info">
-                                            <i class="fas fa-map-marker-alt"></i> Lihat Lokasi
+                                            <i class="bi bi-geo-alt-fill"></i>
                                         </a>
-                                    </td>
-                                    <td style="text-align: center; vertical-align: middle;">
                                         <button type="button" class="btn btn-success btn-sm activate-btn"
                                             data-bs-toggle="modal" data-bs-target="#activationModal"
                                             data-po-id="{{ $po->id }}" data-po-sales-id="{{ $po->id_sales }}"
                                             data-po-nama="{{ $po->nama_lengkap }}"
                                             data-po-paket="{{ $po->paket_internet }}">
-                                            Aktivasi
+                                            <i class="bi bi-person-check"></i> Aktivasi
                                         </button>
                                     </td>
                                 </tr>
@@ -217,19 +221,50 @@
                                         <label for="po_paket" class="form-label">Paket Internet (PO)</label>
                                         <input type="text" class="form-control" id="po_paket" readonly>
                                     </div>
-                                    <div class="mb-3">
+                                    {{-- <div class="mb-3">
                                         <label for="partner_ids" class="form-label">Partner / Teknisi Tambahan
                                             (Opsional)</label>
                                         <select class="form-control select2" id="partner_ids" name="partner_ids[]"
                                             multiple="multiple" data-placeholder="Pilih Rekan Teknisi">
                                             @foreach ($teknisiUsers as $t)
-                                                {{-- Jangan munculkan diri sendiri dalam pilihan partner --}}
                                                 @if ($t->id != auth()->id())
                                                     <option value="{{ $t->id }}">{{ $t->nama_lengkap }}
                                                     </option>
                                                 @endif
                                             @endforeach
                                         </select>
+                                        <input type="hidden" name="partner" id="partner_names">
+                                    </div> --}}
+                                    <div class="mb-3">
+                                        <label class="form-label d-block fw-bold">Partner / Teknisi Tambahan</label>
+                                        <div class="card card-secondary p-3"
+                                            style="max-height: 200px; overflow-y: auto; background-color: #f8f9fa;">
+                                            <div class="row">
+                                                @forelse ($teknisiUsers as $t)
+                                                    {{-- Jangan munculkan diri sendiri dalam pilihan partner --}}
+                                                    @if ($t->id != auth()->id())
+                                                        <div class="col-md-6 col-sm-12 mb-2">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input partner-checkbox"
+                                                                    type="checkbox" name="partner_ids[]"
+                                                                    value="{{ $t->id }}"
+                                                                    id="partner_{{ $t->id }}">
+                                                                <label class="form-check-label"
+                                                                    for="partner_{{ $t->id }}">
+                                                                    {{ $t->nama_lengkap }}
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    @endif
+                                                @empty
+                                                    <div class="col-12 text-muted small italic">
+                                                        Tidak ada teknisi lain yang tersedia.
+                                                    </div>
+                                                @endforelse
+                                            </div>
+                                        </div>
+                                        {{-- Hidden input tetap dipertahankan jika controller Anda masih membutuhkannya,
+         namun biasanya controller akan memproses array partner_ids[] secara langsung --}}
                                         <input type="hidden" name="partner" id="partner_names">
                                     </div>
                                     <div class="mb-3">
@@ -277,13 +312,32 @@
                                         <input type="text" class="form-control" id="pppoe_password"
                                             name="pppoe_password" placeholder="123" required autocomplete="off">
                                     </div>
-                                    <div class="mb-3">
+                                    {{-- <div class="mb-3">
                                         <label for="jenis_modem" class="form-label">Jenis Modem</label>
                                         <select class="form-control" id="jenis_modem" name="jenis_modem" required>
                                             <option value="">Pilih Jenis Modem</option>
                                             <option value="EPON">EPON</option>
                                             <option value="GPON">GPON</option>
                                         </select>
+                                    </div> --}}
+                                    <div class="mb-3">
+                                        <label class="form-label d-block fw-bold">Jenis Modem</label>
+                                        <div class="d-flex flex-wrap mt-2">
+                                            <!-- Radio EPON -->
+                                            <div class="custom-control custom-radio mr-4">
+                                                <input class="custom-control-input" type="radio" id="modem_epon"
+                                                    name="jenis_modem" value="EPON" required>
+                                                <label for="modem_epon" class="custom-control-label">EPON</label>
+                                            </div>
+
+                                            <!-- Radio GPON -->
+                                            <div class="custom-control custom-radio">
+                                                <input class="custom-control-input custom-control-input-primary"
+                                                    type="radio" id="modem_gpon" name="jenis_modem" value="GPON"
+                                                    required>
+                                                <label for="modem_gpon" class="custom-control-label">GPON</label>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="mb-3">
                                         <label for="sn_perangkat" class="form-label">SN Perangkat ONT</label>
@@ -302,12 +356,23 @@
                                             id="stop-scan">Tutup Kamera</button>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="pembayaran" class="form-label">Metode Pembayaran</label>
-                                        <select class="form-control" id="pembayaran" name="pembayaran" required>
-                                            <option value="">Pilih Metode</option>
-                                            <option value="Cash">Cash</option>
-                                            <option value="Aplikasi">Aplikasi Pembayaran</option>
-                                        </select>
+                                        <label class="form-label d-block fw-bold">Metode Pembayaran</label>
+                                        <div class="d-flex flex-wrap mt-2">
+                                            <!-- Radio Cash -->
+                                            <div class="custom-control custom-radio mr-4">
+                                                <input class="custom-control-input" type="radio" id="pay_cash"
+                                                    name="pembayaran" value="Cash" required>
+                                                <label for="pay_cash" class="custom-control-label">Cash</label>
+                                            </div>
+                                            <!-- Radio Aplikasi -->
+                                            <div class="custom-control custom-radio">
+                                                <input class="custom-control-input custom-control-input-primary"
+                                                    type="radio" id="pay_aplikasi" name="pembayaran"
+                                                    value="Aplikasi" required>
+                                                <label for="pay_aplikasi"
+                                                    class="custom-control-label">Aplikasi</label>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

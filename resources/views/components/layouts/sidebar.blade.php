@@ -5,7 +5,7 @@
          <!--begin::Brand Link-->
          <a href="/" class="brand-link">
              <!--begin::Brand Image-->
-             <img src="{{ asset('dist/assets/img/logo.png') }}" alt="Logo Pemprov Papua Tengah" class="brand-image" />
+             <img src="{{ asset('dist/assets/img/logo.png') }}" alt="Logo Erlangga Net" class="brand-image" />
              <!--end::Brand Image-->
          </a>
          <!--end::Brand Link-->
@@ -87,14 +87,14 @@
                      <li class="nav-item">
                          <a href="#" class="nav-link {{ Request::is('#') ? 'active' : '' }} disabled">
                              <i class="bi bi-router"></i>
-                             <p>Log <span class="badge badge-info right"> Soon</span></p>
+                             <p>Traffic <span class="badge badge-info right"> Soon</span></p>
                              </p>
                          </a>
                      </li>
                      <li class="nav-item">
                          <a href="#" class="nav-link {{ Request::is('#') ? 'active' : '' }} disabled">
                              <i class="bi bi-router"></i>
-                             <p>Traffic <span class="badge badge-info right"> Soon</span></p>
+                             <p>Log <span class="badge badge-info right"> Soon</span></p>
                              </p>
                          </a>
                      </li>
@@ -146,14 +146,14 @@
                      </li>
                      <li class="nav-item">
                          <a href="{{ route('activitylog.preorder') }}"
-                             class="nav-link {{ Request::is('laporan/preorder-expired') ? 'active' : '' }}">
+                             class="nav-link {{ Request::is('laporan/preorder') ? 'active' : '' }}">
                              <i class="bi bi-person-fill-add"></i>
                              <p>Pre-Order</p>
                          </a>
                      </li>
                      <li class="nav-item">
                          <a href="{{ route('activitylog.expired') }}"
-                             class="nav-link {{ Request::is('laporan/expired') ? 'active' : '' }}">
+                             class="nav-link {{ Request::is('laporan/preorder-expired') ? 'active' : '' }}">
                              <i class="bi bi-clock-history"></i>
                              <p>PO Expired</p>
                          </a>

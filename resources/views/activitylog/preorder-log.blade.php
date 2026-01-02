@@ -78,10 +78,10 @@
                                     <th>Nama Sales</th>
                                     <th>Detail Pelanggan</th>
                                     <th>Paket</th>
-                                    <th style="text-align: center; vertical-align: middle">Status Delegasi</th>
+                                    <th style="text-align: center; vertical-align: middle">Status PO</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            {{-- <tbody>
                                 @foreach ($preorders as $po)
                                     <tr>
                                         <td style="text-align: center; vertical-align: middle">{{ $loop->iteration }}
@@ -98,6 +98,34 @@
                                                 <span class="badge bg-success">Sudah Didelegasi</span>
                                             @else
                                                 <span class="badge bg-warning text-dark">Menunggu Delegasi</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody> --}}
+                            <tbody>
+                                @foreach ($preorders as $po)
+                                    <tr>
+                                        <td style="text-align: center; vertical-align: middle">{{ $loop->iteration }}
+                                        </td>
+                                        <td style="text-align: center; vertical-align: middle">
+                                            {{ optional($po->created_at)->format('d/m/Y H:i') ?? '-' }}</td>
+                                        <td>{{ $po->sales->nama_lengkap ?? $po->nama_sales }}</td>
+                                        <td>
+                                            <strong>{{ $po->nama_lengkap }}</strong><br>
+                                            <small class="text-muted">{{ $po->no_whatsapp }}</small>
+                                        </td>
+                                        <td>{{ $po->paket_internet }}</td>
+                                        <td style="text-align: center; vertical-align: middle">
+                                            @if ($po->po_status === 'Aktif')
+                                                <span class="badge bg-success"><i class="bi bi-check-circle"></i>
+                                                    Aktif</span>
+                                            @elseif ($po->po_status === 'Berhenti')
+                                                <span class="badge bg-secondary"><i class="bi bi-person-x"></i>
+                                                    Berhenti</span>
+                                            @else
+                                                <span class="badge bg-warning text-dark"><i class="bi bi-clock"></i>
+                                                    Pending</span>
                                             @endif
                                         </td>
                                     </tr>

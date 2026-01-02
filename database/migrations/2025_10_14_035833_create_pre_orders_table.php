@@ -13,17 +13,17 @@ return new class extends Migration
     {
         Schema::create('pre_orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_sales')->constrained('users')->onDelete('cascade');
-            $table->string('nama_sales');
-            $table->string('paket_internet');
-            $table->string('nama_lengkap');
-            $table->string('no_identitas');
-            $table->string('no_whatsapp');
-            $table->string('alamat_email');
-            $table->text('alamat_lengkap');
-            $table->string('titik_koordinat');
-            $table->string('foto_ktp')->nullable();
-            $table->string('foto_rumah')->nullable();
+            $table->foreignId('id_sales')->constrained('users')->onDelete('cascade')->nullable();
+            $table->string('nama_sales')->nullable();
+            $table->string('paket_internet')->nullable();
+            $table->string('nama_lengkap')->nullable();
+            $table->string('no_identitas')->nullable();
+            $table->string('no_whatsapp')->nullable();
+            $table->string('alamat_email')->nullable();
+            $table->text('alamat_lengkap')->nullable();
+            $table->string('titik_koordinat')->nullable();
+            $table->string('foto_ktp')->nullable()->nullable();
+            $table->string('foto_rumah')->nullable()->nullable();
             $table->timestamps();
         });
     }

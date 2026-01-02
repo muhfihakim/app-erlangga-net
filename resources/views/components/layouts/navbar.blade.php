@@ -36,7 +36,7 @@
             <li class="nav-item dropdown user-menu">
                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                     <img src="{{ asset('dist/assets/img/Foto Profil.png') }}" class="user-image rounded-circle shadow"
-                        alt="Logo Pemprov Papua Tengah" />
+                        alt="Logo Erlangga Net" />
                     <span class="d-none d-md-inline">{{ auth()->user()->nama_lengkap ?? 'Pengguna' }}</span> -
                     <small>{{ auth()->user()->jabatan ?? 'Jabatan' }}</small>
                 </a>
@@ -44,7 +44,7 @@
                     <!--begin::User Image-->
                     <li class="user-header text-bg-primary">
                         <img src="{{ asset('dist/assets/img/Foto Profil.png') }}" class="rounded-circle shadow"
-                            alt="Logo Pemprov Papua Tengah" />
+                            alt="Logo Erlangga Net" />
                         <p>
                             {{ auth()->user()->nama_lengkap ?? 'Pengguna' }}
                         </p>

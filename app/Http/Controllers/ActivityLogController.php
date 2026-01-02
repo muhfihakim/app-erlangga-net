@@ -284,6 +284,86 @@ class ActivityLogController extends Controller
         return $pdf->download("laporan-maintenance-{$request->start_date}-ke-{$request->end_date}.pdf");
     }
 
+    // public function laporanPreOrder(Request $request)
+    // {
+    //     $salesId = $request->input('sales_id');
+    //     $start = $request->input('start_date');
+    //     $end = $request->input('end_date');
+
+    //     $query = PreOrder::with('sales')->orderByDesc('created_at');
+
+    //     // Filter berdasarkan Sales
+    //     if ($salesId) {
+    //         $query->where('id_sales', $salesId);
+    //     }
+
+    //     // Filter Rentang Tanggal
+    //     if ($start) $query->whereDate('created_at', '>=', $start);
+    //     if ($end) $query->whereDate('created_at', '<=', $end);
+
+    //     $preorders = $query->get();
+
+    //     // Ambil daftar user dengan jabatan Sales untuk dropdown filter
+    //     $allSales = User::where('jabatan', 'Sales')->get();
+
+    //     // Menghitung total data yang difilter
+    //     $total = $preorders->count();
+
+    //     return view('activitylog.preorder-log', compact('preorders', 'allSales', 'salesId', 'start', 'end', 'total'));
+    // }
+
+    // /**
+    //  * Export PDF Laporan Pre-Order
+    //  */
+    // public function exportPreOrder(Request $request)
+    // {
+    //     $request->validate([
+    //         'start_date' => 'required|date',
+    //         'end_date' => 'required|date|after_or_equal:start_date',
+    //     ]);
+
+    //     $query = PreOrder::with('sales')
+    //         ->whereBetween('created_at', [
+    //             Carbon::parse($request->start_date)->startOfDay(),
+    //             Carbon::parse($request->end_date)->endOfDay()
+    //         ]);
+
+    //     if ($request->sales_id) {
+    //         $query->where('id_sales', $request->sales_id);
+    //     }
+
+    //     $preorders = $query->orderBy('created_at', 'asc')->get();
+
+    //     // Pastikan setiap key diakhiri dengan koma agar tidak terjadi Parse Error
+    //     $pdf = PDF::loadView('activitylog.export-preorder', [
+    //         'preorders' => $preorders,
+    //         'start' => $request->start_date,
+    //         'end' => $request->end_date,
+    //         'sales' => User::find($request->sales_id), // Ditambahkan koma di sini
+    //         'total' => $preorders->count()
+    //     ]);
+
+    //     return $pdf->download("laporan-preorder-{$request->start_date}.pdf");
+    // }
+
+    private function processPreOrderStatuses($preorders)
+    {
+        $customerData = Customer::withTrashed()->get(['pre_order_id', 'deleted_at']);
+        $activeIds = $customerData->whereNull('deleted_at')->pluck('pre_order_id')->toArray();
+        $stoppedIds = $customerData->whereNotNull('deleted_at')->pluck('pre_order_id')->toArray();
+
+        return $preorders->map(function ($po) use ($activeIds, $stoppedIds) {
+            if (in_array($po->id, $activeIds)) {
+                $po->po_status = 'Aktif';
+            } elseif (in_array($po->id, $stoppedIds)) {
+                $po->po_status = 'Berhenti';
+            } else {
+                $po->po_status = 'Pending';
+            }
+            return $po;
+        });
+    }
+
     public function laporanPreOrder(Request $request)
     {
         $salesId = $request->input('sales_id');
@@ -291,36 +371,28 @@ class ActivityLogController extends Controller
         $end = $request->input('end_date');
 
         $query = PreOrder::with('sales')->orderByDesc('created_at');
-
-        // Filter berdasarkan Sales
-        if ($salesId) {
-            $query->where('id_sales', $salesId);
-        }
-
-        // Filter Rentang Tanggal
+        if ($salesId) $query->where('id_sales', $salesId);
         if ($start) $query->whereDate('created_at', '>=', $start);
         if ($end) $query->whereDate('created_at', '<=', $end);
 
-        $preorders = $query->get();
+        $preorders = $this->processPreOrderStatuses($query->get());
 
-        // Ambil daftar user dengan jabatan Sales untuk dropdown filter
         $allSales = User::where('jabatan', 'Sales')->get();
 
-        // Menghitung total data yang difilter
-        $total = $preorders->count();
+        // Hitung Statistik
+        $stats = [
+            'total' => $preorders->count(),
+            'aktif' => $preorders->where('po_status', 'Aktif')->count(),
+            'berhenti' => $preorders->where('po_status', 'Berhenti')->count(),
+            'pending' => $preorders->where('po_status', 'Pending')->count(),
+        ];
 
-        return view('activitylog.preorder-log', compact('preorders', 'allSales', 'salesId', 'start', 'end', 'total'));
+        return view('activitylog.preorder-log', compact('preorders', 'allSales', 'salesId', 'start', 'end', 'stats'));
     }
 
-    /**
-     * Export PDF Laporan Pre-Order
-     */
     public function exportPreOrder(Request $request)
     {
-        $request->validate([
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-        ]);
+        $request->validate(['start_date' => 'required|date', 'end_date' => 'required|date']);
 
         $query = PreOrder::with('sales')
             ->whereBetween('created_at', [
@@ -328,23 +400,112 @@ class ActivityLogController extends Controller
                 Carbon::parse($request->end_date)->endOfDay()
             ]);
 
-        if ($request->sales_id) {
-            $query->where('id_sales', $request->sales_id);
-        }
+        if ($request->sales_id) $query->where('id_sales', $request->sales_id);
 
-        $preorders = $query->orderBy('created_at', 'asc')->get();
+        $preorders = $this->processPreOrderStatuses($query->orderBy('created_at', 'asc')->get());
 
-        // Pastikan setiap key diakhiri dengan koma agar tidak terjadi Parse Error
+        // Hitung Statistik untuk PDF
+        $stats = [
+            'total' => $preorders->count(),
+            'aktif' => $preorders->where('po_status', 'Aktif')->count(),
+            'berhenti' => $preorders->where('po_status', 'Berhenti')->count(),
+            'pending' => $preorders->where('po_status', 'Pending')->count(),
+        ];
+
         $pdf = PDF::loadView('activitylog.export-preorder', [
             'preorders' => $preorders,
             'start' => $request->start_date,
             'end' => $request->end_date,
-            'sales' => User::find($request->sales_id), // Ditambahkan koma di sini
-            'total' => $preorders->count()
+            'sales' => User::find($request->sales_id),
+            'stats' => $stats
         ]);
 
         return $pdf->download("laporan-preorder-{$request->start_date}.pdf");
     }
+
+    // public function laporanPreOrder(Request $request)
+    // {
+    //     $salesId = $request->input('sales_id');
+    //     $start = $request->input('start_date');
+    //     $end = $request->input('end_date');
+
+    //     $query = PreOrder::with('sales')->orderByDesc('created_at');
+
+    //     if ($salesId) $query->where('id_sales', $salesId);
+    //     if ($start) $query->whereDate('created_at', '>=', $start);
+    //     if ($end) $query->whereDate('created_at', '<=', $end);
+
+    //     $preorders = $query->get();
+
+    //     // Ambil data customer untuk pengecekan status (Aktif/Berhenti)
+    //     $customerData = Customer::withTrashed()->get(['pre_order_id', 'deleted_at']);
+    //     $activeIds = $customerData->whereNull('deleted_at')->pluck('pre_order_id')->toArray();
+    //     $stoppedIds = $customerData->whereNotNull('deleted_at')->pluck('pre_order_id')->toArray();
+
+    //     // Map status ke koleksi preorder
+    //     $preorders = $preorders->map(function ($po) use ($activeIds, $stoppedIds) {
+    //         if (in_array($po->id, $activeIds)) {
+    //             $po->po_status = 'Aktif';
+    //         } elseif (in_array($po->id, $stoppedIds)) {
+    //             $po->po_status = 'Berhenti';
+    //         } else {
+    //             $po->po_status = 'Pending';
+    //         }
+    //         return $po;
+    //     });
+
+    //     $allSales = User::where('jabatan', 'Sales')->get();
+    //     $total = $preorders->count();
+
+    //     return view('activitylog.preorder-log', compact('preorders', 'allSales', 'salesId', 'start', 'end', 'total'));
+    // }
+
+    // /**
+    //  * Export PDF Laporan Pre-Order dengan Status Dinamis
+    //  */
+    // public function exportPreOrder(Request $request)
+    // {
+    //     $request->validate([
+    //         'start_date' => 'required|date',
+    //         'end_date' => 'required|date|after_or_equal:start_date',
+    //     ]);
+
+    //     $query = PreOrder::with('sales')
+    //         ->whereBetween('created_at', [
+    //             Carbon::parse($request->start_date)->startOfDay(),
+    //             Carbon::parse($request->end_date)->endOfDay()
+    //         ]);
+
+    //     if ($request->sales_id) $query->where('id_sales', $request->sales_id);
+
+    //     $preorders = $query->orderBy('created_at', 'asc')->get();
+
+    //     // Ambil data customer untuk pengecekan status
+    //     $customerData = Customer::withTrashed()->get(['pre_order_id', 'deleted_at']);
+    //     $activeIds = $customerData->whereNull('deleted_at')->pluck('pre_order_id')->toArray();
+    //     $stoppedIds = $customerData->whereNotNull('deleted_at')->pluck('pre_order_id')->toArray();
+
+    //     $preorders = $preorders->map(function ($po) use ($activeIds, $stoppedIds) {
+    //         if (in_array($po->id, $activeIds)) {
+    //             $po->po_status = 'Aktif';
+    //         } elseif (in_array($po->id, $stoppedIds)) {
+    //             $po->po_status = 'Berhenti';
+    //         } else {
+    //             $po->po_status = 'Pending';
+    //         }
+    //         return $po;
+    //     });
+
+    //     $pdf = PDF::loadView('activitylog.export-preorder', [
+    //         'preorders' => $preorders,
+    //         'start' => $request->start_date,
+    //         'end' => $request->end_date,
+    //         'sales' => User::find($request->sales_id),
+    //         'total' => $preorders->count()
+    //     ]);
+
+    //     return $pdf->download("laporan-preorder-{$request->start_date}.pdf");
+    // }
 
     public function laporanMaintenanceExpired(Request $request)
     {

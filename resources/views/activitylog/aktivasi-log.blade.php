@@ -77,7 +77,7 @@
                                     <th style="text-align: center; vertical-align: middle">Paket</th>
                                     <th style="text-align: center; vertical-align: middle">Teknisi Utama</th>
                                     <th style="text-align: center; vertical-align: middle">Partner</th>
-                                    <th style="text-align: center; vertical-align: middle">Billing ID</th>
+                                    <th style="text-align: center; vertical-align: middle">ID Pelanggan</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -86,7 +86,7 @@
                                         <td style="text-align: center; vertical-align: middle">{{ $loop->iteration }}
                                         </td>
                                         <td style="text-align: center; vertical-align: middle">
-                                            {{ $c->created_at->format('d-m-Y H:i') }}</td>
+                                            {{ optional($c->created_at)->format('d-m-Y H:i') ?? '-' }}
                                         <td>{{ $c->nama_lengkap }}</td>
                                         <td style="text-align: center; vertical-align: middle">{{ $c->paket_internet }}
                                         </td>

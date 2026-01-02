@@ -9,15 +9,15 @@
         content="Sistem Informasi BBS NET untuk pengelolaan, pemantauan, dan administrasi pengguna layanan internet secara terpusat, efisien, dan mudah.">
     <meta name="keywords"
         content="BBS NET, sistem informasi, pengelolaan pengguna, layanan internet, administrasi jaringan, billing internet, monitoring pengguna, ISP, manajemen pelanggan">
-    <meta name="author" content="[Nama Organisasi/Pengembang BBS NET]">
-    <meta name="copyright" content="[Nama Organisasi/Pengembang BBS NET]">
+    <meta name="author" content="Muhammad Luthfi Hakim">
+    <meta name="copyright" content="Muhammad Luthfi Hakim">
 
     <meta property="og:title" content="BBS NET: Sistem Informasi Pengelolaan Pengguna Layanan Internet">
     <meta property="og:description"
         content="Platform terpusat untuk administrasi, monitoring, dan penagihan (billing) pengguna layanan internet Anda.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://mybbs.id/layanan/bbsnet">
-    <meta property="og:image" content="https://www.alamy.com/stock-photo/logo-bbs.html?blackwhite=1">
+    <meta property="og:url" content="https://app.erlangga.net/">
+    <meta property="og:image" content="https://app.erlangga.net/dist/login/images/bg-1.png">
     <meta property="og:image:alt" content="Logo Sistem Informasi BBS NET">
     <meta property="og:site_name" content="BBS NET">
     <meta property="og:locale" content="id_ID">
@@ -26,7 +26,7 @@
     <meta name="twitter:title" content="BBS NET: Sistem Informasi Pengelolaan Pengguna Layanan Internet">
     <meta name="twitter:description"
         content="Kelola dan pantau seluruh pengguna layanan internet Anda dengan mudah dan efisien menggunakan BBS NET.">
-    <meta name="twitter:image" content="https://www.alamy.com/stock-photo/logo-bbs.html?blackwhite=1">
+    <meta name="twitter:image" content="https://app.erlangga.net/dist/login/images/bg-1.png">
     <meta name="twitter:image:alt" content="Antarmuka Sistem Informasi BBS NET">
 
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />

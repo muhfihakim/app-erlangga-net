@@ -42,19 +42,7 @@
                     <h3 class="card-title mb-0">Lacak Akun</h3>
                 </div>
                 <div class="card-body">
-                    {{-- <div class="mb-3">
-                        <label for="user_selector" class="form-label fw-semibold">
-                            Pilih Pengguna
-                        </label>
-                        <select id="user_selector" class="form-select">
-                            <option value="">Semua Pengguna</option>
-                            @foreach ($users as $user)
-                                <option value="{{ $user->id }}">
-                                    {{ $user->nama_lengkap }} — {{ $user->jabatan }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div> --}}
+                    <a href="{{ route('dashboards.index') }}" class="btn btn-secondary mb-3 btn-sm">← Kembali</a>
                     <div class="mb-3">
                         <label for="user_selector" class="form-label fw-semibold">
                             Pilih Pengguna

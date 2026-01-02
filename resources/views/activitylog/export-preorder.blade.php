@@ -135,15 +135,42 @@
                     <td>{{ $po->nama_lengkap }}</td>
                     <td class="text-center">{{ $po->paket_internet }}</td>
                     <td class="text-center">
-                        {{ $po->id_teknisi_delegasi ? 'Terdelegasi' : 'Pending' }}
+                        @if ($po->po_status === 'Aktif')
+                            <span style="color: green; font-weight: bold;">AKTIF</span>
+                        @elseif($po->po_status === 'Berhenti')
+                            <span style="color: gray; font-weight: bold;">BERHENTI</span>
+                        @else
+                            <span style="color: orange; font-weight: bold;">PENDING</span>
+                        @endif
                     </td>
                 </tr>
             @endforeach
         </tbody>
     </table>
 
-    <div class="summary">
-        Total Pre-Order: {{ $total }} Data
+    <br>
+    <div class="summary-container">
+        <div class="summary-title">Ringkasan Laporan</div>
+        <table style="width: 100%;">
+            <tr>
+                <td class="text-center" style="width: 25%;">
+                    <span class="summary-label">Total Pre-Order</span>
+                    <span class="summary-value">{{ $stats['total'] }}</span>
+                </td>
+                <td class="text-center" style="width: 25%; color: #27ae60;">
+                    <span class="summary-label">Status Aktif</span>
+                    <span class="summary-value">{{ $stats['aktif'] }}</span>
+                </td>
+                <td class="text-center" style="width: 25%; color: #7f8c8d;">
+                    <span class="summary-label">Status Berhenti</span>
+                    <span class="summary-value">{{ $stats['berhenti'] }}</span>
+                </td>
+                <td class="text-center" style="width: 25%; color: #f39c12;">
+                    <span class="summary-label">Status Pending</span>
+                    <span class="summary-value">{{ $stats['pending'] }}</span>
+                </td>
+            </tr>
+        </table>
     </div>
 
     <div class="footer">
