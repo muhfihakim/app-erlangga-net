@@ -14,7 +14,7 @@ use App\Http\Controllers\TwoFactorController;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/login');
 });
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');

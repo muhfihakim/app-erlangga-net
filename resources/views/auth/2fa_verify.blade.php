@@ -38,22 +38,36 @@
                 inputAttributes: {
                     inputmode: 'numeric',
                     maxlength: 6,
+                    autofocus: 'autofocus', // Otomatis fokus saat muncul
                     pattern: '[0-9]*',
-                    class: 'form-control'
+                    class: 'form-control text-center'
                 },
                 inputPlaceholder: '123456',
-                confirmButtonText: 'Verifikasi',
+                showConfirmButton: false, // Sembunyikan tombol karena akan otomatis
                 allowOutsideClick: false,
                 allowEscapeKey: false,
-                preConfirm: (code) => {
-                    if (!code || code.length !== 6) {
-                        Swal.showValidationMessage('Kode harus terdiri dari 6 digit angka.');
-                        return false;
-                    }
+                didOpen: () => {
+                    const input = Swal.getInput();
 
-                    // Submit form dengan kode yang dimasukkan
-                    document.getElementById('code-input').value = code;
-                    document.getElementById('2fa-form').submit();
+                    // Pantau setiap perubahan input
+                    input.addEventListener('input', (e) => {
+                        const val = e.target.value;
+
+                        // Jika sudah mencapai 6 digit, langsung submit
+                        if (val.length === 6) {
+                            // Jalankan validasi sederhana
+                            if (/^\d+$/.test(val)) {
+                                // Tampilkan loading sebentar sebelum submit (opsional agar user tidak kaget)
+                                Swal.showLoading();
+
+                                document.getElementById('code-input').value = val;
+                                document.getElementById('2fa-form').submit();
+                            } else {
+                                Swal.showValidationMessage('Kode harus berupa angka.');
+                                e.target.value = ''; // Reset jika bukan angka
+                            }
+                        }
+                    });
                 }
             });
         });

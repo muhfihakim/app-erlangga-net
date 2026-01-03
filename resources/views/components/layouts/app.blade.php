@@ -104,7 +104,7 @@
             <button id="retry-btn">Coba Lagi</button>
         </div>
 
-        {{-- <script>
+        <script>
             let locationAllowed = false;
 
             // Fungsi utama untuk meminta lokasi
@@ -189,7 +189,7 @@
                     requestLocation(); // kirim lokasi rutin
                 }
             }, 10000);
-        </script> --}}
+        </script>
     @endif
 
 </body>

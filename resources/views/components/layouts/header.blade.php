@@ -1,33 +1,33 @@
 <!--begin::Head-->
 
 <head>
-    <title>BBS NET - Sistem Informasi Pengelolaan Pengguna Layanan Internet</title>
+    <title>ERLANGGA NET - Sistem Informasi Pengelolaan Pengguna Layanan Internet</title>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <meta name="description"
-        content="Sistem Informasi BBS NET untuk pengelolaan, pemantauan, dan administrasi pengguna layanan internet secara terpusat, efisien, dan mudah.">
+        content="Sistem Informasi ERLANGGA NET untuk pengelolaan, pemantauan, dan administrasi pengguna layanan internet secara terpusat, efisien, dan mudah.">
     <meta name="keywords"
-        content="BBS NET, sistem informasi, pengelolaan pengguna, layanan internet, administrasi jaringan, billing internet, monitoring pengguna, ISP, manajemen pelanggan">
+        content="ERLANGGA NET, sistem informasi, pengelolaan pengguna, layanan internet, administrasi jaringan, billing internet, monitoring pengguna, ISP, manajemen pelanggan">
     <meta name="author" content="Muhammad Luthfi Hakim">
     <meta name="copyright" content="Muhammad Luthfi Hakim">
 
-    <meta property="og:title" content="BBS NET: Sistem Informasi Pengelolaan Pengguna Layanan Internet">
+    <meta property="og:title" content="ERLANGGA NET: Sistem Informasi Pengelolaan Pengguna Layanan Internet">
     <meta property="og:description"
         content="Platform terpusat untuk administrasi, monitoring, dan penagihan (billing) pengguna layanan internet Anda.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://app.erlangga.net/">
     <meta property="og:image" content="https://app.erlangga.net/dist/login/images/bg-1.png">
-    <meta property="og:image:alt" content="Logo Sistem Informasi BBS NET">
-    <meta property="og:site_name" content="BBS NET">
+    <meta property="og:image:alt" content="Logo Sistem Informasi ERLANGGA NET">
+    <meta property="og:site_name" content="ERLANGGA NET">
     <meta property="og:locale" content="id_ID">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="BBS NET: Sistem Informasi Pengelolaan Pengguna Layanan Internet">
+    <meta name="twitter:title" content="ERLANGGA NET: Sistem Informasi Pengelolaan Pengguna Layanan Internet">
     <meta name="twitter:description"
-        content="Kelola dan pantau seluruh pengguna layanan internet Anda dengan mudah dan efisien menggunakan BBS NET.">
+        content="Kelola dan pantau seluruh pengguna layanan internet Anda dengan mudah dan efisien menggunakan ERLANGGA NET.">
     <meta name="twitter:image" content="https://app.erlangga.net/dist/login/images/bg-1.png">
-    <meta name="twitter:image:alt" content="Antarmuka Sistem Informasi BBS NET">
+    <meta name="twitter:image:alt" content="Antarmuka Sistem Informasi ERLANGGA NET">
 
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
