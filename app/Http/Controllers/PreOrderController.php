@@ -87,8 +87,8 @@ class PreOrderController extends Controller
                 'alamat_email' => 'nullable|string|email|max:255',
                 'alamat_lengkap' => 'required|string',
                 'titik_koordinat' => 'required|string',
-                'foto_ktp' => 'nullable|image|max:2048', // maks 2MB
-                'foto_rumah' => 'nullable|image|max:2048', // maks 2MB
+                'foto_ktp' => 'nullable|image|max:20480', // maks 2MB
+                'foto_rumah' => 'nullable|image|max:20480', // maks 2MB
             ], [
                 // Pesan error kustom
                 'no_identitas.unique' => 'No. Identitas ini sudah terdaftar.',
@@ -209,8 +209,8 @@ class PreOrderController extends Controller
             'alamat_email' => 'sometimes|string|email|max:255',
             'alamat_lengkap' => 'sometimes|string',
             'titik_koordinat' => 'sometimes|string',
-            'foto_ktp' => 'sometimes|image|max:2048',
-            'foto_rumah' => 'sometimes|image|max:2048',
+            'foto_ktp' => 'sometimes|image|max:20480',
+            'foto_rumah' => 'sometimes|image|max:20480',
         ]);
 
         $preOrder->fill($validatedData);

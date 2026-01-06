@@ -20,14 +20,14 @@ Route::get('/', function () {
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-Route::get('/2fa/verify', [TwoFactorController::class, 'showVerifyForm'])->name('2fa.verify');
-Route::post('/2fa/verify', [TwoFactorController::class, 'verify']);
-Route::get('/2fa/setup', [TwoFactorController::class, 'show2faForm'])->name('2fa.setup')->middleware('auth');
-Route::post('/2fa/reset', [TwoFactorController::class, 'reset'])->name('2fa.reset')->middleware('auth');
-Route::get('/2fa/redirect-to-verify', function () {
-    session(['2fa:user:id' => auth()->id()]);
-    return redirect()->route('2fa.verify');
-})->middleware('auth')->name('2fa.redirect');
+// Route::get('/2fa/verify', [TwoFactorController::class, 'showVerifyForm'])->name('2fa.verify');
+// Route::post('/2fa/verify', [TwoFactorController::class, 'verify']);
+// Route::get('/2fa/setup', [TwoFactorController::class, 'show2faForm'])->name('2fa.setup')->middleware('auth');
+// Route::post('/2fa/reset', [TwoFactorController::class, 'reset'])->name('2fa.reset')->middleware('auth');
+// Route::get('/2fa/redirect-to-verify', function () {
+//     session(['2fa:user:id' => auth()->id()]);
+//     return redirect()->route('2fa.verify');
+// })->middleware('auth')->name('2fa.redirect');
 
 
 

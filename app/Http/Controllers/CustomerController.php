@@ -204,9 +204,9 @@ class CustomerController extends Controller
                 'partner_ids.*' => 'exists:users,id',
 
                 'keterangan' => 'nullable|string',
-                'foto_petugas' => 'required|image|max:2048',
-                'foto_terpasang' => 'required|image|max:2048',
-                'foto_speedtest' => 'required|image|max:2048',
+                'foto_petugas' => 'required|image|max:20480',
+                'foto_terpasang' => 'required|image|max:20480',
+                'foto_speedtest' => 'required|image|max:20480',
             ], [
                 // Custom pesan error jika data sudah ada (Exist)
                 'pre_order_id.unique' => 'Pelanggan ini sudah pernah diaktivasi sebelumnya.',

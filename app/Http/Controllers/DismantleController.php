@@ -92,7 +92,7 @@ class DismantleController extends Controller
     public function complete(Request $request, $id)
     {
         $request->validate([
-            'foto_pencabutan' => 'required|image|max:2048'
+            'foto_pencabutan' => 'required|image|max:20480'
         ]);
 
         $d = Dismantle::findOrFail($id);

@@ -57,16 +57,6 @@
                                 <div class="w-100">
                                     <h3 style="text-align: center" class="mb-4">Login | Erlangga Net</h3>
                                 </div>
-                                {{-- <div class="w-100">
-                                    <p class="social-media d-flex justify-content-end">
-                                        <a href="#"
-                                            class="social-icon d-flex align-items-center justify-content-center"><span
-                                                class="fa fa-facebook"></span></a>
-                                        <a href="#"
-                                            class="social-icon d-flex align-items-center justify-content-center"><span
-                                                class="fa fa-twitter"></span></a>
-                                    </p>
-                                </div> --}}
                             </div>
                             <form method="POST" class="signin-form" action="{{ route('login') }}">
                                 @csrf
@@ -102,20 +92,9 @@
                                         Sign In
                                     </button>
                                 </div>
-                                {{-- <div class="form-group d-md-flex">
-                                    <div class="w-50 text-left">
-                                        <label class="checkbox-wrap checkbox-primary mb-0">Remember Me
-                                            <input type="checkbox" checked />
-                                            <span class="checkmark"></span>
-                                        </label>
-                                    </div>
-                                    <div class="w-50 text-md-right">
-                                        <a href="#">Forgot Password</a>
-                                    </div>
-                                </div> --}}
                             </form>
                             <p class="text-center">
-                                v0.1-beta | <span style="text-align: center">Powered by PT. BBS @
+                                v0.2-beta | <span style="text-align: center">Powered by PT. BBS @
                                     {{ date('Y') }}</span>
                             </p>
                         </div>

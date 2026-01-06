@@ -104,18 +104,6 @@ class AccountController extends Controller
         return redirect()->route('accounts.index')->with('success', 'Akun berhasil diperbarui.');
     }
 
-    // public function reset2FA(Request $request, User $user)
-    // {
-    //     if (auth()->user()->jabatan !== 'Administrator') {
-    //         abort(403, 'Akses ditolak.');
-    //     }
-
-    //     $user->google2fa_secret = null;
-    //     $user->save();
-
-    //     return response()->json(['message' => '2FA berhasil direset.']);
-    // }
-
     public function reset2FA(Request $request, User $user)
     {
         // Pastikan hanya Administrator yang bisa melakukan ini
