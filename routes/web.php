@@ -9,6 +9,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DismantleController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\OdpController;
 use App\Http\Controllers\PreOrderController;
 use App\Http\Controllers\TwoFactorController;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
@@ -29,7 +30,11 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 //     return redirect()->route('2fa.verify');
 // })->middleware('auth')->name('2fa.redirect');
 
-
+// Route Publik Manajemen ODP (Tanpa Login)
+Route::get('/odp', [OdpController::class, 'index'])->name('odp.index');
+Route::post('/odp', [OdpController::class, 'store'])->name('odp.store');
+Route::put('/odp/{id}', [OdpController::class, 'update'])->name('odp.update');
+Route::delete('/odp/{id}', [OdpController::class, 'destroy'])->name('odp.destroy');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
