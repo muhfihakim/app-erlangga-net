@@ -5,6 +5,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Manajemen ODP</title>
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="description"
+        content="Sistem Informasi ERLANGGA NET untuk pengelolaan, pemantauan, dan administrasi pengguna layanan internet secara terpusat, efisien, dan mudah.">
+    <meta name="keywords"
+        content="ERLANGGA NET, sistem informasi, pengelolaan pengguna, layanan internet, administrasi jaringan, billing internet, monitoring pengguna, ISP, manajemen pelanggan">
+    <meta name="author" content="Muhammad Luthfi Hakim">
+    <meta name="copyright" content="Muhammad Luthfi Hakim">
+
+    <meta property="og:title" content="ERLANGGA NET: Sistem Informasi Pengelolaan Pengguna Layanan Internet">
+    <meta property="og:description"
+        content="Platform terpusat untuk administrasi, monitoring, dan penagihan (billing) pengguna layanan internet Anda.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://app.erlangga.net/">
+    <meta property="og:image" content="https://app.erlangga.net/dist/login/images/bg-1.png">
+    <meta property="og:image:alt" content="Logo Sistem Informasi ERLANGGA NET">
+    <meta property="og:site_name" content="ERLANGGA NET">
+    <meta property="og:locale" content="id_ID">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ERLANGGA NET: Sistem Informasi Pengelolaan Pengguna Layanan Internet">
+    <meta name="twitter:description"
+        content="Kelola dan pantau seluruh pengguna layanan internet Anda dengan mudah dan efisien menggunakan ERLANGGA NET.">
+    <meta name="twitter:image" content="https://app.erlangga.net/dist/login/images/bg-1.png">
+    <meta name="twitter:image:alt" content="Antarmuka Sistem Informasi ERLANGGA NET">
+
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet"
@@ -146,7 +178,8 @@
                                 <thead>
                                     <tr>
                                         <!-- Priority 1 = Selalu muncul, Priority rendah = sembunyi di tombol + -->
-                                        <th style="text-align: center; vertical-align: middle" data-priority="1">ID ODP
+                                        <th style="text-align: center; vertical-align: middle" data-priority="1">ID
+                                            ODP
                                         </th>
                                         <th style="text-align: center; vertical-align: middle" data-priority="2">Jenis
                                         </th>
@@ -165,17 +198,20 @@
                                                 class="font-weight-bold align-middle">
                                                 ODP-{{ $odp->id }}
                                             </td>
-                                            <td style="text-align: center; vertical-align: middle" class="align-middle">
+                                            <td style="text-align: center; vertical-align: middle"
+                                                class="align-middle">
                                                 <span
                                                     class="badge {{ $odp->jenis_odp == 'GPON' ? 'badge-success' : 'badge-warning' }}">
                                                     {{ $odp->jenis_odp }}
                                                 </span>
                                             </td>
-                                            <td style="text-align: center; vertical-align: middle" class="align-middle">
+                                            <td style="text-align: center; vertical-align: middle"
+                                                class="align-middle">
                                                 <div class="btn-group">
                                                     {{-- Tombol Edit memicu Modal Consolidated via JS --}}
                                                     <button class="btn btn-warning btn-sm btn-edit"
-                                                        data-id="{{ $odp->id }}" data-jenis="{{ $odp->jenis_odp }}"
+                                                        data-id="{{ $odp->id }}"
+                                                        data-jenis="{{ $odp->jenis_odp }}"
                                                         data-lokasi="{{ $odp->lokasi_odp }}"
                                                         data-koordinat="{{ $odp->titik_koordinat }}"
                                                         data-keterangan="{{ $odp->keterangan }}">
@@ -205,7 +241,8 @@
                                                 {{ $odp->keterangan ?? '-' }}</td>
                                             <td style="text-align: center; vertical-align: middle">
                                                 @if ($odp->foto_odp)
-                                                    <a href="{{ asset('storage/' . $odp->foto_odp) }}" target="_blank"
+                                                    <a href="{{ asset('storage/' . $odp->foto_odp) }}"
+                                                        target="_blank"
                                                         class="btn btn-outline-secondary btn-sm btn-block">
                                                         <i class="fas fa-image mr-1"></i> Lihat Foto
                                                     </a>
