@@ -9,3 +9,58 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+@layer components {
+    /* Rounded-2xl inputs and buttons */
+    .form-control,
+    .form-select,
+    .form-textarea,
+    .btn,
+    .input-group-text {
+        @apply rounded-2xl transition-all duration-200;
+    }
+
+    /* Consistent focus states for inputs */
+    .form-control:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+        @apply outline-none ring-2 ring-sky-400 ring-offset-2 dark:ring-offset-slate-900 border-transparent;
+    }
+
+    /* Soft-shadow cards */
+    .card-soft {
+        @apply bg-white dark:bg-slate-800 rounded-2xl border-none;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+    }
+
+    /* Table styles - Soft lines and friendly padding */
+    .table-custom {
+        @apply w-full text-sm text-left border-separate border-spacing-0;
+    }
+
+    .table-custom th {
+        @apply py-3 px-4 font-semibold text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 uppercase text-xs tracking-wider;
+    }
+
+    .table-custom td {
+        @apply py-3 px-4 border-b border-slate-50 dark:border-slate-800/50 align-middle;
+    }
+
+    .table-custom tr:last-child td {
+        @apply border-b-0;
+    }
+
+    .table-custom tbody tr {
+        @apply transition-colors duration-150 hover:bg-slate-50/50 dark:hover:bg-slate-800/50;
+    }
+}
+
+@layer utilities {
+    .soft-shadow {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+    }
+
+    .focus-ring {
+        @apply focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-slate-900;
+    }
+}
