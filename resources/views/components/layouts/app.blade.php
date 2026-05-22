@@ -1,13 +1,24 @@
 <!doctype html>
 <html lang="id">
 <x-layouts.header />
+@vite(['resources/css/app.css', 'resources/js/app.js'])
 
-<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<body class="layout-fixed sidebar-expand-lg bg-slate-50 text-slate-900 antialiased font-sans">
     <!--begin::App Wrapper-->
-    <div class="app-wrapper">
+    <div class="app-wrapper min-h-screen">
         <x-layouts.navbar />
         <x-layouts.sidebar />
-        {{ $slot }}
+
+        <!--begin::App Main-->
+        <main class="app-main p-4 md:p-6 lg:p-8">
+            <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="p-6">
+                    {{ $slot }}
+                </div>
+            </div>
+        </main>
+        <!--end::App Main-->
+
         <x-layouts.footer />
     </div>
     <!--end::App Wrapper-->
