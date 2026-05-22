@@ -1,311 +1,419 @@
 {{-- Modal Tambah Pre-Order --}}
 @if (auth()->user()->jabatan === 'Sales' || auth()->user()->jabatan === 'Administrator')
-    <div class="modal fade" id="addPreOrderModal" tabindex="-1" aria-labelledby="addPreOrderModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addPreOrderModalLabel">Tambah Pre-Order</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-overlay" id="addPreOrderModal">
+        <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                <div class="modal-title">
+                    <i class="fa-solid fa-user-plus text-primary"></i>
+                    <span class="text-slate-900 font-bold">Tambah Pre-Order Baru</span>
                 </div>
-                <form action="{{ route('pre_orders.store') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    {{-- Field tersembunyi untuk Sales --}}
-                    <input type="hidden" name="id_sales" value="{{ auth()->user()->id }}">
-                    <input type="hidden" name="nama_sales" value="{{ auth()->user()->nama_lengkap }}">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="paket_internet" class="form-label">Paket Internet</label>
-                            <select class="form-control" id="paket_internet" name="paket_internet" required>
-                                <option value="">Pilih Paket Internet</option>
+                <button class="modal-close" onclick="closeCustomModal('addPreOrderModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="modal-tabs bg-white border-b border-slate-200">
+                <button class="modal-tab active" data-tab="add-tab-biodata">
+                    <i class="fa-solid fa-user"></i> Biodata
+                </button>
+                <button class="modal-tab" data-tab="add-tab-paket">
+                    <i class="fa-solid fa-box-archive"></i> Paket & Lokasi
+                </button>
+                <button class="modal-tab" data-tab="add-tab-media">
+                    <i class="fa-solid fa-camera"></i> Foto / Media
+                </button>
+            </div>
+
+            <form action="{{ route('pre_orders.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="id_sales" value="{{ auth()->user()->id }}">
+                <input type="hidden" name="nama_sales" value="{{ auth()->user()->nama_lengkap }}">
+
+                <div class="modal-body bg-white">
+                    <!-- Tab Biodata -->
+                    <div class="tab-panel active" id="add-tab-biodata">
+                        <div class="form-group">
+                            <label class="form-label text-slate-800 font-bold">Nama Lengkap <span class="text-rose-500">*</span></label>
+                            <input type="text" class="form-input bg-white text-slate-900 border-slate-300" name="nama_lengkap" placeholder="Nama lengkap calon pelanggan" required>
+                        </div>
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold">No. Identitas (NIK)</label>
+                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300" name="no_identitas" placeholder="3201..." required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold">No. WhatsApp <span class="text-rose-500">*</span></label>
+                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300" name="no_whatsapp" placeholder="0812..." required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-slate-800 font-bold">Alamat Email</label>
+                            <input type="email" class="form-input bg-white text-slate-900 border-slate-300" name="alamat_email" placeholder="nama@email.com">
+                        </div>
+                    </div>
+
+                    <!-- Tab Paket & Lokasi -->
+                    <div class="tab-panel" id="add-tab-paket">
+                        <div class="form-group">
+                            <label class="form-label text-slate-800 font-bold">Pilih Paket Internet <span class="text-rose-500">*</span></label>
+                            <select class="form-select bg-white text-slate-900 border-slate-300" name="paket_internet" required>
+                                <option value="">-- Pilih Paket --</option>
                                 <option value="Bronze 10Mbps - 112K/Bulan">Bronze 10Mbps - 112K/Bulan</option>
                                 <option value="Silver 20Mbps - 179K/Bulan">Silver 20Mbps - 179K/Bulan</option>
                                 <option value="Gold 30Mbps - 239K/Bulan">Gold 30Mbps - 239K/Bulan</option>
-                                <option value="Platinum 50Mbps - 279K/Bulan">Platinum 50Mbps - 279K/Bulan
-                                </option>
+                                <option value="Platinum 50Mbps - 279K/Bulan">Platinum 50Mbps - 279K/Bulan</option>
                             </select>
                         </div>
-                        <div class="mb-3">
-                            <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
-                            <input type="text" class="form-control" name="nama_lengkap"
-                                placeholder="Masukkan Nama Lengkap" required autocomplete="off">
+                        <div class="form-group">
+                            <label class="form-label text-slate-800 font-bold">Alamat Lengkap Pemasangan <span class="text-rose-500">*</span></label>
+                            <textarea class="form-textarea bg-white text-slate-900 border-slate-300" name="alamat_lengkap" placeholder="Jl. Raya No. 123..." required></textarea>
                         </div>
-                        <div class="mb-3">
-                            <label for="no_identitas" class="form-label">Nomor Identitas</label>
-                            <input type="text" class="form-control" name="no_identitas"
-                                placeholder="Masukkan No. Identitas KTP/SIM" required autocomplete="off">
-                        </div>
-                        <div class="mb-3">
-                            <label for="no_whatsapp" class="form-label">Nomor WhatsApp</label>
-                            <input type="text" class="form-control" name="no_whatsapp"
-                                placeholder="Masukkan No. WhatsApp Aktif" required autocomplete="off">
-                        </div>
-                        <div class="mb-3">
-                            <label for="alamat_email" class="form-label">Alamat Email</label>
-                            <input type="email" class="form-control" name="alamat_email"
-                                placeholder="Masukkan Alamat Email" required autocomplete="off">
-                        </div>
-                        <div class="mb-3">
-                            <label for="alamat_lengkap" class="form-label">Alamat Lengkap</label>
-                            <textarea class="form-control" name="alamat_lengkap" placeholder="Masukkan Alamat Lengkap" required autocomplete="off"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="titik_koordinat" class="form-label">Titik Koordinat</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="titik_koordinat" name="titik_koordinat"
-                                    placeholder="Titik Koordinat Pemasangan" required readonly>
-                                <button type="button" class="btn btn-primary" id="get-location-btn">Ambil</button>
+                        <div class="form-group">
+                            <label class="form-label text-slate-800 font-bold">Titik Koordinat</label>
+                            <div class="flex gap-2">
+                                <input type="text" class="form-input bg-slate-50 text-slate-900 border-slate-300" id="titik_koordinat" name="titik_koordinat" placeholder="Koordinat..." readonly>
+                                <button type="button" class="btn-primary-admin !shadow-none !flex !items-center !justify-center" id="get-location-btn">
+                                    <i class="fa-solid fa-location-crosshairs"></i>
+                                </button>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="foto_ktp" class="form-label">Foto KTP</label>
-                            <input type="file" class="form-control" name="foto_ktp">
+                    </div>
+
+                    <!-- Tab Media -->
+                    <div class="tab-panel" id="add-tab-media">
+                        <div class="form-group">
+                            <label class="form-label text-slate-800 font-bold">Foto KTP</label>
+                            <input type="file" class="form-input bg-white text-slate-900 border-slate-300" name="foto_ktp" accept="image/*">
                         </div>
-                        <div class="mb-3">
-                            <label for="foto_rumah" class="form-label">Foto Rumah</label>
-                            <input type="file" class="form-control" name="foto_rumah">
+                        <div class="form-group">
+                            <label class="form-label text-slate-800 font-bold">Foto Rumah / Lokasi</label>
+                            <input type="file" class="form-input bg-white text-slate-900 border-slate-300" name="foto_rumah" accept="image/*">
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-                        <button type="submit" class="btn btn-primary btn-sm">Simpan</button>
-                    </div>
-                </form>
-            </div>
+                </div>
+
+                <div class="modal-footer border-t border-slate-200 bg-white rounded-b-2xl">
+                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2" onclick="closeCustomModal('addPreOrderModal')">
+                        <i class="fa-solid fa-circle-xmark"></i> Batal
+                    </button>
+                    <button type="submit" class="btn-save !flex !items-center !justify-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan Data
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 @endif
-<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editModalLabel">Edit Data Pre-Order</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+{{-- Modal Edit Pre-Order --}}
+<div class="modal-overlay" id="editModal">
+    <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
+        <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+            <div class="modal-title">
+                <i class="fa-solid fa-pen-to-square text-amber-500"></i>
+                <span class="text-slate-900 font-bold">Edit Data Pre-Order</span>
             </div>
-            <form id="editForm" method="POST" action="" enctype="multipart/form-data">
-                @csrf
-                @method('PUT')
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="edit_paket_internet" class="form-label">Paket Internet</label>
-                        <select class="form-control" id="edit_paket_internet" name="paket_internet" required>
-                            <option value="">Pilih Paket Internet</option>
+            <button class="modal-close" onclick="closeCustomModal('editModal')">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="modal-tabs bg-white border-b border-slate-200">
+            <button class="modal-tab active" data-tab="edit-tab-biodata">Biodata</button>
+            <button class="modal-tab" data-tab="edit-tab-paket">Paket & Lokasi</button>
+            <button class="modal-tab" data-tab="edit-tab-media">Foto</button>
+        </div>
+
+        <form id="editForm" method="POST" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+            <div class="modal-body bg-white">
+                <div class="tab-panel active" id="edit-tab-biodata">
+                    <div class="form-group">
+                        <label class="form-label text-slate-800 font-bold">Nama Lengkap</label>
+                        <input type="text" class="form-input bg-white text-slate-900 border-slate-300" id="edit_nama_lengkap" name="nama_lengkap" required>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label text-slate-800 font-bold">No. Identitas</label>
+                            <input type="text" class="form-input bg-white text-slate-900 border-slate-300" id="edit_no_identitas" name="no_identitas" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-slate-800 font-bold">No. WhatsApp</label>
+                            <input type="text" class="form-input bg-white text-slate-900 border-slate-300" id="edit_no_whatsapp" name="no_whatsapp" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label text-slate-800 font-bold">Alamat Email</label>
+                        <input type="email" class="form-input bg-white text-slate-900 border-slate-300" id="edit_alamat_email" name="alamat_email">
+                    </div>
+                </div>
+
+                <div class="tab-panel" id="edit-tab-paket">
+                    <div class="form-group">
+                        <label class="form-label text-slate-800 font-bold">Paket Internet</label>
+                        <select class="form-select bg-white text-slate-900 border-slate-300" id="edit_paket_internet" name="paket_internet" required>
                             <option value="Bronze 10Mbps - 112K/Bulan">Bronze 10Mbps - 112K/Bulan</option>
                             <option value="Silver 20Mbps - 179K/Bulan">Silver 20Mbps - 179K/Bulan</option>
                             <option value="Gold 30Mbps - 239K/Bulan">Gold 30Mbps - 239K/Bulan</option>
                             <option value="Platinum 50Mbps - 279K/Bulan">Platinum 50Mbps - 279K/Bulan</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label for="edit_nama_lengkap" class="form-label">Nama Lengkap</label>
-                        <input type="text" class="form-control" id="edit_nama_lengkap" name="nama_lengkap"
-                            placeholder="Masukkan Nama Lengkap" required autocomplete="off">
+                    <div class="form-group">
+                        <label class="form-label text-slate-800 font-bold">Alamat Lengkap</label>
+                        <textarea class="form-textarea bg-white text-slate-900 border-slate-300" id="edit_alamat_lengkap" name="alamat_lengkap" required></textarea>
                     </div>
-                    <div class="mb-3">
-                        <label for="edit_no_identitas" class="form-label">Nomor Identitas</label>
-                        <input type="text" class="form-control" id="edit_no_identitas" name="no_identitas"
-                            placeholder="Masukkan No. Identitas KTP/SIM" required autocomplete="off">
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit_no_whatsapp" class="form-label">Nomor WhatsApp</label>
-                        <input type="text" class="form-control" id="edit_no_whatsapp" name="no_whatsapp"
-                            placeholder="Masukkan No. WhatsApp Aktif" required autocomplete="off">
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit_alamat_email" class="form-label">Alamat Email</label>
-                        <input type="email" class="form-control" id="edit_alamat_email" name="alamat_email"
-                            placeholder="Masukkan Alamat Email" required autocomplete="off">
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit_alamat_lengkap" class="form-label">Alamat Lengkap</label>
-                        <textarea class="form-control" id="edit_alamat_lengkap" name="alamat_lengkap" placeholder="Masukkan Alamat Lengkap"
-                            required autocomplete="off"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit_titik_koordinat" class="form-label">Titik Koordinat</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="edit_titik_koordinat"
-                                name="titik_koordinat" placeholder="Titik Koordinat Pemasangan" readonly>
-                            <button type="button" class="btn btn-primary" id="edit-get-location-btn">Ambil</button>
+                    <div class="form-group">
+                        <label class="form-label text-slate-800 font-bold">Titik Koordinat</label>
+                        <div class="flex gap-2">
+                            <input type="text" class="form-input bg-slate-50 text-slate-900 border-slate-300" id="edit_titik_koordinat" name="titik_koordinat" readonly>
+                            <button type="button" class="btn-primary-admin !shadow-none !flex !items-center !justify-center" id="edit-get-location-btn">
+                                <i class="fa-solid fa-location-crosshairs"></i>
+                            </button>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="edit_foto_ktp" class="form-label">Foto KTP</label>
-                        <div id="current_foto_ktp" class="mt-2"></div>
-                        <input type="file" class="form-control" id="edit_foto_ktp" name="foto_ktp">
-                    </div>
-                    <div class="mb-3">
-                        <label for="edit_foto_rumah" class="form-label">Foto Rumah</label>
-                        <div id="current_foto_rumah" class="mt-2"></div>
-                        <input type="file" class="form-control" id="edit_foto_rumah" name="foto_rumah">
+                </div>
+
+                <div class="tab-panel" id="edit-tab-media">
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label text-slate-800 font-bold">Foto KTP</label>
+                            <div id="current_foto_ktp" class="mb-2 border rounded-xl overflow-hidden"></div>
+                            <input type="file" class="form-input bg-white text-slate-900 border-slate-300" name="foto_ktp">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-slate-800 font-bold">Foto Rumah</label>
+                            <div id="current_foto_rumah" class="mb-2 border rounded-xl overflow-hidden"></div>
+                            <input type="file" class="form-input bg-white text-slate-900 border-slate-300" name="foto_rumah">
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-                    <button type="submit" class="btn btn-primary btn-sm">Simpan Perubahan</button>
+            </div>
+            <div class="modal-footer border-t border-slate-200 bg-white rounded-b-2xl">
+                <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2" onclick="closeCustomModal('editModal')">
+                    <i class="fa-solid fa-circle-xmark"></i> Tutup
+                </button>
+                <button type="submit" class="btn-save !flex !items-center !justify-center gap-2">
+                    <i class="fa-solid fa-rotate"></i> Update Data
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- Detail Modal --}}
+<div class="modal-overlay" id="detailModal">
+    <div class="modal-box max-w-4xl bg-white border border-slate-300 shadow-2xl">
+        <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+            <div class="modal-title">
+                <i class="fa-solid fa-circle-info text-primary"></i>
+                <span class="text-slate-900 font-bold">Detail Informasi Pelanggan</span>
+            </div>
+            <button class="modal-close" onclick="closeCustomModal('detailModal')">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="modal-body !p-0 bg-white">
+            <div class="grid grid-cols-1 lg:grid-cols-5 h-full">
+                <!-- Left Side: Data Pelanggan -->
+                <div class="lg:col-span-3 p-8 space-y-8 bg-white">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Biodata -->
+                        <div class="space-y-4">
+                            <h6 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-l-4 border-primary pl-3">Biodata Inti</h6>
+                            <div class="space-y-4">
+                                <div>
+                                    <span class="text-[11px] font-bold text-slate-400 block uppercase">Nomor Identitas (NIK)</span>
+                                    <p id="detail_identitas" class="text-xl font-black text-slate-900 leading-none mt-1"></p>
+                                </div>
+                                <div>
+                                    <span class="text-[11px] font-bold text-slate-400 block uppercase">Alamat Email</span>
+                                    <p id="detail_email" class="text-base font-black text-primary truncate"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Layanan -->
+                        <div class="space-y-4">
+                            <h6 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-l-4 border-indigo-500 pl-3">Paket Layanan</h6>
+                            <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-200">
+                                <span class="text-[10px] font-black text-indigo-400 block uppercase mb-1">Paket Internet</span>
+                                <p id="detail_paket" class="text-lg font-black text-indigo-800 leading-tight"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lokasi -->
+                    <div class="space-y-4">
+                        <h6 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-l-4 border-emerald-500 pl-3">Informasi Lokasi</h6>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="md:col-span-2">
+                                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                                    <span class="text-[10px] font-bold text-slate-500 block uppercase mb-1">Alamat Pemasangan</span>
+                                    <p id="detail_alamat" class="text-sm font-bold text-slate-800 leading-relaxed"></p>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-200">
+                                    <span class="text-[10px] font-bold text-emerald-600 block uppercase mb-1">Koordinat GPS</span>
+                                    <p id="detail_koordinat" class="text-xs font-black text-emerald-800 break-all"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Right Side: Lampiran -->
+                <div class="lg:col-span-2 p-8 bg-slate-50 border-l border-slate-200 space-y-6">
+                    <h6 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Lampiran Dokumen</h6>
+                    
+                    <div class="space-y-6">
+                        <!-- KTP -->
+                        <div class="group relative text-center">
+                            <span class="text-[11px] font-black text-slate-600 block mb-2 uppercase text-center">Foto KTP</span>
+                            <div class="aspect-video rounded-2xl overflow-hidden border-2 border-white shadow-md bg-white flex items-center justify-center transition-transform hover:scale-[1.02] duration-300">
+                                <img id="detail_foto_ktp" src="" class="w-full h-full object-cover hidden cursor-pointer" alt="KTP" onclick="window.open(this.src, '_blank')">
+                                <div id="no_ktp_placeholder" class="text-slate-300 text-xs text-center">
+                                    <i class="fa-solid fa-image-portrait text-3xl mb-1 block"></i>
+                                    Tidak ada
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rumah -->
+                        <div class="group relative text-center">
+                            <span class="text-[11px] font-black text-slate-600 block mb-2 uppercase text-center">Foto Rumah</span>
+                            <div class="aspect-video rounded-2xl overflow-hidden border-2 border-white shadow-md bg-white flex items-center justify-center transition-transform hover:scale-[1.02] duration-300">
+                                <img id="detail_foto_rumah" src="" class="w-full h-full object-cover hidden cursor-pointer" alt="Rumah" onclick="window.open(this.src, '_blank')">
+                                <div id="no_rumah_placeholder" class="text-slate-300 text-xs text-center">
+                                    <i class="fa-solid fa-house-chimney text-3xl mb-1 block"></i>
+                                    Tidak ada
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-primary/5 p-4 rounded-2xl border border-primary/10">
+                        <p class="text-[10px] text-slate-500 leading-relaxed font-medium italic text-center">
+                            * Klik gambar untuk melihat ukuran penuh.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer !bg-white border-t border-slate-200 rounded-b-2xl">
+            <button type="button" class="btn-cancel w-full !py-3.5 !text-sm !rounded-xl !bg-slate-100 !text-slate-600 hover:!bg-slate-200 !flex !items-center !justify-center gap-2 transition-colors" onclick="closeCustomModal('detailModal')">
+                <i class="fa-solid fa-circle-xmark"></i> Tutup Halaman Detail
+            </button>
+        </div>
+    </div>
+</div>
+
+{{-- Delete Modal --}}
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-box max-w-sm bg-white border border-slate-300 shadow-2xl">
+        <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+            <div class="modal-title text-slate-900 font-bold">Konfirmasi Hapus</div>
+            <button class="modal-close" onclick="closeCustomModal('deleteModal')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body text-center p-8 bg-white">
+            <i class="fa-solid fa-triangle-exclamation text-rose-500 text-5xl mb-4"></i>
+            <p class="text-slate-700 font-medium">Yakin ingin menghapus data pre-order ini? Tindakan ini permanen.</p>
+        </div>
+        <div class="modal-footer border-t border-slate-200 bg-white rounded-b-2xl">
+            <form id="deleteForm" method="POST" class="w-full flex gap-3">
+                @csrf
+                @method('DELETE')
+                <button type="button" class="btn-cancel flex-1 !flex !items-center !justify-center gap-2" onclick="closeCustomModal('deleteModal')">
+                    <i class="fa-solid fa-circle-xmark"></i> Batal
+                </button>
+                <button type="submit" class="btn-save !bg-rose-500 flex-1 !flex !items-center !justify-center gap-2">
+                    <i class="fa-solid fa-trash"></i> Hapus
+                </button>
             </form>
         </div>
     </div>
 </div>
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Konfirmasi Hapus</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Apakah Anda yakin ingin menghapus data pre-order ini?
-            </div>
-            <div class="modal-footer">
-                <form id="deleteForm" method="POST" action="">
-                    @csrf
-                    @method('DELETE')
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="detailModalLabel">Detail Identitas & Email</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <h6>Nomor Identitas (NIK):</h6>
-                <p id="detail_identitas" class="fs-4 fw-bold text-primary"></p>
 
-                <hr>
+{{-- Map Modal --}}
+<div class="modal-overlay" id="mapModal">
+    <div class="modal-box max-w-5xl bg-white border border-slate-300 shadow-2xl">
+        <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+            <div class="modal-title text-slate-900 font-bold">Lokasi Pemasangan</div>
+            <button class="modal-close" onclick="closeCustomModal('mapModal')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body !p-0 overflow-hidden bg-white">
+            <div id="modal-map" style="width: 100%;" class="h-[50vh] md:h-[500px]"></div>
+        </div>
+        <div class="modal-footer border-t border-slate-200 bg-white rounded-b-2xl">
+            <a id="gmaps-button" href="#" target="_blank" class="btn-save !shadow-lg !flex !items-center !justify-center gap-2">
+                <i class="fa-solid fa-map-location-dot"></i> Lihat di Google Maps
+            </a>
+            <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2" onclick="closeCustomModal('mapModal')">
+                <i class="fa-solid fa-circle-xmark"></i> Tutup
+            </button>
+        </div>
+    </div>
+</div>
 
-                <h6>Alamat Email:</h6>
-                <p id="detail_email" class="fs-5 fw-bold text-info"></p>
+{{-- Delegate Modal --}}
+<div class="modal-overlay" id="delegateModal">
+    <div class="modal-box bg-white border border-slate-300 shadow-2xl">
+        <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+            <div class="modal-title text-slate-900 font-bold">
+                <i class="fa-solid fa-user-gear text-sky-500"></i>
+                <span>Delegasi Tugas</span>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-            </div>
+            <button class="modal-close" onclick="closeCustomModal('delegateModal')"><i class="fa-solid fa-xmark"></i></button>
         </div>
-    </div>
-</div>
-<div class="modal fade" id="mapModal" tabindex="-1" aria-labelledby="mapModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="mapModalLabel">Titik Lokasi Pelanggan</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div id="modal-map" style="height: 500px;"></div>
-            </div>
-            <div class="modal-footer">
-                <a id="gmaps-button" href="#" target="_blank" class="btn btn-primary btn-sm">Lihat di
-                    Gmaps</a>
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="viewKtpModal" tabindex="-1" aria-labelledby="viewKtpModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="viewKtpModalLabel">Foto KTP</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <img id="ktp_image" src="" class="img-fluid" alt="Foto KTP">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="viewRumahModal" tabindex="-1" aria-labelledby="viewRumahModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="viewRumahpModalLabel">Foto Rumah</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <img id="rumah_image" src="" class="img-fluid" alt="Foto Rumah">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="alamatModal" tabindex="-1" aria-labelledby="alamatModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="alamatModalLabel">Alamat Lengkap</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p id="full_alamat"></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="delegateModal" tabindex="-1" aria-labelledby="delegateModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="delegateModalLabel">Delegasi Tugas PO: <span
-                        id="delegate_po_name"></span></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="delegateForm" method="POST" action="">
-                @csrf
-                <div class="modal-body">
-                    <label for="teknisi_pilihan" class="form-label">Pilih Teknisi</label>
-                    <select class="form-control" id="teknisi_pilihan" name="id_teknisi" required>
-                        <option value="">-- Pilih Teknisi --</option>
-                        {{-- Data teknisi diisi dari Controller --}}
+        <form id="delegateForm" method="POST">
+            @csrf
+            <div class="modal-body bg-white">
+                <p class="text-sm text-slate-600 mb-4 text-center">Tugaskan <strong id="delegate_po_name" class="text-primary"></strong> kepada teknisi.</p>
+                <div class="form-group">
+                    <label class="form-label text-slate-800 font-bold">Pilih Teknisi</label>
+                    <select class="form-select bg-white text-slate-900 border-slate-300" name="id_teknisi" required>
+                        <option value="">-- Cari Teknisi --</option>
                         @foreach ($teknisiUsers as $teknisi)
                             <option value="{{ $teknisi->id }}">{{ $teknisi->nama_lengkap }}</option>
                         @endforeach
                     </select>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary btn-sm">Tugaskan</button>
-                </div>
-            </form>
-        </div>
+            </div>
+            <div class="modal-footer border-t border-slate-200 bg-white rounded-b-2xl">
+                <button type="button" class="btn-cancel flex-1 !flex !items-center !justify-center gap-2" onclick="closeCustomModal('delegateModal')">
+                    <i class="fa-solid fa-circle-xmark"></i> Batal
+                </button>
+                <button type="submit" class="btn-save flex-1 !flex !items-center !justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Tugaskan Sekarang
+                </button>
+            </div>
+        </form>
     </div>
 </div>
-<div class="modal fade" id="resetModal" tabindex="-1" aria-labelledby="resetModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="resetModalLabel">Konfirmasi Reset Tugas</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Anda yakin ingin **MENGHAPUS** penugasan untuk PO:</p>
-                <h5 class="text-danger fw-bold" id="reset_po_name"></h5>
-                <p class="mt-3">Aksi ini akan menghapus Teknisi yang ditugaskan dan tanggal delegasi. PO akan kembali
-                    menjadi Tugas Umum.</p>
-            </div>
-            <div class="modal-footer">
-                <form id="resetForm" method="POST" action="">
-                    @csrf
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-x-circle-fill"></i> Reset
-                        Tugas</button>
-                </form>
-            </div>
+
+{{-- Reset Modal --}}
+<div class="modal-overlay" id="resetModal">
+    <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
+        <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+            <div class="modal-title text-slate-900 font-bold">Reset Penugasan</div>
+            <button class="modal-close" onclick="closeCustomModal('resetModal')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body p-6 text-center bg-white">
+            <p class="text-slate-700 font-bold text-sm">Hapus penugasan teknisi untuk:</p>
+            <h5 class="text-lg font-black text-rose-500 my-2" id="reset_po_name"></h5>
+            <p class="text-xs text-slate-500 italic">PO akan kembali menjadi "Tugas Umum".</p>
+        </div>
+        <div class="modal-footer border-t border-slate-200 bg-white rounded-b-2xl">
+            <form id="resetForm" method="POST" class="w-full flex gap-3">
+                @csrf
+                <button type="button" class="btn-cancel flex-1 !flex !items-center !justify-center gap-2" onclick="closeCustomModal('resetModal')">
+                    <i class="fa-solid fa-circle-xmark"></i> Batal
+                </button>
+                <button type="submit" class="btn-save !bg-amber-500 flex-1 !flex !items-center !justify-center gap-2">
+                    <i class="fa-solid fa-arrow-rotate-left"></i> Reset Tugas
+                </button>
+            </form>
         </div>
     </div>
 </div>

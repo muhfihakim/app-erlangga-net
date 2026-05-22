@@ -1,54 +1,6 @@
 <x-layouts.app>
     @section('Css')
-        <!-- Hakatech DataTables Customization -->
         <style>
-            .dataTables_wrapper { padding: 0; }
-            .dataTables_filter { display: none; } /* Hide default search box */
-
-            .dataTables_paginate { display: flex; justify-content: flex-end; padding: 1.25rem 1.5rem; gap: 4px; border-top: 1px solid #f1f5f9; transition: border-color 0.3s ease; }
-            .dark .dataTables_paginate { border-color: #334155; }
-            .paginate_button {
-                width: 34px; height: 34px; border-radius: 8px;
-                border: 1.5px solid #e2e8f0; background: #fff;
-                color: #64748b !important; font-size: 13px; font-weight: 600;
-                display: inline-flex; align-items: center; justify-content: center;
-                cursor: pointer; transition: all .2s;
-                text-decoration: none !important;
-            }
-            .dark .paginate_button { background: #334155; border-color: #475569; color: #94a3b8 !important; }
-            .paginate_button:hover:not(.disabled):not(.current) {
-                border-color: #0ea5e9; color: #0ea5e9 !important; background: #f0f9ff;
-            }
-            .dark .paginate_button:hover:not(.disabled):not(.current) { background: #475569; color: #fff !important; }
-            .paginate_button.current, .paginate_button.current:hover {
-                background: #0ea5e9; border-color: #0ea5e9; color: #fff !important;
-            }
-            .paginate_button.disabled { opacity: 0.35; cursor: not-allowed; }
-            table.dataTable.no-footer { border-bottom: none; }
-
-            /* Empty State Styling */
-            .dataTables_empty {
-                text-align: center !important;
-                padding: 4rem 2rem !important;
-                color: #94a3b8 !important;
-                font-weight: 500 !important;
-                font-size: 14px !important;
-                background: #fff !important;
-                transition: background-color 0.3s ease, color 0.3s ease;
-            }
-            .dark .dataTables_empty { background: #1e293b !important; color: #64748b !important; }
-            .dataTables_empty::before {
-                content: '\f07b'; /* FontAwesome folder-open or similar */
-                font-family: 'Font Awesome 6 Free';
-                font-weight: 900;
-                display: block;
-                font-size: 2.5rem;
-                color: #e2e8f0;
-                margin-bottom: 1rem;
-                transition: color 0.3s ease;
-            }
-            .dark .dataTables_empty::before { color: #334155; }
-
             /* Toolbar Styling */
             .table-toolbar {
                 background: #fff; border: 1px solid #e2e8f0;
@@ -56,9 +8,7 @@
                 display: flex; align-items: center; justify-content: space-between;
                 gap: 12px; flex-wrap: wrap; margin-bottom: 1rem;
                 box-shadow: 0 1px 6px rgba(0,0,0,.05);
-                transition: background-color 0.3s ease, border-color 0.3s ease;
             }
-            .dark .table-toolbar { background: #1e293b; border-color: #334155; }
             .search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 360px; }
             .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 13px; pointer-events: none; }
             .search-input {
@@ -68,9 +18,7 @@
                 outline: none; transition: all .25s;
                 background: #f8fafc;
             }
-            .dark .search-input { background: #334155; border-color: #475569; color: #f8fafc; }
             .search-input:focus { border-color: #0ea5e9; background: #fff; }
-            .dark .search-input:focus { border-color: #0ea5e9; background: #1e293b; }
             .search-input::placeholder { color: #94a3b8; }
         </style>
     @endsection
@@ -188,7 +136,7 @@
                            autocomplete="off"/>
                 </div>
                 <div style="display:flex;gap:8px;">
-                    <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0;" class="dark:bg-slate-800 dark:border-slate-700">
+                    <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
                         Log Sistem
                     </div>
                 </div>
@@ -253,14 +201,14 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
                 @forelse ($delegatedTasks as $task)
                     <div class="stat-card" style="flex-direction: column; align-items: stretch; gap: 0; padding: 0; overflow: hidden;">
-                        <div style="padding: 1.25rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: flex-start;" class="dark:border-slate-800">
+                        <div style="padding: 1.25rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: flex-start;">
                             <div style="min-width: 0;">
                                 <h4 style="font-size: 14px; font-weight: 700; margin: 0; text-transform: uppercase;">{{ Str::limit($task->nama_lengkap, 25) }}</h4>
                                 <span class="badge {{ $task->bg_color === 'bg-danger' ? 'badge-archived' : 'badge-published' }}" style="margin-top: 0.5rem; font-size: 9px;">
                                     {{ $task->status_display }}
                                 </span>
                             </div>
-                            <div style="width: 36px; height: 36px; border-radius: 10px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #64748b;" class="dark:bg-slate-800">
+                            <div style="width: 36px; height: 36px; border-radius: 10px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #64748b;">
                                 <i class="fa-solid fa-user-gear"></i>
                             </div>
                         </div>
@@ -278,7 +226,7 @@
                                 <span style="font-family: monospace;">{{ $task->no_whatsapp }}</span>
                             </div>
                         </div>
-                        <div style="padding: 1rem 1.25rem; background: #f8fafc; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;" class="dark:bg-slate-900/50 dark:border-slate-800">
+                        <div style="padding: 1rem 1.25rem; background: #f8fafc; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
                             <div style="font-size: 10px; color: #94a3b8;">
                                 Deadline: <strong style="color: #ef4444;">{{ $task->deadline_date ?? 'N/A' }}</strong>
                             </div>
@@ -288,7 +236,7 @@
                         </div>
                     </div>
                 @empty
-                    <div style="grid-column: 1 / -1; padding: 3rem; background: #fff; border-radius: 14px; text-align: center; border: 2px dashed #e2e8f0;" class="dark:bg-slate-900/30 dark:border-slate-800">
+                    <div style="grid-column: 1 / -1; padding: 3rem; background: #fff; border-radius: 14px; text-align: center; border: 2px dashed #e2e8f0;">
                         <i class="fa-solid fa-circle-check" style="font-size: 3rem; color: #dcfce7; margin-bottom: 1rem; display: block;"></i>
                         <p style="font-weight: 600; color: #94a3b8;">Tidak ada tugas delegasi khusus saat ini.</p>
                     </div>

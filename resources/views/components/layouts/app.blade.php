@@ -2,7 +2,7 @@
 <html lang="id">
 <x-layouts.header />
 
-<body>
+<body class="bg-slate-100 text-slate-900 antialiased font-sans">
     <!-- Sidebar Overlay (mobile) -->
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
@@ -36,36 +36,8 @@
         function toggleSidebar() {
             const sb = document.getElementById('sidebar');
             const ov = document.getElementById('sidebar-overlay');
-            const open = sb.classList.toggle('open');
-            if (open) {
-                ov.classList.add('show');
-            } else {
-                ov.classList.remove('show');
-            }
-        }
-
-        function toggleTheme() {
-            const html = document.documentElement;
-            const icon = document.getElementById('theme-icon');
-            
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                localStorage.theme = 'light';
-                icon.className = 'fa-regular fa-moon';
-            } else {
-                html.classList.add('dark');
-                localStorage.theme = 'dark';
-                icon.className = 'fa-regular fa-sun';
-            }
-        }
-
-        // Apply theme on load
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-            document.addEventListener('DOMContentLoaded', () => {
-                const icon = document.getElementById('theme-icon');
-                if (icon) icon.className = 'fa-regular fa-sun';
-            });
+            sb.classList.toggle('open');
+            ov.classList.toggle('show');
         }
     </script>
 </body>

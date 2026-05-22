@@ -1,333 +1,212 @@
 @section('Scripts')
-    <script src="{{ asset('dist/js/jquery.min.js') }}"></script>
-    <script src="{{ asset('dist/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('dist/js/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('dist/js/dataTables.responsive.min.js') }}"></script>
-    <script src="{{ asset('dist/js/responsive.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('dist/js/dataTables.buttons.min.js') }}"></script>
-    <script src="{{ asset('dist/js/buttons.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('dist/js/buttons.colVis.min.js') }}"></script>
-    <script>
-        $(function() {
-            $("#example1").DataTable({
-                "responsive": true,
-                "lengthChange": false,
-                "autoWidth": false,
-                "ordering": false,
-            });
-        });
-    </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        // Logika SweetAlert
-        @if (session('success'))
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: '{{ session('success') }}',
-                showConfirmButton: false,
-                timer: 3000
-            });
-        @endif
-
-        @if (session('error'))
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: '{{ session('error') }}',
-            });
-        @endif
-
-        // Logika Ambil Titik Koordinat
-        document.getElementById('get-location-btn').addEventListener('click', function() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
-                    document.getElementById('titik_koordinat').value = `${lat},${lon}`;
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil!',
-                        text: 'Titik koordinat berhasil diambil.',
-                        showConfirmButton: false,
-                        timer: 2000
-                    });
-                }, error => {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Gagal mengambil lokasi. Pastikan izin lokasi diberikan.',
-                    });
-                    console.error(error);
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Geolocation tidak didukung oleh browser ini.',
-                });
-            }
-        });
-    </script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
     <script>
+        // --- Custom Modal System ---
+        function openCustomModal(modalId, triggerEl = null) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+
+            // Handle Data Population if triggerEl is provided
+            if (triggerEl) {
+                const $btn = $(triggerEl);
+                
+                if (modalId === 'editModal') {
+                    const poId = $btn.data('po-id');
+                    $('#editForm').attr('action', `/pre-orders/${poId}`);
+                    $('#edit_nama_lengkap').val($btn.data('po-nama'));
+                    $('#edit_paket_internet').val($btn.data('po-paket'));
+                    $('#edit_no_identitas').val($btn.data('po-identitas'));
+                    $('#edit_no_whatsapp').val($btn.data('po-wa'));
+                    $('#edit_alamat_email').val($btn.data('po-email'));
+                    $('#edit_alamat_lengkap').val($btn.data('po-alamat'));
+                    $('#edit_titik_koordinat').val($btn.data('po-koordinat'));
+                    
+                    // Reset tabs to first
+                    $(`#${modalId} .modal-tab`).first().trigger('click');
+                }
+
+                if (modalId === 'detailModal') {
+                    $('#detail_identitas').text($btn.data('identitas'));
+                    $('#detail_email').text($btn.data('email-lengkap'));
+                    $('#detail_alamat').text($btn.data('alamat-lengkap'));
+                    $('#detail_paket').text($btn.data('paket'));
+                    $('#detail_koordinat').text($btn.data('koordinat') || 'N/A');
+
+                    // Handle Photo Previews
+                    const fotoKtp = $btn.data('foto-ktp');
+                    const fotoRumah = $btn.data('foto-rumah');
+
+                    if (fotoKtp) {
+                        $('#detail_foto_ktp').attr('src', fotoKtp).removeClass('hidden');
+                        $('#no_ktp_placeholder').addClass('hidden');
+                    } else {
+                        $('#detail_foto_ktp').addClass('hidden');
+                        $('#no_ktp_placeholder').removeClass('hidden');
+                    }
+
+                    if (fotoRumah) {
+                        $('#detail_foto_rumah').attr('src', fotoRumah).removeClass('hidden');
+                        $('#no_rumah_placeholder').addClass('hidden');
+                    } else {
+                        $('#detail_foto_rumah').addClass('hidden');
+                        $('#no_rumah_placeholder').removeClass('hidden');
+                    }
+                }
+
+                if (modalId === 'deleteModal') {
+                    $('#deleteForm').attr('action', `/pre-orders/${$btn.data('po-id')}`);
+                }
+
+                if (modalId === 'delegateModal') {
+                    $('#delegateForm').attr('action', `/pre-orders/${$btn.data('po-id')}/delegate`);
+                    $('#delegate_po_name').text($btn.data('po-nama'));
+                }
+
+                if (modalId === 'resetModal') {
+                    $('#resetForm').attr('action', `/pre-orders/${$btn.data('po-id')}/reset-delegation`);
+                    $('#reset_po_name').text($btn.data('po-nama'));
+                }
+
+                if (modalId === 'mapModal') {
+                    const koordinat = $btn.data('koordinat');
+                    if (koordinat) {
+                        initModalMap(koordinat);
+                    }
+                }
+            }
+
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCustomModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // --- Map Logic ---
         let map;
-
-        document.getElementById('mapModal').addEventListener('shown.bs.modal', function(event) {
-            // Ambil koordinat dari tombol yang diklik
-            const button = event.relatedTarget;
-            const koordinat = button.getAttribute('data-koordinat');
+        function initModalMap(koordinat) {
             const [lat, lon] = koordinat.split(',').map(Number);
-
-            // Inisialisasi atau perbarui peta
-            if (map) {
-                map.remove();
-            }
-
-            map = L.map('modal-map').setView([lat, lon], 17); // Set zoom level 17 untuk detail
-
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-
-            L.marker([lat, lon]).addTo(map)
-                .bindPopup('Lokasi Pelanggan').openPopup();
-
+            
+            // Wait for modal transition
             setTimeout(() => {
-                map.invalidateSize();
-            }, 500);
-        });
+                const mapContainer = document.getElementById('modal-map');
+                if (!mapContainer) return;
 
-        // Pastikan peta direset saat modal ditutup
-        document.getElementById('mapModal').addEventListener('hidden.bs.modal', function() {
-            if (map) {
-                map.remove();
-                map = null;
-            }
-        });
-    </script>
-    <script>
-        // Listener untuk modal peta
-        const mapModal = document.getElementById('mapModal');
-        mapModal.addEventListener('show.bs.modal', function(event) {
-            const button = event.relatedTarget;
-            const koordinat = button.getAttribute('data-koordinat');
-            const [lat, lon] = koordinat.split(',');
+                if (map) {
+                    map.remove();
+                    map = null;
+                }
 
-            // Kode untuk inisialisasi peta (jika ada) di sini
-            // ...
+                map = L.map('modal-map').setView([lat, lon], 17);
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
 
-            // Menyetel href tombol "Lihat di Gmaps"
-            const gmapsButton = document.getElementById('gmaps-button');
-            // Format URL untuk membuka Gmaps di aplikasi seluler:
-            // Contoh: https://www.google.com/maps/dir/?api=1&destination=latitude,longitude
-            const gmapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
-            gmapsButton.href = gmapsUrl;
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const alamatModal = document.getElementById('alamatModal');
-            alamatModal.addEventListener('show.bs.modal', function(event) {
-                // Mendapatkan tombol yang memicu modal
-                const button = event.relatedTarget;
-                // Mengambil alamat lengkap dari atribut data
-                const fullAlamat = button.getAttribute('data-alamat-lengkap');
-                // Menemukan elemen <p> di dalam modal
-                const alamatParagraph = alamatModal.querySelector('#full_alamat');
-                // Menetapkan teks alamat ke elemen <p>
-                alamatParagraph.textContent = fullAlamat;
-            });
-        });
-    </script>
-    <script>
-        // Listener for the edit modal
-        const editModal = document.getElementById('editModal');
-        editModal.addEventListener('show.bs.modal', function(event) {
-            const button = event.relatedTarget;
-            const poId = button.getAttribute('data-po-id');
-            const poNama = button.getAttribute('data-po-nama');
-            const poPaket = button.getAttribute('data-po-paket');
-            const poWa = button.getAttribute('data-po-wa');
-            const poEmail = button.getAttribute('data-po-email');
-            const poAlamat = button.getAttribute('data-po-alamat');
-            const poIdentitas = button.getAttribute('data-po-identitas');
-            // Correct the attribute name to match your HTML
-            const poKoordinat = button.getAttribute('data-po-koordinat');
-            const poFotoKtp = button.getAttribute('data-po-foto-ktp');
-            const poFotoRumah = button.getAttribute('data-po-foto-rumah');
+                // Fix for missing marker icon in builds
+                const DefaultIcon = L.icon({
+                    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+                    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41]
+                });
+                L.Marker.prototype.options.icon = DefaultIcon;
 
-            // Set the form action to the correct update route
-            const editForm = document.getElementById('editForm');
-            editForm.action = `/pre-orders/${poId}`;
+                L.marker([lat, lon]).addTo(map)
+                    .bindPopup('<div class="text-center font-bold">Lokasi Pemasangan</div>')
+                    .openPopup();
+                
+                $('#gmaps-button').attr('href', `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`);
+                
+                // Repeated invalidation to handle complex CSS animations
+                setTimeout(() => map.invalidateSize(), 100);
+                setTimeout(() => map.invalidateSize(), 600);
+            }, 400);
+        }
 
-            // Populate the form fields
-            document.getElementById('edit_nama_lengkap').value = poNama;
-            document.getElementById('edit_paket_internet').value = poPaket;
-            document.getElementById('edit_no_identitas').value = poIdentitas;
-            document.getElementById('edit_no_whatsapp').value = poWa;
-            document.getElementById('edit_alamat_email').value = poEmail;
-            document.getElementById('edit_alamat_lengkap').value = poAlamat;
-            document.getElementById('edit_titik_koordinat').value = poKoordinat;
-
-            // Display existing photos
-            const currentKtpDiv = document.getElementById('current_foto_ktp');
-            const currentRumahDiv = document.getElementById('current_foto_rumah');
-
-            if (poFotoKtp) {
-                currentKtpDiv.innerHTML =
-                    `<img src="/storage/${poFotoKtp}" alt="Foto KTP" class="img-thumbnail" width="100">`;
-            } else {
-                currentKtpDiv.innerHTML = 'Tidak ada foto KTP';
-            }
-
-            if (poFotoRumah) {
-                currentRumahDiv.innerHTML =
-                    `<img src="/storage/${poFotoRumah}" alt="Foto Rumah" class="img-thumbnail" width="100">`;
-            } else {
-                currentRumahDiv.innerHTML = 'Tidak ada foto Rumah';
-            }
-
-            // Add event listener for the location button inside the edit modal
-            document.getElementById('edit-get-location-btn').addEventListener('click', function() {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(position => {
-                        const lat = position.coords.latitude;
-                        const lon = position.coords.longitude;
-                        document.getElementById('edit_titik_koordinat').value = `${lat},${lon}`;
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil!',
-                            text: 'Titik koordinat berhasil diambil.',
-                            showConfirmButton: false,
-                            timer: 2000
-                        });
-                    }, error => {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: 'Gagal mengambil lokasi. Pastikan izin lokasi diberikan.',
-                        });
-                        console.error(error);
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Geolocation tidak didukung oleh browser ini.',
-                    });
+        $(document).ready(function() {
+            // DataTables Initialization
+            const table = $('#preorder-table').DataTable({
+                "pageLength": 10,
+                "lengthChange": false,
+                "ordering": false,
+                "info": false,
+                "responsive": true,
+                "dom": 'tpir',
+                "language": {
+                    "zeroRecords": "Data tidak ditemukan",
+                    "paginate": {
+                        "previous": '<i class="fa-solid fa-chevron-left"></i>',
+                        "next": '<i class="fa-solid fa-chevron-right"></i>'
+                    }
                 }
             });
-        });
-        // Logika untuk Modal Hapus Pre-Order
-        const deleteModal = document.getElementById('deleteModal');
-        deleteModal.addEventListener('show.bs.modal', event => {
-            const button = event.relatedTarget;
-            const poId = button.getAttribute('data-po-id');
-            const modalForm = deleteModal.querySelector('#deleteForm');
 
-            // Mengatur action form agar sesuai dengan rute hapus
-            modalForm.action = `/pre-orders/${poId}`;
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+            // Custom Search
+            $('#custom-search').on('keyup', function() {
+                table.search(this.value).draw();
+            });
 
-            // --- Logika untuk Modal Detail (NIK & Email) ---
-            const detailModal = document.getElementById('detailModal');
+            // --- Tab Navigation Logic ---
+            $(document).on('click', '.modal-tab', function() {
+                const tabId = $(this).data('tab');
+                const $modalBox = $(this).closest('.modal-box');
+                
+                // Update tab buttons in current modal
+                $modalBox.find('.modal-tab').removeClass('active');
+                $(this).addClass('active');
+                
+                // Update panels in current modal
+                $modalBox.find('.tab-panel').removeClass('active');
+                $('#' + tabId).addClass('active');
+            });
 
-            // Memastikan elemen modal ada
-            if (detailModal) {
-                detailModal.addEventListener('show.bs.modal', function(event) {
-                    const button = event.relatedTarget;
+            // Close modal on overlay click
+            $(document).on('click', '.modal-overlay', function(e) {
+                if (e.target === this) {
+                    $(this).removeClass('open');
+                    document.body.style.overflow = '';
+                }
+            });
 
-                    // 1. Ambil data dari atribut data tombol
-                    // Atribut ini diambil dari tombol di kolom Opsi
-                    const identitas = button.getAttribute('data-identitas');
-                    const emailLengkap = button.getAttribute('data-email-lengkap');
+            // --- SweetAlert Flash Messages ---
+            @if (session('success'))
+                Swal.fire({ icon: 'success', title: 'Berhasil!', text: '{{ session('success') }}', showConfirmButton: false, timer: 3000 });
+            @endif
+            @if (session('error'))
+                Swal.fire({ icon: 'error', title: 'Oops...', text: '{{ session('error') }}' });
+            @endif
 
-                    // 2. Target elemen di modal
-                    // ID harus sesuai dengan yang ada di struktur modal gabungan
-                    const identitasParagraph = detailModal.querySelector('#detail_identitas');
-                    const emailParagraph = detailModal.querySelector('#detail_email');
-
-                    // 3. Isi konten modal
-                    if (identitasParagraph) {
-                        identitasParagraph.textContent = identitas;
+            // --- Geolocation Logic ---
+            function setupGeolocation(btnId, inputId) {
+                $('#' + btnId).on('click', function() {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(position => {
+                            $(`#${inputId}`).val(`${position.coords.latitude},${position.coords.longitude}`);
+                            Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Titik koordinat diambil.', showConfirmButton: false, timer: 1500 });
+                        }, err => {
+                            Swal.fire({ icon: 'error', title: 'Gagal', text: 'Pastikan izin lokasi diberikan.' });
+                        });
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: 'Geolocation tidak didukung.' });
                     }
-                    if (emailParagraph) {
-                        emailParagraph.textContent = emailLengkap;
-                    }
                 });
             }
-        });
-    </script>
-    <script>
-        // Logika untuk Modal Lihat KTP
-        const viewKtpModal = document.getElementById('viewKtpModal');
-        viewKtpModal.addEventListener('show.bs.modal', event => {
-            const button = event.relatedTarget;
-            const ktpUrl = button.getAttribute('data-ktp-url');
 
-            const ktpImage = document.getElementById('ktp_image');
-            ktpImage.src = ktpUrl;
-        });
-    </script>
-    <script>
-        // Logika untuk Modal Lihat Rumah
-        const viewRumahModal = document.getElementById('viewRumahModal');
-        viewRumahModal.addEventListener('show.bs.modal', event => {
-            const button = event.relatedTarget;
-            const rumahUrl = button.getAttribute('data-rumah-url');
-
-            const rumahImage = document.getElementById('rumah_image');
-            rumahImage.src = rumahUrl;
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const delegateModal = document.getElementById('delegateModal');
-
-            if (delegateModal) {
-                delegateModal.addEventListener('show.bs.modal', event => {
-                    const button = event.relatedTarget;
-                    const poId = button.getAttribute('data-po-id');
-                    const poNama = button.getAttribute('data-po-nama');
-
-                    const modalForm = delegateModal.querySelector('#delegateForm');
-                    const poNameDisplay = delegateModal.querySelector('#delegate_po_name');
-
-                    // Set action form ke rute delegasi
-                    modalForm.action = `/pre-orders/${poId}/delegate`;
-                    poNameDisplay.textContent = poNama;
-                });
-            }
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // ... (Listener lainnya seperti editModal, delegateModal) ...
-
-            // --- Logika untuk Modal Reset Tugas ---
-            const resetModal = document.getElementById('resetModal');
-
-            if (resetModal) {
-                resetModal.addEventListener('show.bs.modal', event => {
-                    const button = event.relatedTarget;
-                    const poId = button.getAttribute('data-po-id');
-                    const poNama = button.getAttribute('data-po-nama');
-
-                    const modalForm = resetModal.querySelector('#resetForm');
-                    const poNameDisplay = resetModal.querySelector('#reset_po_name');
-
-                    // Set action form ke rute reset
-                    // PASTIKAN rute ini sesuai: Route::post('pre-orders/{preOrder}/reset-delegation', ...)
-                    modalForm.action = `/pre-orders/${poId}/reset-delegation`;
-                    poNameDisplay.textContent = poNama;
-                });
-            }
+            setupGeolocation('get-location-btn', 'titik_koordinat');
+            setupGeolocation('edit-get-location-btn', 'edit_titik_koordinat');
         });
     </script>
 @endsection
