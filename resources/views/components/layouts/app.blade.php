@@ -1,81 +1,72 @@
 <!doctype html>
 <html lang="id">
 <x-layouts.header />
-@vite(['resources/css/app.css', 'resources/js/app.js'])
 
-<body class="layout-fixed sidebar-expand-lg bg-slate-50 text-slate-900 antialiased font-sans">
-    <!--begin::App Wrapper-->
-    <div class="app-wrapper min-h-screen">
-        <x-layouts.navbar />
+<body>
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div class="admin-layout">
+        <!-- Sidebar -->
         <x-layouts.sidebar />
 
-        <!--begin::App Main-->
-        <main class="app-main p-4 md:p-6 lg:p-8" role="main">
-            <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <div class="p-6">
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Navbar -->
+            <x-layouts.navbar />
+
+            <!-- Main Content -->
+            <main class="page-body" role="main">
+                <div class="max-w-[1600px] mx-auto w-full">
                     {{ $slot }}
                 </div>
-            </div>
-        </main>
-        <!--end::App Main-->
+            </main>
 
-        <x-layouts.footer />
+            <!-- Footer -->
+            <x-layouts.footer />
+        </div>
     </div>
-    <!--end::App Wrapper-->
 
-    <!--begin::Script-->
-    <!--begin::Third Party Plugin(OverlayScrollbars)-->
-    <script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/browser/overlayscrollbars.browser.es6.min.js"
-        integrity="sha256-dghWARbRe2eLlIJ56wNB+b760ywulqK3DzZYEpsg2fQ=" crossorigin="anonymous"></script>
-    <!--end::Third Party Plugin(OverlayScrollbars)-->
-
-    <!--begin::Required Plugin(popperjs for Bootstrap 5)-->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
-    </script>
-    <!--end::Required Plugin(popperjs for Bootstrap 5)-->
-
-    <!--begin::Required Plugin(Bootstrap 5)-->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
-        integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous">
-    </script>
-    <!--end::Required Plugin(Bootstrap 5)-->
-
-    <!--begin::Required Plugin(AdminLTE)-->
-    <script src="{{ asset('dist/js/adminlte.js') }}"></script>
-    <!--end::Required Plugin(AdminLTE)-->
-
-    <!--begin::OverlayScrollbars Configure-->
-    <script>
-        const SELECTOR_SIDEBAR_WRAPPER = '.sidebar-wrapper';
-        const Default = {
-            scrollbarTheme: 'os-theme-light',
-            scrollbarAutoHide: 'leave',
-            scrollbarClickScroll: true,
-        };
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebarWrapper = document.querySelector(SELECTOR_SIDEBAR_WRAPPER);
-            if (sidebarWrapper && typeof OverlayScrollbarsGlobal?.OverlayScrollbars !== 'undefined') {
-                OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, {
-                    scrollbars: {
-                        theme: Default.scrollbarTheme,
-                        autoHide: Default.scrollbarAutoHide,
-                        clickScroll: Default.scrollbarClickScroll,
-                    },
-                });
-            }
-        });
-    </script>
-    <!--end::OverlayScrollbars Configure-->
-
-    <!-- OPTIONAL SCRIPTS -->
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     @yield('Scripts')
-
-    {{-- Location Scripts --}}
     @include('partials.location_scripts')
+    
+    <script>
+        function toggleSidebar() {
+            const sb = document.getElementById('sidebar');
+            const ov = document.getElementById('sidebar-overlay');
+            const open = sb.classList.toggle('open');
+            if (open) {
+                ov.classList.add('show');
+            } else {
+                ov.classList.remove('show');
+            }
+        }
 
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.theme = 'light';
+                icon.className = 'fa-regular fa-moon';
+            } else {
+                html.classList.add('dark');
+                localStorage.theme = 'dark';
+                icon.className = 'fa-regular fa-sun';
+            }
+        }
+
+        // Apply theme on load
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            document.addEventListener('DOMContentLoaded', () => {
+                const icon = document.getElementById('theme-icon');
+                if (icon) icon.className = 'fa-regular fa-sun';
+            });
+        }
+    </script>
 </body>
-<!--end::Body-->
-
 </html>

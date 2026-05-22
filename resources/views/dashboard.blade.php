@@ -1,305 +1,327 @@
 <x-layouts.app>
     @section('Css')
-        <!-- DataTables -->
-        <link rel="stylesheet" href="{{ asset('dist/css/dataTables.bootstrap4.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('dist/css/responsive.bootstrap4.min.css') }}">
+        <!-- Hakatech DataTables Customization -->
+        <style>
+            .dataTables_wrapper { padding: 0; }
+            .dataTables_filter { display: none; } /* Hide default search box */
+
+            .dataTables_paginate { display: flex; justify-content: flex-end; padding: 1.25rem 1.5rem; gap: 4px; border-top: 1px solid #f1f5f9; transition: border-color 0.3s ease; }
+            .dark .dataTables_paginate { border-color: #334155; }
+            .paginate_button {
+                width: 34px; height: 34px; border-radius: 8px;
+                border: 1.5px solid #e2e8f0; background: #fff;
+                color: #64748b !important; font-size: 13px; font-weight: 600;
+                display: inline-flex; align-items: center; justify-content: center;
+                cursor: pointer; transition: all .2s;
+                text-decoration: none !important;
+            }
+            .dark .paginate_button { background: #334155; border-color: #475569; color: #94a3b8 !important; }
+            .paginate_button:hover:not(.disabled):not(.current) {
+                border-color: #0ea5e9; color: #0ea5e9 !important; background: #f0f9ff;
+            }
+            .dark .paginate_button:hover:not(.disabled):not(.current) { background: #475569; color: #fff !important; }
+            .paginate_button.current, .paginate_button.current:hover {
+                background: #0ea5e9; border-color: #0ea5e9; color: #fff !important;
+            }
+            .paginate_button.disabled { opacity: 0.35; cursor: not-allowed; }
+            table.dataTable.no-footer { border-bottom: none; }
+
+            /* Empty State Styling */
+            .dataTables_empty {
+                text-align: center !important;
+                padding: 4rem 2rem !important;
+                color: #94a3b8 !important;
+                font-weight: 500 !important;
+                font-size: 14px !important;
+                background: #fff !important;
+                transition: background-color 0.3s ease, color 0.3s ease;
+            }
+            .dark .dataTables_empty { background: #1e293b !important; color: #64748b !important; }
+            .dataTables_empty::before {
+                content: '\f07b'; /* FontAwesome folder-open or similar */
+                font-family: 'Font Awesome 6 Free';
+                font-weight: 900;
+                display: block;
+                font-size: 2.5rem;
+                color: #e2e8f0;
+                margin-bottom: 1rem;
+                transition: color 0.3s ease;
+            }
+            .dark .dataTables_empty::before { color: #334155; }
+
+            /* Toolbar Styling */
+            .table-toolbar {
+                background: #fff; border: 1px solid #e2e8f0;
+                border-radius: 14px; padding: 1rem 1.25rem;
+                display: flex; align-items: center; justify-content: space-between;
+                gap: 12px; flex-wrap: wrap; margin-bottom: 1rem;
+                box-shadow: 0 1px 6px rgba(0,0,0,.05);
+                transition: background-color 0.3s ease, border-color 0.3s ease;
+            }
+            .dark .table-toolbar { background: #1e293b; border-color: #334155; }
+            .search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 360px; }
+            .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 13px; pointer-events: none; }
+            .search-input {
+                width: 100%; padding: 9px 12px 9px 36px;
+                border: 2px solid #e2e8f0; border-radius: 10px;
+                font-size: 13px; font-family: 'Inter', sans-serif; color: #374151;
+                outline: none; transition: all .25s;
+                background: #f8fafc;
+            }
+            .dark .search-input { background: #334155; border-color: #475569; color: #f8fafc; }
+            .search-input:focus { border-color: #0ea5e9; background: #fff; }
+            .dark .search-input:focus { border-color: #0ea5e9; background: #1e293b; }
+            .search-input::placeholder { color: #94a3b8; }
+        </style>
     @endsection
 
-    <div class="space-y-6">
-        <!-- Header Section -->
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-                <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
-                <p class="text-slate-500 text-sm">Welcome back, <span class="font-semibold text-slate-700">{{ Auth::user()->nama_lengkap }}</span></p>
-            </div>
-            <nav class="flex" aria-label="Breadcrumb">
-                <ol class="flex items-center space-x-2 text-sm text-slate-500">
-                    <li><a href="#" class="hover:text-primary transition-colors">Home</a></li>
-                    <li class="flex items-center space-x-2 text-slate-400">
-                        <i class="bi bi-chevron-right text-[10px]"></i>
-                        <span class="text-slate-900 font-medium">Dashboard</span>
-                    </li>
-                </ol>
-            </nav>
+    <!-- Page header -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+        <div>
+            <h1 style="font-size:22px;font-weight:900;margin:0;">Dashboard</h1>
+            <p style="font-size:13px;color: #64748b;margin:3px 0 0;">Selamat datang kembali, <strong>{{ Auth::user()->nama_lengkap }}</strong>.</p>
         </div>
-
-        @if ($user->jabatan !== 'Teknisi')
-            <!-- Admin/Management Stats Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                <!-- Total PO Bulan Ini -->
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-all duration-300">
-                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                        <i class="bi bi-receipt text-2xl"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">Total PO Bulan Ini</p>
-                        <h3 class="text-2xl font-bold text-slate-900 mt-0.5 leading-none">{{ $totalPoThisMonth }}</h3>
-                    </div>
-                </div>
-
-                <!-- Total PO Bulan Sebelumnya -->
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-all duration-300">
-                    <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-                        <i class="bi bi-clock-history text-2xl"></i>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">PO Bulan Sebelumnya</p>
-                        <div class="flex items-baseline gap-2 mt-0.5">
-                            <h3 class="text-2xl font-bold text-slate-900 leading-none">{{ $totalPoPreviousMonth }}</h3>
-                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full {{ $percentageChange >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }}">
-                                @if ($percentageChange > 0)
-                                    +{{ round($percentageChange, 1) }}%
-                                @elseif ($percentageChange < 0)
-                                    {{ round($percentageChange, 1) }}%
-                                @else
-                                    0%
-                                @endif
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Total Aktivasi Bulan Ini -->
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-all duration-300">
-                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                        <i class="bi bi-check-circle text-2xl"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">Aktivasi Bulan Ini</p>
-                        <h3 class="text-2xl font-bold text-slate-900 mt-0.5 leading-none">{{ $totalAktivasiThisMonth }}</h3>
-                    </div>
-                </div>
-
-                <!-- Total Pending Bulan Ini -->
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-all duration-300">
-                    <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
-                        <i class="bi bi-hourglass-split text-2xl"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">Pending Bulan Ini</p>
-                        <h3 class="text-2xl font-bold text-slate-900 mt-0.5 leading-none">{{ $totalPendingThisMonth }}</h3>
-                    </div>
-                </div>
-            </div>
-        @endif
-
-        @if ($user->jabatan === 'Administrator')
-            <!-- Activity Log Section -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mt-6">
-                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                    <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                        <i class="bi bi-activity text-primary"></i>
-                        Aktivitas Terbaru
-                    </h3>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white px-2 py-1 rounded-md border border-slate-100">Log Sistem</span>
-                </div>
-                <div class="p-0">
-                    <div class="overflow-x-auto">
-                        <table id="activity-log-table" class="w-full text-sm text-left border-collapse">
-                            <thead>
-                                <tr class="text-slate-500 border-b border-slate-100">
-                                    <th class="px-6 py-4 font-semibold uppercase tracking-wider text-[11px] text-center">Waktu</th>
-                                    <th class="px-6 py-4 font-semibold uppercase tracking-wider text-[11px]">User</th>
-                                    <th class="px-6 py-4 font-semibold uppercase tracking-wider text-[11px] text-center">Aktivitas</th>
-                                    <th class="px-6 py-4 font-semibold uppercase tracking-wider text-[11px]">Deskripsi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-50">
-                                @forelse ($logs as $log)
-                                    <tr class="hover:bg-slate-50/50 transition-colors">
-                                        <td class="px-6 py-4 whitespace-nowrap text-slate-500 text-center font-medium tabular-nums">
-                                            {{ $log->logged_at->format('H:i:s d-m-Y') }}
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="flex items-center gap-2">
-                                                <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-[10px] font-bold border border-slate-200">
-                                                    {{ strtoupper(substr($log->user->nama_lengkap ?? 'U', 0, 1)) }}
-                                                </div>
-                                                <span class="font-semibold text-slate-700">{{ $log->user->nama_lengkap ?? 'Unknown' }}</span>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 text-center">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-blue-50 text-blue-600 border border-blue-100">
-                                                {{ $log->activity_type }}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 text-slate-600">
-                                            {{ $log->description }}
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="4" class="px-6 py-12 text-center">
-                                            <div class="flex flex-col items-center gap-2">
-                                                <i class="bi bi-inbox text-4xl text-slate-200"></i>
-                                                <p class="text-slate-400 font-medium">Belum ada aktivitas yang tercatat.</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        @endif
-
-        @if (Auth::user()->jabatan === 'Teknisi')
-            <!-- Teknisi Stats Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-all duration-300">
-                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                        <i class="bi bi-calendar-event text-2xl"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">Aktivasi Minggu Ini</p>
-                        <h3 class="text-2xl font-bold text-slate-900 mt-0.5 leading-none">{{ $aktivasiMingguIni ?? 0 }}</h3>
-                    </div>
-                </div>
-
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-all duration-300">
-                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                        <i class="bi bi-check-all text-2xl"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">Aktivasi Bulan Ini</p>
-                        <h3 class="text-2xl font-bold text-slate-900 mt-0.5 leading-none">{{ $aktivasiBulanIni ?? 0 }}</h3>
-                    </div>
-                </div>
-
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-all duration-300">
-                    <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-                        <i class="bi bi-pause-circle text-2xl"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">Total Pending</p>
-                        <h3 class="text-2xl font-bold text-slate-900 mt-0.5 leading-none">{{ $pendingTugas ?? 0 }}</h3>
-                    </div>
-                </div>
-
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-all duration-300">
-                    <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
-                        <i class="bi bi-exclamation-triangle text-2xl"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">Total Expired</p>
-                        <h3 class="text-2xl font-bold text-slate-900 mt-0.5 leading-none">{{ $totalExpired ?? 0 }}</h3>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Delegated Tasks Section -->
-            <div class="mt-8 space-y-6">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                        <i class="bi bi-list-task text-xl"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-xl font-bold text-slate-900 tracking-tight">Tugas Delegasi Khusus</h2>
-                        <p class="text-sm text-slate-500">Daftar Pre-Order yang ditugaskan kepada Anda</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @forelse ($delegatedTasks as $task)
-                        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition-all duration-300 group">
-                            <div class="p-6">
-                                <div class="flex items-start justify-between mb-6">
-                                    <div class="min-w-0">
-                                        <h3 class="font-bold text-slate-900 group-hover:text-primary transition-colors truncate pr-2" title="{{ $task->nama_lengkap }}">
-                                            {{ $task->nama_lengkap }}
-                                        </h3>
-                                        <div class="flex items-center gap-2 mt-1">
-                                            <span class="inline-block w-2 h-2 rounded-full {{ $task->bg_color === 'bg-danger' ? 'bg-rose-500' : ($task->bg_color === 'bg-warning' ? 'bg-amber-500' : 'bg-slate-400') }}"></span>
-                                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                                                {{ $task->status_display }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                                        <i class="bi bi-person-badge text-lg"></i>
-                                    </div>
-                                </div>
-                                
-                                <div class="space-y-3.5 mb-6">
-                                    <div class="flex items-center gap-3 text-sm text-slate-600">
-                                        <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center shrink-0">
-                                            <i class="bi bi-wifi text-slate-400"></i>
-                                        </div>
-                                        <span class="font-medium truncate">{{ $task->paket_internet }}</span>
-                                    </div>
-                                    <div class="flex items-center gap-3 text-sm text-slate-600">
-                                        <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center shrink-0">
-                                            <i class="bi bi-geo-alt text-slate-400"></i>
-                                        </div>
-                                        <span class="truncate" title="{{ $task->alamat_lengkap }}">{{ Str::limit($task->alamat_lengkap, 35) }}</span>
-                                    </div>
-                                    <div class="flex items-center gap-3 text-sm text-slate-600">
-                                        <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0">
-                                            <i class="bi bi-whatsapp text-emerald-500"></i>
-                                        </div>
-                                        <span class="font-semibold tabular-nums">{{ $task->no_whatsapp }}</span>
-                                    </div>
-                                </div>
-
-                                <div class="grid grid-cols-3 gap-2 py-4 border-t border-slate-50 text-center">
-                                    <div class="space-y-1">
-                                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">PO</p>
-                                        <p class="text-xs font-bold text-slate-700">{{ \Carbon\Carbon::parse($task->created_at)->format('d/m/y') }}</p>
-                                    </div>
-                                    <div class="space-y-1 border-x border-slate-50 px-1">
-                                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Delegasi</p>
-                                        <p class="text-xs font-bold text-slate-700">{{ \Carbon\Carbon::parse($task->delegated_at)->format('d/m/y') }}</p>
-                                    </div>
-                                    <div class="space-y-1">
-                                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Deadline</p>
-                                        <p class="text-xs font-bold text-rose-600">{{ $task->deadline_date ?? '-' }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="px-6 py-4 bg-slate-50/50 border-t border-slate-100 group-hover:bg-slate-50 transition-colors">
-                                <a href="{{ route('customers.index') }}" class="flex items-center justify-center gap-2 text-sm font-bold text-primary hover:text-primary-dark transition-colors">
-                                    Lihat Detail Tugas
-                                    <i class="bi bi-arrow-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="col-span-full py-16 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200 text-center">
-                            <div class="mx-auto w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4">
-                                <i class="bi bi-patch-check text-3xl text-emerald-500"></i>
-                            </div>
-                            <h3 class="text-slate-900 text-lg font-bold">Semua Selesai!</h3>
-                            <p class="text-slate-500 max-w-xs mx-auto mt-1">Tidak ada tugas delegasi saat ini.</p>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-        @endif
     </div>
+
+    <!-- Stats cards -->
+    @if ($user->jabatan !== 'Teknisi')
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#e0f2fe;color:#0369a1;">
+                    <i class="fa-solid fa-file-invoice"></i>
+                </div>
+                <div>
+                    <div class="stat-val">{{ $totalPoThisMonth }}</div>
+                    <div class="stat-lbl">Total PO Bulan Ini</div>
+                    <div class="stat-trend {{ $percentageChange >= 0 ? 'stat-up' : 'stat-down' }}">
+                        <i class="fa-solid {{ $percentageChange >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' }}"></i> 
+                        {{ round(abs($percentageChange), 1) }}% dibanding bulan lalu
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+                <div>
+                    <div class="stat-val">{{ $totalPoPreviousMonth }}</div>
+                    <div class="stat-lbl">PO Bulan Sebelumnya</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#dcfce7;color:#15803d;">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div>
+                    <div class="stat-val">{{ $totalAktivasiThisMonth }}</div>
+                    <div class="stat-lbl">Total Aktivasi</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fef2f2;color:#dc2626;">
+                    <i class="fa-solid fa-hourglass-half"></i>
+                </div>
+                <div>
+                    <div class="stat-val">{{ $totalPendingThisMonth }}</div>
+                    <div class="stat-lbl">Total Pending</div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if (Auth::user()->jabatan === 'Teknisi')
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#e0f2fe;color:#0369a1;">
+                    <i class="fa-solid fa-calendar-week"></i>
+                </div>
+                <div>
+                    <div class="stat-val">{{ $aktivasiMingguIni ?? 0 }}</div>
+                    <div class="stat-lbl">Aktivasi Minggu Ini</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#dcfce7;color:#15803d;">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </div>
+                <div>
+                    <div class="stat-val">{{ $aktivasiBulanIni ?? 0 }}</div>
+                    <div class="stat-lbl">Aktivasi Bulan Ini</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
+                    <i class="fa-solid fa-pause-circle"></i>
+                </div>
+                <div>
+                    <div class="stat-val">{{ $pendingTugas ?? 0 }}</div>
+                    <div class="stat-lbl">Total Pending</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fef2f2;color:#dc2626;">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div>
+                    <div class="stat-val">{{ $totalExpired ?? 0 }}</div>
+                    <div class="stat-lbl">Total Expired</div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if ($user->jabatan === 'Administrator')
+        <div style="margin-top: 2rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+                <h3 style="font-size: 16px; font-weight: 800; margin: 0;">Aktivitas Terbaru</h3>
+            </div>
+
+            <!-- Custom Toolbar -->
+            <div class="table-toolbar">
+                <div class="search-wrap">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="search" class="search-input" id="custom-search"
+                           placeholder="Cari aktivitas, user, atau deskripsi..."
+                           autocomplete="off"/>
+                </div>
+                <div style="display:flex;gap:8px;">
+                    <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0;" class="dark:bg-slate-800 dark:border-slate-700">
+                        Log Sistem
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table id="activity-log-table" class="admin-table">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center; width: 50px;">#</th>
+                                <th style="text-align: center; width: 180px;">Waktu</th>
+                                <th style="text-align: center; width: 220px;">User</th>
+                                <th style="text-align: center; width: 160px;">Aktivitas</th>
+                                <th style="text-align: center;">Deskripsi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($logs as $log)
+                                <tr>
+                                    <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}</td>
+                                    <td style="text-align: center; color: #64748b; font-size: 12px; font-weight: 600;">
+                                        {{ $log->logged_at->format('d-m-Y H:i:s') }}
+                                    </td>
+                                    <td style="font-weight: 600;">
+                                        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                            <div style="width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #0ea5e9, #7c3aed); display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; font-weight: 800; flex-shrink: 0;">
+                                                {{ strtoupper(substr($log->user->nama_lengkap ?? 'U', 0, 1)) }}
+                                            </div>
+                                            <span class="truncate">{{ $log->user->nama_lengkap ?? 'Unknown' }}</span>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center">
+                                        <span class="badge" style="background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 6px; font-size: 10px;">
+                                            {{ $log->activity_type }}
+                                        </span>
+                                    </td>
+                                    <td style="text-align: center; font-size: 13px;">{{ $log->description }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" style="text-align: center; padding: 4rem 2rem;">
+                                        <i class="fa-solid fa-inbox" style="font-size: 3rem; color: #e2e8f0; margin-bottom: 1rem; display: block;"></i>
+                                        <p style="font-weight: 600; color: #94a3b8; margin: 0;">Belum ada aktivitas yang tercatat.</p>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if (Auth::user()->jabatan === 'Teknisi')
+        <div style="margin-top: 2rem;">
+            <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 0.5rem;">
+                <i class="fa-solid fa-list-check text-primary"></i> Tugas Delegasi Khusus Anda
+            </h3>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 1.5rem;">Daftar Pre-Order yang ditugaskan kepada Anda dan belum diaktivasi.</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+                @forelse ($delegatedTasks as $task)
+                    <div class="stat-card" style="flex-direction: column; align-items: stretch; gap: 0; padding: 0; overflow: hidden;">
+                        <div style="padding: 1.25rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: flex-start;" class="dark:border-slate-800">
+                            <div style="min-width: 0;">
+                                <h4 style="font-size: 14px; font-weight: 700; margin: 0; text-transform: uppercase;">{{ Str::limit($task->nama_lengkap, 25) }}</h4>
+                                <span class="badge {{ $task->bg_color === 'bg-danger' ? 'badge-archived' : 'badge-published' }}" style="margin-top: 0.5rem; font-size: 9px;">
+                                    {{ $task->status_display }}
+                                </span>
+                            </div>
+                            <div style="width: 36px; height: 36px; border-radius: 10px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #64748b;" class="dark:bg-slate-800">
+                                <i class="fa-solid fa-user-gear"></i>
+                            </div>
+                        </div>
+                        <div style="padding: 1.25rem; font-size: 13px;">
+                            <div style="display: flex; gap: 8px; margin-bottom: 0.75rem;">
+                                <i class="fa-solid fa-wifi" style="width: 16px; color: #94a3b8;"></i>
+                                <span>Paket: <strong>{{ $task->paket_internet }}</strong></span>
+                            </div>
+                            <div style="display: flex; gap: 8px; margin-bottom: 0.75rem;">
+                                <i class="fa-solid fa-map-location-dot" style="width: 16px; color: #94a3b8;"></i>
+                                <span>{{ Str::limit($task->alamat_lengkap, 35) }}</span>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <i class="fa-brands fa-whatsapp" style="width: 16px; color: #10b981;"></i>
+                                <span style="font-family: monospace;">{{ $task->no_whatsapp }}</span>
+                            </div>
+                        </div>
+                        <div style="padding: 1rem 1.25rem; background: #f8fafc; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;" class="dark:bg-slate-900/50 dark:border-slate-800">
+                            <div style="font-size: 10px; color: #94a3b8;">
+                                Deadline: <strong style="color: #ef4444;">{{ $task->deadline_date ?? 'N/A' }}</strong>
+                            </div>
+                            <a href="{{ route('customers.index') }}" class="btn-primary-admin" style="padding: 6px 12px; font-size: 11px;">
+                                Detail Tugas <i class="fa-solid fa-arrow-right ml-1" style="font-size: 10px;"></i>
+                            </a>
+                        </div>
+                    </div>
+                @empty
+                    <div style="grid-column: 1 / -1; padding: 3rem; background: #fff; border-radius: 14px; text-align: center; border: 2px dashed #e2e8f0;" class="dark:bg-slate-900/30 dark:border-slate-800">
+                        <i class="fa-solid fa-circle-check" style="font-size: 3rem; color: #dcfce7; margin-bottom: 1rem; display: block;"></i>
+                        <p style="font-weight: 600; color: #94a3b8;">Tidak ada tugas delegasi khusus saat ini.</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+    @endif
 
     @section('Scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
-        <script src="{{ asset('dist/js/dataTables.bootstrap4.min.js') }}"></script>
-        <script src="{{ asset('dist/js/dataTables.responsive.min.js') }}"></script>
         <script>
             $(document).ready(function() {
-                if ($('#activity-log-table').length) {
-                    $('#activity-log-table').DataTable({
-                        "pageLength": 10,
-                        "lengthChange": false,
-                        "ordering": false,
-                        "info": false,
-                        "responsive": true,
-                        "language": {
-                            "search": "",
-                            "searchPlaceholder": "Cari log..."
+                const table = $('#activity-log-table').DataTable({
+                    "pageLength": 10,
+                    "lengthChange": false,
+                    "ordering": false,
+                    "info": false,
+                    "responsive": true,
+                    "dom": 'tpir', // Hide default search box
+                    "language": {
+                        "zeroRecords": "Data tidak ditemukan",
+                        "paginate": {
+                            "previous": '<i class="fa-solid fa-chevron-left"></i>',
+                            "next": '<i class="fa-solid fa-chevron-right"></i>'
                         }
-                    });
-                    
-                    $('.dataTables_filter input').addClass('bg-slate-50 border-slate-100 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all mb-4');
-                }
+                    }
+                });
+
+                // Link custom search input to DataTables
+                $('#custom-search').on('keyup', function() {
+                    table.search(this.value).draw();
+                });
             });
         </script>
     @endsection
