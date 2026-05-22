@@ -330,13 +330,15 @@
     .modal-close:hover { background: #dc2626; color: #fff; border-color: #dc2626; }
 
     /* Modal Tabs */
-    .modal-tabs { display: flex; background: #fff; border-bottom: 1px solid #e2e8f0; }
+    .modal-tabs { 
+        @apply flex bg-white border-b border-slate-200 overflow-x-auto flex-nowrap;
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+    .modal-tabs::-webkit-scrollbar { display: none; } /* Hide scrollbar */
+
     .modal-tab {
-        display: flex; align-items: center; gap: 7px;
-        padding: .85rem 1.25rem; font-size: 13px; font-weight: 600;
-        color: #64748b; cursor: pointer; border-bottom: 2.5px solid transparent;
-        transition: all .2s; white-space: nowrap; border-radius: 0;
-        background: none; border-top: none; border-left: none; border-right: none;
+        @apply flex items-center gap-[7px] px-5 py-[.85rem] text-[13px] font-semibold text-slate-500 cursor-pointer border-b-[2.5px] border-transparent transition-all duration-200 whitespace-nowrap bg-none border-t-0 border-l-0 border-r-0 shrink-0;
         font-family: 'Inter', sans-serif;
     }
     .modal-tab:hover { color: #0ea5e9; background: #f0f9ff; }

@@ -1,369 +1,626 @@
 <x-layouts.app>
     @section('Css')
-        <link rel="stylesheet" href="{{ asset('dist/css/dataTables.bootstrap4.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('dist/css/dataTables.bootstrap4.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('dist/css/responsive.bootstrap4.min.css') }}">
+        <style>
+            /* Hakatech DataTables Customization */
+            .dataTables_wrapper {
+                padding: 0;
+            }
+
+            .dataTables_filter {
+                display: none;
+            }
+
+            .dataTables_paginate {
+                display: flex;
+                justify-content: flex-end;
+                padding: 1.25rem 1.5rem;
+                gap: 4px;
+                border-top: 1px solid #f1f5f9;
+                transition: border-color 0.3s ease;
+            }
+
+            .paginate_button {
+                width: 34px;
+                height: 34px;
+                border-radius: 8px;
+                border: 1.5px solid #e2e8f0;
+                background: #fff;
+                color: #64748b !important;
+                font-size: 13px;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all .2s;
+                text-decoration: none !important;
+            }
+
+            .paginate_button:hover:not(.disabled):not(.current) {
+                border-color: #0ea5e9;
+                color: #0ea5e9 !important;
+                background: #f0f9ff;
+            }
+
+            .paginate_button.current {
+                background: #0ea5e9;
+                border-color: #0ea5e9;
+                color: #fff !important;
+            }
+
+            .paginate_button.disabled {
+                opacity: 0.35;
+                cursor: not-allowed;
+            }
+
+            table.dataTable.no-footer {
+                border-bottom: none;
+            }
+
+            /* Toolbar & Search */
+            .table-toolbar {
+                background: #fff;
+                border: 1px solid #e2e8f0;
+                border-radius: 14px;
+                padding: 1rem 1.25rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                flex-wrap: wrap;
+                margin-bottom: 1rem;
+                box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
+            }
+
+            .search-wrap {
+                position: relative;
+                flex: 1;
+                min-width: 200px;
+                max-width: 360px;
+            }
+
+            .search-icon {
+                position: absolute;
+                left: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #94a3b8;
+                font-size: 13px;
+                pointer-events: none;
+            }
+
+            .search-input {
+                width: 100%;
+                padding: 9px 12px 9px 36px;
+                border: 2px solid #e2e8f0;
+                border-radius: 10px;
+                font-size: 13px;
+                font-family: 'Inter', sans-serif;
+                color: #374151;
+                outline: none;
+                transition: all .25s;
+                background: #f8fafc;
+            }
+
+            .search-input:focus {
+                border-color: #0ea5e9;
+                background: #fff;
+            }
+        </style>
     @endsection
-    <main class="app-main">
-        <div class="app-content-header">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <h3 class="mb-0">Pelanggan</h3>
-                    </div>
-                    <div class="col-sm-6">
-                        <ol class="breadcrumb float-sm-end">
-                            <li class="breadcrumb-item"><a href="#">Home</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Aktivasi</li>
-                        </ol>
-                    </div>
-                </div>
+
+    <!-- Page header -->
+    <div
+        style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+        <div>
+            <h1 style="font-size:22px;font-weight:900;margin:0;">Aktivasi Pelanggan</h1>
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Daftar pelanggan yang telah diaktivasi dan sedang
+                berlangganan.</p>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <a href="{{ route('dashboards.index') }}" class="btn-primary-admin !flex !items-center !justify-center gap-2"
+                style="background: #f1f5f9; color: #475569; box-shadow: none; border: 1px solid #e2e8f0;"
+                onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+                <i class="fa-solid fa-house"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="table-toolbar">
+        <div class="search-wrap">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="search" class="search-input" id="custom-search" placeholder="Cari ID, Nama, atau Paket..."
+                autocomplete="off" />
+        </div>
+        <div style="display:flex;gap:8px;">
+            <div
+                style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                @if (auth()->user()->jabatan === 'Administrator')
+                    Data Keseluruhan
+                @else
+                    Data Saya
+                @endif
             </div>
         </div>
-        <div class="app-content">
-            <div class="card card-primary">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        @if (auth()->user()->jabatan === 'Administrator')
-                            Data Keseluruhan Pelanggan
-                        @else
-                            Pelanggan Anda
-                        @endif
-                    </h3>
-                </div>
-                <div class="card-body">
-                    <a href="{{ route('dashboards.index') }}" class="btn btn-secondary mb-3 btn-sm">← Kembali</a>
-                    <table id="example1" class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th style="text-align: center">No</th>
-                                <th style="text-align: center">ID Pelanggan</th>
-                                <th style="text-align: center">Nama Pelanggan</th>
-                                <th style="text-align: center">Paket</th>
-                                <th style="text-align: center">No. WA</th>
-                                <th style="text-align: center">Teknisi</th>
-                                <th style="text-align: center">Tgl. Aktivasi</th>
-                                <th style="text-align: center">Opsi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($customers as $customer)
-                                <tr class="{{ $customer->trashed() ?: '' }}">
-                                    <td style="text-align: center; vertical-align: middle;">
-                                        {{ $customers->count() - $loop->index }}
-                                    </td>
-                                    <td style="text-align: center; vertical-align: middle">{{ $customer->id_pelanggan }}
-                                    </td>
-                                    <td style="vertical-align: middle">
-                                        <strong>{{ $customer->nama_lengkap }}</strong>
+    </div>
+
+    <!-- Table Card -->
+    <div class="table-card">
+        <div class="table-responsive">
+            <table id="customer-table" class="admin-table">
+                <thead>
+                    <tr>
+                        <th style="text-align: center; width: 50px;">#</th>
+                        <th style="text-align: center; width: 120px;">ID Pelanggan</th>
+                        <th style="text-align: center; width: 250px;">Nama Pelanggan</th>
+                        <th style="text-align: center; width: 180px;">Paket</th>
+                        <th style="text-align: center; width: 150px;">No. WA</th>
+                        <th style="text-align: center; width: 150px;">Teknisi</th>
+                        <th style="text-align: center; width: 120px;">Tgl Aktivasi</th>
+                        <th style="text-align: center; width: 120px;">Opsi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($customers as $customer)
+                        <tr>
+                            <td style="text-align: center; color: #94a3b8; font-weight: 700;">
+                                {{ $customers->count() - $loop->index }}</td>
+                            <td style="text-align: center; font-weight: 800; color: #0ea5e9;">
+                                {{ $customer->id_pelanggan }}</td>
+                            <td style="text-align: center;">
+                                <div style="font-weight: 700; color: #0f172a;">{{ $customer->nama_lengkap }}</div>
+                                @if ($customer->trashed())
+                                    <span class="badge badge-archived"
+                                        style="font-size: 9px; margin-top: 2px;">NON-AKTIF</span>
+                                @endif
+                                <div style="font-size: 10px; color: #94a3b8; font-weight: 600; margin-top: 2px;">
+                                    PPPoE: {{ $customer->pppoe_username ?? '-' }}
+                                </div>
+                            </td>
+                            <td style="text-align: center;">
+                                <span class="badge"
+                                    style="background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 6px; font-size: 10px;">
+                                    {{ $customer->paket_internet }}
+                                </span>
+                            </td>
+                            <td style="text-align: center;">
+                                <a href="https://wa.me/{{ $customer->no_whatsapp }}" target="_blank"
+                                    style="color: #10b981; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                    <i class="fa-brands fa-whatsapp"></i> {{ $customer->no_whatsapp }}
+                                </a>
+                            </td>
+                            <td style="text-align: center;">
+                                <div style="font-weight: 600; color: #475569;">
+                                    {{ $customer->teknisiUtama->nama_lengkap ?? 'N/A' }}</div>
+                                @if ($customer->partner)
+                                    <div style="font-size: 10px; color: #94a3b8;">Partner: {{ $customer->partner }}
+                                    </div>
+                                @endif
+                            </td>
+                            <td style="text-align: center; color: #64748b; font-size: 12px; font-weight: 600;">
+                                {{ \Carbon\Carbon::parse($customer->created_at)->format('d-m-Y') }}
+                            </td>
+                            <td style="text-align: center;">
+                                <div
+                                    style="display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;">
+                                    <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Detail"
+                                        onclick="openCustomerDetailModal(this)"
+                                        data-customer-id="{{ $customer->id_pelanggan }}"
+                                        data-nama-lengkap="{{ $customer->nama_lengkap }}"
+                                        data-pppoe-user="{{ $customer->pppoe_username }}"
+                                        data-pppoe-pass="{{ $customer->pppoe_password }}"
+                                        data-jenis-modem="{{ $customer->jenis_modem }}"
+                                        data-sn-perangkat="{{ $customer->sn_perangkat }}"
+                                        data-pembayaran="{{ $customer->pembayaran }}"
+                                        data-tgl-aktivasi="{{ \Carbon\Carbon::parse($customer->created_at)->format('d-m-Y') }}"
+                                        data-po-paket="{{ $customer->paket_internet }}"
+                                        data-po-sales="{{ $customer->sales->nama_lengkap ?? 'N/A' }}"
+                                        data-po-nik="{{ $customer->preOrder->no_identitas ?? 'N/A' }}"
+                                        data-po-email="{{ $customer->preOrder->alamat_email ?? 'N/A' }}"
+                                        data-po-alamat="{{ $customer->alamat_lengkap }}"
+                                        data-po-wa="{{ $customer->no_whatsapp }}"
+                                        data-po-tgl-po="{{ \Carbon\Carbon::parse($customer->preOrder->created_at ?? $customer->created_at)->format('d-m-Y') }}"
+                                        data-po-tikor="{{ $customer->preOrder->titik_koordinat ?? 'N/A' }}"
+                                        data-foto-petugas="{{ $customer->foto_petugas ? asset('storage/' . $customer->foto_petugas) : '' }}"
+                                        data-foto-terpasang="{{ $customer->foto_terpasang ? asset('storage/' . $customer->foto_terpasang) : '' }}"
+                                        data-foto-speedtest="{{ $customer->foto_speedtest ? asset('storage/' . $customer->foto_speedtest) : '' }}"
+                                        data-keterangan="{{ $customer->keterangan ?? 'Tidak ada keterangan.' }}">
+                                        <i class="fa-solid fa-circle-info text-primary"></i>
+                                    </button>
+
+                                    @if (auth()->user()->jabatan === 'Administrator')
                                         @if ($customer->trashed())
-                                            <span class="badge bg-secondary ms-1">Non-Aktif</span>
+                                            <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                                title="Aktifkan"
+                                                onclick="confirmRestore({{ $customer->id }}, '{{ $customer->nama_lengkap }}')">
+                                                <i class="fa-solid fa-rotate-left text-emerald-500"></i>
+                                            </button>
+                                            <form id="restore-form-{{ $customer->id }}"
+                                                action="{{ route('customers.restore', $customer->id) }}" method="POST"
+                                                style="display: none;">@csrf</form>
+                                        @else
+                                            <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                                title="Non-aktifkan"
+                                                onclick="confirmDelete({{ $customer->id }}, '{{ $customer->nama_lengkap }}')">
+                                                <i class="fa-solid fa-trash text-rose-500"></i>
+                                            </button>
+                                            <form id="delete-form-{{ $customer->id }}"
+                                                action="{{ route('customers.destroy', $customer->id) }}" method="POST"
+                                                style="display: none;">@csrf @method('DELETE')</form>
                                         @endif
-                                        <br>
-                                        <small class="text-muted">PPPOE:
-                                            {{ $customer->pppoe_username ?? '-' }}</small>
-                                    </td>
-                                    <td style="text-align: center; vertical-align: middle">
-                                        {{ $customer->paket_internet }}</td>
-                                    <td style="text-align: center; vertical-align: middle">
-                                        <a href="https://wa.me/{{ $customer->no_whatsapp }}" target="_blank"
-                                            class="btn btn-success btn-sm">
-                                            <i class="bi bi-whatsapp"></i> {{ $customer->no_whatsapp }}
-                                        </a>
-                                    </td>
-                                    <td style="text-align: center; vertical-align: middle">
-                                        <strong>{{ $customer->teknisiUtama->nama_lengkap ?? 'N/A' }}</strong>
-                                        @if ($customer->partner)
-                                            <br><small class="text-muted">Partner: {{ $customer->partner }}</small>
-                                        @endif
-                                    </td>
-                                    <td style="text-align: center; vertical-align: middle">
-                                        {{ \Carbon\Carbon::parse($customer->created_at)->format('d-m-Y') }}</td>
-                                    <td style="text-align: center; vertical-align: middle">
-                                        <button type="button" class="btn btn-sm btn-info detail-po-btn"
-                                            data-bs-toggle="modal" data-bs-target="#poDetailModal"
-                                            data-customer-id="{{ $customer->id_pelanggan }}"
-                                            data-pppoe-user="{{ $customer->pppoe_username }}"
-                                            data-pppoe-pass="{{ $customer->pppoe_password }}"
-                                            data-jenis-modem="{{ $customer->jenis_modem }}"
-                                            data-sn-perangkat="{{ $customer->sn_perangkat }}"
-                                            data-pembayaran="{{ $customer->pembayaran }}"
-                                            data-tgl-aktivasi="{{ \Carbon\Carbon::parse($customer->created_at)->format('d-m-Y') }}"
-                                            data-po-paket="{{ $customer->paket_internet }}"
-                                            data-po-sales="{{ $customer->sales->nama_lengkap ?? 'N/A' }}"
-                                            data-po-nik="{{ $customer->preOrder->no_identitas ?? 'N/A' }}"
-                                            data-po-email="{{ $customer->preOrder->alamat_email ?? 'N/A' }}"
-                                            data-po-alamat="{{ $customer->alamat_lengkap }}"
-                                            data-po-wa="{{ $customer->no_whatsapp }}"
-                                            data-po-tgl-po="{{ \Carbon\Carbon::parse($customer->preOrder->created_at ?? $customer->created_at)->format('d-m-Y') }}"
-                                            data-po-tikor="{{ $customer->preOrder->titik_koordinat ?? 'N/A' }}"
-                                            data-foto-petugas="{{ asset('storage/' . $customer->foto_petugas) }}"
-                                            data-foto-terpasang="{{ asset('storage/' . $customer->foto_terpasang) }}"
-                                            data-foto-speedtest="{{ asset('storage/' . $customer->foto_speedtest) }}">
-                                            <i class="bi bi-search"></i>
-                                        </button>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-                                        @if (auth()->user()->jabatan === 'Administrator')
-                                            @if ($customer->trashed())
-                                                {{-- Tombol Aktifkan Kembali --}}
-                                                <button class="btn btn-success btn-sm"
-                                                    onclick="confirmRestore({{ $customer->id }}, '{{ $customer->nama_lengkap }}')">
-                                                    <i class="bi bi-arrow-counterclockwise"></i> Aktifkan
-                                                </button>
-                                                <form id="restore-form-{{ $customer->id }}"
-                                                    action="{{ route('customers.restore', $customer->id) }}"
-                                                    method="POST" style="display: none;">@csrf</form>
-                                            @else
-                                                {{-- Tombol Nonaktifkan (Destroy) --}}
-                                                <button class="btn btn-danger btn-sm"
-                                                    onclick="confirmDelete({{ $customer->id }}, '{{ $customer->nama_lengkap }}')">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                                <form id="delete-form-{{ $customer->id }}"
-                                                    action="{{ route('customers.destroy', $customer->id) }}"
-                                                    method="POST" style="display: none;">@csrf @method('DELETE')</form>
-                                            @endif
-                                        @endif
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+    {{-- Custom Tabbed Detail Modal --}}
+    <div class="modal-overlay" id="customerDetailModal">
+        <div class="modal-box max-w-4xl bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                <div class="modal-title">
+                    <i class="fa-solid fa-circle-info text-primary"></i>
+                    <span class="text-slate-900 font-bold text-[17px]">Detail Informasi Pelanggan</span>
                 </div>
-                <div class="modal fade" id="poDetailModal" tabindex="-1" aria-labelledby="poDetailModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog modal-xl">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="poDetailModalLabel">Detail Pelanggan: <span
-                                        id="detail_nama_pelanggan"></span></h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h6><i class="bi bi-info-circle-fill"></i> Data Pelanggan & PO</h6>
-                                        <table class="table table-sm table-borderless">
-                                            <tr>
-                                                <th>Nama Sales</th>
-                                                <td id="detail_sales"></td>
-                                            </tr>
-                                            <tr>
-                                                <th>Tgl. Pre-Order</th>
-                                                <td id="detail_tgl_po"></td>
-                                            </tr>
-                                            <tr>
-                                                <th>No. Identitas (NIK)</th>
-                                                <td id="detail_nik"></td>
-                                            </tr>
-                                            <tr>
-                                                <th>Alamat Email</th>
-                                                <td id="detail_email"></td>
-                                            </tr>
-                                            <tr>
-                                                <th>No. WhatsApp</th>
-                                                <td id="detail_wa"></td>
-                                            </tr>
-                                            <tr>
-                                                <th>Alamat Lengkap</th>
-                                                <td id="detail_alamat_lengkap"></td>
-                                            </tr>
-                                            <tr>
-                                                <th>Titik Koordinat</th>
-                                                <td id="detail_tikor">
-                                                    <a id="detail_tikor_link" href="#" target="_blank"
-                                                        class="btn btn-sm btn-primary ms-2"><i
-                                                            class="bi bi-geo-alt-fill"></i> Lihat di Map</a>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
+                <button class="modal-close" onclick="closeCustomModal('customerDetailModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
 
-                                    <div class="col-md-6">
-                                        <h6><i class="bi bi-tools"></i> Data Aktivasi & Teknis</h6>
-                                        <table class="table table-sm table-borderless">
-                                            <tr>
-                                                <th>ID Pelanggan</th>
-                                                <td id="detail_customer_id"></td>
-                                            </tr>
-                                            <tr>
-                                                <th>Paket Internet</th>
-                                                <td id="detail_paket"></td>
-                                            </tr>
-                                            <tr>
-                                                <th>PPPoE Username</th>
-                                                <td id="detail_pppoe_user"></td>
-                                            </tr>
-                                            <tr>
-                                                <th>PPPoE Password</th>
-                                                <td id="detail_pppoe_pass"></td>
-                                            </tr>
-                                            <tr>
-                                                <th>Jenis Modem</th>
-                                                <td id="detail_jenis_modem"></td>
-                                            </tr>
-                                            <tr>
-                                                <th>SN Perangkat</th>
-                                                <td id="detail_sn"></td>
-                                            </tr>
-                                            <tr>
-                                                <th>Metode Pembayaran</th>
-                                                <td id="detail_pembayaran"></td>
-                                            </tr>
-                                            <tr>
-                                                <th>Tgl. Aktivasi</th>
-                                                <td id="detail_tgl_aktivasi"></td>
-                                            </tr>
-                                        </table>
+            <div class="modal-tabs bg-white border-b border-slate-200">
+                <button class="modal-tab active" data-tab="tab-biodata">
+                    <i class="fa-solid fa-id-card"></i> Biodata
+                </button>
+                <button class="modal-tab" data-tab="tab-teknis">
+                    <i class="fa-solid fa-gears"></i> Data Teknis
+                </button>
+                <button class="modal-tab" data-tab="tab-dokumentasi">
+                    <i class="fa-solid fa-camera-retro"></i> Dokumentasi
+                </button>
+            </div>
+
+            <div class="modal-body !p-0 bg-white">
+                <!-- Tab Biodata -->
+                <div class="tab-panel active" id="tab-biodata">
+                    <div class="grid grid-cols-1 lg:grid-cols-5">
+                        <div class="lg:col-span-3 p-8 space-y-8">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div class="space-y-4">
+                                    <h6
+                                        class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-l-4 border-primary pl-3">
+                                        Biodata Inti</h6>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Nomor
+                                                Identitas (NIK)</span>
+                                            <p id="detail_nik"
+                                                class="text-xl font-black text-slate-900 leading-none mt-1"></p>
+                                        </div>
+                                        <div>
+                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Alamat
+                                                Email</span>
+                                            <p id="detail_email"
+                                                class="text-base font-black text-primary truncate mt-1"></p>
+                                        </div>
+                                        <div>
+                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">No.
+                                                WhatsApp</span>
+                                            <p id="detail_wa" class="text-sm font-bold text-emerald-600 mt-1"></p>
+                                        </div>
                                     </div>
                                 </div>
-                                <hr>
-
-                                <h6><i class="bi bi-camera-fill"></i> Dokumentasi Aktivasi</h6>
-                                <div class="row text-center mt-3">
-                                    <div class="col-md-4">
-                                        <p class="fw-bold">Foto Petugas</p>
-                                        <img id="img_petugas" src="" class="img-fluid img-thumbnail"
-                                            alt="Foto Petugas">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <p class="fw-bold">Foto Perangkat Terpasang</p>
-                                        <img id="img_terpasang" src="" class="img-fluid img-thumbnail"
-                                            alt="Foto Terpasang">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <p class="fw-bold">Foto Speedtest</p>
-                                        <img id="img_speedtest" src="" class="img-fluid img-thumbnail"
-                                            alt="Foto Speedtest">
+                                <div class="space-y-4">
+                                    <h6
+                                        class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-l-4 border-indigo-500 pl-3">
+                                        Informasi Sales</h6>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Petugas
+                                                Sales</span>
+                                            <p id="detail_sales" class="text-sm font-bold text-slate-800 mt-1"></p>
+                                        </div>
+                                        <div>
+                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Tgl.
+                                                Pre-Order</span>
+                                            <p id="detail_tgl_po" class="text-sm font-bold text-slate-800 mt-1"></p>
+                                        </div>
+                                        <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100">
+                                            <span
+                                                class="text-[10px] font-black text-indigo-400 block uppercase mb-1">Titik
+                                                Koordinat</span>
+                                            <div class="flex items-center justify-between gap-2">
+                                                <p id="detail_tikor" class="text-xs font-black text-indigo-700"></p>
+                                                <a id="detail_tikor_link" href="#" target="_blank"
+                                                    class="text-[10px] bg-indigo-600 text-white px-2 py-1 rounded-md no-underline">
+                                                    <i class="fa-solid fa-map-location-dot"></i> Maps
+                                                </a>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-
-                                <h6 class="mt-4"><i class="bi bi-file-text-fill"></i> Keterangan:</h6>
-                                <p id="detail_keterangan"></p>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary btn-sm"
-                                    data-bs-dismiss="modal">Tutup</button>
+                            <div class="space-y-4">
+                                <h6
+                                    class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-l-4 border-slate-400 pl-3">
+                                    Lokasi Pasang</h6>
+                                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                                    <p id="detail_alamat_lengkap"
+                                        class="text-sm font-bold text-slate-700 leading-relaxed"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-2 p-8 bg-slate-50 border-l border-slate-200">
+                            <div class="bg-primary/5 p-4 rounded-2xl border border-primary/10">
+                                <p class="text-[10px] text-slate-500 leading-relaxed font-medium italic text-center">
+                                    Data ini bersumber dari formulir Pre-Order asli yang diinput oleh tim Sales.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Teknis -->
+                <div class="tab-panel p-8" id="tab-teknis">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <h6
+                                class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-l-4 border-sky-500 pl-3">
+                                Akun & Layanan</h6>
+                            <div class="bg-sky-50 p-5 rounded-2xl border border-sky-100 space-y-4">
+                                <div>
+                                    <span class="text-[10px] font-black text-sky-400 block uppercase">ID
+                                        Pelanggan</span>
+                                    <p id="detail_customer_id" class="text-xl font-black text-sky-700 mt-1"></p>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] font-black text-sky-400 block uppercase">Paket
+                                        Internet</span>
+                                    <p id="detail_paket" class="text-sm font-black text-sky-800 mt-1"></p>
+                                </div>
+                                <hr class="border-sky-200">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <span class="text-[10px] font-black text-sky-400 block uppercase">PPPoE
+                                            User</span>
+                                        <p id="detail_pppoe_user" class="text-xs font-bold text-slate-700"></p>
+                                    </div>
+                                    <div>
+                                        <span class="text-[10px] font-black text-sky-400 block uppercase">PPPoE
+                                            Pass</span>
+                                        <p id="detail_pppoe_pass" class="text-xs font-bold text-slate-700"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-6">
+                            <h6
+                                class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-l-4 border-amber-500 pl-3">
+                                Perangkat & Billing</h6>
+                            <div class="space-y-4">
+                                <div>
+                                    <span class="text-[11px] font-bold text-slate-400 block uppercase">Jenis
+                                        Modem</span>
+                                    <p id="detail_jenis_modem" class="text-sm font-bold text-slate-800 mt-1"></p>
+                                </div>
+                                <div>
+                                    <span class="text-[11px] font-bold text-slate-400 block uppercase">SN
+                                        Perangkat</span>
+                                    <p id="detail_sn" class="text-sm font-bold text-slate-800 mt-1"></p>
+                                </div>
+                                <div>
+                                    <span class="text-[11px] font-bold text-slate-400 block uppercase">Metode
+                                        Pembayaran</span>
+                                    <p id="detail_pembayaran" class="text-sm font-bold text-amber-600 mt-1"></p>
+                                </div>
+                                <div>
+                                    <span class="text-[11px] font-bold text-slate-400 block uppercase">Tanggal
+                                        Aktivasi</span>
+                                    <p id="detail_tgl_aktivasi" class="text-sm font-bold text-slate-800 mt-1"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Dokumentasi -->
+                <div class="tab-panel overflow-x-hidden" id="tab-dokumentasi">
+                    <div class="grid grid-cols-1 lg:grid-cols-5">
+                        <div class="lg:col-span-3 p-5 sm:p-8 space-y-6">
+                            <h6
+                                class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-l-4 border-emerald-500 pl-3">
+                                Hasil Instalasi</h6>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-4">
+                                <div class="space-y-2">
+                                    <span
+                                        class="text-[10px] font-bold text-slate-500 block text-center uppercase">Petugas</span>
+                                    <div
+                                        class="aspect-[3/4] w-full rounded-2xl overflow-hidden border-2 border-white shadow-md bg-slate-100 flex items-center justify-center">
+                                        <img id="img_petugas" src=""
+                                            class="w-full h-full object-cover hidden cursor-pointer"
+                                            onclick="window.open(this.src, '_blank')">
+                                        <i class="fa-solid fa-user-gear text-slate-300 text-3xl"
+                                            id="placeholder_petugas"></i>
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <span
+                                        class="text-[10px] font-bold text-slate-500 block text-center uppercase">Perangkat</span>
+                                    <div
+                                        class="aspect-[3/4] w-full rounded-2xl overflow-hidden border-2 border-white shadow-md bg-slate-100 flex items-center justify-center">
+                                        <img id="img_terpasang" src=""
+                                            class="w-full h-full object-cover hidden cursor-pointer"
+                                            onclick="window.open(this.src, '_blank')">
+                                        <i class="fa-solid fa-microchip text-slate-300 text-3xl"
+                                            id="placeholder_terpasang"></i>
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <span
+                                        class="text-[10px] font-bold text-slate-500 block text-center uppercase">Speedtest</span>
+                                    <div
+                                        class="aspect-[3/4] w-full rounded-2xl overflow-hidden border-2 border-white shadow-md bg-slate-100 flex items-center justify-center">
+                                        <img id="img_speedtest" src=""
+                                            class="w-full h-full object-cover hidden cursor-pointer"
+                                            onclick="window.open(this.src, '_blank')">
+                                        <i class="fa-solid fa-gauge-high text-slate-300 text-3xl"
+                                            id="placeholder_speedtest"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="lg:col-span-2 p-5 sm:p-8 bg-slate-50 border-t lg:border-t-0 lg:border-l border-slate-200">
+                            <h6 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Catatan
+                                Teknisi</h6>
+                            <div class="bg-white p-4 rounded-2xl border border-slate-200 min-h-[120px]">
+                                <p id="detail_keterangan"
+                                    class="text-sm font-medium text-slate-600 italic leading-relaxed break-words"></p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div class="modal-footer border-t border-slate-200 bg-white rounded-b-2xl">
+                <button type="button" class="btn-cancel w-full !py-3.5 !flex !items-center !justify-center gap-2"
+                    onclick="closeCustomModal('customerDetailModal')">
+                    <i class="fa-solid fa-circle-xmark"></i> Tutup Detail Pelanggan
+                </button>
+            </div>
         </div>
-    </main>
+    </div>
+
     @section('Scripts')
-        <script src="{{ asset('dist/js/jquery.min.js') }}"></script>
-        <script src="{{ asset('dist/js/bootstrap.bundle.min.js') }}"></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
-        <script src="{{ asset('dist/js/dataTables.bootstrap4.min.js') }}"></script>
-        <script src="{{ asset('dist/js/dataTables.responsive.min.js') }}"></script>
-        <script src="{{ asset('dist/js/responsive.bootstrap4.min.js') }}"></script>
-        <script src="{{ asset('dist/js/dataTables.buttons.min.js') }}"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         <script>
-            $(function() {
-                $("#example1").DataTable({
-                    "responsive": true,
+            // Custom Modal Functions
+            function openCustomModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.add('open');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            function closeCustomModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove('open');
+                    document.body.style.overflow = '';
+                }
+            }
+
+            function openCustomerDetailModal(triggerEl) {
+                const $btn = $(triggerEl);
+
+                // Populate Biodata
+                $('#title_nama_pelanggan').text($btn.data('nama-lengkap'));
+                $('#detail_nik').text($btn.data('po-nik'));
+                $('#detail_email').text($btn.data('po-email'));
+                $('#detail_wa').text($btn.data('po-wa'));
+                $('#detail_sales').text($btn.data('po-sales'));
+                $('#detail_tgl_po').text($btn.data('po-tgl-po'));
+                $('#detail_alamat_lengkap').text($btn.data('po-alamat'));
+
+                const tikor = $btn.data('po-tikor');
+                $('#detail_tikor').text(tikor);
+                if (tikor && tikor !== 'N/A') {
+                    $('#detail_tikor_link').attr('href', `https://www.google.com/maps/dir/?api=1&destination=${tikor}`).show();
+                } else {
+                    $('#detail_tikor_link').hide();
+                }
+
+                // Populate Teknis
+                $('#detail_customer_id').text($btn.data('customer-id'));
+                $('#detail_paket').text($btn.data('po-paket'));
+                $('#detail_pppoe_user').text($btn.data('pppoe-user'));
+                $('#detail_pppoe_pass').text($btn.data('pppoe-pass'));
+                $('#detail_jenis_modem').text($btn.data('jenis-modem'));
+                $('#detail_sn').text($btn.data('sn-perangkat'));
+                $('#detail_pembayaran').text($btn.data('pembayaran'));
+                $('#detail_tgl_aktivasi').text($btn.data('tgl-aktivasi'));
+
+                // Populate Dokumentasi
+                const handleImage = (imgId, placeholderId, src) => {
+                    const $img = $(`#${imgId}`);
+                    const $placeholder = $(`#${placeholderId}`);
+                    if (src && src !== '' && !src.includes('null')) {
+                        $img.attr('src', src).show();
+                        $placeholder.hide();
+                    } else {
+                        $img.hide();
+                        $placeholder.show();
+                    }
+                };
+
+                handleImage('img_petugas', 'placeholder_petugas', $btn.data('foto-petugas'));
+                handleImage('img_terpasang', 'placeholder_terpasang', $btn.data('foto-terpasang'));
+                handleImage('img_speedtest', 'placeholder_speedtest', $btn.data('foto-speedtest'));
+                $('#detail_keterangan').text($btn.data('keterangan'));
+
+                // Reset tabs
+                $('#customerDetailModal .modal-tab').first().click();
+
+                openCustomModal('customerDetailModal');
+            }
+
+            $(document).ready(function() {
+                // DataTables
+                const table = $('#customer-table').DataTable({
+                    "pageLength": 10,
                     "lengthChange": false,
-                    "autoWidth": false,
                     "ordering": false,
+                    "info": false,
+                    "responsive": true,
+                    "dom": 'tpir',
+                    "language": {
+                        "zeroRecords": "Data tidak ditemukan",
+                        "paginate": {
+                            "previous": '<i class="fa-solid fa-chevron-left"></i>',
+                            "next": '<i class="fa-solid fa-chevron-right"></i>'
+                        }
+                    }
+                });
+
+                // Custom Search
+                $('#custom-search').on('keyup', function() {
+                    table.search(this.value).draw();
+                });
+
+                // Tab switching
+                $('.modal-tab').on('click', function() {
+                    const tabId = $(this).data('tab');
+                    const $modalBox = $(this).closest('.modal-box');
+                    $modalBox.find('.modal-tab').removeClass('active');
+                    $(this).addClass('active');
+                    $modalBox.find('.tab-panel').removeClass('active');
+                    $('#' + tabId).addClass('active');
+                });
+
+                // Close on overlay click
+                $('.modal-overlay').on('click', function(e) {
+                    if (e.target === this) closeCustomModal(this.id);
                 });
             });
-        </script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // Logika untuk Modal Detail Pelanggan (poDetailModal)
-                const poDetailModal = document.getElementById('poDetailModal');
 
-                if (poDetailModal) {
-                    poDetailModal.addEventListener('show.bs.modal', function(event) {
-                        const button = event.relatedTarget;
-
-                        // --- PENGAMBILAN DATA AKTIVASI & TEKNIS ---
-                        // Pastikan nama attribute data-XXX di tombol HTML SAMA PERSIS dengan ini!
-                        const customerId = button.getAttribute('data-customer-id');
-                        const poPaket = button.getAttribute('data-po-paket');
-                        const pppoeUser = button.getAttribute('data-pppoe-user');
-                        const pppoePass = button.getAttribute('data-pppoe-pass');
-                        const jenisModem = button.getAttribute('data-jenis-modem');
-                        const snPerangkat = button.getAttribute('data-sn-perangkat');
-                        const pembayaran = button.getAttribute('data-pembayaran');
-                        const tglAktivasi = button.getAttribute('data-tgl-aktivasi');
-                        const keterangan = button.getAttribute('data-keterangan');
-                        const poNama = button.closest('tr').querySelector('td:nth-child(4)').textContent;
-
-                        // --- PENGAMBILAN DATA FOTO ---
-                        const fotoPetugas = button.getAttribute('data-foto-petugas');
-                        const fotoTerpasang = button.getAttribute('data-foto-terpasang');
-                        const fotoSpeedtest = button.getAttribute('data-foto-speedtest');
-
-                        // --- PENGAMBILAN DATA PO (untuk kelengkapan) ---
-                        const poTikor = button.getAttribute('data-po-tikor');
-                        const poSales = button.getAttribute('data-po-sales');
-                        const poTglPo = button.getAttribute('data-po-tgl-po');
-                        const poNik = button.getAttribute('data-po-nik');
-                        const poEmail = button.getAttribute('data-po-email');
-                        const poWa = button.getAttribute('data-po-wa');
-                        const poAlamat = button.getAttribute('data-po-alamat');
-
-                        // --- PENGISIAN DATA PO & ADMINISTRATIF ---
-
-                        // Judul
-                        document.getElementById('detail_nama_pelanggan').textContent = poNama;
-
-                        // Data Pelanggan & PO
-                        document.getElementById('detail_sales').textContent = poSales;
-                        document.getElementById('detail_tgl_po').textContent = poTglPo;
-                        document.getElementById('detail_nik').textContent = poNik;
-                        document.getElementById('detail_email').textContent = poEmail;
-                        document.getElementById('detail_wa').textContent = poWa;
-                        document.getElementById('detail_alamat_lengkap').textContent = poAlamat;
-
-                        // Titik Koordinat
-                        const detailTikorEl = document.getElementById('detail_tikor');
-                        const tikorLink = document.getElementById('detail_tikor_link');
-
-                        detailTikorEl.textContent = poTikor;
-                        if (poTikor && poTikor !== 'N/A') {
-                            tikorLink.href = `http://googleusercontent.com/maps.google.com/?q=${poTikor}`;
-                            tikorLink.style.display = 'inline-block';
-                        } else {
-                            tikorLink.style.display = 'none';
-                        }
-
-                        // --- PENGISIAN DATA AKTIVASI & TEKNIS ---
-                        document.getElementById('detail_customer_id').textContent = customerId;
-                        // Paket Internet sudah ada di kolom table, atau ambil dari data-po-paket
-                        document.getElementById('detail_paket').textContent = poPaket;
-                        document.getElementById('detail_pppoe_user').textContent = pppoeUser;
-                        document.getElementById('detail_pppoe_pass').textContent = pppoePass;
-                        document.getElementById('detail_jenis_modem').textContent = jenisModem;
-                        document.getElementById('detail_sn').textContent = snPerangkat;
-                        document.getElementById('detail_pembayaran').textContent = pembayaran;
-                        document.getElementById('detail_tgl_aktivasi').textContent = tglAktivasi;
-
-                        // --- PENGISIAN FOTO ---
-                        document.getElementById('img_petugas').src = fotoPetugas;
-                        document.getElementById('img_terpasang').src = fotoTerpasang;
-                        document.getElementById('img_speedtest').src = fotoSpeedtest;
-
-                        // --- PENGISIAN KETERANGAN ---
-                        document.getElementById('detail_keterangan').textContent = keterangan;
-                    });
-                }
-            });
-        </script>
-        <script>
             function confirmDelete(id, name) {
                 Swal.fire({
                     title: 'Nonaktifkan?',
-                    text: "Pelanggan " + name + " akan dipindahkan ke daftar Non-Aktif.",
+                    text: `Pelanggan "${name}" akan dipindahkan ke daftar Non-Aktif.`,
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    confirmButtonText: 'Ya, Nonaktifkan'
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'Ya, Nonaktifkan',
+                    cancelButtonText: 'Batal'
                 }).then((r) => {
                     if (r.isConfirmed) document.getElementById('delete-form-' + id).submit();
                 });
@@ -372,11 +629,13 @@
             function confirmRestore(id, name) {
                 Swal.fire({
                     title: 'Aktifkan Kembali?',
-                    text: "Pelanggan " + name + " akan berlangganan kembali.",
+                    text: `Pelanggan "${name}" akan berlangganan kembali.`,
                     icon: 'question',
                     showCancelButton: true,
-                    confirmButtonColor: '#28a745',
-                    confirmButtonText: 'Ya, Aktifkan'
+                    confirmButtonColor: '#10b981',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'Ya, Aktifkan',
+                    cancelButtonText: 'Batal'
                 }).then((r) => {
                     if (r.isConfirmed) document.getElementById('restore-form-' + id).submit();
                 });
