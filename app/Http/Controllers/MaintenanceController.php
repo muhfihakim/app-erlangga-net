@@ -40,12 +40,65 @@ class MaintenanceController extends Controller
         $customers = Customer::all();
         $teknisis = User::where('jabatan', 'Teknisi')->get();
 
+        // --- STATISTIK ---
+        $thisMonth = Carbon::now()->month;
+        $thisYear = Carbon::now()->year;
+        
+        $totalThisMonth = Maintenance::whereMonth('created_at', $thisMonth)
+            ->whereYear('created_at', $thisYear)
+            ->count();
+            
+        $totalThisWeek = Maintenance::whereBetween('created_at', [
+            Carbon::now()->startOfWeek(),
+            Carbon::now()->endOfWeek()
+        ])->count();
+
+        $totalCompletedThisMonth = Maintenance::where('status', 'Selesai')
+            ->whereMonth('completed_at', $thisMonth)
+            ->whereYear('completed_at', $thisYear)
+            ->count();
+
+        // Data Chart Tren: 7 Hari Terakhir
+        $chartLabels = [];
+        $chartValues = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i);
+            $chartLabels[] = $date->translatedFormat('d M');
+            $chartValues[] = Maintenance::whereDate('created_at', $date->toDateString())->count();
+        }
+
+        // Data Donut Chart: Top Teknisi Bulan Ini
+        $topTeknisi = Maintenance::where('status', 'Selesai')
+            ->whereMonth('completed_at', $thisMonth)
+            ->whereYear('completed_at', $thisYear)
+            ->with('teknisiEksekutor')
+            ->get()
+            ->groupBy('id_teknisi_eksekutor')
+            ->map(function ($group) {
+                return [
+                    'name' => $group->first()->teknisiEksekutor->nama_lengkap ?? 'Unknown',
+                    'count' => $group->count()
+                ];
+            })
+            ->sortByDesc('count')
+            ->take(5);
+
+        $donutLabels = $topTeknisi->pluck('name')->toArray();
+        $donutValues = $topTeknisi->pluck('count')->toArray();
+
         return view('maintenances.index', compact(
             'allMaintenances',
             'delegatedTasks',
             'generalTasks',
             'customers',
-            'teknisis'
+            'teknisis',
+            'totalThisMonth',
+            'totalThisWeek',
+            'totalCompletedThisMonth',
+            'chartLabels',
+            'chartValues',
+            'donutLabels',
+            'donutValues'
         ));
     }
 

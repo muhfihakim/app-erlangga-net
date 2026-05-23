@@ -1,208 +1,458 @@
 <x-layouts.app>
     @section('Css')
-        <link rel="stylesheet" href="{{ asset('dist/css/dataTables.bootstrap4.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('dist/css/responsive.bootstrap4.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('dist/css/buttons.bootstrap4.min.css') }}">
         <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
         <style>
-            /* Fix Select2 width in Bootstrap forms */
-            .select2-container--default .select2-selection--single {
-                height: 38px;
-                padding-top: 5px;
+            /* Hakatech DataTables Customization */
+            .dataTables_wrapper {
+                padding: 0;
             }
 
-            .select2-container--default .select2-selection--single .select2-selection__arrow {
-                height: 36px;
+            .dataTables_filter {
+                display: none;
+            }
+
+            .dataTables_paginate {
+                display: flex;
+                justify-content: flex-end;
+                padding: 1.25rem 1.5rem;
+                gap: 4px;
+                border-top: 1px solid #f1f5f9;
+                transition: border-color 0.3s ease;
+            }
+
+            .paginate_button {
+                width: 34px;
+                height: 34px;
+                border-radius: 8px;
+                border: 1.5px solid #e2e8f0;
+                background: #fff;
+                color: #64748b !important;
+                font-size: 13px;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all .2s;
+                text-decoration: none !important;
+            }
+
+            .paginate_button:hover:not(.disabled):not(.current) {
+                border-color: #0ea5e9;
+                color: #0ea5e9 !important;
+                background: #f0f9ff;
+            }
+
+            .paginate_button.current {
+                background: #0ea5e9;
+                border-color: #0ea5e9;
+                color: #fff !important;
+            }
+
+            .paginate_button.disabled {
+                opacity: 0.35;
+                cursor: not-allowed;
+            }
+
+            table.dataTable.no-footer {
+                border-bottom: none;
+            }
+
+            /* Toolbar & Search */
+            .table-toolbar {
+                background: #fff;
+                border: 1px solid #e2e8f0;
+                border-radius: 14px;
+                padding: 1rem 1.25rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                flex-wrap: wrap;
+                margin-bottom: 1rem;
+                box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
+            }
+
+            .search-wrap {
+                position: relative;
+                flex: 1;
+                min-width: 200px;
+                max-width: 360px;
+            }
+
+            .search-icon {
+                position: absolute;
+                left: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #94a3b8;
+                font-size: 13px;
+                pointer-events: none;
+            }
+
+            .search-input {
+                width: 100%;
+                padding: 9px 12px 9px 36px;
+                border: 2px solid #e2e8f0;
+                border-radius: 10px;
+                font-size: 13px;
+                font-family: 'Inter', sans-serif;
+                color: #374151;
+                outline: none;
+                transition: all .25s;
+                background: #f8fafc;
+            }
+
+            .search-input:focus {
+                border-color: #0ea5e9;
+                background: #fff;
+            }
+
+            /* Select2 Custom Styling to match modern UI */
+            .select2-container--bootstrap4 .select2-selection--single {
+                height: 42px !important;
+                border: 2px solid #cbd5e1 !important;
+                border-radius: 10px !important;
+                background-color: #fff !important;
+                transition: all .2s ease;
+                display: flex;
+                align-items: center;
+            }
+
+            .select2-container--bootstrap4.select2-container--focus .select2-selection--single {
+                border-color: #0ea5e9 !important;
+                box-shadow: 0 0 0 3px rgba(14,165,233,.12) !important;
+            }
+
+            .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+                color: #0f172a !important;
+                font-size: 13px !important;
+                font-weight: 500 !important;
+                padding-left: 12px !important;
+                line-height: 38px !important;
+            }
+
+            .select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
+                height: 38px !important;
+                top: 2px !important;
+                right: 8px !important;
+            }
+
+            .select2-dropdown {
+                border: 2px solid #e2e8f0 !important;
+                border-radius: 12px !important;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+                overflow: hidden !important;
+                z-index: 9999 !important;
+            }
+
+            .select2-results__option {
+                padding: 8px 12px !important;
+                font-size: 13px !important;
+            }
+
+            .select2-container--bootstrap4 .select2-results__option--highlighted[aria-selected] {
+                background-color: #0ea5e9 !important;
             }
         </style>
     @endsection
 
-    <main class="app-main">
-        <div class="app-content-header">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <h3 class="mb-0">Pemeliharaan</h3>
+    @php $is_admin = Auth::user()->jabatan === 'Administrator'; @endphp
+
+    <!-- Page header -->
+    <div
+        style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+        <div>
+            <h1 style="font-size:22px;font-weight:900;margin:0;">Pemeliharaan (Maintenance)</h1>
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola tugas perbaikan dan pemeliharaan jaringan
+                pelanggan.</p>
+        </div>
+        <div style="display:flex; gap:10px;">
+            @if ($is_admin)
+                <button type="button" class="btn-primary-admin !flex !items-center !justify-center gap-2"
+                    onclick="openCustomModal('addMaintenanceModal')">
+                    <i class="fa-solid fa-plus-square"></i> Tambah Maintenance
+                </button>
+            @endif
+            <a href="{{ route('dashboards.index') }}" class="btn-primary-admin !flex !items-center !justify-center gap-2"
+                style="background: #f1f5f9; color: #475569; box-shadow: none; border: 1px solid #e2e8f0;"
+                onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+                <i class="fa-solid fa-house"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats cards -->
+    <div class="stats-grid mb-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#e0f2fe;color:#0369a1;">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $totalThisMonth }}</div>
+                <div class="stat-lbl">Maintenance Bulan Ini</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
+                <i class="fa-solid fa-calendar-week"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $totalThisWeek }}</div>
+                <div class="stat-lbl">Maintenance Minggu Ini</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#dcfce7;color:#15803d;">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $totalCompletedThisMonth }}</div>
+                <div class="stat-lbl">Total Selesai (Bulan Ini)</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fef2f2;color:#dc2626;">
+                <i class="fa-solid fa-clock"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $allMaintenances->where('status', 'Pending')->count() }}</div>
+                <div class="stat-lbl">Total Pending</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+        <!-- Trend Chart (Left) -->
+        <div class="table-card p-6" style="margin-bottom: 0;">
+            <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-chart-line text-primary"></i> Tren Maintenance (7 Hari Terakhir)
+            </h3>
+            <div style="height: 300px; position: relative;">
+                <canvas id="maintenanceChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Teknisi (Right) -->
+        <div class="table-card p-6" style="margin-bottom: 0;">
+            <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-trophy text-amber-500"></i> Top Teknisi (Bulan Ini)
+            </h3>
+            <div style="height: 300px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                @if(count($donutValues) > 0)
+                    <canvas id="teknisiChart"></canvas>
+                @else
+                    <div class="text-center py-12">
+                        <i class="fa-solid fa-chart-pie text-slate-200 text-5xl mb-3"></i>
+                        <p class="text-slate-400 font-bold text-xs uppercase">Belum ada data</p>
                     </div>
-                    <div class="col-sm-6">
-                        <ol class="breadcrumb float-sm-end">
-                            <li class="breadcrumb-item"><a href="#">Home</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Pemeliharaan</li>
-                        </ol>
-                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    @if ($is_admin)
+        <!-- Toolbar -->
+        <div class="table-toolbar">
+            <div class="search-wrap">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="search" class="search-input" id="custom-search"
+                    placeholder="Cari pelanggan, teknisi, atau status..." autocomplete="off" />
+            </div>
+            <div style="display:flex;gap:8px;">
+                <div
+                    style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    Data Keseluruhan
                 </div>
             </div>
         </div>
-        {{-- TAMPILAN ADMINISTRATOR --}}
-        <div class="app-content">
-            <div class="card card-primary">
-                <div class="card-header">
-                    <h3 class="card-title">Data Keseluruhan Pemeliharaan</h3>
-                </div>
-                <div class="card-body">
-                    @php $is_admin = Auth::user()->jabatan === 'Administrator'; @endphp
 
-                    @if ($is_admin)
-                        <button class="btn btn-success btn-sm mb-3" data-bs-toggle="modal"
-                            data-bs-target="#addMaintenanceModal">
-                            <i class="bi bi-plus-square"></i> Tambah Pemeliharaan
-                        </button>
-                        <a href="{{ route('dashboards.index') }}" class="btn btn-secondary mb-3 btn-sm">←
-                            Kembali</a>
+        <!-- Table Card -->
+        <div class="table-card">
+            <div class="table-responsive">
+                <table id="admin-maintenance-table" class="admin-table">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center; width: 50px;">#</th>
+                            <th style="text-align: center; width: 250px;">Pelanggan</th>
+                            <th style="text-align: center; width: 120px;">Status</th>
+                            <th style="text-align: center; width: 200px;">Teknisi</th>
+                            <th style="text-align: center; width: 150px;">Waktu Selesai</th>
+                            <th style="text-align: center; width: 150px;">Opsi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($allMaintenances as $m)
+                            @php
+                                $deadline = $m->delegated_at ? \Carbon\Carbon::parse($m->delegated_at)->addDays(2) : null;
+                                $isLocked = $m->status === 'Pending' && $deadline && now()->greaterThan($deadline);
+                                $isTrashed = $m->customer && $m->customer->trashed();
+                            @endphp
+                            <tr>
+                                <td style="text-align: center; color: #94a3b8; font-weight: 700;">
+                                    {{ $loop->iteration }}</td>
+                                <td style="text-align: left;">
+                                    <div style="font-weight: 700; color: #0f172a;">{{ $m->customer->nama_lengkap ?? 'N/A' }}
+                                        @if ($isTrashed)
+                                            <span class="badge badge-archived"
+                                                style="font-size: 9px; margin-left: 4px;">NON-AKTIF</span>
+                                        @endif
+                                    </div>
+                                    <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
+                                        ID: {{ $m->customer->id_pelanggan ?? '-' }} | PPPoE:
+                                        {{ $m->customer->pppoe_username ?? '-' }}
+                                    </div>
+                                </td>
+                                <td style="text-align: center;">
+                                    @if ($m->status === 'Selesai')
+                                        <span class="badge badge-published">SELESAI</span>
+                                    @elseif($isLocked)
+                                        <span class="badge badge-archived">LOCKED</span>
+                                    @else
+                                        <span class="badge"
+                                            style="background: #fef9c3; color: #854d0e; padding: 4px 10px; border-radius: 6px; font-size: 10px;">PENDING</span>
+                                    @endif
+                                </td>
+                                <td style="text-align: center;">
+                                    <div style="font-weight: 600; color: #475569; font-size: 12px;">
+                                        {{ $m->teknisiDelegasi->nama_lengkap ?? 'Tugas Umum' }}
+                                    </div>
+                                    @if ($m->teknisiEksekutor)
+                                        <div style="font-size: 10px; color: #94a3b8;">Eksekutor:
+                                            {{ $m->teknisiEksekutor->nama_lengkap }}</div>
+                                    @endif
+                                    @if ($m->customer && $m->customer->partner)
+                                        <div style="font-size: 10px; color: #94a3b8;">Partner: {{ $m->customer->partner }}
+                                        </div>
+                                    @endif
+                                </td>
+                                <td style="text-align: center; color: #64748b; font-size: 12px; font-weight: 600;">
+                                    {{ $m->completed_at ? \Carbon\Carbon::parse($m->completed_at)->format('d-m-Y H:i') : '-' }}
+                                </td>
+                                <td style="text-align: center;">
+                                    <div
+                                        style="display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;">
+                                        {{-- Detail Tugas --}}
+                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                            title="Detail Tugas" onclick="openMaintenanceDetailModal(this)"
+                                            data-nama="{{ $m->customer->nama_lengkap ?? 'N/A' }}"
+                                            data-id-pel="{{ $m->customer->id_pelanggan ?? '-' }}"
+                                            data-pppoe="{{ $m->customer->pppoe_username ?? '-' }}"
+                                            data-wa="{{ $m->customer->no_whatsapp ?? '-' }}"
+                                            data-tikor="{{ $m->customer->preOrder->titik_koordinat ?? 'N/A' }}"
+                                            data-alamat="{{ $m->customer->alamat_lengkap ?? '-' }}"
+                                            data-kendala="{{ $m->keterangan_kendala }}"
+                                            data-foto="{{ $m->foto_kendala_awal ? asset('storage/' . $m->foto_kendala_awal) : '' }}">
+                                            <i class="fa-solid fa-circle-info text-primary"></i>
+                                        </button>
 
-                        <table id="adminTable" class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th style="text-align: center; vertical-align: middle">No</th>
-                                    <th style="text-align: center; vertical-align: middle">Pelanggan</th>
-                                    <th style="text-align: center; vertical-align: middle">Status</th>
-                                    <th style="text-align: center; vertical-align: middle">Teknisi</th>
-                                    <th style="text-align: center; vertical-align: middle">Waktu Selesai</th>
-                                    <th style="text-align: center; vertical-align: middle">Opsi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($allMaintenances as $m)
-                                    @php
-                                        $deadline = $m->delegated_at
-                                            ? \Carbon\Carbon::parse($m->delegated_at)->addDays(2)
-                                            : null;
-                                        $isLocked =
-                                            $m->status === 'Pending' && $deadline && now()->greaterThan($deadline);
-
-                                        // Cek apakah pelanggan sudah di-softdelete
-                                        $isTrashed = $m->customer && $m->customer->trashed();
-                                    @endphp
-                                    <tr>
-                                        <td style="text-align: center; vertical-align: middle">
-                                            {{ $loop->iteration }}
-                                        </td>
-                                        <td style="vertical-align: middle">
-                                            <strong>{{ $m->customer->nama_lengkap ?? 'N/A' }}</strong>
-                                            @if ($isTrashed)
-                                                <span class="badge bg-secondary ms-1">Non-Aktif</span>
-                                            @endif
-                                            <br>
-                                            <small class="text-muted">ID: {{ $m->customer->id_pelanggan ?? '-' }} -
-                                                PPPOE:
-                                                {{ $m->customer->pppoe_username ?? '-' }}</small>
-                                        </td>
-                                        <td style="text-align: center; vertical-align: middle">
-                                            <span
-                                                class="badge {{ $m->status === 'Selesai' ? 'bg-success' : ($isLocked ? 'bg-danger' : 'bg-warning') }}">
-                                                {{ $m->status === 'Selesai' ? 'SELESAI' : ($isLocked ? 'LOCKED' : 'PENDING') }}
-                                            </span>
-                                        </td>
-                                        <td style="text-align: center; vertical-align: middle">
-                                            {{ $m->teknisiDelegasi->nama_lengkap ?? 'Tugas Umum' }} -
-                                            {{ $m->teknisiEksekutor->nama_lengkap ?? 'N/A' }}
-                                            @if ($m->customer && $m->customer->partner)
-                                                <br><small class="text-muted">Partner:
-                                                    {{ $m->customer->partner }}</small>
-                                            @endif
-                                        </td>
-                                        <td style="text-align: center; vertical-align: middle">
-                                            {{ \Carbon\Carbon::parse($m->completed_at)->format('d-m-Y H:i') }}
-                                        </td>
-                                        <td style="text-align: center; vertical-align: middle">
-                                            {{-- Detail Tugas --}}
-                                            <button type="button" class="btn btn-secondary btn-sm"
-                                                data-bs-toggle="modal" data-bs-target="#detailMaintenanceModal"
+                                        @if ($m->status === 'Selesai')
+                                            {{-- Hasil Pengerjaan --}}
+                                            <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                                title="Hasil Pengerjaan" onclick="openMaintenanceResultModal(this)"
                                                 data-nama="{{ $m->customer->nama_lengkap ?? 'N/A' }}"
-                                                data-id-pel="{{ $m->customer->id_pelanggan ?? '-' }}"
-                                                data-pppoe="{{ $m->customer->pppoe_username ?? '-' }}"
-                                                data-wa="{{ $m->customer->no_whatsapp ?? '-' }}"
-                                                data-tikor="{{ $m->customer->preOrder->titik_koordinat ?? 'N/A' }}"
-                                                data-alamat="{{ $m->customer->alamat_lengkap ?? '-' }}"
-                                                data-kendala="{{ $m->keterangan_kendala }}"
-                                                data-foto="{{ $m->foto_kendala_awal ? asset('storage/' . $m->foto_kendala_awal) : '' }}">
-                                                <i class="bi bi-person-lines-fill"></i>
+                                                data-eksekutor="{{ $m->teknisiEksekutor->nama_lengkap ?? 'N/A' }}"
+                                                data-partner="{{ $m->customer->partner ?: '-' }}"
+                                                data-solusi="{{ $m->solusi_kendala }}"
+                                                data-waktu="{{ \Carbon\Carbon::parse($m->completed_at)->format('d-m-Y H:i') }}"
+                                                data-foto-before="{{ asset('storage/' . $m->foto_sebelum_perbaikan) }}"
+                                                data-foto-after="{{ asset('storage/' . $m->foto_setelah_perbaikan) }}"
+                                                data-foto-speed="{{ asset('storage/' . $m->foto_speedtest) }}"
+                                                data-foto-selfie="{{ asset('storage/' . $m->foto_selfie_teknisi) }}">
+                                                <i class="fa-solid fa-file-circle-check text-emerald-500"></i>
                                             </button>
+                                        @else
+                                            <button type="button"
+                                                class="topbar-icon-btn !w-9 !h-9 !rounded-xl {{ $isLocked ? 'text-rose-500' : 'text-sky-500' }}"
+                                                title="{{ $isLocked ? 'Locked / Reassign' : 'Tugaskan' }}"
+                                                onclick="openCustomModal('reassignModal', this)"
+                                                data-id="{{ $m->id }}"
+                                                data-nama="{{ $m->customer->nama_lengkap ?? 'N/A' }}">
+                                                <i class="fa-solid {{ $isLocked ? 'fa-lock' : 'fa-user-gear' }}"></i>
+                                            </button>
+                                        @endif
 
-                                            @if ($m->status === 'Selesai')
-                                                {{-- Tombol Lihat Hasil Pengerjaan --}}
-                                                <button type="button" class="btn btn-success btn-sm"
-                                                    data-bs-toggle="modal" data-bs-target="#resultMaintenanceModal"
-                                                    data-nama="{{ $m->customer->nama_lengkap ?? 'N/A' }}"
-                                                    data-eksekutor="{{ $m->teknisiEksekutor->nama_lengkap ?? 'N/A' }}"
-                                                    data-partner="{{ $m->customer->partner ?: '-' }}"
-                                                    data-solusi="{{ $m->solusi_kendala }}"
-                                                    data-waktu="{{ \Carbon\Carbon::parse($m->completed_at)->format('d-m-Y H:i') }}"
-                                                    data-foto-before="{{ asset('storage/' . $m->foto_sebelum_perbaikan) }}"
-                                                    data-foto-after="{{ asset('storage/' . $m->foto_setelah_perbaikan) }}"
-                                                    data-foto-speed="{{ asset('storage/' . $m->foto_speedtest) }}"
-                                                    data-foto-selfie="{{ asset('storage/' . $m->foto_selfie_teknisi) }}">
-                                                    <i class="bi bi-file-earmark-check"></i>
-                                                </button>
-                                            @else
-                                                <button class="btn {{ $isLocked ? 'btn-danger' : 'btn-info' }} btn-sm"
-                                                    data-bs-toggle="modal" data-bs-target="#reassignModal"
-                                                    data-id="{{ $m->id }}"
-                                                    data-nama="{{ $m->customer->nama_lengkap ?? 'N/A' }}">
-                                                    <i
-                                                        class="bi {{ $isLocked ? 'bi-x-circle' : 'bi-person-badge' }}"></i>
-                                                    Tugas
-                                                </button>
-                                            @endif
-                                            <button type="button" class="btn btn-danger btn-sm"
-                                                onclick="confirmDelete({{ $m->id }}, '{{ $m->customer->nama_lengkap ?? 'N/A' }}')">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                            <form id="delete-form-{{ $m->id }}"
-                                                action="{{ route('maintenances.destroy', $m->id) }}" method="POST"
-                                                style="display: none;">@csrf @method('DELETE')</form>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                </div>
+                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                            title="Hapus"
+                                            onclick="confirmDelete({{ $m->id }}, '{{ $m->customer->nama_lengkap ?? 'N/A' }}')">
+                                            <i class="fa-solid fa-trash text-rose-600"></i>
+                                        </button>
+                                        <form id="delete-form-{{ $m->id }}"
+                                            action="{{ route('maintenances.destroy', $m->id) }}" method="POST"
+                                            style="display: none;">@csrf @method('DELETE')</form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
-        @else
-            {{-- TAMPILAN TEKNISI --}}
-            <div class="card card-info">
-                <div class="card-header">
-                    <h3 class="card-title">1. Tugas Delegasi Khusus (Prioritas)</h3>
-                </div>
-                <div class="card-body">
-                    <table id="delegatedTable" class="table table-bordered table-striped">
+        </div>
+    @else
+        {{-- TAMPILAN TEKNISI --}}
+        <div style="margin-bottom: 2rem;">
+            <div
+                style="display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; border-left: 4px solid #0ea5e9; padding-left: 12px;">
+                <h2 style="font-size: 16px; font-weight: 800; color: #0f172a; margin: 0;">1. Tugas Delegasi Khusus
+                    (Prioritas)</h2>
+            </div>
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table id="delegated-table" class="admin-table">
                         <thead>
                             <tr>
-                                <th>No</th>
-                                <th>Pelanggan</th>
-                                <th>Deadline</th>
-                                <th style="text-align: center">Opsi</th>
+                                <th style="text-align: center; width: 50px;">#</th>
+                                <th style="text-align: center; width: 250px;">Pelanggan</th>
+                                <th style="text-align: center; width: 150px;">Deadline</th>
+                                <th style="text-align: center; width: 150px;">Opsi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($delegatedTasks as $m)
                                 @php $isLocked = now()->greaterThan(\Carbon\Carbon::parse($m->delegated_at)->addDays(2)); @endphp
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $m->customer->nama_lengkap }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($m->delegated_at)->addDays(2)->format('d/m H:i') }}
+                                    <td style="text-align: center; color: #94a3b8; font-weight: 700;">
+                                        {{ $loop->iteration }}</td>
+                                    <td style="text-align: left;">
+                                        <div style="font-weight: 700; color: #0f172a;">
+                                            {{ $m->customer->nama_lengkap }}</div>
+                                        <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
+                                            ID: {{ $m->customer->id_pelanggan }} | WA:
+                                            {{ $m->customer->no_whatsapp }}
+                                        </div>
                                     </td>
-                                    <td style="text-align: center">
-                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal"
-                                            data-bs-target="#detailMaintenanceModal"
-                                            data-nama="{{ $m->customer->nama_lengkap }}"
-                                            data-id-pel="{{ $m->customer->id_pelanggan }}"
-                                            data-pppoe="{{ $m->customer->pppoe_username }}"
-                                            data-wa="{{ $m->customer->no_whatsapp }}"
-                                            data-tikor="{{ $m->customer->preOrder->titik_koordinat ?? 'N/A' }}"
-                                            data-alamat="{{ $m->customer->alamat_lengkap }}"
-                                            data-kendala="{{ $m->keterangan_kendala }}"
-                                            data-foto="{{ $m->foto_kendala_awal ? asset('storage/' . $m->foto_kendala_awal) : '' }}">
-                                            <i class="bi bi-person-lines-fill"></i>
-                                        </button>
-                                        @if ($isLocked)
-                                            <button class="btn btn-danger btn-sm" disabled><i
-                                                    class="bi bi-lock-fill"></i> Locked</button>
-                                        @else
-                                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                                data-bs-target="#completeModal" data-id="{{ $m->id }}"
-                                                data-nama="{{ $m->customer->nama_lengkap }}">Selesai</button>
-                                        @endif
+                                    <td style="text-align: center; font-weight: 700; color: #f43f5e;">
+                                        {{ \Carbon\Carbon::parse($m->delegated_at)->addDays(2)->format('d/m H:i') }}
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div
+                                            style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                            <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                                title="Detail" onclick="openMaintenanceDetailModal(this)"
+                                                data-nama="{{ $m->customer->nama_lengkap }}"
+                                                data-id-pel="{{ $m->customer->id_pelanggan }}"
+                                                data-pppoe="{{ $m->customer->pppoe_username }}"
+                                                data-wa="{{ $m->customer->no_whatsapp }}"
+                                                data-tikor="{{ $m->customer->preOrder->titik_koordinat ?? 'N/A' }}"
+                                                data-alamat="{{ $m->customer->alamat_lengkap }}"
+                                                data-kendala="{{ $m->keterangan_kendala }}"
+                                                data-foto="{{ $m->foto_kendala_awal ? asset('storage/' . $m->foto_kendala_awal) : '' }}">
+                                                <i class="fa-solid fa-circle-info text-primary"></i>
+                                            </button>
+                                            @if ($isLocked)
+                                                <span class="badge badge-archived !px-3 !py-2">LOCKED</span>
+                                            @else
+                                                <button type="button" class="btn-primary-admin !py-1.5 !px-3 !text-[11px]"
+                                                    onclick="openCompleteModal(this)" data-id="{{ $m->id }}"
+                                                    data-nama="{{ $m->customer->nama_lengkap }}">
+                                                    Selesai
+                                                </button>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
@@ -210,41 +460,63 @@
                     </table>
                 </div>
             </div>
+        </div>
 
-            <div class="card card-secondary mt-4">
-                <div class="card-header">
-                    <h3 class="card-title">2. Tugas Umum</h3>
-                </div>
-                <div class="card-body">
-                    <table id="generalTable" class="table table-bordered table-striped">
+        <div>
+            <div
+                style="display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; border-left: 4px solid #64748b; padding-left: 12px;">
+                <h2 style="font-size: 16px; font-weight: 800; color: #0f172a; margin: 0;">2. Tugas Umum</h2>
+            </div>
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table id="general-table" class="admin-table">
                         <thead>
                             <tr>
-                                <th>No</th>
-                                <th>Pelanggan</th>
-                                <th style="text-align: center">Opsi</th>
+                                <th style="text-align: center; width: 50px;">#</th>
+                                <th style="text-align: center; width: 250px;">Pelanggan</th>
+                                <th style="text-align: center; width: 150px;">Kendala</th>
+                                <th style="text-align: center; width: 150px;">Opsi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($generalTasks as $m)
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $m->customer->nama_lengkap }}</td>
-                                    <td style="text-align: center">
-                                        <button type="button" class="btn btn-secondary btn-sm"
-                                            data-bs-toggle="modal" data-bs-target="#detailMaintenanceModal"
-                                            data-nama="{{ $m->customer->nama_lengkap }}"
-                                            data-id-pel="{{ $m->customer->id_pelanggan }}"
-                                            data-pppoe="{{ $m->customer->pppoe_username }}"
-                                            data-wa="{{ $m->customer->no_whatsapp }}"
-                                            data-tikor="{{ $m->customer->preOrder->titik_koordinat ?? 'N/A' }}"
-                                            data-alamat="{{ $m->customer->alamat_lengkap }}"
-                                            data-kendala="{{ $m->keterangan_kendala }}"
-                                            data-foto="{{ $m->foto_kendala_awal ? asset('storage/' . $m->foto_kendala_awal) : '' }}">
-                                            <i class="bi bi-person-lines-fill"></i>
-                                        </button>
-                                        <button class="btn btn-success btn-sm" data-bs-toggle="modal"
-                                            data-bs-target="#completeModal" data-id="{{ $m->id }}"
-                                            data-nama="{{ $m->customer->nama_lengkap }}">Ambil</button>
+                                    <td style="text-align: center; color: #94a3b8; font-weight: 700;">
+                                        {{ $loop->iteration }}</td>
+                                    <td style="text-align: left;">
+                                        <div style="font-weight: 700; color: #0f172a;">
+                                            {{ $m->customer->nama_lengkap }}</div>
+                                        <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
+                                            ID: {{ $m->customer->id_pelanggan }} | PPPoE:
+                                            {{ $m->customer->pppoe_username }}
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span
+                                            style="font-size: 11px; font-weight: 600; color: #475569;">{{ Str::limit($m->keterangan_kendala, 30) }}</span>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div
+                                            style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                            <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                                title="Detail" onclick="openMaintenanceDetailModal(this)"
+                                                data-nama="{{ $m->customer->nama_lengkap }}"
+                                                data-id-pel="{{ $m->customer->id_pelanggan }}"
+                                                data-pppoe="{{ $m->customer->pppoe_username }}"
+                                                data-wa="{{ $m->customer->no_whatsapp }}"
+                                                data-tikor="{{ $m->customer->preOrder->titik_koordinat ?? 'N/A' }}"
+                                                data-alamat="{{ $m->customer->alamat_lengkap }}"
+                                                data-kendala="{{ $m->keterangan_kendala }}"
+                                                data-foto="{{ $m->foto_kendala_awal ? asset('storage/' . $m->foto_kendala_awal) : '' }}">
+                                                <i class="fa-solid fa-circle-info text-primary"></i>
+                                            </button>
+                                            <button type="button"
+                                                class="btn-primary-admin !py-1.5 !px-3 !text-[11px] !bg-emerald-600"
+                                                onclick="openCompleteModal(this)" data-id="{{ $m->id }}"
+                                                data-nama="{{ $m->customer->nama_lengkap }}">
+                                                Ambil
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
@@ -253,382 +525,722 @@
                 </div>
             </div>
         </div>
-        @endif
-        </div>
+    @endif
 
-        <div class="modal fade" id="detailMaintenanceModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-md">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Detail Pemeliharaan</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <table class="table table-sm table-borderless">
-                            <tr>
-                                <th width="40%">Nama Pelanggan</th>
-                                <td>: <span id="det_nama"></span></td>
-                            </tr>
-                            <tr>
-                                <th>ID Pelanggan</th>
-                                <td>: <span id="det_id_pel"></span></td>
-                            </tr>
-                            <tr>
-                                <th>Akun PPPoE</th>
-                                <td>: <code id="det_pppoe"></code></td>
-                            </tr>
-                            <tr>
-                                <th>WhatsApp</th>
-                                <td>:
-                                    <a href="#" id="det_wa_link" target="_blank"
-                                        class="btn btn-xs btn-success text-white">
-                                        <i class="bi bi-whatsapp"></i> <span id="det_wa"></span>
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Lokasi (Tikor)</th>
-                                <td>:
-                                    <a href="#" id="det_tikor_link" target="_blank"
-                                        class="btn btn-xs btn-primary text-white">
-                                        <i class="bi bi-geo-alt"></i> Lihat di Maps
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Alamat</th>
-                                <td>: <span id="det_alamat"></span></td>
-                            </tr>
-                            <tr>
-                                <th>Keterangan Kendala</th>
-                                <td>: <span id="det_kendala"></span></td>
-                            </tr>
-                        </table>
-                        <div id="det_foto_container" class="mt-2 text-center" style="display: none;">
-                            <label class="d-block text-start small fw-bold">Foto Kendala Awal:</label>
-                            <img src="" id="det_foto" class="img-fluid rounded border"
-                                style="max-height: 200px;" alt="Foto Kendala">
+    {{-- MODAL AREA --}}
+
+    {{-- Modal Detail Maintenance --}}
+    <div class="modal-overlay" id="maintenanceDetailModal">
+        <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                <div class="modal-title">
+                    <i class="fa-solid fa-circle-info text-primary"></i>
+                    <span class="text-slate-900 font-bold text-[17px]">Detail Pemeliharaan</span>
+                </div>
+                <button class="modal-close" onclick="closeCustomModal('maintenanceDetailModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div>
+                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Nama Pelanggan</span>
+                            <p id="det_nama" class="text-base font-black text-slate-900 mt-0.5"></p>
+                        </div>
+                        <div>
+                            <span class="text-[11px] font-bold text-slate-400 block uppercase">ID Pelanggan / PPPoE</span>
+                            <p class="text-sm font-bold text-slate-700 mt-0.5">
+                                <span id="det_id_pel"></span> / <code id="det_pppoe"
+                                    class="bg-slate-100 px-1.5 py-0.5 rounded text-sky-600"></code>
+                            </p>
+                        </div>
+                        <div>
+                            <span class="text-[11px] font-bold text-slate-400 block uppercase">No. WhatsApp</span>
+                            <div class="flex items-center gap-2 mt-1">
+                                <p id="det_wa" class="text-sm font-bold text-emerald-600 m-0"></p>
+                                <a id="det_wa_link" href="#" target="_blank"
+                                    class="bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded text-[10px] font-black no-underline">
+                                    <i class="fa-brands fa-whatsapp"></i> CHAT
+                                </a>
+                            </div>
                         </div>
                     </div>
-                    <div class="modal-footer"><button type="button" class="btn btn-secondary btn-sm"
-                            data-bs-dismiss="modal">Tutup</button></div>
+                    <div class="space-y-4">
+                        <div>
+                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Titik Koordinat</span>
+                            <div class="flex items-center gap-2 mt-1">
+                                <p id="det_tikor" class="text-sm font-bold text-indigo-600 m-0"></p>
+                                <a id="det_tikor_link" href="#" target="_blank"
+                                    class="bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded text-[10px] font-black no-underline">
+                                    <i class="fa-solid fa-map-location-dot"></i> MAPS
+                                </a>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Alamat Lengkap</span>
+                            <p id="det_alamat" class="text-sm font-medium text-slate-600 leading-relaxed mt-0.5"></p>
+                        </div>
+                    </div>
+                </div>
+                <hr class="border-slate-100">
+                <div class="space-y-3">
+                    <span class="text-[11px] font-bold text-slate-400 block uppercase">Keterangan Kendala</span>
+                    <div class="bg-rose-50 border border-rose-100 p-4 rounded-xl">
+                        <p id="det_kendala" class="text-sm font-bold text-rose-700 m-0 leading-relaxed"></p>
+                    </div>
+                </div>
+                <div id="det_foto_container" class="space-y-3 hidden">
+                    <span class="text-[11px] font-bold text-slate-400 block uppercase">Foto Kendala Awal</span>
+                    <div class="aspect-video w-full rounded-2xl overflow-hidden border-2 border-slate-100 shadow-sm bg-slate-50 flex items-center justify-center cursor-pointer"
+                        onclick="window.open($('#det_foto').attr('src'), '_blank')">
+                        <img id="det_foto" src="" class="w-full h-full object-contain">
+                    </div>
                 </div>
             </div>
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                <button type="button" class="btn-cancel w-full !py-3"
+                    onclick="closeCustomModal('maintenanceDetailModal')">
+                    Tutup Detail
+                </button>
+            </div>
         </div>
+    </div>
 
-        <div class="modal fade" id="reassignModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
-                <form id="reassignForm" method="POST">
-                    @csrf
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Tugaskan Ulang: <span id="re_nama"></span></h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
+    {{-- Modal Hasil Maintenance --}}
+    <div class="modal-overlay" id="maintenanceResultModal">
+        <div class="modal-box max-w-4xl bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                <div class="modal-title">
+                    <i class="fa-solid fa-file-circle-check text-emerald-500"></i>
+                    <span class="text-slate-900 font-bold text-[17px]">Hasil Pengerjaan Pemeliharaan</span>
+                </div>
+                <button class="modal-close" onclick="closeCustomModal('maintenanceResultModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="space-y-4">
+                            <h6
+                                class="text-[10px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-emerald-500 pl-3">
+                                Informasi Tim</h6>
+                            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-4">
+                                <div>
+                                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Pelanggan</span>
+                                    <p id="res_nama" class="text-sm font-black text-slate-900"></p>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Teknisi
+                                        Eksekutor</span>
+                                    <p id="res_eksekutor" class="text-sm font-bold text-slate-700"></p>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Partner / Rekan</span>
+                                    <p id="res_partner" class="text-sm font-bold text-slate-700"></p>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Waktu Selesai</span>
+                                    <p id="res_waktu" class="text-sm font-bold text-slate-700"></p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="modal-body">
-                            <label>Pilih Teknisi</label>
-                            <select name="id_teknisi_delegasi" class="form-control" required>
-                                <option value="">-- Pilih Teknisi --</option>
+                        <div class="space-y-4">
+                            <h6
+                                class="text-[10px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-sky-500 pl-3">
+                                Solusi Perbaikan</h6>
+                            <div class="bg-sky-50 p-4 rounded-2xl border border-sky-100">
+                                <p id="res_solusi" class="text-sm font-bold text-sky-700 leading-relaxed italic m-0"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-3 space-y-4">
+                        <h6
+                            class="text-[10px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-amber-500 pl-3">
+                            Dokumentasi Lapangan</h6>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1.5 text-center">
+                                <span class="text-[9px] font-black text-slate-400 uppercase">Sebelum</span>
+                                <div class="aspect-square rounded-xl overflow-hidden border-2 border-white shadow-sm bg-slate-100 cursor-pointer"
+                                    onclick="window.open($('#res_before').attr('src'), '_blank')">
+                                    <img id="res_before" src="" class="w-full h-full object-cover">
+                                </div>
+                            </div>
+                            <div class="space-y-1.5 text-center">
+                                <span class="text-[9px] font-black text-slate-400 uppercase">Sesudah</span>
+                                <div class="aspect-square rounded-xl overflow-hidden border-2 border-white shadow-sm bg-slate-100 cursor-pointer"
+                                    onclick="window.open($('#res_after').attr('src'), '_blank')">
+                                    <img id="res_after" src="" class="w-full h-full object-cover">
+                                </div>
+                            </div>
+                            <div class="space-y-1.5 text-center">
+                                <span class="text-[9px] font-black text-slate-400 uppercase">Speedtest</span>
+                                <div class="aspect-square rounded-xl overflow-hidden border-2 border-white shadow-sm bg-slate-100 cursor-pointer"
+                                    onclick="window.open($('#res_speed').attr('src'), '_blank')">
+                                    <img id="res_speed" src="" class="w-full h-full object-cover">
+                                </div>
+                            </div>
+                            <div class="space-y-1.5 text-center">
+                                <span class="text-[9px] font-black text-slate-400 uppercase">Selfie Teknisi</span>
+                                <div class="aspect-square rounded-xl overflow-hidden border-2 border-white shadow-sm bg-slate-100 cursor-pointer"
+                                    onclick="window.open($('#res_selfie').attr('src'), '_blank')">
+                                    <img id="res_selfie" src="" class="w-full h-full object-cover">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                <button type="button" class="btn-cancel w-full !py-3.5"
+                    onclick="closeCustomModal('maintenanceResultModal')">
+                    Tutup Laporan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal Cari Pelanggan --}}
+    <div class="modal-overlay" id="searchCustomerModal" style="z-index: 10001;">
+        <div class="modal-box max-w-4xl bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                <div class="modal-title">
+                    <i class="fa-solid fa-users text-primary"></i>
+                    <span class="text-slate-900 font-bold text-[17px]">Cari & Pilih Pelanggan</span>
+                </div>
+                <button type="button" class="modal-close" onclick="closeCustomModal('searchCustomerModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body p-6">
+                <div class="search-wrap mb-4 !max-w-full">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="search" class="search-input" id="customer-modal-search" 
+                        placeholder="Ketik nama, ID pelanggan, atau alamat..." autocomplete="off" />
+                </div>
+                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                    <table id="customer-search-table" class="admin-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">#</th>
+                                <th>Pelanggan</th>
+                                <th>ID Pelanggan</th>
+                                <th>Alamat</th>
+                                <th style="width: 80px; text-align: center;">Opsi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($customers as $c)
+                            <tr>
+                                <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}</td>
+                                <td style="font-weight: 700; color: #0f172a;">{{ $c->nama_lengkap }}</td>
+                                <td style="font-weight: 600; color: #64748b;">{{ $c->id_pelanggan }}</td>
+                                <td style="font-size: 11px; color: #64748b;">{{ Str::limit($c->alamat_lengkap, 50) }}</td>
+                                <td style="text-align: center;">
+                                    <button type="button" class="btn-primary-admin !py-1.5 !px-3 !text-[11px]"
+                                        onclick="selectCustomer('{{ $c->id }}', '{{ $c->nama_lengkap }} ({{ $c->id_pelanggan }})')">
+                                        Pilih
+                                    </button>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                <button type="button" class="btn-cancel w-full" onclick="closeCustomModal('searchCustomerModal')">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="addMaintenanceModal">
+        <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
+            <form action="{{ route('maintenances.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                    <div class="modal-title">
+                        <i class="fa-solid fa-plus-square text-primary"></i>
+                        <span class="text-slate-900 font-bold text-[17px]">Buat Tugas Pemeliharaan</span>
+                    </div>
+                    <button type="button" class="modal-close" onclick="closeCustomModal('addMaintenanceModal')">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="modal-body p-8 space-y-6 bg-white">
+                    <div class="form-group">
+                        <label class="form-label !text-slate-800 !font-bold">
+                            <i class="fa-solid fa-user-tag text-primary mr-1"></i> Pelanggan Terpilih <span
+                                class="text-rose-500">*</span>
+                        </label>
+                        <div class="flex gap-2">
+                            <div class="flex-1 relative">
+                                <input type="hidden" name="customer_id" id="selected_customer_id" required>
+                                <input type="text" id="selected_customer_name" class="form-input !bg-slate-50 cursor-not-allowed" 
+                                    placeholder="Belum ada pelanggan terpilih..." readonly required>
+                            </div>
+                            <button type="button" class="btn-primary-admin !shadow-none !px-4 !h-[42px] !flex !items-center !justify-center gap-2" 
+                                onclick="openCustomModal('searchCustomerModal')">
+                                <i class="fa-solid fa-magnifying-glass"></i> Cari Pelanggan
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="customer_preview" class="hidden">
+                        <div class="bg-sky-50 rounded-2xl border border-sky-100 p-5 space-y-4">
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <span class="text-[10px] font-black text-sky-400 block uppercase tracking-wider">PPPoE
+                                        Username</span>
+                                    <p id="pppoe_val" class="text-sm font-bold text-sky-700 m-0 mt-1"></p>
+                                </div>
+                                <div>
+                                    <span
+                                        class="text-[10px] font-black text-sky-400 block uppercase tracking-wider">Koordinat
+                                        Maps</span>
+                                    <p id="tikor_val" class="text-sm font-bold text-sky-700 m-0 mt-1"></p>
+                                </div>
+                            </div>
+                            <hr class="border-sky-100/50 m-0">
+                            <div>
+                                <span class="text-[10px] font-black text-sky-400 block uppercase tracking-wider">Alamat
+                                    Pemasangan</span>
+                                <p id="alamat_val" class="text-sm font-medium text-slate-600 m-0 mt-1 leading-relaxed">
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label !text-slate-800 !font-bold">
+                                <i class="fa-solid fa-user-gear text-slate-400 mr-1"></i> Tugaskan Ke
+                            </label>
+                            <select name="id_teknisi_delegasi" class="form-select">
+                                <option value="">-- Tugas Umum --</option>
                                 @foreach ($teknisis as $t)
                                     <option value="{{ $t->id }}">{{ $t->nama_lengkap }}</option>
                                 @endforeach
                             </select>
+                            <p class="text-[10px] text-slate-400 italic mt-1.5">*Opsional, bisa dikosongkan</p>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary btn-sm"
-                                data-bs-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-primary btn-sm">Tugaskan</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
 
-        <div class="modal fade" id="resultMaintenanceModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Hasil Pengerjaan Pemeliharaan</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h6 class="fw-bold border-bottom pb-2">Informasi Pengerjaan</h6>
-                                <table class="table table-sm table-borderless">
-                                    <tr>
-                                        <th width="40%">Pelanggan</th>
-                                        <td>: <span id="res_nama"></span></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Teknisi Utama</th>
-                                        <td>: <span id="res_eksekutor"></sp>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>Partner</th>
-                                        <td>: <span id="res_partner"></span></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Waktu Selesai</th>
-                                        <td>: <span id="res_waktu"></span></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Solusi</th>
-                                        <td>: <span id="res_solusi"></span>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <div class="col-md-6">
-                                <h6 class="fw-bold border-bottom pb-2 text-center">Dokumentasi Foto</h6>
-                                <div class="row g-2 text-center">
-                                    <div class="col-6">
-                                        <small class="d-block">Sebelum</small>
-                                        <a href="#" id="link_before" target="_blank"><img src=""
-                                                id="res_before" class="img-fluid rounded border img-preview"></a>
-                                    </div>
-                                    <div class="col-6">
-                                        <small class="d-block">Sesudah</small>
-                                        <a href="#" id="link_after" target="_blank"><img src=""
-                                                id="res_after" class="img-fluid rounded border img-preview"></a>
-                                    </div>
-                                    <div class="col-6 mt-2">
-                                        <small class="d-block">Speedtest</small>
-                                        <a href="#" id="link_speed" target="_blank"><img src=""
-                                                id="res_speed" class="img-fluid rounded border img-preview"></a>
-                                    </div>
-                                    <div class="col-6 mt-2">
-                                        <small class="d-block">Selfie Teknisi</small>
-                                        <a href="#" id="link_selfie" target="_blank"><img src=""
-                                                id="res_selfie" class="img-fluid rounded border img-preview"></a>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="form-group">
+                            <label class="form-label !text-slate-800 !font-bold">
+                                <i class="fa-solid fa-camera text-slate-400 mr-1"></i> Foto Kendala
+                            </label>
+                            <input type="file" name="foto_kendala_awal" class="form-input" accept="image/*">
+                            <p class="text-[10px] text-slate-400 italic mt-1.5">*Opsional, jika ada foto awal</p>
                         </div>
                     </div>
-                    <div class="modal-footer"><button type="button" class="btn btn-secondary btn-sm"
-                            data-bs-dismiss="modal">Tutup</button></div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Modal Tambah (Admin) -->
-        <div class="modal fade" id="addMaintenanceModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <form action="{{ route('maintenances.store') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5>Buat Tugas Pemeliharaan</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label>Pilih Pelanggan</label>
-                                <select name="customer_id" id="customer_select" class="form-select" required>
-                                    <option value="">-- Cari Nama Pelanggan --</option>
-                                    @foreach ($customers as $c)
-                                        <option value="{{ $c->id }}">{{ $c->nama_lengkap }}
-                                            ({{ $c->id_pelanggan }})
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-3"><label>PPPoE</label><input type="text" id="pppoe_val"
-                                        class="form-control" readonly></div>
-                                <div class="col-md-6 mb-3"><label>Tikor</label><input type="text" id="tikor_val"
-                                        class="form-control" readonly></div>
-                            </div>
-                            <div class="mb-3"><label>Alamat</label>
-                                <textarea id="alamat_val" class="form-control" rows="2" readonly></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label>Tugaskan Ke (Opsional)</label>
-                                <select name="id_teknisi_delegasi" class="form-control">
-                                    <option value="">-- Biarkan Kosong Untuk Tugas Umum --</option>
-                                    @foreach ($teknisis as $t)
-                                        <option value="{{ $t->id }}">{{ $t->nama_lengkap }}</option>
-                                    @endforeach
-                                </select>
-                                <small class="text-muted italic">*Jika kosong, semua teknisi dapat mengerjakan
-                                    tugas
-                                    ini.</small>
-                            </div>
-                            <div class="mb-3">
-                                <label>Keterangan Kendala</label>
-                                <textarea name="keterangan_kendala" class="form-control" required
-                                    placeholder="Contoh: Los Merah / Router Mati / Lemot"></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label>Foto Kendala (Jika Ada)</label>
-                                <input type="file" name="foto_kendala_awal" class="form-control"
-                                    accept="image/*">
-                            </div>
-                        </div>
-                        <div class="modal-footer"><button type="submit"
-                                class="btn btn-primary btn-sm">Simpan</button></div>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Modal Selesai (Teknisi) -->
-        <div class="modal fade" id="completeModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <form id="completeForm" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="modal-content">
-                        <div class="modal-header bg-primary text-white">
-                            <h5>Selesaikan Tugas: <span id="nama_p"></span></h5>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label>Pilih Partner (Rekan Kerja)</label>
-                                <select name="partner_ids[]" id="partner_select" class="form-control select2"
-                                    multiple="multiple" data-placeholder="Pilih Rekan Teknisi (Bisa lebih dari 1)">
-                                    @foreach ($teknisis as $t)
-                                        @if ($t->id != auth()->id())
-                                            <option value="{{ $t->id }}">{{ $t->nama_lengkap }}</option>
-                                        @endif
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label>Solusi / Tindakan Perbaikan</label>
-                                <textarea name="solusi_kendala" class="form-control" required placeholder="Jelaskan tindakan yang dilakukan..."></textarea>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label>Foto Sebelum (Kendala)</label>
-                                    <input type="file" name="foto_sebelum" class="form-control" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label>Foto Sesudah (Perbaikan)</label>
-                                    <input type="file" name="foto_sesudah" class="form-control" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label>Foto Speedtest</label>
-                                    <input type="file" name="foto_speedtest" class="form-control" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label>Foto Selfie Teknisi</label>
-                                    <input type="file" name="foto_selfie" class="form-control" required>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer"><button type="submit" class="btn btn-primary">Kirim Laporan
-                                Selesai</button></div>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="deleteModalLabel">Konfirmasi Hapus</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        Apakah Anda yakin ingin menghapus pemeliharaan ini?
-                    </div>
-                    <div class="modal-footer">
-                        <form id="deleteForm" method="POST" action="">
-                            @csrf
-                            @method('DELETE')
-                            <button type="button" class="btn btn-secondary btn-sm"
-                                data-bs-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
-                        </form>
+                    <div class="form-group !mb-0">
+                        <label class="form-label !text-slate-800 !font-bold">
+                            <i class="fa-solid fa-comment-dots text-rose-400 mr-1"></i> Deskripsi Kendala <span
+                                class="text-rose-500">*</span>
+                        </label>
+                        <textarea name="keterangan_kendala" class="form-textarea" required rows="3"
+                            placeholder="Jelaskan detail kendala (Contoh: Los Merah, Router Mati, dsb)"></textarea>
                     </div>
                 </div>
-            </div>
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+                        onclick="closeCustomModal('addMaintenanceModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
+                    </button>
+                    <button type="submit" class="btn-save !flex !items-center !justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> Kirim Tugas Pemeliharaan
+                    </button>
+                </div>
+            </form>
         </div>
-    </main>
+    </div>
+
+    {{-- Modal Reassign (Admin) --}}
+    <div class="modal-overlay" id="reassignModal">
+        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
+            <form id="reassignForm" method="POST">
+                @csrf
+                <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                    <div class="modal-title">
+                        <i class="fa-solid fa-user-gear text-sky-500"></i>
+                        <span class="text-slate-900 font-bold text-[17px]">Tugaskan Ulang</span>
+                    </div>
+                    <button type="button" class="modal-close" onclick="closeCustomModal('reassignModal')">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="modal-body p-6 space-y-4">
+                    <div class="bg-sky-50 p-4 rounded-xl border border-sky-100 mb-4">
+                        <span class="text-[10px] font-black text-sky-400 block uppercase">Pelanggan</span>
+                        <p id="re_nama" class="text-base font-black text-sky-700 m-0"></p>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-black text-slate-500 uppercase">Pilih Teknisi Baru <span
+                                class="text-rose-500">*</span></label>
+                        <select name="id_teknisi_delegasi" class="form-control" required
+                            style="border: 2px solid #e2e8f0; border-radius: 10px; font-size: 13px; padding: 10px; height: auto;">
+                            <option value="">-- Pilih Teknisi --</option>
+                            @foreach ($teknisis as $t)
+                                <option value="{{ $t->id }}">{{ $t->nama_lengkap }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                    <button type="submit" class="btn-primary-admin w-full !py-3 !bg-sky-600">
+                        Update Penugasan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Modal Selesai (Teknisi) --}}
+    <div class="modal-overlay" id="completeModal">
+        <div class="modal-box max-w-3xl bg-white border border-slate-300 shadow-2xl">
+            <form id="completeForm" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                    <div class="modal-title">
+                        <i class="fa-solid fa-check-circle text-emerald-500"></i>
+                        <span class="text-slate-900 font-bold text-[17px]">Laporan Penyelesaian: <span
+                                id="nama_p"></span></span>
+                    </div>
+                    <button type="button" class="modal-close" onclick="closeCustomModal('completeModal')">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="modal-body p-6 space-y-6">
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-black text-slate-500 uppercase">Pilih Partner / Rekan Kerja</label>
+                        <select name="partner_ids[]" id="partner_select" class="form-control select2" multiple="multiple"
+                            data-placeholder="Pilih Rekan Teknisi (Jika ada)">
+                            @foreach ($teknisis as $t)
+                                @if ($t->id != auth()->id())
+                                    <option value="{{ $t->id }}">{{ $t->nama_lengkap }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-black text-slate-500 uppercase">Solusi / Tindakan Perbaikan <span
+                                class="text-rose-500">*</span></label>
+                        <textarea name="solusi_kendala" class="form-control" required rows="3"
+                            placeholder="Jelaskan apa saja yang telah diperbaiki..."
+                            style="border: 2px solid #e2e8f0; border-radius: 12px; font-size: 13px; font-weight: 500;"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="text-[9px] font-black text-slate-400 uppercase">Foto Sebelum <span
+                                    class="text-rose-500">*</span></label>
+                            <input type="file" name="foto_sebelum" class="form-control !text-[10px]" required
+                                accept="image/*">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-[9px] font-black text-slate-400 uppercase">Foto Sesudah <span
+                                    class="text-rose-500">*</span></label>
+                            <input type="file" name="foto_sesudah" class="form-control !text-[10px]" required
+                                accept="image/*">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-[9px] font-black text-slate-400 uppercase">Speedtest <span
+                                    class="text-rose-500">*</span></label>
+                            <input type="file" name="foto_speedtest" class="form-control !text-[10px]" required
+                                accept="image/*">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-[9px] font-black text-slate-400 uppercase">Selfie Tim <span
+                                    class="text-rose-500">*</span></label>
+                            <input type="file" name="foto_selfie" class="form-control !text-[10px]" required
+                                accept="image/*">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                    <button type="submit" class="btn-primary-admin w-full !py-3.5 !bg-emerald-600">
+                        <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Kirim Laporan Selesai
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     @section('Scripts')
-        <!-- jQuery -->
-        <script src="{{ asset('dist/js/jquery.min.js') }}"></script>
-        <!-- Bootstrap 4 -->
-        <script src="{{ asset('dist/js/bootstrap.bundle.min.js') }}"></script>
-        <!-- DataTables  & js -->
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
-        <script src="{{ asset('dist/js/dataTables.bootstrap4.min.js') }}"></script>
-        <script src="{{ asset('dist/js/dataTables.responsive.min.js') }}"></script>
-        <script src="{{ asset('dist/js/responsive.bootstrap4.min.js') }}"></script>
-        <script src="{{ asset('dist/js/dataTables.buttons.min.js') }}"></script>
-        <script src="{{ asset('dist/js/buttons.bootstrap4.min.js') }}"></script>
-        <script src="{{ asset('dist/js/buttons.colVis.min.js') }}"></script>
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script>
-            $(document).ready(function() {
-                $('#maintenanceTable').DataTable({
-                    "ordering": false
-                });
-                $('.select2').select2({
-                    theme: 'bootstrap4',
-                    width: '100%'
-                });
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
-                @if (session('success'))
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil!',
-                        text: '{{ session('success') }}',
-                        showConfirmButton: false,
-                        timer: 3000
-                    });
-                @endif
-                @if (session('error'))
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        text: '{{ session('error') }}'
-                    });
-                @endif
-                // Reassign Logic
-                const reassignModal = document.getElementById('reassignModal');
-                if (reassignModal) {
-                    reassignModal.addEventListener('show.bs.modal', function(e) {
-                        const b = e.relatedTarget;
-                        document.getElementById('re_nama').textContent = b.getAttribute('data-nama');
-                        document.getElementById('reassignForm').action =
-                            `/maintenances/${b.getAttribute('data-id')}/reassign`;
-                    });
+        <script>
+            // Register DataLabels Plugin
+            Chart.register(ChartDataLabels);
+
+            // Initialize Maintenance Chart
+            const ctx = document.getElementById('maintenanceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: {!! json_encode($chartLabels) !!},
+                    datasets: [{
+                        label: 'Total Maintenance',
+                        data: {!! json_encode($chartValues) !!},
+                        backgroundColor: 'rgba(14, 165, 233, 0.15)',
+                        borderColor: '#0ea5e9',
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        barThickness: 20
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: { display: false } // Hide labels for bar chart
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { 
+                                stepSize: 1,
+                                color: '#94a3b8',
+                                font: { size: 11, weight: '600' }
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { 
+                                color: '#94a3b8',
+                                font: { size: 11, weight: '600' }
+                            }
+                        }
+                    }
                 }
             });
-        </script>
-        <script>
+
+            // Initialize Top Teknisi Donut Chart
+            @if(count($donutValues) > 0)
+                const donutCtx = document.getElementById('teknisiChart').getContext('2d');
+                new Chart(donutCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: {!! json_encode($donutLabels) !!},
+                        datasets: [{
+                            data: {!! json_encode($donutValues) !!},
+                            backgroundColor: [
+                                '#0ea5e9', '#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f59e0b'
+                            ],
+                            borderWidth: 2,
+                            borderColor: '#fff',
+                            hoverOffset: 10
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '65%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 20,
+                                    font: { size: 11, weight: '600' },
+                                    color: '#64748b'
+                                }
+                            },
+                            datalabels: {
+                                color: '#fff',
+                                font: {
+                                    weight: 'bold',
+                                    size: 13
+                                },
+                                formatter: (value) => value,
+                                display: true
+                            }
+                        }
+                    }
+                });
+            @endif
+
+            // Modal Utilities
+            function openCustomModal(modalId, triggerEl = null) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    if (modalId === 'reassignModal' && triggerEl) {
+                        const $btn = $(triggerEl);
+                        $('#re_nama').text($btn.data('nama'));
+                        $('#reassignForm').attr('action', `/maintenances/${$btn.data('id')}/reassign`);
+                    }
+                    modal.classList.add('open');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            function closeCustomModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove('open');
+                    document.body.style.overflow = '';
+                }
+            }
+
+            // Detail & Result Modal Logic
+            function openMaintenanceDetailModal(triggerEl) {
+                const $btn = $(triggerEl);
+                $('#det_nama').text($btn.data('nama'));
+                $('#det_id_pel').text($btn.data('id-pel'));
+                $('#det_pppoe').text($btn.data('pppoe'));
+                $('#det_wa').text($btn.data('wa'));
+                $('#det_alamat').text($btn.data('alamat'));
+                $('#det_kendala').text($btn.data('kendala'));
+                $('#det_tikor').text($btn.data('tikor'));
+
+                const wa = String($btn.data('wa') || '');
+                const waFormatted = wa.startsWith('0') ? '62' + wa.substring(1) : wa;
+                $('#det_wa_link').attr('href', `https://wa.me/${waFormatted}`);
+
+                const tikor = $btn.data('tikor');
+                if (tikor && tikor !== 'N/A') {
+                    $('#det_tikor_link').attr('href', `https://www.google.com/maps/search/?api=1&query=${tikor}`).show();
+                } else {
+                    $('#det_tikor_link').hide();
+                }
+
+                const foto = $btn.data('foto');
+                if (foto && foto !== '') {
+                    $('#det_foto').attr('src', foto);
+                    $('#det_foto_container').removeClass('hidden');
+                } else {
+                    $('#det_foto_container').addClass('hidden');
+                }
+
+                openCustomModal('maintenanceDetailModal');
+            }
+
+            function openMaintenanceResultModal(triggerEl) {
+                const $btn = $(triggerEl);
+                $('#res_nama').text($btn.data('nama'));
+                $('#res_eksekutor').text($btn.data('eksekutor'));
+                $('#res_partner').text($btn.data('partner'));
+                $('#res_waktu').text($btn.data('waktu'));
+                $('#res_solusi').text($btn.data('solusi'));
+
+                $('#res_before').attr('src', $btn.data('foto-before'));
+                $('#res_after').attr('src', $btn.data('foto-after'));
+                $('#res_speed').attr('src', $btn.data('foto-speed'));
+                $('#res_selfie').attr('src', $btn.data('foto-selfie'));
+
+                openCustomModal('maintenanceResultModal');
+            }
+
+            function openCompleteModal(triggerEl) {
+                const $btn = $(triggerEl);
+                $('#nama_p').text($btn.data('nama'));
+                $('#completeForm').attr('action', `/maintenances/${$btn.data('id')}/complete`);
+                openCustomModal('completeModal');
+            }
+
+            function selectCustomer(id, name) {
+                $('#selected_customer_id').val(id);
+                $('#selected_customer_name').val(name);
+                
+                // Trigger preview logic
+                if (id) {
+                    fetch(`/maintenances/customer/${id}`)
+                        .then(r => r.json())
+                        .then(d => {
+                            $('#pppoe_val').text(d.pppoe || '-');
+                            $('#tikor_val').text(d.tikor || '-');
+                            $('#alamat_val').text(d.alamat || '-');
+                            $('#customer_preview').slideDown(200);
+                        });
+                }
+                
+                closeCustomModal('searchCustomerModal');
+            }
+
             $(document).ready(function() {
-                // Inisialisasi DataTables berdasarkan ID tabel yang benar
-                $('#adminTable, #delegatedTable, #generalTable').DataTable({
+                // Shared DataTable Options
+                const dtOptions = {
+                    "pageLength": 10,
+                    "lengthChange": false,
                     "ordering": false,
-                    "responsive": true
+                    "info": false,
+                    "responsive": true,
+                    "dom": 'tpir',
+                    "language": {
+                        "zeroRecords": "Data tidak ditemukan",
+                        "paginate": {
+                            "previous": '<i class="fa-solid fa-chevron-left"></i>',
+                            "next": '<i class="fa-solid fa-chevron-right"></i>'
+                        }
+                    }
+                };
+
+                const adminTable = $('#admin-maintenance-table').DataTable(dtOptions);
+                $('#delegated-table, #general-table').DataTable(dtOptions);
+
+                // Customer Search Modal DataTable
+                const customerSearchTable = $('#customer-search-table').DataTable({
+                    ...dtOptions,
+                    "pageLength": 5
                 });
 
-                // Inisialisasi Select2
-                $('.select2').select2({
-                    theme: 'bootstrap4',
-                    width: '100%'
+                // Custom Search for tables
+                $('#custom-search').on('keyup', function() {
+                    adminTable.search(this.value).draw();
                 });
 
+                $('#customer-modal-search').on('keyup', function() {
+                    customerSearchTable.search(this.value).draw();
+                });
+
+                // Select2 Setup
+                $('.select2').each(function() {
+                    const $p = $(this).closest('.modal-box');
+                    $(this).select2({
+                        theme: 'bootstrap4',
+                        width: '100%',
+                        dropdownParent: $p.length ? $p : null
+                    });
+                });
+
+                // Admin Add Modal Customer Change
+                $('#customer_select').on('change', function() {
+                    const id = $(this).val();
+                    if (id) {
+                        fetch(`/maintenances/customer/${id}`)
+                            .then(r => r.json())
+                            .then(d => {
+                                $('#pppoe_val').text(d.pppoe || '-');
+                                $('#tikor_val').text(d.tikor || '-');
+                                $('#alamat_val').text(d.alamat || '-');
+                                $('#customer_preview').slideDown(200);
+                            });
+                    } else {
+                        $('#customer_preview').slideUp(200);
+                    }
+                });
+
+                // Global SweetAlert Messages
                 @if (session('success'))
                     Swal.fire({
                         icon: 'success',
                         title: 'Berhasil!',
                         text: '{{ session('success') }}',
+                        timer: 3000,
                         showConfirmButton: false,
-                        timer: 3000
+                        position: 'top-end',
+                        toast: true
                     });
                 @endif
                 @if (session('error'))
@@ -639,170 +1251,27 @@
                     });
                 @endif
 
-                // Logic Modal Detail
-                const detailModal = document.getElementById('detailMaintenanceModal');
-                if (detailModal) {
-                    detailModal.addEventListener('show.bs.modal', function(event) {
-                        const b = event.relatedTarget;
-                        let waRaw = b.getAttribute('data-wa') || '';
-                        const tikor = b.getAttribute('data-tikor') || '';
-                        const foto = b.getAttribute('data-foto') || '';
-
-                        let waFormatted = waRaw;
-                        if (waRaw.startsWith('0')) waFormatted = '62' + waRaw.substring(1);
-
-                        document.getElementById('det_nama').textContent = b.getAttribute('data-nama');
-                        document.getElementById('det_id_pel').textContent = b.getAttribute('data-id-pel');
-                        document.getElementById('det_pppoe').textContent = b.getAttribute('data-pppoe');
-                        document.getElementById('det_wa').textContent = waRaw;
-                        document.getElementById('det_wa_link').href = `https://wa.me/${waFormatted}`;
-                        document.getElementById('det_alamat').textContent = b.getAttribute('data-alamat');
-
-                        const tikorLink = document.getElementById('det_tikor_link');
-                        if (tikor && tikor !== 'N/A' && tikor !== '') {
-                            tikorLink.href = `https://www.google.com/maps/search/?api=1&query=${tikor}`;
-                            tikorLink.style.display = 'inline-block';
-                        } else {
-                            tikorLink.style.display = 'none';
-                        }
-
-                        document.getElementById('det_kendala').textContent = b.getAttribute('data-kendala');
-
-                        const img = document.getElementById('det_foto');
-                        if (foto && foto !== '') {
-                            img.src = foto;
-                            document.getElementById('det_foto_container').style.display = 'block';
-                        } else {
-                            document.getElementById('det_foto_container').style.display = 'none';
-                        }
-                    });
-                }
-
-                const resultModal = document.getElementById('resultMaintenanceModal');
-                if (resultModal) {
-                    resultModal.addEventListener('show.bs.modal', function(event) {
-                        const b = event.relatedTarget;
-
-                        document.getElementById('res_nama').textContent = b.getAttribute('data-nama');
-                        document.getElementById('res_eksekutor').textContent = b.getAttribute('data-eksekutor');
-                        document.getElementById('res_partner').textContent = b.getAttribute('data-partner');
-                        document.getElementById('res_waktu').textContent = b.getAttribute('data-waktu');
-                        document.getElementById('res_solusi').textContent = b.getAttribute('data-solusi');
-
-                        // Set Photos & Links
-                        const photos = ['before', 'after', 'speed', 'selfie'];
-                        photos.forEach(p => {
-                            const url = b.getAttribute(`data-foto-${p}`);
-                            document.getElementById(`res_${p}`).src = url;
-                            document.getElementById(`link_${p}`).href = url;
-                        });
-                    });
-                }
-
-                // Modal Reassign
-                const reassignModal = document.getElementById('reassignModal');
-                if (reassignModal) {
-                    reassignModal.addEventListener('show.bs.modal', function(e) {
-                        const b = e.relatedTarget;
-                        document.getElementById('re_nama').textContent = b.getAttribute('data-nama');
-                        document.getElementById('reassignForm').action =
-                            `/maintenances/${b.getAttribute('data-id')}/reassign`;
-                    });
-                }
-
-                // Modal Selesai
-                const completeModal = document.getElementById('completeModal');
-                if (completeModal) {
-                    completeModal.addEventListener('show.bs.modal', function(event) {
-                        const b = event.relatedTarget;
-                        document.getElementById('nama_p').textContent = b.getAttribute('data-nama');
-                        document.getElementById('completeForm').action =
-                            `/maintenances/${button.getAttribute('data-id')}/complete`;
-                    });
-                }
-
-                // Auto-fill Admin Form
-                $('#customer_select').on('change', function() {
-                    const id = $(this).val();
-                    if (id) fetch(`/maintenances/customer/${id}`).then(r => r.json()).then(d => {
-                        $('#pppoe_val').val(d.pppoe);
-                        $('#alamat_val').val(d.alamat);
-                        $('#tikor_val').val(d.tikor);
-                    });
+                // Close modal on overlay click
+                $('.modal-overlay').on('click', function(e) {
+                    if (e.target === this) closeCustomModal(this.id);
                 });
             });
 
             function confirmDelete(id, name) {
                 Swal.fire({
                     title: 'Hapus Tugas?',
-                    text: "Tugas pemeliharaan " + name + " akan dibatalkan.",
+                    text: `Tugas pemeliharaan "${name}" akan dihapus permanen.`,
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: 'Ya, Batalkan!',
-                    cancelButtonText: 'Batal',
-                    // Menonaktifkan style bawaan SweetAlert agar class Bootstrap bisa bekerja
-                    buttonsStyling: false,
-                    // Menambahkan class Bootstrap btn-sm pada tombol
-                    customClass: {
-                        confirmButton: 'btn btn-danger btn-sm mx-1',
-                        cancelButton: 'btn btn-secondary btn-sm mx-1'
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        document.getElementById('delete-form-' + id).submit();
-                    }
-                })
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'Ya, Hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((r) => {
+                    if (r.isConfirmed) document.getElementById('delete-form-' + id).submit();
+                });
             }
         </script>
-        <script>
-            $(document).ready(function() {
-                $('#maintenanceTable').DataTable({
-                    "ordering": false
-                });
-
-                // Inisialisasi Select2 untuk semua modal
-                $('#customer-select').select2({
-                    placeholder: "-- Cari Nama Pelanggan --",
-                    allowClear: true // Opsi untuk menghapus pilihan
-                });
-
-                // Fix Select2 di dalam modal
-                $('#addMaintenanceModal').on('shown.bs.modal', function() {
-                    $('#customer_select').select2({
-                        theme: 'bootstrap4',
-                        dropdownParent: $('#addMaintenanceModal')
-                    });
-                });
-                $('#completeModal').on('shown.bs.modal', function() {
-                    $('#partner_select').select2({
-                        theme: 'bootstrap4',
-                        dropdownParent: $('#completeModal')
-                    });
-                });
-
-                // Auto-fill Data Pelanggan
-                $('#customer_select').on('change', function() {
-                    const id = $(this).val();
-                    if (id) {
-                        fetch(`/maintenances/customer/${id}`)
-                            .then(r => r.json())
-                            .then(data => {
-                                $('#pppoe_val').val(data.pppoe);
-                                $('#alamat_val').val(data.alamat);
-                                $('#tikor_val').val(data.tikor);
-                            });
-                    }
-                });
-
-                // Pemicu Modal Selesai
-                const completeModal = document.getElementById('completeModal');
-                completeModal.addEventListener('show.bs.modal', function(event) {
-                    const button = event.relatedTarget;
-                    document.getElementById('nama_p').textContent = button.getAttribute('data-nama');
-                    document.getElementById('completeForm').action =
-                        `/maintenances/${button.getAttribute('data-id')}/complete`;
-                });
-            });
-        </script>
     @endsection
-</x-layouts.app>
+    </x-layouts.app>
+
