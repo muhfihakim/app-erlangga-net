@@ -27,9 +27,6 @@
         </div>
     </div>
 
-    <!-- Global Toast Container -->
-    <div id="toast-container" class="toast-container"></div>
-
     <!-- Global Delete Confirmation Modal -->
     <div class="modal-overlay" id="globalDeleteModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
@@ -66,6 +63,9 @@
     @yield('Scripts')
     @include('partials.location_scripts')
     
+    <!-- Global Toast Container -->
+    <div id="toast-container" class="toast-container" style="z-index: 999999;"></div>
+
     <script>
         function toggleSidebar() {
             const sb = document.getElementById('sidebar');
@@ -105,13 +105,15 @@
         // Global Toast System
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
+            if (!container) return;
+
             const toast = document.createElement('div');
             toast.className = `custom-toast toast-${type}`;
             
-            let icon = 'fa-check-circle';
+            let icon = 'fa-circle-check';
             let title = 'Berhasil';
-            if (type === 'error') { icon = 'fa-exclamation-circle'; title = 'Gagal'; }
-            if (type === 'info') { icon = 'fa-info-circle'; title = 'Informasi'; }
+            if (type === 'error') { icon = 'fa-circle-xmark'; title = 'Gagal'; }
+            if (type === 'info') { icon = 'fa-circle-info'; title = 'Informasi'; }
 
             toast.innerHTML = `
                 <div class="toast-icon">
@@ -128,7 +130,11 @@
             // Auto remove after 4 seconds
             setTimeout(() => {
                 toast.classList.add('out');
-                setTimeout(() => toast.remove(), 400);
+                setTimeout(() => {
+                    if (toast.parentNode === container) {
+                        container.removeChild(toast);
+                    }
+                }, 400);
             }, 4000);
         }
 
