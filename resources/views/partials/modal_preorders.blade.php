@@ -361,33 +361,7 @@
     </div>
 </div>
 
-{{-- Delete Modal --}}
-<div class="modal-overlay" id="deleteModal">
-    <div class="modal-box max-w-sm bg-white border border-slate-300 shadow-2xl">
-        <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-            <div class="modal-title text-slate-900 font-bold">Konfirmasi Hapus</div>
-            <button class="modal-close" onclick="closeCustomModal('deleteModal')"><i
-                    class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="modal-body text-center p-8 bg-white">
-            <i class="fa-solid fa-triangle-exclamation text-rose-500 text-5xl mb-4"></i>
-            <p class="text-slate-700 font-medium">Yakin ingin menghapus data pre-order ini? Tindakan ini permanen.</p>
-        </div>
-        <div class="modal-footer border-t border-slate-200 bg-white rounded-b-2xl">
-            <form id="deleteForm" method="POST" class="w-full flex gap-3">
-                @csrf
-                @method('DELETE')
-                <button type="button" class="btn-cancel flex-1 !flex !items-center !justify-center gap-2"
-                    onclick="closeCustomModal('deleteModal')">
-                    <i class="fa-solid fa-xmark"></i> Batal
-                </button>
-                <button type="submit" class="btn-save !bg-rose-500 flex-1 !flex !items-center !justify-center gap-2">
-                    <i class="fa-solid fa-trash"></i> Hapus
-                </button>
-            </form>
-        </div>
-    </div>
-</div>
+
 
 {{-- Map Modal --}}
 <div class="modal-overlay" id="mapModal">
