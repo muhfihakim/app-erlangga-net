@@ -384,11 +384,11 @@
                         }
                     });
 
-                    // Initialize Top Maintenance Teknisi Donut Chart
+                    // Initialize Top Maintenance Teknisi Pie Chart
                     @if(count($mDonutValues) > 0)
                         const mDonutCtx = document.getElementById('mTeknisiChart').getContext('2d');
                         new Chart(mDonutCtx, {
-                            type: 'doughnut',
+                            type: 'pie',
                             data: {
                                 labels: {!! json_encode($mDonutLabels) !!},
                                 datasets: [{
@@ -398,7 +398,7 @@
                                 }]
                             },
                             options: {
-                                responsive: true, maintainAspectRatio: false, cutout: '65%',
+                                responsive: true, maintainAspectRatio: false,
                                 plugins: {
                                     legend: {
                                         position: 'bottom',
@@ -450,11 +450,11 @@
                         }
                     });
 
-                    // Initialize Top Dismantle Teknisi Donut Chart
+                    // Initialize Top Dismantle Teknisi Pie Chart
                     @if(count($dDonutValues) > 0)
                         const dDonutCtx = document.getElementById('dTeknisiChart').getContext('2d');
                         new Chart(dDonutCtx, {
-                            type: 'doughnut',
+                            type: 'pie',
                             data: {
                                 labels: {!! json_encode($dDonutLabels) !!},
                                 datasets: [{
@@ -464,7 +464,7 @@
                                 }]
                             },
                             options: {
-                                responsive: true, maintainAspectRatio: false, cutout: '65%',
+                                responsive: true, maintainAspectRatio: false,
                                 plugins: {
                                     legend: {
                                         position: 'bottom',
