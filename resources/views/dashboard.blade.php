@@ -122,6 +122,42 @@
     @endif
 
     @if ($user->jabatan === 'Administrator')
+        <!-- Performa Aktivasi -->
+        <div style="margin-top: 2rem;">
+            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 1rem;">
+                <i class="fa-solid fa-rocket text-success mr-2"></i> Performa Aktivasi
+            </h3>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+                <!-- Activation Trend -->
+                <div class="table-card p-6" style="margin-bottom: 0;">
+                    <h4 style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-chart-line text-success"></i> Tren Aktivasi Mingguan (Sabtu - Jumat)
+                    </h4>
+                    <div style="height: 300px; position: relative;">
+                        <canvas id="activationTrendChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Top Activation Technicians -->
+                <div class="table-card p-6" style="margin-bottom: 0;">
+                    <h4 style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-trophy text-amber-500"></i> Top Teknisi & Partner Aktivasi (Bulan Ini)
+                    </h4>
+                    <div style="height: 300px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        @if(count($aDonutValues) > 0)
+                            <canvas id="activationTopTechChart"></canvas>
+                        @else
+                            <div class="text-center py-12">
+                                <i class="fa-solid fa-chart-pie text-slate-200 text-5xl mb-3"></i>
+                                <p class="text-slate-400 font-bold text-xs uppercase">Belum ada data</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Maintenance & Dismantle Insights -->
         <div style="margin-top: 2rem;">
             <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 1rem;">
@@ -133,7 +169,7 @@
                 <!-- Maintenance Trend -->
                 <div class="table-card p-6" style="margin-bottom: 0;">
                     <h4 style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
-                        <i class="fa-solid fa-chart-line text-primary"></i> Tren Maintenance (7 Hari Terakhir)
+                        <i class="fa-solid fa-chart-line text-primary"></i> Tren Maintenance (Bulan Ini)
                     </h4>
                     <div style="height: 300px; position: relative;">
                         <canvas id="maintenanceChart"></canvas>
@@ -163,7 +199,7 @@
                 <!-- Dismantle Trend -->
                 <div class="table-card p-6" style="margin-bottom: 0;">
                     <h4 style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
-                        <i class="fa-solid fa-chart-line text-sky-500"></i> Tren Dismantle (7 Hari Terakhir)
+                        <i class="fa-solid fa-chart-line text-sky-500"></i> Tren Dismantle (Bulan Ini)
                     </h4>
                     <div style="height: 300px; position: relative;">
                         <canvas id="dismantleChart"></canvas>
@@ -347,20 +383,25 @@
                 });
 
                 @if ($user->jabatan === 'Administrator')
-                    // Initialize Maintenance Trend Chart
-                    const mCtx = document.getElementById('maintenanceChart').getContext('2d');
-                    new Chart(mCtx, {
-                        type: 'bar',
+                    // Initialize Activation Trend Chart
+                    const aCtx = document.getElementById('activationTrendChart').getContext('2d');
+                    new Chart(aCtx, {
+                        type: 'line',
                         data: {
-                            labels: {!! json_encode($mChartLabels) !!},
+                            labels: {!! json_encode($aChartLabels) !!},
                             datasets: [{
-                                label: 'Total Maintenance',
-                                data: {!! json_encode($mChartValues) !!},
-                                backgroundColor: 'rgba(14, 165, 233, 0.15)',
-                                borderColor: '#0ea5e9',
-                                borderWidth: 2,
-                                borderRadius: 6,
-                                barThickness: 20
+                                label: 'Total Aktivasi',
+                                data: {!! json_encode($aChartValues) !!},
+                                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                                borderColor: '#22c55e',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.4,
+                                pointBackgroundColor: '#22c55e',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                pointRadius: 4,
+                                pointHoverRadius: 6
                             }]
                         },
                         options: {
@@ -378,7 +419,80 @@
                                 },
                                 x: {
                                     grid: { display: false },
-                                    ticks: { color: '#94a3b8', font: { size: 11, weight: '600' } }
+                                    ticks: { color: '#94a3b8', font: { size: 10, weight: '600' } }
+                                }
+                            }
+                        }
+                    });
+
+                    // Initialize Top Activation Teknisi & Partner Pie Chart
+                    @if(count($aDonutValues) > 0)
+                        const aDonutCtx = document.getElementById('activationTopTechChart').getContext('2d');
+                        new Chart(aDonutCtx, {
+                            type: 'pie',
+                            data: {
+                                labels: {!! json_encode($aDonutLabels) !!},
+                                datasets: [{
+                                    data: {!! json_encode($aDonutValues) !!},
+                                    backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
+                                    borderWidth: 2, borderColor: '#fff', hoverOffset: 10
+                                }]
+                            },
+                            options: {
+                                responsive: true, maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom',
+                                        labels: { usePointStyle: true, padding: 20, font: { size: 11, weight: '600' }, color: '#64748b' }
+                                    },
+                                    datalabels: {
+                                        color: '#fff', font: { weight: 'bold', size: 13 },
+                                        formatter: (value) => value, display: true
+                                    }
+                                }
+                            }
+                        });
+                    @endif
+
+                    // Initialize Maintenance Trend Chart
+                    const mCtx = document.getElementById('maintenanceChart').getContext('2d');
+                    new Chart(mCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: {!! json_encode($mChartLabels) !!},
+                            datasets: [{
+                                label: 'Total Maintenance',
+                                data: {!! json_encode($mChartValues) !!},
+                                backgroundColor: 'rgba(14, 165, 233, 0.15)',
+                                borderColor: '#0ea5e9',
+                                borderWidth: 1.5,
+                                borderRadius: 4,
+                                barThickness: 8
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                datalabels: { display: false }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: { color: '#f1f5f9' },
+                                    ticks: { stepSize: 1, color: '#94a3b8', font: { size: 10, weight: '600' } }
+                                },
+                                x: {
+                                    grid: { display: false },
+                                    ticks: { 
+                                        color: '#94a3b8', 
+                                        font: { size: 9, weight: '600' },
+                                        maxRotation: 45,
+                                        minRotation: 45,
+                                        autoSkip: true,
+                                        maxTicksLimit: 15
+                                    }
                                 }
                             }
                         }
@@ -424,9 +538,9 @@
                                 data: {!! json_encode($dChartValues) !!},
                                 backgroundColor: 'rgba(14, 165, 233, 0.15)',
                                 borderColor: '#0ea5e9',
-                                borderWidth: 2,
-                                borderRadius: 6,
-                                barThickness: 20
+                                borderWidth: 1.5,
+                                borderRadius: 4,
+                                barThickness: 8
                             }]
                         },
                         options: {
@@ -440,11 +554,18 @@
                                 y: {
                                     beginAtZero: true,
                                     grid: { color: '#f1f5f9' },
-                                    ticks: { stepSize: 1, color: '#94a3b8', font: { size: 11, weight: '600' } }
+                                    ticks: { stepSize: 1, color: '#94a3b8', font: { size: 10, weight: '600' } }
                                 },
                                 x: {
                                     grid: { display: false },
-                                    ticks: { color: '#94a3b8', font: { size: 11, weight: '600' } }
+                                    ticks: { 
+                                        color: '#94a3b8', 
+                                        font: { size: 9, weight: '600' },
+                                        maxRotation: 45,
+                                        minRotation: 45,
+                                        autoSkip: true,
+                                        maxTicksLimit: 15
+                                    }
                                 }
                             }
                         }

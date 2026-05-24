@@ -326,18 +326,66 @@ class DashboardController extends Controller
             $percentageChange = 100;
         }
 
-        // 5. Inisialisasi Variabel Statistik Maintenance & Dismantle
+        // 5. Inisialisasi Variabel Statistik Activation, Maintenance & Dismantle
         $mChartLabels = []; $mChartValues = []; $mDonutLabels = []; $mDonutValues = [];
         $dChartLabels = []; $dChartValues = []; $dDonutLabels = []; $dDonutValues = [];
+        $aChartLabels = []; $aChartValues = []; $aDonutLabels = []; $aDonutValues = [];
 
-        // 6. Logika Admin: Fetch Stats Maintenance & Dismantle
+        // 6. Logika Admin: Fetch Stats
         if ($user->jabatan === 'Administrator') {
             $thisMonth = Carbon::now()->month;
             $thisYear = Carbon::now()->year;
 
-            // Maintenance Trends (7 Hari Terakhir)
-            for ($i = 6; $i >= 0; $i--) {
-                $date = Carbon::now()->subDays($i);
+            // --- PERFORMA AKTIVASI ---
+            
+            // Tren Aktivasi Mingguan (Sabtu - Jumat) - 5 Minggu Terakhir
+            for ($i = 4; $i >= 0; $i--) {
+                $endOfPeriod = Carbon::now()->startOfWeek(Carbon::SATURDAY)->subWeeks($i)->addDays(6); // This Friday
+                $startOfPeriod = $endOfPeriod->copy()->subDays(6); // This Saturday
+                
+                $label = $startOfPeriod->translatedFormat('d M') . ' - ' . $endOfPeriod->translatedFormat('d M');
+                $aChartLabels[] = $label;
+                $aChartValues[] = Customer::whereBetween('created_at', [
+                    $startOfPeriod->startOfDay()->toDateTimeString(),
+                    $endOfPeriod->endOfDay()->toDateTimeString()
+                ])->count();
+            }
+
+            // Top Teknisi Aktivasi (Bulan Ini, termasuk Partner)
+            $activations = Customer::whereMonth('created_at', $thisMonth)
+                ->whereYear('created_at', $thisYear)
+                ->get();
+
+            $techPoints = [];
+            foreach ($activations as $act) {
+                // Main Technician
+                if ($act->id_teknisi) {
+                    $techPoints[$act->id_teknisi] = ($techPoints[$act->id_teknisi] ?? 0) + 1;
+                }
+                // Partners
+                if (!empty($act->partner_ids)) {
+                    $pIds = is_array($act->partner_ids) ? $act->partner_ids : json_decode($act->partner_ids, true);
+                    if (is_array($pIds)) {
+                        foreach ($pIds as $pid) {
+                            $techPoints[$pid] = ($techPoints[$pid] ?? 0) + 1;
+                        }
+                    }
+                }
+            }
+
+            arsort($techPoints);
+            $topActIds = array_slice(array_keys($techPoints), 0, 5);
+            $topActUsers = User::whereIn('id', $topActIds)->get()->keyBy('id');
+
+            foreach ($topActIds as $tid) {
+                $aDonutLabels[] = $topActUsers[$tid]->nama_lengkap ?? 'Unknown';
+                $aDonutValues[] = $techPoints[$tid];
+            }
+
+            // --- MAINTENANCE & DISMANTLE ---
+            $daysInMonth = Carbon::now()->daysInMonth;
+            for ($i = 1; $i <= $daysInMonth; $i++) {
+                $date = Carbon::now()->day($i);
                 $mChartLabels[] = $date->translatedFormat('d M');
                 $mChartValues[] = Maintenance::whereDate('created_at', $date->toDateString())->count();
             }
@@ -358,9 +406,9 @@ class DashboardController extends Controller
             $mDonutLabels = $mTop->pluck('name')->toArray();
             $mDonutValues = $mTop->pluck('count')->toArray();
 
-            // Dismantle Trends (7 Hari Terakhir)
-            for ($i = 6; $i >= 0; $i--) {
-                $date = Carbon::now()->subDays($i);
+            // Dismantle Trends (Bulan Ini)
+            for ($i = 1; $i <= $daysInMonth; $i++) {
+                $date = Carbon::now()->day($i);
                 $dChartLabels[] = $date->translatedFormat('d M');
                 $dChartValues[] = Dismantle::whereDate('created_at', $date->toDateString())->count();
             }
@@ -458,6 +506,10 @@ class DashboardController extends Controller
             'aktivasiBulanIni',
             'pendingTugas',
             'totalExpired',
+            'aChartLabels',
+            'aChartValues',
+            'aDonutLabels',
+            'aDonutValues',
             'mChartLabels',
             'mChartValues',
             'mDonutLabels',
