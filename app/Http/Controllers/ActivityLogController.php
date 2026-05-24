@@ -266,10 +266,17 @@ class ActivityLogController extends Controller
         if ($end) $query->whereDate('completed_at', '<=', $end);
 
         $maintenances = $query->orderBy('completed_at', 'desc')->get();
-        $total = $maintenances->count();
         $teknisis = User::where('jabatan', 'Teknisi')->get();
 
-        return view('activitylog.maintenance-log', compact('maintenances', 'teknisis', 'teknisiId', 'start', 'end', 'total'));
+        // --- STATISTIK ---
+        $stats = [
+            'total_filtered' => $maintenances->count(),
+            'total_all' => Maintenance::where('status', 'Selesai')->count(),
+            'this_month' => Maintenance::where('status', 'Selesai')->whereMonth('completed_at', Carbon::now()->month)->whereYear('completed_at', Carbon::now()->year)->count(),
+            'today' => Maintenance::where('status', 'Selesai')->whereDate('completed_at', Carbon::today())->count(),
+        ];
+
+        return view('activitylog.maintenance-log', compact('maintenances', 'teknisis', 'teknisiId', 'start', 'end', 'stats'));
     }
 
     public function exportMaintenance(Request $request)
