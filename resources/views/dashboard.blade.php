@@ -144,7 +144,7 @@
                     <h4 style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
                         <i class="fa-solid fa-trophy text-amber-500"></i> Top Teknisi & Partner Aktivasi (Bulan Ini)
                     </h4>
-                    <div style="height: 300px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <div style="height: 300px; position: relative;">
                         @if(count($aDonutValues) > 0)
                             <canvas id="activationTopTechChart"></canvas>
                         @else
@@ -154,6 +154,29 @@
                             </div>
                         @endif
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performa Sales -->
+        <div style="margin-top: 2rem;">
+            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 1rem;">
+                <i class="fa-solid fa-users-viewfinder text-indigo-500 mr-2"></i> Performa Sales
+            </h3>
+
+            <div class="table-card p-6">
+                <h4 style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-award text-amber-500"></i> Top Sales: Input Pre-Order (Bulan Ini)
+                </h4>
+                <div style="height: 350px; position: relative;">
+                    @if(count($sChartLabels) > 0)
+                        <canvas id="topSalesChart"></canvas>
+                    @else
+                        <div class="text-center py-12">
+                            <i class="fa-solid fa-users text-slate-200 text-5xl mb-3"></i>
+                            <p class="text-slate-400 font-bold text-xs uppercase">Belum ada data</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -425,29 +448,93 @@
                         }
                     });
 
-                    // Initialize Top Activation Teknisi & Partner Pie Chart
+                    // Initialize Top Activation Teknisi & Partner Horizontal Bar Chart
                     @if(count($aDonutValues) > 0)
                         const aDonutCtx = document.getElementById('activationTopTechChart').getContext('2d');
                         new Chart(aDonutCtx, {
-                            type: 'pie',
+                            type: 'bar',
                             data: {
                                 labels: {!! json_encode($aDonutLabels) !!},
                                 datasets: [{
+                                    label: 'Total Aktivasi',
                                     data: {!! json_encode($aDonutValues) !!},
-                                    backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
-                                    borderWidth: 2, borderColor: '#fff', hoverOffset: 10
+                                    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                                    borderColor: '#10b981',
+                                    borderWidth: 2,
+                                    borderRadius: 6,
+                                    barThickness: 20
                                 }]
                             },
                             options: {
-                                responsive: true, maintainAspectRatio: false,
+                                indexAxis: 'y',
+                                responsive: true,
+                                maintainAspectRatio: false,
                                 plugins: {
-                                    legend: {
-                                        position: 'bottom',
-                                        labels: { usePointStyle: true, padding: 20, font: { size: 11, weight: '600' }, color: '#64748b' }
-                                    },
+                                    legend: { display: false },
                                     datalabels: {
-                                        color: '#fff', font: { weight: 'bold', size: 13 },
-                                        formatter: (value) => value, display: true
+                                        anchor: 'end', align: 'right', offset: 4,
+                                        color: '#64748b', font: { weight: 'bold', size: 12 },
+                                        formatter: (value) => value
+                                    }
+                                },
+                                scales: {
+                                    x: {
+                                        beginAtZero: true, grid: { color: '#f1f5f9' },
+                                        ticks: { stepSize: 1, color: '#94a3b8', font: { size: 11, weight: '600' } }
+                                    },
+                                    y: {
+                                        grid: { display: false },
+                                        ticks: { color: '#475569', font: { size: 11, weight: '700' } }
+                                    }
+                                }
+                            }
+                        });
+                    @endif
+
+                    // Initialize Top Sales Stacked Horizontal Bar Chart
+                    @if(count($sChartLabels) > 0)
+                        const sCtx = document.getElementById('topSalesChart').getContext('2d');
+                        new Chart(sCtx, {
+                            type: 'bar',
+                            data: {
+                                labels: {!! json_encode($sChartLabels) !!},
+                                datasets: [
+                                    {
+                                        label: 'Sudah Aktivasi',
+                                        data: {!! json_encode($sChartActivated) !!},
+                                        backgroundColor: '#10b981',
+                                        borderRadius: 4,
+                                        barThickness: 25
+                                    },
+                                    {
+                                        label: 'Masih Pending',
+                                        data: {!! json_encode($sChartPending) !!},
+                                        backgroundColor: '#f59e0b',
+                                        borderRadius: 4,
+                                        barThickness: 25
+                                    }
+                                ]
+                            },
+                            options: {
+                                indexAxis: 'y',
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20, font: { size: 12, weight: '600' } } },
+                                    datalabels: {
+                                        color: '#fff', font: { weight: 'bold', size: 11 },
+                                        formatter: (value) => value > 0 ? value : '',
+                                        display: true
+                                    }
+                                },
+                                scales: {
+                                    x: {
+                                        stacked: true, beginAtZero: true, grid: { color: '#f1f5f9' },
+                                        ticks: { stepSize: 1, color: '#94a3b8', font: { size: 11, weight: '600' } }
+                                    },
+                                    y: {
+                                        stacked: true, grid: { display: false },
+                                        ticks: { color: '#475569', font: { size: 12, weight: '700' } }
                                     }
                                 }
                             }

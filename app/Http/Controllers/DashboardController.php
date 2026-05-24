@@ -326,10 +326,11 @@ class DashboardController extends Controller
             $percentageChange = 100;
         }
 
-        // 5. Inisialisasi Variabel Statistik Activation, Maintenance & Dismantle
+        // 5. Inisialisasi Variabel Statistik Activation, Maintenance, Dismantle & Sales
         $mChartLabels = []; $mChartValues = []; $mDonutLabels = []; $mDonutValues = [];
         $dChartLabels = []; $dChartValues = []; $dDonutLabels = []; $dDonutValues = [];
         $aChartLabels = []; $aChartValues = []; $aDonutLabels = []; $aDonutValues = [];
+        $sChartLabels = []; $sChartActivated = []; $sChartPending = [];
 
         // 6. Logika Admin: Fetch Stats
         if ($user->jabatan === 'Administrator') {
@@ -339,30 +340,30 @@ class DashboardController extends Controller
             // --- PERFORMA AKTIVASI ---
             
             // Tren Aktivasi Mingguan (Sabtu - Jumat) - 5 Minggu Terakhir
+            // Menggunakan withTrashed() karena aktivasi yang sudah non-aktif tetap dihitung sebagai hasil kerja
+            $mostRecentFriday = Carbon::now()->isFriday() ? Carbon::now() : Carbon::now()->previous(Carbon::FRIDAY);
             for ($i = 4; $i >= 0; $i--) {
-                $endOfPeriod = Carbon::now()->startOfWeek(Carbon::SATURDAY)->subWeeks($i)->addDays(6); // This Friday
-                $startOfPeriod = $endOfPeriod->copy()->subDays(6); // This Saturday
+                $endOfPeriod = $mostRecentFriday->copy()->subWeeks($i);
+                $startOfPeriod = $endOfPeriod->copy()->subDays(6);
                 
                 $label = $startOfPeriod->translatedFormat('d M') . ' - ' . $endOfPeriod->translatedFormat('d M');
                 $aChartLabels[] = $label;
-                $aChartValues[] = Customer::whereBetween('created_at', [
-                    $startOfPeriod->startOfDay()->toDateTimeString(),
-                    $endOfPeriod->endOfDay()->toDateTimeString()
+                $aChartValues[] = Customer::withTrashed()->whereBetween('created_at', [
+                    $startOfPeriod->startOfDay(),
+                    $endOfPeriod->endOfDay()
                 ])->count();
             }
 
             // Top Teknisi Aktivasi (Bulan Ini, termasuk Partner)
-            $activations = Customer::whereMonth('created_at', $thisMonth)
+            $activations = Customer::withTrashed()->whereMonth('created_at', $thisMonth)
                 ->whereYear('created_at', $thisYear)
                 ->get();
 
             $techPoints = [];
             foreach ($activations as $act) {
-                // Main Technician
                 if ($act->id_teknisi) {
                     $techPoints[$act->id_teknisi] = ($techPoints[$act->id_teknisi] ?? 0) + 1;
                 }
-                // Partners
                 if (!empty($act->partner_ids)) {
                     $pIds = is_array($act->partner_ids) ? $act->partner_ids : json_decode($act->partner_ids, true);
                     if (is_array($pIds)) {
@@ -380,6 +381,32 @@ class DashboardController extends Controller
             foreach ($topActIds as $tid) {
                 $aDonutLabels[] = $topActUsers[$tid]->nama_lengkap ?? 'Unknown';
                 $aDonutValues[] = $techPoints[$tid];
+            }
+
+            // --- PERFORMA SALES ---
+            
+            // Top Sales (Bulan Ini: Sudah Aktivasi vs Pending)
+            $activatedPOIds = Customer::withTrashed()->pluck('pre_order_id');
+            $salesPerform = PreOrder::whereMonth('created_at', $thisMonth)
+                ->whereYear('created_at', $thisYear)
+                ->with('sales')
+                ->get()
+                ->groupBy('id_sales')
+                ->map(function($group) use ($activatedPOIds) {
+                    return [
+                        'name' => $group->first()->sales->nama_lengkap ?? 'Unknown',
+                        'activated' => $group->filter(fn($po) => $activatedPOIds->contains($po->id))->count(),
+                        'pending' => $group->filter(fn($po) => !$activatedPOIds->contains($po->id))->count(),
+                        'total' => $group->count()
+                    ];
+                })
+                ->sortByDesc('total')
+                ->take(5);
+
+            foreach ($salesPerform as $sp) {
+                $sChartLabels[] = $sp['name'];
+                $sChartActivated[] = $sp['activated'];
+                $sChartPending[] = $sp['pending'];
             }
 
             // --- MAINTENANCE & DISMANTLE ---
@@ -510,6 +537,9 @@ class DashboardController extends Controller
             'aChartValues',
             'aDonutLabels',
             'aDonutValues',
+            'sChartLabels',
+            'sChartActivated',
+            'sChartPending',
             'mChartLabels',
             'mChartValues',
             'mDonutLabels',
