@@ -23,7 +23,7 @@ class ActivityLogController extends Controller
 
         $logs = ActivityLog::with('user')
             ->orderBy('logged_at', 'desc')
-            ->paginate(15);
+            ->get();
 
         // --- STATISTIK ---
         $totalLogs = ActivityLog::count();

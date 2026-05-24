@@ -145,105 +145,97 @@
     <div class="table-card">
         <div class="table-responsive">
             <table id="activity-log-table" class="admin-table">
-                <thead>
+            <thead>
+                <tr>
+                    <th style="text-align: center; width: 180px;">Waktu</th>
+                    <th style="text-align: center; width: 220px;">Pelaku</th>
+                    <th style="text-align: center; width: 150px;">Aktivitas</th>
+                    <th style="text-align: center; width: auto;">Deskripsi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($logs as $log)
                     <tr>
-                        <th style="text-align: center; width: 180px;">Waktu</th>
-                        <th style="text-align: center; width: 220px;">Pelaku</th>
-                        <th style="text-align: center; width: 150px;">Aktivitas</th>
-                        <th style="text-align: center; width: auto;">Deskripsi</th>
+                        <td style="text-align: center; font-size: 12px; color: #64748b; font-weight: 600;">
+                            <div class="text-slate-900 font-bold">{{ $log->logged_at->format('d/m/Y') }}</div>
+                            <div class="text-[10px] text-slate-400 uppercase tracking-wider">{{ $log->logged_at->format('H:i:s') }}</div>
+                        </td>
+                        <td style="text-align: left;">
+                            <div style="font-weight: 700; color: #0f172a;">{{ $log->user->nama_lengkap ?? 'Sistem' }}</div>
+                            <div style="font-size: 10px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
+                                {{ $log->user->jabatan ?? 'ROOT' }}
+                            </div>
+                        </td>
+                        <td style="text-align: center;">
+                            @php
+                                $bg = '#f1f5f9'; $color = '#64748b';
+                                if(str_contains($log->activity_type, 'create')) { $bg = '#f0fdf4'; $color = '#16a34a'; }
+                                elseif(str_contains($log->activity_type, 'update')) { $bg = '#fffbeb'; $color = '#d97706'; }
+                                elseif(str_contains($log->activity_type, 'delete')) { $bg = '#fef2f2'; $color = '#dc2626'; }
+                                elseif(str_contains($log->activity_type, 'aktivasi')) { $bg = '#f0f9ff'; $color = '#0ea5e9'; }
+                            @endphp
+                            <span class="badge" style="background: {{ $bg }}; color: {{ $color }}; padding: 4px 10px; border-radius: 6px; font-size: 9px; font-weight: 800; text-transform: uppercase;">
+                                {{ str_replace('_', ' ', $log->activity_type) }}
+                            </span>
+                        </td>
+                        <td style="text-align: left; font-size: 12px; color: #475569; font-weight: 500; line-height: 1.5;">
+                            {{ $log->description }}
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    @forelse ($logs as $log)
-                        <tr>
-                            <td style="text-align: center; font-size: 12px; color: #64748b; font-weight: 600;">
-                                <div class="text-slate-900 font-bold">{{ $log->logged_at->format('d/m/Y') }}</div>
-                                <div class="text-[10px] text-slate-400 uppercase tracking-wider">{{ $log->logged_at->format('H:i:s') }}</div>
-                            </td>
-                            <td style="text-align: left;">
-                                <div style="font-weight: 700; color: #0f172a;">{{ $log->user->nama_lengkap ?? 'Sistem' }}</div>
-                                <div style="font-size: 10px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
-                                    {{ $log->user->jabatan ?? 'ROOT' }}
-                                </div>
-                            </td>
-                            <td style="text-align: center;">
-                                @php
-                                    $bg = '#f1f5f9'; $color = '#64748b';
-                                    if(str_contains($log->activity_type, 'create')) { $bg = '#f0fdf4'; $color = '#16a34a'; }
-                                    elseif(str_contains($log->activity_type, 'update')) { $bg = '#fffbeb'; $color = '#d97706'; }
-                                    elseif(str_contains($log->activity_type, 'delete')) { $bg = '#fef2f2'; $color = '#dc2626'; }
-                                    elseif(str_contains($log->activity_type, 'aktivasi')) { $bg = '#f0f9ff'; $color = '#0ea5e9'; }
-                                @endphp
-                                <span class="badge" style="background: {{ $bg }}; color: {{ $color }}; padding: 4px 10px; border-radius: 6px; font-size: 9px; font-weight: 800; text-transform: uppercase;">
-                                    {{ str_replace('_', ' ', $log->activity_type) }}
-                                </span>
-                            </td>
-                            <td style="text-align: left; font-size: 12px; color: #475569; font-weight: 500; line-height: 1.5;">
-                                {{ $log->description }}
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="text-center py-12">
-                                <i class="fa-solid fa-clock-rotate-left text-slate-200 text-5xl mb-3 block"></i>
-                                <p class="text-slate-400 font-bold text-xs uppercase">Belum ada aktivitas yang tercatat</p>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
+                @empty
+                    <tr>
+                        <td colspan="4" class="text-center py-12">
+                            <i class="fa-solid fa-clock-rotate-left text-slate-200 text-5xl mb-3 block"></i>
+                            <p class="text-slate-400 font-bold text-xs uppercase">Belum ada aktivitas yang tercatat</p>
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
             </table>
-        </div>
-        
-        @if ($logs->hasPages())
-            <div class="pagination-container">
-                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                    Menampilkan {{ $logs->firstItem() }} - {{ $logs->lastItem() }} dari {{ $logs->total() }} data
-                </div>
-                <div>
-                    {{ $logs->links('vendor.pagination.simple-tailwind') }}
-                </div>
             </div>
-        @endif
-    </div>
+            </div>
 
-    @include('partials.modal_activity-log')
+            @include('partials.modal_activity-log')
 
-    @section('Scripts')
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-        <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            @section('Scripts')
+            <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+            <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        <script>
+            <script>
             // Custom Modal Functions
             function openCustomModal(modalId) {
-                const modal = document.getElementById(modalId);
-                if (modal) {
-                    modal.classList.add('open');
-                    document.body.style.overflow = 'hidden';
-                }
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }
             }
 
             function closeCustomModal(modalId) {
-                const modal = document.getElementById(modalId);
-                if (modal) {
-                    modal.classList.remove('open');
-                    document.body.style.overflow = '';
-                }
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('open');
+                document.body.style.overflow = '';
+            }
             }
 
             $(document).ready(function() {
-                const table = $('#activity-log-table').DataTable({
-                    "paging": false, // Handled by Laravel Pagination
-                    "lengthChange": false,
-                    "ordering": false,
-                    "info": false,
-                    "responsive": true,
-                    "dom": 't',
-                    "language": {
-                        "zeroRecords": "Data tidak ditemukan"
+            const table = $('#activity-log-table').DataTable({
+                "pageLength": 15,
+                "lengthChange": false,
+                "ordering": false,
+                "info": false,
+                "responsive": true,
+                "dom": 'tpir',
+                "language": {
+                    "zeroRecords": "Data tidak ditemukan",
+                    "paginate": {
+                        "previous": '<i class="fa-solid fa-chevron-left"></i>',
+                        "next": '<i class="fa-solid fa-chevron-right"></i>'
                     }
-                });
-
+                }
+            });
                 $('#custom-search').on('keyup', function() {
                     table.search(this.value).draw();
                 });
