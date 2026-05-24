@@ -276,21 +276,15 @@
                                         @if ($customer->trashed())
                                             <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
                                                 title="Aktifkan"
-                                                onclick="confirmRestore({{ $customer->id }}, '{{ $customer->nama_lengkap }}')">
+                                                onclick="confirmGlobalDelete('{{ route('customers.restore', $customer->id) }}', '{{ $customer->nama_lengkap }} (Restore)')">
                                                 <i class="fa-solid fa-rotate-left text-emerald-500"></i>
                                             </button>
-                                            <form id="restore-form-{{ $customer->id }}"
-                                                action="{{ route('customers.restore', $customer->id) }}" method="POST"
-                                                style="display: none;">@csrf</form>
                                         @else
                                             <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
                                                 title="Non-aktifkan"
-                                                onclick="confirmDelete({{ $customer->id }}, '{{ $customer->nama_lengkap }}')">
+                                                onclick="confirmGlobalDelete('{{ route('customers.destroy', $customer->id) }}', '{{ $customer->nama_lengkap }}')">
                                                 <i class="fa-solid fa-trash text-rose-500"></i>
                                             </button>
-                                            <form id="delete-form-{{ $customer->id }}"
-                                                action="{{ route('customers.destroy', $customer->id) }}" method="POST"
-                                                style="display: none;">@csrf @method('DELETE')</form>
                                         @endif
                                     @endif
                                 </div>
@@ -532,7 +526,7 @@
             <div class="modal-footer border-t border-slate-200 bg-white rounded-b-2xl">
                 <button type="button" class="btn-cancel w-full !py-3.5 !flex !items-center !justify-center gap-2"
                     onclick="closeCustomModal('customerDetailModal')">
-                    <i class="fa-solid fa-circle-xmark"></i> Tutup Detail Pelanggan
+                    <i class="fa-solid fa-xmark"></i> Tutup Detail
                 </button>
             </div>
         </div>
@@ -653,36 +647,6 @@
                     if (e.target === this) closeCustomModal(this.id);
                 });
             });
-
-            function confirmDelete(id, name) {
-                Swal.fire({
-                    title: 'Nonaktifkan?',
-                    text: `Pelanggan "${name}" akan dipindahkan ke daftar Non-Aktif.`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#ef4444',
-                    cancelButtonColor: '#64748b',
-                    confirmButtonText: 'Ya, Nonaktifkan',
-                    cancelButtonText: 'Batal'
-                }).then((r) => {
-                    if (r.isConfirmed) document.getElementById('delete-form-' + id).submit();
-                });
-            }
-
-            function confirmRestore(id, name) {
-                Swal.fire({
-                    title: 'Aktifkan Kembali?',
-                    text: `Pelanggan "${name}" akan berlangganan kembali.`,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#10b981',
-                    cancelButtonColor: '#64748b',
-                    confirmButtonText: 'Ya, Aktifkan',
-                    cancelButtonText: 'Batal'
-                }).then((r) => {
-                    if (r.isConfirmed) document.getElementById('restore-form-' + id).submit();
-                });
-            }
         </script>
     @endsection
 </x-layouts.app>

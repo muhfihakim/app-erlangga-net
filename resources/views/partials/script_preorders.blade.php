@@ -1,7 +1,6 @@
 @section('Scripts')
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
@@ -181,12 +180,12 @@
                 }
             });
 
-            // --- SweetAlert Flash Messages ---
+            // --- Toast Flash Messages ---
             @if (session('success'))
-                Swal.fire({ icon: 'success', title: 'Berhasil!', text: '{{ session('success') }}', showConfirmButton: false, timer: 3000 });
+                showToast('{{ session('success') }}', 'success');
             @endif
             @if (session('error'))
-                Swal.fire({ icon: 'error', title: 'Oops...', text: '{{ session('error') }}' });
+                showToast('{{ session('error') }}', 'error');
             @endif
 
             // --- Geolocation Logic ---
@@ -195,12 +194,12 @@
                     if (navigator.geolocation) {
                         navigator.geolocation.getCurrentPosition(position => {
                             $(`#${inputId}`).val(`${position.coords.latitude},${position.coords.longitude}`);
-                            Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Titik koordinat diambil.', showConfirmButton: false, timer: 1500 });
+                            showToast('Titik koordinat diambil.', 'success');
                         }, err => {
-                            Swal.fire({ icon: 'error', title: 'Gagal', text: 'Pastikan izin lokasi diberikan.' });
+                            showToast('Gagal! Pastikan izin lokasi diberikan.', 'error');
                         });
                     } else {
-                        Swal.fire({ icon: 'error', title: 'Error', text: 'Geolocation tidak didukung.' });
+                        showToast('Geolocation tidak didukung.', 'error');
                     }
                 });
             }

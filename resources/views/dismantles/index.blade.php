@@ -164,7 +164,8 @@
         style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
             <h1 style="font-size:22px;font-weight:900;margin:0;">Pencabutan (Dismantle)</h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola pencabutan perangkat dan non-aktivasi pelanggan.
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola pencabutan perangkat dan non-aktivasi
+                pelanggan.
             </p>
         </div>
         <div style="display:flex; gap:10px;">
@@ -174,7 +175,8 @@
                     <i class="fa-solid fa-plus-square"></i> Tambah Dismantle
                 </button>
             @endif
-            <a href="{{ route('dashboards.index') }}" class="btn-primary-admin !flex !items-center !justify-center gap-2"
+            <a href="{{ route('dashboards.index') }}"
+                class="btn-primary-admin !flex !items-center !justify-center gap-2"
                 style="background: #f1f5f9; color: #475569; box-shadow: none; border: 1px solid #e2e8f0;"
                 onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
                 <i class="fa-solid fa-house"></i> Dashboard
@@ -262,7 +264,8 @@
                                 <td style="text-align: center; color: #94a3b8; font-weight: 700;">
                                     {{ $loop->iteration }}</td>
                                 <td style="text-align: left;">
-                                    <div style="font-weight: 700; color: #0f172a;">{{ $d->customer->nama_lengkap ?? 'N/A' }}
+                                    <div style="font-weight: 700; color: #0f172a;">
+                                        {{ $d->customer->nama_lengkap ?? 'N/A' }}
                                         @if ($isTrashed)
                                             <span class="badge badge-archived"
                                                 style="font-size: 9px; margin-left: 4px;">NON-AKTIF</span>
@@ -314,25 +317,20 @@
 
                                         @if ($d->status === 'Selesai')
                                             @if (!$isTrashed)
-                                                <button type="button" class="btn-primary-admin !py-1.5 !px-3 !text-[11px] !bg-rose-600"
-                                                    onclick="confirmDeleteCustomer({{ $d->customer_id }}, '{{ $d->customer->nama_lengkap }}')">
+                                                <button type="button"
+                                                    class="btn-primary-admin !py-1.5 !px-3 !text-[11px] !bg-rose-600"
+                                                    onclick="confirmGlobalDelete('{{ route('dismantles.deleteCustomer', $d->customer_id) }}', '{{ $d->customer->nama_lengkap }} (Dismantle Selesai)')">
                                                     <i class="fa-solid fa-user-slash mr-1"></i> Hapus Pelanggan
                                                 </button>
-                                                <form id="del-cust-{{ $d->customer_id }}"
-                                                    action="{{ route('dismantles.deleteCustomer', $d->customer_id) }}"
-                                                    method="POST" style="display: none;">@csrf @method('DELETE')</form>
                                             @else
                                                 <span class="badge badge-archived !px-3 !py-2">TERHAPUS</span>
                                             @endif
                                         @else
                                             <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
                                                 title="Batalkan Tugas"
-                                                onclick="confirmCancelDismantle({{ $d->id }}, '{{ $d->customer->nama_lengkap }}')">
+                                                onclick="confirmGlobalDelete('{{ route('dismantles.destroy', $d->id) }}', 'Tugas Dismantle: {{ $d->customer->nama_lengkap }}')">
                                                 <i class="fa-solid fa-trash text-rose-600"></i>
                                             </button>
-                                            <form id="cancel-task-{{ $d->id }}"
-                                                action="{{ route('dismantles.destroy', $d->id) }}" method="POST"
-                                                style="display: none;">@csrf @method('DELETE')</form>
                                         @endif
                                     </div>
                                 </td>
@@ -390,12 +388,13 @@
                                                 data-alamat="{{ $d->customer->alamat_lengkap }}"
                                                 data-paket="{{ $d->customer->paket_internet }}"
                                                 data-sales="{{ $d->customer->sales->nama_lengkap ?? 'N/A' }}"
-                                                data-keterangan="{{ $d->keterangan_admin ?: '-' }}"
-                                                data-foto="">
+                                                data-keterangan="{{ $d->keterangan_admin ?: '-' }}" data-foto="">
                                                 <i class="fa-solid fa-circle-info text-primary"></i>
                                             </button>
-                                            <button type="button" class="btn-primary-admin !py-1.5 !px-3 !text-[11px]"
-                                                onclick="openCompleteDismantleModal(this)" data-id="{{ $d->id }}"
+                                            <button type="button"
+                                                class="btn-primary-admin !py-1.5 !px-3 !text-[11px]"
+                                                onclick="openCompleteDismantleModal(this)"
+                                                data-id="{{ $d->id }}"
                                                 data-nama="{{ $d->customer->nama_lengkap }}">
                                                 Selesai
                                             </button>
@@ -455,13 +454,13 @@
                                                 data-alamat="{{ $d->customer->alamat_lengkap }}"
                                                 data-paket="{{ $d->customer->paket_internet }}"
                                                 data-sales="{{ $d->customer->sales->nama_lengkap ?? 'N/A' }}"
-                                                data-keterangan="{{ $d->keterangan_admin ?: '-' }}"
-                                                data-foto="">
+                                                data-keterangan="{{ $d->keterangan_admin ?: '-' }}" data-foto="">
                                                 <i class="fa-solid fa-circle-info text-primary"></i>
                                             </button>
                                             <button type="button"
                                                 class="btn-primary-admin !py-1.5 !px-3 !text-[11px] !bg-emerald-600"
-                                                onclick="openCompleteDismantleModal(this)" data-id="{{ $d->id }}"
+                                                onclick="openCompleteDismantleModal(this)"
+                                                data-id="{{ $d->id }}"
                                                 data-nama="{{ $d->customer->nama_lengkap }}">
                                                 Ambil
                                             </button>
@@ -510,11 +509,13 @@
                         <tbody>
                             @foreach ($customers as $c)
                                 <tr>
-                                    <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}
+                                    <td style="text-align: center; color: #94a3b8; font-weight: 700;">
+                                        {{ $loop->iteration }}
                                     </td>
                                     <td style="font-weight: 700; color: #0f172a;">{{ $c->nama_lengkap }}</td>
                                     <td style="font-weight: 600; color: #64748b;">{{ $c->id_pelanggan }}</td>
-                                    <td style="font-size: 11px; color: #64748b;">{{ Str::limit($c->alamat_lengkap, 50) }}
+                                    <td style="font-size: 11px; color: #64748b;">
+                                        {{ Str::limit($c->alamat_lengkap, 50) }}
                                     </td>
                                     <td style="text-align: center;">
                                         <button type="button" class="btn-primary-admin !py-1.5 !px-3 !text-[11px]"
@@ -530,7 +531,7 @@
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
                 <button type="button" class="btn-cancel w-full" onclick="closeCustomModal('searchCustomerModal')">
-                    Batal
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
             </div>
         </div>
@@ -701,7 +702,8 @@
                     </div>
                 </div>
                 <div id="det_foto_container" class="space-y-3 hidden">
-                    <span class="text-[11px] font-bold text-slate-400 block uppercase">Bukti Pencabutan Perangkat</span>
+                    <span class="text-[11px] font-bold text-slate-400 block uppercase">Bukti Pencabutan
+                        Perangkat</span>
                     <div class="aspect-video w-full rounded-2xl overflow-hidden border-2 border-slate-100 shadow-sm bg-slate-50 flex items-center justify-center cursor-pointer"
                         onclick="window.open($('#det_foto').attr('src'), '_blank')">
                         <img id="det_foto" src="" class="w-full h-full object-contain">
@@ -709,9 +711,10 @@
                 </div>
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <button type="button" class="btn-cancel w-full !py-3"
+                <button type="button"
+                    class="btn-cancel w-full !py-3.5 !text-sm !rounded-xl !bg-slate-100 !text-slate-600 hover:!bg-slate-200 !flex !items-center !justify-center gap-2 transition-colors"
                     onclick="closeCustomModal('detailDismantleModal')">
-                    Tutup Detail
+                    <i class="fa-solid fa-xmark"></i> Tutup Detail
                 </button>
             </div>
         </div>
@@ -745,7 +748,8 @@
                                 class="text-rose-500">*</span>
                         </label>
                         <input type="file" name="foto_pencabutan" class="form-input" required accept="image/*">
-                        <p class="text-[10px] text-slate-400 italic mt-1.5">*Wajib mengunggah foto sebagai bukti laporan.
+                        <p class="text-[10px] text-slate-400 italic mt-1.5">*Wajib mengunggah foto sebagai bukti
+                            laporan.
                         </p>
                     </div>
                 </div>
@@ -873,54 +877,11 @@
                     customerSearchTable.search(this.value).draw();
                 });
 
-                // Global SweetAlert Messages
-                @if (session('success'))
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil!',
-                        text: '{{ session('success') }}',
-                        timer: 3000,
-                        showConfirmButton: false,
-                        position: 'top-end',
-                        toast: true
-                    });
-                @endif
-
                 // Close modal on overlay click
                 $('.modal-overlay').on('click', function(e) {
                     if (e.target === this) closeCustomModal(this.id);
                 });
             });
-
-            function confirmDeleteCustomer(id, name) {
-                Swal.fire({
-                    title: 'Hapus Pelanggan?',
-                    text: `Proses dismantle selesai. Hapus data "${name}" secara permanen?`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#ef4444',
-                    cancelButtonColor: '#64748b',
-                    confirmButtonText: 'Ya, Hapus!',
-                    cancelButtonText: 'Batal'
-                }).then((r) => {
-                    if (r.isConfirmed) document.getElementById('del-cust-' + id).submit();
-                });
-            }
-
-            function confirmCancelDismantle(id, name) {
-                Swal.fire({
-                    title: 'Batalkan Tugas?',
-                    text: `Tugas dismantle untuk "${name}" akan dihapus dari antrean.`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#ef4444',
-                    cancelButtonColor: '#64748b',
-                    confirmButtonText: 'Ya, Batalkan!',
-                    cancelButtonText: 'Batal'
-                }).then((r) => {
-                    if (r.isConfirmed) document.getElementById('cancel-task-' + id).submit();
-                });
-            }
         </script>
     @endsection
 </x-layouts.app>

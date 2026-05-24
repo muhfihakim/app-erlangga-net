@@ -199,9 +199,7 @@
                                     </button>
 
                                     <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
-                                        title="Hapus Akun" onclick="openCustomModal('deleteModal', this)"
-                                        data-user-id="{{ $user->id }}"
-                                        data-user-nama="{{ $user->nama_lengkap }}">
+                                        title="Hapus Akun" onclick="confirmGlobalDelete('{{ route('accounts.destroy', $user->id) }}', '{{ $user->nama_lengkap }}')">
                                         <i class="fa-solid fa-trash text-rose-600"></i>
                                     </button>
                                 </div>
@@ -218,7 +216,6 @@
     @section('Scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         <script>
             // Custom Modal Functions
@@ -240,12 +237,6 @@
                             $('#edit_tanggal_lahir').val($btn.data('user-tgl'));
                             $('#edit_jabatan').val($btn.data('user-jabatan'));
                             $('#edit_modal_title').text(`Edit Akun: ${$btn.data('user-nama')}`);
-                        }
-
-                        // Handle Delete Modal Population
-                        if (modalId === 'deleteModal') {
-                            $('#deleteForm').attr('action', `/accounts/${$btn.data('user-id')}`);
-                            $('#delete_user_name').text($btn.data('user-nama'));
                         }
                     }
                     
@@ -316,30 +307,6 @@
 
                 $('#custom-search').on('keyup', function() {
                     table.search(this.value).draw();
-                });
-
-                @if (session('success'))
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil!',
-                        text: '{{ session('success') }}',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        position: 'top-end',
-                        toast: true
-                    });
-                @endif
-
-                @if (session('error'))
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Kesalahan!',
-                        text: '{{ session('error') }}',
-                    });
-                @endif
-
-                $('.modal-overlay').on('click', function(e) {
-                    if (e.target === this) closeCustomModal(this.id);
                 });
             });
         </script>

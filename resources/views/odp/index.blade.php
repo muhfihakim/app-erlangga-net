@@ -236,12 +236,10 @@
                                                         <i class="fas fa-edit"></i>
                                                     </button>
                                                     <button class="btn btn-danger btn-sm"
-                                                        onclick="confirmDelete({{ $odp->id }})"><i
-                                                            class="fas fa-trash"></i></button>
+                                                        onclick="confirmGlobalDelete('{{ route('odp.destroy', $odp->id) }}', 'ODP-{{ $odp->id }}')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
                                                 </div>
-                                                <form id="delete-form-{{ $odp->id }}"
-                                                    action="{{ route('odp.destroy', $odp->id) }}" method="POST"
-                                                    style="display: none;">@csrf @method('DELETE')</form>
                                             </td>
                                             <td style="text-align: center; vertical-align: middle">
                                                 {{ $odp->lokasi_odp }}</td>
@@ -382,12 +380,8 @@
                 });
             @endif
             @if ($errors->any())
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Periksa inputan Anda!'
-                });
-            @endif
+            showToast('Periksa inputan Anda!', 'error');
+        @endif
 
             // Modal Tambah
             $('#btnTambah').click(function() {
@@ -475,14 +469,7 @@
                         btn.disabled = false;
                         btn.innerHTML = '<i class="fas fa-satellite-dish"></i> Ambil Ulang';
 
-                        Swal.fire({
-                            toast: true,
-                            position: 'top',
-                            icon: 'success',
-                            title: `Lokasi terkunci! Akurasi ${Math.round(accuracy)}m`,
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
+                        showToast(`Lokasi terkunci! Akurasi ${Math.round(accuracy)}m`, 'success');
 
                     } else {
                         // Jika akurasi masih buruk (biasanya tower seluler), update info dan lanjut scan

@@ -110,7 +110,7 @@
                 <div class="modal-footer border-t border-slate-200 bg-white rounded-b-2xl">
                     <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
                         onclick="closeCustomModal('addPreOrderModal')">
-                        <i class="fa-solid fa-circle-xmark"></i> Batal
+                        <i class="fa-solid fa-xmark"></i> Batal
                     </button>
                     <button type="submit" class="btn-save !flex !items-center !justify-center gap-2">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan Data
@@ -219,7 +219,7 @@
             <div class="modal-footer border-t border-slate-200 bg-white rounded-b-2xl">
                 <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
                     onclick="closeCustomModal('editModal')">
-                    <i class="fa-solid fa-circle-xmark"></i> Tutup
+                    <i class="fa-solid fa-xmark"></i> Tutup
                 </button>
                 <button type="submit" class="btn-save !flex !items-center !justify-center gap-2">
                     <i class="fa-solid fa-rotate"></i> Update Data
@@ -355,7 +355,7 @@
             <button type="button"
                 class="btn-cancel w-full !py-3.5 !text-sm !rounded-xl !bg-slate-100 !text-slate-600 hover:!bg-slate-200 !flex !items-center !justify-center gap-2 transition-colors"
                 onclick="closeCustomModal('detailModal')">
-                <i class="fa-solid fa-circle-xmark"></i> Tutup Halaman Detail
+                <i class="fa-solid fa-xmark"></i> Tutup Detail
             </button>
         </div>
     </div>
@@ -379,7 +379,7 @@
                 @method('DELETE')
                 <button type="button" class="btn-cancel flex-1 !flex !items-center !justify-center gap-2"
                     onclick="closeCustomModal('deleteModal')">
-                    <i class="fa-solid fa-circle-xmark"></i> Batal
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
                 <button type="submit" class="btn-save !bg-rose-500 flex-1 !flex !items-center !justify-center gap-2">
                     <i class="fa-solid fa-trash"></i> Hapus
@@ -407,7 +407,7 @@
             </a>
             <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
                 onclick="closeCustomModal('mapModal')">
-                <i class="fa-solid fa-circle-xmark"></i> Tutup
+                <i class="fa-solid fa-xmark"></i> Tutup
             </button>
         </div>
     </div>
@@ -442,7 +442,7 @@
             <div class="modal-footer border-t border-slate-200 bg-white rounded-b-2xl">
                 <button type="button" class="btn-cancel flex-1 !flex !items-center !justify-center gap-2"
                     onclick="closeCustomModal('delegateModal')">
-                    <i class="fa-solid fa-circle-xmark"></i> Batal
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
                 <button type="submit" class="btn-save flex-1 !flex !items-center !justify-center gap-2">
                     <i class="fa-solid fa-paper-plane"></i> Tugaskan Sekarang

@@ -84,6 +84,48 @@
         </div>
     </div>
 
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    
+    <script>
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `custom-toast toast-${type}`;
+            
+            let icon = 'fa-check-circle';
+            let title = 'Berhasil';
+            if (type === 'error') { icon = 'fa-exclamation-circle'; title = 'Gagal'; }
+            if (type === 'info') { icon = 'fa-info-circle'; title = 'Informasi'; }
+
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="fa-solid ${icon}"></i>
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('out');
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
+        }
+
+        $(document).ready(function() {
+            @if(session('error'))
+                showToast('{{ session('error') }}', 'error');
+            @endif
+            @if(session('success'))
+                showToast('{{ session('success') }}', 'success');
+            @endif
+        });
+    </script>
 </body>
 </html>

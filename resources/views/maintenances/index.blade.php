@@ -121,7 +121,7 @@
 
             .select2-container--bootstrap4.select2-container--focus .select2-selection--single {
                 border-color: #0ea5e9 !important;
-                box-shadow: 0 0 0 3px rgba(14,165,233,.12) !important;
+                box-shadow: 0 0 0 3px rgba(14, 165, 233, .12) !important;
             }
 
             .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
@@ -174,7 +174,8 @@
                     <i class="fa-solid fa-plus-square"></i> Tambah Maintenance
                 </button>
             @endif
-            <a href="{{ route('dashboards.index') }}" class="btn-primary-admin !flex !items-center !justify-center gap-2"
+            <a href="{{ route('dashboards.index') }}"
+                class="btn-primary-admin !flex !items-center !justify-center gap-2"
                 style="background: #f1f5f9; color: #475569; box-shadow: none; border: 1px solid #e2e8f0;"
                 onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
                 <i class="fa-solid fa-house"></i> Dashboard
@@ -258,7 +259,9 @@
                     <tbody>
                         @foreach ($allMaintenances as $m)
                             @php
-                                $deadline = $m->delegated_at ? \Carbon\Carbon::parse($m->delegated_at)->addDays(2) : null;
+                                $deadline = $m->delegated_at
+                                    ? \Carbon\Carbon::parse($m->delegated_at)->addDays(2)
+                                    : null;
                                 $isLocked = $m->status === 'Pending' && $deadline && now()->greaterThan($deadline);
                                 $isTrashed = $m->customer && $m->customer->trashed();
                             @endphp
@@ -266,7 +269,8 @@
                                 <td style="text-align: center; color: #94a3b8; font-weight: 700;">
                                     {{ $loop->iteration }}</td>
                                 <td style="text-align: left;">
-                                    <div style="font-weight: 700; color: #0f172a;">{{ $m->customer->nama_lengkap ?? 'N/A' }}
+                                    <div style="font-weight: 700; color: #0f172a;">
+                                        {{ $m->customer->nama_lengkap ?? 'N/A' }}
                                         @if ($isTrashed)
                                             <span class="badge badge-archived"
                                                 style="font-size: 9px; margin-left: 4px;">NON-AKTIF</span>
@@ -296,7 +300,8 @@
                                             {{ $m->teknisiEksekutor->nama_lengkap }}</div>
                                     @endif
                                     @if ($m->customer && $m->customer->partner)
-                                        <div style="font-size: 10px; color: #94a3b8;">Partner: {{ $m->customer->partner }}
+                                        <div style="font-size: 10px; color: #94a3b8;">Partner:
+                                            {{ $m->customer->partner }}
                                         </div>
                                     @endif
                                 </td>
@@ -348,23 +353,19 @@
 
                                         <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
                                             title="Hapus"
-                                            onclick="confirmDelete({{ $m->id }}, '{{ $m->customer->nama_lengkap ?? 'N/A' }}')">
+                                            onclick="confirmGlobalDelete('{{ route('maintenances.destroy', $m->id) }}', '{{ $m->customer->nama_lengkap ?? 'N/A' }}')">
                                             <i class="fa-solid fa-trash text-rose-600"></i>
                                         </button>
-                                        <form id="delete-form-{{ $m->id }}"
-                                            action="{{ route('maintenances.destroy', $m->id) }}" method="POST"
-                                            style="display: none;">@csrf @method('DELETE')</form>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    @else
-        {{-- TAMPILAN TEKNISI --}}
-        <div style="margin-bottom: 2rem;">
+                                        </div>
+                                        </td>
+                                        </tr>
+                                        @endforeach
+                                        </tbody>
+                                        </table>
+                                        </div>
+                                        </div>
+                                        @else
+                                        {{-- TAMPILAN TEKNISI --}}        <div style="margin-bottom: 2rem;">
             <div
                 style="display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; border-left: 4px solid #0ea5e9; padding-left: 12px;">
                 <h2 style="font-size: 16px; font-weight: 800; color: #0f172a; margin: 0;">1. Tugas Delegasi Khusus
@@ -416,7 +417,8 @@
                                             @if ($isLocked)
                                                 <span class="badge badge-archived !px-3 !py-2">LOCKED</span>
                                             @else
-                                                <button type="button" class="btn-primary-admin !py-1.5 !px-3 !text-[11px]"
+                                                <button type="button"
+                                                    class="btn-primary-admin !py-1.5 !px-3 !text-[11px]"
                                                     onclick="openCompleteModal(this)" data-id="{{ $m->id }}"
                                                     data-nama="{{ $m->customer->nama_lengkap }}">
                                                     Selesai
@@ -519,7 +521,8 @@
                             <p id="det_nama" class="text-base font-black text-slate-900 mt-0.5"></p>
                         </div>
                         <div>
-                            <span class="text-[11px] font-bold text-slate-400 block uppercase">ID Pelanggan / PPPoE</span>
+                            <span class="text-[11px] font-bold text-slate-400 block uppercase">ID Pelanggan /
+                                PPPoE</span>
                             <p class="text-sm font-bold text-slate-700 mt-0.5">
                                 <span id="det_id_pel"></span> / <code id="det_pppoe"
                                     class="bg-slate-100 px-1.5 py-0.5 rounded text-sky-600"></code>
@@ -568,10 +571,11 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <button type="button" class="btn-cancel w-full !py-3"
+            <div class="modal-footer !bg-white border-t border-slate-200 rounded-b-2xl">
+                <button type="button"
+                    class="btn-cancel w-full !py-3.5 !text-sm !rounded-xl !bg-slate-100 !text-slate-600 hover:!bg-slate-200 !flex !items-center !justify-center gap-2 transition-colors"
                     onclick="closeCustomModal('maintenanceDetailModal')">
-                    Tutup Detail
+                    <i class="fa-solid fa-xmark"></i> Tutup Detail
                 </button>
             </div>
         </div>
@@ -607,11 +611,13 @@
                                     <p id="res_eksekutor" class="text-sm font-bold text-slate-700"></p>
                                 </div>
                                 <div>
-                                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Partner / Rekan</span>
+                                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Partner /
+                                        Rekan</span>
                                     <p id="res_partner" class="text-sm font-bold text-slate-700"></p>
                                 </div>
                                 <div>
-                                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Waktu Selesai</span>
+                                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Waktu
+                                        Selesai</span>
                                     <p id="res_waktu" class="text-sm font-bold text-slate-700"></p>
                                 </div>
                             </div>
@@ -621,7 +627,8 @@
                                 class="text-[10px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-sky-500 pl-3">
                                 Solusi Perbaikan</h6>
                             <div class="bg-sky-50 p-4 rounded-2xl border border-sky-100">
-                                <p id="res_solusi" class="text-sm font-bold text-sky-700 leading-relaxed italic m-0"></p>
+                                <p id="res_solusi" class="text-sm font-bold text-sky-700 leading-relaxed italic m-0">
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -686,7 +693,7 @@
             <div class="modal-body p-6">
                 <div class="search-wrap mb-4 !max-w-full">
                     <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                    <input type="search" class="search-input" id="customer-modal-search" 
+                    <input type="search" class="search-input" id="customer-modal-search"
                         placeholder="Ketik nama, ID pelanggan, atau alamat..." autocomplete="off" />
                 </div>
                 <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
@@ -701,19 +708,21 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($customers as $c)
-                            <tr>
-                                <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}</td>
-                                <td style="font-weight: 700; color: #0f172a;">{{ $c->nama_lengkap }}</td>
-                                <td style="font-weight: 600; color: #64748b;">{{ $c->id_pelanggan }}</td>
-                                <td style="font-size: 11px; color: #64748b;">{{ Str::limit($c->alamat_lengkap, 50) }}</td>
-                                <td style="text-align: center;">
-                                    <button type="button" class="btn-primary-admin !py-1.5 !px-3 !text-[11px]"
-                                        onclick="selectCustomer('{{ $c->id }}', '{{ $c->nama_lengkap }} ({{ $c->id_pelanggan }})')">
-                                        Pilih
-                                    </button>
-                                </td>
-                            </tr>
+                            @foreach ($customers as $c)
+                                <tr>
+                                    <td style="text-align: center; color: #94a3b8; font-weight: 700;">
+                                        {{ $loop->iteration }}</td>
+                                    <td style="font-weight: 700; color: #0f172a;">{{ $c->nama_lengkap }}</td>
+                                    <td style="font-weight: 600; color: #64748b;">{{ $c->id_pelanggan }}</td>
+                                    <td style="font-size: 11px; color: #64748b;">
+                                        {{ Str::limit($c->alamat_lengkap, 50) }}</td>
+                                    <td style="text-align: center;">
+                                        <button type="button" class="btn-primary-admin !py-1.5 !px-3 !text-[11px]"
+                                            onclick="selectCustomer('{{ $c->id }}', '{{ $c->nama_lengkap }} ({{ $c->id_pelanggan }})')">
+                                            Pilih
+                                        </button>
+                                    </td>
+                                </tr>
                             @endforeach
                         </tbody>
                     </table>
@@ -721,7 +730,7 @@
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
                 <button type="button" class="btn-cancel w-full" onclick="closeCustomModal('searchCustomerModal')">
-                    Batal
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
             </div>
         </div>
@@ -748,10 +757,12 @@
                         <div class="flex gap-2">
                             <div class="flex-1 relative">
                                 <input type="hidden" name="customer_id" id="selected_customer_id" required>
-                                <input type="text" id="selected_customer_name" class="form-input !bg-slate-50 cursor-not-allowed" 
+                                <input type="text" id="selected_customer_name"
+                                    class="form-input !bg-slate-50 cursor-not-allowed"
                                     placeholder="Belum ada pelanggan terpilih..." readonly required>
                             </div>
-                            <button type="button" class="btn-primary-admin !shadow-none !px-4 !h-[42px] !flex !items-center !justify-center gap-2" 
+                            <button type="button"
+                                class="btn-primary-admin !shadow-none !px-4 !h-[42px] !flex !items-center !justify-center gap-2"
                                 onclick="openCustomModal('searchCustomerModal')">
                                 <i class="fa-solid fa-magnifying-glass"></i> Cari Pelanggan
                             </button>
@@ -769,7 +780,8 @@
                             <div>
                                 <span class="text-[10px] font-black text-sky-400 block uppercase tracking-wider">Alamat
                                     Pemasangan</span>
-                                <p id="alamat_val" class="text-sm font-medium text-slate-600 m-0 mt-1 leading-relaxed">
+                                <p id="alamat_val"
+                                    class="text-sm font-medium text-slate-600 m-0 mt-1 leading-relaxed">
                                 </p>
                             </div>
                         </div>
@@ -800,7 +812,7 @@
 
                     <div class="form-group !mb-0">
                         <label class="form-label !text-slate-800 !font-bold">
-                            <i class="fa-solid fa-comment-dots text-rose-400 mr-1"></i> Deskripsi Kendala <span
+                            <i class="fa-solid fa-comment-dots text-slate-400 mr-1"></i> Deskripsi Kendala <span
                                 class="text-rose-500">*</span>
                         </label>
                         <textarea name="keterangan_kendala" class="form-textarea" required rows="3"
@@ -852,8 +864,8 @@
                     </div>
                 </div>
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                    <button type="submit" class="btn-primary-admin w-full !py-3 !bg-sky-600">
-                        Update Penugasan
+                    <button type="submit" class="btn-save !flex !items-center !justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> Update Penugasan
                     </button>
                 </div>
             </form>
@@ -877,9 +889,10 @@
                 </div>
                 <div class="modal-body p-6 space-y-6">
                     <div class="space-y-1.5">
-                        <label class="text-[11px] font-black text-slate-500 uppercase">Pilih Partner / Rekan Kerja</label>
-                        <select name="partner_ids[]" id="partner_select" class="form-control select2" multiple="multiple"
-                            data-placeholder="Pilih Rekan Teknisi (Jika ada)">
+                        <label class="text-[11px] font-black text-slate-500 uppercase">Pilih Partner / Rekan
+                            Kerja</label>
+                        <select name="partner_ids[]" id="partner_select" class="form-control select2"
+                            multiple="multiple" data-placeholder="Pilih Rekan Teknisi (Jika ada)">
                             @foreach ($teknisis as $t)
                                 @if ($t->id != auth()->id())
                                     <option value="{{ $t->id }}">{{ $t->nama_lengkap }}</option>
@@ -889,8 +902,8 @@
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="text-[11px] font-black text-slate-500 uppercase">Solusi / Tindakan Perbaikan <span
-                                class="text-rose-500">*</span></label>
+                        <label class="text-[11px] font-black text-slate-500 uppercase">Solusi / Tindakan Perbaikan
+                            <span class="text-rose-500">*</span></label>
                         <textarea name="solusi_kendala" class="form-control" required rows="3"
                             placeholder="Jelaskan apa saja yang telah diperbaiki..."
                             style="border: 2px solid #e2e8f0; border-radius: 12px; font-size: 13px; font-weight: 500;"></textarea>
@@ -1020,7 +1033,7 @@
             function selectCustomer(id, name) {
                 $('#selected_customer_id').val(id);
                 $('#selected_customer_name').val(name);
-                
+
                 // Trigger preview logic
                 if (id) {
                     fetch(`/maintenances/customer/${id}`)
@@ -1031,7 +1044,7 @@
                             $('#customer_preview').slideDown(200);
                         });
                 }
-                
+
                 closeCustomModal('searchCustomerModal');
             }
 
@@ -1088,56 +1101,20 @@
                         fetch(`/maintenances/customer/${id}`)
                             .then(r => r.json())
                             .then(d => {
-                            $('#pppoe_val').text(d.pppoe || '-');
-                            $('#alamat_val').text(d.alamat || '-');
-                            $('#customer_preview').slideDown(200);
-                        });
+                                $('#pppoe_val').text(d.pppoe || '-');
+                                $('#alamat_val').text(d.alamat || '-');
+                                $('#customer_preview').slideDown(200);
+                            });
                     } else {
                         $('#customer_preview').slideUp(200);
                     }
                 });
-
-                // Global SweetAlert Messages
-                @if (session('success'))
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil!',
-                        text: '{{ session('success') }}',
-                        timer: 3000,
-                        showConfirmButton: false,
-                        position: 'top-end',
-                        toast: true
-                    });
-                @endif
-                @if (session('error'))
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        text: '{{ session('error') }}'
-                    });
-                @endif
 
                 // Close modal on overlay click
                 $('.modal-overlay').on('click', function(e) {
                     if (e.target === this) closeCustomModal(this.id);
                 });
             });
-
-            function confirmDelete(id, name) {
-                Swal.fire({
-                    title: 'Hapus Tugas?',
-                    text: `Tugas pemeliharaan "${name}" akan dihapus permanen.`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#ef4444',
-                    cancelButtonColor: '#64748b',
-                    confirmButtonText: 'Ya, Hapus!',
-                    cancelButtonText: 'Batal'
-                }).then((r) => {
-                    if (r.isConfirmed) document.getElementById('delete-form-' + id).submit();
-                });
-            }
         </script>
     @endsection
-    </x-layouts.app>
-
+</x-layouts.app>

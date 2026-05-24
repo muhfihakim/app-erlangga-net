@@ -240,8 +240,8 @@
                                             <i class="fa-solid fa-pen-to-square text-amber-500"></i>
                                         </button>
                                         <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
-                                            title="Hapus" onclick="openCustomModal('deleteModal', this)"
-                                            data-po-id="{{ $po->id }}">
+                                            title="Hapus" 
+                                            onclick="confirmGlobalDelete('{{ route('pre_orders.destroy', $po->id) }}', 'Pre-Order: {{ $po->nama_lengkap }}')">
                                             <i class="fa-solid fa-trash text-rose-600"></i>
                                         </button>
                                     @endif
