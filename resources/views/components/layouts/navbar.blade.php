@@ -7,9 +7,67 @@
         <div class="topbar-breadcrumb">
             <i class="fa-solid fa-house text-xs"></i>
             <span class="sep">/</span>
-            <span>Konten</span>
-            <span class="sep">/</span>
-            <span class="current">Jasa Layanan</span>
+            @if(request()->routeIs('dashboards.index'))
+                <span class="current">Dashboard</span>
+            @elseif(request()->routeIs('accounts.index'))
+                <span>Manajemen</span>
+                <span class="sep">/</span>
+                <span class="current">Akun Pengguna</span>
+            @elseif(request()->routeIs('accounts.tracking'))
+                <span>Manajemen</span>
+                <span class="sep">/</span>
+                <span class="current">Tracking Teknisi</span>
+            @elseif(request()->routeIs('activitylog.index'))
+                <span>Laporan</span>
+                <span class="sep">/</span>
+                <span class="current">Log Aktivitas</span>
+            @elseif(request()->routeIs('activitylog.preorder'))
+                <span>Laporan</span>
+                <span class="sep">/</span>
+                <span class="current">Laporan Pre-Order</span>
+            @elseif(request()->routeIs('activitylog.expired'))
+                <span>Laporan</span>
+                <span class="sep">/</span>
+                <span class="current">Pre-Order Expired</span>
+            @elseif(request()->routeIs('activitylog.aktivasi'))
+                <span>Laporan</span>
+                <span class="sep">/</span>
+                <span class="current">Laporan Aktivasi</span>
+            @elseif(request()->routeIs('activitylog.maintenance'))
+                <span>Laporan</span>
+                <span class="sep">/</span>
+                <span class="current">Laporan Maintenance</span>
+            @elseif(request()->routeIs('activitylog.maintenance_expired'))
+                <span>Laporan</span>
+                <span class="sep">/</span>
+                <span class="current">Maintenance Expired</span>
+            @elseif(request()->routeIs('activitylog.dismantle'))
+                <span>Laporan</span>
+                <span class="sep">/</span>
+                <span class="current">Laporan Dismantle</span>
+            @elseif(request()->routeIs('maintenances.index'))
+                <span>Layanan</span>
+                <span class="sep">/</span>
+                <span class="current">Pemeliharaan</span>
+            @elseif(request()->routeIs('dismantles.index'))
+                <span>Layanan</span>
+                <span class="sep">/</span>
+                <span class="current">Pencabutan</span>
+            @elseif(request()->routeIs('pre_orders.index'))
+                <span>Penjualan</span>
+                <span class="sep">/</span>
+                <span class="current">Pre-Order</span>
+            @elseif(request()->routeIs('customers.active_list'))
+                <span>Penjualan</span>
+                <span class="sep">/</span>
+                <span class="current">Pelanggan Aktif</span>
+            @elseif(request()->routeIs('odp.index'))
+                <span>Manajemen</span>
+                <span class="sep">/</span>
+                <span class="current">Manajemen ODP</span>
+            @else
+                <span class="current">Sistem</span>
+            @endif
         </div>
     </div>
     <div class="topbar-actions">

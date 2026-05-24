@@ -173,7 +173,35 @@ class CustomerController extends Controller
         // Ubah pengurutan ke ID DESC agar data terbaru (ID terbesar) muncul paling atas
         $customers = $query->orderBy('id', 'desc')->get();
 
-        return view('customers.active_list', compact('customers'));
+        // --- STATISTIK ---
+        $thisMonth = Carbon::now()->month;
+        $thisYear = Carbon::now()->year;
+
+        $statsQuery = Customer::query();
+        if ($user->jabatan === 'Sales') {
+            $statsQuery->where('id_sales', $user->id);
+        }
+
+        $totalActive = (clone $statsQuery)->count();
+        
+        $newThisMonth = (clone $statsQuery)->whereMonth('created_at', $thisMonth)
+            ->whereYear('created_at', $thisYear)
+            ->count();
+            
+        $newThisWeek = (clone $statsQuery)->whereBetween('created_at', [
+            Carbon::now()->startOfWeek(),
+            Carbon::now()->endOfWeek()
+        ])->count();
+
+        $totalArchived = (clone $statsQuery)->onlyTrashed()->count();
+
+        return view('customers.active_list', compact(
+            'customers',
+            'totalActive',
+            'newThisMonth',
+            'newThisWeek',
+            'totalArchived'
+        ));
     }
 
     public function store(Request $request)

@@ -75,6 +75,49 @@
         </div>
     </div>
 
+    <!-- Stats cards -->
+    <div class="stats-grid mb-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#e0f2fe;color:#0369a1;">
+                <i class="fa-solid fa-cart-shopping"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $totalThisMonth }}</div>
+                <div class="stat-lbl">Pre-Order Bulan Ini</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
+                <i class="fa-solid fa-calendar-week"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $totalThisWeek }}</div>
+                <div class="stat-lbl">Pre-Order Minggu Ini</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#dcfce7;color:#15803d;">
+                <i class="fa-solid fa-hourglass-start"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $totalPending }}</div>
+                <div class="stat-lbl">Belum Aktivasi</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fef2f2;color:#dc2626;">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $totalExpired }}</div>
+                <div class="stat-lbl">Tugas Expired</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toolbar -->
     <div class="table-toolbar">
         <div class="search-wrap">

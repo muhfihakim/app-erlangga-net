@@ -126,6 +126,49 @@
         </div>
     </div>
 
+    <!-- Stats cards -->
+    <div class="stats-grid mb-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#e0f2fe;color:#0369a1;">
+                <i class="fa-solid fa-users"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $totalActive }}</div>
+                <div class="stat-lbl">Pelanggan Aktif</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#dcfce7;color:#15803d;">
+                <i class="fa-solid fa-user-plus"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $newThisMonth }}</div>
+                <div class="stat-lbl">Aktivasi Bulan Ini</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
+                <i class="fa-solid fa-calendar-week"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $newThisWeek }}</div>
+                <div class="stat-lbl">Aktivasi Minggu Ini</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fef2f2;color:#dc2626;">
+                <i class="fa-solid fa-user-slash"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $totalArchived }}</div>
+                <div class="stat-lbl">Pelanggan Non-Aktif</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toolbar -->
     <div class="table-toolbar">
         <div class="search-wrap">

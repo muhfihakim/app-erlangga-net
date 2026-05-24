@@ -64,7 +64,35 @@ class PreOrderController extends Controller
 
             $teknisiUsers = User::where('jabatan', 'Teknisi')->orderBy('nama_lengkap')->get();
 
-            return view('preorders', compact('preOrders', 'teknisiUsers'));
+            // --- STATISTIK ---
+            $thisMonth = Carbon::now()->month;
+            $thisYear = Carbon::now()->year;
+
+            $statsQuery = PreOrder::query();
+            if ($user->jabatan === 'Sales') {
+                $statsQuery->where('id_sales', $user->id);
+            }
+
+            $totalThisMonth = (clone $statsQuery)->whereMonth('created_at', $thisMonth)
+                ->whereYear('created_at', $thisYear)
+                ->count();
+
+            $totalThisWeek = (clone $statsQuery)->whereBetween('created_at', [
+                Carbon::now()->startOfWeek(),
+                Carbon::now()->endOfWeek()
+            ])->count();
+
+            $totalPending = $preOrders->filter(fn($po) => !$po->is_active && !$po->is_unsubscribed)->count();
+            $totalExpired = $preOrders->where('is_expired', true)->count();
+
+            return view('preorders', compact(
+                'preOrders',
+                'teknisiUsers',
+                'totalThisMonth',
+                'totalThisWeek',
+                'totalPending',
+                'totalExpired'
+            ));
         }
     }
 
