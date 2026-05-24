@@ -202,10 +202,17 @@ class ActivityLogController extends Controller
         if ($end) $query->whereDate('created_at', '<=', $end);
 
         $customers = $query->orderBy('created_at', 'desc')->get();
-        $totalAktivasi = $customers->count();
         $teknisis = User::where('jabatan', 'Teknisi')->get();
 
-        return view('activitylog.aktivasi-log', compact('customers', 'teknisis', 'teknisiId', 'start', 'end', 'totalAktivasi'));
+        // --- STATISTIK ---
+        $stats = [
+            'total_filtered' => $customers->count(),
+            'total_all' => Customer::withTrashed()->count(),
+            'this_month' => Customer::withTrashed()->whereMonth('created_at', Carbon::now()->month)->whereYear('created_at', Carbon::now()->year)->count(),
+            'today' => Customer::withTrashed()->whereDate('created_at', Carbon::today())->count(),
+        ];
+
+        return view('activitylog.aktivasi-log', compact('customers', 'teknisis', 'teknisiId', 'start', 'end', 'stats'));
     }
 
     public function exportAktivasi(Request $request)
