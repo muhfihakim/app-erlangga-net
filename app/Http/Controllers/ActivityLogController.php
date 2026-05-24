@@ -594,10 +594,17 @@ class ActivityLogController extends Controller
         if ($end) $query->whereDate('completed_at', '<=', $end);
 
         $dismantles = $query->orderBy('completed_at', 'desc')->get();
-        $total = $dismantles->count();
         $teknisis = User::where('jabatan', 'Teknisi')->get();
 
-        return view('activitylog.dismantle-log', compact('dismantles', 'teknisis', 'teknisiId', 'start', 'end', 'total'));
+        // --- STATISTIK ---
+        $stats = [
+            'total_filtered' => $dismantles->count(),
+            'total_all' => Dismantle::where('status', 'Selesai')->count(),
+            'this_month' => Dismantle::where('status', 'Selesai')->whereMonth('completed_at', Carbon::now()->month)->whereYear('completed_at', Carbon::now()->year)->count(),
+            'today' => Dismantle::where('status', 'Selesai')->whereDate('completed_at', Carbon::today())->count(),
+        ];
+
+        return view('activitylog.dismantle-log', compact('dismantles', 'teknisis', 'teknisiId', 'start', 'end', 'stats'));
     }
 
     /**

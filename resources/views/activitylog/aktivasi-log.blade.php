@@ -1,141 +1,226 @@
 <x-layouts.app>
     @section('Css')
-        <link rel="stylesheet" href="{{ asset('dist/css/dataTables.bootstrap4.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('dist/css/responsive.bootstrap4.min.css') }}">
+        <style>
+            /* Toolbar & Search */
+            .table-toolbar {
+                background: #fff;
+                border: 1px solid #e2e8f0;
+                border-radius: 14px;
+                padding: 1.25rem;
+                margin-bottom: 1rem;
+                box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
+            }
+
+            .search-input {
+                width: 100%;
+                padding: 9px 12px 9px 36px;
+                border: 2px solid #e2e8f0;
+                border-radius: 10px;
+                font-size: 13px;
+                font-family: 'Inter', sans-serif;
+                color: #374151;
+                outline: none;
+                transition: all .25s;
+                background: #f8fafc;
+            }
+
+            .search-input:focus {
+                border-color: #0ea5e9;
+                background: #fff;
+            }
+
+            .filter-group {
+                display: flex;
+                align-items: flex-end;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+
+            .form-label-custom {
+                font-size: 11px;
+                font-weight: 800;
+                color: #64748b;
+                text-transform: uppercase;
+                margin-bottom: 6px;
+                display: block;
+                letter-spacing: 0.025em;
+            }
+
+            .form-input-custom {
+                padding: 8px 12px;
+                border: 2px solid #e2e8f0;
+                border-radius: 10px;
+                font-size: 13px;
+                font-weight: 600;
+                color: #334155;
+                background: #f8fafc;
+                outline: none;
+                height: 40px;
+            }
+        </style>
     @endsection
 
-    <main class="app-main">
-        <div class="app-content-header">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <h3 class="mb-0">Laporan Aktivasi</h3>
-                    </div>
-                    <div class="col-sm-6">
-                        <ol class="breadcrumb float-sm-end">
-                            <li class="breadcrumb-item"><a href="#">Home</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Laporan Aktivasi</li>
-                        </ol>
-                    </div>
-                </div>
+    <!-- Page header -->
+    <div
+        style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+        <div>
+            <h1 style="font-size:22px;font-weight:900;margin:0;">Laporan Aktivasi</h1>
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Data pemasangan baru dan aktivasi pelanggan.</p>
+        </div>
+        <div style="display:flex; gap:10px;">
+            @if ($start && $end)
+                <a href="{{ route('activitylog.aktivasi.export', ['start_date' => $start, 'end_date' => $end, 'teknisi_id' => $teknisiId]) }}"
+                    class="btn-primary-admin !flex !items-center !justify-center gap-2 !bg-rose-600">
+                    <i class="fa-solid fa-file-pdf"></i> Export PDF
+                </a>
+            @endif
+            <a href="{{ route('dashboards.index') }}" class="btn-primary-admin !flex !items-center !justify-center gap-2"
+                style="background: #f1f5f9; color: #475569; box-shadow: none; border: 1px solid #e2e8f0;"
+                onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+                <i class="fa-solid fa-house"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats cards -->
+    <div class="stats-grid mb-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#e0f2fe;color:#0369a1;">
+                <i class="fa-solid fa-layer-group"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $stats['total_filtered'] }}</div>
+                <div class="stat-lbl">Hasil Filter</div>
             </div>
         </div>
 
-        <div class="app-content">
-            <div class="card card-primary card-outline">
-                <div class="card-header">
-                    <h3 class="card-title">Filter Laporan</h3>
-                </div>
-                <div class="card-body">
-                    <form method="GET" action="{{ route('activitylog.aktivasi') }}">
-                        <div class="row align-items-end g-3">
-                            <div class="col-md-3">
-                                <label class="form-label">Teknisi</label>
-                                <select name="teknisi_id" class="form-control">
-                                    <option value="">-- Semua Teknisi --</option>
-                                    @foreach ($teknisis as $t)
-                                        <option value="{{ $t->id }}"
-                                            {{ $teknisiId == $t->id ? 'selected' : '' }}>
-                                            {{ $t->nama_lengkap }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Dari Tanggal</label>
-                                <input type="date" name="start_date" id="start_date" class="form-control"
-                                    value="{{ $start }}">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Sampai Tanggal</label>
-                                <input type="date" name="end_date" id="end_date" class="form-control"
-                                    value="{{ $end }}">
-                            </div>
-                            <div class="col-md-3 d-flex gap-2">
-                                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel"></i>
-                                    Filter</button>
-                                @if ($start && $end)
-                                    <a href="{{ route('activitylog.aktivasi.export', ['start_date' => $start, 'end_date' => $end, 'teknisi_id' => $teknisiId]) }}"
-                                        class="btn btn-success w-100 text-nowrap"><i class="bi bi-filetype-pdf"></i>
-                                        Export PDF</a>
-                                @endif
-                            </div>
-                        </div>
-                    </form>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#dcfce7;color:#15803d;">
+                <i class="fa-solid fa-calendar-check"></i>
             </div>
-
-            <div class="card mt-3">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table id="aktivasi-table" class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th style="text-align: center; vertical-align: middle">No</th>
-                                    <th style="text-align: center; vertical-align: middle">Tgl. Aktivasi</th>
-                                    <th style="text-align: center; vertical-align: middle">Nama Pelanggan</th>
-                                    <th style="text-align: center; vertical-align: middle">Paket</th>
-                                    <th style="text-align: center; vertical-align: middle">Teknisi Utama</th>
-                                    <th style="text-align: center; vertical-align: middle">Partner</th>
-                                    <th style="text-align: center; vertical-align: middle">ID Pelanggan</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($customers as $c)
-                                    <tr>
-                                        <td style="text-align: center; vertical-align: middle">{{ $loop->iteration }}
-                                        </td>
-                                        <td style="text-align: center; vertical-align: middle">
-                                            {{ optional($c->created_at)->format('d-m-Y H:i') ?? '-' }}
-                                        <td>{{ $c->nama_lengkap }}</td>
-                                        <td style="text-align: center; vertical-align: middle">{{ $c->paket_internet }}
-                                        </td>
-                                        <td style="text-align: center; vertical-align: middle">
-                                            {{ $c->teknisiUtama->nama_lengkap ?? 'N/A' }}</td>
-                                        <td style="text-align: center; vertical-align: middle">{{ $c->partner ?: '-' }}
-                                        </td>
-                                        <td style="text-align: center; vertical-align: middle">{{ $c->id_pelanggan }}
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="7" class="text-center">Tidak ada data ditemukan untuk periode
-                                            ini.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <div>
+                <div class="stat-val">{{ $stats['this_month'] }}</div>
+                <div class="stat-lbl">Aktivasi Bulan Ini</div>
             </div>
         </div>
-    </main>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
+                <i class="fa-solid fa-clock"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $stats['today'] }}</div>
+                <div class="stat-lbl">Aktivasi Hari Ini</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#f1f5f9;color:#475569;">
+                <i class="fa-solid fa-database"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $stats['total_all'] }}</div>
+                <div class="stat-lbl">Total Seluruh Data</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Toolbar -->
+    <div class="table-toolbar">
+        <form method="GET" action="{{ route('activitylog.aktivasi') }}" class="w-full">
+            <div class="filter-group">
+                <div style="flex: 1; min-width: 200px;">
+                    <label class="form-label-custom">Teknisi</label>
+                    <select name="teknisi_id" class="form-input-custom w-full">
+                        <option value="">-- Semua Teknisi --</option>
+                        @foreach ($teknisis as $t)
+                            <option value="{{ $t->id }}" {{ $teknisiId == $t->id ? 'selected' : '' }}>
+                                {{ $t->nama_lengkap }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div style="width: 180px;">
+                    <label class="form-label-custom">Dari Tanggal</label>
+                    <input type="date" name="start_date" class="form-input-custom w-full" value="{{ $start }}">
+                </div>
+                <div style="width: 180px;">
+                    <label class="form-label-custom">Sampai Tanggal</label>
+                    <input type="date" name="end_date" class="form-input-custom w-full" value="{{ $end }}">
+                </div>
+                <button type="submit" class="btn-primary-admin !h-10 !px-6 !text-[13px] !w-fit flex items-center gap-2">
+                    <i class="fa-solid fa-filter"></i> Terapkan Filter
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Table Card -->
+    <div class="table-card">
+        <div class="table-responsive">
+            <table id="aktivasi-table" class="admin-table">
+                <thead>
+                    <tr>
+                        <th style="text-align: center; width: 50px;">#</th>
+                        <th style="text-align: center; width: 160px;">Tgl. Aktivasi</th>
+                        <th style="text-align: center; width: 220px;">Informasi Pelanggan</th>
+                        <th style="text-align: center; width: 120px;">Paket</th>
+                        <th style="text-align: center; width: 200px;">Teknisi Utama</th>
+                        <th style="text-align: center; width: 180px;">Partner</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($customers as $c)
+                        <tr>
+                            <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}</td>
+                            <td style="text-align: center; font-size: 12px; font-weight: 700; color: #0f172a;">
+                                {{ optional($c->created_at)->format('d/m/Y') }}
+                                <div style="font-size: 10px; color: #94a3b8; font-weight: 600;">{{ optional($c->created_at)->format('H:i') }} WIB</div>
+                            </td>
+                            <td style="text-align: left;">
+                                <div style="font-weight: 700; color: #0f172a;">{{ $c->nama_lengkap }}</div>
+                                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
+                                    <i class="fa-solid fa-hashtag mr-1"></i> ID: {{ $c->id_pelanggan }}
+                                </div>
+                            </td>
+                            <td style="text-align: center;">
+                                <span class="badge" style="background: #f0f9ff; color: #0ea5e9; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800;">
+                                    {{ $c->paket_internet }}
+                                </span>
+                            </td>
+                            <td style="text-align: center;">
+                                <div style="font-weight: 700; color: #475569; font-size: 12px;">{{ $c->teknisiUtama->nama_lengkap ?? 'N/A' }}</div>
+                                <div style="font-size: 10px; color: #94a3b8; font-weight: 600;">TEKNISI UTAMA</div>
+                            </td>
+                            <td style="text-align: center; font-size: 11px; color: #64748b; font-weight: 600;">
+                                {{ $c->partner ?: '-' }}
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
 
     @section('Scripts')
-        <!-- jQuery -->
-        <script src="{{ asset('dist/js/jquery.min.js') }}"></script>
-        <!-- Bootstrap 4 -->
-        <script src="{{ asset('dist/js/bootstrap.bundle.min.js') }}"></script>
-        <!-- DataTables  & js -->
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
-        <script src="{{ asset('dist/js/dataTables.bootstrap4.min.js') }}"></script>
-        <script src="{{ asset('dist/js/dataTables.responsive.min.js') }}"></script>
-        <script src="{{ asset('dist/js/responsive.bootstrap4.min.js') }}"></script>
-        <script src="{{ asset('dist/js/dataTables.buttons.min.js') }}"></script>
-        <script src="{{ asset('dist/js/buttons.bootstrap4.min.js') }}"></script>
-        <script src="{{ asset('dist/js/buttons.colVis.min.js') }}"></script>
         <script>
             $(document).ready(function() {
                 $('#aktivasi-table').DataTable({
-                    "responsive": true,
+                    "pageLength": 15,
+                    "lengthChange": false,
                     "ordering": false,
-                    "pageLength": 10
-                });
-
-                const startDate = document.getElementById('start_date');
-                const endDate = document.getElementById('end_date');
-                startDate.addEventListener('change', function() {
-                    endDate.min = this.value;
+                    "info": false,
+                    "responsive": true,
+                    "dom": 'tpir',
+                    "language": {
+                        "zeroRecords": "Data tidak ditemukan",
+                        "paginate": {
+                            "previous": '<i class="fa-solid fa-chevron-left"></i>',
+                            "next": '<i class="fa-solid fa-chevron-right"></i>'
+                        }
+                    }
                 });
             });
         </script>
