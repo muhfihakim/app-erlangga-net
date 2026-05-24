@@ -47,6 +47,24 @@ class DismantleController extends Controller
         $customers = Customer::all();
         $teknisis = User::where('jabatan', 'Teknisi')->get();
 
+        // --- STATISTIK ---
+        $thisMonth = Carbon::now()->month;
+        $thisYear = Carbon::now()->year;
+        
+        $totalThisMonth = Dismantle::whereMonth('created_at', $thisMonth)
+            ->whereYear('created_at', $thisYear)
+            ->count();
+            
+        $totalThisWeek = Dismantle::whereBetween('created_at', [
+            Carbon::now()->startOfWeek(),
+            Carbon::now()->endOfWeek()
+        ])->count();
+
+        $totalCompletedThisMonth = Dismantle::where('status', 'Selesai')
+            ->whereMonth('completed_at', $thisMonth)
+            ->whereYear('completed_at', $thisYear)
+            ->count();
+
         return view('dismantles.index', compact(
             'allDismantles',
             'delegatedTasks',
