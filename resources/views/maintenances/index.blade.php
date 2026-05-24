@@ -760,20 +760,10 @@
 
                     <div id="customer_preview" class="hidden">
                         <div class="bg-sky-50 rounded-2xl border border-sky-100 p-5 space-y-4">
-                            <div class="grid grid-cols-2 gap-6">
-                                <div>
-                                    <span class="text-[10px] font-black text-sky-400 block uppercase tracking-wider">PPPoE
-                                        Username</span>
-                                    <p id="pppoe_val" class="text-sm font-bold text-sky-700 m-0 mt-1"></p>
-                                </div>
-                                <div>
-                                    <span
-                                        class="text-[10px] font-black text-sky-400 block uppercase tracking-wider">Koordinat
-                                        Maps</span>
-                                    <a id="tikor_link" href="#" target="_blank" class="btn-primary-admin !h-8 !px-3 !text-[11px] !w-fit mt-1.5 flex items-center gap-1.5">
-                                        <i class="fa-solid fa-map-location-dot"></i> Lihat di Maps
-                                    </a>
-                                </div>
+                            <div>
+                                <span class="text-[10px] font-black text-sky-400 block uppercase tracking-wider">PPPoE
+                                    Username</span>
+                                <p id="pppoe_val" class="text-sm font-bold text-sky-700 m-0 mt-1"></p>
                             </div>
                             <hr class="border-sky-100/50 m-0">
                             <div>
@@ -1037,14 +1027,6 @@
                         .then(r => r.json())
                         .then(d => {
                             $('#pppoe_val').text(d.pppoe || '-');
-                            
-                            const tikor = d.tikor;
-                            if (tikor && tikor !== '-' && tikor !== 'N/A') {
-                                $('#tikor_link').attr('href', `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(tikor)}`).css('display', 'flex');
-                            } else {
-                                $('#tikor_link').hide();
-                            }
-
                             $('#alamat_val').text(d.alamat || '-');
                             $('#customer_preview').slideDown(200);
                         });
@@ -1107,14 +1089,6 @@
                             .then(r => r.json())
                             .then(d => {
                             $('#pppoe_val').text(d.pppoe || '-');
-                            
-                            const tikor = d.tikor;
-                            if (tikor && tikor !== '-' && tikor !== 'N/A') {
-                                $('#tikor_link').attr('href', `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(tikor)}`).css('display', 'flex');
-                            } else {
-                                $('#tikor_link').hide();
-                            }
-
                             $('#alamat_val').text(d.alamat || '-');
                             $('#customer_preview').slideDown(200);
                         });

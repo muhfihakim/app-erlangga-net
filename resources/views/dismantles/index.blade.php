@@ -573,7 +573,7 @@
 
                     <div id="customer_preview" class="hidden">
                         <div class="bg-sky-50 rounded-2xl border border-sky-100 p-5 space-y-4">
-                            <div class="grid grid-cols-2 gap-6">
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
                                 <div>
                                     <span
                                         class="text-[10px] font-black text-sky-400 block uppercase tracking-wider">WhatsApp</span>
@@ -588,13 +588,6 @@
                                     <span
                                         class="text-[10px] font-black text-sky-400 block uppercase tracking-wider">Sales</span>
                                     <p id="v_sales" class="text-sm font-bold text-sky-700 m-0 mt-1"></p>
-                                </div>
-                                <div>
-                                    <span
-                                        class="text-[10px] font-black text-sky-400 block uppercase tracking-wider">Koordinat</span>
-                                    <a id="v_tikor_link" href="#" target="_blank" class="btn-primary-admin !h-8 !px-3 !text-[11px] !w-fit mt-1.5 flex items-center gap-1.5">
-                                        <i class="fa-solid fa-map-location-dot"></i> Lihat di Maps
-                                    </a>
                                 </div>
                             </div>
                             <hr class="border-sky-100/50 m-0">
@@ -800,14 +793,6 @@
                             $('#v_wa').text(d.wa || '-');
                             $('#v_paket').text(d.paket || '-');
                             $('#v_sales').text(d.sales || '-');
-                            
-                            const tikor = d.tikor;
-                            if (tikor && tikor !== '-' && tikor !== 'N/A') {
-                                $('#v_tikor_link').attr('href', `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(tikor)}`).css('display', 'flex');
-                            } else {
-                                $('#v_tikor_link').hide();
-                            }
-
                             $('#v_alamat').text(d.alamat || '-');
                             $('#customer_preview').slideDown(200);
                         });
