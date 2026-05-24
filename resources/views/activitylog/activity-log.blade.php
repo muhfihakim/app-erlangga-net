@@ -1,114 +1,255 @@
 <x-layouts.app>
     @section('Css')
-        <!-- DataTables -->
-        <link rel="stylesheet" href="{{ asset('dist/css/dataTables.bootstrap4.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('dist/css/responsive.bootstrap4.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('dist/css/buttons.bootstrap4.min.css') }}">
-    @endsection
-    <main class="app-main">
-        <!--begin::App Content Header-->
-        <div class="app-content-header">
-            <!--begin::Container-->
-            <div class="container-fluid">
-                <!--begin::Row-->
-                <div class="row">
-                    <div class="col-sm-6">
-                        <h3 class="mb-0">Manajemen</h3>
-                    </div>
-                    <div class="col-sm-6">
-                        <ol class="breadcrumb float-sm-end">
-                            <li class="breadcrumb-item"><a href="#">Home</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Aktivitas Log</li>
-                        </ol>
-                    </div>
-                </div>
-                <!--end::Row-->
-            </div>
-            <!--end::Container-->
-        </div>
-        <div class="app-content">
-            <div class="card card-primary">
-                <div class="card-header">
-                    <h3 class="card-title">Aktivitas Log</h3>
-                </div>
-                <div class="card-body">
-                    {{-- <button type="button" class="btn btn-success mb-3 btn-sm" data-bs-toggle="modal"
-                        data-bs-target="#exportLogModal">
-                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
-                    </button> --}}
-                    <a href="{{ route('dashboards.index') }}" class="btn btn-secondary mb-3 btn-sm">← Kembali</a>
-                    <div class="table-responsive">
-                        <table id="activity-log-table" class="table table-bordered table-striped">
-                            <thead>
-                                <tr>
-                                    <th style="text-align: center">Waktu</th>
-                                    <th style="text-align: center">Nama User</th>
-                                    <th style="text-align: center">Aktivitas</th>
-                                    <th style="text-align: center">Deskripsi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($logs as $log)
-                                    <tr>
-                                        <td style="text-align: center; vertical-align: middle">
-                                            {{ $log->logged_at->format('H:i:s d-m-Y') }}
-                                        </td>
-                                        <td style="text-align: center; vertical-align: middle">
-                                            {{ $log->user->nama_lengkap ?? 'Unknown' }}</td>
-                                        <td style="text-align: center; vertical-align: middle"><span
-                                                class="badge badge-info">{{ $log->activity_type }}</span>
-                                        </td>
-                                        <td style="vertical-align: middle">{{ $log->description }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="4">Belum ada aktivitas yang tercatat.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                        @include('partials.modal_activity-log')
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-    <!--end::App Main-->
-    @section('Scripts')
-        <!-- jQuery -->
-        <script src="https://adminlte.io/themes/v3/plugins/jquery/jquery.min.js"></script>
-        <!-- jQuery UI 1.11.4 -->
-        <script src="https://adminlte.io/themes/v3/plugins/jquery-ui/jquery-ui.min.js"></script>
-        <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
-        <script>
-            $.widget.bridge('uibutton', $.ui.button)
-        </script>
-        <!-- Bootstrap 4 -->
-        <script src="https://adminlte.io/themes/v3/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-        <!-- jQuery -->
-        <script src="{{ asset('dist/js/jquery.min.js') }}"></script>
-        <!-- Bootstrap 4 -->
-        <script src="{{ asset('dist/js/bootstrap.bundle.min.js') }}"></script>
-        <!-- DataTables  & js -->
-        <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
-        <script src="{{ asset('dist/js/dataTables.bootstrap4.min.js') }}"></script>
-        <script src="{{ asset('dist/js/dataTables.responsive.min.js') }}"></script>
-        <script>
-            $(document).ready(function() {
-                $('#activity-log-table').DataTable({
-                    "responsive": true,
-                    "ordering": false,
-                    "pageLength": 10
-                });
-            });
-        </script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const startDate = document.getElementById('start_date');
-                const endDate = document.getElementById('end_date');
+        <style>
+            /* Toolbar & Search */
+            .table-toolbar {
+                background: #fff;
+                border: 1px solid #e2e8f0;
+                border-radius: 14px;
+                padding: 1rem 1.25rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                flex-wrap: wrap;
+                margin-bottom: 1rem;
+                box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
+            }
 
-                startDate.addEventListener('change', function() {
-                    endDate.min = this.value;
+            .search-wrap {
+                position: relative;
+                flex: 1;
+                min-width: 200px;
+                max-width: 360px;
+            }
+
+            .search-icon {
+                position: absolute;
+                left: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #94a3b8;
+                font-size: 13px;
+                pointer-events: none;
+            }
+
+            .search-input {
+                width: 100%;
+                padding: 9px 12px 9px 36px;
+                border: 2px solid #e2e8f0;
+                border-radius: 10px;
+                font-size: 13px;
+                font-family: 'Inter', sans-serif;
+                color: #374151;
+                outline: none;
+                transition: all .25s;
+                background: #f8fafc;
+            }
+
+            .search-input:focus {
+                border-color: #0ea5e9;
+                background: #fff;
+            }
+
+            /* Custom Pagination Styling */
+            .pagination-container {
+                padding: 1.5rem;
+                border-top: 1px solid #f1f5f9;
+                background: #fff;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+        </style>
+    @endsection
+
+    <!-- Page header -->
+    <div
+        style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+        <div>
+            <h1 style="font-size:22px;font-weight:900;margin:0;">Log Aktivitas Sistem</h1>
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Riwayat tindakan pengguna dan perubahan sistem.</p>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <button type="button" class="btn-primary-admin !flex !items-center !justify-center gap-2"
+                onclick="openCustomModal('exportLogModal')">
+                <i class="fa-solid fa-file-pdf"></i> Export PDF
+            </button>
+            <a href="{{ route('dashboards.index') }}" class="btn-primary-admin !flex !items-center !justify-center gap-2"
+                style="background: #f1f5f9; color: #475569; box-shadow: none; border: 1px solid #e2e8f0;"
+                onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+                <i class="fa-solid fa-house"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats cards -->
+    <div class="stats-grid mb-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#e0f2fe;color:#0369a1;">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ number_format($totalLogs) }}</div>
+                <div class="stat-lbl">Total Riwayat</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#dcfce7;color:#15803d;">
+                <i class="fa-solid fa-calendar-day"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $logsToday }}</div>
+                <div class="stat-lbl">Riwayat Hari Ini</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
+                <i class="fa-solid fa-cart-arrow-down"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $logsPreOrder }}</div>
+                <div class="stat-lbl">Log Pre-Order</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#f0f9ff;color:#0ea5e9;">
+                <i class="fa-solid fa-user-check"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $logsAktivasi }}</div>
+                <div class="stat-lbl">Log Aktivasi</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="table-toolbar">
+        <div class="search-wrap">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="search" class="search-input" id="custom-search"
+                placeholder="Cari user, tipe aktivitas, atau deskripsi..." autocomplete="off" />
+        </div>
+        <div style="display:flex;gap:8px;">
+            <div
+                style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                Log Terbaru
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="table-card">
+        <div class="table-responsive">
+            <table id="activity-log-table" class="admin-table">
+                <thead>
+                    <tr>
+                        <th style="text-align: center; width: 180px;">Waktu</th>
+                        <th style="text-align: center; width: 220px;">Pelaku</th>
+                        <th style="text-align: center; width: 150px;">Aktivitas</th>
+                        <th style="text-align: center; width: auto;">Deskripsi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($logs as $log)
+                        <tr>
+                            <td style="text-align: center; font-size: 12px; color: #64748b; font-weight: 600;">
+                                <div class="text-slate-900 font-bold">{{ $log->logged_at->format('d/m/Y') }}</div>
+                                <div class="text-[10px] text-slate-400 uppercase tracking-wider">{{ $log->logged_at->format('H:i:s') }}</div>
+                            </td>
+                            <td style="text-align: left;">
+                                <div style="font-weight: 700; color: #0f172a;">{{ $log->user->nama_lengkap ?? 'Sistem' }}</div>
+                                <div style="font-size: 10px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
+                                    {{ $log->user->jabatan ?? 'ROOT' }}
+                                </div>
+                            </td>
+                            <td style="text-align: center;">
+                                @php
+                                    $bg = '#f1f5f9'; $color = '#64748b';
+                                    if(str_contains($log->activity_type, 'create')) { $bg = '#f0fdf4'; $color = '#16a34a'; }
+                                    elseif(str_contains($log->activity_type, 'update')) { $bg = '#fffbeb'; $color = '#d97706'; }
+                                    elseif(str_contains($log->activity_type, 'delete')) { $bg = '#fef2f2'; $color = '#dc2626'; }
+                                    elseif(str_contains($log->activity_type, 'aktivasi')) { $bg = '#f0f9ff'; $color = '#0ea5e9'; }
+                                @endphp
+                                <span class="badge" style="background: {{ $bg }}; color: {{ $color }}; padding: 4px 10px; border-radius: 6px; font-size: 9px; font-weight: 800; text-transform: uppercase;">
+                                    {{ str_replace('_', ' ', $log->activity_type) }}
+                                </span>
+                            </td>
+                            <td style="text-align: left; font-size: 12px; color: #475569; font-weight: 500; line-height: 1.5;">
+                                {{ $log->description }}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="text-center py-12">
+                                <i class="fa-solid fa-clock-rotate-left text-slate-200 text-5xl mb-3 block"></i>
+                                <p class="text-slate-400 font-bold text-xs uppercase">Belum ada aktivitas yang tercatat</p>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        
+        @if ($logs->hasPages())
+            <div class="pagination-container">
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    Menampilkan {{ $logs->firstItem() }} - {{ $logs->lastItem() }} dari {{ $logs->total() }} data
+                </div>
+                <div>
+                    {{ $logs->links('vendor.pagination.simple-tailwind') }}
+                </div>
+            </div>
+        @endif
+    </div>
+
+    @include('partials.modal_activity-log')
+
+    @section('Scripts')
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        <script>
+            // Custom Modal Functions
+            function openCustomModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.add('open');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            function closeCustomModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove('open');
+                    document.body.style.overflow = '';
+                }
+            }
+
+            $(document).ready(function() {
+                const table = $('#activity-log-table').DataTable({
+                    "paging": false, // Handled by Laravel Pagination
+                    "lengthChange": false,
+                    "ordering": false,
+                    "info": false,
+                    "responsive": true,
+                    "dom": 't',
+                    "language": {
+                        "zeroRecords": "Data tidak ditemukan"
+                    }
+                });
+
+                $('#custom-search').on('keyup', function() {
+                    table.search(this.value).draw();
+                });
+
+                $('.modal-overlay').on('click', function(e) {
+                    if (e.target === this) closeCustomModal(this.id);
                 });
             });
         </script>

@@ -1,267 +1,347 @@
 <x-layouts.app>
     @section('Css')
-        <!-- DataTables -->
-        <link rel="stylesheet" href="{{ asset('dist/css/dataTables.bootstrap4.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('dist/css/responsive.bootstrap4.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('dist/css/buttons.bootstrap4.min.css') }}">
-    @endsection
-    <main class="app-main">
-        <!--begin::App Content Header-->
-        <div class="app-content-header">
-            <!--begin::Container-->
-            <div class="container-fluid">
-                <!--begin::Row-->
-                <div class="row">
-                    <div class="col-sm-6">
-                        <h3 class="mb-0">Manajemen</h3>
-                    </div>
-                    <div class="col-sm-6">
-                        <ol class="breadcrumb float-sm-end">
-                            <li class="breadcrumb-item"><a href="#">Home</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Akun</li>
-                        </ol>
-                    </div>
-                </div>
-                <!--end::Row-->
-            </div>
-            <!--end::Container-->
-        </div>
-        <div class="app-content">
-            <div class="card card-primary">
-                <div class="card-header">
-                    <h3 class="card-title">Akun</h3>
-                </div>
-                <!-- /.card-header -->
-                <div class="card-body">
-                    {{-- <a href="{{ route('services.create') }}" class="btn btn-success mb-3">+ Tambah Layanan</a> --}}
-                    <button type="button" class="btn btn-success mb-3 btn-sm" data-bs-toggle="modal"
-                        data-bs-target="#addUserModal">
-                        <i class="bi bi-plus-square"></i> Tambah Akun
-                    </button>
-                    <a href="{{ route('dashboards.index') }}" class="btn btn-secondary mb-3 btn-sm">← Kembali</a>
-                    <table id="example1" class="table table-bordered table-striped">
-                        <thead>
-                            <tr>
-                                <th style="text-align: center; vertical-align: middle">No</th>
-                                <th style="text-align: center; vertical-align: middle">Nama Lengkap</th>
-                                <th style="text-align: center; vertical-align: middle">NIK</th>
-                                <th style="text-align: center; vertical-align: middle">Alamat</th>
-                                <th style="text-align: center; vertical-align: middle">Jenis Kelamin</th>
-                                <th style="text-align: center; vertical-align: middle">Tanggal Lahir</th>
-                                <th style="text-align: center; vertical-align: middle">Email</th>
-                                <th style="text-align: center; vertical-align: middle">Jabatan</th>
-                                <th style="text-align: center; vertical-align: middle">Opsi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($users as $user)
-                                <tr>
-                                    <td style="text-align: center; vertical-align: middle">{{ $loop->iteration }}</td>
-                                    <td style="text-align: center; vertical-align: middle">{{ $user->nama_lengkap }}
-                                    </td>
-                                    <td style="text-align: center; vertical-align: middle">{{ $user->nik }}</td>
-                                    <td style="text-align: center; vertical-align: middle">{{ $user->alamat }}</td>
-                                    <td style="text-align: center; vertical-align: middle">{{ $user->jenis_kelamin }}
-                                    </td>
-                                    <td style="text-align: center; vertical-align: middle">
-                                        {{ \Carbon\Carbon::parse($user->tanggal_lahir)->format('d-m-Y') }}
-                                    </td>
-                                    <td style="text-align: center; vertical-align: middle">{{ $user->email }}</td>
-                                    <td style="text-align: center; vertical-align: middle">{{ $user->jabatan }}</td>
-                                    <td style="text-align: center; vertical-align: middle">
-                                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal"
-                                            data-bs-target="#editModal" data-user-id="{{ $user->id }}"
-                                            data-user-nama="{{ $user->nama_lengkap }}"
-                                            data-user-nik="{{ $user->nik }}" data-user-alamat="{{ $user->alamat }}"
-                                            data-user-jk="{{ $user->jenis_kelamin }}"
-                                            data-user-tgl="{{ \Carbon\Carbon::parse($user->tanggal_lahir)->format('Y-m-d') }}"
-                                            data-user-email="{{ $user->email }}"
-                                            data-user-jabatan="{{ $user->jabatan }}">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </button>
-                                        @if ($user->google2fa_secret)
-                                            <button type="button" class="btn btn-outline-primary btn-sm"
-                                                onclick="show2FAQRCode({{ $user->id }})" title="Lihat QR Code">
-                                                <i class="bi bi-qr-code"></i>
-                                            </button>
-                                        @endif
-                                        <button type="button" class="btn btn-outline-danger btn-sm"
-                                            onclick="reset2FA({{ $user->id }})" title="Reset 2FA">
-                                            <i class="bi bi-arrow-clockwise"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
-                                            data-bs-target="#deleteModal" data-user-id="{{ $user->id }}">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                @include('partials.modal_account-manage')
-                <!--end::App Content-->
-            </div>
-        </div>
-    </main>
-    <!--end::App Main-->
-    @section('Scripts')
-        <!-- jQuery -->
-        <script src="{{ asset('dist/js/jquery.min.js') }}"></script>
-        <!-- Bootstrap 4 -->
-        <script src="{{ asset('dist/js/bootstrap.bundle.min.js') }}"></script>
-        <!-- DataTables  & js -->
-        <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
-        <script src="{{ asset('dist/js/dataTables.bootstrap4.min.js') }}"></script>
-        <script src="{{ asset('dist/js/dataTables.responsive.min.js') }}"></script>
-        <script src="{{ asset('dist/js/responsive.bootstrap4.min.js') }}"></script>
-        <script src="{{ asset('dist/js/dataTables.buttons.min.js') }}"></script>
-        <script src="{{ asset('dist/js/buttons.bootstrap4.min.js') }}"></script>
-        <script src="{{ asset('dist/js/buttons.colVis.min.js') }}"></script>
-        <!-- AdminLTE App -->
-        <script>
-            function submitStatus(id, statusValue) {
-                document.getElementById('statusInput' + id).value = statusValue;
-                document.getElementById('statusForm' + id).submit();
+        <style>
+            /* Toolbar & Search */
+            .table-toolbar {
+                background: #fff;
+                border: 1px solid #e2e8f0;
+                border-radius: 14px;
+                padding: 1rem 1.25rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                flex-wrap: wrap;
+                margin-bottom: 1rem;
+                box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
             }
-        </script>
-        <!-- Page specific script -->
-        <script>
-            $(function() {
-                $("#example1").DataTable({
-                    "responsive": true,
-                    "lengthChange": false,
-                    "autoWidth": false,
-                    "ordering": false,
-                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-            });
-        </script>
+
+            .search-wrap {
+                position: relative;
+                flex: 1;
+                min-width: 200px;
+                max-width: 360px;
+            }
+
+            .search-icon {
+                position: absolute;
+                left: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #94a3b8;
+                font-size: 13px;
+                pointer-events: none;
+            }
+
+            .search-input {
+                width: 100%;
+                padding: 9px 12px 9px 36px;
+                border: 2px solid #e2e8f0;
+                border-radius: 10px;
+                font-size: 13px;
+                font-family: 'Inter', sans-serif;
+                color: #374151;
+                outline: none;
+                transition: all .25s;
+                background: #f8fafc;
+            }
+
+            .search-input:focus {
+                border-color: #0ea5e9;
+                background: #fff;
+            }
+        </style>
+    @endsection
+
+    <!-- Page header -->
+    <div
+        style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+        <div>
+            <h1 style="font-size:22px;font-weight:900;margin:0;">Manajemen Akun</h1>
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola akses pengguna dan pengaturan keamanan akun.</p>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <button type="button" class="btn-primary-admin !flex !items-center !justify-center gap-2"
+                onclick="openCustomModal('addUserModal')">
+                <i class="fa-solid fa-user-plus"></i> Tambah Akun
+            </button>
+            <a href="{{ route('dashboards.index') }}" class="btn-primary-admin !flex !items-center !justify-center gap-2"
+                style="background: #f1f5f9; color: #475569; box-shadow: none; border: 1px solid #e2e8f0;"
+                onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+                <i class="fa-solid fa-house"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats cards -->
+    <div class="stats-grid mb-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#e0f2fe;color:#0369a1;">
+                <i class="fa-solid fa-users"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $totalUsers }}</div>
+                <div class="stat-lbl">Total Pengguna</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#dcfce7;color:#15803d;">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $totalAdmin }}</div>
+                <div class="stat-lbl">Administrator</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
+                <i class="fa-solid fa-user-tag"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $totalSales }}</div>
+                <div class="stat-lbl">Tim Sales</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fef2f2;color:#dc2626;">
+                <i class="fa-solid fa-user-gear"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $totalTeknisi }}</div>
+                <div class="stat-lbl">Tim Teknisi</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="table-toolbar">
+        <div class="search-wrap">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="search" class="search-input" id="custom-search" placeholder="Cari nama, email, atau jabatan..."
+                autocomplete="off" />
+        </div>
+        <div style="display:flex;gap:8px;">
+            <div
+                style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                Data Keseluruhan
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="table-card">
+        <div class="table-responsive">
+            <table id="accounts-table" class="admin-table">
+                <thead>
+                    <tr>
+                        <th style="text-align: center; width: 50px;">#</th>
+                        <th style="text-align: center; width: 250px;">Informasi Pengguna</th>
+                        <th style="text-align: center; width: 150px;">Identitas</th>
+                        <th style="text-align: center; width: 120px;">Jabatan</th>
+                        <th style="text-align: center; width: 200px;">Alamat</th>
+                        <th style="text-align: center; width: 180px;">Opsi / Keamanan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($users as $user)
+                        <tr>
+                            <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}</td>
+                            <td style="text-align: left;">
+                                <div style="font-weight: 700; color: #0f172a;">{{ $user->nama_lengkap }}</div>
+                                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
+                                    <i class="fa-regular fa-envelope mr-1"></i> {{ $user->email }}
+                                </div>
+                            </td>
+                            <td style="text-align: center;">
+                                <div style="font-weight: 600; color: #475569; font-size: 12px;">NIK: {{ $user->nik ?? '-' }}</div>
+                                <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">{{ $user->jenis_kelamin ?? '-' }} | {{ $user->tanggal_lahir ? \Carbon\Carbon::parse($user->tanggal_lahir)->format('d/m/Y') : '-' }}</div>
+                            </td>
+                            <td style="text-align: center;">
+                                @if($user->jabatan === 'Administrator')
+                                    <span class="badge" style="background: #fef2f2; color: #dc2626; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800;">ADMIN</span>
+                                @elseif($user->jabatan === 'Sales')
+                                    <span class="badge" style="background: #f0f9ff; color: #0ea5e9; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800;">SALES</span>
+                                @else
+                                    <span class="badge" style="background: #f0fdf4; color: #16a34a; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800;">TEKNISI</span>
+                                @endif
+                            </td>
+                            <td style="text-align: left; font-size: 11px; color: #64748b; line-height: 1.4;">
+                                {{ Str::limit($user->alamat ?? '-', 60) }}
+                            </td>
+                            <td style="text-align: center;">
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;">
+                                    <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                        title="Edit Akun" onclick="openCustomModal('editModal', this)"
+                                        data-user-id="{{ $user->id }}"
+                                        data-user-nama="{{ $user->nama_lengkap }}"
+                                        data-user-nik="{{ $user->nik }}" 
+                                        data-user-alamat="{{ $user->alamat }}"
+                                        data-user-jk="{{ $user->jenis_kelamin }}"
+                                        data-user-tgl="{{ $user->tanggal_lahir ? \Carbon\Carbon::parse($user->tanggal_lahir)->format('Y-m-d') : '' }}"
+                                        data-user-email="{{ $user->email }}"
+                                        data-user-jabatan="{{ $user->jabatan }}">
+                                        <i class="fa-solid fa-pen-to-square text-amber-500"></i>
+                                    </button>
+
+                                    @if ($user->google2fa_secret)
+                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                            onclick="show2FAQRCode({{ $user->id }})" title="Lihat QR Code 2FA">
+                                            <i class="fa-solid fa-qrcode text-primary"></i>
+                                        </button>
+                                    @endif
+
+                                    <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                        onclick="reset2FA({{ $user->id }})" title="Reset 2FA">
+                                        <i class="fa-solid fa-shield-halved text-rose-500"></i>
+                                    </button>
+
+                                    <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                        title="Hapus Akun" onclick="openCustomModal('deleteModal', this)"
+                                        data-user-id="{{ $user->id }}"
+                                        data-user-nama="{{ $user->nama_lengkap }}">
+                                        <i class="fa-solid fa-trash text-rose-600"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @include('partials.modal_account-manage')
+
+    @section('Scripts')
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
         <script>
-            // Logika untuk menampilkan SweetAlert
-            @if (session('success'))
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    text: '{{ session('success') }}',
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-            @endif
+            // Custom Modal Functions
+            function openCustomModal(modalId, triggerEl = null) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    if (triggerEl) {
+                        const $btn = $(triggerEl);
+                        
+                        // Handle Edit Modal Population
+                        if (modalId === 'editModal') {
+                            const $form = $('#editForm');
+                            $form.attr('action', `/accounts/${$btn.data('user-id')}`);
+                            $('#edit_nama_lengkap').val($btn.data('user-nama'));
+                            $('#edit_email').val($btn.data('user-email'));
+                            $('#edit_nik').val($btn.data('user-nik'));
+                            $('#edit_alamat').val($btn.data('user-alamat'));
+                            $('#edit_jenis_kelamin').val($btn.data('user-jk'));
+                            $('#edit_tanggal_lahir').val($btn.data('user-tgl'));
+                            $('#edit_jabatan').val($btn.data('user-jabatan'));
+                            $('#edit_modal_title').text(`Edit Akun: ${$btn.data('user-nama')}`);
+                        }
 
-            @if (session('error'))
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: '{{ session('error') }}',
-                });
-            @endif
-        </script>
-        <script>
-            // Logika untuk Modal Edit
-            const editModal = document.getElementById('editModal');
-            editModal.addEventListener('show.bs.modal', event => {
-                const button = event.relatedTarget;
-                const userId = button.getAttribute('data-user-id');
-                const userNama = button.getAttribute('data-user-nama');
-                const userNik = button.getAttribute('data-user-nik');
-                const userAlamat = button.getAttribute('data-user-alamat');
-                const userJenisKelamin = button.getAttribute('data-user-jk');
-                const userTanggalLahir = button.getAttribute('data-user-tgl');
-                const userEmail = button.getAttribute('data-user-email');
-                const userJabatan = button.getAttribute('data-user-jabatan');
+                        // Handle Delete Modal Population
+                        if (modalId === 'deleteModal') {
+                            $('#deleteForm').attr('action', `/accounts/${$btn.data('user-id')}`);
+                            $('#delete_user_name').text($btn.data('user-nama'));
+                        }
+                    }
+                    
+                    modal.classList.add('open');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
 
-                const modalTitle = editModal.querySelector('.modal-title');
-                const modalForm = editModal.querySelector('#editForm');
-                const modalBodyInputNama = editModal.querySelector('#nama_lengkap');
-                const modalBodyInputNik = editModal.querySelector('#nik');
-                const modalBodyInputAlamat = editModal.querySelector('#alamat');
-                const modalBodyInputJenisKelamin = editModal.querySelector('#jenis_kelamin');
-                const modalBodyInputTanggalLahir = editModal.querySelector('#tanggal_lahir');
-                const modalBodyInputEmail = editModal.querySelector('#email');
-                const modalBodyInputJabatan = editModal.querySelector('#jabatan');
-
-                modalTitle.textContent = `Edit Akun: ${userNama}`;
-                modalForm.action = `/accounts/${userId}`; // Ubah URL action form
-                modalBodyInputNama.value = userNama;
-                modalBodyInputNik.value = userNik;
-                modalBodyInputAlamat.value = userAlamat;
-                modalBodyInputJenisKelamin.value = userJenisKelamin;
-                modalBodyInputTanggalLahir.value = userTanggalLahir;
-                modalBodyInputEmail.value = userEmail;
-                modalBodyInputJabatan.value = userJabatan;
-            });
-
-            // Logika untuk Modal Hapus
-            const deleteModal = document.getElementById('deleteModal');
-            deleteModal.addEventListener('show.bs.modal', event => {
-                const button = event.relatedTarget;
-                const userId = button.getAttribute('data-user-id');
-                const modalForm = deleteModal.querySelector('#deleteForm');
-
-                modalForm.action = `/accounts/${userId}`;
-            });
-
-            // Buat satu modal global di luar fungsi (di atas semua script)
-            let qrModalInstance = null;
+            function closeCustomModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove('open');
+                    document.body.style.overflow = '';
+                }
+            }
 
             function reset2FA(userId) {
-                const resetModalEl = document.getElementById('reset2FAModal');
+                const resetModal = document.getElementById('reset2FAModal');
                 const resetForm = document.getElementById('reset2FAForm');
-
-                // Mengarahkan form ke ID user yang dipilih
                 resetForm.action = `/accounts/${userId}/2fa/reset`;
-
-                // Tampilkan modal secara manual
-                const resetModal = new bootstrap.Modal(resetModalEl);
-                resetModal.show();
+                openCustomModal('reset2FAModal');
             }
 
+            let qrModalInstance = null;
             function show2FAQRCode(userId) {
-                const qrModalEl = document.getElementById('qrModal');
                 const qrModalBody = document.getElementById('qrModalBody');
+                qrModalBody.innerHTML = `<div class="flex justify-center py-8"><i class="fa-solid fa-circle-notch fa-spin text-3xl text-primary"></i></div>`;
+                
+                openCustomModal('qrModal');
 
-                // Reset isi konten
-                qrModalBody.innerHTML = `
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Memuat...</span>
-        </div>
-    `;
-
-                // Cek dan inisialisasi hanya sekali
-                if (!qrModalInstance) {
-                    qrModalInstance = new bootstrap.Modal(qrModalEl);
-                }
-
-                // Tampilkan modal
-                qrModalInstance.show();
-
-                // Ambil data QR dari server
-                fetch(`/accounts/${userId}/2fa/show`, {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(response => {
-                        if (!response.ok) throw new Error('Gagal mengambil data QR Code.');
-                        return response.json();
-                    })
+                fetch(`/accounts/${userId}/2fa/show`)
+                    .then(response => response.json())
                     .then(data => {
-                        if (!data.qr || !data.secret) throw new Error('Data tidak lengkap.');
                         qrModalBody.innerHTML = `
-            <p>Scan QR Code di Google Authenticator Anda:</p>
-            <div class="bg-white border rounded p-3 mb-3 d-inline-block">
-                ${data.qr}
-            </div>
-            <p class="mb-0">Atau masukkan kode manual:</p>
-            <code class="d-block fw-bold text-danger mt-2">${data.secret}</code>
-        `;
+                            <div class="text-center space-y-4">
+                                <p class="text-sm font-medium text-slate-600">Scan QR Code ini menggunakan aplikasi Google Authenticator:</p>
+                                <div class="bg-white border-2 border-slate-100 rounded-2xl p-4 inline-block shadow-sm">
+                                    ${data.qr}
+                                </div>
+                                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Setup Key Manual</p>
+                                    <code class="text-sm font-black text-rose-600 tracking-widest">${data.secret}</code>
+                                </div>
+                            </div>
+                        `;
                     })
                     .catch(error => {
-                        qrModalBody.innerHTML = `<div class="alert alert-danger text-center">${error.message}</div>`;
+                        qrModalBody.innerHTML = `<div class="bg-rose-50 text-rose-600 p-4 rounded-xl text-sm font-bold text-center">Gagal memuat QR Code.</div>`;
                     });
             }
+
+            $(document).ready(function() {
+                const table = $('#accounts-table').DataTable({
+                    "pageLength": 10,
+                    "lengthChange": false,
+                    "ordering": false,
+                    "info": false,
+                    "responsive": true,
+                    "dom": 'tpir',
+                    "language": {
+                        "zeroRecords": "Data tidak ditemukan",
+                        "paginate": {
+                            "previous": '<i class="fa-solid fa-chevron-left"></i>',
+                            "next": '<i class="fa-solid fa-chevron-right"></i>'
+                        }
+                    }
+                });
+
+                $('#custom-search').on('keyup', function() {
+                    table.search(this.value).draw();
+                });
+
+                @if (session('success'))
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: '{{ session('success') }}',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        position: 'top-end',
+                        toast: true
+                    });
+                @endif
+
+                @if (session('error'))
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Kesalahan!',
+                        text: '{{ session('error') }}',
+                    });
+                @endif
+
+                $('.modal-overlay').on('click', function(e) {
+                    if (e.target === this) closeCustomModal(this.id);
+                });
+            });
         </script>
     @endsection
 </x-layouts.app>

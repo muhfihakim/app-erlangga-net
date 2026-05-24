@@ -23,7 +23,20 @@ class AccountController extends Controller
         }
 
         $users = User::all();
-        return view('account-manage', compact('users'));
+        
+        // --- STATISTIK ---
+        $totalUsers = User::count();
+        $totalAdmin = User::where('jabatan', 'Administrator')->count();
+        $totalSales = User::where('jabatan', 'Sales')->count();
+        $totalTeknisi = User::where('jabatan', 'Teknisi')->count();
+
+        return view('account-manage', compact(
+            'users',
+            'totalUsers',
+            'totalAdmin',
+            'totalSales',
+            'totalTeknisi'
+        ));
     }
 
     public function store(Request $request)

@@ -23,10 +23,21 @@ class ActivityLogController extends Controller
 
         $logs = ActivityLog::with('user')
             ->orderBy('logged_at', 'desc')
-            ->take(20)
-            ->get();
+            ->paginate(15);
 
-        return view('activitylog.activity-log', compact('logs'));
+        // --- STATISTIK ---
+        $totalLogs = ActivityLog::count();
+        $logsToday = ActivityLog::whereDate('logged_at', Carbon::today())->count();
+        $logsPreOrder = ActivityLog::where('activity_type', 'LIKE', '%preorder%')->count();
+        $logsAktivasi = ActivityLog::where('activity_type', 'LIKE', '%aktivasi%')->count();
+
+        return view('activitylog.activity-log', compact(
+            'logs',
+            'totalLogs',
+            'logsToday',
+            'logsPreOrder',
+            'logsAktivasi'
+        ));
     }
 
     public function export(Request $request)
