@@ -122,6 +122,75 @@
     @endif
 
     @if ($user->jabatan === 'Administrator')
+        <!-- Maintenance & Dismantle Insights -->
+        <div style="margin-top: 2rem;">
+            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 1rem;">
+                <i class="fa-solid fa-chart-pie text-primary mr-2"></i> Analisis & Performa Operasional
+            </h3>
+
+            <!-- Maintenance Stats -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+                <!-- Maintenance Trend -->
+                <div class="table-card p-6" style="margin-bottom: 0;">
+                    <h4 style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-chart-line text-primary"></i> Tren Maintenance (7 Hari Terakhir)
+                    </h4>
+                    <div style="height: 300px; position: relative;">
+                        <canvas id="maintenanceChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Top Maintenance Technicians -->
+                <div class="table-card p-6" style="margin-bottom: 0;">
+                    <h4 style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-trophy text-amber-500"></i> Top Teknisi Maintenance (Bulan Ini)
+                    </h4>
+                    <div style="height: 300px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        @if(count($mDonutValues) > 0)
+                            <canvas id="mTeknisiChart"></canvas>
+                        @else
+                            <div class="text-center py-12">
+                                <i class="fa-solid fa-chart-pie text-slate-200 text-5xl mb-3"></i>
+                                <p class="text-slate-400 font-bold text-xs uppercase">Belum ada data</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dismantle Stats -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+                <!-- Dismantle Trend -->
+                <div class="table-card p-6" style="margin-bottom: 0;">
+                    <h4 style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-chart-line text-sky-500"></i> Tren Dismantle (7 Hari Terakhir)
+                    </h4>
+                    <div style="height: 300px; position: relative;">
+                        <canvas id="dismantleChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Top Dismantle Technicians -->
+                <div class="table-card p-6" style="margin-bottom: 0;">
+                    <h4 style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-trophy text-amber-500"></i> Top Teknisi Dismantle (Bulan Ini)
+                    </h4>
+                    <div style="height: 300px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        @if(count($dDonutValues) > 0)
+                            <canvas id="dTeknisiChart"></canvas>
+                        @else
+                            <div class="text-center py-12">
+                                <i class="fa-solid fa-chart-pie text-slate-200 text-5xl mb-3"></i>
+                                <p class="text-slate-400 font-bold text-xs uppercase">Belum ada data</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if ($user->jabatan === 'Administrator')
         <div style="margin-top: 2rem;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
                 <h3 style="font-size: 16px; font-weight: 800; margin: 0;">Aktivitas Terbaru</h3>
@@ -248,7 +317,13 @@
     @section('Scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+        
         <script>
+            // Register DataLabels Plugin
+            Chart.register(ChartDataLabels);
+
             $(document).ready(function() {
                 const table = $('#activity-log-table').DataTable({
                     "pageLength": 10,
@@ -270,6 +345,140 @@
                 $('#custom-search').on('keyup', function() {
                     table.search(this.value).draw();
                 });
+
+                @if ($user->jabatan === 'Administrator')
+                    // Initialize Maintenance Trend Chart
+                    const mCtx = document.getElementById('maintenanceChart').getContext('2d');
+                    new Chart(mCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: {!! json_encode($mChartLabels) !!},
+                            datasets: [{
+                                label: 'Total Maintenance',
+                                data: {!! json_encode($mChartValues) !!},
+                                backgroundColor: 'rgba(14, 165, 233, 0.15)',
+                                borderColor: '#0ea5e9',
+                                borderWidth: 2,
+                                borderRadius: 6,
+                                barThickness: 20
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                datalabels: { display: false }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: { color: '#f1f5f9' },
+                                    ticks: { stepSize: 1, color: '#94a3b8', font: { size: 11, weight: '600' } }
+                                },
+                                x: {
+                                    grid: { display: false },
+                                    ticks: { color: '#94a3b8', font: { size: 11, weight: '600' } }
+                                }
+                            }
+                        }
+                    });
+
+                    // Initialize Top Maintenance Teknisi Donut Chart
+                    @if(count($mDonutValues) > 0)
+                        const mDonutCtx = document.getElementById('mTeknisiChart').getContext('2d');
+                        new Chart(mDonutCtx, {
+                            type: 'doughnut',
+                            data: {
+                                labels: {!! json_encode($mDonutLabels) !!},
+                                datasets: [{
+                                    data: {!! json_encode($mDonutValues) !!},
+                                    backgroundColor: ['#0ea5e9', '#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f59e0b'],
+                                    borderWidth: 2, borderColor: '#fff', hoverOffset: 10
+                                }]
+                            },
+                            options: {
+                                responsive: true, maintainAspectRatio: false, cutout: '65%',
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom',
+                                        labels: { usePointStyle: true, padding: 20, font: { size: 11, weight: '600' }, color: '#64748b' }
+                                    },
+                                    datalabels: {
+                                        color: '#fff', font: { weight: 'bold', size: 13 },
+                                        formatter: (value) => value, display: true
+                                    }
+                                }
+                            }
+                        });
+                    @endif
+
+                    // Initialize Dismantle Trend Chart
+                    const dCtx = document.getElementById('dismantleChart').getContext('2d');
+                    new Chart(dCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: {!! json_encode($dChartLabels) !!},
+                            datasets: [{
+                                label: 'Total Dismantle',
+                                data: {!! json_encode($dChartValues) !!},
+                                backgroundColor: 'rgba(14, 165, 233, 0.15)',
+                                borderColor: '#0ea5e9',
+                                borderWidth: 2,
+                                borderRadius: 6,
+                                barThickness: 20
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                datalabels: { display: false }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: { color: '#f1f5f9' },
+                                    ticks: { stepSize: 1, color: '#94a3b8', font: { size: 11, weight: '600' } }
+                                },
+                                x: {
+                                    grid: { display: false },
+                                    ticks: { color: '#94a3b8', font: { size: 11, weight: '600' } }
+                                }
+                            }
+                        }
+                    });
+
+                    // Initialize Top Dismantle Teknisi Donut Chart
+                    @if(count($dDonutValues) > 0)
+                        const dDonutCtx = document.getElementById('dTeknisiChart').getContext('2d');
+                        new Chart(dDonutCtx, {
+                            type: 'doughnut',
+                            data: {
+                                labels: {!! json_encode($dDonutLabels) !!},
+                                datasets: [{
+                                    data: {!! json_encode($dDonutValues) !!},
+                                    backgroundColor: ['#0ea5e9', '#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f59e0b'],
+                                    borderWidth: 2, borderColor: '#fff', hoverOffset: 10
+                                }]
+                            },
+                            options: {
+                                responsive: true, maintainAspectRatio: false, cutout: '65%',
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom',
+                                        labels: { usePointStyle: true, padding: 20, font: { size: 11, weight: '600' }, color: '#64748b' }
+                                    },
+                                    datalabels: {
+                                        color: '#fff', font: { weight: 'bold', size: 13 },
+                                        formatter: (value) => value, display: true
+                                    }
+                                }
+                            }
+                        });
+                    @endif
+                @endif
             });
         </script>
     @endsection

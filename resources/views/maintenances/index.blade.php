@@ -225,36 +225,6 @@
         </div>
     </div>
 
-    <!-- Charts Section -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
-        <!-- Trend Chart (Left) -->
-        <div class="table-card p-6" style="margin-bottom: 0;">
-            <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
-                <i class="fa-solid fa-chart-line text-primary"></i> Tren Maintenance (7 Hari Terakhir)
-            </h3>
-            <div style="height: 300px; position: relative;">
-                <canvas id="maintenanceChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Top Teknisi (Right) -->
-        <div class="table-card p-6" style="margin-bottom: 0;">
-            <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
-                <i class="fa-solid fa-trophy text-amber-500"></i> Top Teknisi (Bulan Ini)
-            </h3>
-            <div style="height: 300px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                @if(count($donutValues) > 0)
-                    <canvas id="teknisiChart"></canvas>
-                @else
-                    <div class="text-center py-12">
-                        <i class="fa-solid fa-chart-pie text-slate-200 text-5xl mb-3"></i>
-                        <p class="text-slate-400 font-bold text-xs uppercase">Belum ada data</p>
-                    </div>
-                @endif
-            </div>
-        </div>
-    </div>
-
     @if ($is_admin)
         <!-- Toolbar -->
         <div class="table-toolbar">
@@ -975,102 +945,8 @@
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
         <script>
-            // Register DataLabels Plugin
-            Chart.register(ChartDataLabels);
-
-            // Initialize Maintenance Chart
-            const ctx = document.getElementById('maintenanceChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: {!! json_encode($chartLabels) !!},
-                    datasets: [{
-                        label: 'Total Maintenance',
-                        data: {!! json_encode($chartValues) !!},
-                        backgroundColor: 'rgba(14, 165, 233, 0.15)',
-                        borderColor: '#0ea5e9',
-                        borderWidth: 2,
-                        borderRadius: 6,
-                        barThickness: 20
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        datalabels: { display: false } // Hide labels for bar chart
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: '#f1f5f9' },
-                            ticks: { 
-                                stepSize: 1,
-                                color: '#94a3b8',
-                                font: { size: 11, weight: '600' }
-                            }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { 
-                                color: '#94a3b8',
-                                font: { size: 11, weight: '600' }
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Initialize Top Teknisi Donut Chart
-            @if(count($donutValues) > 0)
-                const donutCtx = document.getElementById('teknisiChart').getContext('2d');
-                new Chart(donutCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: {!! json_encode($donutLabels) !!},
-                        datasets: [{
-                            data: {!! json_encode($donutValues) !!},
-                            backgroundColor: [
-                                '#0ea5e9', '#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f59e0b'
-                            ],
-                            borderWidth: 2,
-                            borderColor: '#fff',
-                            hoverOffset: 10
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '65%',
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    usePointStyle: true,
-                                    padding: 20,
-                                    font: { size: 11, weight: '600' },
-                                    color: '#64748b'
-                                }
-                            },
-                            datalabels: {
-                                color: '#fff',
-                                font: {
-                                    weight: 'bold',
-                                    size: 13
-                                },
-                                formatter: (value) => value,
-                                display: true
-                            }
-                        }
-                    }
-                });
-            @endif
-
             // Modal Utilities
             function openCustomModal(modalId, triggerEl = null) {
                 const modal = document.getElementById(modalId);

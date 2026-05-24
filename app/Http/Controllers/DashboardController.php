@@ -7,6 +7,8 @@ use App\Models\Customer;
 use Illuminate\Http\Request;
 use App\Models\PreOrder;
 use App\Models\User;
+use App\Models\Maintenance;
+use App\Models\Dismantle;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
@@ -324,14 +326,70 @@ class DashboardController extends Controller
             $percentageChange = 100;
         }
 
-        // 5. Inisialisasi Variabel Teknisi agar tidak Error di View
+        // 5. Inisialisasi Variabel Statistik Maintenance & Dismantle
+        $mChartLabels = []; $mChartValues = []; $mDonutLabels = []; $mDonutValues = [];
+        $dChartLabels = []; $dChartValues = []; $dDonutLabels = []; $dDonutValues = [];
+
+        // 6. Logika Admin: Fetch Stats Maintenance & Dismantle
+        if ($user->jabatan === 'Administrator') {
+            $thisMonth = Carbon::now()->month;
+            $thisYear = Carbon::now()->year;
+
+            // Maintenance Trends (7 Hari Terakhir)
+            for ($i = 6; $i >= 0; $i--) {
+                $date = Carbon::now()->subDays($i);
+                $mChartLabels[] = $date->translatedFormat('d M');
+                $mChartValues[] = Maintenance::whereDate('created_at', $date->toDateString())->count();
+            }
+
+            // Maintenance Top Teknisi (Bulan Ini)
+            $mTop = Maintenance::where('status', 'Selesai')
+                ->whereMonth('completed_at', $thisMonth)
+                ->whereYear('completed_at', $thisYear)
+                ->with('teknisiEksekutor')
+                ->get()
+                ->groupBy('id_teknisi_eksekutor')
+                ->map(fn($g) => [
+                    'name' => $g->first()->teknisiEksekutor->nama_lengkap ?? 'Unknown',
+                    'count' => $g->count()
+                ])
+                ->sortByDesc('count')
+                ->take(5);
+            $mDonutLabels = $mTop->pluck('name')->toArray();
+            $mDonutValues = $mTop->pluck('count')->toArray();
+
+            // Dismantle Trends (7 Hari Terakhir)
+            for ($i = 6; $i >= 0; $i--) {
+                $date = Carbon::now()->subDays($i);
+                $dChartLabels[] = $date->translatedFormat('d M');
+                $dChartValues[] = Dismantle::whereDate('created_at', $date->toDateString())->count();
+            }
+
+            // Dismantle Top Teknisi (Bulan Ini)
+            $dTop = Dismantle::where('status', 'Selesai')
+                ->whereMonth('completed_at', $thisMonth)
+                ->whereYear('completed_at', $thisYear)
+                ->with('teknisiEksekutor')
+                ->get()
+                ->groupBy('id_teknisi_eksekutor')
+                ->map(fn($g) => [
+                    'name' => $g->first()->teknisiEksekutor->nama_lengkap ?? 'Unknown',
+                    'count' => $g->count()
+                ])
+                ->sortByDesc('count')
+                ->take(5);
+            $dDonutLabels = $dTop->pluck('name')->toArray();
+            $dDonutValues = $dTop->pluck('count')->toArray();
+        }
+
+        // 7. Inisialisasi Variabel Teknisi agar tidak Error di View
         $delegatedTasks = collect();
         $aktivasiMingguIni = 0;
         $aktivasiBulanIni = 0;
         $pendingTugas = 0;
         $totalExpired = 0;
 
-        // 6. Logika Khusus Teknisi (Update: Termasuk Partner)
+        // 8. Logika Khusus Teknisi (Update: Termasuk Partner)
         if ($user->jabatan === 'Teknisi') {
             $startOfWeek = Carbon::now()->startOfWeek();
             $endOfWeek = Carbon::now()->endOfWeek();
@@ -399,7 +457,15 @@ class DashboardController extends Controller
             'aktivasiMingguIni',
             'aktivasiBulanIni',
             'pendingTugas',
-            'totalExpired'
+            'totalExpired',
+            'mChartLabels',
+            'mChartValues',
+            'mDonutLabels',
+            'mDonutValues',
+            'dChartLabels',
+            'dChartValues',
+            'dDonutLabels',
+            'dDonutValues'
         ));
     }
 }
