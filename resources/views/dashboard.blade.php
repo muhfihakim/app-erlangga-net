@@ -68,7 +68,6 @@
         </div>
     </div>
 
-    <!-- Stats cards -->
     @if ($user->jabatan !== 'Teknisi')
         <div class="stats-grid">
             <div class="stat-card">
@@ -127,6 +126,7 @@
                 <div>
                     <div class="stat-val">{{ $aktivasiMingguIni ?? 0 }}</div>
                     <div class="stat-lbl">Aktivasi Minggu Ini</div>
+                    <p style="font-size: 10px; color: #94a3b8; margin-top: 4px; font-weight: 600;">SABTU - JUMAT</p>
                 </div>
             </div>
             <div class="stat-card">
@@ -139,12 +139,13 @@
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
-                    <i class="fa-solid fa-pause-circle"></i>
+                <div class="stat-icon" style="background:#f0f9ff;color:#0ea5e9;">
+                    <i class="fa-solid fa-screwdriver-wrench"></i>
                 </div>
                 <div>
-                    <div class="stat-val">{{ $pendingTugas ?? 0 }}</div>
-                    <div class="stat-lbl">Total Pending</div>
+                    <div class="stat-val">{{ $personalMaintenanceSelesaiBulanIni ?? 0 }}</div>
+                    <div class="stat-lbl">Maintenance Selesai</div>
+                    <p style="font-size: 10px; color: #94a3b8; margin-top: 4px; font-weight: 600;">BULAN INI</p>
                 </div>
             </div>
             <div class="stat-card">
@@ -422,7 +423,8 @@
                             <div style="font-size: 10px; color: #94a3b8;">
                                 Deadline: <strong style="color: #ef4444;">{{ $task->deadline_date ?? 'N/A' }}</strong>
                             </div>
-                            <a href="{{ route('customers.index') }}" class="btn-primary-admin"
+                            <a href="{{ route('customers.index') }}"
+                                class="btn-primary-admin !h-9 !px-3 !text-[11px] activate-btn !flex !items-center !justify-center gap-1"
                                 style="padding: 6px 12px; font-size: 11px;">
                                 Detail Tugas <i class="fa-solid fa-arrow-right ml-1" style="font-size: 10px;"></i>
                             </a>
@@ -441,9 +443,9 @@
     @endif
 
     @section('Scripts')
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
         <script>
             // Register DataLabels Plugin

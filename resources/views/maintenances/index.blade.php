@@ -231,7 +231,7 @@
         <div class="table-toolbar">
             <div class="search-wrap">
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="search" class="search-input" id="custom-search"
+                <input type="search" class="search-input custom-search"
                     placeholder="Cari pelanggan, teknisi, atau status..." autocomplete="off" />
             </div>
             <div style="display:flex;gap:8px;">
@@ -356,16 +356,32 @@
                                             onclick="confirmGlobalDelete('{{ route('maintenances.destroy', $m->id) }}', '{{ $m->customer->nama_lengkap ?? 'N/A' }}')">
                                             <i class="fa-solid fa-trash text-rose-600"></i>
                                         </button>
-                                        </div>
-                                        </td>
-                                        </tr>
-                                        @endforeach
-                                        </tbody>
-                                        </table>
-                                        </div>
-                                        </div>
-                                        @else
-                                        {{-- TAMPILAN TEKNISI --}}        <div style="margin-bottom: 2rem;">
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @else
+        {{-- TAMPILAN TEKNISI --}}
+        <!-- Toolbar -->
+        <div class="table-toolbar">
+            <div class="search-wrap">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="search" class="search-input custom-search"
+                    placeholder="Cari nama pelanggan, kendala, atau alamat..." autocomplete="off" />
+            </div>
+            <div style="display:flex;gap:8px;">
+                <div
+                    style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    Tugas Aktif
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 2rem;">
             <div
                 style="display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; border-left: 4px solid #0ea5e9; padding-left: 12px;">
                 <h2 style="font-size: 16px; font-weight: 800; color: #0f172a; margin: 0;">1. Tugas Delegasi Khusus
@@ -418,10 +434,10 @@
                                                 <span class="badge badge-archived !px-3 !py-2">LOCKED</span>
                                             @else
                                                 <button type="button"
-                                                    class="btn-primary-admin !py-1.5 !px-3 !text-[11px]"
+                                                    class="btn-primary-admin !h-9 !px-3 !text-[11px] activate-btn !flex !items-center !justify-center gap-1"
                                                     onclick="openCompleteModal(this)" data-id="{{ $m->id }}"
                                                     data-nama="{{ $m->customer->nama_lengkap }}">
-                                                    Selesai
+                                                    <i class="fa-solid fa-circle-check"></i> Selesaikan
                                                 </button>
                                             @endif
                                         </div>
@@ -483,10 +499,10 @@
                                                 <i class="fa-solid fa-circle-info text-primary"></i>
                                             </button>
                                             <button type="button"
-                                                class="btn-primary-admin !py-1.5 !px-3 !text-[11px] !bg-emerald-600"
+                                                class="btn-primary-admin !py-1.5 !px-3 !text-[11px] !bg-emerald-600 !flex !items-center !justify-center gap-1"
                                                 onclick="openCompleteModal(this)" data-id="{{ $m->id }}"
                                                 data-nama="{{ $m->customer->nama_lengkap }}">
-                                                Ambil
+                                                <i class="fa-solid fa-hand-holding-hand"></i> Ambil
                                             </button>
                                         </div>
                                     </td>
@@ -864,6 +880,10 @@
                     </div>
                 </div>
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+                        onclick="closeCustomModal('reassignModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
+                    </button>
                     <button type="submit" class="btn-save !flex !items-center !justify-center gap-2">
                         <i class="fa-solid fa-paper-plane"></i> Update Penugasan
                     </button>
@@ -874,71 +894,145 @@
 
     {{-- Modal Selesai (Teknisi) --}}
     <div class="modal-overlay" id="completeModal">
-        <div class="modal-box max-w-3xl bg-white border border-slate-300 shadow-2xl">
+        <div class="modal-box max-w-4xl bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                <div class="modal-title">
+                    <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                    <span class="text-slate-900 font-bold">Laporan Penyelesaian: <span id="nama_p"></span></span>
+                </div>
+                <button type="button" class="modal-close" onclick="closeCustomModal('completeModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="modal-tabs bg-white border-b border-slate-200">
+                <button class="modal-tab active" data-tab="tab-m-data">
+                    <i class="fa-solid fa-file-invoice"></i> Data Penugasan
+                </button>
+                <button class="modal-tab" data-tab="tab-m-solusi">
+                    <i class="fa-solid fa-gears"></i> Solusi Teknis
+                </button>
+                <button class="modal-tab" data-tab="tab-m-media">
+                    <i class="fa-solid fa-camera"></i> Dokumentasi
+                </button>
+            </div>
+
             <form id="completeForm" method="POST" enctype="multipart/form-data">
                 @csrf
-                <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                    <div class="modal-title">
-                        <i class="fa-solid fa-check-circle text-emerald-500"></i>
-                        <span class="text-slate-900 font-bold text-[17px]">Laporan Penyelesaian: <span
-                                id="nama_p"></span></span>
-                    </div>
-                    <button type="button" class="modal-close" onclick="closeCustomModal('completeModal')">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-                <div class="modal-body p-6 space-y-6">
-                    <div class="space-y-1.5">
-                        <label class="text-[11px] font-black text-slate-500 uppercase">Pilih Partner / Rekan
-                            Kerja</label>
-                        <select name="partner_ids[]" id="partner_select" class="form-control select2"
-                            multiple="multiple" data-placeholder="Pilih Rekan Teknisi (Jika ada)">
-                            @foreach ($teknisis as $t)
-                                @if ($t->id != auth()->id())
-                                    <option value="{{ $t->id }}">{{ $t->nama_lengkap }}</option>
-                                @endif
-                            @endforeach
-                        </select>
+                <div class="modal-body bg-white p-6">
+                    <!-- Tab Data Penugasan -->
+                    <div class="tab-panel active" id="tab-m-data">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div class="bg-sky-50 p-5 rounded-2xl border border-sky-100">
+                                    <span
+                                        class="text-[10px] font-black text-sky-400 block uppercase tracking-wider mb-1">Status
+                                        Laporan</span>
+                                    <p class="text-sm font-bold text-sky-700 m-0">Menunggu penyelesaian teknisi di
+                                        lapangan.</p>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Nama
+                                        Pelanggan</label>
+                                    <input type="text" class="form-input bg-slate-50 border-slate-200"
+                                        id="m_nama_lengkap" readonly>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="form-group">
+                                    <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Pilih
+                                        Partner / Rekan Kerja</label>
+                                    <div class="partner-card-scroll"
+                                        style="max-height: 200px; overflow-y: auto; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;">
+                                        <div class="grid grid-cols-1 gap-1">
+                                            @foreach ($teknisis as $t)
+                                                @if ($t->id != auth()->id())
+                                                    <div class="partner-item"
+                                                        style="display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 8px; transition: background 0.2s;">
+                                                        <input
+                                                            class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary"
+                                                            type="checkbox" name="partner_ids[]"
+                                                            value="{{ $t->id }}"
+                                                            id="m_partner_{{ $t->id }}">
+                                                        <label
+                                                            class="text-sm font-semibold text-slate-700 cursor-pointer w-full m-0"
+                                                            for="m_partner_{{ $t->id }}">
+                                                            {{ $t->nama_lengkap }}
+                                                        </label>
+                                                    </div>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400 italic mt-1.5">*Opsional, bisa dikosongkan
+                                        jika bekerja sendiri.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="space-y-1.5">
-                        <label class="text-[11px] font-black text-slate-500 uppercase">Solusi / Tindakan Perbaikan
-                            <span class="text-rose-500">*</span></label>
-                        <textarea name="solusi_kendala" class="form-control" required rows="3"
-                            placeholder="Jelaskan apa saja yang telah diperbaiki..."
-                            style="border: 2px solid #e2e8f0; border-radius: 12px; font-size: 13px; font-weight: 500;"></textarea>
+                    <!-- Tab Solusi Teknis -->
+                    <div class="tab-panel" id="tab-m-solusi">
+                        <div class="space-y-4">
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Solusi /
+                                    Tindakan Perbaikan <span class="text-rose-500">*</span></label>
+                                <textarea name="solusi_kendala" class="form-textarea" required rows="5"
+                                    placeholder="Jelaskan secara detail tindakan yang telah dilakukan untuk memperbaiki kendala pelanggan..."></textarea>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="space-y-1.5">
-                            <label class="text-[9px] font-black text-slate-400 uppercase">Foto Sebelum <span
-                                    class="text-rose-500">*</span></label>
-                            <input type="file" name="foto_sebelum" class="form-control !text-[10px]" required
-                                accept="image/*">
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="text-[9px] font-black text-slate-400 uppercase">Foto Sesudah <span
-                                    class="text-rose-500">*</span></label>
-                            <input type="file" name="foto_sesudah" class="form-control !text-[10px]" required
-                                accept="image/*">
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="text-[9px] font-black text-slate-400 uppercase">Speedtest <span
-                                    class="text-rose-500">*</span></label>
-                            <input type="file" name="foto_speedtest" class="form-control !text-[10px]" required
-                                accept="image/*">
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="text-[9px] font-black text-slate-400 uppercase">Selfie Tim <span
-                                    class="text-rose-500">*</span></label>
-                            <input type="file" name="foto_selfie" class="form-control !text-[10px]" required
-                                accept="image/*">
+                    <!-- Tab Dokumentasi -->
+                    <div class="tab-panel" id="tab-m-media">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Foto Sebelum
+                                    <span class="text-rose-500">*</span></label>
+                                <div
+                                    class="bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl p-3 text-center">
+                                    <input type="file" name="foto_sebelum" class="form-input !text-[10px]"
+                                        required accept="image/*">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Foto Sesudah
+                                    <span class="text-rose-500">*</span></label>
+                                <div
+                                    class="bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl p-3 text-center">
+                                    <input type="file" name="foto_sesudah" class="form-input !text-[10px]"
+                                        required accept="image/*">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Speedtest
+                                    <span class="text-rose-500">*</span></label>
+                                <div
+                                    class="bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl p-3 text-center">
+                                    <input type="file" name="foto_speedtest" class="form-input !text-[10px]"
+                                        required accept="image/*">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Selfie Tim
+                                    <span class="text-rose-500">*</span></label>
+                                <div
+                                    class="bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl p-3 text-center">
+                                    <input type="file" name="foto_selfie" class="form-input !text-[10px]" required
+                                        accept="image/*">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                    <button type="submit" class="btn-primary-admin w-full !py-3.5 !bg-emerald-600">
-                        <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Kirim Laporan Selesai
+                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+                        onclick="closeCustomModal('completeModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
+                    </button>
+                    <button type="submit" class="btn-save !flex !items-center !justify-center gap-2 !bg-emerald-600">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Kirim Laporan Selesai
                     </button>
                 </div>
             </form>
@@ -1025,8 +1119,24 @@
 
             function openCompleteModal(triggerEl) {
                 const $btn = $(triggerEl);
-                $('#nama_p').text($btn.data('nama'));
+                const nama = $btn.data('nama');
+
+                // Update UI elements
+                $('#nama_p').text(nama);
+                $('#m_nama_lengkap').val(nama);
+
+                // Set form action
                 $('#completeForm').attr('action', `/maintenances/${$btn.data('id')}/complete`);
+
+                // Reset form and tabs
+                $('#completeForm')[0].reset();
+
+                // Re-fill name after reset since reset() clears the input
+                $('#m_nama_lengkap').val(nama);
+
+                // Reset tabs to first
+                $('#completeModal .modal-tab').first().click();
+
                 openCustomModal('completeModal');
             }
 
@@ -1067,7 +1177,8 @@
                 };
 
                 const adminTable = $('#admin-maintenance-table').DataTable(dtOptions);
-                $('#delegated-table, #general-table').DataTable(dtOptions);
+                const delegatedTable = $('#delegated-table').DataTable(dtOptions);
+                const generalTable = $('#general-table').DataTable(dtOptions);
 
                 // Customer Search Modal DataTable
                 const customerSearchTable = $('#customer-search-table').DataTable({
@@ -1075,13 +1186,30 @@
                     "pageLength": 5
                 });
 
-                // Custom Search for tables
-                $('#custom-search').on('keyup', function() {
-                    adminTable.search(this.value).draw();
+                // Custom Search for tables (Live Search)
+                $('.custom-search').on('keyup', function() {
+                    const val = this.value;
+                    if (adminTable) adminTable.search(val).draw();
+                    if (delegatedTable) delegatedTable.search(val).draw();
+                    if (generalTable) generalTable.search(val).draw();
                 });
 
                 $('#customer-modal-search').on('keyup', function() {
                     customerSearchTable.search(this.value).draw();
+                });
+
+                // Tab Switching Logic
+                $(document).on('click', '.modal-tab', function() {
+                    const tabId = $(this).data('tab');
+                    const $modalBox = $(this).closest('.modal-box');
+
+                    // Update Tabs
+                    $modalBox.find('.modal-tab').removeClass('active');
+                    $(this).addClass('active');
+
+                    // Update Panels
+                    $modalBox.find('.tab-panel').removeClass('active');
+                    $('#' + tabId).addClass('active');
                 });
 
                 // Select2 Setup

@@ -232,7 +232,7 @@
         <div class="table-toolbar">
             <div class="search-wrap">
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="search" class="search-input" id="custom-search"
+                <input type="search" class="search-input custom-search"
                     placeholder="Cari pelanggan, teknisi, atau status..." autocomplete="off" />
             </div>
             <div style="display:flex;gap:8px;">
@@ -318,7 +318,7 @@
                                         @if ($d->status === 'Selesai')
                                             @if (!$isTrashed)
                                                 <button type="button"
-                                                    class="btn-primary-admin !py-1.5 !px-3 !text-[11px] !bg-rose-600"
+                                                    class="btn-primary-admin !h-9 !px-3 !text-[11px] activate-btn !flex !items-center !justify-center gap-1"
                                                     onclick="confirmGlobalDelete('{{ route('dismantles.deleteCustomer', $d->customer_id) }}', '{{ $d->customer->nama_lengkap }} (Dismantle Selesai)')">
                                                     <i class="fa-solid fa-user-slash mr-1"></i> Hapus Pelanggan
                                                 </button>
@@ -342,7 +342,23 @@
         </div>
     @else
         {{-- TAMPILAN TEKNISI --}}
+        <!-- Toolbar -->
+        <div class="table-toolbar">
+            <div class="search-wrap">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="search" class="search-input custom-search"
+                    placeholder="Cari nama pelanggan, alamat, atau keterangan..." autocomplete="off" />
+            </div>
+            <div style="display:flex;gap:8px;">
+                <div
+                    style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    Tugas Aktif
+                </div>
+            </div>
+        </div>
+
         <div style="margin-bottom: 2rem;">
+
             <div
                 style="display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; border-left: 4px solid #0ea5e9; padding-left: 12px;">
                 <h2 style="font-size: 16px; font-weight: 800; color: #0f172a; margin: 0;">1. Tugas Delegasi Khusus
@@ -392,11 +408,11 @@
                                                 <i class="fa-solid fa-circle-info text-primary"></i>
                                             </button>
                                             <button type="button"
-                                                class="btn-primary-admin !py-1.5 !px-3 !text-[11px]"
+                                                class="btn-primary-admin !h-9 !px-3 !text-[11px] activate-btn !flex !items-center !justify-center gap-1"
                                                 onclick="openCompleteDismantleModal(this)"
                                                 data-id="{{ $d->id }}"
                                                 data-nama="{{ $d->customer->nama_lengkap }}">
-                                                Selesai
+                                                <i class="fa-solid fa-circle-check"></i> Selesaikan
                                             </button>
                                         </div>
                                     </td>
@@ -458,11 +474,11 @@
                                                 <i class="fa-solid fa-circle-info text-primary"></i>
                                             </button>
                                             <button type="button"
-                                                class="btn-primary-admin !py-1.5 !px-3 !text-[11px] !bg-emerald-600"
+                                                class="btn-primary-admin !h-9 !px-3 !text-[11px] activate-btn !flex !items-center !justify-center gap-1"
                                                 onclick="openCompleteDismantleModal(this)"
                                                 data-id="{{ $d->id }}"
                                                 data-nama="{{ $d->customer->nama_lengkap }}">
-                                                Ambil
+                                                <i class="fa-solid fa-hand-holding-hand"></i> Ambil
                                             </button>
                                         </div>
                                     </td>
@@ -754,8 +770,12 @@
                     </div>
                 </div>
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                    <button type="submit" class="btn-primary-admin w-full !py-3.5 !bg-emerald-600">
-                        <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Kirim Laporan Selesai
+                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+                        onclick="closeCustomModal('completeDismantleModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
+                    </button>
+                    <button type="submit" class="btn-save !flex !items-center !justify-center gap-2 !bg-emerald-600">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Kirim Laporan Selesai
                     </button>
                 </div>
             </form>
@@ -862,16 +882,20 @@
                 };
 
                 const adminTable = $('#admin-dismantle-table').DataTable(dtOptions);
-                $('#delegated-table, #general-table').DataTable(dtOptions);
+                const delegatedTable = $('#delegated-table').DataTable(dtOptions);
+                const generalTable = $('#general-table').DataTable(dtOptions);
 
                 const customerSearchTable = $('#customer-search-table').DataTable({
                     ...dtOptions,
                     "pageLength": 5
                 });
 
-                // Custom Search
-                $('#custom-search').on('keyup', function() {
-                    adminTable.search(this.value).draw();
+                // Custom Search (Live Search)
+                $('.custom-search').on('keyup', function() {
+                    const val = this.value;
+                    if (adminTable) adminTable.search(val).draw();
+                    if (delegatedTable) delegatedTable.search(val).draw();
+                    if (generalTable) generalTable.search(val).draw();
                 });
                 $('#customer-modal-search').on('keyup', function() {
                     customerSearchTable.search(this.value).draw();

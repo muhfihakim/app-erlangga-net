@@ -1,5 +1,4 @@
 @section('Scripts')
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -179,14 +178,6 @@
                     document.body.style.overflow = '';
                 }
             });
-
-            // --- Toast Flash Messages ---
-            @if (session('success'))
-                showToast('{{ session('success') }}', 'success');
-            @endif
-            @if (session('error'))
-                showToast('{{ session('error') }}', 'error');
-            @endif
 
             // --- Geolocation Logic ---
             function setupGeolocation(btnId, inputId) {

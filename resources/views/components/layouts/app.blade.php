@@ -60,9 +60,7 @@
 
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    @yield('Scripts')
-    @include('partials.location_scripts')
-    
+
     <!-- Global Toast Container -->
     <div id="toast-container" class="toast-container" style="z-index: 999999;"></div>
 
@@ -153,5 +151,8 @@
             });
         });
     </script>
+
+    @yield('Scripts')
+    @include('partials.location_scripts')
 </body>
 </html>
