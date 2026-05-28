@@ -30,17 +30,13 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 //     return redirect()->route('2fa.verify');
 // })->middleware('auth')->name('2fa.redirect');
 
-// Route Publik Manajemen ODP (Tanpa Login)
-Route::get('/odp', [OdpController::class, 'index'])->name('odp.index');
-Route::post('/odp', [OdpController::class, 'store'])->name('odp.store');
-Route::put('/odp/{id}', [OdpController::class, 'update'])->name('odp.update');
-Route::delete('/odp/{id}', [OdpController::class, 'destroy'])->name('odp.destroy');
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware('auth.custom');
-
 Route::middleware(['auth.custom'])->group(function () {
+    // Rute untuk FTTH - Manajemen ODP
+    Route::get('/odp', [OdpController::class, 'index'])->name('odp.index');
+    Route::post('/odp', [OdpController::class, 'store'])->name('odp.store');
+    Route::put('/odp/{id}', [OdpController::class, 'update'])->name('odp.update');
+    Route::delete('/odp/{id}', [OdpController::class, 'destroy'])->name('odp.destroy');
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboards.index');
     Route::get('/accounts', [AccountController::class, 'index'])->name('accounts.index');
     Route::post('/accounts', [AccountController::class, 'store'])->name('accounts.store');

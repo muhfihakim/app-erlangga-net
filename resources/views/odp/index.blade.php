@@ -1,514 +1,670 @@
-<!DOCTYPE html>
-<html lang="id">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Manajemen ODP</title>
-    <meta name="robots" content="index,follow,max-image-preview:large">
-    <meta name="description"
-        content="Sistem Informasi ERLANGGA NET untuk pengelolaan, pemantauan, dan administrasi pengguna layanan internet secara terpusat, efisien, dan mudah.">
-    <meta name="keywords"
-        content="ERLANGGA NET, sistem informasi, pengelolaan pengguna, layanan internet, administrasi jaringan, billing internet, monitoring pengguna, ISP, manajemen pelanggan">
-    <meta name="author" content="Muhammad Luthfi Hakim">
-    <meta name="copyright" content="Muhammad Luthfi Hakim">
-
-    <meta property="og:title" content="ERLANGGA NET: Sistem Informasi Pengelolaan Pengguna Layanan Internet">
-    <meta property="og:description"
-        content="Platform terpusat untuk administrasi, monitoring, dan penagihan (billing) pengguna layanan internet Anda.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://app.erlangga.net/">
-    <meta property="og:image" content="https://app.erlangga.net/dist/login/images/bg-1.png">
-    <meta property="og:image:alt" content="Logo Sistem Informasi ERLANGGA NET">
-    <meta property="og:site_name" content="ERLANGGA NET">
-    <meta property="og:locale" content="id_ID">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="ERLANGGA NET: Sistem Informasi Pengelolaan Pengguna Layanan Internet">
-    <meta name="twitter:description"
-        content="Kelola dan pantau seluruh pengguna layanan internet Anda dengan mudah dan efisien menggunakan ERLANGGA NET.">
-    <meta name="twitter:image" content="https://app.erlangga.net/dist/login/images/bg-1.png">
-    <meta name="twitter:image:alt" content="Antarmuka Sistem Informasi ERLANGGA NET">
-
-    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="shortcut icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/site.webmanifest" />
-
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <!-- Google Font: Source Sans Pro -->
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <!-- AdminLTE -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
-    <!-- DataTables BS4 & Responsive -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap4.min.css">
-    <!-- SweetAlert2 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-
-    <!-- Select2 -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
-
-    <style>
-        body {
-            background-color: #f4f6f9;
-        }
-
-        /* FAB Button */
-        .fab {
-            position: fixed;
-            width: 60px;
-            height: 60px;
-            bottom: 30px;
-            right: 30px;
-            background-color: #007bff;
-            color: #FFF;
-            border-radius: 50px;
-            text-align: center;
-            box-shadow: 2px 2px 3px #999;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            transition: transform 0.2s;
-        }
-
-        .fab:hover {
-            background-color: #0069d9;
-            color: white;
-            transform: scale(1.1);
-        }
-
-        /* Table Tweaks */
-        table.dataTable.dtr-inline.collapsed>tbody>tr>td.dtr-control:before {
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: #007bff;
-        }
-
-        .card {
-            border-radius: 10px;
-            border: none;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .card-header {
-            background-color: #fff;
-            border-bottom: 1px solid #f0f0f0;
-            border-radius: 10px 10px 0 0 !important;
-        }
-
-        @media (max-width: 576px) {
-            .modal-dialog {
-                margin: 0.5rem;
+<x-layouts.app>
+    @section('Css')
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <style>
+            /* Map Styling */
+            #odp-map {
+                height: 500px;
+                width: 100%;
+                border-radius: 16px;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+                z-index: 1;
             }
-        }
 
-        /* GPS Accuracy Indicator */
-        .gps-accuracy {
-            font-size: 0.8rem;
-            margin-top: 5px;
-            font-style: italic;
-        }
-
-        .gps-good {
-            color: #28a745;
-            font-weight: bold;
-        }
-
-        .gps-bad {
-            color: #dc3545;
-        }
-
-        .gps-wait {
-            color: #e0a800;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            50% {
-                opacity: 0.5;
+            .map-container {
+                position: relative;
+                margin-bottom: 2rem;
             }
-        }
-    </style>
-</head>
 
-<body class="layout-top-nav">
-    <div class="wrapper">
+            /* Legend Styling */
+            .map-legend {
+                position: absolute;
+                bottom: 20px;
+                left: 20px;
+                background: white;
+                padding: 12px 16px;
+                border-radius: 12px;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                z-index: 1000;
+            }
 
-        <!-- Navbar -->
-        <nav class="main-header navbar navbar-expand-md navbar-light navbar-white shadow-sm">
-            <div class="container d-flex justify-content-center">
-                <a href="#" class="navbar-brand m-0"> <i class="fas fa-network-wired text-primary mr-2"></i>
-                    <span class="brand-text font-weight-bold">Manajemen ODP</span>
-                </a>
+            .legend-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 11px;
+                font-weight: 700;
+                color: #475569;
+                margin-bottom: 4px;
+            }
+
+            .legend-dot {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+            }
+
+            /* Distance Tool Styling */
+            .distance-info {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background: white;
+                padding: 10px 14px;
+                border-radius: 10px;
+                border: 2px solid #0ea5e9;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                z-index: 1000;
+                display: none;
+            }
+
+            /* Toolbar Styles */
+            .table-toolbar {
+                background: #fff;
+                border: 1px solid #e2e8f0;
+                border-radius: 14px;
+                padding: 1rem 1.25rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                flex-wrap: wrap;
+                margin-bottom: 1rem;
+            }
+
+            .search-wrap {
+                position: relative;
+                flex: 1;
+                min-width: 200px;
+                max-width: 360px;
+            }
+
+            .search-icon {
+                position: absolute;
+                left: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #94a3b8;
+                font-size: 13px;
+            }
+
+            .search-input {
+                width: 100%;
+                padding: 9px 12px 9px 36px;
+                border: 2px solid #e2e8f0;
+                border-radius: 10px;
+                font-size: 13px;
+                outline: none;
+                transition: all .25s;
+                background: #f8fafc;
+            }
+
+            .search-input:focus {
+                border-color: #0ea5e9;
+                background: #fff;
+            }
+
+            .badge-gpon { background: #e0f2fe; color: #0369a1; }
+            .badge-epon { background: #fef3c7; color: #92400e; }
+
+            /* Full Capitalization for Table Only */
+            #odp-table thead th, 
+            #odp-table tbody td {
+                text-transform: uppercase !important;
+                font-weight: 600;
+            }
+
+            #odp-table tbody td { font-size: 12px; }
+            </style>
+
+    @endsection
+
+    @php
+        $canCrud = auth()->user()->jabatan === 'Administrator' || auth()->user()->jabatan === 'Teknisi';
+    @endphp
+
+    <!-- Page Header -->
+    <div
+        style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+        <div>
+            <h1 style="font-size:22px;font-weight:900;margin:0;">Manajemen ODP (Optical Distribution Point)</h1>
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Visualisasi dan pengelolaan titik distribusi
+                infrastruktur FTTH.</p>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <button type="button" id="measure-btn"
+                class="btn-primary-admin !bg-white !text-slate-700 !border-slate-200 !shadow-none hover:!bg-slate-50 !flex !items-center !justify-center gap-2">
+                <i class="fa-solid fa-ruler-combined text-primary"></i> Ukur Jarak
+            </button>
+            @if ($canCrud)
+                <button type="button" onclick="openCustomModal('addOdpModal')"
+                    class="btn-primary-admin !flex !items-center !justify-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Tambah ODP
+                </button>
+            @endif
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid mb-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#e0f2fe;color:#0369a1;">
+                <i class="fa-solid fa-tower-broadcast"></i>
             </div>
-        </nav>
-
-        <!-- Content -->
-        <div class="content-wrapper">
-            <div class="content-header">
-                <div class="container">
-                    <div class="row mb-2">
-                        <div class="col-12 text-center">
-                            <h1 class="m-0 text-dark" style="font-size: 1.5rem;">Daftar Titik ODP</h1>
-                            <p class="text-muted small">Pengumpulan Data ODP
-                                <br>
-                                Powered by: PT. Baraya Bareng Sadulur
-                            </p>
-                        </div>
-                    </div>
-                    <!-- Statistik -->
-                    <div class="row mb-3">
-                        <div class="col-4">
-                            <div class="small-box bg-info mb-0">
-                                <div class="inner p-2 text-center">
-                                    <h4 class="font-weight-bold mb-0">{{ $stats['total'] }}</h4>
-                                    <p class="mb-0 small">Total</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="small-box bg-success mb-0">
-                                <div class="inner p-2 text-center">
-                                    <h4 class="font-weight-bold mb-0">{{ $stats['gpon'] }}</h4>
-                                    <p class="mb-0 small">GPON</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="small-box bg-warning mb-0">
-                                <div class="inner p-2 text-center">
-                                    <h4 class="font-weight-bold mb-0 text-white">{{ $stats['epon'] }}</h4>
-                                    <p class="mb-0 small text-white">EPON</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div>
+                <div class="stat-val">{{ $stats['total'] }}</div>
+                <div class="stat-lbl">Total ODP</div>
             </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#f0f9ff;color:#0ea5e9;">
+                <i class="fa-solid fa-bolt"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $stats['gpon'] }}</div>
+                <div class="stat-lbl">GPON Mode</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
+                <i class="fa-solid fa-microchip"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $stats['epon'] }}</div>
+                <div class="stat-lbl">EPON Mode</div>
+            </div>
+        </div>
+    </div>
 
-            <div class="content">
-                <div class="container">
-                    <div class="card">
-                        <div class="card-body p-2">
-                            <table id="odpTable" class="table table-bordered table-striped dt-responsive nowrap"
-                                style="width:100%">
-                                <thead>
-                                    <tr>
-                                        <!-- Priority 1 = Selalu muncul, Priority rendah = sembunyi di tombol + -->
-                                        <th style="text-align: center; vertical-align: middle" data-priority="1">ID
-                                            ODP
-                                        </th>
-                                        <th style="text-align: center; vertical-align: middle" data-priority="2">Jenis
-                                        </th>
-                                        <th style="text-align: center; vertical-align: middle" data-priority="3">Opsi
-                                        </th>
-                                        <th style="text-align: center; vertical-align: middle">Lokasi</th>
-                                        <th style="text-align: center; vertical-align: middle">Koordinat</th>
-                                        <th style="text-align: center; vertical-align: middle">Keterangan</th>
-                                        <th style="text-align: center; vertical-align: middle">Foto</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($odps as $odp)
-                                        <tr>
-                                            <td class="font-weight-bold align-middle">ODP-{{ $odp->id }}</td>
-                                            <td style="text-align: center; vertical-align: middle"><span
-                                                    class="badge {{ $odp->jenis_odp == 'GPON' ? 'badge-success' : 'badge-warning' }}">{{ $odp->jenis_odp }}</span>
-                                            </td>
-                                            <td style="text-align: center; vertical-align: middle">
-                                                <div class="btn-group">
-                                                    <button class="btn btn-warning btn-sm btn-edit"
-                                                        data-id="{{ $odp->id }}"
-                                                        data-jenis="{{ $odp->jenis_odp }}"
-                                                        data-lokasi="{{ $odp->lokasi_odp }}"
-                                                        data-koordinat="{{ $odp->titik_koordinat }}"
-                                                        data-keterangan="{{ $odp->keterangan }}">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <button class="btn btn-danger btn-sm"
-                                                        onclick="confirmGlobalDelete('{{ route('odp.destroy', $odp->id) }}', 'ODP-{{ $odp->id }}')">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                            <td style="text-align: center; vertical-align: middle">
-                                                {{ $odp->lokasi_odp }}</td>
-                                            <td style="text-align: center; vertical-align: middle">
-                                                <a href="https://www.google.com/maps/search/?api=1&query={{ $odp->titik_koordinat }}"
-                                                    target="_blank" class="btn btn-outline-primary btn-sm btn-block">
-                                                    <i class="fas fa-map-marked-alt mr-1"></i> Maps
-                                                </a>
-                                            </td>
-                                            <td style="text-align: center; vertical-align: middle">
-                                                {{ $odp->keterangan ?? '-' }}</td>
-                                            <td style="text-align: center; vertical-align: middle">
-                                                @if ($odp->foto_odp)
-                                                    <a href="{{ asset('storage/' . $odp->foto_odp) }}"
-                                                        target="_blank"
-                                                        class="btn btn-outline-secondary btn-sm btn-block"><i
-                                                            class="fas fa-image mr-1"></i> Foto</a>
-                                                @else
-                                                    <span class="text-muted italic">Tidak ada</span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="mb-5"></div>
-                </div>
+    <!-- Map Section -->
+    <div class="map-container">
+        <div id="odp-map"></div>
+
+        <div class="map-legend">
+            <div class="legend-item">
+                <div class="legend-dot" style="background: #0ea5e9; border: 2px solid #fff;"></div>
+                ODP GPON
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background: #f59e0b; border: 2px solid #fff;"></div>
+                ODP EPON
             </div>
         </div>
 
-        <!-- FAB -->
-        <a href="#" class="fab" id="btnTambah"><i class="fas fa-plus"></i></a>
+        <div id="dist-info" class="distance-info">
+            <div class="flex flex-col">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Estimasi Jarak</span>
+                <span id="total-dist" class="text-lg font-bold text-primary">0 m</span>
+                <div class="flex gap-2 mt-2">
+                    <button id="reset-measure" class="text-[10px] font-bold text-rose-500 underline">Reset</button>
+                    <button id="close-measure" class="text-[10px] font-bold text-slate-500 underline">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <!-- Modal Form (Tambah/Edit) -->
-        <div class="modal fade" id="odpModal" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <form id="odpForm" method="POST" enctype="multipart/form-data" class="w-100">
-                    @csrf
-                    <div id="method-field"></div>
+    <!-- Toolbar -->
+    <div class="table-toolbar">
+        <div class="search-wrap">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="search" class="search-input custom-search" placeholder="Cari lokasi atau jenis ODP..."
+                autocomplete="off" />
+        </div>
+        <div style="display:flex;gap:8px;">
+            <div
+                style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                Data FTTH Infrastructure
+            </div>
+        </div>
+    </div>
 
-                    <div class="modal-content">
-                        <div class="modal-header bg-primary text-white" id="modalHeader">
-                            <h5 class="modal-title" id="odpModalLabel">Tambah ODP Baru</h5>
-                            <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label>Jenis ODP <span class="text-danger">*</span></label>
-                                <div class="d-flex flex-wrap mt-1">
-                                    <div class="custom-control custom-radio mr-4">
-                                        <input class="custom-control-input" type="radio" id="odp_epon"
-                                            name="jenis_odp" value="EPON" required>
-                                        <label for="odp_epon" class="custom-control-label">EPON</label>
-                                    </div>
-                                    <div class="custom-control custom-radio">
-                                        <input class="custom-control-input custom-control-input-primary"
-                                            type="radio" id="odp_gpon" name="jenis_odp" value="GPON" required>
-                                        <label for="odp_gpon" class="custom-control-label">GPON</label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Alamat / Patokan <span class="text-danger">*</span></label>
-                                <textarea name="lokasi_odp" id="lokasi_odp" class="form-control" rows="2" placeholder="Depan rumah pak RT..."
-                                    required></textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Koordinat GPS (Satelit) <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <input type="text" name="titik_koordinat" id="titik_koordinat"
-                                        class="form-control" placeholder="Menunggu sinyal GPS..." required readonly>
-                                    <div class="input-group-append">
-                                        <button type="button" class="btn btn-info" id="btnGetLoc"
-                                            onclick="getHighAccuracyLocation()">
-                                            <i class="fas fa-satellite-dish"></i> Ambil
+    <!-- Table Section -->
+    <div class="table-card">
+        <div class="table-responsive">
+            <table id="odp-table" class="admin-table">
+                <thead>
+                    <tr>
+                        <th style="text-align: center; width: 50px;">#</th>
+                        <th style="width: 120px; text-align: center;">Jenis</th>
+                        <th>Lokasi ODP</th>
+                        <th style="text-align: center; width: 200px;">Koordinat</th>
+                        <th>Keterangan</th>
+                        <th style="text-align: center; width: 120px;">Opsi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($odps as $odp)
+                        <tr>
+                            <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}
+                            </td>
+                            <td style="text-align: center;">
+                                <span
+                                    class="badge {{ $odp->jenis_odp === 'GPON' ? 'badge-gpon' : 'badge-epon' }} !text-[10px] !font-bold">
+                                    {{ $odp->jenis_odp }}
+                                </span>
+                            </td>
+                            <td style="font-weight: 700; color: #0f172a;">{{ $odp->lokasi_odp }}</td>
+                            <td style="text-align: center; font-family: monospace; font-size: 11px; color: #64748b;">
+                                {{ $odp->titik_koordinat }}
+                            </td>
+                            <td style="font-size: 12px; color: #64748b;">{{ $odp->keterangan ?: '-' }}</td>
+                            <td style="text-align: center;">
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                    <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                        title="Lihat di Peta"
+                                        onclick="focusOnOdp('{{ $odp->titik_koordinat }}', '{{ $odp->id }}')">
+                                        <i class="fa-solid fa-location-dot text-emerald-500"></i>
+                                    </button>
+                                    @if ($canCrud)
+                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                            title="Edit" onclick="openEditOdpModal(this)"
+                                            data-id="{{ $odp->id }}" data-jenis="{{ $odp->jenis_odp }}"
+                                            data-lokasi="{{ $odp->lokasi_odp }}"
+                                            data-tikor="{{ $odp->titik_koordinat }}"
+                                            data-keterangan="{{ $odp->keterangan }}"
+                                            data-foto="{{ $odp->foto_odp ? asset('storage/' . $odp->foto_odp) : '' }}">
+                                            <i class="fa-solid fa-pen-to-square text-primary"></i>
                                         </button>
-                                    </div>
+                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                            title="Hapus"
+                                            onclick="confirmGlobalDelete('{{ route('odp.destroy', $odp->id) }}', 'ODP {{ $odp->lokasi_odp }}')">
+                                            <i class="fa-solid fa-trash text-rose-600"></i>
+                                        </button>
+                                    @endif
                                 </div>
-                                <div id="gps-status" class="gps-accuracy">Klik "Ambil" dan tunggu akurasi < 20m.</div>
-                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-                                <div class="form-group">
-                                    <label>Keterangan</label>
-                                    <input type="text" name="keterangan" id="keterangan" class="form-control"
-                                        placeholder="Catatan tambahan...">
-                                </div>
-                                <div class="form-group">
-                                    <label>Foto (Opsional)</label>
-                                    <div class="custom-file">
-                                        <input type="file" name="foto_odp" class="custom-file-input"
-                                            id="customFile" accept="image/*">
-                                        <label class="custom-file-label" for="customFile">Pilih file</label>
-                                    </div>
-                                </div>
+    @if ($canCrud)
+        {{-- Modal Tambah ODP --}}
+        <div class="modal-overlay" id="addOdpModal">
+            <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
+                <form action="{{ route('odp.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                        <div class="modal-title">
+                            <i class="fa-solid fa-plus-circle text-primary"></i>
+                            <span class="text-slate-900 font-bold">Tambah Data ODP</span>
+                        </div>
+                        <button type="button" class="modal-close" onclick="closeCustomModal('addOdpModal')">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body p-8 space-y-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Jenis ODP
+                                    <span class="text-rose-500">*</span></label>
+                                <select name="jenis_odp" class="form-select" required>
+                                    <option value="EPON">EPON (Amber)</option>
+                                    <option value="GPON">GPON (Blue)</option>
+                                </select>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                                <button type="submit" class="btn btn-primary" id="btnSimpan">Simpan Data</button>
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Titik
+                                    Koordinat <span class="text-rose-500">*</span></label>
+                                <div class="flex gap-2">
+                                    <input type="text" name="titik_koordinat" id="add_tikor" class="form-input"
+                                        placeholder="-7.xxx, 110.xxx" required>
+                                    <button type="button" class="btn-primary-admin !shadow-none !px-4"
+                                        onclick="getAddLocation()">
+                                        <i class="fa-solid fa-location-crosshairs"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Lokasi / Nama ODP
+                                <span class="text-rose-500">*</span></label>
+                            <input type="text" name="lokasi_odp" class="form-input"
+                                placeholder="Contoh: ODP-KLT-01" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Foto ODP</label>
+                            <input type="file" name="foto_odp" class="form-input" accept="image/*">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Keterangan</label>
+                            <textarea name="keterangan" class="form-textarea" rows="3" placeholder="Informasi tambahan..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                        <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+                            onclick="closeCustomModal('addOdpModal')">
+                            <i class="fa-solid fa-xmark"></i> Batal
+                        </button>
+                        <button type="submit" class="btn-save !flex !items-center !justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> Simpan Data ODP
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
 
-    </div>
+        {{-- Modal Edit ODP --}}
+        <div class="modal-overlay" id="editOdpModal">
+            <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
+                <form id="editOdpForm" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                        <div class="modal-title">
+                            <i class="fa-solid fa-pen-to-square text-primary"></i>
+                            <span class="text-slate-900 font-bold">Edit Data ODP</span>
+                        </div>
+                        <button type="button" class="modal-close" onclick="closeCustomModal('editOdpModal')">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body p-8 space-y-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Jenis ODP
+                                    <span class="text-rose-500">*</span></label>
+                                <select name="jenis_odp" id="edit_jenis" class="form-select" required>
+                                    <option value="EPON">EPON (Amber)</option>
+                                    <option value="GPON">GPON (Blue)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Titik
+                                    Koordinat <span class="text-rose-500">*</span></label>
+                                <div class="flex gap-2">
+                                    <input type="text" name="titik_koordinat" id="edit_tikor_input"
+                                        class="form-input" required>
+                                    <button type="button" class="btn-primary-admin !shadow-none !px-4"
+                                        onclick="getEditLocation()">
+                                        <i class="fa-solid fa-location-crosshairs"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Lokasi / Nama ODP
+                                <span class="text-rose-500">*</span></label>
+                            <input type="text" name="lokasi_odp" id="edit_lokasi" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Foto ODP
+                                (Kosongkan jika tidak diubah)</label>
+                            <input type="file" name="foto_odp" class="form-input" accept="image/*">
+                            <div id="current_foto_wrap" class="mt-2 hidden">
+                                <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">Foto Saat Ini:</p>
+                                <img id="current_foto" src=""
+                                    class="w-24 h-24 object-cover rounded-lg border border-slate-200">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Keterangan</label>
+                            <textarea name="keterangan" id="edit_keterangan" class="form-textarea" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                        <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+                            onclick="closeCustomModal('editOdpModal')">
+                            <i class="fa-solid fa-xmark"></i> Batal
+                        </button>
+                        <button type="submit" class="btn-save !flex !items-center !justify-center gap-2">
+                            <i class="fa-solid fa-check"></i> Perbarui Data ODP
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap4.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
-
-    <script>
-        $(document).ready(function() {
-            bsCustomFileInput.init();
-            $('#odpTable').DataTable({
-                responsive: true,
-                lengthChange: false,
-                ordering: false
-            });
-
-            @if (session('success'))
-                Swal.fire({
-                    toast: true,
-                    position: 'top',
-                    icon: 'success',
-                    title: '{{ session('success') }}',
-                    showConfirmButton: false,
-                    timer: 3000
+    @section('Scripts')
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
+        <script>
+            $(document).ready(function() {
+                // Initialize DataTable
+                const table = $('#odp-table').DataTable({
+                    "pageLength": 10,
+                    "lengthChange": false,
+                    "ordering": false,
+                    "info": false,
+                    "responsive": true,
+                    "dom": 'tpir',
+                    "language": {
+                        "zeroRecords": "Data ODP tidak ditemukan",
+                        "paginate": {
+                            "previous": '<i class="fa-solid fa-chevron-left"></i>',
+                            "next": '<i class="fa-solid fa-chevron-right"></i>'
+                        }
+                    }
                 });
-            @endif
-            @if ($errors->any())
-            showToast('Periksa inputan Anda!', 'error');
-        @endif
 
-            // Modal Tambah
-            $('#btnTambah').click(function() {
-                $('#odpForm')[0].reset();
-                $('#odpForm').attr('action', '{{ route('odp.store') }}');
-                $('#method-field').html('');
-                $('#odpModalLabel').text('Tambah ODP Baru');
-                $('#modalHeader').removeClass('bg-warning').addClass('bg-primary');
-                $('#btnSimpan').removeClass('btn-warning').addClass('btn-primary').text('Simpan Data');
-                $('#gps-status').html('Klik "Ambil" untuk mencari sinyal.');
-                $('#odpModal').modal('show');
-            });
-
-            // Modal Edit
-            $('.btn-edit').click(function() {
-                let id = $(this).data('id');
-                let jenis = $(this).data('jenis');
-                let lokasi = $(this).data('lokasi');
-                let koordinat = $(this).data('koordinat');
-                let keterangan = $(this).data('keterangan');
-
-                $("input[name=jenis_odp][value=" + jenis + "]").prop('checked', true);
-                $('#lokasi_odp').val(lokasi);
-                $('#titik_koordinat').val(koordinat);
-                $('#keterangan').val(keterangan);
-
-                let url = "{{ route('odp.update', ':id') }}".replace(':id', id);
-                $('#odpForm').attr('action', url);
-                $('#method-field').html('<input type="hidden" name="_method" value="PUT">');
-
-                $('#odpModalLabel').text('Edit ODP #' + id);
-                $('#modalHeader').removeClass('bg-primary').addClass('bg-warning');
-                $('#btnSimpan').removeClass('btn-primary').addClass('btn-warning').text('Update Data');
-                $('#gps-status').html('Koordinat tersimpan.');
-                $('#odpModal').modal('show');
-            });
-        });
-
-        // --- FUNGSI GPS HIGH ACCURACY (HARDWARE) ---
-        let watchID;
-
-        function getHighAccuracyLocation() {
-            if (!navigator.geolocation) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal',
-                    text: 'Browser tidak mendukung GPS.'
+                $('.custom-search').on('keyup', function() {
+                    table.search(this.value).draw();
                 });
-                return;
+
+                // --- MAP LOGIC ---
+                // Base Layers
+                const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap'
+                });
+
+                const gmapsSatellite = L.tileLayer('https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
+                    maxZoom: 20,
+                    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                    attribution: '© Google Maps'
+                });
+
+                const map = L.map('odp-map', {
+                    center: [-7.728, 110.602], // Klaten default
+                    zoom: 13,
+                    layers: [osm]
+                });
+
+                window.odpMap = map; // Expose for focusOnOdp
+
+                const baseMaps = {
+                    "Standard (OSM)": osm,
+                    "Realistic (Google Satellite)": gmapsSatellite
+                };
+
+                L.control.layers(baseMaps).addTo(map);
+
+                // Markers
+                const odps = {!! json_encode($odps) !!};
+                const markers = L.layerGroup().addTo(map);
+                window.odpMarkers = markers; // Expose for focusOnOdp
+
+                odps.forEach(odp => {
+                    const coords = odp.titik_koordinat.split(',').map(c => parseFloat(c.trim()));
+                    if (coords.length === 2) {
+                        const color = odp.jenis_odp === 'GPON' ? '#0ea5e9' : '#f59e0b';
+                        const marker = L.circleMarker(coords, {
+                            radius: 8,
+                            fillColor: color,
+                            color: "#fff",
+                            weight: 2,
+                            opacity: 1,
+                            fillOpacity: 0.9
+                        }).addTo(markers);
+
+                        const popupContent = `
+                            <div style="min-width: 150px; font-family: 'Inter', sans-serif;">
+                                <div style="font-weight: 800; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 6px;">
+                                    ${odp.lokasi_odp}
+                                </div>
+                                <div style="font-size: 11px; margin-bottom: 4px;">
+                                    <span style="color: #94a3b8; font-weight: 700;">JENIS:</span>
+                                    <span style="font-weight: 800; color: ${color};">${odp.jenis_odp}</span>
+                                </div>
+                                <div style="font-size: 11px; color: #475569;">
+                                    ${odp.keterangan || 'Tanpa keterangan'}
+                                </div>
+                                ${odp.foto_odp ? `<img src="/storage/${odp.foto_odp}" style="width: 100%; border-radius: 8px; margin-top: 8px;">` : ''}
+                                <button onclick="startMeasureFromMarker('${odp.titik_koordinat}')" style="width:100%; margin-top:8px; background:#0ea5e9; color:white; border:none; padding:6px; border-radius:6px; font-size:10px; font-weight:700; cursor:pointer;">
+                                    <i class="fa-solid fa-ruler"></i> Ukur dari sini
+                                </button>
+                            </div>
+                        `;
+                        marker.bindPopup(popupContent);
+                    }
+                });
+
+                // Fit map to markers
+                if (odps.length > 0) {
+                    const bounds = L.latLngBounds(odps.map(o => o.titik_koordinat.split(',').map(c => parseFloat(c
+                        .trim()))));
+                    map.fitBounds(bounds, {
+                        padding: [50, 50]
+                    });
+                }
+
+                // --- DISTANCE MEASURING TOOL ---
+                let isMeasuring = false;
+                let measurePoints = [];
+                let measureLine = L.polyline([], {
+                    color: '#0ea5e9',
+                    weight: 4,
+                    dashArray: '5, 10'
+                }).addTo(map);
+                let measureMarkers = L.layerGroup().addTo(map);
+
+                window.startMeasureFromMarker = function(tikor) {
+                    resetMeasure();
+                    isMeasuring = true;
+                    $('#dist-info').fadeIn();
+                    const latlng = L.latLng(tikor.split(',').map(c => parseFloat(c.trim())));
+                    addMeasurePoint(latlng);
+                };
+
+                $('#measure-btn').on('click', function() {
+                    if (isMeasuring) {
+                        stopMeasure();
+                    } else {
+                        isMeasuring = true;
+                        $(this).addClass('!bg-primary !text-white');
+                        $('#dist-info').fadeIn();
+                        showToast('Klik pada ODP atau Peta untuk mulai mengukur.', 'info');
+                    }
+                });
+
+                map.on('click', function(e) {
+                    if (isMeasuring) {
+                        addMeasurePoint(e.latlng);
+                    }
+                });
+
+                function addMeasurePoint(latlng) {
+                    measurePoints.push(latlng);
+                    measureLine.setLatLngs(measurePoints);
+
+                    L.circleMarker(latlng, {
+                        radius: 5,
+                        fillColor: '#fff',
+                        color: '#0ea5e9',
+                        weight: 2,
+                        fillOpacity: 1
+                    }).addTo(measureMarkers);
+
+                    calculateTotalDistance();
+                }
+
+                function calculateTotalDistance() {
+                    let total = 0;
+                    for (let i = 0; i < measurePoints.length - 1; i++) {
+                        total += measurePoints[i].distanceTo(measurePoints[i + 1]);
+                    }
+                    $('#total-dist').text(total.toFixed(1) + ' m');
+                }
+
+                function resetMeasure() {
+                    measurePoints = [];
+                    measureLine.setLatLngs([]);
+                    measureMarkers.clearLayers();
+                    $('#total-dist').text('0 m');
+                }
+
+                function stopMeasure() {
+                    isMeasuring = false;
+                    $('#measure-btn').removeClass('!bg-primary !text-white');
+                    $('#dist-info').fadeOut();
+                    resetMeasure();
+                }
+
+                $('#reset-measure').on('click', resetMeasure);
+                $('#close-measure').on('click', stopMeasure);
+            });
+
+            // Focus on ODP from table
+            function focusOnOdp(tikor, odpId) {
+                const coords = tikor.split(',').map(c => parseFloat(c.trim()));
+                if (coords.length === 2) {
+                    // Smooth scroll to map
+                    document.getElementById('odp-map').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+
+                    if (window.odpMap) {
+                        // Center map and zoom
+                        window.odpMap.setView(coords, 18);
+
+                        // Find and open popup
+                        if (window.odpMarkers) {
+                            window.odpMarkers.eachLayer(function(marker) {
+                                const mCoords = marker.getLatLng();
+                                // Check for near equality to avoid float precision issues
+                                if (Math.abs(mCoords.lat - coords[0]) < 0.0001 && Math.abs(mCoords.lng - coords[1]) <
+                                    0.0001) {
+                                    marker.openPopup();
+                                }
+                            });
+                        }
+                    }
+                }
             }
 
-            const inputField = document.getElementById('titik_koordinat');
-            const statusField = document.getElementById('gps-status');
-            const btn = document.getElementById('btnGetLoc');
+            // Modal Logic
+            function openEditOdpModal(btn) {
+                const $btn = $(btn);
+                $('#editOdpForm').attr('action', `/odp/${$btn.data('id')}`);
+                $('#edit_jenis').val($btn.data('jenis'));
+                $('#edit_lokasi').val($btn.data('lokasi'));
+                $('#edit_tikor_input').val($btn.data('tikor'));
+                $('#edit_keterangan').val($btn.data('keterangan'));
 
-            // UI Loading
-            inputField.value = "";
-            inputField.placeholder = "Mencari satelit...";
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                if ($btn.data('foto')) {
+                    $('#current_foto').attr('src', $btn.data('foto'));
+                    $('#current_foto_wrap').removeClass('hidden');
+                } else {
+                    $('#current_foto_wrap').addClass('hidden');
+                }
 
-            // Opsi KUNCI untuk memaksa GPS Hardware
-            const options = {
-                enableHighAccuracy: true, // Wajib TRUE agar HP menyalakan modul GPS
-                timeout: 30000, // 30 detik waktu tunggu
-                maximumAge: 0 // Dilarang pakai cache lokasi lama
-            };
+                openCustomModal('editOdpModal');
+            }
 
-            // Menggunakan watchPosition untuk memantau sampai akurasi membaik
-            watchID = navigator.geolocation.watchPosition(
-                function(position) {
-                    const lat = position.coords.latitude;
-                    const long = position.coords.longitude;
-                    const accuracy = position.coords.accuracy; // dalam meter
+            // Location Helpers
+            function getAddLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(pos => {
+                        $('#add_tikor').val(`${pos.coords.latitude}, ${pos.coords.longitude}`);
+                        showToast('Lokasi berhasil diambil!', 'success');
+                    }, err => showToast('Gagal mengambil lokasi.', 'error'));
+                }
+            }
 
-                    // Update Status Real-time
-                    if (accuracy <= 15) {
-                        // Jika akurasi <= 15 meter, anggap akurat dan STOP scanning
-                        inputField.value = lat + ", " + long;
-                        statusField.innerHTML =
-                            `<span class="gps-good"><i class="fas fa-check-circle"></i> Sinyal Kuat! Akurasi: ${Math.round(accuracy)}m (Satelit)</span>`;
-
-                        // Stop GPS scanning untuk hemat baterai
-                        navigator.geolocation.clearWatch(watchID);
-                        btn.disabled = false;
-                        btn.innerHTML = '<i class="fas fa-satellite-dish"></i> Ambil Ulang';
-
-                        showToast(`Lokasi terkunci! Akurasi ${Math.round(accuracy)}m`, 'success');
-
-                    } else {
-                        // Jika akurasi masih buruk (biasanya tower seluler), update info dan lanjut scan
-                        inputField.value = lat + ", " + long;
-                        statusField.innerHTML =
-                            `<span class="gps-wait"><i class="fas fa-satellite"></i> Menunggu sinyal lebih baik... Akurasi: ${Math.round(accuracy)}m</span>`;
-                    }
-                },
-                function(error) {
-                    // Handle Error
-                    navigator.geolocation.clearWatch(watchID);
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-redo"></i> Coba Lagi';
-                    inputField.placeholder = "Gagal mengambil lokasi.";
-
-                    let msg = "Gagal mengakses GPS.";
-                    if (error.code == 1) msg = "Izin lokasi ditolak. Cek pengaturan browser.";
-                    if (error.code == 2) msg = "Sinyal GPS hilang. Pastikan berada di luar ruangan.";
-                    if (error.code == 3) msg = "Waktu habis (Timeout). Sinyal lemah.";
-
-                    statusField.innerHTML = `<span class="gps-bad"><i class="fas fa-times-circle"></i> ${msg}</span>`;
-                },
-                options
-            );
-        }
-
-        function confirmDelete(id) {
-            Swal.fire({
-                title: 'Hapus?',
-                text: "Data ini akan hilang.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                confirmButtonText: 'Ya, Hapus'
-            }).then((result) => {
-                if (result.isConfirmed) document.getElementById('delete-form-' + id).submit();
-            });
-        }
-    </script>
-</body>
-
-</html>
+            function getEditLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(pos => {
+                        $('#edit_tikor_input').val(`${pos.coords.latitude}, ${pos.coords.longitude}`);
+                        showToast('Lokasi berhasil diambil!', 'success');
+                    }, err => showToast('Gagal mengambil lokasi.', 'error'));
+                }
+            }
+        </script>
+    @endsection
+</x-layouts.app>

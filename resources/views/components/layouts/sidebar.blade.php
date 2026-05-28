@@ -71,6 +71,12 @@
           </a>
       @endif
 
+      <div class="sidebar-section-label" style="margin-top:.5rem;">Infrastruktur</div>
+      <a class="sidebar-link {{ Request::is('odp*') ? 'active' : '' }}" href="{{ route('odp.index') }}">
+        <i class="fa-solid fa-tower-broadcast"></i>
+        <span>Manajemen ODP</span>
+      </a>
+
       <div class="sidebar-section-label" style="margin-top:.5rem;">Pengaturan</div>
       <form action="{{ route('logout') }}" method="POST" id="logout-form" class="hidden">@csrf</form>
       <a class="sidebar-link" href="#" style="color:#f87171;" onclick="document.getElementById('logout-form').submit(); return false;">
