@@ -11,6 +11,23 @@
                 box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
             }
 
+            .search-wrap {
+                position: relative;
+                flex: 1;
+                min-width: 200px;
+                max-width: 360px;
+            }
+
+            .search-icon {
+                position: absolute;
+                left: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #94a3b8;
+                font-size: 13px;
+                pointer-events: none;
+            }
+
             .search-input {
                 width: 100%;
                 padding: 9px 12px 9px 36px;
@@ -68,6 +85,53 @@
             #finance-table tbody td {
                 font-size: 12px;
             }
+
+            /* Pagination Styling */
+            .dataTables_paginate {
+                display: flex;
+                justify-content: flex-end;
+                padding: 1.25rem 1.5rem;
+                gap: 4px;
+                border-top: 1px solid #f1f5f9;
+            }
+
+            .paginate_button {
+                width: 34px;
+                height: 34px;
+                border-radius: 8px;
+                border: 1.5px solid #e2e8f0;
+                background: #fff;
+                color: #64748b !important;
+                font-size: 13px;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all .2s;
+                text-decoration: none !important;
+            }
+
+            .paginate_button:hover:not(.disabled):not(.current) {
+                border-color: #0ea5e9;
+                color: #0ea5e9 !important;
+                background: #f0f9ff;
+            }
+
+            .paginate_button.current {
+                background: #0ea5e9;
+                border-color: #0ea5e9;
+                color: #fff !important;
+            }
+
+            .paginate_button.disabled {
+                opacity: 0.35;
+                cursor: not-allowed;
+            }
+
+            .dataTables_filter {
+                display: none;
+            }
         </style>
     @endsection
 
@@ -93,7 +157,7 @@
         </div>
     </div>
 
-    <!-- Stats cards -->
+    <!-- Overview Stats -->
     <div class="stats-grid mb-6">
         <div class="stat-card">
             <div class="stat-icon" style="background:#e0f2fe;color:#0369a1;">
@@ -101,7 +165,7 @@
             </div>
             <div>
                 <div class="stat-val">{{ $customers->count() }}</div>
-                <div class="stat-lbl">Total Aktivasi (Filter)</div>
+                <div class="stat-lbl">Total Aktivasi</div>
             </div>
         </div>
 
@@ -121,7 +185,47 @@
             </div>
             <div>
                 <div class="stat-val" style="color: #d97706;">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</div>
-                <div class="stat-lbl">Total Estimasi Pendapatan {{ $teknisiId ? 'Teknisi Terpilih' : 'Keseluruhan' }}</div>
+                <div class="stat-lbl">Estimasi Pendapatan {{ $teknisiId ? 'Teknisi' : 'Keseluruhan' }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Size Stats -->
+    <div class="stats-grid mb-6" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#f0f9ff;color:#0ea5e9;">
+                <i class="fa-solid fa-user"></i>
+            </div>
+            <div>
+                <div class="stat-val" style="font-size: 18px;">{{ $stats['solo'] }} Kali</div>
+                <div class="stat-lbl">Aktivasi Sendiri</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#ecfdf5;color:#10b981;">
+                <i class="fa-solid fa-user-group"></i>
+            </div>
+            <div>
+                <div class="stat-val" style="font-size: 18px;">{{ $stats['pair'] }} Kali</div>
+                <div class="stat-lbl">Aktivasi Berdua</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fefce8;color:#eab308;">
+                <i class="fa-solid fa-users"></i>
+            </div>
+            <div>
+                <div class="stat-val" style="font-size: 18px;">{{ $stats['triple'] }} Kali</div>
+                <div class="stat-lbl">Aktivasi Bertiga</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fff1f2;color:#f43f5e;">
+                <i class="fa-solid fa-users-viewfinder"></i>
+            </div>
+            <div>
+                <div class="stat-val" style="font-size: 18px;">{{ $stats['quad'] + $stats['more'] }} Kali</div>
+                <div class="stat-lbl">Berempat atau Lebih</div>
             </div>
         </div>
     </div>
@@ -130,7 +234,7 @@
     <div class="table-toolbar">
         <form method="GET" action="{{ route('finance.index') }}" class="w-full flex flex-col md:flex-row gap-4 align-items-end">
             <div class="flex-1">
-                <label class="form-label-custom">Filter Teknisi (Opsional)</label>
+                <label class="form-label-custom">Pilih Teknisi</label>
                 <select name="teknisi_id" class="form-input-custom w-full">
                     <option value="">-- Semua Teknisi --</option>
                     @foreach ($teknisis as $t)
@@ -150,14 +254,25 @@
             </div>
             <div>
                 <button type="submit" class="btn-primary-admin !h-[40px] !px-5 !flex !items-center !justify-center gap-2">
-                    <i class="fa-solid fa-filter"></i> Terapkan Filter
+                    <i class="fa-solid fa-filter"></i> Filter
                 </button>
             </div>
         </form>
     </div>
 
+    <!-- Search & Info Toolbar -->
+    <div class="table-toolbar" style="padding: 0.75rem 1.25rem; background: #f8fafc; border-bottom: none; border-radius: 14px 14px 0 0; margin-bottom: 0;">
+        <div class="search-wrap">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="search" class="search-input" id="custom-search" placeholder="Cari pelanggan atau teknisi..." autocomplete="off" />
+        </div>
+        <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">
+            Data Transaksi Aktivasi
+        </div>
+    </div>
+
     <!-- Table Card -->
-    <div class="table-card">
+    <div class="table-card" style="border-top: none; border-top-left-radius: 0; border-top-right-radius: 0;">
         <div class="table-responsive">
             <table id="finance-table" class="admin-table">
                 <thead>
@@ -171,7 +286,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($customers as $c)
+                    @foreach ($customers as $c)
                         <tr>
                             <td style="text-align: center; color: #94a3b8; font-weight: 700;">
                                 {{ $loop->iteration }}
@@ -179,7 +294,7 @@
                             <td style="text-align: center; color: #64748b;">
                                 {{ \Carbon\Carbon::parse($c->created_at)->format('d/m/Y') }}
                             </td>
-                            <td style="text-align: center;">
+                            <td style="text-align: left;">
                                 <div style="font-weight: 700; color: #0f172a;">{{ $c->nama_lengkap }}</div>
                                 <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
                                     ID: {{ $c->id_pelanggan }}
@@ -221,17 +336,7 @@
                                 @endif
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" style="text-align: center; padding: 2rem; color: #64748b;">
-                                <div style="font-size: 40px; margin-bottom: 10px; color: #cbd5e1;">
-                                    <i class="fa-solid fa-folder-open"></i>
-                                </div>
-                                <div style="font-weight: 700;">Tidak ada data aktivasi ditemukan</div>
-                                <div style="font-size: 13px; margin-top: 4px;">Silakan sesuaikan filter tanggal atau teknisi.</div>
-                            </td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
@@ -239,5 +344,29 @@
 
     @section('Scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
+        <script>
+            $(document).ready(function() {
+                const table = $('#finance-table').DataTable({
+                    "pageLength": 10,
+                    "lengthChange": false,
+                    "ordering": false,
+                    "info": false,
+                    "responsive": true,
+                    "dom": 'tpir',
+                    "language": {
+                        "zeroRecords": "Data tidak ditemukan",
+                        "paginate": {
+                            "previous": '<i class="fa-solid fa-chevron-left"></i>',
+                            "next": '<i class="fa-solid fa-chevron-right"></i>'
+                        }
+                    }
+                });
+
+                $('#custom-search').on('keyup', function() {
+                    table.search(this.value).draw();
+                });
+            });
+        </script>
     @endsection
 </x-layouts.app>

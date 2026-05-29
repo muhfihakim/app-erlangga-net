@@ -29,10 +29,6 @@ class FinanceController extends Controller
                   ->orWhereJsonContains('partner_ids', (string)$teknisiId)
                   ->orWhereJsonContains('partner_ids', (int)$teknisiId);
             });
-        } else {
-            // If no specific technician, we might just show all activations, 
-            // but the fee logic is per technician. It's better to show all activations and their split.
-            // Or only show when a tech is selected? Let's just show all if none selected.
         }
 
         if ($start) $query->whereDate('created_at', '>=', $start);
@@ -40,6 +36,15 @@ class FinanceController extends Controller
 
         $customers = $query->orderBy('created_at', 'desc')->get();
         $teknisis = User::where('jabatan', 'Teknisi')->get();
+
+        // Stats
+        $stats = [
+            'solo' => 0,
+            'pair' => 0,
+            'triple' => 0,
+            'quad' => 0,
+            'more' => 0,
+        ];
 
         // Calculate earnings for the specific technician, or all if none selected
         $totalPendapatan = 0;
@@ -49,9 +54,14 @@ class FinanceController extends Controller
             $totalTechs = 1 + $partnerCount;
             $feePerTech = $baseFee / $totalTechs;
 
-            // If a specific technician is selected, we only sum their part
+            // Increment stats based on totalTechs
+            if ($totalTechs == 1) $stats['solo']++;
+            elseif ($totalTechs == 2) $stats['pair']++;
+            elseif ($totalTechs == 3) $stats['triple']++;
+            elseif ($totalTechs == 4) $stats['quad']++;
+            else $stats['more']++;
+
             if ($teknisiId) {
-                // Double check if this tech is actually in this activation
                 $isMain = $c->id_teknisi == $teknisiId;
                 $isPartner = is_array($partners) && (in_array((string)$teknisiId, $partners) || in_array((int)$teknisiId, $partners));
                 
@@ -62,14 +72,13 @@ class FinanceController extends Controller
                     $c->calculated_fee = 0;
                 }
             } else {
-                // If no specific technician, we might just display the fee per person
                 $c->calculated_fee = $feePerTech;
-                $totalPendapatan += $baseFee; // Sum of all fees across all activations
+                $totalPendapatan += $baseFee;
             }
             $c->total_techs = $totalTechs;
         }
 
-        return view('finance.index', compact('customers', 'teknisis', 'teknisiId', 'start', 'end', 'baseFee', 'totalPendapatan'));
+        return view('finance.index', compact('customers', 'teknisis', 'teknisiId', 'start', 'end', 'baseFee', 'totalPendapatan', 'stats'));
     }
 
     public function export(Request $request)
@@ -96,12 +105,26 @@ class FinanceController extends Controller
 
         $customers = $query->orderBy('created_at', 'asc')->get();
         $totalPendapatan = 0;
+        
+        $stats = [
+            'solo' => 0,
+            'pair' => 0,
+            'triple' => 0,
+            'quad' => 0,
+            'more' => 0,
+        ];
 
         foreach ($customers as $c) {
             $partners = is_array($c->partner_ids) ? $c->partner_ids : json_decode($c->partner_ids, true);
             $partnerCount = is_array($partners) ? count($partners) : 0;
             $totalTechs = 1 + $partnerCount;
             $feePerTech = $baseFee / $totalTechs;
+
+            if ($totalTechs == 1) $stats['solo']++;
+            elseif ($totalTechs == 2) $stats['pair']++;
+            elseif ($totalTechs == 3) $stats['triple']++;
+            elseif ($totalTechs == 4) $stats['quad']++;
+            else $stats['more']++;
 
             if ($teknisiId) {
                 $isMain = $c->id_teknisi == $teknisiId;
@@ -126,7 +149,8 @@ class FinanceController extends Controller
             'end' => $request->end_date,
             'teknisi' => $teknisiId ? User::find($teknisiId) : null,
             'totalPendapatan' => $totalPendapatan,
-            'baseFee' => $baseFee
+            'baseFee' => $baseFee,
+            'stats' => $stats
         ]);
 
         return $pdf->download("laporan-keuangan-teknisi-{$request->start_date}-ke-{$request->end_date}.pdf");
