@@ -1,5 +1,6 @@
 <x-layouts.app>
     @section('Css')
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
         <style>
             /* Toolbar & Search */
             .table-toolbar {

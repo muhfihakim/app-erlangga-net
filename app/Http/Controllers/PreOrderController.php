@@ -26,13 +26,6 @@ class PreOrderController extends Controller
             $unsubscribedPOIds = $customerRecords->whereNotNull('deleted_at')->pluck('pre_order_id')->toArray();
 
             // 2. Query PreOrder
-            // if ($user->jabatan === 'Administrator') {
-            //     $preOrders = PreOrder::all();
-            // } else {
-            //     $preOrders = PreOrder::where('id_sales', $user->id)->get();
-            // }
-
-            // 2. Query PreOrder
             if ($user->jabatan === 'Administrator') {
                 // Mengurutkan berdasarkan ID dari yang terbesar ke terkecil
                 $preOrders = PreOrder::orderBy('id', 'desc')->get();
@@ -85,7 +78,7 @@ class PreOrderController extends Controller
             $totalPending = $preOrders->filter(fn($po) => !$po->is_active && !$po->is_unsubscribed)->count();
             $totalExpired = $preOrders->where('is_expired', true)->count();
 
-            return view('preorders', compact(
+            return view('preorders.index', compact(
                 'preOrders',
                 'teknisiUsers',
                 'totalThisMonth',
@@ -164,64 +157,6 @@ class PreOrderController extends Controller
         }
     }
 
-    // public function store(Request $request)
-    // {
-    //     $user = Auth::user();
-
-    //     if ($user->jabatan !== 'Sales' && $user->jabatan !== 'Administrator') {
-    //         return redirect()->route('pre_orders.index')->with('error', 'Akses ditolak.');
-    //     }
-
-    //     try {
-    //         $validatedData = $request->validate([
-    //             'paket_internet' => 'required|string|max:255',
-    //             'nama_lengkap' => 'required|string|max:255',
-    //             'no_identitas' => 'required|string|max:255|unique:pre_orders,no_identitas',
-    //             'no_whatsapp' => 'required|string|max:255',
-    //             'alamat_email' => 'nullable|string|email|max:255',
-    //             'alamat_lengkap' => 'required|string',
-    //             'titik_koordinat' => 'required|string',
-    //             'foto_ktp' => 'nullable|image|max:4096', // max 4MB
-    //             'foto_rumah' => 'nullable|image|max:4096', // max 4MB
-    //         ], [
-    //             // Pesan error kustom
-    //             'no_identitas.unique' => 'No. Identitas ini sudah terdaftar.',
-    //             'alamat_email.email' => 'Format alamat email tidak valid.',
-    //         ]);
-
-    //         // Perbaikan di sini: Simpan ke disk 'public'
-    //         if ($request->hasFile('foto_ktp')) {
-    //             $fotoKtpPath = $request->file('foto_ktp')->store('pre_orders/ktp', 'public');
-    //             $validatedData['foto_ktp'] = $fotoKtpPath;
-    //         }
-
-    //         // Perbaikan di sini: Simpan ke disk 'public'
-    //         if ($request->hasFile('foto_rumah')) {
-    //             $fotoRumahPath = $request->file('foto_rumah')->store('pre_orders/rumah', 'public');
-    //             $validatedData['foto_rumah'] = $fotoRumahPath;
-    //         }
-
-    //         PreOrder::create(array_merge($validatedData, [
-    //             'id_sales' => $user->id,
-    //             'nama_sales' => $user->nama_lengkap,
-    //         ]));
-
-    //         ActivityLog::create([
-    //             'user_id' => $user->id,
-    //             'activity_type' => 'preorder_create',
-    //             'description' => 'Menambahkan PreOrder untuk ' . $validatedData['nama_lengkap'],
-    //             'logged_at' => now(),
-    //         ]);
-
-    //         return redirect()->route('pre_orders.index')->with('success', 'Pre-order berhasil ditambahkan!');
-    //     } catch (ValidationException $e) {
-    //         // Ini akan secara otomatis mengembalikan ke halaman sebelumnya dengan error
-    //         return redirect()->back()->withInput()->withErrors($e->validator);
-    //     } catch (\Exception $e) {
-    //         // Menangani kesalahan umum lainnya
-    //         return redirect()->route('pre_orders.index')->with('error', 'Terjadi kesalahan saat menyimpan data.');
-    //     }
-    // }
 
     public function update(Request $request, PreOrder $preOrder)
     {

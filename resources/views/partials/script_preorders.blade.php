@@ -71,10 +71,13 @@
                 }
 
                 if (modalId === 'mapModal') {
+                    modal.classList.add('open');
+                    document.body.style.overflow = 'hidden';
                     const koordinat = $btn.data('koordinat');
                     if (koordinat) {
                         initModalMap(koordinat);
                     }
+                    return; // Avoid double open below
                 }
             }
 

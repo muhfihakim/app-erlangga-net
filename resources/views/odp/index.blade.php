@@ -106,19 +106,27 @@
                 background: #fff;
             }
 
-            .badge-gpon { background: #e0f2fe; color: #0369a1; }
-            .badge-epon { background: #fef3c7; color: #92400e; }
+            .badge-gpon {
+                background: #e0f2fe;
+                color: #0369a1;
+            }
+
+            .badge-epon {
+                background: #fef3c7;
+                color: #92400e;
+            }
 
             /* Full Capitalization for Table Only */
-            #odp-table thead th, 
+            #odp-table thead th,
             #odp-table tbody td {
                 text-transform: uppercase !important;
                 font-weight: 600;
             }
 
-            #odp-table tbody td { font-size: 12px; }
-            </style>
-
+            #odp-table tbody td {
+                font-size: 12px;
+            }
+        </style>
     @endsection
 
     @php
@@ -134,9 +142,8 @@
                 infrastruktur FTTH.</p>
         </div>
         <div style="display:flex; gap:10px;">
-            <button type="button" id="measure-btn"
-                class="btn-primary-admin !bg-white !text-slate-700 !border-slate-200 !shadow-none hover:!bg-slate-50 !flex !items-center !justify-center gap-2">
-                <i class="fa-solid fa-ruler-combined text-primary"></i> Ukur Jarak
+            <button type="button" id="measure-btn" class="btn-primary-admin !flex !items-center !justify-center gap-2">
+                <i class="fa-solid fa-ruler-combined"></i> Ukur Jarak
             </button>
             @if ($canCrud)
                 <button type="button" onclick="openCustomModal('addOdpModal')"
