@@ -140,7 +140,8 @@
         style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
             <h1 style="font-size:22px;font-weight:900;margin:0;">Keuangan: Pendapatan Teknisi</h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Laporan estimasi pendapatan teknisi dari aktivasi pelanggan.</p>
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Laporan estimasi pendapatan teknisi dari aktivasi
+                pelanggan.</p>
         </div>
         <div style="display:flex; gap:10px;">
             @if ($start && $end)
@@ -184,7 +185,8 @@
                 <i class="fa-solid fa-wallet"></i>
             </div>
             <div>
-                <div class="stat-val" style="color: #d97706;">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</div>
+                <div class="stat-val" style="color: #d97706;">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}
+                </div>
                 <div class="stat-lbl">Estimasi Pendapatan {{ $teknisiId ? 'Teknisi' : 'Keseluruhan' }}</div>
             </div>
         </div>
@@ -232,9 +234,11 @@
 
     <!-- Filter & Search Form -->
     <div class="table-toolbar">
-        <form method="GET" action="{{ route('finance.index') }}" class="w-full flex flex-row items-end gap-2 overflow-x-auto pb-1" style="scrollbar-width: thin;">
+        <form method="GET" action="{{ route('finance.index') }}"
+            class="w-full flex flex-row items-end gap-3 overflow-x-auto pb-1" style="scrollbar-width: thin;">
+            
             <!-- Filter Teknisi -->
-            <div style="flex: 2; min-width: 150px;">
+            <div style="flex: 2; min-width: 180px;">
                 <label class="form-label-custom">Teknisi</label>
                 <select name="teknisi_id" class="form-input-custom w-full" style="padding: 8px 10px;">
                     <option value="">-- Semua --</option>
@@ -247,29 +251,31 @@
             </div>
 
             <!-- Periode -->
-            <div style="flex: 1.5; min-width: 120px;">
+            <div style="flex: 1; min-width: 130px;">
                 <label class="form-label-custom">Mulai</label>
-                <input type="date" name="start_date" class="form-input-custom w-full" style="padding: 8px 10px;" value="{{ $start }}">
+                <input type="date" name="start_date" class="form-input-custom w-full" style="padding: 8px 10px;"
+                    value="{{ $start }}">
             </div>
-            <div style="flex: 1.5; min-width: 120px;">
+            <div style="flex: 1; min-width: 130px;">
                 <label class="form-label-custom">Selesai</label>
-                <input type="date" name="end_date" class="form-input-custom w-full" style="padding: 8px 10px;" value="{{ $end }}">
+                <input type="date" name="end_date" class="form-input-custom w-full" style="padding: 8px 10px;"
+                    value="{{ $end }}">
             </div>
 
             <!-- Live Search -->
-            <div style="flex: 2.5; min-width: 180px;">
+            <div style="flex: 2.5; min-width: 200px;">
                 <label class="form-label-custom">Pencarian</label>
                 <div class="search-wrap !max-w-full">
                     <i class="fa-solid fa-magnifying-glass search-icon" style="left: 10px;"></i>
-                    <input type="search" class="search-input" id="custom-search" 
-                        style="padding: 9px 12px 9px 30px;"
-                        placeholder="Cari pelanggan..." autocomplete="off" />
+                    <input type="search" class="search-input" id="custom-search"
+                        style="padding: 9px 12px 9px 30px;" placeholder="Cari pelanggan..." autocomplete="off" />
                 </div>
             </div>
 
             <!-- Button -->
-            <div style="flex: 1; min-width: 100px;">
-                <button type="submit" class="btn-primary-admin w-full !h-[40px] !flex !items-center !justify-center gap-2 !px-0">
+            <div style="flex: 0 0 auto; width: 120px;">
+                <button type="submit"
+                    class="btn-primary-admin w-full !h-10 !px-0 !text-[13px] flex items-center justify-center gap-2">
                     <i class="fa-solid fa-filter"></i> Terapkan
                 </button>
             </div>
@@ -310,16 +316,20 @@
                                     {{ $c->teknisiUtama->nama_lengkap ?? 'Unknown' }}
                                 </div>
                                 @php
-                                    $partners = is_array($c->partner_ids) ? $c->partner_ids : json_decode($c->partner_ids, true);
+                                    $partners = is_array($c->partner_ids)
+                                        ? $c->partner_ids
+                                        : json_decode($c->partner_ids, true);
                                     $partnerNames = [];
-                                    if(is_array($partners) && count($partners) > 0) {
-                                        foreach($partners as $pid) {
+                                    if (is_array($partners) && count($partners) > 0) {
+                                        foreach ($partners as $pid) {
                                             $partnerUser = \App\Models\User::find($pid);
-                                            if($partnerUser) $partnerNames[] = $partnerUser->nama_lengkap;
+                                            if ($partnerUser) {
+                                                $partnerNames[] = $partnerUser->nama_lengkap;
+                                            }
                                         }
                                     }
                                 @endphp
-                                @if(count($partnerNames) > 0)
+                                @if (count($partnerNames) > 0)
                                     <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">
                                         Partner: {{ implode(', ', $partnerNames) }}
                                     </div>
@@ -329,7 +339,7 @@
                                 {{ $c->total_techs }} Orang
                             </td>
                             <td style="text-align: center;">
-                                @if($c->calculated_fee > 0)
+                                @if ($c->calculated_fee > 0)
                                     <div style="font-weight: 800; color: #10b981;">
                                         Rp {{ number_format($c->calculated_fee, 0, ',', '.') }}
                                     </div>
