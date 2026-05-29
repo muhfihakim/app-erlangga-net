@@ -156,6 +156,80 @@
             $('.modal-overlay').on('click', function(e) {
                 if (e.target === this) closeCustomModal(this.id);
             });
+
+            // Global Form Validation Interceptor
+            $('form').attr('novalidate', true);
+            $('form').on('submit', function(e) {
+                if (!this.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    let firstInvalid = $(this).find(':invalid').first();
+                    
+                    if (firstInvalid.length) {
+                        // Check if it's inside a hidden tab
+                        let tabPanel = firstInvalid.closest('.tab-panel');
+                        if (tabPanel.length && !tabPanel.hasClass('active')) {
+                            let tabId = tabPanel.attr('id');
+                            let tabBtn = $('.modal-tab[data-tab="' + tabId + '"]');
+                            if (tabBtn.length) {
+                                tabBtn.click();
+                            }
+                        }
+
+                        // Determine label/name
+                        let id = firstInvalid.attr('id');
+                        let labelText = '';
+                        if (id) {
+                            let label = $(this).find('label[for="' + id + '"]');
+                            if (label.length) labelText = label.text().replace('*', '').trim();
+                        }
+                        
+                        // Coba cari label berdasarkan parent (untuk radio/checkbox/file)
+                        if (!labelText) {
+                            let parentLabel = firstInvalid.closest('.form-group').find('.form-label, .form-label-custom');
+                            if (parentLabel.length) labelText = parentLabel.text().replace('*', '').trim();
+                        }
+
+                        if (!labelText) labelText = firstInvalid.attr('placeholder') || firstInvalid.attr('name') || 'kolom ini';
+
+                        // Custom error message
+                        let errorMessage = 'Harap isi ' + labelText + ' dengan benar.';
+                        if (firstInvalid[0].validity.valueMissing) {
+                            errorMessage = labelText + ' wajib diisi / dipilih.';
+                        } else if (firstInvalid[0].validity.typeMismatch) {
+                            errorMessage = 'Format ' + labelText + ' tidak valid (contoh: email harus pakai @).';
+                        } else if (firstInvalid[0].validity.tooShort) {
+                            errorMessage = labelText + ' terlalu pendek.';
+                        }
+
+                        // Show Toast Notification
+                        showToast(errorMessage, 'error');
+
+                        // Visual Feedback
+                        firstInvalid.focus();
+                        firstInvalid.addClass('!border-rose-500 !ring-2 !ring-rose-200 transition-all');
+                        
+                        // Shake Animation Effect using JS
+                        let x = 0;
+                        let interval = setInterval(() => {
+                            firstInvalid.css('transform', `translateX(${x % 2 === 0 ? '5px' : '-5px'})`);
+                            x++;
+                            if (x > 5) {
+                                clearInterval(interval);
+                                firstInvalid.css('transform', 'none');
+                            }
+                        }, 50);
+                    }
+                }
+            });
+
+            // Remove visual feedback upon typing or selecting
+            $('input, select, textarea').on('input change', function() {
+                if (this.checkValidity()) {
+                    $(this).removeClass('!border-rose-500 !ring-2 !ring-rose-200 transition-all');
+                }
+            });
         });
     </script>
 

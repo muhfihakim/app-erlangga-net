@@ -125,6 +125,49 @@
             @if(session('success'))
                 showToast('{{ session('success') }}', 'success');
             @endif
+
+            // Form Validation Interceptor
+            $('form').attr('novalidate', true);
+            $('form').on('submit', function(e) {
+                if (!this.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    let firstInvalid = $(this).find(':invalid').first();
+                    
+                    if (firstInvalid.length) {
+                        let labelText = firstInvalid.attr('name') === 'email' ? 'Email' : 'Password';
+
+                        let errorMessage = 'Harap isi ' + labelText + ' dengan benar.';
+                        if (firstInvalid[0].validity.valueMissing) {
+                            errorMessage = labelText + ' wajib diisi.';
+                        } else if (firstInvalid[0].validity.typeMismatch) {
+                            errorMessage = 'Format ' + labelText + ' tidak valid.';
+                        }
+
+                        showToast(errorMessage, 'error');
+
+                        firstInvalid.focus();
+                        firstInvalid.addClass('!border-rose-500 !ring-2 !ring-rose-200 transition-all');
+                        
+                        let x = 0;
+                        let interval = setInterval(() => {
+                            firstInvalid.css('transform', `translateX(${x % 2 === 0 ? '5px' : '-5px'})`);
+                            x++;
+                            if (x > 5) {
+                                clearInterval(interval);
+                                firstInvalid.css('transform', 'none');
+                            }
+                        }, 50);
+                    }
+                }
+            });
+
+            $('input').on('input change', function() {
+                if (this.checkValidity()) {
+                    $(this).removeClass('!border-rose-500 !ring-2 !ring-rose-200 transition-all');
+                }
+            });
         });
     </script>
 </body>
