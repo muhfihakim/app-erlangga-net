@@ -42,7 +42,8 @@ class MikroTikService
                     'tx_rate' => round($txBps / 8, 2),
                     'total_rx' => (int) ($iface['rx-byte'] ?? 0),
                     'total_tx' => (int) ($iface['tx-byte'] ?? 0),
-                    'uptime' => $iface['uptime'] ?? 'N/A',
+                    'last_link_up' => $iface['last-link-up-time'] ?? null,
+                    'link_downs' => (int) ($iface['link-downs'] ?? 0),
                     'timestamp' => now()->toIso8601String(),
                 ],
             ];
