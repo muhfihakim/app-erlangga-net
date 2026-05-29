@@ -234,48 +234,43 @@
 
     <!-- Filter & Search Form -->
     <div class="table-toolbar">
-        <form method="GET" action="{{ route('finance.index') }}"
-            class="w-full flex flex-row items-end gap-3 overflow-x-auto pb-1" style="scrollbar-width: thin;">
-            
-            <!-- Filter Teknisi -->
-            <div style="flex: 2; min-width: 180px;">
-                <label class="form-label-custom">Teknisi</label>
-                <select name="teknisi_id" class="form-input-custom w-full" style="padding: 8px 10px;">
-                    <option value="">-- Semua --</option>
-                    @foreach ($teknisis as $t)
-                        <option value="{{ $t->id }}" {{ $teknisiId == $t->id ? 'selected' : '' }}>
-                            {{ $t->nama_lengkap }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <!-- Periode -->
-            <div style="flex: 1; min-width: 130px;">
-                <label class="form-label-custom">Mulai</label>
-                <input type="date" name="start_date" class="form-input-custom w-full" style="padding: 8px 10px;"
-                    value="{{ $start }}">
-            </div>
-            <div style="flex: 1; min-width: 130px;">
-                <label class="form-label-custom">Selesai</label>
-                <input type="date" name="end_date" class="form-input-custom w-full" style="padding: 8px 10px;"
-                    value="{{ $end }}">
-            </div>
-
-            <!-- Live Search -->
-            <div style="flex: 2.5; min-width: 200px;">
-                <label class="form-label-custom">Pencarian</label>
-                <div class="search-wrap !max-w-full">
-                    <i class="fa-solid fa-magnifying-glass search-icon" style="left: 10px;"></i>
-                    <input type="search" class="search-input" id="custom-search"
-                        style="padding: 9px 12px 9px 30px;" placeholder="Cari pelanggan..." autocomplete="off" />
+        <form method="GET" action="{{ route('finance.index') }}" class="w-full">
+            <div class="filter-group">
+                <!-- Filter Teknisi -->
+                <div style="flex: 1; min-width: 200px;">
+                    <label class="form-label-custom">Teknisi</label>
+                    <select name="teknisi_id" class="form-input-custom w-full">
+                        <option value="">-- Semua --</option>
+                        @foreach ($teknisis as $t)
+                            <option value="{{ $t->id }}" {{ $teknisiId == $t->id ? 'selected' : '' }}>
+                                {{ $t->nama_lengkap }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
-            </div>
 
-            <!-- Button -->
-            <div style="flex: 0 0 auto; width: 120px;">
-                <button type="submit"
-                    class="btn-primary-admin w-full !h-10 !px-0 !text-[13px] flex items-center justify-center gap-2">
+                <!-- Periode -->
+                <div style="width: 160px;">
+                    <label class="form-label-custom">Mulai</label>
+                    <input type="date" name="start_date" class="form-input-custom w-full" value="{{ $start }}">
+                </div>
+                <div style="width: 160px;">
+                    <label class="form-label-custom">Selesai</label>
+                    <input type="date" name="end_date" class="form-input-custom w-full" value="{{ $end }}">
+                </div>
+
+                <!-- Live Search -->
+                <div style="flex: 1.5; min-width: 200px;">
+                    <label class="form-label-custom">Pencarian</label>
+                    <div class="search-wrap !max-w-full">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="search" class="search-input" id="custom-search"
+                            style="padding: 9px 12px 9px 36px; height: 40px; border-radius: 10px; font-weight: 600;" placeholder="Cari pelanggan..." autocomplete="off" />
+                    </div>
+                </div>
+
+                <!-- Button -->
+                <button type="submit" class="btn-primary-admin !h-10 !px-6 !text-[13px] !w-fit flex items-center gap-2">
                     <i class="fa-solid fa-filter"></i> Terapkan
                 </button>
             </div>
