@@ -99,6 +99,7 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::delete('/pre-orders/{preOrder}', [PreOrderController::class, 'destroy'])->name('pre_orders.destroy');
     Route::post('pre-orders/{preOrder}/delegate', [PreOrderController::class, 'delegate'])->name('pre_orders.delegate');
     Route::post('pre-orders/{preOrder}/reset-delegation', [PreOrderController::class, 'resetDelegation'])->name('pre_orders.reset');
+    Route::post('pre-orders/{preOrder}/unspek', [PreOrderController::class, 'unspek'])->name('pre_orders.unspek');
 
     // Rute untuk Modul Pelanggan Aktif (Akses untuk Sales & Admin)
     Route::get('customers/active-list', [CustomerController::class, 'activeList'])->name('customers.active_list');

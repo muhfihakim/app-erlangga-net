@@ -70,6 +70,11 @@
                     $('#reset_po_name').text($btn.data('po-nama'));
                 }
 
+                if (modalId === 'unspekModal') {
+                    $('#unspekForm').attr('action', `/pre-orders/${$btn.data('po-id')}/unspek`);
+                    $('#unspek_po_name').text($btn.data('po-nama'));
+                }
+
                 if (modalId === 'mapModal') {
                     modal.classList.add('open');
                     document.body.style.overflow = 'hidden';

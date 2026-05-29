@@ -214,6 +214,24 @@
                                         <span class="badge badge-archived !px-3 !py-2">BERHENTI</span>
                                     @elseif ($po->is_active)
                                         <span class="badge badge-published !px-3 !py-2">AKTIF</span>
+                                    @elseif ($po->is_unspek)
+                                        <span class="badge" style="background:#fefce8;color:#a16207;border:1px solid #fef08a;" title="{{ $po->keterangan_unspek }}">UNSPEK</span>
+                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                            title="Edit" onclick="openCustomModal('editModal', this)"
+                                            data-po-id="{{ $po->id }}" data-po-nama="{{ $po->nama_lengkap }}"
+                                            data-po-paket="{{ $po->paket_internet }}"
+                                            data-po-wa="{{ $po->no_whatsapp }}"
+                                            data-po-email="{{ $po->alamat_email }}"
+                                            data-po-alamat="{{ $po->alamat_lengkap }}"
+                                            data-po-identitas="{{ $po->no_identitas }}"
+                                            data-po-koordinat="{{ $po->titik_koordinat }}">
+                                            <i class="fa-solid fa-pen-to-square text-amber-500"></i>
+                                        </button>
+                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                            title="Hapus" 
+                                            onclick="confirmGlobalDelete('{{ route('pre_orders.destroy', $po->id) }}', 'Pre-Order: {{ $po->nama_lengkap }}')">
+                                            <i class="fa-solid fa-trash text-rose-600"></i>
+                                        </button>
                                     @else
                                         @if (Auth::user()->jabatan === 'Administrator')
                                             @if ($po->id_teknisi_delegasi)
@@ -238,6 +256,14 @@
                                                     <i class="fa-solid fa-user-gear text-sky-500"></i>
                                                 </button>
                                             @endif
+                                        @endif
+
+                                        @if (Auth::user()->jabatan === 'Administrator' || Auth::user()->jabatan === 'Teknisi')
+                                            <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                                title="Unspek / Tangguhkan" onclick="openCustomModal('unspekModal', this)"
+                                                data-po-id="{{ $po->id }}" data-po-nama="{{ $po->nama_lengkap }}">
+                                                <i class="fa-solid fa-ban text-amber-500"></i>
+                                            </button>
                                         @endif
 
                                         {{-- Edit & Delete --}}

@@ -299,4 +299,32 @@ class PreOrderController extends Controller
 
         return redirect()->back()->with('success', 'Tugas PO berhasil direset dan siap didelegasikan ulang atau diambil umum.');
     }
+
+    public function unspek(Request $request, PreOrder $preOrder)
+    {
+        // Otorisasi: Hanya Administrator dan Teknisi yang bisa Unspek
+        if (!in_array(auth()->user()->jabatan, ['Administrator', 'Teknisi'])) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $request->validate([
+            'keterangan_unspek' => 'required|string|max:1000',
+        ], [
+            'keterangan_unspek.required' => 'Alasan/Keterangan Unspek wajib diisi.',
+        ]);
+
+        $preOrder->update([
+            'is_unspek' => true,
+            'keterangan_unspek' => $request->keterangan_unspek,
+        ]);
+
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity_type' => 'preorder_unspek',
+            'description' => 'Unspek PO "' . $preOrder->nama_lengkap . '": ' . $request->keterangan_unspek,
+            'logged_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Pre-Order berhasil di-Unspek (ditangguhkan).');
+    }
 }

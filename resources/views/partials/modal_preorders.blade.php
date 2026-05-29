@@ -460,3 +460,43 @@
         </div>
     </div>
 </div>
+
+{{-- Modal Unspek --}}
+<div class="modal-overlay" id="unspekModal">
+    <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
+        <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+            <div class="modal-title">
+                <i class="fa-solid fa-ban text-amber-500"></i>
+                <span class="text-slate-900 font-bold text-[17px]">Unspek / Tangguhkan PO</span>
+            </div>
+            <button type="button" class="modal-close" onclick="closeCustomModal('unspekModal')">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <form id="unspekForm" method="POST">
+            @csrf
+            <div class="modal-body p-6 space-y-4 bg-white">
+                <div class="bg-amber-50 p-4 rounded-xl border border-amber-100 mb-4">
+                    <span class="text-[10px] font-black text-amber-500 block uppercase">Pelanggan</span>
+                    <p id="unspek_po_name" class="text-base font-black text-amber-700 m-0"></p>
+                </div>
+                <div class="form-group !mb-0">
+                    <label class="form-label !text-slate-800 !font-bold">
+                        <i class="fa-solid fa-comment-dots text-slate-400 mr-1"></i> Alasan Unspek / Penangguhan <span class="text-rose-500">*</span>
+                    </label>
+                    <textarea name="keterangan_unspek" class="form-textarea" required rows="3"
+                        placeholder="Contoh: Tiang penuh, Jarak terlalu jauh, Pelanggan membatalkan..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+                    onclick="closeCustomModal('unspekModal')">
+                    <i class="fa-solid fa-xmark"></i> Batal
+                </button>
+                <button type="submit" class="btn-save !flex !items-center !justify-center gap-2 !bg-amber-500">
+                    <i class="fa-solid fa-paper-plane"></i> Simpan Unspek
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

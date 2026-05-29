@@ -23,6 +23,8 @@ class PreOrder extends Model
         'foto_rumah',
         'id_teknisi_delegasi',
         'delegated_at',
+        'is_unspek',
+        'keterangan_unspek',
     ];
 
     public function sales()
