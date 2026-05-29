@@ -177,6 +177,7 @@
                                     {{-- Group Universal Buttons --}}
                                     <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Detail"
                                         onclick="openCustomModal('detailModal', this)"
+                                        data-nama="{{ $po->nama_lengkap }}"
                                         data-identitas="{{ $po->no_identitas }}"
                                         data-email-lengkap="{{ $po->alamat_email }}"
                                         data-alamat-lengkap="{{ $po->alamat_lengkap }}"

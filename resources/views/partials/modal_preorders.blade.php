@@ -253,6 +253,12 @@
                                 Biodata Inti</h6>
                             <div class="space-y-4">
                                 <div>
+                                    <span class="text-[11px] font-bold text-slate-400 block uppercase">Nama Lengkap
+                                        Pelanggan</span>
+                                    <p id="detail_nama_lengkap"
+                                        class="text-lg font-black text-slate-900 leading-none mt-1"></p>
+                                </div>
+                                <div>
                                     <span class="text-[11px] font-bold text-slate-400 block uppercase">Nomor Identitas
                                         (NIK)</span>
                                     <p id="detail_identitas"

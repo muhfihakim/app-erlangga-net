@@ -28,6 +28,7 @@
                 }
 
                 if (modalId === 'detailModal') {
+                    $('#detail_nama_lengkap').text($btn.data('nama'));
                     $('#detail_identitas').text($btn.data('identitas'));
                     $('#detail_email').text($btn.data('email-lengkap'));
                     $('#detail_alamat').text($btn.data('alamat-lengkap'));
