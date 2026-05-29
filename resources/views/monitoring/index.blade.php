@@ -113,8 +113,16 @@
             <div id="status-badge"><span class="badge-checking">Mengecek...</span></div>
         </div>
         <div class="info-item">
-            <div class="lbl">Polling</div>
-            <div class="val" style="font-size:13px;font-weight:700;color:#64748b;">1 detik</div>
+            <div class="lbl">Uptime</div>
+            <div class="val" id="info-uptime" style="font-size:13px;font-weight:700;color:#64748b;">--</div>
+        </div>
+        <div class="info-item">
+            <div class="lbl">Total RX</div>
+            <div class="val" id="info-total-rx" style="font-size:13px;font-weight:700;color:#0ea5e9;">--</div>
+        </div>
+        <div class="info-item">
+            <div class="lbl">Total TX</div>
+            <div class="val" id="info-total-tx" style="font-size:13px;font-weight:700;color:#f97316;">--</div>
         </div>
     </div>
 
@@ -232,9 +240,18 @@
 
         function formatBytes(bytes) {
             if (bytes == null) return 'N/A';
-            if (bytes >= 1048576) return (bytes / 1048576).toFixed(2) + ' MB/s';
-            if (bytes >= 1024) return (bytes / 1024).toFixed(2) + ' KB/s';
-            return bytes + ' B/s';
+            if (bytes >= 1099511627776) return (bytes / 1099511627776).toFixed(2) + ' TB';
+            if (bytes >= 1048576) return (bytes / 1048576).toFixed(2) + ' MB';
+            if (bytes >= 1024) return (bytes / 1024).toFixed(2) + ' KB';
+            return bytes + ' B';
+        }
+
+        function formatBytesLarge(bytes) {
+            if (bytes == null || bytes === 0) return '0 B';
+            if (bytes >= 1099511627776) return (bytes / 1099511627776).toFixed(3) + ' TB';
+            if (bytes >= 1048576) return (bytes / 1048576).toFixed(2) + ' MB';
+            if (bytes >= 1024) return (bytes / 1024).toFixed(2) + ' KB';
+            return bytes + ' B';
         }
 
         function formatBytesShort(bytes) {
@@ -299,6 +316,17 @@
                         if (txRate > peakTx) {
                             peakTx = txRate;
                             document.getElementById('stat-peak-tx').textContent = formatBytesShort(peakTx);
+                        }
+
+                        // Total & uptime
+                        if (response.data.total_rx !== undefined) {
+                            document.getElementById('info-total-rx').textContent = formatBytesLarge(response.data.total_rx);
+                        }
+                        if (response.data.total_tx !== undefined) {
+                            document.getElementById('info-total-tx').textContent = formatBytesLarge(response.data.total_tx);
+                        }
+                        if (response.data.uptime) {
+                            document.getElementById('info-uptime').textContent = response.data.uptime;
                         }
 
                         document.getElementById('last-updated').textContent = timeStr;

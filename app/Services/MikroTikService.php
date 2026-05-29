@@ -23,6 +23,7 @@ class MikroTikService
     {
         try {
             $traffic = \MikroTik::interfaces()->getTraffic($this->interface, 1);
+            $iface = \MikroTik::interfaces()->getInterface($this->interface);
 
             if (empty($traffic)) {
                 return ['success' => false, 'error' => 'No traffic data returned'];
@@ -39,6 +40,9 @@ class MikroTikService
                     'tx_bytes' => $txBps,
                     'rx_rate' => round($rxBps / 8, 2),
                     'tx_rate' => round($txBps / 8, 2),
+                    'total_rx' => (int) ($iface['rx-byte'] ?? 0),
+                    'total_tx' => (int) ($iface['tx-byte'] ?? 0),
+                    'uptime' => $iface['uptime'] ?? 'N/A',
                     'timestamp' => now()->toIso8601String(),
                 ],
             ];
