@@ -26,7 +26,7 @@
         </a>
 
         <div class="sidebar-section-label" style="margin-top:.5rem;">Pelanggan</div>
-        @if (auth()->check() && in_array(auth()->user()->jabatan, ['Administrator', 'Sales', 'Teknisi']))
+        @if (auth()->check() && in_array(auth()->user()->jabatan, ['Administrator', 'Sales']))
             <a class="sidebar-link {{ Request::is('pre-orders') ? 'active' : '' }}"
                 href="{{ route('pre_orders.index') }}">
                 <i class="fa-solid fa-user-plus"></i>
