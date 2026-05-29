@@ -230,10 +230,11 @@
         </div>
     </div>
 
-    <!-- Filter Form -->
+    <!-- Filter & Search Form -->
     <div class="table-toolbar">
-        <form method="GET" action="{{ route('finance.index') }}" class="w-full flex flex-col md:flex-row gap-4 align-items-end">
-            <div class="flex-1">
+        <form method="GET" action="{{ route('finance.index') }}" class="w-full grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+            <!-- Filter Teknisi -->
+            <div class="md:col-span-3">
                 <label class="form-label-custom">Pilih Teknisi</label>
                 <select name="teknisi_id" class="form-input-custom w-full">
                     <option value="">-- Semua Teknisi --</option>
@@ -244,35 +245,38 @@
                     @endforeach
                 </select>
             </div>
-            <div class="flex-1">
-                <label class="form-label-custom">Tanggal Mulai</label>
+
+            <!-- Periode -->
+            <div class="md:col-span-2">
+                <label class="form-label-custom">Mulai</label>
                 <input type="date" name="start_date" class="form-input-custom w-full" value="{{ $start }}">
             </div>
-            <div class="flex-1">
-                <label class="form-label-custom">Tanggal Akhir</label>
+            <div class="md:col-span-2">
+                <label class="form-label-custom">Selesai</label>
                 <input type="date" name="end_date" class="form-input-custom w-full" value="{{ $end }}">
             </div>
-            <div>
-                <button type="submit" class="btn-primary-admin !h-[40px] !px-5 !flex !items-center !justify-center gap-2">
-                    <i class="fa-solid fa-filter"></i> Filter
+
+            <!-- Live Search -->
+            <div class="md:col-span-3">
+                <label class="form-label-custom">Pencarian Cepat</label>
+                <div class="search-wrap !max-w-full">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="search" class="search-input" id="custom-search" 
+                        placeholder="Cari pelanggan..." autocomplete="off" />
+                </div>
+            </div>
+
+            <!-- Button -->
+            <div class="md:col-span-2">
+                <button type="submit" class="btn-primary-admin w-full !h-[40px] !flex !items-center !justify-center gap-2">
+                    <i class="fa-solid fa-filter"></i> Terapkan
                 </button>
             </div>
         </form>
     </div>
 
-    <!-- Search & Info Toolbar -->
-    <div class="table-toolbar" style="padding: 0.75rem 1.25rem; background: #f8fafc; border-bottom: none; border-radius: 14px 14px 0 0; margin-bottom: 0;">
-        <div class="search-wrap">
-            <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            <input type="search" class="search-input" id="custom-search" placeholder="Cari pelanggan atau teknisi..." autocomplete="off" />
-        </div>
-        <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">
-            Data Transaksi Aktivasi
-        </div>
-    </div>
-
     <!-- Table Card -->
-    <div class="table-card" style="border-top: none; border-top-left-radius: 0; border-top-right-radius: 0;">
+    <div class="table-card">
         <div class="table-responsive">
             <table id="finance-table" class="admin-table">
                 <thead>
