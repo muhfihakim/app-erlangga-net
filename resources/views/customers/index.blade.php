@@ -85,12 +85,21 @@
 
             /* Full Capitalization for Table */
             #customer-table thead th,
-            #customer-table tbody td {
+            #customer-table tbody td,
+            #example1 thead th,
+            #example1 tbody td,
+            #delegatedTable thead th,
+            #delegatedTable tbody td,
+            #generalTable thead th,
+            #generalTable tbody td {
                 text-transform: uppercase !important;
                 font-weight: 600;
             }
 
-            #customer-table tbody td {
+            #customer-table tbody td,
+            #example1 tbody td,
+            #delegatedTable tbody td,
+            #generalTable tbody td {
                 font-size: 12px;
             }
         </style>
