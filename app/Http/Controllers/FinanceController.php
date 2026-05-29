@@ -17,6 +17,15 @@ class FinanceController extends Controller
         $start = $request->input('start_date');
         $end = $request->input('end_date');
 
+        // Set default filter: 2 weeks (Saturday to Friday current cycle + previous cycle)
+        if (!$start && !$end) {
+            $endOfCurrentCycle = Carbon::now()->isFriday() ? Carbon::now() : Carbon::now()->next(Carbon::FRIDAY);
+            $startOfPreviousCycle = $endOfCurrentCycle->copy()->subDays(13); // 13 days before Friday = Saturday of previous week
+            
+            $start = $startOfPreviousCycle->format('Y-m-d');
+            $end = $endOfCurrentCycle->format('Y-m-d');
+        }
+
         // Get the base activation fee
         $setting = FinanceSetting::first();
         $baseFee = $setting ? $setting->activation_fee : 150000;
