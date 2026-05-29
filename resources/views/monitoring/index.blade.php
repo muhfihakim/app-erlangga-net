@@ -11,8 +11,9 @@
                 gap: 2rem;
                 box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
                 margin-bottom: 1rem;
+                flex-wrap: wrap;
             }
-            .info-item { flex: 1; }
+            .info-item { flex: 1 1 calc(16.666% - 1rem); min-width: 120px; }
             .info-item .lbl {
                 font-size: 11px;
                 font-weight: 800;
@@ -86,6 +87,12 @@
                 font-size: 11px;
                 font-weight: 800;
                 display: inline-block;
+            }
+            @media (max-width: 768px) {
+                .info-card { gap: 1rem; padding: 1rem; }
+                .info-item { flex: 1 1 calc(50% - 1rem); min-width: 100px; }
+                .info-item .val { font-size: 13px; }
+                .stats-grid { grid-template-columns: repeat(2, 1fr); }
             }
         </style>
     @endsection
