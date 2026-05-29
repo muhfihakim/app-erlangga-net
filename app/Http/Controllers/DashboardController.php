@@ -24,10 +24,21 @@ class DashboardController extends Controller
             $logs = ActivityLog::latest()->take(10)->get();
         }
 
-        $startOfMonth = Carbon::now()->startOfMonth();
-        $endOfMonth = Carbon::now()->endOfMonth();
-        $startOfPreviousMonth = Carbon::now()->subMonth()->startOfMonth();
-        $endOfPreviousMonth = Carbon::now()->subMonth()->endOfMonth();
+        // Custom Billing Cycle: 29th to 28th
+        $today = Carbon::now();
+        if ($today->day >= 29) {
+            $startOfMonth = $today->copy()->startOfDay()->day(29);
+            $endOfMonth = $today->copy()->addMonth()->startOfDay()->day(28)->endOfDay();
+        } else {
+            $startOfMonth = $today->copy()->subMonth()->startOfDay()->day(29);
+            $endOfMonth = $today->copy()->startOfDay()->day(28)->endOfDay();
+        }
+
+        $startOfPreviousMonth = $startOfMonth->copy()->subMonth();
+        $endOfPreviousMonth = $endOfMonth->copy()->subMonth();
+
+        $currentPeriodLabel = $startOfMonth->translatedFormat('d M Y') . ' - ' . $endOfMonth->translatedFormat('d M Y');
+        $previousPeriodLabel = $startOfPreviousMonth->translatedFormat('d M Y') . ' - ' . $endOfPreviousMonth->translatedFormat('d M Y');
 
         // 2. Query PO Umum
         $poQueryThisMonth = PreOrder::whereBetween('created_at', [$startOfMonth, $endOfMonth]);
@@ -268,6 +279,8 @@ class DashboardController extends Controller
             'percentageChange',
             'totalAktivasiThisMonth',
             'totalPendingThisMonth',
+            'currentPeriodLabel',
+            'previousPeriodLabel',
             'delegatedTasks',
             'aktivasiMingguIni',
             'aktivasiBulanIni',

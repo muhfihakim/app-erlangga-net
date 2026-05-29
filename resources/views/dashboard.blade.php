@@ -76,11 +76,11 @@
                 </div>
                 <div>
                     <div class="stat-val">{{ $totalPoThisMonth }}</div>
-                    <div class="stat-lbl">Total PO Bulan Ini</div>
+                    <div class="stat-lbl">Total PO ({{ $currentPeriodLabel ?? 'Bulan Ini' }})</div>
                     <div class="stat-trend {{ $percentageChange >= 0 ? 'stat-up' : 'stat-down' }}">
                         <i
                             class="fa-solid {{ $percentageChange >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' }}"></i>
-                        {{ round(abs($percentageChange), 1) }}% dibanding bulan lalu
+                        {{ round(abs($percentageChange), 1) }}% dibanding periode lalu
                     </div>
                 </div>
             </div>
@@ -91,7 +91,7 @@
                 </div>
                 <div>
                     <div class="stat-val">{{ $totalPoPreviousMonth }}</div>
-                    <div class="stat-lbl">PO Bulan Sebelumnya</div>
+                    <div class="stat-lbl">PO Periode Lalu ({{ $previousPeriodLabel ?? 'Bulan Lalu' }})</div>
                 </div>
             </div>
 
@@ -101,7 +101,7 @@
                 </div>
                 <div>
                     <div class="stat-val">{{ $totalAktivasiThisMonth }}</div>
-                    <div class="stat-lbl">Total Aktivasi</div>
+                    <div class="stat-lbl">Total Aktivasi (Periode Berjalan)</div>
                 </div>
             </div>
 
@@ -111,7 +111,7 @@
                 </div>
                 <div>
                     <div class="stat-val">{{ $totalPendingThisMonth }}</div>
-                    <div class="stat-lbl">Total Pending</div>
+                    <div class="stat-lbl">Total Pending (Periode Berjalan)</div>
                 </div>
             </div>
         </div>

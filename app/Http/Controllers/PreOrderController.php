@@ -13,10 +13,13 @@ use App\Models\ActivityLog;
 class PreOrderController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
         if (auth()->check()) {
             $user = auth()->user();
+            
+            $filterStatus = $request->input('status', ''); // '', 'pending', 'aktif', 'berhenti', 'unspek'
+            $filterSales = $request->input('id_sales', '');
 
             // 1. Ambil data mentah dari tabel Customer (Termasuk yang di-softdelete)
             $customerRecords = \App\Models\Customer::withTrashed()->get(['pre_order_id', 'deleted_at']);
@@ -26,19 +29,34 @@ class PreOrderController extends Controller
             $unsubscribedPOIds = $customerRecords->whereNotNull('deleted_at')->pluck('pre_order_id')->toArray();
 
             // 2. Query PreOrder
+            $query = PreOrder::query();
+
             if ($user->jabatan === 'Administrator') {
-                $preOrders = PreOrder::orderBy('id', 'desc')->get();
+                if ($filterSales) {
+                    $query->where('id_sales', $filterSales);
+                }
             } elseif ($user->jabatan === 'Teknisi') {
-                // Teknisi bisa melihat PO yang ditugaskan kepada mereka atau umum
-                $preOrders = PreOrder::where('id_teknisi_delegasi', $user->id)
-                    ->orWhereNull('id_teknisi_delegasi')
-                    ->orderBy('id', 'desc')
-                    ->get();
+                $query->where(function($q) use ($user) {
+                    $q->where('id_teknisi_delegasi', $user->id)
+                      ->orWhereNull('id_teknisi_delegasi');
+                });
             } else {
-                $preOrders = PreOrder::where('id_sales', $user->id)
-                    ->orderBy('id', 'desc')
-                    ->get();
+                $query->where('id_sales', $user->id);
             }
+
+            // Apply Status Filters before getting results to save memory
+            if ($filterStatus === 'pending') {
+                $query->whereNotIn('id', array_merge($activePOIds, $unsubscribedPOIds))
+                      ->where('is_unspek', false);
+            } elseif ($filterStatus === 'aktif') {
+                $query->whereIn('id', $activePOIds);
+            } elseif ($filterStatus === 'berhenti') {
+                $query->whereIn('id', $unsubscribedPOIds);
+            } elseif ($filterStatus === 'unspek') {
+                $query->where('is_unspek', true);
+            }
+
+            $preOrders = $query->orderBy('id', 'desc')->get();
 
             // 3. Mapping Status ke dalam Object PreOrder
             $preOrders = $preOrders->map(function ($po) use ($activePOIds, $unsubscribedPOIds) {
@@ -61,6 +79,7 @@ class PreOrderController extends Controller
             });
 
             $teknisiUsers = User::where('jabatan', 'Teknisi')->orderBy('nama_lengkap')->get();
+            $salesUsers = User::where('jabatan', 'Sales')->orderBy('nama_lengkap')->get();
 
             // --- STATISTIK ---
             $thisMonth = Carbon::now()->month;
@@ -80,16 +99,28 @@ class PreOrderController extends Controller
                 Carbon::now()->endOfWeek()
             ])->count();
 
-            $totalPending = $preOrders->filter(fn($po) => !$po->is_active && !$po->is_unsubscribed)->count();
-            $totalExpired = $preOrders->where('is_expired', true)->count();
+            // Calculate pending and expired based on base un-filtered query for accuracy on cards
+            $allMyPOs = $statsQuery->get();
+            $totalPending = $allMyPOs->filter(fn($po) => !in_array($po->id, $activePOIds) && !in_array($po->id, $unsubscribedPOIds))->count();
+            
+            $totalExpired = $allMyPOs->filter(function($po) use ($activePOIds, $unsubscribedPOIds) {
+                if ($po->delegated_at && !in_array($po->id, $activePOIds) && !in_array($po->id, $unsubscribedPOIds)) {
+                    $deadline = \Carbon\Carbon::parse($po->delegated_at)->addDays(2);
+                    return \Carbon\Carbon::now()->greaterThan($deadline);
+                }
+                return false;
+            })->count();
 
             return view('preorders.index', compact(
                 'preOrders',
                 'teknisiUsers',
+                'salesUsers',
                 'totalThisMonth',
                 'totalThisWeek',
                 'totalPending',
-                'totalExpired'
+                'totalExpired',
+                'filterStatus',
+                'filterSales'
             ));
         }
     }
