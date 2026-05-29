@@ -232,12 +232,12 @@
 
     <!-- Filter & Search Form -->
     <div class="table-toolbar">
-        <form method="GET" action="{{ route('finance.index') }}" class="w-full grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+        <form method="GET" action="{{ route('finance.index') }}" class="w-full flex flex-row items-end gap-2 overflow-x-auto pb-1" style="scrollbar-width: thin;">
             <!-- Filter Teknisi -->
-            <div class="md:col-span-3">
-                <label class="form-label-custom">Pilih Teknisi</label>
-                <select name="teknisi_id" class="form-input-custom w-full">
-                    <option value="">-- Semua Teknisi --</option>
+            <div style="flex: 2; min-width: 150px;">
+                <label class="form-label-custom">Teknisi</label>
+                <select name="teknisi_id" class="form-input-custom w-full" style="padding: 8px 10px;">
+                    <option value="">-- Semua --</option>
                     @foreach ($teknisis as $t)
                         <option value="{{ $t->id }}" {{ $teknisiId == $t->id ? 'selected' : '' }}>
                             {{ $t->nama_lengkap }}
@@ -247,28 +247,29 @@
             </div>
 
             <!-- Periode -->
-            <div class="md:col-span-2">
+            <div style="flex: 1.5; min-width: 120px;">
                 <label class="form-label-custom">Mulai</label>
-                <input type="date" name="start_date" class="form-input-custom w-full" value="{{ $start }}">
+                <input type="date" name="start_date" class="form-input-custom w-full" style="padding: 8px 10px;" value="{{ $start }}">
             </div>
-            <div class="md:col-span-2">
+            <div style="flex: 1.5; min-width: 120px;">
                 <label class="form-label-custom">Selesai</label>
-                <input type="date" name="end_date" class="form-input-custom w-full" value="{{ $end }}">
+                <input type="date" name="end_date" class="form-input-custom w-full" style="padding: 8px 10px;" value="{{ $end }}">
             </div>
 
             <!-- Live Search -->
-            <div class="md:col-span-3">
-                <label class="form-label-custom">Pencarian Cepat</label>
+            <div style="flex: 2.5; min-width: 180px;">
+                <label class="form-label-custom">Pencarian</label>
                 <div class="search-wrap !max-w-full">
-                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <i class="fa-solid fa-magnifying-glass search-icon" style="left: 10px;"></i>
                     <input type="search" class="search-input" id="custom-search" 
+                        style="padding: 9px 12px 9px 30px;"
                         placeholder="Cari pelanggan..." autocomplete="off" />
                 </div>
             </div>
 
             <!-- Button -->
-            <div class="md:col-span-2">
-                <button type="submit" class="btn-primary-admin w-full !h-[40px] !flex !items-center !justify-center gap-2">
+            <div style="flex: 1; min-width: 100px;">
+                <button type="submit" class="btn-primary-admin w-full !h-[40px] !flex !items-center !justify-center gap-2 !px-0">
                     <i class="fa-solid fa-filter"></i> Terapkan
                 </button>
             </div>
