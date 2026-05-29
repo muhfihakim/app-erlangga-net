@@ -30,7 +30,7 @@ class AccountController extends Controller
         $totalSales = User::where('jabatan', 'Sales')->count();
         $totalTeknisi = User::where('jabatan', 'Teknisi')->count();
 
-        return view('account-manage', compact(
+        return view('accounts.index', compact(
             'users',
             'totalUsers',
             'totalAdmin',

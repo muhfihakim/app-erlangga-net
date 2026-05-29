@@ -211,8 +211,7 @@
         </div>
     </div>
 
-    @include('partials.modal_account-manage')
-
+    @include('accounts.modal')
     @section('Scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>

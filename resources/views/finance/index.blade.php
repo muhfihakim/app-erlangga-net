@@ -139,7 +139,7 @@
     <div
         style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
-            <h1 style="font-size:22px;font-weight:900;margin:0;">Keuangan: Pendapatan Teknisi</h1>
+            <h1 style="font-size:22px;font-weight:900;margin:0;">Pendapatan Teknisi</h1>
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Laporan estimasi pendapatan teknisi dari aktivasi
                 pelanggan.</p>
         </div>
@@ -252,7 +252,8 @@
                 <!-- Periode -->
                 <div style="width: 160px;">
                     <label class="form-label-custom">Mulai</label>
-                    <input type="date" name="start_date" class="form-input-custom w-full" value="{{ $start }}">
+                    <input type="date" name="start_date" class="form-input-custom w-full"
+                        value="{{ $start }}">
                 </div>
                 <div style="width: 160px;">
                     <label class="form-label-custom">Selesai</label>
@@ -265,12 +266,14 @@
                     <div class="search-wrap !max-w-full">
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
                         <input type="search" class="search-input" id="custom-search"
-                            style="padding: 9px 12px 9px 36px; height: 40px; border-radius: 10px; font-weight: 600;" placeholder="Cari pelanggan..." autocomplete="off" />
+                            style="padding: 9px 12px 9px 36px; height: 40px; border-radius: 10px; font-weight: 600;"
+                            placeholder="Cari pelanggan..." autocomplete="off" />
                     </div>
                 </div>
 
                 <!-- Button -->
-                <button type="submit" class="btn-primary-admin !h-10 !px-6 !text-[13px] !w-fit flex items-center gap-2">
+                <button type="submit"
+                    class="btn-primary-admin !h-10 !px-6 !text-[13px] !w-fit flex items-center gap-2">
                     <i class="fa-solid fa-filter"></i> Terapkan
                 </button>
             </div>
