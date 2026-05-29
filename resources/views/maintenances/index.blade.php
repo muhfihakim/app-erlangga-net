@@ -154,6 +154,23 @@
             .select2-container--bootstrap4 .select2-results__option--highlighted[aria-selected] {
                 background-color: #0ea5e9 !important;
             }
+
+            /* Full Capitalization for Tables */
+            #admin-maintenance-table thead th,
+            #admin-maintenance-table tbody td,
+            #delegated-table thead th,
+            #delegated-table tbody td,
+            #general-table thead th,
+            #general-table tbody td {
+                text-transform: uppercase !important;
+                font-weight: 600;
+            }
+
+            #admin-maintenance-table tbody td,
+            #delegated-table tbody td,
+            #general-table tbody td {
+                font-size: 12px;
+            }
         </style>
     @endsection
 

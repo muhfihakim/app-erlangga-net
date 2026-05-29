@@ -60,6 +60,17 @@
                 align-items: center;
                 justify-content: space-between;
             }
+
+            /* Full Capitalization for Table */
+            #activity-log-table thead th,
+            #activity-log-table tbody td {
+                text-transform: uppercase !important;
+                font-weight: 600;
+            }
+
+            #activity-log-table tbody td {
+                font-size: 12px;
+            }
         </style>
     @endsection
 

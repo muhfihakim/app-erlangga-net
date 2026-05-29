@@ -48,11 +48,18 @@
                 </div>
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <form id="globalDeleteForm" method="POST" class="w-full flex gap-3">
+                <form id="globalDeleteForm" method="POST" class="w-full flex justify-center gap-3">
                     @csrf
                     @method('DELETE')
-                    <button type="button" class="btn-cancel flex-1" onclick="closeCustomModal('globalDeleteModal')">Batal</button>
-                    <button type="submit" class="btn-save flex-1 !bg-rose-600">Ya, Hapus!</button>
+                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2" 
+                        style="padding: 10px 24px;"
+                        onclick="closeCustomModal('globalDeleteModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
+                    </button>
+                    <button type="submit" class="btn-save !bg-rose-600 !flex !items-center !justify-center gap-2"
+                        style="padding: 10px 24px;">
+                        <i class="fa-solid fa-trash-can"></i> Ya, Hapus!
+                    </button>
                 </form>
             </div>
         </div>

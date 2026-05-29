@@ -39,6 +39,17 @@
                 outline: none;
                 height: 40px;
             }
+
+            /* Full Capitalization for Table */
+            #dismantleTable thead th,
+            #dismantleTable tbody td {
+                text-transform: uppercase !important;
+                font-weight: 600;
+            }
+
+            #dismantleTable tbody td {
+                font-size: 12px;
+            }
         </style>
     @endsection
 

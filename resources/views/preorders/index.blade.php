@@ -51,6 +51,17 @@
                 border-color: #0ea5e9;
                 background: #fff;
             }
+
+            /* Full Capitalization for Table */
+            #preorder-table thead th,
+            #preorder-table tbody td {
+                text-transform: uppercase !important;
+                font-weight: 600;
+            }
+
+            #preorder-table tbody td {
+                font-size: 12px;
+            }
         </style>
     @endsection
 

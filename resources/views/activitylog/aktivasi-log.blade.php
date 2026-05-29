@@ -57,6 +57,17 @@
                 outline: none;
                 height: 40px;
             }
+
+            /* Full Capitalization for Table */
+            #aktivasi-table thead th,
+            #aktivasi-table tbody td {
+                text-transform: uppercase !important;
+                font-weight: 600;
+            }
+
+            #aktivasi-table tbody td {
+                font-size: 12px;
+            }
         </style>
     @endsection
 

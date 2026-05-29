@@ -106,6 +106,17 @@
                 border-color: #0ea5e9;
                 background: #fff;
             }
+
+            /* Full Capitalization for Table */
+            #customer-table thead th,
+            #customer-table tbody td {
+                text-transform: uppercase !important;
+                font-weight: 600;
+            }
+
+            #customer-table tbody td {
+                font-size: 12px;
+            }
         </style>
     @endsection
 
