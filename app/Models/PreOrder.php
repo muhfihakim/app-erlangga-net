@@ -25,6 +25,7 @@ class PreOrder extends Model
         'delegated_at',
         'is_unspek',
         'keterangan_unspek',
+        'is_unspek_approved',
     ];
 
     public function sales()

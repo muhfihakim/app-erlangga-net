@@ -31,8 +31,9 @@ class CustomerController extends Controller
         // Daftar teknisi untuk dropdown Partner
         $teknisiUsers = User::where('jabatan', 'Teknisi')->get();
 
-        // --- QUERY DASAR: PO yang BENAR-BENAR BELUM pernah diaktivasi ---
-        $baseQuery = PreOrder::whereNotIn('id', $activatedPOIds);
+        // --- QUERY DASAR: PO yang BENAR-BENAR BELUM pernah diaktivasi dan BUKAN unspek aktif ---
+        // Jika is_unspek_approved = false dan is_unspek = true, dia menunggu. Jika true, maka disetujui. Keduanya kita keluarkan dari general/delegated list.
+        $baseQuery = PreOrder::whereNotIn('id', $activatedPOIds)->where('is_unspek', false);
 
         // --- FILTER KHUSUS TEKNISI ---
         if ($user->jabatan === 'Teknisi') {
@@ -66,7 +67,16 @@ class CustomerController extends Controller
                 ->orderBy('created_at', 'asc')
                 ->get();
 
-            return view('customers.index', compact('delegatedTasks', 'generalTasks', 'teknisiUsers'));
+            // 3. Tugas Unspek (Menunggu approval atau disetujui) terkait teknisi ini atau umum
+            $unspekTasks = PreOrder::whereNotIn('id', $activatedPOIds)
+                ->where('is_unspek', true)
+                ->where(function($q) use ($user) {
+                    $q->where('id_teknisi_delegasi', $user->id)->orWhereNull('id_teknisi_delegasi');
+                })
+                ->orderBy('created_at', 'asc')
+                ->get();
+
+            return view('customers.index', compact('delegatedTasks', 'generalTasks', 'unspekTasks', 'teknisiUsers'));
         } else {
             // Administrator View: Menampilkan semua PO yang menunggu aktivasi
             $allPreOrders = $baseQuery->orderBy('created_at', 'asc')->get()->map(function ($po) {
@@ -74,7 +84,16 @@ class CustomerController extends Controller
                 return $po;
             });
 
-            return view('customers.index', compact('allPreOrders', 'teknisiUsers'));
+            // Admin juga melihat semua unspek
+            $unspekTasks = PreOrder::whereNotIn('id', $activatedPOIds)
+                ->where('is_unspek', true)
+                ->orderBy('created_at', 'asc')
+                ->get()->map(function ($po) {
+                    $po->delegated_to = $po->id_teknisi_delegasi ? (User::find($po->id_teknisi_delegasi)->nama_lengkap ?? 'Unknown') : 'Belum Ditunjuk';
+                    return $po;
+                });
+
+            return view('customers.index', compact('allPreOrders', 'unspekTasks', 'teknisiUsers'));
         }
     }
 

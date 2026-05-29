@@ -215,23 +215,48 @@
                                     @elseif ($po->is_active)
                                         <span class="badge badge-published !px-3 !py-2">AKTIF</span>
                                     @elseif ($po->is_unspek)
-                                        <span class="badge" style="background:#fefce8;color:#a16207;border:1px solid #fef08a;" title="{{ $po->keterangan_unspek }}">UNSPEK</span>
-                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
-                                            title="Edit" onclick="openCustomModal('editModal', this)"
-                                            data-po-id="{{ $po->id }}" data-po-nama="{{ $po->nama_lengkap }}"
-                                            data-po-paket="{{ $po->paket_internet }}"
-                                            data-po-wa="{{ $po->no_whatsapp }}"
-                                            data-po-email="{{ $po->alamat_email }}"
-                                            data-po-alamat="{{ $po->alamat_lengkap }}"
-                                            data-po-identitas="{{ $po->no_identitas }}"
-                                            data-po-koordinat="{{ $po->titik_koordinat }}">
-                                            <i class="fa-solid fa-pen-to-square text-amber-500"></i>
-                                        </button>
-                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
-                                            title="Hapus" 
-                                            onclick="confirmGlobalDelete('{{ route('pre_orders.destroy', $po->id) }}', 'Pre-Order: {{ $po->nama_lengkap }}')">
-                                            <i class="fa-solid fa-trash text-rose-600"></i>
-                                        </button>
+                                        @if($po->is_unspek_approved)
+                                            <span class="badge" style="background:#fef2f2;color:#be123c;border:1px solid #fecdd3;" title="{{ $po->keterangan_unspek }}">UNSPEK (DISETUJUI)</span>
+                                            
+                                            @if (Auth::user()->jabatan === 'Administrator')
+                                                <form action="{{ route('pre_orders.reopen_unspek', $po->id) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    <button type="submit" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Re-Open (Buka Status Unspek)">
+                                                        <i class="fa-solid fa-folder-open text-sky-500"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        @else
+                                            <span class="badge" style="background:#fefce8;color:#a16207;border:1px solid #fef08a;" title="{{ $po->keterangan_unspek }}">UNSPEK (MENUNGGU)</span>
+                                            
+                                            @if (Auth::user()->jabatan === 'Administrator' || Auth::user()->jabatan === 'Sales')
+                                                <form action="{{ route('pre_orders.approve_unspek', $po->id) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    <button type="submit" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Setujui Unspek">
+                                                        <i class="fa-solid fa-check-double text-emerald-500"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        @endif
+                                        
+                                        @if (Auth::user()->jabatan === 'Administrator' || Auth::user()->jabatan === 'Sales')
+                                            <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                                title="Edit" onclick="openCustomModal('editModal', this)"
+                                                data-po-id="{{ $po->id }}" data-po-nama="{{ $po->nama_lengkap }}"
+                                                data-po-paket="{{ $po->paket_internet }}"
+                                                data-po-wa="{{ $po->no_whatsapp }}"
+                                                data-po-email="{{ $po->alamat_email }}"
+                                                data-po-alamat="{{ $po->alamat_lengkap }}"
+                                                data-po-identitas="{{ $po->no_identitas }}"
+                                                data-po-koordinat="{{ $po->titik_koordinat }}">
+                                                <i class="fa-solid fa-pen-to-square text-amber-500"></i>
+                                            </button>
+                                            <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                                title="Hapus" 
+                                                onclick="confirmGlobalDelete('{{ route('pre_orders.destroy', $po->id) }}', 'Pre-Order: {{ $po->nama_lengkap }}')">
+                                                <i class="fa-solid fa-trash text-rose-600"></i>
+                                            </button>
+                                        @endif
                                     @else
                                         @if (Auth::user()->jabatan === 'Administrator')
                                             @if ($po->id_teknisi_delegasi)

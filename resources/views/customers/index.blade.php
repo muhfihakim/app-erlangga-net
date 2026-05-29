@@ -272,6 +272,10 @@
                                             title="Lokasi">
                                             <i class="fa-solid fa-map-location-dot text-indigo-500"></i>
                                         </a>
+                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                            title="Tangguhkan / Unspek" onclick="openUnspekModal('{{ $po->id }}', '{{ $po->nama_lengkap }}')">
+                                            <i class="fa-solid fa-ban text-amber-500"></i>
+                                        </button>
                                         @if ($po->is_locked)
                                             <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
                                                 disabled style="opacity: 0.5;">
@@ -301,7 +305,7 @@
             style="font-size: 16px; font-weight: 800; margin-bottom: 1rem; color: #0f172a; display: flex; align-items: center; gap: 10px;">
             <i class="fa-solid fa-users-gear text-slate-500"></i> 2. Tugas Umum (Pool)
         </h3>
-        <div class="table-card">
+        <div class="table-card mb-8">
             <div class="table-responsive">
                 <table id="generalTable" class="admin-table">
                     <thead>
@@ -343,6 +347,10 @@
                                             title="Lokasi">
                                             <i class="fa-solid fa-map-location-dot text-indigo-500"></i>
                                         </a>
+                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                            title="Tangguhkan / Unspek" onclick="openUnspekModal('{{ $po->id }}', '{{ $po->nama_lengkap }}')">
+                                            <i class="fa-solid fa-ban text-amber-500"></i>
+                                        </button>
                                         <button type="button"
                                             class="btn-primary-admin !h-9 !px-3 !text-[11px] activate-btn !flex !items-center !justify-center gap-1"
                                             onclick="openActivationModal(this)" data-po-id="{{ $po->id }}"
@@ -352,6 +360,50 @@
                                             <i class="fa-solid fa-bolt"></i> Aktivasi
                                         </button>
                                     </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Technician: Unspek Tasks -->
+        <h3
+            style="font-size: 16px; font-weight: 800; margin-bottom: 1rem; color: #0f172a; display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-ban text-rose-500"></i> 3. Penangguhan / Unspek
+        </h3>
+        <div class="table-card mb-8">
+            <div class="table-responsive">
+                <table id="unspekTable" class="admin-table">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center; width: 50px;">#</th>
+                            <th style="text-align: center; width: 100px;">Tgl PO</th>
+                            <th style="text-align: center;">Nama Pelanggan</th>
+                            <th style="text-align: center;">Keterangan</th>
+                            <th style="text-align: center; width: 150px;">Status Unspek</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($unspekTasks as $po)
+                            <tr>
+                                <td style="text-align: center; color: #94a3b8; font-weight: 700;">
+                                    {{ $loop->iteration }}</td>
+                                <td style="text-align: center; color: #64748b; font-size: 12px; font-weight: 600;">
+                                    {{ \Carbon\Carbon::parse($po->created_at)->format('d-m-Y') }}
+                                </td>
+                                <td style="text-align: center; font-weight: 700; color: #0f172a;">
+                                    {{ $po->nama_lengkap }}</td>
+                                <td style="text-align: center; font-size: 11px; color: #64748b; font-style: italic;">
+                                    {{ $po->keterangan_unspek }}
+                                </td>
+                                <td style="text-align: center;">
+                                    @if($po->is_unspek_approved)
+                                        <span class="badge badge-archived !px-3 !py-2" title="Disetujui oleh Sales">DISETUJUI</span>
+                                    @else
+                                        <span class="badge" style="background:#fefce8;color:#a16207;border:1px solid #fef08a;" title="Menunggu Konfirmasi Sales">MENUNGGU</span>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach
@@ -574,13 +626,53 @@
                         onclick="closeCustomModal('activationModal')">
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-save !flex !items-center !justify-center gap-2 !bg-emerald-600">
-                        <i class="fa-solid fa-circle-check"></i> Selesaikan Aktivasi
+                    <button type="submit" class="btn-save !flex !items-center !justify-center gap-2 !bg-primary">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Simpan Aktivasi
                     </button>
-                </div>
-            </form>
-        </div>
-    </div>
+                    </div>
+                    </form>
+                    </div>
+                    </div>
+
+                    {{-- Modal Unspek --}}
+                    <div class="modal-overlay" id="unspekModal">
+                    <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
+                    <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                    <div class="modal-title">
+                    <i class="fa-solid fa-ban text-amber-500"></i>
+                    <span class="text-slate-900 font-bold text-[17px]">Unspek / Tangguhkan PO</span>
+                    </div>
+                    <button type="button" class="modal-close" onclick="closeCustomModal('unspekModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    </div>
+                    <form id="unspekForm" method="POST">
+                    @csrf
+                    <div class="modal-body p-6 space-y-4 bg-white">
+                    <div class="bg-amber-50 p-4 rounded-xl border border-amber-100 mb-4">
+                        <span class="text-[10px] font-black text-amber-500 block uppercase">Pelanggan</span>
+                        <p id="unspek_po_name" class="text-base font-black text-amber-700 m-0"></p>
+                    </div>
+                    <div class="form-group !mb-0">
+                        <label class="form-label !text-slate-800 !font-bold">
+                            <i class="fa-solid fa-comment-dots text-slate-400 mr-1"></i> Alasan Unspek / Penangguhan <span class="text-rose-500">*</span>
+                        </label>
+                        <textarea name="keterangan_unspek" class="form-textarea" required rows="3"
+                            placeholder="Contoh: Tiang penuh, Jarak terlalu jauh, Pelanggan membatalkan..."></textarea>
+                    </div>
+                    </div>
+                    <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+                        onclick="closeCustomModal('unspekModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
+                    </button>
+                    <button type="submit" class="btn-save !flex !items-center !justify-center gap-2 !bg-amber-500">
+                        <i class="fa-solid fa-paper-plane"></i> Simpan Unspek
+                    </button>
+                    </div>
+                    </form>
+                    </div>
+                    </div>
 
     @section('Scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -648,6 +740,12 @@
                 $('#activationModal .modal-tab').first().click();
 
                 openCustomModal('activationModal');
+            }
+
+            function openUnspekModal(poId, poNama) {
+                $('#unspekForm').attr('action', `/pre-orders/${poId}/unspek`);
+                $('#unspek_po_name').text(poNama);
+                openCustomModal('unspekModal');
             }
 
             // QR Scanner Logic

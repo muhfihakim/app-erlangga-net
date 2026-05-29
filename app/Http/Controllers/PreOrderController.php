@@ -27,8 +27,13 @@ class PreOrderController extends Controller
 
             // 2. Query PreOrder
             if ($user->jabatan === 'Administrator') {
-                // Mengurutkan berdasarkan ID dari yang terbesar ke terkecil
                 $preOrders = PreOrder::orderBy('id', 'desc')->get();
+            } elseif ($user->jabatan === 'Teknisi') {
+                // Teknisi bisa melihat PO yang ditugaskan kepada mereka atau umum
+                $preOrders = PreOrder::where('id_teknisi_delegasi', $user->id)
+                    ->orWhereNull('id_teknisi_delegasi')
+                    ->orderBy('id', 'desc')
+                    ->get();
             } else {
                 $preOrders = PreOrder::where('id_sales', $user->id)
                     ->orderBy('id', 'desc')
@@ -315,6 +320,7 @@ class PreOrderController extends Controller
 
         $preOrder->update([
             'is_unspek' => true,
+            'is_unspek_approved' => false, // reset approval when a new unspek is made
             'keterangan_unspek' => $request->keterangan_unspek,
         ]);
 
@@ -325,6 +331,52 @@ class PreOrderController extends Controller
             'logged_at' => now(),
         ]);
 
-        return redirect()->back()->with('success', 'Pre-Order berhasil di-Unspek (ditangguhkan).');
+        // If action originates from customers index, redirect back there
+        return redirect()->back()->with('success', 'Tugas Aktivasi berhasil ditangguhkan/Unspek.');
+    }
+
+    public function approveUnspek(PreOrder $preOrder)
+    {
+        // Otorisasi: Hanya Administrator dan Sales (pemilik PO atau admin umum)
+        $user = auth()->user();
+        if ($user->jabatan !== 'Administrator' && ($user->jabatan !== 'Sales' || $preOrder->id_sales !== $user->id)) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $preOrder->update([
+            'is_unspek_approved' => true,
+        ]);
+
+        ActivityLog::create([
+            'user_id' => $user->id,
+            'activity_type' => 'preorder_unspek_approve',
+            'description' => 'Approve Unspek PO "' . $preOrder->nama_lengkap . '"',
+            'logged_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Unspek / Penangguhan PO berhasil disetujui.');
+    }
+
+    public function reopenUnspek(PreOrder $preOrder)
+    {
+        // Otorisasi: Hanya Administrator
+        if (auth()->user()->jabatan !== 'Administrator') {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $preOrder->update([
+            'is_unspek' => false,
+            'is_unspek_approved' => false,
+            'keterangan_unspek' => null,
+        ]);
+
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity_type' => 'preorder_unspek_reopen',
+            'description' => 'Membuka kembali (Re-Open) PO Unspek "' . $preOrder->nama_lengkap . '"',
+            'logged_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Tugas berhasil dibuka kembali menjadi aktif.');
     }
 }
