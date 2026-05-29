@@ -9,6 +9,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DismantleController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\OdpController;
 use App\Http\Controllers\PreOrderController;
 use App\Http\Controllers\TwoFactorController;
@@ -41,6 +42,8 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('/odp', [OdpController::class, 'store'])->name('odp.store');
     Route::put('/odp/{id}', [OdpController::class, 'update'])->name('odp.update');
     Route::delete('/odp/{id}', [OdpController::class, 'destroy'])->name('odp.destroy');
+
+    Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring.index');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboards.index');
     Route::get('/accounts', [AccountController::class, 'index'])->name('accounts.index');
