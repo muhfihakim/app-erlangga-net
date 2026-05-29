@@ -347,63 +347,23 @@
                                             title="Lokasi">
                                             <i class="fa-solid fa-map-location-dot text-indigo-500"></i>
                                         </a>
-                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
-                                            title="Tangguhkan / Unspek" onclick="openUnspekModal('{{ $po->id }}', '{{ $po->nama_lengkap }}')">
-                                            <i class="fa-solid fa-ban text-amber-500"></i>
-                                        </button>
-                                        <button type="button"
-                                            class="btn-primary-admin !h-9 !px-3 !text-[11px] activate-btn !flex !items-center !justify-center gap-1"
-                                            onclick="openActivationModal(this)" data-po-id="{{ $po->id }}"
-                                            data-po-sales-id="{{ $po->id_sales }}"
-                                            data-po-nama="{{ $po->nama_lengkap }}"
-                                            data-po-paket="{{ $po->paket_internet }}">
-                                            <i class="fa-solid fa-bolt"></i> Aktivasi
-                                        </button>
+                                        @if ($po->is_unspek)
+                                            <span class="badge" style="background:#fefce8;color:#a16207;border:1px solid #fef08a;" title="{{ $po->keterangan_unspek }}">UNSPEK</span>
+                                        @else
+                                            <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                                title="Tangguhkan / Unspek" onclick="openUnspekModal('{{ $po->id }}', '{{ $po->nama_lengkap }}')">
+                                                <i class="fa-solid fa-ban text-amber-500"></i>
+                                            </button>
+                                            <button type="button"
+                                                class="btn-primary-admin !h-9 !px-3 !text-[11px] activate-btn !flex !items-center !justify-center gap-1"
+                                                onclick="openActivationModal(this)" data-po-id="{{ $po->id }}"
+                                                data-po-sales-id="{{ $po->id_sales }}"
+                                                data-po-nama="{{ $po->nama_lengkap }}"
+                                                data-po-paket="{{ $po->paket_internet }}">
+                                                <i class="fa-solid fa-bolt"></i> Aktivasi
+                                            </button>
+                                        @endif
                                     </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Technician: Unspek Tasks -->
-        <h3
-            style="font-size: 16px; font-weight: 800; margin-bottom: 1rem; color: #0f172a; display: flex; align-items: center; gap: 10px;">
-            <i class="fa-solid fa-ban text-rose-500"></i> 3. Penangguhan / Unspek
-        </h3>
-        <div class="table-card mb-8">
-            <div class="table-responsive">
-                <table id="unspekTable" class="admin-table">
-                    <thead>
-                        <tr>
-                            <th style="text-align: center; width: 50px;">#</th>
-                            <th style="text-align: center; width: 100px;">Tgl PO</th>
-                            <th style="text-align: center;">Nama Pelanggan</th>
-                            <th style="text-align: center;">Keterangan</th>
-                            <th style="text-align: center; width: 150px;">Status Unspek</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($unspekTasks as $po)
-                            <tr>
-                                <td style="text-align: center; color: #94a3b8; font-weight: 700;">
-                                    {{ $loop->iteration }}</td>
-                                <td style="text-align: center; color: #64748b; font-size: 12px; font-weight: 600;">
-                                    {{ \Carbon\Carbon::parse($po->created_at)->format('d-m-Y') }}
-                                </td>
-                                <td style="text-align: center; font-weight: 700; color: #0f172a;">
-                                    {{ $po->nama_lengkap }}</td>
-                                <td style="text-align: center; font-size: 11px; color: #64748b; font-style: italic;">
-                                    {{ $po->keterangan_unspek }}
-                                </td>
-                                <td style="text-align: center;">
-                                    @if($po->is_unspek_approved)
-                                        <span class="badge badge-archived !px-3 !py-2" title="Disetujui oleh Sales">DISETUJUI</span>
-                                    @else
-                                        <span class="badge" style="background:#fefce8;color:#a16207;border:1px solid #fef08a;" title="Menunggu Konfirmasi Sales">MENUNGGU</span>
-                                    @endif
                                 </td>
                             </tr>
                         @endforeach
