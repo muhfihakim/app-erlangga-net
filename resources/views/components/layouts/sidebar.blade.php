@@ -24,6 +24,10 @@
             <i class="fa-solid fa-tower-broadcast"></i>
             <span>Manajemen ODP</span>
         </a>
+        <a class="sidebar-link {{ Request::is('monitoring') ? 'active' : '' }}" href="{{ route('monitoring.index') }}">
+            <i class="fa-solid fa-chart-line"></i>
+            <span>Monitoring</span>
+        </a>
 
         <div class="sidebar-section-label" style="margin-top:.5rem;">Pelanggan</div>
         @if (auth()->check() && in_array(auth()->user()->jabatan, ['Administrator', 'Sales']))
