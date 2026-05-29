@@ -12,6 +12,7 @@ use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\OdpController;
 use App\Http\Controllers\PreOrderController;
 use App\Http\Controllers\TwoFactorController;
+use App\Http\Controllers\FinanceController;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 Route::get('/', function () {
@@ -31,6 +32,10 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 // })->middleware('auth')->name('2fa.redirect');
 
 Route::middleware(['auth.custom'])->group(function () {
+    // Keuangan Teknisi
+    Route::get('/keuangan/teknisi', [FinanceController::class, 'index'])->name('finance.index');
+    Route::get('/keuangan/teknisi/export', [FinanceController::class, 'export'])->name('finance.export');
+
     // Rute untuk FTTH - Manajemen ODP
     Route::get('/odp', [OdpController::class, 'index'])->name('odp.index');
     Route::post('/odp', [OdpController::class, 'store'])->name('odp.store');

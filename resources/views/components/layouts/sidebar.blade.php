@@ -87,6 +87,13 @@
                 <i class="fa-solid fa-file-excel"></i>
                 <span>Lap. Dismantle</span>
             </a>
+
+            <div class="sidebar-section-label" style="margin-top:.5rem;">Keuangan</div>
+            <a class="sidebar-link {{ Request::is('keuangan/teknisi*') ? 'active' : '' }}"
+                href="{{ route('finance.index') }}">
+                <i class="fa-solid fa-wallet"></i>
+                <span>Pendapatan Teknisi</span>
+            </a>
         @endif
 
         <div class="sidebar-section-label" style="margin-top:.5rem;">Pengaturan</div>
