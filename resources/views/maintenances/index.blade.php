@@ -348,7 +348,9 @@
                                                 title="Hasil Pengerjaan" onclick="openMaintenanceResultModal(this)"
                                                 data-nama="{{ $m->customer->nama_lengkap ?? 'N/A' }}"
                                                 data-eksekutor="{{ $m->teknisiEksekutor->nama_lengkap ?? 'N/A' }}"
-                                                data-partner="{{ $m->customer->partner ?: '-' }}"
+                                                data-partner="{{ $m->partner ?: '-' }}"
+                                                data-kategori="{{ $m->kategori_kendala }}"
+                                                data-sn-baru="{{ $m->sn_baru }}" data-sn-lama="{{ $m->sn_lama }}"
                                                 data-solusi="{{ $m->solusi_kendala }}"
                                                 data-waktu="{{ \Carbon\Carbon::parse($m->completed_at)->format('d-m-Y H:i') }}"
                                                 data-foto-before="{{ asset('storage/' . $m->foto_sebelum_perbaikan) }}"
@@ -453,7 +455,8 @@
                                                 <button type="button"
                                                     class="btn-primary-admin !h-9 !px-3 !text-[11px] activate-btn !flex !items-center !justify-center gap-1"
                                                     onclick="openCompleteModal(this)" data-id="{{ $m->id }}"
-                                                    data-nama="{{ $m->customer->nama_lengkap }}">
+                                                    data-nama="{{ $m->customer->nama_lengkap }}"
+                                                    data-sn="{{ $m->customer->sn_perangkat }}">
                                                     <i class="fa-solid fa-circle-check"></i> Selesaikan
                                                 </button>
                                             @endif
@@ -516,9 +519,10 @@
                                                 <i class="fa-solid fa-circle-info text-primary"></i>
                                             </button>
                                             <button type="button"
-                                                class="btn-primary-admin !py-1.5 !px-3 !text-[11px] !bg-emerald-600 !flex !items-center !justify-center gap-1"
+                                                class="btn-primary-admin !h-9 !px-3 !text-[11px] activate-btn !flex !items-center !justify-center gap-1"
                                                 onclick="openCompleteModal(this)" data-id="{{ $m->id }}"
-                                                data-nama="{{ $m->customer->nama_lengkap }}">
+                                                data-nama="{{ $m->customer->nama_lengkap }}"
+                                                data-sn="{{ $m->customer->sn_perangkat }}">
                                                 <i class="fa-solid fa-hand-holding-hand"></i> Ambil
                                             </button>
                                         </div>
@@ -652,6 +656,33 @@
                                     <span class="text-[10px] font-bold text-slate-400 block uppercase">Waktu
                                         Selesai</span>
                                     <p id="res_waktu" class="text-sm font-bold text-slate-700"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <h6
+                                class="text-[10px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-amber-500 pl-3">
+                                Rincian Masalah</h6>
+                            <div class="bg-amber-50 p-4 rounded-2xl border border-amber-100 space-y-4">
+                                <div>
+                                    <span class="text-[10px] font-bold text-amber-400 block uppercase">Kategori
+                                        Masalah</span>
+                                    <p id="res_kategori" class="text-sm font-black text-amber-900 m-0"></p>
+                                </div>
+                                <div id="res_ont_info" style="display: none;"
+                                    class="grid grid-cols-2 gap-4 pt-2 border-t border-amber-200">
+                                    <div>
+                                        <span class="text-[9px] font-bold text-amber-400 block uppercase">SN
+                                            Lama</span>
+                                        <p id="res_sn_lama" class="text-xs font-bold text-amber-800 font-mono m-0">
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span class="text-[9px] font-bold text-amber-400 block uppercase">SN
+                                            Baru</span>
+                                        <p id="res_sn_baru" class="text-xs font-bold text-emerald-700 font-mono m-0">
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -992,6 +1023,38 @@
                     <div class="tab-panel" id="tab-m-solusi">
                         <div class="space-y-4">
                             <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Kategori
+                                    Masalah <span class="text-rose-500">*</span></label>
+                                <select name="kategori_kendala" id="m_kategori_kendala" class="form-input" required
+                                    onchange="toggleOntFields()">
+                                    <option value="">-- Pilih Kategori --</option>
+                                    <option value="ONT">PERGANTIAN ONT / MODEM</option>
+                                    <option value="Kabel Fiber Optic">PERBAIKAN KABEL FIBER OPTIC</option>
+                                    <option value="Lainnya">MASALAH LAINNYA</option>
+                                </select>
+                            </div>
+
+                            <div id="ont_fields" style="display: none;"
+                                class="bg-amber-50 p-4 rounded-xl border border-amber-100 space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="form-group">
+                                        <label class="form-label text-amber-800 font-bold uppercase text-[10px]">SN ONT
+                                            Sebelumnya</label>
+                                        <input type="text" id="m_sn_lama"
+                                            class="form-input bg-amber-100/50 border-amber-200 text-amber-900 font-mono"
+                                            readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label text-amber-800 font-bold uppercase text-[10px]">SN ONT
+                                            Pengganti <span class="text-rose-500">*</span></label>
+                                        <input type="text" name="sn_baru" id="m_sn_baru"
+                                            class="form-input border-amber-300 font-mono"
+                                            placeholder="Masukkan SN Baru...">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
                                 <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Solusi /
                                     Tindakan Perbaikan <span class="text-rose-500">*</span></label>
                                 <textarea name="solusi_kendala" class="form-textarea" required rows="5"
@@ -1126,6 +1189,17 @@
                 $('#res_waktu').text($btn.data('waktu'));
                 $('#res_solusi').text($btn.data('solusi'));
 
+                const kategori = $btn.data('kategori');
+                $('#res_kategori').text(kategori || 'N/A');
+
+                if (kategori === 'ONT') {
+                    $('#res_ont_info').show();
+                    $('#res_sn_lama').text($btn.data('sn-lama') || '-');
+                    $('#res_sn_baru').text($btn.data('sn-baru') || '-');
+                } else {
+                    $('#res_ont_info').hide();
+                }
+
                 $('#res_before').attr('src', $btn.data('foto-before'));
                 $('#res_after').attr('src', $btn.data('foto-after'));
                 $('#res_speed').attr('src', $btn.data('foto-speed'));
@@ -1137,24 +1211,40 @@
             function openCompleteModal(triggerEl) {
                 const $btn = $(triggerEl);
                 const nama = $btn.data('nama');
+                const sn = $btn.data('sn');
 
                 // Update UI elements
                 $('#nama_p').text(nama);
                 $('#m_nama_lengkap').val(nama);
+                $('#m_sn_lama').val(sn || '-');
 
                 // Set form action
                 $('#completeForm').attr('action', `/maintenances/${$btn.data('id')}/complete`);
 
                 // Reset form and tabs
                 $('#completeForm')[0].reset();
+                $('#ont_fields').hide();
+                $('#m_sn_baru').removeAttr('required');
 
                 // Re-fill name after reset since reset() clears the input
                 $('#m_nama_lengkap').val(nama);
+                $('#m_sn_lama').val(sn || '-');
 
                 // Reset tabs to first
                 $('#completeModal .modal-tab').first().click();
 
                 openCustomModal('completeModal');
+            }
+
+            function toggleOntFields() {
+                const kategori = $('#m_kategori_kendala').val();
+                if (kategori === 'ONT') {
+                    $('#ont_fields').slideDown();
+                    $('#m_sn_baru').attr('required', 'required');
+                } else {
+                    $('#ont_fields').slideUp();
+                    $('#m_sn_baru').removeAttr('required');
+                }
             }
 
             function selectCustomer(id, name) {

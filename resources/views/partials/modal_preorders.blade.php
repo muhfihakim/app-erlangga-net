@@ -81,8 +81,11 @@
                         <div class="form-group">
                             <label class="form-label text-slate-800 font-bold">Titik Koordinat</label>
                             <div class="flex gap-2">
-                                <input type="text" class="form-input {{ auth()->user()->jabatan === 'Administrator' ? 'bg-white' : 'bg-slate-50' }} text-slate-900 border-slate-300"
-                                    id="titik_koordinat" name="titik_koordinat" placeholder="{{ auth()->user()->jabatan === 'Administrator' ? 'Ketik manual / klik ikon...' : 'Koordinat...' }}" {{ auth()->user()->jabatan === 'Administrator' ? '' : 'readonly' }}>
+                                <input type="text"
+                                    class="form-input {{ auth()->user()->jabatan === 'Administrator' ? 'bg-white' : 'bg-slate-50' }} text-slate-900 border-slate-300"
+                                    id="titik_koordinat" name="titik_koordinat"
+                                    placeholder="{{ auth()->user()->jabatan === 'Administrator' ? 'Ketik manual / klik ikon...' : 'Koordinat...' }}"
+                                    {{ auth()->user()->jabatan === 'Administrator' ? '' : 'readonly' }}>
                                 <button type="button"
                                     class="btn-primary-admin !shadow-none !flex !items-center !justify-center"
                                     id="get-location-btn">
@@ -188,8 +191,11 @@
                     <div class="form-group">
                         <label class="form-label text-slate-800 font-bold">Titik Koordinat</label>
                         <div class="flex gap-2">
-                            <input type="text" class="form-input {{ auth()->user()->jabatan === 'Administrator' ? 'bg-white' : 'bg-slate-50' }} text-slate-900 border-slate-300"
-                                id="edit_titik_koordinat" name="titik_koordinat" placeholder="{{ auth()->user()->jabatan === 'Administrator' ? 'Ketik manual / klik ikon...' : '' }}" {{ auth()->user()->jabatan === 'Administrator' ? '' : 'readonly' }}>
+                            <input type="text"
+                                class="form-input {{ auth()->user()->jabatan === 'Administrator' ? 'bg-white' : 'bg-slate-50' }} text-slate-900 border-slate-300"
+                                id="edit_titik_koordinat" name="titik_koordinat"
+                                placeholder="{{ auth()->user()->jabatan === 'Administrator' ? 'Ketik manual / klik ikon...' : '' }}"
+                                {{ auth()->user()->jabatan === 'Administrator' ? '' : 'readonly' }}>
                             <button type="button"
                                 class="btn-primary-admin !shadow-none !flex !items-center !justify-center"
                                 id="edit-get-location-btn">
@@ -267,7 +273,8 @@
                                 <div>
                                     <span class="text-[11px] font-bold text-slate-400 block uppercase">Alamat
                                         Email</span>
-                                    <p id="detail_email" class="text-base font-black text-primary truncate"></p>
+                                    <p id="detail_email" class="text-xl font-black text-slate-900 leading-none mt-1">
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -482,7 +489,8 @@
                 </div>
                 <div class="form-group !mb-0">
                     <label class="form-label !text-slate-800 !font-bold">
-                        <i class="fa-solid fa-comment-dots text-slate-400 mr-1"></i> Alasan Unspek / Penangguhan <span class="text-rose-500">*</span>
+                        <i class="fa-solid fa-comment-dots text-slate-400 mr-1"></i> Alasan Unspek / Penangguhan <span
+                            class="text-rose-500">*</span>
                     </label>
                     <textarea name="keterangan_unspek" class="form-textarea" required rows="3"
                         placeholder="Contoh: Tiang penuh, Jarak terlalu jauh, Pelanggan membatalkan..."></textarea>

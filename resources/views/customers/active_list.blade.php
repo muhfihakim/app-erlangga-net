@@ -413,9 +413,14 @@
                                                 class="text-base font-black text-primary truncate mt-1"></p>
                                         </div>
                                         <div>
-                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">No.
-                                                WhatsApp</span>
-                                            <p id="detail_wa" class="text-sm font-bold text-emerald-600 mt-1"></p>
+                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">No. WhatsApp</span>
+                                            <div class="flex items-center gap-2 mt-1">
+                                                <p id="detail_wa" class="text-sm font-bold text-emerald-600 m-0"></p>
+                                                <a id="detail_wa_link" href="#" target="_blank"
+                                                    class="bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded text-[10px] font-black no-underline">
+                                                    <i class="fa-brands fa-whatsapp"></i> CHAT
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -434,15 +439,13 @@
                                                 Pre-Order</span>
                                             <p id="detail_tgl_po" class="text-sm font-bold text-slate-800 mt-1"></p>
                                         </div>
-                                        <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100">
-                                            <span
-                                                class="text-[10px] font-black text-indigo-400 block uppercase mb-1">Titik
-                                                Koordinat</span>
-                                            <div class="flex items-center justify-between gap-2">
-                                                <p id="detail_tikor" class="text-xs font-black text-indigo-700"></p>
+                                        <div>
+                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Titik Koordinat</span>
+                                            <div class="flex items-center gap-2 mt-1">
+                                                <p id="detail_tikor" class="text-sm font-bold text-indigo-600 m-0"></p>
                                                 <a id="detail_tikor_link" href="#" target="_blank"
-                                                    class="text-[10px] bg-indigo-600 text-white px-2 py-1 rounded-md no-underline">
-                                                    <i class="fa-solid fa-map-location-dot"></i> Maps
+                                                    class="bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded text-[10px] font-black no-underline">
+                                                    <i class="fa-solid fa-map-location-dot"></i> MAPS
                                                 </a>
                                             </div>
                                         </div>
@@ -631,7 +634,13 @@
                 $('#title_nama_pelanggan').text($btn.data('nama-lengkap'));
                 $('#detail_nik').text($btn.data('po-nik'));
                 $('#detail_email').text($btn.data('po-email'));
-                $('#detail_wa').text($btn.data('po-wa'));
+                const wa = $btn.data('po-wa');
+                $('#detail_wa').text(wa);
+                if (wa) {
+                    $('#detail_wa_link').attr('href', `https://wa.me/${wa}`).show();
+                } else {
+                    $('#detail_wa_link').hide();
+                }
                 $('#detail_sales').text($btn.data('po-sales'));
                 $('#detail_tgl_po').text($btn.data('po-tgl-po'));
                 $('#detail_alamat_lengkap').text($btn.data('po-alamat'));

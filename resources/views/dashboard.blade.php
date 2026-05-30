@@ -59,59 +59,69 @@
 
     <!-- Page header -->
     <div
-        style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+        style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;">
         <div>
-            <h1 style="font-size:22px;font-weight:900;margin:0;">Dashboard</h1>
+            <h1 style="font-size:22px;font-weight:900;margin:0;">Dashboard Overview</h1>
             <p style="font-size:13px;color: #64748b;margin:3px 0 0;">Selamat datang kembali,
-                <strong>{{ Auth::user()->nama_lengkap }}</strong>.
+                <strong>{{ Auth::user()->nama_lengkap }}</strong>. Berikut ringkasan performa Anda.
             </p>
         </div>
     </div>
 
     @if ($user->jabatan !== 'Teknisi')
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon" style="background:#e0f2fe;color:#0369a1;">
-                    <i class="fa-solid fa-file-invoice"></i>
-                </div>
-                <div>
-                    <div class="stat-val">{{ $totalPoThisMonth }}</div>
-                    <div class="stat-lbl">Total PO ({{ $currentPeriodLabel ?? 'Bulan Ini' }})</div>
-                    <div class="stat-trend {{ $percentageChange >= 0 ? 'stat-up' : 'stat-down' }}">
-                        <i
-                            class="fa-solid {{ $percentageChange >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' }}"></i>
-                        {{ round(abs($percentageChange), 1) }}% dibanding periode lalu
+        <!-- Global Performance Stats -->
+        <div style="margin-bottom: 2rem;">
+            <div
+                style="display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; border-left: 4px solid #0ea5e9; padding-left: 12px;">
+                <h3
+                    style="font-size: 14px; font-weight: 800; color: #475569; margin: 0; text-transform: uppercase; letter-spacing: 0.05em;">
+                    Performa Penjualan & Aktivasi</h3>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
+                        <i class="fa-solid fa-file-invoice"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val">{{ $totalPoThisMonth }}</div>
+                        <div class="stat-lbl">Total PO ({{ $currentPeriodLabel ?? 'Bulan Ini' }})</div>
+                        <div class="stat-trend {{ $percentageChange >= 0 ? 'stat-up' : 'stat-down' }}"
+                            style="font-size: 10px;">
+                            <i
+                                class="fa-solid {{ $percentageChange >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' }}"></i>
+                            {{ round(abs($percentageChange), 1) }}% vs lalu
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="stat-card">
-                <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
-                    <i class="fa-solid fa-clock-rotate-left"></i>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#f1f5f9;color:#64748b;">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val">{{ $totalPoPreviousMonth }}</div>
+                        <div class="stat-lbl">PO Periode Lalu</div>
+                    </div>
                 </div>
-                <div>
-                    <div class="stat-val">{{ $totalPoPreviousMonth }}</div>
-                    <div class="stat-lbl">PO Periode Lalu ({{ $previousPeriodLabel ?? 'Bulan Lalu' }})</div>
-                </div>
-            </div>
 
-            <div class="stat-card">
-                <div class="stat-icon" style="background:#dcfce7;color:#15803d;">
-                    <i class="fa-solid fa-circle-check"></i>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#dcfce7;color:#15803d;">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val">{{ $totalAktivasiThisMonth }}</div>
+                        <div class="stat-lbl">Aktivasi (Periode Ini)</div>
+                    </div>
                 </div>
-                <div>
-                    <div class="stat-val">{{ $totalAktivasiThisMonth }}</div>
-                    <div class="stat-lbl">Total Aktivasi (Periode Berjalan)</div>
-                </div>
-            </div>
 
-            <div class="stat-card">
-                <div class="stat-icon" style="background:#fef2f2;color:#dc2626;">
-                    <i class="fa-solid fa-hourglass-half"></i>
-                </div>
-                <div>
-                    <div class="stat-val">{{ $totalPendingThisMonth }}</div>
-                    <div class="stat-lbl">Total Pending (Periode Berjalan)</div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#fef2f2;color:#dc2626;">
+                        <i class="fa-solid fa-hourglass-half"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val">{{ $totalPendingThisMonth }}</div>
+                        <div class="stat-lbl">Pending (Periode Ini)</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -155,6 +165,102 @@
                 <div>
                     <div class="stat-val">{{ $totalExpired ?? 0 }}</div>
                     <div class="stat-lbl">Total Expired</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Activation Team Stats -->
+        <div style="margin-top: 1.5rem;">
+            <div
+                style="display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; border-left: 4px solid #0ea5e9; padding-left: 12px;">
+                <h3 style="font-size: 16px; font-weight: 800; color: #0f172a; margin: 0;">Pengerjaan Aktivasi PO (Sabtu
+                    - Jumat)</h3>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#f8fafc;color:#475569;border:1px solid #e2e8f0;">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val">{{ $statsAktivasi['alone'] ?? 0 }}</div>
+                        <div class="stat-lbl">Bekerja Sendiri</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#f0fdf4;color:#16a34a;border:1px solid #dcfce7;">
+                        <i class="fa-solid fa-user-group"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val">{{ $statsAktivasi['pair'] ?? 0 }}</div>
+                        <div class="stat-lbl">Bekerja Berdua</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#fff7ed;color:#ea580c;border:1px solid #ffedd5;">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val">{{ $statsAktivasi['trio'] ?? 0 }}</div>
+                        <div class="stat-lbl">Bekerja Bertiga</div>
+                    </div>
+                </div>
+                <div class="stat-card"
+                    style="background: linear-gradient(135deg, #0ea5e9, #0284c7); color: #fff; border: none;">
+                    <div class="stat-icon" style="background:rgba(255,255,255,0.2);color:#fff;">
+                        <i class="fa-solid fa-check-double"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val" style="color:#fff;">{{ $statsAktivasi['total'] ?? 0 }}</div>
+                        <div class="stat-lbl" style="color:rgba(255,255,255,0.8);">Total Pengerjaan</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Maintenance Team Stats -->
+        <div style="margin-top: 1.5rem;">
+            <div
+                style="display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; border-left: 4px solid #10b981; padding-left: 12px;">
+                <h3 style="font-size: 16px; font-weight: 800; color: #0f172a; margin: 0;">Pengerjaan Maintenance
+                    (Periode Berjalan)</h3>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#f8fafc;color:#475569;border:1px solid #e2e8f0;">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val">{{ $statsMaintenance['alone'] ?? 0 }}</div>
+                        <div class="stat-lbl">Bekerja Sendiri</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#f0fdf4;color:#16a34a;border:1px solid #dcfce7;">
+                        <i class="fa-solid fa-user-group"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val">{{ $statsMaintenance['pair'] ?? 0 }}</div>
+                        <div class="stat-lbl">Bekerja Berdua</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#fff7ed;color:#ea580c;border:1px solid #ffedd5;">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val">{{ $statsMaintenance['trio'] ?? 0 }}</div>
+                        <div class="stat-lbl">Bekerja Bertiga</div>
+                    </div>
+                </div>
+                <div class="stat-card"
+                    style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none;">
+                    <div class="stat-icon" style="background:rgba(255,255,255,0.2);color:#fff;">
+                        <i class="fa-solid fa-check-double"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val" style="color:#fff;">{{ $statsMaintenance['total'] ?? 0 }}</div>
+                        <div class="stat-lbl" style="color:rgba(255,255,255,0.8);">Total Pengerjaan</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -438,6 +544,42 @@
                         <p style="font-weight: 600; color: #94a3b8;">Tidak ada tugas delegasi khusus saat ini.</p>
                     </div>
                 @endforelse
+            </div>
+        </div>
+    @endif
+
+    @if ($user->jabatan === 'Sales')
+        <!-- Sales Personal Insights -->
+        <div style="margin-bottom: 2rem;">
+            <div
+                style="display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; border-left: 4px solid #6366f1; padding-left: 12px;">
+                <h3
+                    style="font-size: 14px; font-weight: 800; color: #475569; margin: 0; text-transform: uppercase; letter-spacing: 0.05em;">
+                    Ringkasan Pelanggan Anda</h3>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#e0f2fe;color:#0369a1;">
+                        <i class="fa-solid fa-users-viewfinder"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val">{{ $totalPelangganSaya }}</div>
+                        <div class="stat-lbl">Total Pelanggan Saya</div>
+                    </div>
+                </div>
+
+                <div class="stat-card" style="border: 1px solid #fee2e2; background: #fffafb;">
+                    <div class="stat-icon" style="background:#fef2f2;color:#dc2626;">
+                        <i class="fa-solid fa-user-slash"></i>
+                    </div>
+                    <div>
+                        <div class="stat-val" style="color: #dc2626;">{{ $totalIsolirSaya }}</div>
+                        <div class="stat-lbl">Pelanggan Terisolir</div>
+                        <p
+                            style="font-size: 9px; color: #f87171; margin-top: 4px; font-weight: 800; text-transform: uppercase;">
+                            Butuh Penagihan</p>
+                    </div>
+                </div>
             </div>
         </div>
     @endif

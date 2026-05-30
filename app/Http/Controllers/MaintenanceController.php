@@ -138,6 +138,8 @@ class MaintenanceController extends Controller
     {
         $request->validate([
             'solusi_kendala' => 'required',
+            'kategori_kendala' => 'required|in:ONT,Kabel Fiber Optic,Lainnya',
+            'sn_baru' => 'required_if:kategori_kendala,ONT',
             'foto_sebelum' => 'required|image',
             'foto_sesudah' => 'required|image',
             'foto_speedtest' => 'required|image',
@@ -145,12 +147,24 @@ class MaintenanceController extends Controller
         ]);
 
         $m = Maintenance::findOrFail($id);
+        $customer = Customer::findOrFail($m->customer_id);
+        
         $partnerNames = $request->has('partner_ids') ? User::whereIn('id', $request->partner_ids)->pluck('nama_lengkap')->implode(', ') : "";
+
+        // Jika kategori ONT, update SN di tabel customer
+        if ($request->kategori_kendala === 'ONT') {
+            $customer->update([
+                'sn_perangkat' => $request->sn_baru
+            ]);
+        }
 
         $m->update([
             'id_teknisi_eksekutor' => auth()->id(),
             'partner_ids' => $request->partner_ids,
             'partner' => $partnerNames,
+            'kategori_kendala' => $request->kategori_kendala,
+            'sn_baru' => $request->sn_baru,
+            'sn_lama' => $customer->getOriginal('sn_perangkat'),
             'solusi_kendala' => $request->solusi_kendala,
             'foto_sebelum_perbaikan' => $request->file('foto_sebelum')->store('maintenances/before', 'public'),
             'foto_setelah_perbaikan' => $request->file('foto_sesudah')->store('maintenances/after', 'public'),
@@ -158,6 +172,13 @@ class MaintenanceController extends Controller
             'foto_selfie_teknisi' => $request->file('foto_selfie')->store('maintenances/selfie', 'public'),
             'completed_at' => now(),
             'status' => 'Selesai'
+        ]);
+
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity_type' => 'maintenance_complete',
+            'description' => "Menyelesaikan maintenance pelanggan: " . $customer->nama_lengkap . ($request->kategori_kendala === 'ONT' ? " (Pergantian ONT)" : ""),
+            'logged_at' => now()
         ]);
 
         return redirect()->back()->with('success', 'Laporan maintenance berhasil disimpan.');

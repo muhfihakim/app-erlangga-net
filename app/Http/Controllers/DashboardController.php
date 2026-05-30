@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Maintenance;
 use App\Models\Dismantle;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -208,26 +209,102 @@ class DashboardController extends Controller
         $pendingTugas = 0;
         $totalExpired = 0;
         $personalMaintenanceSelesaiBulanIni = 0;
+        $statsMaintenance = ['alone' => 0, 'pair' => 0, 'trio' => 0, 'total' => 0];
+        $statsAktivasi = ['alone' => 0, 'pair' => 0, 'trio' => 0, 'total' => 0];
+
+        // --- STATS KHUSUS SALES ---
+        $totalPelangganSaya = 0;
+        $totalIsolirSaya = 0;
+
+        if ($user->jabatan === 'Sales' || $user->jabatan === 'Administrator') {
+            $myCustomersQuery = Customer::query();
+            if ($user->jabatan === 'Sales') {
+                $myCustomersQuery->where('id_sales', $user->id);
+            }
+            $totalPelangganSaya = $myCustomersQuery->count();
+
+            // Hitung Isolir
+            $pppoeData = Cache::get('mikrotik_pppoe_active');
+            if (!$pppoeData) {
+                $pppoeData = $this->mikroTikService->getPppoeActive();
+            }
+
+            if ($pppoeData && isset($pppoeData['success']) && $pppoeData['success']) {
+                $isolirUsernames = collect($pppoeData['data'])
+                    ->filter(fn($item) => str_starts_with($item['address'] ?? '', '172.30.'))
+                    ->pluck('name')
+                    ->toArray();
+
+                if (!empty($isolirUsernames)) {
+                    $isolirSayaQuery = Customer::whereIn('pppoe_username', $isolirUsernames);
+                    if ($user->jabatan === 'Sales') {
+                        $isolirSayaQuery->where('id_sales', $user->id);
+                    }
+                    $totalIsolirSaya = $isolirSayaQuery->count();
+                }
+            }
+        }
 
         // 8. Logika Khusus Teknisi
         if ($user->jabatan === 'Teknisi') {
-            $startOfWeek = Carbon::now()->startOfWeek();
-            $endOfWeek = Carbon::now()->endOfWeek();
+            // Periode Sabtu - Jumat (Untuk Aktivasi)
+            $startOfWeekSat = Carbon::now()->isSaturday() ? Carbon::now()->startOfDay() : Carbon::now()->previous(Carbon::SATURDAY)->startOfDay();
+            $endOfWeekFri = $startOfWeekSat->copy()->addDays(6)->endOfDay();
 
-            // Maintenance Selesai SAYA
-            $personalMaintenanceSelesaiBulanIni = Maintenance::where('status', 'Selesai')
+            // 1. Maintenance Selesai SAYA (Bulan Berjalan: 29 - 28)
+            $maintenancesMonthly = Maintenance::where('status', 'Selesai')
                 ->where('id_teknisi_eksekutor', $user->id)
                 ->whereBetween('completed_at', [$startOfMonth, $endOfMonth])
-                ->count();
+                ->get();
 
-            // Aktivasi Minggu Ini (Utama + Partner)
-            $aktivasiMingguIni = Customer::whereBetween('created_at', [$startOfWeek, $endOfWeek])
+            $statsMaintenance = [
+                'alone' => 0,
+                'pair' => 0,
+                'trio' => 0,
+                'total' => $maintenancesMonthly->count()
+            ];
+
+            foreach ($maintenancesMonthly as $m) {
+                $partnerCount = 0;
+                if (!empty($m->partner_ids)) {
+                    $pIds = is_array($m->partner_ids) ? $m->partner_ids : json_decode($m->partner_ids, true);
+                    $partnerCount = is_array($pIds) ? count($pIds) : 0;
+                }
+                if ($partnerCount === 0) $statsMaintenance['alone']++;
+                elseif ($partnerCount === 1) $statsMaintenance['pair']++;
+                elseif ($partnerCount >= 2) $statsMaintenance['trio']++;
+            }
+
+            // 2. Aktivasi PO Selesai SAYA (Sabtu - Jumat)
+            $activationsWeekly = Customer::whereBetween('created_at', [$startOfWeekSat, $endOfWeekFri])
                 ->where(function ($query) use ($user) {
                     $query->where('id_teknisi', $user->id)
                         ->orWhereJsonContains('partner_ids', (string)$user->id);
-                })->count();
+                })->get();
 
-            // Aktivasi Bulan Ini
+            $statsAktivasi = [
+                'alone' => 0,
+                'pair' => 0,
+                'trio' => 0,
+                'total' => $activationsWeekly->count()
+            ];
+
+            foreach ($activationsWeekly as $act) {
+                $partnerCount = 0;
+                if (!empty($act->partner_ids)) {
+                    $pIds = is_array($act->partner_ids) ? $act->partner_ids : json_decode($act->partner_ids, true);
+                    $partnerCount = is_array($pIds) ? count($pIds) : 0;
+                }
+                if ($partnerCount === 0) $statsAktivasi['alone']++;
+                elseif ($partnerCount === 1) $statsAktivasi['pair']++;
+                elseif ($partnerCount >= 2) $statsAktivasi['trio']++;
+            }
+
+            // Keep monthly total for top card
+            $personalMaintenanceSelesaiBulanIni = $statsMaintenance['total'];
+            $aktivasiMingguIni = $statsAktivasi['total'];
+
+            // Aktivasi Bulan Ini (Total Count)
             $aktivasiBulanIni = Customer::whereBetween('created_at', [$startOfMonth, $endOfMonth])
                 ->where(function ($query) use ($user) {
                     $query->where('id_teknisi', $user->id)
@@ -281,6 +358,8 @@ class DashboardController extends Controller
             'totalPendingThisMonth',
             'currentPeriodLabel',
             'previousPeriodLabel',
+            'totalPelangganSaya',
+            'totalIsolirSaya',
             'delegatedTasks',
             'aktivasiMingguIni',
             'aktivasiBulanIni',
@@ -288,6 +367,8 @@ class DashboardController extends Controller
             'totalExpired',
             'totalMaintenanceSelesaiBulanIni',
             'personalMaintenanceSelesaiBulanIni',
+            'statsMaintenance',
+            'statsAktivasi',
             'aChartLabels',
             'aChartValues',
             'aDonutLabels',
