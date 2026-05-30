@@ -4,6 +4,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\PreOrderController;
+use App\Http\Controllers\Api\CustomerController;
+use App\Http\Controllers\Api\MaintenanceController;
+use App\Http\Controllers\Api\DismantleController;
+use App\Http\Controllers\Api\OdpController;
 
 // Auth Routes
 Route::post('/login', [AuthController::class, 'login']);
@@ -12,7 +18,50 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // Rute API untuk lokasi (Sekarang dilindungi Sanctum)
+    // Dashboard
+    Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
+
+    // Pre-Order
+    Route::get('/pre-orders', [PreOrderController::class, 'index']);
+    Route::post('/pre-orders', [PreOrderController::class, 'store']);
+    Route::get('/pre-orders/{id}', [PreOrderController::class, 'show']);
+    Route::post('/pre-orders/{id}/delegate', [PreOrderController::class, 'delegate']);
+    Route::post('/pre-orders/{id}/unspek', [PreOrderController::class, 'unspek']);
+    Route::post('/pre-orders/{id}/reopen', [PreOrderController::class, 'reopen']);
+
+    // Customer
+    Route::get('/customers', [CustomerController::class, 'index']);
+    Route::post('/customers', [CustomerController::class, 'store']); // Activation
+    Route::get('/customers/isolir', [CustomerController::class, 'isolir']);
+    Route::get('/customers/{id}', [CustomerController::class, 'show']);
+    Route::delete('/customers/{id}', [CustomerController::class, 'destroy']);
+    Route::post('/customers/{id}/restore', [CustomerController::class, 'restore']);
+
+    // Maintenance
+    Route::get('/maintenances', [MaintenanceController::class, 'index']);
+    Route::post('/maintenances/{id}/complete', [MaintenanceController::class, 'complete']);
+
+    // Dismantle
+    Route::get('/dismantles', [DismantleController::class, 'index']);
+    Route::post('/dismantles/{id}/complete', [DismantleController::class, 'complete']);
+
+    // ODP Management
+    Route::get('/odps', [OdpController::class, 'index']);
+    Route::post('/odps', [OdpController::class, 'store']);
+    Route::put('/odps/{id}', [OdpController::class, 'update']);
+    Route::delete('/odps/{id}', [OdpController::class, 'destroy']);
+
+    // Activity Log
+    Route::get('/activity-logs', [ActivityLogController::class, 'index']);
+
+    // MikroTik Monitoring (Real-time)
+    Route::prefix('mikrotik')->group(function () {
+        Route::get('/traffic', [\App\Http\Controllers\MonitoringController::class, 'traffic']);
+        Route::get('/status', [\App\Http\Controllers\MonitoringController::class, 'status']);
+        Route::get('/pppoe-active', [\App\Http\Controllers\PppoeController::class, 'active']);
+    });
+
+    // Location Tracking
     Route::get('/locations/all', [LocationController::class, 'getAllLocations']);
     Route::get('/locations/{user}', [LocationController::class, 'getUserLocation']);
     Route::post('/location/update', [LocationController::class, 'update']);
