@@ -127,19 +127,47 @@ Tampilan dashboard dinamis berdasarkan _Role_:
 
 ---
 
-## 5. Kebutuhan API (Backend Readiness)
+## 5. Dokumentasi API (Status: READY & IMPLEMENTED)
+Seluruh endpoint di bawah ini sudah tersedia di `routes/api.php` dan dilindungi oleh `auth:sanctum`.
 
-Agar aplikasi Flutter dapat berfungsi, Laravel _Web App_ saat ini harus diperluas pada file `routes/api.php`. Sebagian besar logika yang saat ini me-return `view('blade')` harus dibuatkan versi Controller API yang me-return `response()->json()`.
+### 5.1. Auth & Profile
+* `POST /api/login` : Login user (mendapatkan token).
+* `POST /api/logout` : Menghapus token aktif.
+* `GET /api/me` : Informasi profil user yang sedang login.
 
-- **Dibutuhkan Endpoint API Untuk:**
-    1. `POST /api/login` & `POST /api/logout`
-    2. `GET /api/dashboard/stats` (Membawa data charts dan cards)
-    3. `GET /api/pre-orders`, `POST /api/pre-orders`, `POST /api/pre-orders/{id}/activate`, `POST /api/pre-orders/{id}/unspek`
-    4. `GET /api/customers`, `GET /api/customers/isolir`
-    5. `GET /api/maintenances`, `POST /api/maintenances/{id}/complete` (Multipart/form-data untuk foto)
-    6. `GET /api/dismantles`, `POST /api/dismantles/{id}/complete`
-    7. `GET /api/mikrotik/pppoe` (Menggunakan cache yang sudah dibuat oleh `MikrotikMonitor`)
-    8. `POST /api/location/update` (Sudah tersedia)
+### 5.2. Dashboard & Stats
+* `GET /api/dashboard/stats` : Mengambil data kartu statistik dan data grafik (Chart) sesuai role.
+
+### 5.3. Pre-Order & Aktivasi
+* `GET /api/pre-orders` : List PO (Support filter status & sales).
+* `POST /api/pre-orders` : Sales input PO baru (termasuk upload foto).
+* `POST /api/pre-orders/{id}/delegate` : Admin menugaskan teknisi.
+* `POST /api/pre-orders/{id}/unspek` : Teknisi menandai kegagalan pasang.
+* `POST /api/pre-orders/{id}/reopen` : Admin membuka kembali status unspek.
+* `POST /api/customers` : **(Aksi Aktivasi)** Teknisi menyelesaikan pemasangan (Modem, PPPoE, Foto).
+
+### 5.4. Pelanggan & Isolir
+* `GET /api/customers` : List pelanggan aktif.
+* `GET /api/customers/isolir` : List khusus pelanggan yang terdeteksi suspend di MikroTik.
+* `DELETE /api/customers/{id}` : Admin melakukan penonaktifan (Soft Delete).
+* `POST /api/customers/{id}/restore` : Admin mengaktifkan kembali pelanggan.
+
+### 5.5. Maintenance & Dismantle
+* `POST /api/maintenances/{id}/complete` : Teknisi upload hasil perbaikan (inc. Logic ONT SN).
+* `POST /api/dismantles/{id}/complete` : Teknisi upload hasil pencabutan.
+
+### 5.6. Infrastruktur & Monitoring
+* `GET /api/odps` : List manajemen ODP dan koordinat.
+* `GET /api/mikrotik/traffic` : Data real-time RX/TX Bandwidth.
+* `GET /api/mikrotik/status` : Status koneksi router.
+* `GET /api/mikrotik/pppoe-active` : List user online di MikroTik (Real-time via Cache).
+
+### 5.7. Administrator Only
+* `GET /api/accounts` : Manajemen User & Role.
+* `GET /api/activity-logs` : Log riwayat sistem.
+* `GET /api/finance` : Laporan estimasi pendapatan teknisi.
+
+---
 
 ---
 

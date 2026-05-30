@@ -10,7 +10,7 @@ use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\ValidationException;
+use Carbon\Carbon;
 
 class PreOrderController extends Controller
 {
@@ -53,10 +53,10 @@ class PreOrderController extends Controller
             $po->is_segera_expired = false;
 
             if ($po->delegated_at && !$po->is_active && !$po->is_unsubscribed) {
-                $deadline = \Carbon\Carbon::parse($po->delegated_at)->addDays(2);
-                if (\Carbon\Carbon::now()->greaterThan($deadline)) {
+                $deadline = Carbon::parse($po->delegated_at)->addDays(2);
+                if (Carbon::now()->greaterThan($deadline)) {
                     $po->is_expired = true;
-                } elseif (\Carbon\Carbon::now()->diffInHours($deadline) <= 24) {
+                } elseif (Carbon::now()->diffInHours($deadline) <= 24) {
                     $po->is_segera_expired = true;
                 }
             }
@@ -119,6 +119,17 @@ class PreOrderController extends Controller
         return response()->json(['message' => 'PO berhasil didelegasikan']);
     }
 
+    public function resetDelegation($id)
+    {
+        $po = PreOrder::findOrFail($id);
+        $po->update([
+            'id_teknisi_delegasi' => null,
+            'delegated_at' => null
+        ]);
+
+        return response()->json(['message' => 'Delegasi PO berhasil direset']);
+    }
+
     public function unspek(Request $request, $id)
     {
         $request->validate(['keterangan_unspek' => 'required|string']);
@@ -139,13 +150,22 @@ class PreOrderController extends Controller
         return response()->json(['message' => 'PO berhasil ditandai sebagai Unspek']);
     }
 
+    public function approveUnspek($id)
+    {
+        $po = PreOrder::findOrFail($id);
+        $po->update(['unspek_approved_at' => now()]);
+
+        return response()->json(['message' => 'Unspek PO telah disetujui']);
+    }
+
     public function reopen(Request $request, $id)
     {
         $po = PreOrder::findOrFail($id);
         $po->update([
             'is_unspek' => false,
             'keterangan_unspek' => null,
-            'unspek_at' => null
+            'unspek_at' => null,
+            'unspek_approved_at' => null
         ]);
 
         ActivityLog::create([
@@ -156,5 +176,12 @@ class PreOrderController extends Controller
         ]);
 
         return response()->json(['message' => 'PO berhasil dibuka kembali']);
+    }
+
+    public function destroy($id)
+    {
+        $po = PreOrder::findOrFail($id);
+        $po->delete();
+        return response()->json(['message' => 'Pre-Order berhasil dihapus']);
     }
 }

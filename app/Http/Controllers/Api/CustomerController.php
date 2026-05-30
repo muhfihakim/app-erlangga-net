@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use App\Services\MikroTikService;
+use Carbon\Carbon;
 
 class CustomerController extends Controller
 {
@@ -19,13 +20,29 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $query = Customer::with('sales');
+        $query = Customer::with(['sales', 'teknisiUtama']);
 
         if ($user->jabatan === 'Sales') {
             $query->where('id_sales', $user->id);
         }
 
-        return response()->json($query->latest()->paginate(20));
+        $customers = $query->latest()->paginate(20);
+
+        // --- STATS (Mirror activeList logic) ---
+        $statsQuery = Customer::query();
+        if ($user->jabatan === 'Sales') $statsQuery->where('id_sales', $user->id);
+
+        $stats = [
+            'total_active' => (clone $statsQuery)->count(),
+            'new_this_month' => (clone $statsQuery)->whereMonth('created_at', Carbon::now()->month)->count(),
+            'new_this_week' => (clone $statsQuery)->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->count(),
+            'total_archived' => (clone $statsQuery)->onlyTrashed()->count(),
+        ];
+
+        return response()->json([
+            'stats' => $stats,
+            'data' => $customers
+        ]);
     }
 
     public function store(Request $request)
@@ -109,7 +126,7 @@ class CustomerController extends Controller
 
     public function show($id)
     {
-        $customer = Customer::with(['sales', 'preOrder'])->findOrFail($id);
+        $customer = Customer::with(['sales', 'preOrder', 'teknisiUtama'])->findOrFail($id);
         return response()->json($customer);
     }
 

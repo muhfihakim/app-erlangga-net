@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Dismantle;
 use App\Models\Customer;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -13,13 +14,33 @@ class DismantleController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $query = Dismantle::with(['customer', 'teknisiEksekutor']);
+        $query = Dismantle::with(['customer', 'teknisiEksekutor', 'teknisiDelegasi']);
 
         if ($user->jabatan === 'Teknisi') {
             $query->where('id_teknisi_delegasi', $user->id);
         }
 
         return response()->json($query->latest()->paginate(20));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'customer_id' => 'required|exists:customers,id',
+            'id_teknisi_delegasi' => 'required|exists:users,id',
+            'keterangan_admin' => 'nullable|string',
+        ]);
+
+        $dismantle = Dismantle::create([
+            'customer_id' => $request->customer_id,
+            'id_admin' => auth()->id(),
+            'id_teknisi_delegasi' => $request->id_teknisi_delegasi,
+            'keterangan_admin' => $request->keterangan_admin,
+            'status' => 'Pending',
+            'delegated_at' => now(),
+        ]);
+
+        return response()->json(['message' => 'Tugas dismantle berhasil dibuat', 'data' => $dismantle], 201);
     }
 
     public function complete(Request $request, $id)
@@ -42,9 +63,22 @@ class DismantleController extends Controller
             'status' => 'Selesai'
         ]);
 
-        // Customer is soft deleted after dismantle
         $customer->delete();
 
-        return response()->json(['message' => 'Laporan dismantle berhasil disimpan dan pelanggan dinonaktifkan']);
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity_type' => 'dismantle_complete',
+            'description' => "Menyelesaikan dismantle: " . $customer->nama_lengkap,
+            'logged_at' => now()
+        ]);
+
+        return response()->json(['message' => 'Laporan dismantle berhasil disimpan']);
+    }
+
+    public function destroy($id)
+    {
+        $d = Dismantle::findOrFail($id);
+        $d->delete();
+        return response()->json(['message' => 'Tugas dismantle berhasil dihapus']);
     }
 }
