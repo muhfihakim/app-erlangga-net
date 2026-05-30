@@ -125,7 +125,8 @@
         style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
             <h1 style="font-size:22px;font-weight:900;margin:0;">Data Pelanggan</h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola data pelanggan yang sudah aktif dan monitoring isolir.</p>
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola data pelanggan yang sudah aktif dan monitoring
+                isolir.</p>
         </div>
         <div style="display:flex; gap:10px;">
             <a href="{{ route('dashboards.index') }}" class="btn-primary-admin !flex !items-center !justify-center gap-2"
@@ -135,55 +136,6 @@
             </a>
         </div>
     </div>
-
-    @if (Auth::user()->jabatan === 'Sales' || Auth::user()->jabatan === 'Administrator')
-        @if (isset($pelangganIsolir) && $pelangganIsolir->count() > 0)
-            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;margin-top:1rem;flex-wrap:wrap;">
-                <div>
-                    <h1 style="font-size:18px;font-weight:900;margin:0;color:#dc2626;"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Pelanggan Terisolir</h1>
-                    <p style="font-size:12px;color:#64748b;margin:3px 0 0;">Daftar pelanggan Anda yang saat ini sedang dalam masa isolir/suspend.</p>
-                </div>
-            </div>
-            
-            <div class="table-card mb-8 border border-red-200 shadow-sm shadow-red-100">
-                <div class="table-responsive">
-                    <table class="admin-table">
-                        <thead style="background:#fef2f2;">
-                            <tr>
-                                <th style="text-align: center; width: 50px; color:#991b1b;">#</th>
-                                <th style="color:#991b1b;">Nama Pelanggan</th>
-                                <th style="text-align: center; color:#991b1b;">Username PPPoE</th>
-                                <th style="text-align: center; color:#991b1b;">Sales</th>
-                                <th style="text-align: center; color:#991b1b;">No. WA</th>
-                                <th style="text-align: center; color:#991b1b;">Paket</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($pelangganIsolir as $isolir)
-                                <tr>
-                                    <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}</td>
-                                    <td style="font-weight: 700; color: #0f172a;">{{ $isolir->nama_lengkap }}</td>
-                                    <td style="text-align: center; font-family:monospace; color:#0ea5e9; font-weight:700;">{{ $isolir->pppoe_username }}</td>
-                                    <td style="text-align: center; font-weight: 600;">{{ $isolir->sales->nama_lengkap ?? '-' }}</td>
-                                    <td style="text-align: center;">
-                                        <a href="https://wa.me/{{ $isolir->no_whatsapp }}" target="_blank"
-                                            style="color: #10b981; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-                                            <i class="fa-brands fa-whatsapp"></i> {{ $isolir->no_whatsapp }}
-                                        </a>
-                                    </td>
-                                    <td style="text-align: center;">
-                                        <span class="badge" style="background:#fef2f2; color:#dc2626; padding:4px 8px; border-radius:6px; font-size:10px; font-weight:800;">
-                                            {{ $isolir->paket_internet }}
-                                        </span>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        @endif
-    @endif
 
     <!-- Stats cards -->
     <div class="stats-grid mb-6">
@@ -354,6 +306,63 @@
             </table>
         </div>
     </div>
+
+    @if (Auth::user()->jabatan === 'Sales' || Auth::user()->jabatan === 'Administrator')
+        @if (isset($pelangganIsolir) && $pelangganIsolir->count() > 0)
+            <div
+                style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;margin-top:1rem;flex-wrap:wrap;">
+                <div>
+                    <h1 style="font-size:18px;font-weight:900;margin:0;color:#dc2626;"><i
+                            class="fa-solid fa-triangle-exclamation mr-2"></i>Pelanggan Terisolir</h1>
+                    <p style="font-size:12px;color:#64748b;margin:3px 0 0;">Daftar pelanggan Anda yang saat ini sedang
+                        dalam masa isolir/suspend.</p>
+                </div>
+            </div>
+
+            <div class="table-card mb-8 border border-red-200 shadow-sm shadow-red-100">
+                <div class="table-responsive">
+                    <table id="isolir-table" class="admin-table">
+                        <thead style="background:#fef2f2;">
+                            <tr>
+                                <th style="text-align: center; width: 50px; color:#991b1b;">#</th>
+                                <th style="color:#991b1b;">Nama Pelanggan</th>
+                                <th style="text-align: center; color:#991b1b;">Username PPPoE</th>
+                                <th style="text-align: center; color:#991b1b;">Sales</th>
+                                <th style="text-align: center; color:#991b1b;">No. WA</th>
+                                <th style="text-align: center; color:#991b1b;">Paket</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($pelangganIsolir as $isolir)
+                                <tr>
+                                    <td style="text-align: center; color: #94a3b8; font-weight: 700;">
+                                        {{ $loop->iteration }}</td>
+                                    <td style="font-weight: 700; color: #0f172a;">{{ $isolir->nama_lengkap }}</td>
+                                    <td
+                                        style="text-align: center; font-family:monospace; color:#0ea5e9; font-weight:700;">
+                                        {{ $isolir->pppoe_username }}</td>
+                                    <td style="text-align: center; font-weight: 600;">
+                                        {{ $isolir->sales->nama_lengkap ?? '-' }}</td>
+                                    <td style="text-align: center;">
+                                        <a href="https://wa.me/{{ $isolir->no_whatsapp }}" target="_blank"
+                                            style="color: #10b981; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                            <i class="fa-brands fa-whatsapp"></i> {{ $isolir->no_whatsapp }}
+                                        </a>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span class="badge"
+                                            style="background:#fef2f2; color:#dc2626; padding:4px 8px; border-radius:6px; font-size:10px; font-weight:800;">
+                                            {{ $isolir->paket_internet }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
+    @endif
 
     {{-- Custom Tabbed Detail Modal --}}
     <div class="modal-overlay" id="customerDetailModal">
@@ -670,7 +679,24 @@
             }
 
             $(document).ready(function() {
-                // DataTables
+                // DataTables Isolir
+                $('#isolir-table').DataTable({
+                    "pageLength": 5,
+                    "lengthChange": false,
+                    "ordering": false,
+                    "info": false,
+                    "responsive": true,
+                    "dom": 'tpir',
+                    "language": {
+                        "zeroRecords": "Data tidak ditemukan",
+                        "paginate": {
+                            "previous": '<i class="fa-solid fa-chevron-left"></i>',
+                            "next": '<i class="fa-solid fa-chevron-right"></i>'
+                        }
+                    }
+                });
+
+                // DataTables Utama
                 const table = $('#customer-table').DataTable({
                     "pageLength": 10,
                     "lengthChange": false,

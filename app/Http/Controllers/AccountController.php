@@ -22,7 +22,7 @@ class AccountController extends Controller
             abort(403, 'Akses ditolak.');
         }
 
-        $users = User::all();
+        $users = User::all(); // Ini otomatis hanya mengambil yang belum didelete (soft)
         
         // --- STATISTIK ---
         $totalUsers = User::count();
