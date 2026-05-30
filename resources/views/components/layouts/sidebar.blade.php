@@ -24,6 +24,10 @@
             <i class="fa-solid fa-tower-broadcast"></i>
             <span>Manajemen ODP</span>
         </a>
+        <a class="sidebar-link {{ Request::is('pppoe*') ? 'active' : '' }}" href="{{ route('pppoe.index') }}">
+            <i class="fa-solid fa-network-wired"></i>
+            <span>PPPoE Aktif</span>
+        </a>
         <a class="sidebar-link {{ Request::is('monitoring') ? 'active' : '' }}" href="{{ route('monitoring.index') }}">
             <i class="fa-solid fa-chart-line"></i>
             <span>Monitoring</span>

@@ -12,6 +12,7 @@ use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\OdpController;
 use App\Http\Controllers\PreOrderController;
+use App\Http\Controllers\PppoeController;
 use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\FinanceController;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
@@ -44,6 +45,7 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::delete('/odp/{id}', [OdpController::class, 'destroy'])->name('odp.destroy');
 
     Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring.index');
+    Route::get('/pppoe', [PppoeController::class, 'index'])->name('pppoe.index');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboards.index');
     Route::get('/accounts', [AccountController::class, 'index'])->name('accounts.index');
@@ -110,6 +112,14 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('customers/active-list', [CustomerController::class, 'activeList'])->name('customers.active_list');
     Route::post('/customers/{id}/restore', [CustomerController::class, 'restore'])->name('customers.restore');
 
+    // MikroTik Monitoring API (Protected by session auth)
+    Route::prefix('api')->group(function () {
+        Route::get('/mikrotik/traffic', [MonitoringController::class, 'traffic']);
+        Route::get('/mikrotik/status', [MonitoringController::class, 'status']);
+        Route::get('/pppoe/active', [PppoeController::class, 'active']);
+        Route::get('/pppoe/data', [PppoeController::class, 'data'])->name('pppoe.data');
+        Route::get('/pppoe/realtime-traffic', [PppoeController::class, 'traffic'])->name('pppoe.traffic');
+    });
 
     Route::resource('customers', CustomerController::class)->except(['create', 'edit', 'show']);
 });

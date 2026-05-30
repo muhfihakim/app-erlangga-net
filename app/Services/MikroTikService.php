@@ -77,4 +77,77 @@ class MikroTikService
             ];
         }
     }
+
+    /**
+     * Get real-time traffic for specific PPPoE interfaces.
+     * 
+     * @param array $interfaceNames List of interface names (e.g., ["<pppoe-user1>", "<pppoe-user2>"])
+     * @return array
+     */
+    public function getPppoeTraffic(array $interfaceNames): array
+    {
+        if (empty($interfaceNames)) return [];
+
+        try {
+            // monitor-traffic can take multiple interfaces comma-separated
+            $names = implode(',', $interfaceNames);
+            $results = \MikroTik::interfaces()->getTraffic($names, 1);
+
+            // If only one interface, library might return single array instead of array of arrays
+            if (count($interfaceNames) === 1 && isset($results['name'])) {
+                $results = [$results];
+            }
+
+            $formatted = [];
+            foreach ($results as $res) {
+                $name = $res['name'] ?? '';
+                $formatted[$name] = [
+                    'rx_rate' => (int) ($res['rx-bits-per-second'] ?? 0),
+                    'tx_rate' => (int) ($res['tx-bits-per-second'] ?? 0),
+                ];
+            }
+
+            return $formatted;
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+    public function getPppoeActive(): array
+    {
+        try {
+            $active = \MikroTik::pppoe()->getActiveSessions();
+            
+            // Get all interfaces to find the PPPoE dynamic ones
+            $interfaces = \MikroTik::interfaces()->getInterfaces();
+            $ifaceMap = [];
+            foreach ($interfaces as $iface) {
+                // PPPoE dynamic interfaces usually follow <pppoe-username> pattern
+                $ifaceMap[$iface['name']] = $iface;
+            }
+
+            $merged = [];
+            foreach ($active as $session) {
+                $name = $session['name'] ?? '';
+                $ifaceName = "<pppoe-{$name}>";
+                
+                $ifaceData = $ifaceMap[$ifaceName] ?? null;
+                
+                $merged[] = array_merge($session, [
+                    'bytes-in' => $ifaceData['rx-byte'] ?? 0,
+                    'bytes-out' => $ifaceData['tx-byte'] ?? 0,
+                    'local-address' => $ifaceData['address'] ?? ($session['local-address'] ?? '-'),
+                ]);
+            }
+
+            return [
+                'success' => true,
+                'data' => array_values($merged),
+            ];
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
 }

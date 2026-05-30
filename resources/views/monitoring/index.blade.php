@@ -120,10 +120,6 @@
             <div id="status-badge"><span class="badge-checking">Mengecek...</span></div>
         </div>
         <div class="info-item">
-            <div class="lbl">Link Up Since</div>
-            <div class="val" id="info-link-up" style="font-size:12px;font-weight:700;color:#15803d;">--</div>
-        </div>
-        <div class="info-item">
             <div class="lbl">Total RX</div>
             <div class="val" id="info-total-rx" style="font-size:13px;font-weight:700;color:#0ea5e9;">--</div>
         </div>
@@ -331,9 +327,6 @@
                         }
                         if (response.data.total_tx !== undefined) {
                             document.getElementById('info-total-tx').textContent = formatBytesLarge(response.data.total_tx);
-                        }
-                        if (response.data.last_link_up) {
-                            document.getElementById('info-link-up').textContent = response.data.last_link_up;
                         }
 
                         document.getElementById('last-updated').textContent = timeStr;

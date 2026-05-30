@@ -23,14 +23,14 @@ MikroTik API (API-REST)
 
 **File yang dibuat:**
 
-| File | Purpose |
-|------|---------|
-| `app/Services/MikroTikService.php` | Service layer, wrap library Zilleali |
-| `routes/api.php` | API endpoint `/api/mikrotik/traffic` |
-| `routes/web.php` | Route `/monitoring` |
-| `resources/views/monitoring/index.blade.php` | Halaman chart |
-| `resources/views/components/layouts/sidebar.blade.php` | Tambah menu sidebar |
-| `.env` | Credentials MikroTik |
+| File                                                   | Purpose                              |
+| ------------------------------------------------------ | ------------------------------------ |
+| `app/Services/MikroTikService.php`                     | Service layer, wrap library Zilleali |
+| `routes/api.php`                                       | API endpoint `/api/mikrotik/traffic` |
+| `routes/web.php`                                       | Route `/monitoring`                  |
+| `resources/views/monitoring/index.blade.php`           | Halaman chart                        |
+| `resources/views/components/layouts/sidebar.blade.php` | Tambah menu sidebar                  |
+| `.env`                                                 | Credentials MikroTik                 |
 
 **Library:** `Zilleali/mikrotik-laravel`
 
@@ -39,11 +39,11 @@ MikroTik API (API-REST)
 ## Environment Variables
 
 ```env
-MIKROTIK_HOST=192.168.88.1
+MIKROTIK_HOST=192.168.10.1
 MIKROTIK_PORT=8728
-MIKROTIK_USER=admin
-MIKROTIK_PASSWORD=secret
-MIKROTIK_INTERFACE=ether1
+MIKROTIK_USER=administrator@hakim.id
+MIKROTIK_PASSWORD=admin
+MIKROTIK_INTERFACE=ether1-ISP
 ```
 
 ---
@@ -53,11 +53,12 @@ MIKROTIK_INTERFACE=ether1
 **Route:** `GET /api/mikrotik/traffic`
 
 **Response:**
+
 ```json
 {
     "success": true,
     "data": {
-        "interface": "ether1",
+        "interface": "ether1-ISP",
         "rx_bytes": 1234567,
         "tx_bytes": 987654,
         "rx_rate": 1024.5,
@@ -68,6 +69,7 @@ MIKROTIK_INTERFACE=ether1
 ```
 
 **Error response (MikroTik offline):**
+
 ```json
 {
     "success": false,
@@ -76,6 +78,7 @@ MIKROTIK_INTERFACE=ether1
 ```
 
 **Logic:**
+
 1. Connect ke MikroTik via `RouterosAPI` (library Zilleali)
 2. Fetch interface stats via `/interface/monitor-traffic`
 3. Return byte counts + calculated rate
@@ -97,6 +100,7 @@ MIKROTIK_INTERFACE=ether1
 ```
 
 **Chart specs:**
+
 - Library: Chart.js via CDN
 - Type: Line chart
 - 2 datasets: RX (biru), TX (oranye)
@@ -106,6 +110,7 @@ MIKROTIK_INTERFACE=ether1
 - Max data points: 60 (shift array ketika overflow)
 
 **Error state:**
+
 - MikroTik offline → badge "Offline" merah
 - Chart berhenti, stats show "N/A"
 - Retry on next poll
@@ -130,4 +135,3 @@ MIKROTIK_INTERFACE=ether1
 5. Buat web route `/monitoring`
 6. Buat `resources/views/monitoring/index.blade.php`
 7. Update sidebar component (tambah menu)
-8. Test: verify chart live update

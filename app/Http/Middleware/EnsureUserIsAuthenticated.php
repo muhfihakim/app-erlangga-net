@@ -49,6 +49,9 @@ class EnsureUserIsAuthenticated
     {
         // Hanya cek apakah user sudah terautentikasi (login)
         if (!Auth::check()) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Unauthenticated.'], 401);
+            }
             return redirect('/login');
         }
 
