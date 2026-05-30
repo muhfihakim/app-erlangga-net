@@ -24,14 +24,6 @@ Route::get('/', function () {
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-// Route::get('/2fa/verify', [TwoFactorController::class, 'showVerifyForm'])->name('2fa.verify');
-// Route::post('/2fa/verify', [TwoFactorController::class, 'verify']);
-// Route::get('/2fa/setup', [TwoFactorController::class, 'show2faForm'])->name('2fa.setup')->middleware('auth');
-// Route::post('/2fa/reset', [TwoFactorController::class, 'reset'])->name('2fa.reset')->middleware('auth');
-// Route::get('/2fa/redirect-to-verify', function () {
-//     session(['2fa:user:id' => auth()->id()]);
-//     return redirect()->route('2fa.verify');
-// })->middleware('auth')->name('2fa.redirect');
 
 Route::middleware(['auth.custom'])->group(function () {
     // Keuangan Teknisi
@@ -44,8 +36,11 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::put('/odp/{id}', [OdpController::class, 'update'])->name('odp.update');
     Route::delete('/odp/{id}', [OdpController::class, 'destroy'])->name('odp.destroy');
 
-    Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring.index');
-    Route::get('/pppoe', [PppoeController::class, 'index'])->name('pppoe.index');
+    // Routes only for Administrator
+    Route::middleware(['admin'])->group(function () {
+        Route::get('/pppoe', [PppoeController::class, 'index'])->name('pppoe.index');
+        Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring.index');
+    });
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboards.index');
     Route::get('/accounts', [AccountController::class, 'index'])->name('accounts.index');
@@ -90,7 +85,7 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('/dismantles', [DismantleController::class, 'store'])->name('dismantles.store');
     Route::post('/dismantles/{id}/complete', [DismantleController::class, 'complete'])->name('dismantles.complete');
     Route::delete('/dismantles/{id}', [DismantleController::class, 'destroy'])->name('dismantles.destroy');
-    Route::delete('/dismantles/customer/{id}', [DismantleController::class, 'deleteCustomer'])->name('dismantles.deleteCustomer');
+    Route::delete('/dismantles/customer/{id}', [DismantleController::class, 'deleteCustomer']);
 
     Route::post('/location/update', [LocationController::class, 'update'])->name('location.update');
     Route::get('/tracking', [LocationController::class, 'showTrackingMap'])->name('accounts.tracking');
@@ -113,7 +108,7 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('/customers/{id}/restore', [CustomerController::class, 'restore'])->name('customers.restore');
 
     // MikroTik Monitoring API (Protected by session auth)
-    Route::prefix('api')->group(function () {
+    Route::prefix('api')->middleware(['admin'])->group(function () {
         Route::get('/mikrotik/traffic', [MonitoringController::class, 'traffic']);
         Route::get('/mikrotik/status', [MonitoringController::class, 'status']);
         Route::get('/pppoe/active', [PppoeController::class, 'active']);

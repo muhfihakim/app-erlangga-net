@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use App\Services\MikroTikService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,7 +16,28 @@ class PppoeController extends Controller
 
     public function index()
     {
-        return view('monitoring.pppoe');
+        // Use cached data from persistent monitor if available
+        $response = Cache::get('mikrotik_pppoe_active');
+        if (!$response) {
+            $response = $this->mikroTikService->getPppoeActive();
+        }
+
+        $pppoeActive = [];
+        if ($response && isset($response['success']) && $response['success']) {
+            $pppoeActive = $response['data'];
+            
+            // Ambil semua customer untuk mapping sales
+            $customers = \App\Models\Customer::with('sales')->whereNotNull('pppoe_username')->get()->keyBy('pppoe_username');
+
+            foreach ($pppoeActive as $key => $item) {
+                $name = $item['name'] ?? '';
+                $address = $item['address'] ?? '';
+                $pppoeActive[$key]['is_isolir'] = str_starts_with($address, '172.30.');
+                $pppoeActive[$key]['sales_name'] = isset($customers[$name]) && $customers[$name]->sales ? $customers[$name]->sales->nama_lengkap : '-';
+            }
+        }
+
+        return view('monitoring.pppoe', compact('pppoeActive'));
     }
 
     /**
@@ -41,12 +63,25 @@ class PppoeController extends Controller
 
         $data = $response['data'];
         
+        // Ambil semua customer yang memiliki pppoe_username dan sales
+        $customers = Customer::with('sales')->whereNotNull('pppoe_username')->get()->keyBy('pppoe_username');
+
+        // Mapping status isolir dan sales
+        foreach ($data as $key => $item) {
+            $name = $item['name'] ?? '';
+            $address = $item['address'] ?? '';
+            
+            $data[$key]['is_isolir'] = str_starts_with($address, '172.30.');
+            $data[$key]['sales_name'] = isset($customers[$name]) && $customers[$name]->sales ? $customers[$name]->sales->nama_lengkap : '-';
+        }
+        
         // Simple search
         $search = $request->search['value'];
         if ($search) {
             $data = array_filter($data, function($item) use ($search) {
                 return str_contains(strtolower($item['name'] ?? ''), strtolower($search)) || 
-                       str_contains(strtolower($item['address'] ?? ''), strtolower($search));
+                       str_contains(strtolower($item['address'] ?? ''), strtolower($search)) ||
+                       str_contains(strtolower($item['sales_name'] ?? ''), strtolower($search));
             });
         }
 
@@ -69,20 +104,6 @@ class PppoeController extends Controller
             'recordsFiltered' => $filteredRecords,
             'data' => array_values($data),
         ]);
-    }
-
-    /**
-     * Get real-time traffic for specific users (for charts).
-     */
-    public function traffic(Request $request): JsonResponse
-    {
-        $usernames = $request->users ?? [];
-        if (empty($usernames)) return response()->json([]);
-
-        $ifaces = array_map(fn($u) => "<pppoe-{$u}>", $usernames);
-        $traffic = $this->mikroTikService->getPppoeTraffic($ifaces);
-
-        return response()->json($traffic);
     }
 
     public function active(): JsonResponse

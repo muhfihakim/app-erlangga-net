@@ -195,12 +195,41 @@ class CustomerController extends Controller
 
         $totalArchived = (clone $statsQuery)->onlyTrashed()->count();
 
+        // --- DATA PELANGGAN ISOLIR ---
+        $pelangganIsolir = collect();
+        if ($user->jabatan === 'Sales' || $user->jabatan === 'Administrator') {
+            $pppoeData = \Illuminate\Support\Facades\Cache::get('mikrotik_pppoe_active');
+            if (!$pppoeData) {
+                $mikroTikService = app(\App\Services\MikroTikService::class);
+                $pppoeData = $mikroTikService->getPppoeActive();
+            }
+
+            if (isset($pppoeData['success']) && $pppoeData['success']) {
+                $isolirUsernames = collect($pppoeData['data'])
+                    ->filter(fn($item) => str_starts_with($item['address'] ?? '', '172.30.'))
+                    ->pluck('name')
+                    ->toArray();
+
+                if (!empty($isolirUsernames)) {
+                    $isolirQuery = Customer::with('preOrder')
+                        ->whereIn('pppoe_username', $isolirUsernames);
+                        
+                    if ($user->jabatan === 'Sales') {
+                        $isolirQuery->where('id_sales', $user->id);
+                    }
+                    
+                    $pelangganIsolir = $isolirQuery->get();
+                }
+            }
+        }
+
         return view('customers.active_list', compact(
             'customers',
             'totalActive',
             'newThisMonth',
             'newThisWeek',
-            'totalArchived'
+            'totalArchived',
+            'pelangganIsolir'
         ));
     }
 

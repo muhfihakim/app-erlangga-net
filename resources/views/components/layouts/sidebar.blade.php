@@ -24,14 +24,16 @@
             <i class="fa-solid fa-tower-broadcast"></i>
             <span>Manajemen ODP</span>
         </a>
-        <a class="sidebar-link {{ Request::is('pppoe*') ? 'active' : '' }}" href="{{ route('pppoe.index') }}">
-            <i class="fa-solid fa-network-wired"></i>
-            <span>PPPoE Aktif</span>
-        </a>
-        <a class="sidebar-link {{ Request::is('monitoring') ? 'active' : '' }}" href="{{ route('monitoring.index') }}">
-            <i class="fa-solid fa-chart-line"></i>
-            <span>Monitoring</span>
-        </a>
+        @if (auth()->user()->jabatan === 'Administrator')
+            <a class="sidebar-link {{ Request::is('pppoe*') ? 'active' : '' }}" href="{{ route('pppoe.index') }}">
+                <i class="fa-solid fa-network-wired"></i>
+                <span>PPPoE Aktif</span>
+            </a>
+            <a class="sidebar-link {{ Request::is('monitoring') ? 'active' : '' }}" href="{{ route('monitoring.index') }}">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Monitoring</span>
+            </a>
+        @endif
 
         <div class="sidebar-section-label" style="margin-top:.5rem;">Pelanggan</div>
         @if (auth()->check() && in_array(auth()->user()->jabatan, ['Administrator', 'Sales']))
@@ -48,8 +50,8 @@
                     auth()->user()->jabatan === 'Sales'))
             <a class="sidebar-link {{ Request::is('customers*') ? 'active' : '' }}"
                 href="{{ auth()->user()->jabatan === 'Teknisi' ? route('customers.index') : route('customers.active_list') }}">
-                <i class="fa-solid fa-user-check"></i>
-                <span>Aktivasi</span>
+                <i class="fa-solid fa-users"></i>
+                <span>Pelanggan</span>
             </a>
         @endif
 
