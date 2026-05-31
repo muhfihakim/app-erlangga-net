@@ -10,13 +10,10 @@ use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
-use App\Services\MikroTikService;
 use Carbon\Carbon;
 
 class CustomerController extends Controller
 {
-    public function __construct(private MikroTikService $mikroTikService) {}
-
     public function index(Request $request)
     {
         $user = $request->user();
@@ -27,6 +24,18 @@ class CustomerController extends Controller
         }
 
         $customers = $query->latest()->paginate(20);
+
+        // --- MAPPING STATUS ONLINE/OFFLINE ---
+        $pppoeData = Cache::get('mikrotik_pppoe_active');
+        $activeUsernames = [];
+        if ($pppoeData && isset($pppoeData['success']) && $pppoeData['success']) {
+            $activeUsernames = collect($pppoeData['data'])->pluck('name')->toArray();
+        }
+
+        $customers->getCollection()->transform(function ($customer) use ($activeUsernames) {
+            $customer->is_online = in_array($customer->pppoe_username, $activeUsernames);
+            return $customer;
+        });
 
         // --- STATS (Mirror activeList logic) ---
         $statsQuery = Customer::query();
@@ -105,7 +114,7 @@ class CustomerController extends Controller
     public function isolir(Request $request)
     {
         $user = $request->user();
-        $pppoeData = Cache::get('mikrotik_pppoe_active') ?? $this->mikroTikService->getPppoeActive();
+        $pppoeData = Cache::get('mikrotik_pppoe_active');
         
         if (!$pppoeData || !isset($pppoeData['success']) || !$pppoeData['success']) {
             return response()->json(['data' => []]);

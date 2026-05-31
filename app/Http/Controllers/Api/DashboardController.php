@@ -12,12 +12,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
-use App\Services\MikroTikService;
 
 class DashboardController extends Controller
 {
-    public function __construct(private MikroTikService $mikroTikService) {}
-
     public function stats(Request $request)
     {
         $user = $request->user();
@@ -111,7 +108,7 @@ class DashboardController extends Controller
 
     private function getIsolirCount($salesId)
     {
-        $pppoeData = Cache::get('mikrotik_pppoe_active') ?? $this->mikroTikService->getPppoeActive();
+        $pppoeData = Cache::get('mikrotik_pppoe_active');
         if (!$pppoeData || !isset($pppoeData['success']) || !$pppoeData['success']) return 0;
 
         $isolirUsernames = collect($pppoeData['data'])->filter(fn($item) => str_starts_with($item['address'] ?? '', '172.30.'))

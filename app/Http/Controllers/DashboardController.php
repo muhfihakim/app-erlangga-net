@@ -225,9 +225,6 @@ class DashboardController extends Controller
 
             // Hitung Isolir
             $pppoeData = Cache::get('mikrotik_pppoe_active');
-            if (!$pppoeData) {
-                $pppoeData = $this->mikroTikService->getPppoeActive();
-            }
 
             if ($pppoeData && isset($pppoeData['success']) && $pppoeData['success']) {
                 $isolirUsernames = collect($pppoeData['data'])

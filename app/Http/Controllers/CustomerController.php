@@ -173,6 +173,17 @@ class CustomerController extends Controller
         // Ubah pengurutan ke ID DESC agar data terbaru (ID terbesar) muncul paling atas
         $customers = $query->orderBy('id', 'desc')->get();
 
+        // --- MAPPING STATUS ONLINE/OFFLINE ---
+        $pppoeData = \Illuminate\Support\Facades\Cache::get('mikrotik_pppoe_active');
+        $activeUsernames = [];
+        if ($pppoeData && isset($pppoeData['success']) && $pppoeData['success']) {
+            $activeUsernames = collect($pppoeData['data'])->pluck('name')->toArray();
+        }
+
+        foreach ($customers as $customer) {
+            $customer->is_online = in_array($customer->pppoe_username, $activeUsernames);
+        }
+
         // --- STATISTIK ---
         $thisMonth = Carbon::now()->month;
         $thisYear = Carbon::now()->year;
@@ -199,12 +210,8 @@ class CustomerController extends Controller
         $pelangganIsolir = collect();
         if ($user->jabatan === 'Sales' || $user->jabatan === 'Administrator') {
             $pppoeData = \Illuminate\Support\Facades\Cache::get('mikrotik_pppoe_active');
-            if (!$pppoeData) {
-                $mikroTikService = app(\App\Services\MikroTikService::class);
-                $pppoeData = $mikroTikService->getPppoeActive();
-            }
 
-            if (isset($pppoeData['success']) && $pppoeData['success']) {
+            if ($pppoeData && isset($pppoeData['success']) && $pppoeData['success']) {
                 $isolirUsernames = collect($pppoeData['data'])
                     ->filter(fn($item) => str_starts_with($item['address'] ?? '', '172.30.'))
                     ->pluck('name')

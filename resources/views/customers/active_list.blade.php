@@ -223,7 +223,16 @@
                             <td style="text-align: center; font-weight: 800; color: #0ea5e9;">
                                 {{ $customer->id_pelanggan }}</td>
                             <td style="text-align: center;">
-                                <div style="font-weight: 700; color: #0f172a;">{{ $customer->nama_lengkap }}</div>
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                    <div style="font-weight: 700; color: #0f172a;">{{ $customer->nama_lengkap }}</div>
+                                    @if ($customer->is_online)
+                                        <span class="badge"
+                                            style="background: #dcfce7; color: #15803d; font-size: 8px; padding: 2px 6px; border-radius: 4px; font-weight: 800;">ONLINE</span>
+                                    @else
+                                        <span class="badge"
+                                            style="background: #f1f5f9; color: #64748b; font-size: 8px; padding: 2px 6px; border-radius: 4px; font-weight: 800;">OFFLINE</span>
+                                    @endif
+                                </div>
                                 @if ($customer->trashed())
                                     <span class="badge badge-archived"
                                         style="font-size: 9px; margin-top: 2px;">NON-AKTIF</span>

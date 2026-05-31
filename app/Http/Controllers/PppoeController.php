@@ -3,25 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
-use App\Services\MikroTikService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 class PppoeController extends Controller
 {
-    public function __construct(
-        private MikroTikService $mikroTikService
-    ) {}
-
     public function index()
     {
         // Use cached data from persistent monitor if available
         $response = Cache::get('mikrotik_pppoe_active');
-        if (!$response) {
-            $response = $this->mikroTikService->getPppoeActive();
-        }
-
+        
         $pppoeActive = [];
         if ($response && isset($response['success']) && $response['success']) {
             $pppoeActive = $response['data'];
@@ -47,17 +39,14 @@ class PppoeController extends Controller
     {
         // Use cached data from persistent monitor if available
         $response = Cache::get('mikrotik_pppoe_active');
-        if (!$response) {
-            $response = $this->mikroTikService->getPppoeActive();
-        }
 
-        if (!$response['success']) {
+        if (!$response || !isset($response['success']) || !$response['success']) {
             return response()->json([
                 'draw' => intval($request->draw),
                 'recordsTotal' => 0,
                 'recordsFiltered' => 0,
                 'data' => [],
-                'error' => $response['error'] ?? 'Gagal memuat data'
+                'error' => 'Data tidak tersedia di cache (Monitor mungkin belum berjalan)'
             ]);
         }
 
@@ -111,7 +100,10 @@ class PppoeController extends Controller
         // Fallback for full list if still used elsewhere
         $data = Cache::get('mikrotik_pppoe_active');
         if (!$data) {
-            $data = $this->mikroTikService->getPppoeActive();
+            return response()->json([
+                'success' => false,
+                'error' => 'Data tidak tersedia'
+            ]);
         }
         return response()->json($data);
     }
