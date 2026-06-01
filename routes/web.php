@@ -44,10 +44,6 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::middleware(['admin'])->group(function () {
         Route::get('/pppoe', [PppoeController::class, 'index'])->name('pppoe.index');
         Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring.index');
-        
-        // OLT Telnet API Routes
-        Route::post('/olt/check-next-id', [OltController::class, 'checkNextOnuId']);
-        Route::post('/olt/execute', [OltController::class, 'executeScript']);
     });
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboards.index');
@@ -122,6 +118,10 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::get('/pppoe/active', [PppoeController::class, 'active']);
         Route::get('/pppoe/data', [PppoeController::class, 'data'])->name('pppoe.data');
         Route::get('/pppoe/realtime-traffic', [PppoeController::class, 'traffic'])->name('pppoe.traffic');
+        
+        // OLT Telnet API Routes
+        Route::post('/olt/check-next-id', [OltController::class, 'checkNextOnuId']);
+        Route::post('/olt/execute', [OltController::class, 'executeScript']);
     });
 
     Route::resource('customers', CustomerController::class)->except(['create', 'edit', 'show']);
