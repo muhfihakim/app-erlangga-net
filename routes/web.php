@@ -17,6 +17,8 @@ use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\FinanceController;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
+use App\Http\Controllers\OltController;
+
 Route::get('/', function () {
     return redirect('/login');
 });
@@ -36,10 +38,16 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::put('/odp/{id}', [OdpController::class, 'update'])->name('odp.update');
     Route::delete('/odp/{id}', [OdpController::class, 'destroy'])->name('odp.destroy');
 
+    Route::get('/olt', [OltController::class, 'index'])->name('olt.index');
+
     // Routes only for Administrator
     Route::middleware(['admin'])->group(function () {
         Route::get('/pppoe', [PppoeController::class, 'index'])->name('pppoe.index');
         Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring.index');
+        
+        // OLT Telnet API Routes
+        Route::post('/olt/check-next-id', [OltController::class, 'checkNextOnuId']);
+        Route::post('/olt/execute', [OltController::class, 'executeScript']);
     });
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboards.index');

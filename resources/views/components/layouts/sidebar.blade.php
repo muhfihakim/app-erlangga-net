@@ -20,6 +20,10 @@
         </a>
 
         <div class="sidebar-section-label" style="margin-top:.5rem;">Infrastruktur</div>
+        <a class="sidebar-link {{ Request::is('olt*') ? 'active' : '' }}" href="{{ route('olt.index') }}">
+            <i class="fa-solid fa-server"></i>
+            <span>Manajemen OLT</span>
+        </a>
         <a class="sidebar-link {{ Request::is('odp*') ? 'active' : '' }}" href="{{ route('odp.index') }}">
             <i class="fa-solid fa-tower-broadcast"></i>
             <span>Manajemen ODP</span>
