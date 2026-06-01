@@ -55,12 +55,12 @@
         <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Generator skrip aktivasi ONU untuk berbagai tipe OLT.</p>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-140px)] min-h-[700px]">
         <!-- Input Panel -->
-        <div class="lg:col-span-4 space-y-6">
-            <div class="olt-card">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center">
+        <div class="lg:col-span-4 h-full">
+            <div class="olt-card h-full overflow-y-auto custom-scrollbar">
+                <div class="flex items-center gap-3 mb-6 sticky top-0 bg-white z-10 pb-2 border-b border-slate-100">
+                    <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center shrink-0">
                         <i class="fa-solid fa-gears"></i>
                     </div>
                     <div>
@@ -75,7 +75,7 @@
                         <select id="olt_type" class="form-input">
                             <option value="ZTE_ERLANGGA">ZTE ERLANGGA</option>
                             <option value="ZTE_BBS">ZTE BBS</option>
-                            <option value="HUAWEI">HUAWEI (Coming Soon)</option>
+                            <option value="HUAWEI" disabled>HUAWEI (Coming Soon)</option>
                         </select>
                     </div>
                     
@@ -87,8 +87,8 @@
                         <div>
                             <label class="form-label">ONU ID</label>
                             <div class="flex items-center gap-2">
-                                <input type="number" id="onu_id" class="form-input" placeholder="55" value="1">
-                                <button type="button" id="btn_check_id" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-3 py-2 rounded-xl text-xs font-bold transition-colors flex items-center justify-center min-w-[40px]">
+                                <input type="number" id="onu_id" class="form-input !px-2" placeholder="55" value="1">
+                                <button type="button" id="btn_check_id" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 h-[38px] w-[38px] rounded-xl text-xs font-bold transition-colors flex items-center justify-center shrink-0">
                                     <i class="fa-solid fa-magnifying-glass"></i>
                                 </button>
                             </div>
@@ -137,10 +137,11 @@
             </div>
         </div>
 
-        <!-- Script Panel -->
-        <div class="lg:col-span-8 space-y-6">
-            <div class="olt-card h-full">
-                <div class="flex items-center justify-between mb-6">
+        <!-- Right Panel (Split Horizontally inside) -->
+        <div class="lg:col-span-8 flex flex-col gap-6 h-full">
+            <!-- Script Panel -->
+            <div class="olt-card flex flex-col" style="flex: 3;">
+                <div class="flex items-center justify-between mb-4 shrink-0">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
                             <i class="fa-solid fa-code"></i>
@@ -160,34 +161,26 @@
                     </div>
                 </div>
 
-                <div class="relative mb-4">
-                    <textarea id="script_output" readonly class="script-area"></textarea>
+                <div class="relative flex-1 min-h-0">
+                    <textarea id="script_output" readonly class="w-full h-full p-4 bg-slate-50 text-slate-800 font-mono text-[11px] leading-relaxed rounded-xl border-2 border-slate-200 outline-none resize-none shadow-inner custom-scrollbar"></textarea>
                 </div>
-                
-                <!-- Terminal Output -->
-                <div class="rounded-2xl overflow-hidden border-2 border-slate-800 bg-[#0c0c0c] mt-4 shadow-xl">
-                    <div class="bg-slate-800 px-4 py-2 flex items-center gap-2">
-                        <div class="flex gap-1.5">
-                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                        </div>
-                        <span class="text-[10px] text-slate-400 font-mono ml-2">OLT Terminal Output</span>
-                    </div>
-                    <textarea id="terminal_output" readonly class="w-full h-[250px] p-4 bg-transparent text-[#00ff00] font-mono text-[11px] leading-relaxed outline-none resize-none" placeholder="Menunggu eksekusi perintah..."></textarea>
-                </div>
+            </div>
 
-                <div class="mt-4 p-4 rounded-2xl bg-amber-50 border border-amber-100">
-                    <div class="flex gap-3">
-                        <i class="fa-solid fa-circle-exclamation text-amber-500 mt-1"></i>
-                        <p class="text-[11px] text-amber-700 leading-relaxed font-medium">
-                            <strong>Tips Integrasi Putty:</strong> Pastikan Anda sudah login ke OLT melalui Putty. Salin skrip di atas, lalu klik kanan pada jendela Putty untuk melakukan paste. Tekan enter sampai baris terakhir dijalankan.
-                        </p>
+            <!-- Terminal Output -->
+            <div class="rounded-2xl overflow-hidden border-2 border-slate-800 bg-[#0c0c0c] shadow-xl flex flex-col" style="flex: 2;">
+                <div class="bg-slate-800 px-4 py-2 flex items-center gap-2 shrink-0">
+                    <div class="flex gap-1.5">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
                     </div>
+                    <span class="text-[10px] text-slate-400 font-mono ml-2">OLT Terminal Output</span>
                 </div>
+                <textarea id="terminal_output" readonly class="w-full h-full p-4 bg-transparent text-[#00ff00] font-mono text-[11px] leading-relaxed outline-none resize-none custom-scrollbar" placeholder="Menunggu eksekusi perintah..."></textarea>
             </div>
         </div>
     </div>
+
 
     @section('Scripts')
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -287,6 +280,19 @@ show gpon onu state gpon-olt_${port}`;
             });
         }
 
+        // Utility function for Toast
+        function showToast(type, message) {
+            Swal.fire({
+                icon: type,
+                title: type === 'success' ? 'Berhasil!' : 'Error!',
+                text: message,
+                timer: 3000,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end'
+            });
+        }
+
         $(document).ready(function() {
             $('input, select').on('input change', generateScript);
             generateScript(); // Initial call
@@ -295,7 +301,7 @@ show gpon onu state gpon-olt_${port}`;
             $('#btn_check_id').click(function() {
                 const port = $('#olt_port').val();
                 if (!port) {
-                    Swal.fire('Error', 'Silakan isi OLT Port terlebih dahulu.', 'error');
+                    showToast('error', 'Silakan isi OLT Port terlebih dahulu.');
                     return;
                 }
 
@@ -314,16 +320,16 @@ show gpon onu state gpon-olt_${port}`;
                         if (res.success) {
                             $('#onu_id').val(res.next_id);
                             generateScript();
-                            Swal.fire('Berhasil', 'Next ONU ID ditemukan: ' + res.next_id, 'success');
+                            showToast('success', 'Next ONU ID ditemukan: ' + res.next_id);
                             
                             // Optional: Show raw output in terminal
                             $('#terminal_output').val(res.raw_output);
                         } else {
-                            Swal.fire('Error', res.error, 'error');
+                            showToast('error', res.error);
                         }
                     },
                     error: function(err) {
-                        Swal.fire('Error', 'Gagal terhubung ke server atau OLT.', 'error');
+                        showToast('error', 'Gagal terhubung ke server atau OLT.');
                     },
                     complete: function() {
                         $btn.html(originalHtml).prop('disabled', false);
@@ -335,13 +341,13 @@ show gpon onu state gpon-olt_${port}`;
             $('#btn_execute').click(function() {
                 const script = $('#script_output').val();
                 if (!script) {
-                    Swal.fire('Error', 'Skrip kosong.', 'error');
+                    showToast('error', 'Skrip kosong.');
                     return;
                 }
 
                 Swal.fire({
                     title: 'Konfirmasi Eksekusi',
-                    text: "Apakah Anda yakin ingin menjalankan skrip ini langsung ke OLT?",
+                    text: "Jalankan skrip ini langsung ke OLT?",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#10b981',
@@ -351,7 +357,7 @@ show gpon onu state gpon-olt_${port}`;
                     if (result.isConfirmed) {
                         const $btn = $(this);
                         const originalHtml = $btn.html();
-                        $btn.html('<i class="fa-solid fa-spinner fa-spin"></i>').prop('disabled', true);
+                        $btn.html('<i class="fa-solid fa-spinner fa-spin"></i> EKSEKUSI...').prop('disabled', true);
                         $('#terminal_output').val('Menghubungi OLT dan menjalankan perintah...\nMohon tunggu...');
 
                         $.ajax({
@@ -364,15 +370,15 @@ show gpon onu state gpon-olt_${port}`;
                             success: function(res) {
                                 if (res.success) {
                                     $('#terminal_output').val(res.log);
-                                    Swal.fire('Berhasil', 'Skrip selesai dieksekusi.', 'success');
+                                    showToast('success', 'Skrip selesai dieksekusi.');
                                 } else {
                                     $('#terminal_output').val('ERROR: ' + res.error);
-                                    Swal.fire('Error', res.error, 'error');
+                                    showToast('error', res.error);
                                 }
                             },
                             error: function(err) {
                                 $('#terminal_output').val('Koneksi gagal atau timeout.');
-                                Swal.fire('Error', 'Gagal terhubung ke server atau OLT.', 'error');
+                                showToast('error', 'Gagal terhubung ke server atau OLT.');
                             },
                             complete: function() {
                                 $btn.html(originalHtml).prop('disabled', false);
@@ -380,6 +386,11 @@ show gpon onu state gpon-olt_${port}`;
                         });
                     }
                 });
+            });
+            
+            // Handle Clear Terminal
+            $('#btn_clear_terminal').click(function() {
+                $('#terminal_output').val('');
             });
         });
     </script>
