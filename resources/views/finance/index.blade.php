@@ -145,7 +145,11 @@
         </div>
         <div style="display:flex; gap:10px;">
             @if ($start && $end)
-                <a href="{{ route('finance.export', ['start_date' => $start, 'end_date' => $end, 'teknisi_id' => $teknisiId]) }}"
+                <a href="{{ route('finance.export', ['start_date' => $start, 'end_date' => $end, 'teknisi_id' => $teknisiId, 'type' => 'docx']) }}"
+                    class="btn-primary-admin !flex !items-center !justify-center gap-2 !bg-indigo-600">
+                    <i class="fa-solid fa-file-word"></i> Export Word
+                </a>
+                <a href="{{ route('finance.export', ['start_date' => $start, 'end_date' => $end, 'teknisi_id' => $teknisiId, 'type' => 'pdf']) }}"
                     class="btn-primary-admin !flex !items-center !justify-center gap-2 !bg-rose-600">
                     <i class="fa-solid fa-file-pdf"></i> Export PDF
                 </a>

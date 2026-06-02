@@ -8,6 +8,7 @@ use App\Models\FinanceSetting;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use PDF;
+use PhpOffice\PhpWord\TemplateProcessor;
 
 class FinanceController extends Controller
 {
@@ -94,6 +95,7 @@ class FinanceController extends Controller
     {
         $request->validate(['start_date' => 'required|date', 'end_date' => 'required|date']);
 
+        $type = $request->query('type', 'pdf');
         $teknisiId = $request->teknisi_id;
         $setting = FinanceSetting::first();
         $baseFee = $setting ? $setting->activation_fee : 150000;
@@ -152,16 +154,58 @@ class FinanceController extends Controller
             $c->total_techs = $totalTechs;
         }
 
+        $teknisi = $teknisiId ? User::find($teknisiId) : null;
+
+        if ($type === 'docx') {
+            return $this->exportDocx($customers, $request->start_date, $request->end_date, $teknisi, $totalPendapatan, $baseFee, $stats);
+        }
+
         $pdf = PDF::loadView('finance.export', [
             'customers' => $customers,
             'start' => $request->start_date,
             'end' => $request->end_date,
-            'teknisi' => $teknisiId ? User::find($teknisiId) : null,
+            'teknisi' => $teknisi,
             'totalPendapatan' => $totalPendapatan,
             'baseFee' => $baseFee,
             'stats' => $stats
         ]);
 
         return $pdf->download("laporan-keuangan-teknisi-{$request->start_date}-ke-{$request->end_date}.pdf");
+    }
+
+    private function exportDocx($customers, $start, $end, $teknisi, $totalPendapatan, $baseFee, $stats)
+    {
+        $templatePath = resource_path('views/export/template-keuangan-teknisi.docx');
+        $templateProcessor = new TemplateProcessor($templatePath);
+
+        $templateProcessor->setValue('start', Carbon::parse($start)->translatedFormat('d F Y'));
+        $templateProcessor->setValue('end', Carbon::parse($end)->translatedFormat('d F Y'));
+        $templateProcessor->setValue('teknisi_nama', $teknisi ? $teknisi->nama_lengkap : 'Semua Teknisi');
+        $templateProcessor->setValue('total_pendapatan', number_format($totalPendapatan, 0, ',', '.'));
+        $templateProcessor->setValue('base_fee', number_format($baseFee, 0, ',', '.'));
+        $templateProcessor->setValue('total_aktif', $customers->count());
+        $templateProcessor->setValue('solo', $stats['solo']);
+        $templateProcessor->setValue('pair', $stats['pair']);
+        $templateProcessor->setValue('triple', $stats['triple']);
+        $templateProcessor->setValue('quad', $stats['quad']);
+        $templateProcessor->setValue('more', $stats['more']);
+
+        $templateProcessor->cloneRow('no', $customers->count());
+
+        foreach ($customers as $index => $c) {
+            $rowIndex = $index + 1;
+            $templateProcessor->setValue('no#' . $rowIndex, $rowIndex);
+            $templateProcessor->setValue('nama#' . $rowIndex, $c->nama_lengkap);
+            $templateProcessor->setValue('paket#' . $rowIndex, $c->paket_internet);
+            $templateProcessor->setValue('tgl#' . $rowIndex, Carbon::parse($c->created_at)->format('d/m/Y'));
+            $templateProcessor->setValue('team#' . $rowIndex, $c->total_techs . ' Org');
+            $templateProcessor->setValue('fee#' . $rowIndex, number_format($c->calculated_fee, 0, ',', '.'));
+        }
+
+        $fileName = "laporan-keuangan-teknisi-" . Carbon::parse($start)->format('Y-m-d') . ".docx";
+        $tempFile = tempnam(sys_get_temp_dir(), 'docx');
+        $templateProcessor->saveAs($tempFile);
+
+        return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
     }
 }
