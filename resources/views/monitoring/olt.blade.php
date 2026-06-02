@@ -8,6 +8,7 @@
                 padding: 1.5rem;
                 box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
             }
+
             .form-label {
                 font-size: 11px;
                 font-weight: 700;
@@ -16,6 +17,7 @@
                 margin-bottom: 0.5rem;
                 display: block;
             }
+
             .form-input {
                 width: 100%;
                 padding: 0.75rem 1rem;
@@ -27,181 +29,568 @@
                 transition: all 0.2s;
                 background: #f8fafc;
             }
+
             .form-input:focus {
                 border-color: #0ea5e9;
                 background: #fff;
                 outline: none;
                 box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
             }
-            .script-area {
+
+            .tab-btn {
+                padding: 0.75rem 1.5rem;
+                font-size: 12px;
+                font-weight: 800;
+                color: #64748b;
+                border-bottom: 2px solid transparent;
+                transition: all 0.2s;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .tab-btn.active {
+                color: #0ea5e9;
+                border-bottom-color: #0ea5e9;
+            }
+
+            .tab-content {
+                display: none;
+            }
+
+            .tab-content.active {
+                display: block;
+            }
+
+            /* Standardizing with other pages */
+            .table-toolbar {
+                background: #fff;
+                border: 1px solid #e2e8f0;
+                border-radius: 14px;
+                padding: 1rem 1.25rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                flex-wrap: wrap;
+                margin-bottom: 1rem;
+                box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
+            }
+
+            .filter-group {
+                display: flex;
+                align-items: flex-end;
+                gap: 12px;
+                flex-wrap: wrap;
                 width: 100%;
-                height: 500px;
-                padding: 1.5rem;
-                background: #f8fafc;
-                color: #1e293b;
-                font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            }
+
+            .form-label-custom {
                 font-size: 11px;
-                line-height: 1.6;
-                border-radius: 16px;
+                font-weight: 800;
+                color: #64748b;
+                text-transform: uppercase;
+                margin-bottom: 6px;
+                display: block;
+                letter-spacing: 0.025em;
+            }
+
+            .form-input-custom {
+                padding: 8px 12px;
                 border: 2px solid #e2e8f0;
-                resize: none;
-                box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+                border-radius: 10px;
+                font-size: 13px;
+                font-weight: 600;
+                color: #334155;
+                background: #f8fafc;
+                outline: none;
+                height: 40px;
+            }
+
+            .search-wrap {
+                position: relative;
+                flex: 1;
+            }
+
+            .search-icon {
+                position: absolute;
+                left: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #94a3b8;
+                font-size: 13px;
+                pointer-events: none;
+            }
+
+            .search-input {
+                width: 100%;
+                padding: 9px 12px 9px 36px;
+                border: 2px solid #e2e8f0;
+                border-radius: 10px;
+                font-size: 13px;
+                color: #374151;
+                outline: none;
+                transition: all .25s;
+                background: #f8fafc;
+            }
+
+            .search-input:focus {
+                border-color: #0ea5e9;
+                background: #fff;
+            }
+
+            /* Stats Card Consistency */
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+                gap: 1.25rem;
+                margin-bottom: 1.25rem;
+            }
+
+            .stat-card {
+                background: #fff;
+                border: 1px solid #e2e8f0;
+                border-radius: 16px;
+                padding: 1.25rem;
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+            }
+
+            .stat-icon {
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 20px;
+                shrink: 0;
+            }
+
+            .stat-val {
+                font-size: 20px;
+                font-weight: 900;
+                color: #0f172a;
+                line-height: 1.2;
+            }
+
+            .stat-lbl {
+                font-size: 11px;
+                font-weight: 700;
+                color: #64748b;
+                text-transform: uppercase;
+                letter-spacing: 0.025em;
             }
         </style>
     @endsection
 
-    <div style="margin-bottom: 1.5rem;">
-        <h1 style="font-size:22px;font-weight:900;margin:0;">Manajemen OLT</h1>
-        <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Generator skrip aktivasi ONU untuk berbagai tipe OLT.</p>
+    <div
+        style="display:flex;align-items:center;justify-content:space-between;margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap;">
+        <div>
+            <h1 style="font-size:22px;font-weight:900;margin:0;">Manajemen OLT</h1>
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Monitoring dan aktivasi perangkat OLT ZTE C300 secara
+                real-time.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="flex bg-white rounded-xl border border-slate-200 p-1 shadow-sm h-[46px]">
+                <button class="tab-btn active" data-target="panel-generator">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Generator
+                </button>
+                <button class="tab-btn" data-target="panel-dashboard" id="btn-tab-dashboard">
+                    <i class="fa-solid fa-chart-pie"></i> Dashboard OLT
+                </button>
+            </div>
+            <a href="{{ route('dashboards.index') }}"
+                class="btn-primary-admin !flex !items-center !justify-center gap-2"
+                style="background: #f1f5f9; color: #475569; box-shadow: none; border: 1px solid #e2e8f0; height: 46px;"
+                onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+                <i class="fa-solid fa-house"></i> Dashboard
+            </a>
+        </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-140px)] min-h-[700px]">
-        <!-- Input Panel -->
-        <div class="lg:col-span-4 h-full">
-            <div class="olt-card h-full overflow-y-auto custom-scrollbar">
-                <div class="flex items-center gap-3 mb-6 sticky top-0 bg-white z-10 pb-2 border-b border-slate-100">
-                    <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center shrink-0">
-                        <i class="fa-solid fa-gears"></i>
+    <!-- Generator Panel -->
+    <div id="panel-generator" class="tab-content active">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[700px]">
+            <!-- Input Panel -->
+            <div class="lg:col-span-4 h-full">
+                <div class="olt-card h-full overflow-y-auto custom-scrollbar">
+                    <div class="flex items-center gap-3 mb-6 sticky top-0 bg-white z-10 pb-2 border-b border-slate-100">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-gears"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-sm font-black text-slate-800 leading-tight">Parameter ONU</h6>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Konfigurasi
+                                Perangkat</p>
+                        </div>
                     </div>
-                    <div>
-                        <h6 class="text-sm font-black text-slate-800">Parameter ONU</h6>
-                        <p class="text-[10px] text-slate-500 font-bold uppercase">Konfigurasi Perangkat</p>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="form-label">Tipe OLT / ONU</label>
+                            <select id="olt_type" class="form-input">
+                                <option value="ZTE_ERLANGGA">ZTE ERLANGGA</option>
+                                <option value="ZTE_BBS">ZTE BBS</option>
+                                <option value="HUAWEI" disabled>HUAWEI (Coming Soon)</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="form-label">OLT Port</label>
+                                <input type="text" id="olt_port" class="form-input" placeholder="1/2/8"
+                                    value="1/2/8">
+                            </div>
+                            <div>
+                                <label class="form-label">ONU ID</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="number" id="onu_id" class="form-input !px-2" placeholder="55"
+                                        value="1">
+                                    <button type="button" id="btn_check_id" title="Cari ID Kosong"
+                                        class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 h-[38px] w-[38px] rounded-xl text-xs font-bold transition-colors flex items-center justify-center shrink-0">
+                                        <i class="fa-solid fa-magnifying-glass"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="form-label">Serial Number (SN)</label>
+                            <input type="text" id="onu_sn" class="form-input" placeholder="ZTEGXXXXXXXX">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="form-label">ONU Type SN</label>
+                                <input type="text" id="onu_type_sn" class="form-input" value="ALL-GPON">
+                            </div>
+                            <div>
+                                <label class="form-label">VLAN ID</label>
+                                <input type="number" id="vlan_id" class="form-input" value="525">
+                            </div>
+                        </div>
+
+                        <hr class="border-slate-100 my-2">
+
+                        <div>
+                            <label class="form-label">ID Pelanggan (Name)</label>
+                            <input type="text" id="cust_id" class="form-input" placeholder="24000XXX"
+                                value="24000007801">
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
+                                <label class="form-label">PPPoE Username</label>
+                                <input type="text" id="pppoe_user" class="form-input"
+                                    placeholder="user@erlangga.net">
+                            </div>
+                            <div>
+                                <label class="form-label">PPPoE Password</label>
+                                <input type="text" id="pppoe_pass" class="form-input" placeholder="password">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="form-label">Description</label>
+                            <input type="text" id="onu_desc" class="form-input" value="2$$2$$">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="lg:col-span-8 flex flex-col gap-6 h-full">
+                <!-- Script Panel -->
+                <div class="olt-card flex flex-col" style="flex: 1.2; min-height: 350px;">
+                    <div class="flex items-center justify-between mb-4 shrink-0">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                                <i class="fa-solid fa-code"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-sm font-black text-slate-800 leading-tight">Generated Script</h6>
+                                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Siap digunakan
+                                    di Terminal/Putty</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="copyScript()"
+                                class="btn-primary-admin !py-2.5 !px-5 !text-[12px] !bg-indigo-600 hover:!bg-indigo-700 border-none shadow-sm flex items-center gap-2">
+                                <i class="fa-solid fa-copy"></i> SALIN SKRIP
+                            </button>
+                            <button id="btn_execute"
+                                class="btn-primary-admin !py-2.5 !px-5 !text-[12px] !bg-rose-600 hover:!bg-rose-700 border-none shadow-sm flex items-center gap-2">
+                                <i class="fa-solid fa-rocket"></i> EKSEKUSI DI OLT
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="relative flex-1 min-h-0">
+                        <textarea id="script_output" readonly
+                            class="w-full h-full p-4 bg-slate-50 text-slate-800 font-mono text-[11px] leading-relaxed rounded-xl border-2 border-slate-200 outline-none resize-none shadow-inner custom-scrollbar"></textarea>
                     </div>
                 </div>
 
-                <div class="space-y-4">
-                    <div>
-                        <label class="form-label">Tipe OLT / ONU</label>
-                        <select id="olt_type" class="form-input">
-                            <option value="ZTE_ERLANGGA">ZTE ERLANGGA</option>
-                            <option value="ZTE_BBS">ZTE BBS</option>
-                            <option value="HUAWEI" disabled>HUAWEI (Coming Soon)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="form-label">OLT Port</label>
-                            <input type="text" id="olt_port" class="form-input" placeholder="1/2/8" value="1/2/8">
-                        </div>
-                        <div>
-                            <label class="form-label">ONU ID</label>
-                            <div class="flex items-center gap-2">
-                                <input type="number" id="onu_id" class="form-input !px-2" placeholder="55" value="1">
-                                <button type="button" id="btn_check_id" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 h-[38px] w-[38px] rounded-xl text-xs font-bold transition-colors flex items-center justify-center shrink-0">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
-                                </button>
+                <!-- Terminal Output -->
+                <div class="rounded-2xl overflow-hidden border-2 border-slate-800 bg-[#0c0c0c] shadow-xl flex flex-col"
+                    style="flex: 1; min-height: 250px;">
+                    <div class="bg-slate-800 px-4 py-2 flex items-center justify-between shrink-0">
+                        <div class="flex items-center gap-2">
+                            <div class="flex gap-1.5">
+                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
                             </div>
+                            <span class="text-[10px] text-slate-300 font-mono font-bold tracking-wider ml-2">OLT
+                                Terminal Output</span>
                         </div>
+                        <button id="btn_clear_terminal" class="text-slate-400 hover:text-white transition-colors"
+                            title="Clear Terminal">
+                            <i class="fa-solid fa-eraser text-xs"></i>
+                        </button>
                     </div>
+                    <textarea id="terminal_output" readonly
+                        class="w-full h-full p-4 bg-transparent text-[#00ff00] font-mono text-[11px] leading-relaxed outline-none resize-none custom-scrollbar"
+                        placeholder="Menunggu eksekusi perintah..."></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                    <div>
-                        <label class="form-label">Serial Number (SN)</label>
-                        <input type="text" id="onu_sn" class="form-input" placeholder="ZTEGXXXXXXXX">
-                    </div>
+    <!-- Dashboard Panel -->
+    <div id="panel-dashboard" class="tab-content">
+        <!-- Stats cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#dcfce7;color:#15803d;">
+                    <i class="fa-solid fa-signal"></i>
+                </div>
+                <div>
+                    <div class="stat-val" id="stat_power_good">0</div>
+                    <div class="stat-lbl">Redaman Bagus</div>
+                </div>
+            </div>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="form-label">ONU Type SN</label>
-                            <input type="text" id="onu_type_sn" class="form-input" value="ALL-GPON">
-                        </div>
-                        <div>
-                            <label class="form-label">VLAN ID</label>
-                            <input type="number" id="vlan_id" class="form-input" value="525">
-                        </div>
-                    </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div>
+                    <div class="stat-val" id="stat_power_fair">0</div>
+                    <div class="stat-lbl">Kurang Baik</div>
+                </div>
+            </div>
 
-                    <hr class="border-slate-100 my-2">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fef2f2;color:#dc2626;">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </div>
+                <div>
+                    <div class="stat-val" id="stat_power_poor">0</div>
+                    <div class="stat-lbl">Redaman Buruk</div>
+                </div>
+            </div>
 
-                    <div>
-                        <label class="form-label">ID Pelanggan (Name)</label>
-                        <input type="text" id="cust_id" class="form-input" placeholder="24000XXX" value="24000007801">
-                    </div>
-
-                    <div class="grid grid-cols-1 gap-4">
-                        <div>
-                            <label class="form-label">PPPoE Username</label>
-                            <input type="text" id="pppoe_user" class="form-input" placeholder="user@erlangga.net">
-                        </div>
-                        <div>
-                            <label class="form-label">PPPoE Password</label>
-                            <input type="text" id="pppoe_pass" class="form-input" placeholder="password">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="form-label">Description</label>
-                        <input type="text" id="onu_desc" class="form-input" value="2$$2$$">
-                    </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#f1f5f9;color:#64748b;">
+                    <i class="fa-solid fa-plug-circle-xmark"></i>
+                </div>
+                <div>
+                    <div class="stat-val" id="stat_no_signal">0</div>
+                    <div class="stat-lbl">No Signal</div>
                 </div>
             </div>
         </div>
 
-        <!-- Right Panel (Split Horizontally inside) -->
-        <div class="lg:col-span-8 flex flex-col gap-6 h-full">
-            <!-- Script Panel -->
-            <div class="olt-card flex flex-col" style="flex: 3;">
-                <div class="flex items-center justify-between mb-4 shrink-0">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
-                            <i class="fa-solid fa-code"></i>
+        <div class="grid grid-cols-1 gap-4">
+            <!-- Toolbar (Mirroring Pre-Orders style) -->
+            <div class="table-toolbar !mb-0">
+                <div class="w-full">
+                    <div class="filter-group">
+                        <!-- Filter Interface -->
+                        <div style="flex: 1; min-width: 180px;">
+                            <label class="form-label-custom">Filter Interface</label>
+                            <select id="filter-interface" class="form-input-custom w-full">
+                                <option value="">Semua Interface</option>
+                                <option value="1/2/">Interface 1/2</option>
+                                <option value="1/4/">Interface 1/4</option>
+                            </select>
                         </div>
-                        <div>
-                            <h6 class="text-sm font-black text-slate-800">Generated Script</h6>
-                            <p class="text-[10px] text-slate-500 font-bold uppercase">Siap digunakan di Terminal/Putty</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="copyScript()" class="btn-primary-admin !py-2 !px-4 !text-[11px] !bg-emerald-500 hover:!bg-emerald-600 border-none shadow-sm flex items-center gap-2">
-                            <i class="fa-solid fa-copy"></i> SALIN
-                        </button>
-                        <button id="btn_execute" class="btn-primary-admin !py-2 !px-4 !text-[11px] !bg-rose-500 hover:!bg-rose-600 border-none shadow-sm flex items-center gap-2">
-                            <i class="fa-solid fa-rocket"></i> EKSEKUSI DI OLT
-                        </button>
-                    </div>
-                </div>
 
-                <div class="relative flex-1 min-h-0">
-                    <textarea id="script_output" readonly class="w-full h-full p-4 bg-slate-50 text-slate-800 font-mono text-[11px] leading-relaxed rounded-xl border-2 border-slate-200 outline-none resize-none shadow-inner custom-scrollbar"></textarea>
+                        <!-- Live Search -->
+                        <div style="flex: 1.5; min-width: 200px;">
+                            <label class="form-label-custom">Pencarian Cepat</label>
+                            <div class="search-wrap !max-w-full">
+                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                <input type="search" class="search-input" id="olt-livesearch"
+                                    style="padding: 9px 12px 9px 36px; height: 40px; border-radius: 10px; font-weight: 600;"
+                                    placeholder="Cari SN, Port, atau Status..." autocomplete="off" />
+                            </div>
+                        </div>
+
+                        <!-- Sync Button -->
+                        <button id="btn_sync_global"
+                            class="btn-primary-admin !h-10 !px-6 !text-[13px] !w-fit flex items-center gap-2 shadow-sm">
+                            <i class="fa-solid fa-rotate"></i> SYNC SELURUH OLT
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Terminal Output -->
-            <div class="rounded-2xl overflow-hidden border-2 border-slate-800 bg-[#0c0c0c] shadow-xl flex flex-col" style="flex: 2;">
-                <div class="bg-slate-800 px-4 py-2 flex items-center gap-2 shrink-0">
-                    <div class="flex gap-1.5">
-                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                    </div>
-                    <span class="text-[10px] text-slate-400 font-mono ml-2">OLT Terminal Output</span>
+            <!-- Results Table -->
+            <div class="table-card">
+                <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                    <h6 id="dashboard_table_title" class="text-sm font-black text-slate-800">Daftar Perangkat ONU</h6>
+                    <span id="dashboard_record_count"
+                        class="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-1 rounded-lg uppercase">0
+                        Records</span>
                 </div>
-                <textarea id="terminal_output" readonly class="w-full h-full p-4 bg-transparent text-[#00ff00] font-mono text-[11px] leading-relaxed outline-none resize-none custom-scrollbar" placeholder="Menunggu eksekusi perintah..."></textarea>
+
+                <div class="table-responsive">
+                    <table id="dashboard-onu-table" class="admin-table">
+                        <thead>
+                            <tr id="dashboard_table_header">
+                                <th style="text-align: center; width: 60px;">#</th>
+                                <th style="text-align: center;">PON Port</th>
+                                <th style="text-align: center;">Serial Number (SN)</th>
+                                <th style="text-align: center;">Status</th>
+                                <th style="text-align: center;">RX Power</th>
+                                <th style="text-align: center; width: 150px;">Opsi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboard-onu-body">
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 4rem; color: #94a3b8;">
+                                    <div class="flex flex-col items-center gap-3">
+                                        <i class="fa-solid fa-inbox text-5xl opacity-20"></i>
+                                        <p class="font-bold text-sm">Klik 'SYNC SELURUH OLT' untuk melihat data</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ONU Detail Modal -->
+    <div class="modal-overlay" id="onuDetailModal">
+        <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                <div class="modal-title">
+                    <i class="fa-solid fa-circle-info text-primary"></i>
+                    <span class="text-slate-900 font-bold text-[17px]">Detail Status ONU</span>
+                </div>
+                <button type="button" class="modal-close" onclick="closeCustomModal('onuDetailModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body p-8 bg-white">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- WAN Info -->
+                    <div class="space-y-4">
+                        <h6
+                            class="text-[10px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-sky-500 pl-3">
+                            Informasi WAN (PPPoE)</h6>
+                        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[11px] font-bold text-slate-400">USERNAME</span>
+                                <span id="det_wan_user" class="text-xs font-black text-slate-700">-</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[11px] font-bold text-slate-400">CURRENT IP</span>
+                                <span id="det_wan_ip" class="text-xs font-black text-indigo-600">-</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[11px] font-bold text-slate-400">VLAN</span>
+                                <span id="det_wan_vlan" class="text-xs font-black text-slate-700">-</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[11px] font-bold text-slate-400">RX POWER (ATT)</span>
+                                <span id="det_rx_power" class="text-xs font-black text-rose-600">-</span>
+                            </div>
+                            <div class="flex justify-between items-center border-t border-slate-200 pt-2 mt-2">
+                                <span class="text-[11px] font-bold text-slate-400">STATUS WAN</span>
+                                <span id="det_wan_status" class="badge !text-[9px]">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Traffic Stats -->
+                    <div class="space-y-4">
+                        <h6
+                            class="text-[10px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-emerald-500 pl-3">
+                            Statistik Trafik</h6>
+                        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[11px] font-bold text-slate-400">INPUT RATE</span>
+                                <span id="det_stat_in_rate" class="text-xs font-black text-emerald-600">-</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[11px] font-bold text-slate-400">OUTPUT RATE</span>
+                                <span id="det_stat_out_rate" class="text-xs font-black text-emerald-600">-</span>
+                            </div>
+                            <div class="flex justify-between items-center border-t border-slate-200 pt-2 mt-2">
+                                <span class="text-[11px] font-bold text-slate-400">TOTAL DOWNLOAD</span>
+                                <span id="det_stat_in_total" class="text-xs font-black text-slate-700">-</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[11px] font-bold text-slate-400">TOTAL UPLOAD</span>
+                                <span id="det_stat_out_total" class="text-xs font-black text-slate-700">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                <button type="button" class="btn-cancel w-full !py-3.5"
+                    onclick="closeCustomModal('onuDetailModal')">
+                    <i class="fa-solid fa-xmark mr-2"></i> Tutup Detail
+                </button>
             </div>
         </div>
     </div>
 
 
     @section('Scripts')
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        function generateScript() {
-            const type = $('#olt_type').val();
-            const port = $('#olt_port').val() || '1/2/8';
-            const id = $('#onu_id').val() || '1';
-            const sn = $('#onu_sn').val() || 'ZTEGXXXXXXXX';
-            const vlan = $('#vlan_id').val() || '525';
-            const typeSn = $('#onu_type_sn').val() || 'ALL-GPON';
-            const desc = $('#onu_desc').val() || '2$$2$$';
-            const custId = $('#cust_id').val() || '24000007801';
-            const user = $('#pppoe_user').val() || 'USER@erlangga.net';
-            const pass = $('#pppoe_pass').val() || 'PASSWORD';
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
+        <script>
+            // Tab System
+            $('.tab-btn').click(function() {
+                const target = $(this).data('target');
+                $('.tab-btn').removeClass('active');
+                $(this).addClass('active');
+                $('.tab-content').removeClass('active');
+                $('#' + target).addClass('active');
+            });
 
-            let script = '';
+            let dashboardTable;
 
-            if (type === 'ZTE_ERLANGGA') {
-                script = `config t
+            function generateScript() {
+                const type = $('#olt_type').val();
+                const port = $('#olt_port').val() || '1/2/8';
+                const id = $('#onu_id').val() || '1';
+                const sn = $('#onu_sn').val() || 'ZTEGXXXXXXXX';
+                const vlan = $('#vlan_id').val() || '525';
+                const typeSn = $('#onu_type_sn').val() || 'ALL-GPON';
+                const desc = $('#onu_desc').val() || '2$$2$$';
+                const custId = $('#cust_id').val() || '24000007801';
+                const user = $('#pppoe_user').val() || 'USER@erlangga.net';
+                const pass = $('#pppoe_pass').val() || 'PASSWORD';
+
+                let script = '';
+
+                if (type === 'ZTE_ERLANGGA') {
+                    script = `config t
 interface gpon-olt_${port}
 onu ${id} type ${typeSn} sn ${sn}
 !
@@ -226,8 +615,8 @@ write
 
 show pon power attenuation gpon-onu_${port}:${id}
 show gpon onu state gpon-olt_${port}`;
-            } else if (type === 'ZTE_BBS') {
-                script = `config t
+                } else if (type === 'ZTE_BBS') {
+                    script = `config t
 interface gpon-olt_${port}
 onu ${id} type ${typeSn} sn ${sn}
 !
@@ -259,106 +648,134 @@ write
 
 show pon power attenuation gpon-onu_${port}:${id}
 show gpon onu state gpon-olt_${port}`;
-            }
-
-            $('#script_output').val(script);
-        }
-
-        function copyScript() {
-            const textarea = document.getElementById('script_output');
-            textarea.select();
-            document.execCommand('copy');
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Tersalin!',
-                text: 'Skrip telah disalin ke clipboard.',
-                timer: 1500,
-                showConfirmButton: false,
-                toast: true,
-                position: 'top-end'
-            });
-        }
-
-        // Utility function for Toast
-        function showToast(type, message) {
-            Swal.fire({
-                icon: type,
-                title: type === 'success' ? 'Berhasil!' : 'Error!',
-                text: message,
-                timer: 3000,
-                showConfirmButton: false,
-                toast: true,
-                position: 'top-end'
-            });
-        }
-
-        $(document).ready(function() {
-            $('input, select').on('input change', generateScript);
-            generateScript(); // Initial call
-
-            // Handle Check Next ONU ID
-            $('#btn_check_id').click(function() {
-                const port = $('#olt_port').val();
-                if (!port) {
-                    showToast('error', 'Silakan isi OLT Port terlebih dahulu.');
-                    return;
                 }
 
-                const $btn = $(this);
-                const originalHtml = $btn.html();
-                $btn.html('<i class="fa-solid fa-spinner fa-spin"></i>').prop('disabled', true);
+                $('#script_output').val(script);
+            }
+
+            function copyScript() {
+                const textarea = document.getElementById('script_output');
+                textarea.select();
+                document.execCommand('copy');
+                showToast('Skrip telah disalin ke clipboard.', 'success');
+            }
+
+            function useForActivation(port, sn) {
+                $('#olt_port').val(port);
+                $('#onu_sn').val(sn);
+                $('.tab-btn[data-target="panel-generator"]').click();
+                $('#btn_check_id').click(); // Auto search next ID
+                showToast('Data ONU dimuat ke generator.', 'success');
+            }
+
+            function checkOnuStatus(port, onuId) {
+                // Show loading state in modal or toast
+                showToast('Mengambil data detail ONU...', 'success');
 
                 $.ajax({
-                    url: '/api/olt/check-next-id',
-                    type: 'POST',
+                    url: '/api/olt/onu-details',
+                    type: 'GET',
                     data: {
-                        _token: '{{ csrf_token() }}',
-                        olt_port: port
+                        port: port,
+                        onu_id: onuId
                     },
                     success: function(res) {
                         if (res.success) {
-                            $('#onu_id').val(res.next_id);
-                            generateScript();
-                            showToast('success', 'Next ONU ID ditemukan: ' + res.next_id);
-                            
-                            // Optional: Show raw output in terminal
+                            // Fill WAN Info
+                            $('#det_wan_user').text(res.wan_info.username);
+                            $('#det_wan_ip').text(res.wan_info.ip);
+                            $('#det_wan_vlan').text(res.wan_info.vlan);
+                            $('#det_rx_power').text(res.rx_power);
+
+                            const $status = $('#det_wan_status');
+                            $status.text(res.wan_info.status);
+                            $status.removeClass('bg-emerald-100 text-emerald-700 bg-rose-100 text-rose-700');
+                            if (res.wan_info.status === 'CONNECTED') {
+                                $status.addClass('bg-emerald-100 text-emerald-700');
+                            } else {
+                                $status.addClass('bg-rose-100 text-rose-700');
+                            }
+
+                            // Fill Traffic Stats
+                            $('#det_stat_in_rate').text(res.stats.input_rate);
+                            $('#det_stat_out_rate').text(res.stats.output_rate);
+                            $('#det_stat_in_total').text(res.stats.input_total);
+                            $('#det_stat_out_total').text(res.stats.output_total);
+
+                            // Open Modal
+                            openCustomModal('onuDetailModal');
                             $('#terminal_output').val(res.raw_output);
+                            $('#terminal_output').scrollTop($('#terminal_output')[0].scrollHeight);
                         } else {
-                            showToast('error', res.error);
+                            showToast(res.error, 'error');
                         }
                     },
-                    error: function(err) {
-                        showToast('error', 'Gagal terhubung ke server atau OLT.');
-                    },
-                    complete: function() {
-                        $btn.html(originalHtml).prop('disabled', false);
+                    error: function() {
+                        showToast('Gagal menghubungi OLT.', 'error');
                     }
                 });
-            });
+            }
 
-            // Handle Execute Script
-            $('#btn_execute').click(function() {
-                const script = $('#script_output').val();
-                if (!script) {
-                    showToast('error', 'Skrip kosong.');
-                    return;
-                }
+            $(document).ready(function() {
+                $('input, select').on('input change', generateScript);
+                generateScript(); // Initial call
 
-                Swal.fire({
-                    title: 'Konfirmasi Eksekusi',
-                    text: "Jalankan skrip ini langsung ke OLT?",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#10b981',
-                    cancelButtonColor: '#ef4444',
-                    confirmButtonText: 'Ya, Jalankan!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
+                // Handle Check Next ONU ID
+                $('#btn_check_id').click(function() {
+                    const port = $('#olt_port').val();
+                    if (!port) {
+                        showToast('Silakan isi OLT Port terlebih dahulu.', 'error');
+                        return;
+                    }
+
+                    const $btn = $(this);
+                    const originalHtml = $btn.html();
+                    $btn.html('<i class="fa-solid fa-spinner fa-spin"></i>').prop('disabled', true);
+
+                    $.ajax({
+                        url: '/api/olt/check-next-id',
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            olt_port: port
+                        },
+                        success: function(res) {
+                            if (res.success) {
+                                $('#onu_id').val(res.next_id);
+                                generateScript();
+                                showToast('Next ONU ID ditemukan: ' + res.next_id, 'success');
+                                $('#terminal_output').val(res.raw_output);
+                                // Scroll terminal to bottom
+                                $('#terminal_output').scrollTop($('#terminal_output')[0]
+                                    .scrollHeight);
+                            } else {
+                                showToast(res.error, 'error');
+                            }
+                        },
+                        error: function(err) {
+                            showToast('Gagal terhubung ke server atau OLT.', 'error');
+                        },
+                        complete: function() {
+                            $btn.html(originalHtml).prop('disabled', false);
+                        }
+                    });
+                });
+
+                // Handle Execute Script
+                $('#btn_execute').click(function() {
+                    const script = $('#script_output').val();
+                    if (!script) {
+                        showToast('Skrip kosong.', 'error');
+                        return;
+                    }
+
+                    if (confirm("Jalankan skrip ini langsung ke OLT?")) {
                         const $btn = $(this);
                         const originalHtml = $btn.html();
-                        $btn.html('<i class="fa-solid fa-spinner fa-spin"></i> EKSEKUSI...').prop('disabled', true);
-                        $('#terminal_output').val('Menghubungi OLT dan menjalankan perintah...\nMohon tunggu...');
+                        $btn.html('<i class="fa-solid fa-spinner fa-spin"></i> EKSEKUSI...').prop('disabled',
+                            true);
+                        $('#terminal_output').val(
+                            'Menghubungi OLT dan menjalankan perintah...\nMohon tunggu...');
 
                         $.ajax({
                             url: '/api/olt/execute',
@@ -370,15 +787,17 @@ show gpon onu state gpon-olt_${port}`;
                             success: function(res) {
                                 if (res.success) {
                                     $('#terminal_output').val(res.log);
-                                    showToast('success', 'Skrip selesai dieksekusi.');
+                                    showToast('Skrip selesai dieksekusi.', 'success');
+                                    $('#terminal_output').scrollTop($('#terminal_output')[0]
+                                        .scrollHeight);
                                 } else {
                                     $('#terminal_output').val('ERROR: ' + res.error);
-                                    showToast('error', res.error);
+                                    showToast(res.error, 'error');
                                 }
                             },
                             error: function(err) {
                                 $('#terminal_output').val('Koneksi gagal atau timeout.');
-                                showToast('error', 'Gagal terhubung ke server atau OLT.');
+                                showToast('Gagal terhubung ke server atau OLT.', 'error');
                             },
                             complete: function() {
                                 $btn.html(originalHtml).prop('disabled', false);
@@ -386,13 +805,181 @@ show gpon onu state gpon-olt_${port}`;
                         });
                     }
                 });
+
+                // Handle Sync Global (All ONUs)
+                $('#btn_sync_global').click(function() {
+                    const $btn = $(this);
+                    const originalHtml = $btn.html();
+                    $btn.html('<i class="fa-solid fa-spinner fa-spin mr-1"></i> SYNCING...').prop('disabled',
+                        true);
+
+                    $.ajax({
+                        url: '/api/olt/dashboard-data',
+                        type: 'GET',
+                        success: function(res) {
+                            if (res.success) {
+                                $('#dashboard_table_title').text('Status Seluruh ONU OLT');
+
+                                if (dashboardTable) {
+                                    dashboardTable.destroy();
+                                }
+
+                                let html = '';
+                                let count = 0;
+                                let stats = {
+                                    good: 0,
+                                    fair: 0,
+                                    poor: 0,
+                                    nosignal: 0
+                                };
+
+                                // 1. Add Unconfigured (Priority)
+                                res.unconfigured.forEach((onu) => {
+                                    count++;
+                                    stats.nosignal++;
+                                    html += `
+                                    <tr class="bg-amber-50/30">
+                                        <td style="text-align: center; color: #94a3b8; font-weight: 700;">${count}</td>
+                                        <td style="text-align: center; font-weight: 600;">${onu.port}</td>
+                                        <td style="text-align: center; font-weight: 700; color: #0f172a;">${onu.sn}</td>
+                                        <td style="text-align: center;">
+                                            <span class="badge" style="background: #fef3c7; color: #d97706; font-size: 10px;">${onu.status}</span>
+                                        </td>
+                                        <td style="text-align: center; font-weight: 700; color: #64748b;">-</td>
+                                        <td style="text-align: center;">
+                                            <button onclick="useForActivation('${onu.port}', '${onu.sn}')" 
+                                                class="topbar-icon-btn !w-fit !px-4 !h-9 !rounded-xl !bg-emerald-50 hover:!bg-emerald-100 text-emerald-600 transition-all flex items-center gap-2 shadow-none border-none mx-auto">
+                                                <i class="fa-solid fa-bolt"></i>
+                                                <span class="text-[10px] font-black uppercase">Aktivasi</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `;
+                                });
+
+                                // 2. Add Configured
+                                res.configured.forEach((onu) => {
+                                    count++;
+                                    let badgeColor = '#f1f5f9';
+                                    let textColor = '#64748b';
+                                    if (onu.status === 'WORKING') {
+                                        badgeColor = '#dcfce7';
+                                        textColor = '#15803d';
+                                    } else if (onu.status === 'LOS') {
+                                        badgeColor = '#fef2f2';
+                                        textColor = '#dc2626';
+                                    }
+
+                                    let powerColor = '#64748b';
+                                    if (onu.rx_power !== '-' && onu.rx_power !==
+                                        'no signal') {
+                                        const pVal = parseFloat(onu.rx_power);
+                                        if (pVal < -27) {
+                                            powerColor = '#ef4444';
+                                            stats.poor++;
+                                        } else if (pVal < -24) {
+                                            powerColor = '#f59e0b';
+                                            stats.fair++;
+                                        } else {
+                                            powerColor = '#10b981';
+                                            stats.good++;
+                                        }
+                                    } else {
+                                        stats.nosignal++;
+                                    }
+
+                                    html += `
+                                    <tr>
+                                        <td style="text-align: center; color: #94a3b8; font-weight: 700;">${count}</td>
+                                        <td style="text-align: center; font-weight: 600;">${onu.port}:${onu.onu_id}</td>
+                                        <td style="text-align: center; font-weight: 700; color: #0f172a;">${onu.sn}</td>
+                                        <td style="text-align: center;">
+                                            <span class="badge" style="background: ${badgeColor}; color: ${textColor}; font-size: 10px;">${onu.status}</span>
+                                        </td>
+                                        <td style="text-align: center; font-weight: 800; color: ${powerColor}; font-size: 11px;">
+                                            ${onu.rx_power}
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <div class="flex items-center justify-center gap-2">
+                                                <button onclick="checkOnuStatus('${onu.port}', '${onu.onu_id}')" 
+                                                    class="topbar-icon-btn !w-fit !px-4 !h-9 !rounded-xl !bg-indigo-50 hover:!bg-indigo-100 text-indigo-600 transition-all flex items-center gap-2 shadow-none border-none">
+                                                    <i class="fa-solid fa-chart-line"></i>
+                                                    <span class="text-[10px] font-black uppercase">Cek Status</span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `;
+                                });
+
+                                if (count === 0) {
+                                    html =
+                                        '<tr><td colspan="6" style="text-align: center; padding: 4rem; color: #94a3b8;">Tidak ada data ONU ditemukan.</td></tr>';
+                                }
+
+                                $('#dashboard-onu-body').html(html);
+                                $('#dashboard_record_count').text(count + ' Records');
+
+                                // Update Stats
+                                $('#stat_power_good').text(stats.good);
+                                $('#stat_power_fair').text(stats.fair);
+                                $('#stat_power_poor').text(stats.poor);
+                                $('#stat_no_signal').text(stats.nosignal);
+
+                                // Re-initialize DataTables
+                                dashboardTable = $('#dashboard-onu-table').DataTable({
+                                    "pageLength": 15,
+                                    "lengthChange": false,
+                                    "ordering": true,
+                                    "info": false,
+                                    "responsive": true,
+                                    "dom": 'tpir',
+                                    "language": {
+                                        "zeroRecords": "Data tidak ditemukan",
+                                        "paginate": {
+                                            "previous": '<i class="fa-solid fa-chevron-left"></i>',
+                                            "next": '<i class="fa-solid fa-chevron-right"></i>'
+                                        }
+                                    }
+                                });
+
+                                showToast('Status seluruh OLT berhasil disinkronkan.', 'success');
+                                $('#terminal_output').val(res.raw_output);
+                                $('#terminal_output').scrollTop($('#terminal_output')[0]
+                                    .scrollHeight);
+                            } else {
+                                showToast(res.error, 'error');
+                            }
+                        },
+                        error: function() {
+                            showToast('Koneksi OLT bermasalah.', 'error');
+                        },
+                        complete: function() {
+                            $btn.html(originalHtml).prop('disabled', false);
+                        }
+                    });
+                });
+
+                // Handle Live Search
+                $('#olt-livesearch').on('keyup', function() {
+                    if (dashboardTable) {
+                        dashboardTable.search(this.value).draw();
+                    }
+                });
+
+                // Handle Interface Filter
+                $('#filter-interface').on('change', function() {
+                    if (dashboardTable) {
+                        // Filter based on the "PON Port" column (index 1)
+                        dashboardTable.column(1).search(this.value).draw();
+                    }
+                });
+
+                // Handle Clear Terminal
+                $('#btn_clear_terminal').click(function() {
+                    $('#terminal_output').val('');
+                });
             });
-            
-            // Handle Clear Terminal
-            $('#btn_clear_terminal').click(function() {
-                $('#terminal_output').val('');
-            });
-        });
-    </script>
+        </script>
     @endsection
 </x-layouts.app>

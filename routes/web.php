@@ -122,6 +122,8 @@ Route::middleware(['auth.custom'])->group(function () {
         // OLT Telnet API Routes
         Route::post('/olt/check-next-id', [OltController::class, 'checkNextOnuId']);
         Route::post('/olt/execute', [OltController::class, 'executeScript']);
+        Route::get('/olt/dashboard-data', [OltController::class, 'getDashboardData']);
+        Route::get('/olt/onu-details', [OltController::class, 'getOnuDetails']);
     });
 
     Route::resource('customers', CustomerController::class)->except(['create', 'edit', 'show']);
