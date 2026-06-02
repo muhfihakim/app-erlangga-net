@@ -74,21 +74,18 @@
     @endsection
 
     <!-- Page header -->
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+    <div
+        style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
             <h1 style="font-size:22px;font-weight:900;margin:0;">PPPoE Active Connections</h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Monitoring pengguna PPPoE yang sedang aktif secara real-time.</p>
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Monitoring pengguna PPPoE yang sedang aktif secara
+                real-time.</p>
         </div>
         <div style="display:flex; gap:10px;">
-            <button type="button" onclick="location.reload()" class="btn-primary-admin !flex !items-center !justify-center gap-2">
+            <button type="button" onclick="location.reload()"
+                class="btn-primary-admin !flex !items-center !justify-center gap-2">
                 <i class="fa-solid fa-sync" id="refresh-icon"></i> Refresh Data
             </button>
-            <a href="{{ route('dashboards.index') }}"
-                class="btn-primary-admin !flex !items-center !justify-center gap-2"
-                style="background: #f1f5f9; color: #475569; box-shadow: none; border: 1px solid #e2e8f0;"
-                onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
-                <i class="fa-solid fa-house"></i> Dashboard
-            </a>
         </div>
     </div>
 
@@ -96,10 +93,12 @@
     <div class="table-toolbar">
         <div class="search-wrap">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            <input type="search" class="search-input" id="custom-search" placeholder="Cari nama, sales, atau IP address..." autocomplete="off" />
+            <input type="search" class="search-input" id="custom-search"
+                placeholder="Cari nama, sales, atau IP address..." autocomplete="off" />
         </div>
         <div style="display:flex;gap:8px;">
-            <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+            <div
+                style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
                 Total Aktif: <span class="text-primary">{{ count($pppoeActive) }}</span>
             </div>
         </div>
@@ -126,25 +125,30 @@
                             $cid = btoa_safe($item['name'] ?? 'unknown');
                         @endphp
                         <tr>
-                            <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}</td>
+                            <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}
+                            </td>
                             <td>
                                 <div style="font-weight: 700; color: #0f172a;">
                                     {{ $item['name'] ?? '-' }}
                                     @if ($item['is_isolir'])
-                                        <span style="background:#fef2f2; color:#dc2626; padding:2px 6px; border-radius:4px; font-size:9px; font-weight:800; margin-left:4px;">ISOLIR</span>
+                                        <span
+                                            style="background:#fef2f2; color:#dc2626; padding:2px 6px; border-radius:4px; font-size:9px; font-weight:800; margin-left:4px;">ISOLIR</span>
                                     @endif
                                 </div>
                             </td>
-                            <td style="font-weight: 600; color: #475569; font-size: 11px;">{{ $item['sales_name'] ?? '-' }}</td>
+                            <td style="font-weight: 600; color: #475569; font-size: 11px;">
+                                {{ $item['sales_name'] ?? '-' }}</td>
                             <td style="text-align: center; font-family: monospace; color: #64748b;">
                                 {{ format_uptime_hms($item['uptime'] ?? '') }}
                             </td>
-                            <td style="text-align: center; font-family: monospace; font-weight: 700; color: {{ $item['is_isolir'] ? '#dc2626' : '#0ea5e9' }};">
+                            <td
+                                style="text-align: center; font-family: monospace; font-weight: 700; color: {{ $item['is_isolir'] ? '#dc2626' : '#0ea5e9' }};">
                                 {{ $item['address'] ?? '-' }}
                             </td>
-                            <td style="text-align: center; color: #64748b; font-size: 11px;">{{ $item['caller-id'] ?? '-' }}</td>
+                            <td style="text-align: center; color: #64748b; font-size: 11px;">
+                                {{ $item['caller-id'] ?? '-' }}</td>
                             <td style="text-align: center;">
-                                <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Detail" 
+                                <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Detail"
                                     onclick="showDetail('{{ $item['name'] ?? '' }}', '{{ $item['sales_name'] ?? '' }}', '{{ $item['address'] ?? '' }}', '{{ $item['uptime'] ?? '' }}', '{{ $item['caller-id'] ?? '' }}', '{{ $item['service'] ?? '' }}', '{{ $item['bytes-in'] ?? 0 }}', '{{ $item['bytes-out'] ?? 0 }}')">
                                     <i class="fa-solid fa-eye text-primary"></i>
                                 </button>
@@ -214,11 +218,23 @@
 
             function formatUptimeToHMS(u) {
                 if (!u) return '00:00:00';
-                let w=0, d=0, h=0, m=0, s=0;
-                const mw=u.match(/(\d+)w/), md=u.match(/(\d+)d/), mh=u.match(/(\d+)h/), mm=u.match(/(\d+)m/), ms=u.match(/(\d+)s/);
-                if(mw)w=parseInt(mw[1]); if(md)d=parseInt(md[1]); if(mh)h=parseInt(mh[1]); if(mm)m=parseInt(mm[1]); if(ms)s=parseInt(ms[1]);
-                let totalH = (w*168)+(d*24)+h;
-                return String(totalH).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+                let w = 0,
+                    d = 0,
+                    h = 0,
+                    m = 0,
+                    s = 0;
+                const mw = u.match(/(\d+)w/),
+                    md = u.match(/(\d+)d/),
+                    mh = u.match(/(\d+)h/),
+                    mm = u.match(/(\d+)m/),
+                    ms = u.match(/(\d+)s/);
+                if (mw) w = parseInt(mw[1]);
+                if (md) d = parseInt(md[1]);
+                if (mh) h = parseInt(mh[1]);
+                if (mm) m = parseInt(mm[1]);
+                if (ms) s = parseInt(ms[1]);
+                let totalH = (w * 168) + (d * 24) + h;
+                return String(totalH).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
             }
 
             function showDetail(name, sales, addr, uptime, caller, svc, bin, bout) {

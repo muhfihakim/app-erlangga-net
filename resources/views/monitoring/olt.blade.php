@@ -75,7 +75,7 @@
                 justify-content: space-between;
                 gap: 12px;
                 flex-wrap: wrap;
-                margin-bottom: 1rem;
+                margin-bottom: 1.25rem;
                 box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
             }
 
@@ -204,18 +204,12 @@
                     <i class="fa-solid fa-chart-pie"></i> Dashboard OLT
                 </button>
             </div>
-            <a href="{{ route('dashboards.index') }}"
-                class="btn-primary-admin !flex !items-center !justify-center gap-2"
-                style="background: #f1f5f9; color: #475569; box-shadow: none; border: 1px solid #e2e8f0; height: 46px;"
-                onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
-                <i class="fa-solid fa-house"></i> Dashboard
-            </a>
         </div>
     </div>
 
     <!-- Generator Panel -->
     <div id="panel-generator" class="tab-content active">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[700px]">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <!-- Input Panel -->
             <div class="lg:col-span-4 h-full">
                 <div class="olt-card h-full overflow-y-auto custom-scrollbar">
@@ -224,12 +218,17 @@
                             class="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center shrink-0">
                             <i class="fa-solid fa-gears"></i>
                         </div>
-                        <div>
+                        <div class="flex-1">
                             <h6 class="text-sm font-black text-slate-800 leading-tight">Parameter ONU</h6>
                             <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Konfigurasi
                                 Perangkat</p>
                         </div>
+                        <button type="button" id="btn_quick_check_uncfg" title="Cek Perangkat Baru"
+                            class="bg-amber-100 text-amber-700 hover:bg-amber-200 h-9 px-3 rounded-xl text-[10px] font-black transition-all flex items-center gap-2 border border-amber-200 shadow-sm uppercase">
+                            <i class="fa-solid fa-bolt-lightning"></i> Cek Baru
+                        </button>
                     </div>
+
 
                     <div class="space-y-4">
                         <div>
@@ -249,16 +248,10 @@
                             </div>
                             <div>
                                 <label class="form-label">ONU ID</label>
-                                <div class="flex items-center gap-2">
-                                    <input type="number" id="onu_id" class="form-input !px-2" placeholder="55"
-                                        value="1">
-                                    <button type="button" id="btn_check_id" title="Cari ID Kosong"
-                                        class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 h-[38px] w-[38px] rounded-xl text-xs font-bold transition-colors flex items-center justify-center shrink-0">
-                                        <i class="fa-solid fa-magnifying-glass"></i>
-                                    </button>
-                                </div>
+                                <input type="number" id="onu_id" class="form-input" placeholder="55" value="1">
                             </div>
                         </div>
+
 
                         <div>
                             <label class="form-label">Serial Number (SN)</label>
@@ -409,74 +402,72 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 gap-4">
-            <!-- Toolbar (Mirroring Pre-Orders style) -->
-            <div class="table-toolbar !mb-0">
-                <div class="w-full">
-                    <div class="filter-group">
-                        <!-- Filter Interface -->
-                        <div style="flex: 1; min-width: 180px;">
-                            <label class="form-label-custom">Filter Interface</label>
-                            <select id="filter-interface" class="form-input-custom w-full">
-                                <option value="">Semua Interface</option>
-                                <option value="1/2/">Interface 1/2</option>
-                                <option value="1/4/">Interface 1/4</option>
-                            </select>
-                        </div>
-
-                        <!-- Live Search -->
-                        <div style="flex: 1.5; min-width: 200px;">
-                            <label class="form-label-custom">Pencarian Cepat</label>
-                            <div class="search-wrap !max-w-full">
-                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                                <input type="search" class="search-input" id="olt-livesearch"
-                                    style="padding: 9px 12px 9px 36px; height: 40px; border-radius: 10px; font-weight: 600;"
-                                    placeholder="Cari SN, Port, atau Status..." autocomplete="off" />
-                            </div>
-                        </div>
-
-                        <!-- Sync Button -->
-                        <button id="btn_sync_global"
-                            class="btn-primary-admin !h-10 !px-6 !text-[13px] !w-fit flex items-center gap-2 shadow-sm">
-                            <i class="fa-solid fa-rotate"></i> SYNC SELURUH OLT
-                        </button>
+        <!-- Toolbar -->
+        <div class="table-toolbar">
+            <div class="w-full">
+                <div class="filter-group">
+                    <!-- Filter Interface -->
+                    <div style="flex: 1; min-width: 180px;">
+                        <label class="form-label-custom">Filter Interface</label>
+                        <select id="filter-interface" class="form-input-custom w-full">
+                            <option value="">Semua Interface</option>
+                            <option value="1/2/">Interface 1/2</option>
+                            <option value="1/4/">Interface 1/4</option>
+                        </select>
                     </div>
+
+                    <!-- Live Search -->
+                    <div style="flex: 1.5; min-width: 200px;">
+                        <label class="form-label-custom">Pencarian Cepat</label>
+                        <div class="search-wrap !max-w-full">
+                            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                            <input type="search" class="search-input" id="olt-livesearch"
+                                style="padding: 9px 12px 9px 36px; height: 40px; border-radius: 10px; font-weight: 600;"
+                                placeholder="Cari SN, Port, atau Status..." autocomplete="off" />
+                        </div>
+                    </div>
+
+                    <!-- Sync Button -->
+                    <button id="btn_sync_global"
+                        class="btn-primary-admin !h-10 !px-6 !text-[13px] !w-fit flex items-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-rotate"></i> SYNC SELURUH OLT
+                    </button>
                 </div>
             </div>
+        </div>
 
-            <!-- Results Table -->
-            <div class="table-card">
-                <div class="p-6 border-b border-slate-100 flex items-center justify-between">
-                    <h6 id="dashboard_table_title" class="text-sm font-black text-slate-800">Daftar Perangkat ONU</h6>
-                    <span id="dashboard_record_count"
-                        class="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-1 rounded-lg uppercase">0
-                        Records</span>
-                </div>
+        <!-- Results Table -->
+        <div class="table-card">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                <h6 id="dashboard_table_title" class="text-sm font-black text-slate-800">Daftar Perangkat ONU</h6>
+                <span id="dashboard_record_count"
+                    class="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-1 rounded-lg uppercase">0
+                    Records</span>
+            </div>
 
-                <div class="table-responsive">
-                    <table id="dashboard-onu-table" class="admin-table">
-                        <thead>
-                            <tr id="dashboard_table_header">
-                                <th style="text-align: center; width: 60px;">#</th>
-                                <th style="text-align: center;">PON Port</th>
-                                <th style="text-align: center;">Serial Number (SN)</th>
-                                <th style="text-align: center;">Status</th>
-                                <th style="text-align: center;">RX Power</th>
-                                <th style="text-align: center; width: 150px;">Opsi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dashboard-onu-body">
-                            <tr>
-                                <td colspan="6" style="text-align: center; padding: 4rem; color: #94a3b8;">
-                                    <div class="flex flex-col items-center gap-3">
-                                        <i class="fa-solid fa-inbox text-5xl opacity-20"></i>
-                                        <p class="font-bold text-sm">Klik 'SYNC SELURUH OLT' untuk melihat data</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="table-responsive">
+                <table id="dashboard-onu-table" class="admin-table">
+                    <thead>
+                        <tr id="dashboard_table_header">
+                            <th style="text-align: center; width: 60px;">#</th>
+                            <th style="text-align: center;">PON Port</th>
+                            <th style="text-align: center;">Serial Number (SN)</th>
+                            <th style="text-align: center;">Status</th>
+                            <th style="text-align: center;">RX Power</th>
+                            <th style="text-align: center; width: 150px;">Opsi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboard-onu-body">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 4rem; color: #94a3b8;">
+                                <div class="flex flex-col items-center gap-3">
+                                    <i class="fa-solid fa-inbox text-5xl opacity-20"></i>
+                                    <p class="font-bold text-sm">Klik 'SYNC SELURUH OLT' untuk melihat data</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -553,7 +544,36 @@
             <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
                 <button type="button" class="btn-cancel w-full !py-3.5"
                     onclick="closeCustomModal('onuDetailModal')">
-                    <i class="fa-solid fa-xmark mr-2"></i> Tutup Detail
+                    <i class="fa-solid fa-xmark mr-2"></i> TUTUP DETAIL
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Unconfigured Selection Modal -->
+    <div class="modal-overlay" id="selectUncfgModal">
+        <div class="modal-box max-w-xl bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                <div class="modal-title">
+                    <i class="fa-solid fa-list-ul text-amber-500"></i>
+                    <span class="text-slate-900 font-bold text-[17px]">Pilih Perangkat Baru</span>
+                </div>
+                <button type="button" class="modal-close" onclick="closeCustomModal('selectUncfgModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body p-6 bg-white">
+                <p class="text-xs font-bold text-slate-400 uppercase mb-4 tracking-wider">Perangkat yang belum
+                    terdaftar di
+                    OLT:</p>
+                <div id="uncfg_selection_list" class="space-y-3">
+                    <!-- List items will be injected here -->
+                </div>
+            </div>
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                <button type="button" class="btn-cancel w-full !py-3.5"
+                    onclick="closeCustomModal('selectUncfgModal')">
+                    <i class="fa-solid fa-xmark mr-2"></i> BATAL
                 </button>
             </div>
         </div>
@@ -663,9 +683,32 @@ show gpon onu state gpon-olt_${port}`;
             function useForActivation(port, sn) {
                 $('#olt_port').val(port);
                 $('#onu_sn').val(sn);
+
+                // Auto search next ID for this port
+                showToast('Mencari ONU ID tersedia...', 'success');
+                $.ajax({
+                    url: '/api/olt/check-next-id',
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        olt_port: port
+                    },
+                    success: function(res) {
+                        if (res.success) {
+                            $('#onu_id').val(res.next_id);
+                            generateScript();
+                            showToast('Data ONU & Next ID dimuat.', 'success');
+                        } else {
+                            showToast(res.error, 'error');
+                        }
+                    },
+                    error: function() {
+                        showToast('Gagal mencari ONU ID.', 'error');
+                    }
+                });
+
                 $('.tab-btn[data-target="panel-generator"]').click();
-                $('#btn_check_id').click(); // Auto search next ID
-                showToast('Data ONU dimuat ke generator.', 'success');
+                closeCustomModal('selectUncfgModal');
             }
 
             function checkOnuStatus(port, onuId) {
@@ -720,46 +763,62 @@ show gpon onu state gpon-olt_${port}`;
                 $('input, select').on('input change', generateScript);
                 generateScript(); // Initial call
 
-                // Handle Check Next ONU ID
-                $('#btn_check_id').click(function() {
-                    const port = $('#olt_port').val();
-                    if (!port) {
-                        showToast('Silakan isi OLT Port terlebih dahulu.', 'error');
-                        return;
-                    }
-
+                // Handle Quick Check Unconfigured in Generator
+                $('#btn_quick_check_uncfg').click(function() {
                     const $btn = $(this);
                     const originalHtml = $btn.html();
                     $btn.html('<i class="fa-solid fa-spinner fa-spin"></i>').prop('disabled', true);
+                    showToast('Mencari perangkat unconfigured...', 'success');
 
                     $.ajax({
-                        url: '/api/olt/check-next-id',
-                        type: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}',
-                            olt_port: port
-                        },
+                        url: '/api/olt/dashboard-data',
+                        type: 'GET',
                         success: function(res) {
-                            if (res.success) {
-                                $('#onu_id').val(res.next_id);
-                                generateScript();
-                                showToast('Next ONU ID ditemukan: ' + res.next_id, 'success');
+                            if (res.success && res.unconfigured.length > 0) {
+                                if (res.unconfigured.length === 1) {
+                                    // If only one, auto-select it
+                                    const onu = res.unconfigured[0];
+                                    useForActivation(onu.port, onu.sn);
+                                } else {
+                                    // If multiple, show selection modal
+                                    let html = '';
+                                    res.unconfigured.forEach(onu => {
+                                        html += `
+                                            <div onclick="useForActivation('${onu.port}', '${onu.sn}')" 
+                                                class="flex items-center justify-between p-4 bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 rounded-2xl cursor-pointer transition-all group">
+                                                <div class="flex items-center gap-4">
+                                                    <div class="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform">
+                                                        <i class="fa-solid fa-bolt"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="text-sm font-black text-slate-800">${onu.sn}</div>
+                                                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Port: ${onu.port}</div>
+                                                    </div>
+                                                </div>
+                                                <i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-indigo-500 transition-colors"></i>
+                                            </div>
+                                        `;
+                                    });
+                                    $('#uncfg_selection_list').html(html);
+                                    openCustomModal('selectUncfgModal');
+                                    showToast('Ditemukan ' + res.unconfigured.length +
+                                        ' perangkat.', 'info');
+                                }
                                 $('#terminal_output').val(res.raw_output);
-                                // Scroll terminal to bottom
-                                $('#terminal_output').scrollTop($('#terminal_output')[0]
-                                    .scrollHeight);
                             } else {
-                                showToast(res.error, 'error');
+                                showToast('Tidak ada perangkat baru (unconfigured) ditemukan.',
+                                    'info');
                             }
                         },
-                        error: function(err) {
-                            showToast('Gagal terhubung ke server atau OLT.', 'error');
+                        error: function() {
+                            showToast('Gagal menghubungi OLT.', 'error');
                         },
                         complete: function() {
                             $btn.html(originalHtml).prop('disabled', false);
                         }
                     });
                 });
+
 
                 // Handle Execute Script
                 $('#btn_execute').click(function() {
