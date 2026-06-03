@@ -40,6 +40,52 @@ class ActivityLogController extends Controller
         ));
     }
 
+    public function getNotifications()
+    {
+        $types = ['preorder_create', 'aktivasi_pelanggan', 'maintenance_complete', 'eksekusi_dismantle'];
+        
+        $notifications = ActivityLog::with('user')
+            ->whereIn('activity_type', $types)
+            ->orderByDesc('logged_at')
+            ->limit(10)
+            ->get()
+            ->map(function($log) {
+                return [
+                    'id' => $log->id,
+                    'user' => $log->user->nama_lengkap ?? 'System',
+                    'type' => $log->activity_type,
+                    'description' => $log->description,
+                    'time' => Carbon::parse($log->logged_at)->diffForHumans(),
+                    'icon' => $this->getIconForType($log->activity_type),
+                    'color' => $this->getColorForType($log->activity_type)
+                ];
+            });
+
+        return response()->json($notifications);
+    }
+
+    private function getIconForType($type)
+    {
+        return match($type) {
+            'preorder_create' => 'fa-cart-plus',
+            'aktivasi_pelanggan' => 'fa-user-check',
+            'maintenance_complete' => 'fa-screwdriver-wrench',
+            'eksekusi_dismantle' => 'fa-house-circle-xmark',
+            default => 'fa-info-circle'
+        };
+    }
+
+    private function getColorForType($type)
+    {
+        return match($type) {
+            'preorder_create' => 'text-blue-500',
+            'aktivasi_pelanggan' => 'text-emerald-500',
+            'maintenance_complete' => 'text-indigo-500',
+            'eksekusi_dismantle' => 'text-rose-500',
+            default => 'text-slate-500'
+        };
+    }
+
     public function export(Request $request)
     {
         $request->validate([

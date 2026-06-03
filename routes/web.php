@@ -51,6 +51,7 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/accounts/{user}/2fa/show', [AccountController::class, 'show2FA'])->name('admin.users.2fa.show');
     Route::post('/accounts/{user}/2fa/reset', [AccountController::class, 'reset2FA'])->name('admin.users.2fa.reset');
     Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activitylog.index');
+    Route::get('/activity-logs/notifications', [ActivityLogController::class, 'getNotifications'])->name('activitylog.notifications');
     Route::get('/activity-logs/export', [ActivityLogController::class, 'export'])->name('activitylog.export');
 
     Route::get('/laporan/preorder', [ActivityLogController::class, 'laporanPreOrder'])->name('activitylog.preorder');

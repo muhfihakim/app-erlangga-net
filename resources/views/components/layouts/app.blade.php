@@ -234,6 +234,7 @@
     </script>
 
     @yield('Scripts')
+    @stack('scripts')
     @include('partials.location_scripts')
 </body>
 </html>
