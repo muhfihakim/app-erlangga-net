@@ -293,7 +293,7 @@
         {{-- Modal Tambah ODP --}}
         <div class="modal-overlay" id="addOdpModal">
             <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
-                <form action="{{ route('odp.store') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('odp.store') }}" method="POST" enctype="multipart/form-data" novalidate>
                     @csrf
                     <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
                         <div class="modal-title">
@@ -358,7 +358,7 @@
         {{-- Modal Edit ODP --}}
         <div class="modal-overlay" id="editOdpModal">
             <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
-                <form id="editOdpForm" method="POST" enctype="multipart/form-data">
+                <form id="editOdpForm" method="POST" enctype="multipart/form-data" novalidate>
                     @csrf
                     @method('PUT')
                     <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">

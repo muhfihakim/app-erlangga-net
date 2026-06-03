@@ -1,7 +1,7 @@
  {{-- Modal Tambah Akun --}}
  <div class="modal-overlay" id="addUserModal">
      <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
-         <form id="addForm" method="POST" action="{{ route('accounts.store') }}">
+         <form id="addForm" method="POST" action="{{ route('accounts.store') }}" novalidate>
              @csrf
              <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
                  <div class="modal-title">
@@ -72,7 +72,7 @@
  {{-- Modal Edit Akun --}}
  <div class="modal-overlay" id="editModal">
      <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
-         <form id="editForm" method="POST">
+         <form id="editForm" method="POST" novalidate>
              @csrf
              @method('PUT')
              <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">

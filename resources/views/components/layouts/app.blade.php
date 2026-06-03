@@ -157,9 +157,12 @@
                 if (e.target === this) closeCustomModal(this.id);
             });
 
-            // Global Form Validation Interceptor
+            // Global Form Validation Interceptor (Smart Client-Side Validation)
             $('form').attr('novalidate', true);
-            $('form').on('submit', function(e) {
+            $(document).on('submit', 'form', function(e) {
+                // Skip GET forms and forms with data-no-validation
+                if (this.method.toLowerCase() === 'get' || $(this).data('no-validation')) return;
+
                 if (!this.checkValidity()) {
                     e.preventDefault();
                     e.stopPropagation();
@@ -167,7 +170,7 @@
                     let firstInvalid = $(this).find(':invalid').first();
                     
                     if (firstInvalid.length) {
-                        // Check if it's inside a hidden tab
+                        // 1. Handle Multi-Tab Support: Automatically switch to the tab containing the error
                         let tabPanel = firstInvalid.closest('.tab-panel');
                         if (tabPanel.length && !tabPanel.hasClass('active')) {
                             let tabId = tabPanel.attr('id');
@@ -177,58 +180,64 @@
                             }
                         }
 
-                        // Determine label/name
-                        let id = firstInvalid.attr('id');
+                        // 2. Smart Label Discovery
                         let labelText = '';
+                        let id = firstInvalid.attr('id');
+                        
+                        // Try finding associated <label for="...">
                         if (id) {
-                            let label = $(this).find('label[for="' + id + '"]');
-                            if (label.length) labelText = label.text().replace('*', '').trim();
+                            let label = $(`label[for="${id}"]`);
+                            if (label.length) labelText = label.text();
                         }
                         
-                        // Coba cari label berdasarkan parent (untuk radio/checkbox/file)
+                        // Fallback: Parent .form-group label (common pattern in this app)
                         if (!labelText) {
-                            let parentLabel = firstInvalid.closest('.form-group').find('.form-label, .form-label-custom');
-                            if (parentLabel.length) labelText = parentLabel.text().replace('*', '').trim();
+                            let parentLabel = firstInvalid.closest('.form-group').find('label, .form-label, .form-label-custom');
+                            if (parentLabel.length) labelText = parentLabel.first().text();
                         }
 
-                        if (!labelText) labelText = firstInvalid.attr('placeholder') || firstInvalid.attr('name') || 'kolom ini';
-
-                        // Custom error message
-                        let errorMessage = 'Harap isi ' + labelText + ' dengan benar.';
-                        if (firstInvalid[0].validity.valueMissing) {
-                            errorMessage = labelText + ' wajib diisi / dipilih.';
-                        } else if (firstInvalid[0].validity.typeMismatch) {
-                            errorMessage = 'Format ' + labelText + ' tidak valid (contoh: email harus pakai @).';
-                        } else if (firstInvalid[0].validity.tooShort) {
-                            errorMessage = labelText + ' terlalu pendek.';
+                        // Final Fallbacks: Placeholder or Name
+                        if (!labelText) {
+                            labelText = firstInvalid.attr('placeholder') || firstInvalid.attr('name') || 'kolom ini';
                         }
 
-                        // Show Toast Notification
-                        showToast(errorMessage, 'error');
+                        // Clean up label text (remove asterisks and extra spaces)
+                        labelText = labelText.replace('*', '').replace(':', '').trim();
 
-                        // Visual Feedback
-                        firstInvalid.focus();
-                        firstInvalid.addClass('!border-rose-500 !ring-2 !ring-rose-200 transition-all');
+                        // 3. Build User-Friendly Error Message
+                        let errorMessage = `Bidang "${labelText}" wajib diisi!`;
                         
-                        // Shake Animation Effect using JS
-                        let x = 0;
-                        let interval = setInterval(() => {
-                            firstInvalid.css('transform', `translateX(${x % 2 === 0 ? '5px' : '-5px'})`);
-                            x++;
-                            if (x > 5) {
-                                clearInterval(interval);
-                                firstInvalid.css('transform', 'none');
-                            }
+                        if (firstInvalid[0].type === 'file') {
+                            errorMessage = `Silakan pilih file untuk "${labelText}".`;
+                        } else if (firstInvalid[0].type === 'radio' || firstInvalid[0].type === 'checkbox') {
+                            errorMessage = `Pilihan "${labelText}" harus dipilih.`;
+                        } else if (firstInvalid[0].validity.typeMismatch && firstInvalid[0].type === 'email') {
+                            errorMessage = `Format email "${labelText}" tidak valid.`;
+                        }
+
+                        // 4. Visual Feedback & Toast
+                        showToast(errorMessage, 'error');
+                        
+                        setTimeout(() => {
+                            firstInvalid.focus();
+                            firstInvalid.addClass('!border-rose-500 !ring-2 !ring-rose-200 transition-all');
+                            
+                            // Shake Effect
+                            firstInvalid.css('transition', 'transform 0.1s');
+                            let offsets = [5, -5, 5, -5, 0];
+                            offsets.forEach((offset, index) => {
+                                setTimeout(() => {
+                                    firstInvalid.css('transform', `translateX(${offset}px)`);
+                                }, index * 100);
+                            });
                         }, 50);
                     }
                 }
             });
 
-            // Remove visual feedback upon typing or selecting
-            $('input, select, textarea').on('input change', function() {
-                if (this.checkValidity()) {
-                    $(this).removeClass('!border-rose-500 !ring-2 !ring-rose-200 transition-all');
-                }
+            // Auto-clear error state when user starts typing/selecting
+            $(document).on('input change', 'input, select, textarea', function() {
+                $(this).removeClass('!border-rose-500 !ring-2 !ring-rose-200');
             });
         });
     </script>

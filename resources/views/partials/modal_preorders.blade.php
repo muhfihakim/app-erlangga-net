@@ -24,7 +24,7 @@
                 </button>
             </div>
 
-            <form action="{{ route('pre_orders.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('pre_orders.store') }}" method="POST" enctype="multipart/form-data" novalidate>
                 @csrf
                 <input type="hidden" name="id_sales" value="{{ auth()->user()->id }}">
                 <input type="hidden" name="nama_sales" value="{{ auth()->user()->nama_lengkap }}">
@@ -143,7 +143,7 @@
             <button class="modal-tab" data-tab="edit-tab-media">Foto</button>
         </div>
 
-        <form id="editForm" method="POST" enctype="multipart/form-data">
+        <form id="editForm" method="POST" enctype="multipart/form-data" novalidate>
             @csrf
             @method('PUT')
             <div class="modal-body bg-white">

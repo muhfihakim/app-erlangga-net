@@ -367,7 +367,7 @@
 
     <div class="modal-overlay" id="addMaintenanceModal">
         <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
-            <form action="{{ route('maintenances.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('maintenances.store') }}" method="POST" enctype="multipart/form-data" novalidate>
                 @csrf
                 <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
                     <div class="modal-title"><i class="fa-solid fa-plus-square text-primary"></i> <span
@@ -592,7 +592,7 @@
                 <button class="modal-tab" data-tab="tab-m-media"><i class="fa-solid fa-camera"></i>
                     Dokumentasi</button>
             </div>
-            <form id="completeForm" method="POST" enctype="multipart/form-data">
+            <form id="completeForm" method="POST" enctype="multipart/form-data" novalidate>
                 @csrf
                 <div class="modal-body bg-white p-6">
                     <div class="tab-panel active" id="tab-m-data">

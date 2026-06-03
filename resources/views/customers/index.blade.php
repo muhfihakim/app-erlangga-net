@@ -316,7 +316,7 @@
             </div>
 
             <form id="activationForm" method="POST" action="{{ route('customers.store') }}"
-                enctype="multipart/form-data">
+                enctype="multipart/form-data" novalidate>
                 @csrf
                 <input type="hidden" id="modal_pre_order_id" name="pre_order_id" required>
                 <input type="hidden" id="modal_id_sales" name="id_sales" required>
