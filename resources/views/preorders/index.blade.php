@@ -240,6 +240,8 @@
                                             <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                                 onclick="openUnspekModal('{{ $po->id }}', '{{ $po->nama_lengkap }}')"><i
                                                     class="fa-solid fa-ban text-amber-500"></i></button>
+                                        @endif
+                                        @if (auth()->user()->jabatan === 'Teknisi')
                                             <button type="button" class="btn-primary-admin !h-8 !px-2 !text-[10px]"
                                                 onclick="openActivationModal(this)" data-po-id="{{ $po->id }}"
                                                 data-po-sales-id="{{ $po->id_sales }}"
