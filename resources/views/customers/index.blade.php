@@ -74,6 +74,29 @@
                 overflow: hidden;
                 box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15);
             }
+
+            /* Custom Modal Styles for Activation */
+            .partner-card-scroll {
+                max-height: 200px;
+                overflow-y: auto;
+                background: #f8fafc;
+                border: 1px solid #e2e8f0;
+                border-radius: 12px;
+                padding: 12px;
+            }
+
+            .partner-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px;
+                border-radius: 8px;
+                transition: background 0.2s;
+            }
+
+            .partner-item:hover {
+                background: #f1f5f9;
+            }
         </style>
     @endsection
 
@@ -103,15 +126,6 @@
                 <div>
                     <div class="stat-val">{{ $allPreOrders->count() }}</div>
                     <div class="stat-lbl">Menunggu Aktivasi</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
-                    <i class="fa-solid fa-user-clock"></i>
-                </div>
-                <div>
-                    <div class="stat-val">{{ $allPreOrders->whereNotNull('id_teknisi_delegasi')->count() }}</div>
-                    <div class="stat-lbl">Sudah Ditunjuk</div>
                 </div>
             </div>
         </div>
@@ -254,7 +268,313 @@
     @endif
 
     {{-- MODAL AREA --}}
-    @include('customers.modal')
+    <!-- Modern Activation Modal -->
+    <div class="modal-overlay" id="activationModal">
+        <div class="modal-box max-w-4xl bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                <div class="modal-title">
+                    <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                    <span class="text-slate-900 font-bold">Formulir Aktivasi Pelanggan</span>
+                </div>
+                <button type="button" class="modal-close" onclick="closeCustomModal('activationModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="modal-tabs bg-white border-b border-slate-200">
+                <button class="modal-tab active" data-tab="tab-po">
+                    <i class="fa-solid fa-file-invoice"></i> Data PO
+                </button>
+                <button class="modal-tab" data-tab="tab-teknis">
+                    <i class="fa-solid fa-gears"></i> Teknis & Billing
+                </button>
+                <button class="modal-tab" data-tab="tab-media">
+                    <i class="fa-solid fa-camera"></i> Dokumentasi
+                </button>
+            </div>
+
+            <form id="activationForm" method="POST" action="{{ route('customers.store') }}"
+                enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" id="modal_pre_order_id" name="pre_order_id" required>
+                <input type="hidden" id="modal_id_sales" name="id_sales" required>
+                <input type="hidden" name="id_teknisi" value="{{ auth()->id() }}">
+
+                <div class="modal-body bg-white p-6">
+                    <!-- Tab Data PO & Partner -->
+                    <div class="tab-panel active" id="tab-po">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div class="form-group">
+                                    <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Nama
+                                        Pelanggan (PO)</label>
+                                    <input type="text" class="form-input bg-slate-50 border-slate-200"
+                                        id="po_nama_lengkap" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Paket
+                                        Internet (PO)</label>
+                                    <input type="text" class="form-input bg-slate-50 border-slate-200"
+                                        id="po_paket" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Keterangan
+                                        Tambahan</label>
+                                    <textarea class="form-textarea" name="keterangan" rows="3" placeholder="Catatan selama instalasi..."></textarea>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Partner /
+                                    Teknisi Tambahan</label>
+                                <div class="partner-card-scroll">
+                                    <div class="grid grid-cols-1 gap-1">
+                                        @forelse ($teknisiUsers as $t)
+                                            @if ($t->id != auth()->id())
+                                                <div class="partner-item">
+                                                    <input
+                                                        class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary"
+                                                        type="checkbox" name="partner_ids[]"
+                                                        value="{{ $t->id }}"
+                                                        id="partner_{{ $t->id }}">
+                                                    <label
+                                                        class="text-sm font-semibold text-slate-700 cursor-pointer w-full"
+                                                        for="partner_{{ $t->id }}">
+                                                        {{ $t->nama_lengkap }}
+                                                    </label>
+                                                </div>
+                                            @endif
+                                        @empty
+                                            <div class="text-center py-4 text-slate-400 italic text-sm">Tidak ada
+                                                teknisi lain.</div>
+                                        @endforelse
+                                    </div>
+                                </div>
+                                <input type="hidden" name="partner" id="partner_names">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Teknis & Billing -->
+                    <div class="tab-panel" id="tab-teknis">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div class="form-group">
+                                    <label class="form-label text-slate-800 font-bold uppercase text-[11px]">ID
+                                        Pelanggan (Billing) <span class="text-rose-500">*</span></label>
+                                    <input type="text" class="form-input" name="id_pelanggan" id="id_pelanggan"
+                                        placeholder="Contoh: 123456" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Akun PPPoE
+                                        (Username) <span class="text-rose-500">*</span></label>
+                                    <input type="text" class="form-input" name="pppoe_username"
+                                        id="pppoe_username" placeholder="pppoe@erlangga.net" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Sandi
+                                        PPPoE <span class="text-rose-500">*</span></label>
+                                    <input type="text" class="form-input" name="pppoe_password"
+                                        id="pppoe_password" placeholder="Sandi standar/custom" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Metode
+                                        Pembayaran <span class="text-rose-500">*</span></label>
+                                    <div class="flex gap-4 mt-2">
+                                        <label class="flex items-center gap-2 cursor-pointer">
+                                            <input type="radio" name="pembayaran" value="Cash" required
+                                                class="w-4 h-4 text-primary">
+                                            <span class="text-sm font-bold text-slate-700">Cash</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 cursor-pointer">
+                                            <input type="radio" name="pembayaran" value="Aplikasi" required
+                                                class="w-4 h-4 text-primary">
+                                            <span class="text-sm font-bold text-slate-700">Aplikasi</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="form-group">
+                                    <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Jenis
+                                        Modem <span class="text-rose-500">*</span></label>
+                                    <div class="flex gap-4 mt-2">
+                                        <label class="flex items-center gap-2 cursor-pointer">
+                                            <input type="radio" name="jenis_modem" value="EPON" required
+                                                class="w-4 h-4 text-primary">
+                                            <span class="text-sm font-bold text-slate-700">EPON</span>
+                                        </label>
+                                        <label class="flex items-center gap-2 cursor-pointer">
+                                            <input type="radio" name="jenis_modem" value="GPON" required
+                                                class="w-4 h-4 text-primary">
+                                            <span class="text-sm font-bold text-slate-700">GPON</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label text-slate-800 font-bold uppercase text-[11px]">SN
+                                        Perangkat ONT <span class="text-rose-500">*</span></label>
+                                    <div class="flex gap-2">
+                                        <input type="text" class="form-input" name="sn_perangkat"
+                                            id="sn_perangkat" placeholder="Serial Number..." required>
+                                        <button type="button"
+                                            class="btn-primary-admin !shadow-none !w-12 !flex !items-center !justify-center"
+                                            id="start-scan">
+                                            <i class="fa-solid fa-qrcode"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="reader-container" style="display:none;" class="scanner-container">
+                                    <div id="reader" style="width: 100%;"></div>
+                                    <button type="button"
+                                        class="btn-cancel !py-2 !px-4 !text-[11px] !w-fit mt-3 !flex !items-center !justify-center gap-2 mx-auto"
+                                        id="stop-scan">
+                                        <i class="fa-solid fa-camera-rotate"></i> Tutup Kamera
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Dokumentasi -->
+                    <div class="tab-panel" id="tab-media">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Foto Petugas
+                                    <span class="text-rose-500">*</span></label>
+                                <div
+                                    class="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center">
+                                    <i class="fa-solid fa-user-gear text-2xl text-slate-300 mb-2"></i>
+                                    <input type="file" class="form-input !text-[11px]" name="foto_petugas"
+                                        accept="image/*" required>
+                                    <p class="text-[9px] text-slate-400 mt-2 italic">Foto wajah teknisi di lokasi.</p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Perangkat
+                                    Terpasang <span class="text-rose-500">*</span></label>
+                                <div
+                                    class="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center">
+                                    <i class="fa-solid fa-box text-2xl text-slate-300 mb-2"></i>
+                                    <input type="file" class="form-input !text-[11px]" name="foto_terpasang"
+                                        accept="image/*" required>
+                                    <p class="text-[9px] text-slate-400 mt-2 italic">Foto modem & kabel terpasang.</p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Hasil
+                                    Speedtest <span class="text-rose-500">*</span></label>
+                                <div
+                                    class="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center">
+                                    <i class="fa-solid fa-gauge-high text-2xl text-slate-300 mb-2"></i>
+                                    <input type="file" class="form-input !text-[11px]" name="foto_speedtest"
+                                        accept="image/*" required>
+                                    <p class="text-[9px] text-slate-400 mt-2 italic">Screenshot hasil uji kecepatan.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-t border-slate-200 bg-white rounded-b-2xl">
+                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+                        onclick="closeCustomModal('activationModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
+                    </button>
+                    <button type="submit" class="btn-save !flex !items-center !justify-center gap-2 !bg-primary">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Simpan Aktivasi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Activation Detail Modal -->
+    <div class="modal-overlay" id="detailActivationModal">
+        <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                <div class="modal-title">
+                    <i class="fa-solid fa-circle-info text-primary"></i>
+                    <span class="text-slate-900 font-bold">Detail Tugas Aktivasi</span>
+                </div>
+                <button type="button" class="modal-close" onclick="closeCustomModal('detailActivationModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body p-8 space-y-6 bg-white">
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <span class="text-[10px] font-black text-slate-400 uppercase block mb-1">Pelanggan</span>
+                        <p id="det_nama" class="text-lg font-black text-slate-900 m-0"></p>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-black text-slate-400 uppercase block mb-1">Paket Internet</span>
+                        <p id="det_paket" class="text-base font-bold text-indigo-600 m-0"></p>
+                    </div>
+                </div>
+                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                    <span class="text-[10px] font-black text-slate-400 uppercase block mb-2">Alamat Pemasangan</span>
+                    <p id="det_alamat" class="text-sm font-medium text-slate-700 leading-relaxed m-0"></p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <a id="det_wa_link" href="#" target="_blank" class="btn-primary-admin !bg-emerald-50 !text-emerald-700 !border-emerald-200 !shadow-none !flex !items-center !justify-center gap-2 h-12 rounded-xl">
+                        <i class="fa-brands fa-whatsapp text-lg"></i>
+                        <span class="font-bold">Hubungi via WA</span>
+                    </a>
+                    <a id="det_tikor_link" href="#" target="_blank" class="btn-primary-admin !bg-indigo-50 !text-indigo-700 !border-indigo-200 !shadow-none !flex !items-center !justify-center gap-2 h-12 rounded-xl">
+                        <i class="fa-solid fa-map-location-dot text-lg"></i>
+                        <span class="font-bold">Petunjuk Arah</span>
+                    </a>
+                </div>
+            </div>
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                <button type="button" class="btn-cancel w-full !py-3.5" onclick="closeCustomModal('detailActivationModal')">
+                    <i class="fa-solid fa-xmark mr-2"></i> TUTUP DETAIL
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal Unspek --}}
+    <div class="modal-overlay" id="unspekModal">
+        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                <div class="modal-title">
+                    <i class="fa-solid fa-ban text-amber-500"></i>
+                    <span class="text-slate-900 font-bold text-[17px]">Unspek / Tangguhkan PO</span>
+                </div>
+                <button type="button" class="modal-close" onclick="closeCustomModal('unspekModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="unspekForm" method="POST">
+                @csrf
+                <div class="modal-body p-6 space-y-4 bg-white">
+                    <div class="bg-amber-50 p-4 rounded-xl border border-amber-100 mb-4">
+                        <span class="text-[10px] font-black text-amber-500 block uppercase">Pelanggan</span>
+                        <p id="unspek_po_name" class="text-base font-black text-amber-700 m-0"></p>
+                    </div>
+                    <div class="form-group !mb-0">
+                        <label class="form-label !text-slate-800 !font-bold">
+                            <i class="fa-solid fa-comment-dots text-slate-400 mr-1"></i> Alasan Unspek / Penangguhan <span
+                                class="text-rose-500">*</span>
+                        </label>
+                        <textarea name="keterangan_unspek" class="form-textarea" required rows="3"
+                            placeholder="Contoh: Tiang penuh, Jarak terlalu jauh, Pelanggan membatalkan..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+                        onclick="closeCustomModal('unspekModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
+                    </button>
+                    <button type="submit" class="btn-save !flex !items-center !justify-center gap-2 !bg-amber-500">
+                        <i class="fa-solid fa-paper-plane"></i> Simpan Unspek
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     @section('Scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -348,10 +668,10 @@
 
             function openActivationModal(triggerEl) {
                 const $btn = $(triggerEl);
-                $('#form_po_id').val($btn.data('po-id'));
-                $('#form_id_sales').val($btn.data('po-sales-id'));
-                $('#display_nama_pelanggan').text($btn.data('po-nama'));
-                $('#display_paket_internet').text($btn.data('po-paket'));
+                $('#modal_pre_order_id').val($btn.data('po-id'));
+                $('#modal_id_sales').val($btn.data('po-sales-id'));
+                $('#po_nama_lengkap').val($btn.data('po-nama'));
+                $('#po_paket').val($btn.data('po-paket'));
                 openCustomModal('activationModal');
             }
 
@@ -389,6 +709,15 @@
                         console.error("Gagal stop scanner", err);
                     });
                 }
+            }
+
+            $('#start-scan').on('click', startScanner);
+            $('#stop-scan').on('click', stopScanner);
+
+            function openUnspekModal(poId, poNama) {
+                $('#unspekForm').attr('action', `/pre-orders/${poId}/unspek`);
+                $('#unspek_po_name').text(poNama);
+                openCustomModal('unspekModal');
             }
         </script>
     @endsection
