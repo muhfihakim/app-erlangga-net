@@ -89,6 +89,29 @@
                 font-weight: 600;
                 font-size: 12px;
             }
+
+            /* Custom Modal Styles for Activation/Maintenance */
+            .partner-card-scroll {
+                max-height: 200px;
+                overflow-y: auto;
+                background: #f8fafc;
+                border: 1px solid #e2e8f0;
+                border-radius: 12px;
+                padding: 12px;
+            }
+
+            .partner-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px;
+                border-radius: 8px;
+                transition: background 0.2s;
+            }
+
+            .partner-item:hover {
+                background: #f1f5f9;
+            }
         </style>
     @endsection
 
@@ -588,27 +611,32 @@
                                 </div>
                             </div>
                             <div class="space-y-4">
-                                <div class="form-group"><label
-                                        class="form-label text-slate-800 font-bold uppercase text-[11px]">Pilih Partner
-                                        / Rekan Kerja</label>
+                                <div class="form-group">
+                                    <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Partner /
+                                        Teknisi Tambahan</label>
                                     <div class="partner-card-scroll">
                                         <div class="grid grid-cols-1 gap-1">
-                                            @foreach ($teknisis as $t)
+                                            @forelse ($teknisis as $t)
                                                 @if ($t->id != auth()->id())
-                                                    <div class="partner-item"><input
+                                                    <div class="partner-item">
+                                                        <input
                                                             class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary"
                                                             type="checkbox" name="partner_ids[]"
                                                             value="{{ $t->id }}"
-                                                            id="m_partner_{{ $t->id }}"><label
-                                                            class="text-sm font-semibold text-slate-700 cursor-pointer w-full m-0"
-                                                            for="m_partner_{{ $t->id }}">{{ $t->nama_lengkap }}</label>
+                                                            id="m_partner_{{ $t->id }}">
+                                                        <label
+                                                            class="text-sm font-semibold text-slate-700 cursor-pointer w-full"
+                                                            for="m_partner_{{ $t->id }}">
+                                                            {{ $t->nama_lengkap }}
+                                                        </label>
                                                     </div>
                                                 @endif
-                                            @endforeach
+                                            @empty
+                                                <div class="text-center py-4 text-slate-400 italic text-sm">Tidak ada
+                                                    teknisi lain.</div>
+                                            @endforelse
                                         </div>
                                     </div>
-                                    <p class="text-[10px] text-slate-400 italic mt-1.5">*Opsional, bisa dikosongkan
-                                        jika bekerja sendiri.</p>
                                 </div>
                             </div>
                         </div>
