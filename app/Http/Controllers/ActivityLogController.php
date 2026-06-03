@@ -55,7 +55,7 @@ class ActivityLogController extends Controller
             ->orderByDesc('logged_at')
             ->get();
 
-        $pdf = PDF::loadView('activitylog.export', [
+        $pdf = PDF::loadView('activitylog.export-pdf', [
             'logs' => $logs,
             'start' => $request->start_date,
             'end' => $request->end_date,
