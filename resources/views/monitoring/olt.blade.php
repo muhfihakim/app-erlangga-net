@@ -542,9 +542,9 @@
                 </div>
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <button type="button" class="btn-cancel w-full !py-3.5"
+                <button type="button" class="btn-cancel w-full"
                     onclick="closeCustomModal('onuDetailModal')">
-                    <i class="fa-solid fa-xmark mr-2"></i> TUTUP DETAIL
+                    <i class="fa-solid fa-xmark"></i> Tutup Detail
                 </button>
             </div>
         </div>
@@ -571,9 +571,9 @@
                 </div>
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <button type="button" class="btn-cancel w-full !py-3.5"
+                <button type="button" class="btn-cancel w-full"
                     onclick="closeCustomModal('selectUncfgModal')">
-                    <i class="fa-solid fa-xmark mr-2"></i> BATAL
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
             </div>
         </div>

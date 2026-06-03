@@ -110,7 +110,7 @@
                     </div>
                 </div>
 
-                <div class="modal-footer border-t border-slate-200 bg-white rounded-b-2xl">
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
                     <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
                         onclick="closeCustomModal('addPreOrderModal')">
                         <i class="fa-solid fa-xmark"></i> Batal
@@ -222,7 +222,7 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-white rounded-b-2xl">
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
                 <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
                     onclick="closeCustomModal('editModal')">
                     <i class="fa-solid fa-xmark"></i> Tutup
@@ -364,9 +364,8 @@
                 </div>
             </div>
         </div>
-        <div class="modal-footer !bg-white border-t border-slate-200 rounded-b-2xl">
-            <button type="button"
-                class="btn-cancel w-full !py-3.5 !text-sm !rounded-xl !bg-slate-100 !text-slate-600 hover:!bg-slate-200 !flex !items-center !justify-center gap-2 transition-colors"
+        <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+            <button type="button" class="btn-cancel w-full"
                 onclick="closeCustomModal('detailModal')">
                 <i class="fa-solid fa-xmark"></i> Tutup Detail
             </button>
@@ -387,7 +386,7 @@
         <div class="modal-body !p-0 overflow-hidden bg-white">
             <div id="modal-map" style="width: 100%;" class="h-[50vh] md:h-[500px]"></div>
         </div>
-        <div class="modal-footer border-t border-slate-200 bg-white rounded-b-2xl">
+        <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
             <a id="gmaps-button" href="#" target="_blank"
                 class="btn-save !shadow-lg !flex !items-center !justify-center gap-2">
                 <i class="fa-solid fa-map-location-dot"></i> Lihat di Google Maps

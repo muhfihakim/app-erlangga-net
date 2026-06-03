@@ -201,7 +201,11 @@
                     </table>
                 </div>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl"><button type="button" class="btn-cancel w-full" onclick="closeCustomModal('searchCustomerModal')"><i class="fa-solid fa-xmark"></i> Batal</button></div>
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                <button type="button" class="btn-cancel w-full" onclick="closeCustomModal('searchCustomerModal')">
+                    <i class="fa-solid fa-xmark"></i> Batal
+                </button>
+            </div>
         </div>
     </div>
 
@@ -234,8 +238,12 @@
                     </div>
                 </div>
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                    <button type="button" class="btn-cancel" onclick="closeCustomModal('addDismantleModal')"><i class="fa-solid fa-xmark"></i> Batal</button>
-                    <button type="submit" class="btn-save !bg-indigo-600"><i class="fa-solid fa-paper-plane"></i> Kirim Tugas</button>
+                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2" onclick="closeCustomModal('addDismantleModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
+                    </button>
+                    <button type="submit" class="btn-save !flex !items-center !justify-center gap-2 !bg-indigo-600">
+                        <i class="fa-solid fa-paper-plane"></i> Kirim Tugas
+                    </button>
                 </div>
             </form>
         </div>
@@ -269,7 +277,11 @@
                     <div class="aspect-video w-full rounded-2xl overflow-hidden border-2 border-slate-100 bg-slate-50 flex items-center justify-center"><img id="det_foto" src="" class="w-full h-full object-contain"></div>
                 </div>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl"><button type="button" class="btn-cancel w-full" onclick="closeCustomModal('detailDismantleModal')"><i class="fa-solid fa-xmark"></i> Tutup Detail</button></div>
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                <button type="button" class="btn-cancel w-full" onclick="closeCustomModal('detailDismantleModal')">
+                    <i class="fa-solid fa-xmark"></i> Tutup Detail
+                </button>
+            </div>
         </div>
     </div>
 
@@ -291,7 +303,14 @@
                         <input type="file" name="foto_pencabutan" class="form-input" required accept="image/*">
                     </div>
                 </div>
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl"><button type="button" class="btn-cancel !flex !items-center !justify-center gap-2" onclick="closeCustomModal('completeDismantleModal')"><i class="fa-solid fa-xmark"></i> Batal</button><button type="submit" class="btn-save !flex !items-center !justify-center gap-2 !bg-emerald-600"><i class="fa-solid fa-cloud-arrow-up"></i> Kirim Laporan Selesai</button></div>
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2" onclick="closeCustomModal('completeDismantleModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
+                    </button>
+                    <button type="submit" class="btn-save !flex !items-center !justify-center gap-2 !bg-emerald-600">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Kirim Laporan Selesai
+                    </button>
+                </div>
             </form>
         </div>
     </div>

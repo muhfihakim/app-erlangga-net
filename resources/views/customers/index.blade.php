@@ -235,14 +235,12 @@
                                     </span>
                                 </td>
                                 <td style="text-align: center;">
-                                    <div
-                                        style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                    <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
                                         <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
                                             title="Detail" onclick="openActivationDetailModal(this)"
                                             data-nama="{{ $po->nama_lengkap }}"
                                             data-email="{{ $po->alamat_email ?? '-' }}"
-                                            data-wa="{{ $po->no_whatsapp }}"
-                                            data-alamat="{{ $po->alamat_lengkap }}"
+                                            data-wa="{{ $po->no_whatsapp }}" data-alamat="{{ $po->alamat_lengkap }}"
                                             data-paket="{{ $po->paket_internet }}"
                                             data-koordinat="{{ $po->titik_koordinat }}"
                                             data-sales="{{ $po->nama_sales }}"
@@ -476,7 +474,7 @@
                     </div>
                 </div>
 
-                <div class="modal-footer border-t border-slate-200 bg-white rounded-b-2xl">
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
                     <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
                         onclick="closeCustomModal('activationModal')">
                         <i class="fa-solid fa-xmark"></i> Batal
@@ -517,19 +515,22 @@
                     <p id="det_alamat" class="text-sm font-medium text-slate-700 leading-relaxed m-0"></p>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
-                    <a id="det_wa_link" href="#" target="_blank" class="btn-primary-admin !bg-emerald-50 !text-emerald-700 !border-emerald-200 !shadow-none !flex !items-center !justify-center gap-2 h-12 rounded-xl">
+                    <a id="det_wa_link" href="#" target="_blank"
+                        class="btn-primary-admin !bg-emerald-50 !text-emerald-700 !border-emerald-200 !shadow-none !flex !items-center !justify-center gap-2 h-12 rounded-xl">
                         <i class="fa-brands fa-whatsapp text-lg"></i>
                         <span class="font-bold">Hubungi via WA</span>
                     </a>
-                    <a id="det_tikor_link" href="#" target="_blank" class="btn-primary-admin !bg-indigo-50 !text-indigo-700 !border-indigo-200 !shadow-none !flex !items-center !justify-center gap-2 h-12 rounded-xl">
+                    <a id="det_tikor_link" href="#" target="_blank"
+                        class="btn-primary-admin !bg-indigo-50 !text-indigo-700 !border-indigo-200 !shadow-none !flex !items-center !justify-center gap-2 h-12 rounded-xl">
                         <i class="fa-solid fa-map-location-dot text-lg"></i>
                         <span class="font-bold">Petunjuk Arah</span>
                     </a>
                 </div>
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <button type="button" class="btn-cancel w-full !py-3.5" onclick="closeCustomModal('detailActivationModal')">
-                    <i class="fa-solid fa-xmark mr-2"></i> TUTUP DETAIL
+                <button type="button" class="btn-cancel w-full"
+                    onclick="closeCustomModal('detailActivationModal')">
+                    <i class="fa-solid fa-xmark"></i> Tutup Detail
                 </button>
             </div>
         </div>
@@ -556,8 +557,8 @@
                     </div>
                     <div class="form-group !mb-0">
                         <label class="form-label !text-slate-800 !font-bold">
-                            <i class="fa-solid fa-comment-dots text-slate-400 mr-1"></i> Alasan Unspek / Penangguhan <span
-                                class="text-rose-500">*</span>
+                            <i class="fa-solid fa-comment-dots text-slate-400 mr-1"></i> Alasan Unspek / Penangguhan
+                            <span class="text-rose-500">*</span>
                         </label>
                         <textarea name="keterangan_unspek" class="form-textarea" required rows="3"
                             placeholder="Contoh: Tiang penuh, Jarak terlalu jauh, Pelanggan membatalkan..."></textarea>

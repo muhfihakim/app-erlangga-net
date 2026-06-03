@@ -176,8 +176,8 @@
                 <!-- Content injected by JS -->
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <button type="button" class="btn-cancel" onclick="closeCustomModal('pppoeDetailModal')">
-                    Tutup
+                <button type="button" class="btn-cancel w-full" onclick="closeCustomModal('pppoeDetailModal')">
+                    <i class="fa-solid fa-xmark"></i> Tutup Detail
                 </button>
             </div>
         </div>

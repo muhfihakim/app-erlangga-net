@@ -603,9 +603,8 @@
                 </div>
             </div>
 
-            <div class="modal-footer border-t border-slate-200 bg-white rounded-b-2xl">
-                <button type="button"
-                    class="btn-cancel w-full !py-3.5 !text-sm !rounded-xl !bg-slate-100 !text-slate-600 hover:!bg-slate-200 !flex !items-center !justify-center gap-2 transition-colors"
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                <button type="button" class="btn-cancel w-full"
                     onclick="closeCustomModal('customerDetailModal')">
                     <i class="fa-solid fa-xmark"></i> Tutup Detail
                 </button>
