@@ -77,7 +77,7 @@
     <div
         style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
-            <h1 style="font-size:22px;font-weight:900;margin:0;">PPPoE Active Connections</h1>
+            <h1 style="font-size:22px;font-weight:900;margin:0;">PPPoE Aktif</h1>
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Monitoring pengguna PPPoE yang sedang aktif secara
                 real-time.</p>
         </div>
