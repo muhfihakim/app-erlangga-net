@@ -151,6 +151,9 @@ class DismantleController extends Controller
         $d = Dismantle::findOrFail($id);
         $nama = $d->customer->nama_lengkap;
 
+        // Hapus file terkait
+        if ($d->foto_pencabutan) Storage::delete($d->foto_pencabutan);
+
         ActivityLog::create([
             'user_id' => auth()->id(),
             'activity_type' => 'batal_dismantle',

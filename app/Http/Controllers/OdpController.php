@@ -94,7 +94,7 @@ class OdpController extends Controller
         $odp = Odp::findOrFail($id);
         $nama = $odp->lokasi_odp;
 
-        if ($odp->foto_odp && Storage::exists($odp->foto_odp)) {
+        if ($odp->foto_odp) {
             Storage::delete($odp->foto_odp);
         }
 

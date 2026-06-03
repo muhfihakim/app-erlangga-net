@@ -103,10 +103,20 @@ class MaintenanceController extends Controller
 
     public function destroy($id)
     {
-        if (auth()->user()->jabatan !== 'Administrator') abort(403);
-        $m = Maintenance::findOrFail($id);
-        $m->delete();
-        return redirect()->back()->with('success', 'Tugas maintenance berhasil dihapus.');
+        if (auth()->user()->jabatan === 'Administrator') {
+            $m = Maintenance::findOrFail($id);
+
+            // Hapus file-file terkait
+            if ($m->foto_kendala_awal) Storage::delete($m->foto_kendala_awal);
+            if ($m->foto_sebelum_perbaikan) Storage::delete($m->foto_sebelum_perbaikan);
+            if ($m->foto_setelah_perbaikan) Storage::delete($m->foto_setelah_perbaikan);
+            if ($m->foto_speedtest) Storage::delete($m->foto_speedtest);
+            if ($m->foto_selfie_teknisi) Storage::delete($m->foto_selfie_teknisi);
+
+            $m->delete();
+            return redirect()->back()->with('success', 'Tugas maintenance berhasil dihapus.');
+        }
+        abort(403);
     }
 
     public function complete(Request $request, $id)

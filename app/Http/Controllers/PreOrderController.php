@@ -181,7 +181,7 @@ class PreOrderController extends Controller
         $preOrder->fill($validatedData);
 
         if ($request->hasFile('foto_ktp')) {
-            if (!empty($preOrder->getOriginal('foto_ktp')) && Storage::exists($preOrder->getOriginal('foto_ktp'))) {
+            if ($preOrder->getOriginal('foto_ktp')) {
                 Storage::delete($preOrder->getOriginal('foto_ktp'));
             }
             $path = $request->file('foto_ktp')->store('pre_orders/ktp');
@@ -189,7 +189,7 @@ class PreOrderController extends Controller
         }
 
         if ($request->hasFile('foto_rumah')) {
-            if (!empty($preOrder->getOriginal('foto_rumah')) && Storage::exists($preOrder->getOriginal('foto_rumah'))) {
+            if ($preOrder->getOriginal('foto_rumah')) {
                 Storage::delete($preOrder->getOriginal('foto_rumah'));
             }
             $path = $request->file('foto_rumah')->store('pre_orders/rumah');
