@@ -36,7 +36,7 @@ class OdpController extends Controller
 
         $fotoPath = null;
         if ($request->hasFile('foto_odp')) {
-            $fotoPath = $request->file('foto_odp')->store('odp-images', 'public');
+            $fotoPath = $request->file('foto_odp')->store('odp-images');
         }
 
         $odp = Odp::create([
@@ -70,10 +70,10 @@ class OdpController extends Controller
         ]);
 
         if ($request->hasFile('foto_odp')) {
-            if ($odp->foto_odp && Storage::disk('public')->exists($odp->foto_odp)) {
-                Storage::disk('public')->delete($odp->foto_odp);
+            if ($odp->foto_odp && Storage::exists($odp->foto_odp)) {
+                Storage::delete($odp->foto_odp);
             }
-            $odp->foto_odp = $request->file('foto_odp')->store('odp-images', 'public');
+            $odp->foto_odp = $request->file('foto_odp')->store('odp-images');
         }
 
         $odp->update($request->except(['foto_odp']) + ['foto_odp' => $odp->foto_odp]);
@@ -94,8 +94,8 @@ class OdpController extends Controller
         $odp = Odp::findOrFail($id);
         $nama = $odp->lokasi_odp;
 
-        if ($odp->foto_odp && Storage::disk('public')->exists($odp->foto_odp)) {
-            Storage::disk('public')->delete($odp->foto_odp);
+        if ($odp->foto_odp && Storage::exists($odp->foto_odp)) {
+            Storage::delete($odp->foto_odp);
         }
 
         $odp->delete();

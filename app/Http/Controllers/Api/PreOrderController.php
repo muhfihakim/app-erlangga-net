@@ -72,10 +72,10 @@ class PreOrderController extends Controller
         $validated['id_sales'] = auth()->id();
         
         if ($request->hasFile('foto_ktp')) {
-            $validated['foto_ktp'] = $request->file('foto_ktp')->store('preorders/ktp', 'public');
+            $validated['foto_ktp'] = $request->file('foto_ktp')->store('preorders/ktp');
         }
         if ($request->hasFile('foto_rumah')) {
-            $validated['foto_rumah'] = $request->file('foto_rumah')->store('preorders/rumah', 'public');
+            $validated['foto_rumah'] = $request->file('foto_rumah')->store('preorders/rumah');
         }
 
         $po = PreOrder::create($validated);

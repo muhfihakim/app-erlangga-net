@@ -80,7 +80,7 @@ class MaintenanceController extends Controller
         ]);
 
         $fotoPath = $request->file('foto_kendala_awal')
-            ? $request->file('foto_kendala_awal')->store('maintenances/issues', 'public')
+            ? $request->file('foto_kendala_awal')->store('maintenances/issues')
             : null;
 
         $maintenance = Maintenance::create([
@@ -141,10 +141,10 @@ class MaintenanceController extends Controller
             'sn_baru' => $request->sn_baru,
             'sn_lama' => $customer->getOriginal('sn_perangkat'),
             'solusi_kendala' => $request->solusi_kendala,
-            'foto_sebelum_perbaikan' => $request->file('foto_sebelum')->store('maintenances/before', 'public'),
-            'foto_setelah_perbaikan' => $request->file('foto_sesudah')->store('maintenances/after', 'public'),
-            'foto_speedtest' => $request->file('foto_speedtest')->store('maintenances/speedtest', 'public'),
-            'foto_selfie_teknisi' => $request->file('foto_selfie')->store('maintenances/selfie', 'public'),
+            'foto_sebelum_perbaikan' => $request->file('foto_sebelum')->store('maintenances/before'),
+            'foto_setelah_perbaikan' => $request->file('foto_sesudah')->store('maintenances/after'),
+            'foto_speedtest' => $request->file('foto_speedtest')->store('maintenances/speedtest'),
+            'foto_selfie_teknisi' => $request->file('foto_selfie')->store('maintenances/selfie'),
             'completed_at' => now(),
             'status' => 'Selesai'
         ]);

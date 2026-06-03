@@ -38,7 +38,7 @@ class OdpController extends Controller
 
         $fotoPath = null;
         if ($request->hasFile('foto_odp')) {
-            $fotoPath = $request->file('foto_odp')->store('odp-images', 'public');
+            $fotoPath = $request->file('foto_odp')->store('odp-images');
         }
 
         $odp = Odp::create([
@@ -72,8 +72,8 @@ class OdpController extends Controller
         ]);
 
         if ($request->hasFile('foto_odp')) {
-            if ($odp->foto_odp) Storage::disk('public')->delete($odp->foto_odp);
-            $odp->foto_odp = $request->file('foto_odp')->store('odp-images', 'public');
+            if ($odp->foto_odp) Storage::delete($odp->foto_odp);
+            $odp->foto_odp = $request->file('foto_odp')->store('odp-images');
         }
 
         $odp->update($request->except(['foto_odp']) + ['foto_odp' => $odp->foto_odp]);
@@ -85,7 +85,7 @@ class OdpController extends Controller
     {
         if (auth()->user()->jabatan === 'Sales') return response()->json(['message' => 'Forbidden'], 403);
         $odp = Odp::findOrFail($id);
-        if ($odp->foto_odp) Storage::disk('public')->delete($odp->foto_odp);
+        if ($odp->foto_odp) Storage::delete($odp->foto_odp);
         $odp->delete();
 
         return response()->json(['message' => 'ODP berhasil dihapus']);

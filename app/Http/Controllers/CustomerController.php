@@ -202,9 +202,9 @@ class CustomerController extends Controller
                     ->implode(', ');
             }
 
-            $fotoPetugasPath = $request->file('foto_petugas')->store('customers/foto_petugas', 'public');
-            $fotoTerpasangPath = $request->file('foto_terpasang')->store('customers/foto_terpasang', 'public');
-            $fotoSpeedtestPath = $request->file('foto_speedtest')->store('customers/foto_speedtest', 'public');
+            $fotoPetugasPath = $request->file('foto_petugas')->store('customers/foto_petugas');
+            $fotoTerpasangPath = $request->file('foto_terpasang')->store('customers/foto_terpasang');
+            $fotoSpeedtestPath = $request->file('foto_speedtest')->store('customers/foto_speedtest');
 
             Customer::create([
                 'pre_order_id' => $po->id,
@@ -240,9 +240,9 @@ class CustomerController extends Controller
             $errorMessages = implode('<br>', $e->validator->errors()->all());
             return redirect()->back()->withInput()->withErrors($e->validator)->with('error', $errorMessages);
         } catch (\Exception $e) {
-            if (isset($fotoPetugasPath)) Storage::disk('public')->delete($fotoPetugasPath);
-            if (isset($fotoTerpasangPath)) Storage::disk('public')->delete($fotoTerpasangPath);
-            if (isset($fotoSpeedtestPath)) Storage::disk('public')->delete($fotoSpeedtestPath);
+            if (isset($fotoPetugasPath)) Storage::delete($fotoPetugasPath);
+            if (isset($fotoTerpasangPath)) Storage::delete($fotoTerpasangPath);
+            if (isset($fotoSpeedtestPath)) Storage::delete($fotoSpeedtestPath);
             return redirect()->back()->withInput()->with('error', 'Gagal Aktivasi: ' . $e->getMessage());
         }
     }

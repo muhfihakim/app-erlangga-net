@@ -124,7 +124,7 @@ class DismantleController extends Controller
         ]);
 
         $d = Dismantle::findOrFail($id);
-        $path = $request->file('foto_pencabutan')->store('dismantles', 'public');
+        $path = $request->file('foto_pencabutan')->store('dismantles');
 
         $d->update([
             'id_teknisi_eksekutor' => auth()->id(),

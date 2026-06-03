@@ -96,9 +96,9 @@ class CustomerController extends Controller
             'partner' => $partnerNames,
             'partner_ids' => $request->partner_ids,
             'keterangan' => $request->keterangan,
-            'foto_petugas' => $request->file('foto_petugas')->store('customers/foto_petugas', 'public'),
-            'foto_terpasang' => $request->file('foto_terpasang')->store('customers/foto_terpasang', 'public'),
-            'foto_speedtest' => $request->file('foto_speedtest')->store('customers/foto_speedtest', 'public'),
+            'foto_petugas' => $request->file('foto_petugas')->store('customers/foto_petugas'),
+            'foto_terpasang' => $request->file('foto_terpasang')->store('customers/foto_terpasang'),
+            'foto_speedtest' => $request->file('foto_speedtest')->store('customers/foto_speedtest'),
         ]);
 
         ActivityLog::create([

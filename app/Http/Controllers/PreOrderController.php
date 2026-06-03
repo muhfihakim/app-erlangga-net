@@ -129,12 +129,12 @@ class PreOrderController extends Controller
             ]);
 
             if ($request->hasFile('foto_ktp')) {
-                $fotoKtpPath = $request->file('foto_ktp')->store('pre_orders/ktp', 'public');
+                $fotoKtpPath = $request->file('foto_ktp')->store('pre_orders/ktp');
                 $validatedData['foto_ktp'] = $fotoKtpPath;
             }
 
             if ($request->hasFile('foto_rumah')) {
-                $fotoRumahPath = $request->file('foto_rumah')->store('pre_orders/rumah', 'public');
+                $fotoRumahPath = $request->file('foto_rumah')->store('pre_orders/rumah');
                 $validatedData['foto_rumah'] = $fotoRumahPath;
             }
 
@@ -181,18 +181,18 @@ class PreOrderController extends Controller
         $preOrder->fill($validatedData);
 
         if ($request->hasFile('foto_ktp')) {
-            if (!empty($preOrder->getOriginal('foto_ktp')) && Storage::disk('public')->exists($preOrder->getOriginal('foto_ktp'))) {
-                Storage::disk('public')->delete($preOrder->getOriginal('foto_ktp'));
+            if (!empty($preOrder->getOriginal('foto_ktp')) && Storage::exists($preOrder->getOriginal('foto_ktp'))) {
+                Storage::delete($preOrder->getOriginal('foto_ktp'));
             }
-            $path = $request->file('foto_ktp')->store('pre_orders/ktp', 'public');
+            $path = $request->file('foto_ktp')->store('pre_orders/ktp');
             $preOrder->foto_ktp = $path;
         }
 
         if ($request->hasFile('foto_rumah')) {
-            if (!empty($preOrder->getOriginal('foto_rumah')) && Storage::disk('public')->exists($preOrder->getOriginal('foto_rumah'))) {
-                Storage::disk('public')->delete($preOrder->getOriginal('foto_rumah'));
+            if (!empty($preOrder->getOriginal('foto_rumah')) && Storage::exists($preOrder->getOriginal('foto_rumah'))) {
+                Storage::delete($preOrder->getOriginal('foto_rumah'));
             }
-            $path = $request->file('foto_rumah')->store('pre_orders/rumah', 'public');
+            $path = $request->file('foto_rumah')->store('pre_orders/rumah');
             $preOrder->foto_rumah = $path;
         }
 
@@ -217,8 +217,8 @@ class PreOrderController extends Controller
             abort(403, 'Akses ditolak.');
         }
 
-        if ($preOrder->foto_ktp) Storage::disk('public')->delete($preOrder->foto_ktp);
-        if ($preOrder->foto_rumah) Storage::disk('public')->delete($preOrder->foto_rumah);
+        if ($preOrder->foto_ktp) Storage::delete($preOrder->foto_ktp);
+        if ($preOrder->foto_rumah) Storage::delete($preOrder->foto_rumah);
 
         $preOrder->delete();
 

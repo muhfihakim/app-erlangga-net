@@ -54,8 +54,8 @@ class DismantleController extends Controller
         $d->update([
             'id_teknisi_eksekutor' => auth()->id(),
             'keterangan' => $request->keterangan,
-            'foto_perangkat' => $request->file('foto_perangkat')->store('dismantles/devices', 'public'),
-            'foto_rumah' => $request->file('foto_rumah')->store('dismantles/houses', 'public'),
+            'foto_perangkat' => $request->file('foto_perangkat')->store('dismantles/devices'),
+            'foto_rumah' => $request->file('foto_rumah')->store('dismantles/houses'),
             'completed_at' => now(),
             'status' => 'Selesai'
         ]);
