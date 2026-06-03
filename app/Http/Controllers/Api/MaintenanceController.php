@@ -95,6 +95,14 @@ class MaintenanceController extends Controller
     public function destroy($id)
     {
         $m = Maintenance::findOrFail($id);
+
+        // Hapus file-file terkait
+        if ($m->foto_kendala_awal) Storage::delete($m->foto_kendala_awal);
+        if ($m->foto_sebelum_perbaikan) Storage::delete($m->foto_sebelum_perbaikan);
+        if ($m->foto_setelah_perbaikan) Storage::delete($m->foto_setelah_perbaikan);
+        if ($m->foto_speedtest) Storage::delete($m->foto_speedtest);
+        if ($m->foto_selfie_teknisi) Storage::delete($m->foto_selfie_teknisi);
+
         $m->delete();
         return response()->json(['message' => 'Tugas maintenance berhasil dihapus']);
     }

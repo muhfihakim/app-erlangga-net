@@ -75,6 +75,11 @@ class DismantleController extends Controller
     public function destroy($id)
     {
         $d = Dismantle::findOrFail($id);
+        
+        // Hapus file terkait
+        if ($d->foto_perangkat) Storage::delete($d->foto_perangkat);
+        if ($d->foto_rumah) Storage::delete($d->foto_rumah);
+
         $d->delete();
         return response()->json(['message' => 'Tugas dismantle berhasil dihapus']);
     }
