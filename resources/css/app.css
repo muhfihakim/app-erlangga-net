@@ -288,6 +288,35 @@
     }
     .btn-primary-admin:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(14,165,233,.45); }
 
+    /* Custom Glow Buttons */
+    .btn-glow-primary {
+        background: #0ea5e9 !important;
+        background: linear-gradient(135deg, #0ea5e9, #0369a1) !important;
+        color: #fff !important;
+        border: none !important;
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25);
+        transition: all 0.3s ease !important;
+    }
+    .btn-glow-primary:hover {
+        box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+        transform: translateY(-1px);
+    }
+
+    .btn-glow-soft {
+        background: #f1f5f9 !important;
+        color: #475569 !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease !important;
+    }
+    .btn-glow-soft:hover {
+        background: #fff !important;
+        border-color: #0ea5e9 !important;
+        color: #0ea5e9 !important;
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15);
+        transform: translateY(-1px);
+    }
+
     /* =====================================================================
        MODAL (Hakatech Style)
        ===================================================================== */

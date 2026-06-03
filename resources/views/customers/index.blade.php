@@ -109,9 +109,7 @@
                 dikerjakan.</p>
         </div>
         <div style="display:flex; gap:10px;">
-            <a href="{{ route('dashboards.index') }}" class="btn-primary-admin !flex !items-center !justify-center gap-2"
-                style="background: #f1f5f9; color: #475569; box-shadow: none; border: 1px solid #e2e8f0;"
-                onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+            <a href="{{ route('dashboards.index') }}" class="btn-primary-admin btn-glow-soft !flex !items-center !justify-center gap-2">
                 <i class="fa-solid fa-house"></i> Dashboard
             </a>
         </div>
@@ -528,8 +526,7 @@
                 </div>
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <button type="button" class="btn-cancel w-full"
-                    onclick="closeCustomModal('detailActivationModal')">
+                <button type="button" class="btn-cancel w-full" onclick="closeCustomModal('detailActivationModal')">
                     <i class="fa-solid fa-xmark"></i> Tutup Detail
                 </button>
             </div>

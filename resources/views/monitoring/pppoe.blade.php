@@ -86,6 +86,9 @@
                 class="btn-primary-admin !flex !items-center !justify-center gap-2">
                 <i class="fa-solid fa-sync" id="refresh-icon"></i> Refresh Data
             </button>
+            <a href="{{ route('dashboards.index') }}" class="btn-primary-admin btn-glow-soft !flex !items-center !justify-center gap-2">
+                <i class="fa-solid fa-house"></i> Dashboard
+            </a>
         </div>
     </div>
 

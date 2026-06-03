@@ -46,7 +46,7 @@
                     <i class="fa-solid fa-plus-square"></i> Tambah Dismantle
                 </button>
             @endif
-            <a href="{{ route('dashboards.index') }}" class="btn-primary-admin !flex !items-center !justify-center gap-2" style="background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;">
+            <a href="{{ route('dashboards.index') }}" class="btn-primary-admin btn-glow-soft !flex !items-center !justify-center gap-2">
                 <i class="fa-solid fa-house"></i> Dashboard
             </a>
         </div>
@@ -325,7 +325,21 @@
             function openDismantleDetailModal(triggerEl) { const $btn = $(triggerEl); $('#det_nama').text($btn.data('nama')); $('#det_id_pel').text($btn.data('id-pel')); $('#det_wa').text($btn.data('wa')); $('#det_alamat').text($btn.data('alamat')); $('#det_keterangan').text($btn.data('keterangan')); const wa = String($btn.data('wa') || ''); const waFormatted = wa.startsWith('0') ? '62' + wa.substring(1) : wa; $('#det_wa_link').attr('href', `https://wa.me/${waFormatted}`); const tikor = $btn.data('tikor'); if (tikor && tikor !== 'N/A') { $('#det_tikor_link').attr('href', `https://www.google.com/maps/search/?api=1&query=${tikor}`).show(); } else { $('#det_tikor_link').hide(); } const foto = $btn.data('foto'); if (foto && foto !== '') { $('#det_foto').attr('src', foto); $('#det_foto_container').removeClass('hidden'); } else { $('#det_foto_container').addClass('hidden'); } openCustomModal('detailDismantleModal'); }
             function openCompleteDismantleModal(triggerEl) { const $btn = $(triggerEl); $('#n_pel').text($btn.data('nama')); $('#completeForm').attr('action', `/dismantles/${$btn.data('id')}/complete`); openCustomModal('completeDismantleModal'); }
             $(document).ready(function() {
-                const dtOptions = { "pageLength": 10, "lengthChange": false, "ordering": false, "info": false, "responsive": true, "dom": 'tpir', "language": { "zeroRecords": "Data tidak ditemukan" } };
+                const dtOptions = {
+                    "pageLength": 10,
+                    "lengthChange": false,
+                    "ordering": false,
+                    "info": false,
+                    "responsive": true,
+                    "dom": 'tpir',
+                    "language": {
+                        "zeroRecords": "Data tidak ditemukan",
+                        "paginate": {
+                            "previous": '<i class="fa-solid fa-chevron-left"></i>',
+                            "next": '<i class="fa-solid fa-chevron-right"></i>'
+                        }
+                    }
+                };
                 const adminTable = $('#admin-dismantle-table').DataTable(dtOptions);
                 const pendingTable = $('#pending-tasks-table').DataTable(dtOptions);
                 const customerSearchTable = $('#customer-search-table').DataTable({ ...dtOptions, "pageLength": 5 });

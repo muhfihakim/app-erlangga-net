@@ -106,13 +106,13 @@
         </div>
         <div style="display:flex; gap:10px;">
             @if (auth()->user()->jabatan === 'Sales' || auth()->user()->jabatan === 'Administrator')
-                <button type="button" class="btn-primary-admin !flex !items-center !justify-center gap-2"
+                <button type="button" class="btn-primary-admin btn-glow-primary !flex !items-center !justify-center gap-2"
                     onclick="openCustomModal('addPreOrderModal')"><i class="fa-solid fa-user-plus"></i> Tambah
                     Pre-Order</button>
             @endif
-            <a href="{{ route('dashboards.index') }}" class="btn-primary-admin !flex !items-center !justify-center gap-2"
-                style="background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;"><i class="fa-solid fa-house"></i>
-                Dashboard</a>
+            <a href="{{ route('dashboards.index') }}" class="btn-primary-admin btn-glow-soft !flex !items-center !justify-center gap-2">
+                <i class="fa-solid fa-house"></i> Dashboard
+            </a>
         </div>
     </div>
 

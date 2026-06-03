@@ -53,14 +53,19 @@ class PreOrderController extends Controller
                 $query->where('is_unspek', true);
             }
 
-            $preOrders = $query->orderBy('id', 'desc')->get();
-
-            // 3. Mapping Status
-            $preOrders = $preOrders->map(function ($po) use ($activePOIds, $unsubscribedPOIds) {
+            // 3. Sorting & Execution
+            // Urutan: Pending (bukan aktif/berhenti/unspek) paling atas, lalu terbaru
+            $preOrders = $query->get()->map(function ($po) use ($activePOIds, $unsubscribedPOIds) {
                 $po->is_active = in_array($po->id, $activePOIds); 
                 $po->is_unsubscribed = in_array($po->id, $unsubscribedPOIds);
+                
+                // Bobot untuk sorting: 0 = Pending, 1 = Lainnya
+                $po->sort_weight = ($po->is_active || $po->is_unsubscribed || $po->is_unspek) ? 1 : 0;
                 return $po;
-            });
+            })->sortBy([
+                ['sort_weight', 'asc'],
+                ['id', 'desc']
+            ]);
 
             $teknisiUsers = User::where('jabatan', 'Teknisi')->orderBy('nama_lengkap')->get();
             $salesUsers = User::where('jabatan', 'Sales')->orderBy('nama_lengkap')->get();

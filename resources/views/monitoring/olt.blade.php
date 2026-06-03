@@ -204,6 +204,9 @@
                     <i class="fa-solid fa-chart-pie"></i> Dashboard OLT
                 </button>
             </div>
+            <a href="{{ route('dashboards.index') }}" class="btn-primary-admin btn-glow-soft !flex !items-center !justify-center gap-2 !h-[46px]">
+                <i class="fa-solid fa-house"></i> Dashboard
+            </a>
         </div>
     </div>
 

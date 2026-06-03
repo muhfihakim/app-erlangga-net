@@ -52,8 +52,7 @@
                     <i class="fa-solid fa-plus-square"></i> Tambah Maintenance
                 </button>
             @endif
-            <a href="{{ route('dashboards.index') }}" class="btn-primary-admin !flex !items-center !justify-center gap-2"
-                style="background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;">
+            <a href="{{ route('dashboards.index') }}" class="btn-primary-admin btn-glow-soft !flex !items-center !justify-center gap-2">
                 <i class="fa-solid fa-house"></i> Dashboard
             </a>
         </div>
@@ -430,7 +429,21 @@
             function openCompleteModal(triggerEl) { const $btn = $(triggerEl); const nama = $btn.data('nama'); const sn = $btn.data('sn'); $('#nama_p').text(nama); $('#m_nama_lengkap').val(nama); $('#m_sn_lama').val(sn || '-'); $('#completeForm').attr('action', `/maintenances/${$btn.data('id')}/complete`); $('#completeForm')[0].reset(); $('#ont_fields').hide(); $('#m_sn_baru').removeAttr('required'); $('#m_nama_lengkap').val(nama); $('#m_sn_lama').val(sn || '-'); $('#completeModal .modal-tab').first().click(); openCustomModal('completeModal'); }
             function toggleOntFields() { const kategori = $('#m_kategori_kendala').val(); if (kategori === 'ONT') { $('#ont_fields').slideDown(); $('#m_sn_baru').attr('required', 'required'); } else { $('#ont_fields').slideUp(); $('#m_sn_baru').removeAttr('required'); } }
             $(document).ready(function() {
-                const dtOptions = { "pageLength": 10, "lengthChange": false, "ordering": false, "info": false, "responsive": true, "dom": 'tpir', "language": { "zeroRecords": "Data tidak ditemukan" } };
+                const dtOptions = {
+                    "pageLength": 10,
+                    "lengthChange": false,
+                    "ordering": false,
+                    "info": false,
+                    "responsive": true,
+                    "dom": 'tpir',
+                    "language": {
+                        "zeroRecords": "Data tidak ditemukan",
+                        "paginate": {
+                            "previous": '<i class="fa-solid fa-chevron-left"></i>',
+                            "next": '<i class="fa-solid fa-chevron-right"></i>'
+                        }
+                    }
+                };
                 const adminTable = $('#admin-maintenance-table').DataTable(dtOptions);
                 const pendingTable = $('#pending-tasks-table').DataTable(dtOptions);
                 const customerSearchTable = $('#customer-search-table').DataTable({ ...dtOptions, "pageLength": 5 });

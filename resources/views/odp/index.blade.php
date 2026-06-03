@@ -151,6 +151,9 @@
                     <i class="fa-solid fa-plus"></i> Tambah ODP
                 </button>
             @endif
+            <a href="{{ route('dashboards.index') }}" class="btn-primary-admin btn-glow-soft !flex !items-center !justify-center gap-2">
+                <i class="fa-solid fa-house"></i> Dashboard
+            </a>
         </div>
     </div>
 
