@@ -166,48 +166,56 @@ class PreOrderController extends Controller
             abort(403, 'Akses ditolak.');
         }
 
-        $validatedData = $request->validate([
-            'paket_internet' => 'sometimes|string|max:255',
-            'nama_lengkap' => 'sometimes|string|max:255',
-            'no_identitas' => 'sometimes|string|max:255',
-            'no_whatsapp' => 'sometimes|string|max:255',
-            'alamat_email' => 'sometimes|string|email|max:255',
-            'alamat_lengkap' => 'sometimes|string',
-            'titik_koordinat' => 'sometimes|string',
-            'foto_ktp' => 'sometimes|image|max:20480',
-            'foto_rumah' => 'sometimes|image|max:20480',
-        ]);
-
-        $preOrder->fill($validatedData);
-
-        if ($request->hasFile('foto_ktp')) {
-            if ($preOrder->getOriginal('foto_ktp')) {
-                Storage::delete($preOrder->getOriginal('foto_ktp'));
-            }
-            $path = $request->file('foto_ktp')->store('pre_orders/ktp');
-            $preOrder->foto_ktp = $path;
-        }
-
-        if ($request->hasFile('foto_rumah')) {
-            if ($preOrder->getOriginal('foto_rumah')) {
-                Storage::delete($preOrder->getOriginal('foto_rumah'));
-            }
-            $path = $request->file('foto_rumah')->store('pre_orders/rumah');
-            $preOrder->foto_rumah = $path;
-        }
-
-        if ($preOrder->isDirty()) {
-            $preOrder->save();
-            ActivityLog::create([
-                'user_id' => Auth::id(),
-                'activity_type' => 'preorder_update',
-                'description' => 'Mengubah PreOrder: ' . $preOrder->nama_lengkap,
-                'logged_at' => now(),
+        try {
+            $validatedData = $request->validate([
+                'paket_internet' => 'sometimes|string|max:255',
+                'nama_lengkap' => 'sometimes|string|max:255',
+                'no_identitas' => 'sometimes|string|max:255',
+                'no_whatsapp' => 'sometimes|string|max:255',
+                'alamat_email' => 'sometimes|string|email|max:255',
+                'alamat_lengkap' => 'sometimes|string',
+                'titik_koordinat' => 'sometimes|string',
+                'foto_ktp' => 'sometimes|image|max:20480',
+                'foto_rumah' => 'sometimes|image|max:20480',
             ]);
-            return redirect()->route('pre_orders.index')->with('success', 'Data pre-order berhasil diperbarui.');
-        }
 
-        return redirect()->route('pre_orders.index')->with('success', 'Tidak ada perubahan pada data pre-order.');
+            // Pisahkan data file dari data teks
+            $updateData = collect($validatedData)->except(['foto_ktp', 'foto_rumah'])->toArray();
+            $preOrder->fill($updateData);
+
+            if ($request->hasFile('foto_ktp')) {
+                if ($preOrder->getOriginal('foto_ktp')) {
+                    Storage::delete($preOrder->getOriginal('foto_ktp'));
+                }
+                $path = $request->file('foto_ktp')->store('pre_orders/ktp');
+                $preOrder->foto_ktp = $path;
+            }
+
+            if ($request->hasFile('foto_rumah')) {
+                if ($preOrder->getOriginal('foto_rumah')) {
+                    Storage::delete($preOrder->getOriginal('foto_rumah'));
+                }
+                $path = $request->file('foto_rumah')->store('pre_orders/rumah');
+                $preOrder->foto_rumah = $path;
+            }
+
+            if ($preOrder->isDirty()) {
+                $preOrder->save();
+                ActivityLog::create([
+                    'user_id' => Auth::id(),
+                    'activity_type' => 'preorder_update',
+                    'description' => 'Mengubah PreOrder: ' . $preOrder->nama_lengkap,
+                    'logged_at' => now(),
+                ]);
+                return redirect()->route('pre_orders.index')->with('success', 'Data pre-order berhasil diperbarui.');
+            }
+
+            return redirect()->route('pre_orders.index')->with('success', 'Tidak ada perubahan pada data pre-order.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->validator)->withInput()->with('error', 'Gagal update: ' . implode(', ', $e->validator->errors()->all()));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 
 
