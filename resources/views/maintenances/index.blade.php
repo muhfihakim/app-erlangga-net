@@ -202,7 +202,7 @@
         </div>
     @endif
 
-    {{-- Modal Cari Pelanggan --}}
+    {{-- Modal Area --}}
     <div class="modal-overlay" id="searchCustomerModal" style="z-index: 10001;">
         <div class="modal-box max-w-4xl bg-white border border-slate-300 shadow-2xl">
             <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
@@ -272,55 +272,148 @@
         </div>
     </div>
 
-    {{-- Detail & Result Modals (Minimal update to remove delegation refs) --}}
-    @include('partials.modal_maintenances')
+    <!-- Maintenance Detail Modal -->
+    <div class="modal-overlay" id="maintenanceDetailModal">
+        <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                <div class="modal-title"><i class="fa-solid fa-circle-info text-primary"></i> <span class="text-slate-900 font-bold">Detail Tugas Maintenance</span></div>
+                <button class="modal-close" onclick="closeCustomModal('maintenanceDetailModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body p-8 bg-white space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div><span class="text-[10px] font-black text-slate-400 uppercase block mb-1">Pelanggan</span><p id="det_nama" class="text-lg font-black text-slate-900 m-0"></p></div>
+                        <div><span class="text-[10px] font-black text-slate-400 uppercase block mb-1">ID Pelanggan</span><p id="det_id_pel" class="text-sm font-bold text-slate-600 m-0"></p></div>
+                    </div>
+                    <div class="space-y-4">
+                        <div><span class="text-[10px] font-black text-slate-400 uppercase block mb-1">WhatsApp</span><div class="flex items-center gap-2"><p id="det_wa" class="text-sm font-bold text-emerald-600 m-0"></p><a id="det_wa_link" href="#" target="_blank" class="bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded text-[10px] font-black no-underline"><i class="fa-brands fa-whatsapp"></i> CHAT</a></div></div>
+                        <div><span class="text-[10px] font-black text-slate-400 uppercase block mb-1">Titik Koordinat</span><a id="det_tikor_link" href="#" target="_blank" class="bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded text-[10px] font-black no-underline"><i class="fa-solid fa-location-crosshairs"></i> LIHAT MAPS</a></div>
+                    </div>
+                </div>
+                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                    <span class="text-[10px] font-black text-slate-400 uppercase block mb-2">Alamat & Kendala</span>
+                    <p id="det_alamat" class="text-sm font-medium text-slate-700 leading-relaxed mb-3"></p>
+                    <div class="bg-white border border-slate-200 p-4 rounded-xl font-bold text-slate-800 text-sm" id="det_kendala"></div>
+                </div>
+                <div id="det_foto_container" class="hidden">
+                    <span class="text-[10px] font-black text-slate-400 uppercase block mb-2">Foto Kendala Awal</span>
+                    <div class="aspect-video w-full rounded-2xl overflow-hidden border-2 border-slate-100 bg-slate-50 flex items-center justify-center"><img id="det_foto" src="" class="w-full h-full object-contain"></div>
+                </div>
+            </div>
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl"><button type="button" class="btn-cancel w-full" onclick="closeCustomModal('maintenanceDetailModal')"><i class="fa-solid fa-xmark"></i> Tutup Detail</button></div>
+        </div>
+    </div>
+
+    <!-- Maintenance Result Modal -->
+    <div class="modal-overlay" id="maintenanceResultModal">
+        <div class="modal-box max-w-4xl bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                <div class="modal-title"><i class="fa-solid fa-file-circle-check text-emerald-500"></i> <span class="text-slate-900 font-bold">Hasil Perbaikan Maintenance</span></div>
+                <button class="modal-close" onclick="closeCustomModal('maintenanceResultModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body p-0 bg-white">
+                <div class="modal-tabs bg-slate-50 border-b border-slate-200">
+                    <button class="modal-tab active" data-tab="tab-res-data"><i class="fa-solid fa-id-card"></i> Data Teknis</button>
+                    <button class="modal-tab" data-tab="tab-res-media"><i class="fa-solid fa-camera"></i> Dokumentasi Foto</button>
+                </div>
+                <div class="p-8">
+                    <div class="tab-panel active" id="tab-res-data">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-5">
+                                <div><span class="text-[11px] font-bold text-slate-400 uppercase block">Pelanggan</span><p id="res_nama" class="text-base font-black text-slate-900 m-0"></p></div>
+                                <div><span class="text-[11px] font-bold text-slate-400 uppercase block">Teknisi Eksekutor</span><p id="res_eksekutor" class="text-sm font-bold text-slate-700 m-0"></p></div>
+                                <div><span class="text-[11px] font-bold text-slate-400 uppercase block">Rekan Tim</span><p id="res_partner" class="text-sm font-medium text-slate-600 m-0"></p></div>
+                            </div>
+                            <div class="space-y-5">
+                                <div><span class="text-[11px] font-bold text-slate-400 uppercase block">Waktu Selesai</span><p id="res_waktu" class="text-sm font-bold text-slate-700 m-0"></p></div>
+                                <div><span class="text-[11px] font-bold text-slate-400 uppercase block">Kategori Kendala</span><span id="res_kategori" class="badge badge-published !text-[10px] mt-1"></span></div>
+                                <div id="res_ont_info" style="display:none;"><span class="text-[11px] font-bold text-amber-500 uppercase block">Informasi ONT (Diganti)</span><p class="text-[11px] font-bold text-slate-600 m-0 mt-1">LAMA: <span id="res_sn_lama" class="font-mono"></span></p><p class="text-[11px] font-bold text-slate-600 m-0">BARU: <span id="res_sn_baru" class="font-mono text-emerald-600"></span></p></div>
+                            </div>
+                        </div>
+                        <div class="mt-6"><span class="text-[11px] font-bold text-slate-400 uppercase block mb-2">Tindakan Solusi</span><div class="bg-emerald-50 border border-emerald-100 p-4 rounded-xl text-emerald-900 text-sm font-bold leading-relaxed" id="res_solusi"></div></div>
+                    </div>
+                    <div class="tab-panel" id="tab-res-media">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div><span class="text-[10px] font-bold text-slate-400 uppercase block mb-2">Sebelum</span><div class="aspect-square rounded-xl overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center"><img id="res_before" src="" class="w-full h-full object-cover"></div></div>
+                            <div><span class="text-[10px] font-bold text-slate-400 uppercase block mb-2">Sesudah</span><div class="aspect-square rounded-xl overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center"><img id="res_after" src="" class="w-full h-full object-cover"></div></div>
+                            <div><span class="text-[10px] font-bold text-slate-400 uppercase block mb-2">Speedtest</span><div class="aspect-square rounded-xl overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center"><img id="res_speed" src="" class="w-full h-full object-cover"></div></div>
+                            <div><span class="text-[10px] font-bold text-slate-400 uppercase block mb-2">Selfie Tim</span><div class="aspect-square rounded-xl overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center"><img id="res_selfie" src="" class="w-full h-full object-cover"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl"><button type="button" class="btn-cancel w-full" onclick="closeCustomModal('maintenanceResultModal')"><i class="fa-solid fa-xmark"></i> Tutup Laporan</button></div>
+        </div>
+    </div>
+
+    {{-- Modal Selesai (Teknisi) --}}
+    <div class="modal-overlay" id="completeModal">
+        <div class="modal-box max-w-4xl bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                <div class="modal-title"><i class="fa-solid fa-circle-check text-emerald-500"></i> <span class="text-slate-900 font-bold">Laporan Penyelesaian: <span id="nama_p"></span></span></div>
+                <button type="button" class="modal-close" onclick="closeCustomModal('completeModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-tabs bg-white border-b border-slate-200">
+                <button class="modal-tab active" data-tab="tab-m-data"><i class="fa-solid fa-file-invoice"></i> Data Penugasan</button>
+                <button class="modal-tab" data-tab="tab-m-solusi"><i class="fa-solid fa-gears"></i> Solusi Teknis</button>
+                <button class="modal-tab" data-tab="tab-m-media"><i class="fa-solid fa-camera"></i> Dokumentasi</button>
+            </div>
+            <form id="completeForm" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body bg-white p-6">
+                    <div class="tab-panel active" id="tab-m-data">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div class="bg-sky-50 p-5 rounded-2xl border border-sky-100"><span class="text-[10px] font-black text-sky-400 block uppercase tracking-wider mb-1">Status Laporan</span><p class="text-sm font-bold text-sky-700 m-0">Menunggu penyelesaian teknisi di lapangan.</p></div>
+                                <div class="form-group"><label class="form-label text-slate-800 font-bold uppercase text-[11px]">Nama Pelanggan</label><input type="text" class="form-input bg-slate-50 border-slate-200" id="m_nama_lengkap" readonly></div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="form-group"><label class="form-label text-slate-800 font-bold uppercase text-[11px]">Pilih Partner / Rekan Kerja</label><div class="partner-card-scroll"><div class="grid grid-cols-1 gap-1">@foreach ($teknisis as $t)@if ($t->id != auth()->id())<div class="partner-item"><input class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary" type="checkbox" name="partner_ids[]" value="{{ $t->id }}" id="m_partner_{{ $t->id }}"><label class="text-sm font-semibold text-slate-700 cursor-pointer w-full m-0" for="m_partner_{{ $t->id }}">{{ $t->nama_lengkap }}</label></div>@endif @endforeach</div></div><p class="text-[10px] text-slate-400 italic mt-1.5">*Opsional, bisa dikosongkan jika bekerja sendiri.</p></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-panel" id="tab-m-solusi">
+                        <div class="space-y-4">
+                            <div class="form-group"><label class="form-label text-slate-800 font-bold uppercase text-[11px]">Kategori Masalah <span class="text-rose-500">*</span></label><select name="kategori_kendala" id="m_kategori_kendala" class="form-input" required onchange="toggleOntFields()"><option value="">-- Pilih Kategori --</option><option value="ONT">PERGANTIAN ONT / MODEM</option><option value="Kabel Fiber Optic">PERBAIKAN KABEL FIBER OPTIC</option><option value="Lainnya">MASALAH LAINNYA</option></select></div>
+                            <div id="ont_fields" style="display: none;" class="bg-amber-50 p-4 rounded-xl border border-amber-100 space-y-4"><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="form-group"><label class="form-label text-amber-800 font-bold uppercase text-[10px]">SN ONT Sebelumnya</label><input type="text" id="m_sn_lama" class="form-input bg-amber-100/50 border-amber-200 text-amber-900 font-mono" readonly></div><div class="form-group"><label class="form-label text-amber-800 font-bold uppercase text-[10px]">SN ONT Pengganti <span class="text-rose-500">*</span></label><input type="text" name="sn_baru" id="m_sn_baru" class="form-input border-amber-300 font-mono" placeholder="Masukkan SN Baru..."></div></div></div>
+                            <div class="form-group"><label class="form-label text-slate-800 font-bold uppercase text-[11px]">Solusi / Tindakan Perbaikan <span class="text-rose-500">*</span></label><textarea name="solusi_kendala" class="form-textarea" required rows="5" placeholder="Jelaskan secara detail tindakan..."></textarea></div>
+                        </div>
+                    </div>
+                    <div class="tab-panel" id="tab-m-media">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="form-group"><label class="form-label text-slate-800 font-bold uppercase text-[11px]">Foto Sebelum <span class="text-rose-500">*</span></label><div class="bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl p-3 text-center"><input type="file" name="foto_sebelum" class="form-input !text-[10px]" required accept="image/*"></div></div>
+                            <div class="form-group"><label class="form-label text-slate-800 font-bold uppercase text-[11px]">Foto Sesudah <span class="text-rose-500">*</span></label><div class="bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl p-3 text-center"><input type="file" name="foto_sesudah" class="form-input !text-[10px]" required accept="image/*"></div></div>
+                            <div class="form-group"><label class="form-label text-slate-800 font-bold uppercase text-[11px]">Speedtest <span class="text-rose-500">*</span></label><div class="bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl p-3 text-center"><input type="file" name="foto_speedtest" class="form-input !text-[10px]" required accept="image/*"></div></div>
+                            <div class="form-group"><label class="form-label text-slate-800 font-bold uppercase text-[11px]">Selfie Tim <span class="text-rose-500">*</span></label><div class="bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl p-3 text-center"><input type="file" name="foto_selfie" class="form-input !text-[10px]" required accept="image/*"></div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl"><button type="button" class="btn-cancel !flex !items-center !justify-center gap-2" onclick="closeCustomModal('completeModal')"><i class="fa-solid fa-xmark"></i> Batal</button><button type="submit" class="btn-save !flex !items-center !justify-center gap-2 !bg-emerald-600"><i class="fa-solid fa-cloud-arrow-up"></i> Kirim Laporan Selesai</button></div>
+            </form>
+        </div>
+    </div>
 
     @section('Scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
-            function openCustomModal(modalId) {
-                const modal = document.getElementById(modalId);
-                if (modal) { modal.classList.add('open'); document.body.style.overflow = 'hidden'; }
-            }
-            function closeCustomModal(modalId) {
-                const modal = document.getElementById(modalId);
-                if (modal) { modal.classList.remove('open'); document.body.style.overflow = ''; }
-            }
-            function selectCustomer(id, name) {
-                $('#selected_customer_id').val(id);
-                $('#selected_customer_name').val(name);
-                fetch(`/maintenances/customer/${id}`).then(r => r.json()).then(d => {
-                    $('#pppoe_val').text('PPPoE: ' + d.pppoe);
-                    $('#alamat_val').text('Alamat: ' + d.alamat);
-                    $('#customer_preview').slideDown(200);
-                });
-                closeCustomModal('searchCustomerModal');
-            }
-
+            function openCustomModal(modalId) { const modal = document.getElementById(modalId); if (modal) { modal.classList.add('open'); document.body.style.overflow = 'hidden'; } }
+            function closeCustomModal(modalId) { const modal = document.getElementById(modalId); if (modal) { modal.classList.remove('open'); document.body.style.overflow = ''; } }
+            function selectCustomer(id, name) { $('#selected_customer_id').val(id); $('#selected_customer_name').val(name); fetch(`/maintenances/customer/${id}`).then(r => r.json()).then(d => { $('#pppoe_val').text(d.pppoe || '-'); $('#alamat_val').text(d.alamat || '-'); $('#customer_preview').slideDown(200); }); closeCustomModal('searchCustomerModal'); }
+            function openMaintenanceDetailModal(triggerEl) { const $btn = $(triggerEl); $('#det_nama').text($btn.data('nama')); $('#det_id_pel').text($btn.data('id-pel')); $('#det_pppoe').text($btn.data('pppoe')); $('#det_wa').text($btn.data('wa')); $('#det_alamat').text($btn.data('alamat')); $('#det_kendala').text($btn.data('kendala')); $('#det_tikor').text($btn.data('tikor')); const wa = String($btn.data('wa') || ''); const waFormatted = wa.startsWith('0') ? '62' + wa.substring(1) : wa; $('#det_wa_link').attr('href', `https://wa.me/${waFormatted}`); const tikor = $btn.data('tikor'); if (tikor && tikor !== 'N/A') { $('#det_tikor_link').attr('href', `https://www.google.com/maps/search/?api=1&query=${tikor}`).show(); } else { $('#det_tikor_link').hide(); } const foto = $btn.data('foto'); if (foto && foto !== '') { $('#det_foto').attr('src', foto); $('#det_foto_container').removeClass('hidden'); } else { $('#det_foto_container').addClass('hidden'); } openCustomModal('maintenanceDetailModal'); }
+            function openMaintenanceResultModal(triggerEl) { const $btn = $(triggerEl); $('#res_nama').text($btn.data('nama')); $('#res_eksekutor').text($btn.data('eksekutor')); $('#res_partner').text($btn.data('partner')); $('#res_waktu').text($btn.data('waktu')); $('#res_solusi').text($btn.data('solusi')); const kategori = $btn.data('kategori'); $('#res_kategori').text(kategori || 'N/A'); if (kategori === 'ONT') { $('#res_ont_info').show(); $('#res_sn_lama').text($btn.data('sn-lama') || '-'); $('#res_sn_baru').text($btn.data('sn-baru') || '-'); } else { $('#res_ont_info').hide(); } $('#res_before').attr('src', $btn.data('foto-before')); $('#res_after').attr('src', $btn.data('foto-after')); $('#res_speed').attr('src', $btn.data('foto-speed')); $('#res_selfie').attr('src', $btn.data('foto-selfie')); openCustomModal('maintenanceResultModal'); }
+            function openCompleteModal(triggerEl) { const $btn = $(triggerEl); const nama = $btn.data('nama'); const sn = $btn.data('sn'); $('#nama_p').text(nama); $('#m_nama_lengkap').val(nama); $('#m_sn_lama').val(sn || '-'); $('#completeForm').attr('action', `/maintenances/${$btn.data('id')}/complete`); $('#completeForm')[0].reset(); $('#ont_fields').hide(); $('#m_sn_baru').removeAttr('required'); $('#m_nama_lengkap').val(nama); $('#m_sn_lama').val(sn || '-'); $('#completeModal .modal-tab').first().click(); openCustomModal('completeModal'); }
+            function toggleOntFields() { const kategori = $('#m_kategori_kendala').val(); if (kategori === 'ONT') { $('#ont_fields').slideDown(); $('#m_sn_baru').attr('required', 'required'); } else { $('#ont_fields').slideUp(); $('#m_sn_baru').removeAttr('required'); } }
             $(document).ready(function() {
                 const dtOptions = { "pageLength": 10, "lengthChange": false, "ordering": false, "info": false, "responsive": true, "dom": 'tpir', "language": { "zeroRecords": "Data tidak ditemukan" } };
                 const adminTable = $('#admin-maintenance-table').DataTable(dtOptions);
                 const pendingTable = $('#pending-tasks-table').DataTable(dtOptions);
                 const customerSearchTable = $('#customer-search-table').DataTable({ ...dtOptions, "pageLength": 5 });
-
-                $('.custom-search').on('keyup', function() {
-                    const val = this.value;
-                    if (adminTable) adminTable.search(val).draw();
-                    if (pendingTable) pendingTable.search(val).draw();
-                });
-
+                $('.custom-search').on('keyup', function() { const val = this.value; if (adminTable) adminTable.search(val).draw(); if (pendingTable) pendingTable.search(val).draw(); });
                 $('#customer-modal-search').on('keyup', function() { customerSearchTable.search(this.value).draw(); });
-
-                $(document).on('click', '.modal-tab', function() {
-                    const tabId = $(this).data('tab');
-                    const $modalBox = $(this).closest('.modal-box');
-                    $modalBox.find('.modal-tab').removeClass('active');
-                    $(this).addClass('active');
-                    $modalBox.find('.tab-panel').removeClass('active');
-                    $('#' + tabId).addClass('active');
-                });
-
+                $(document).on('click', '.modal-tab', function() { const tabId = $(this).data('tab'); const $modalBox = $(this).closest('.modal-box'); $modalBox.find('.modal-tab').removeClass('active'); $(this).addClass('active'); $modalBox.find('.tab-panel').removeClass('active'); $('#' + tabId).addClass('active'); });
                 $('.modal-overlay').on('click', function(e) { if (e.target === this) closeCustomModal(this.id); });
             });
         </script>

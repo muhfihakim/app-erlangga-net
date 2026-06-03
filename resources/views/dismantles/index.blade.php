@@ -175,7 +175,7 @@
         </div>
     @endif
 
-    {{-- Modals (Minimal update to remove delegation refs) --}}
+    {{-- Modal Area --}}
     <div class="modal-overlay" id="searchCustomerModal" style="z-index: 10001;">
         <div class="modal-box max-w-4xl bg-white border border-slate-300 shadow-2xl">
             <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
@@ -241,7 +241,60 @@
         </div>
     </div>
 
-    @include('partials.modal_dismantles')
+    <!-- Dismantle Detail Modal -->
+    <div class="modal-overlay" id="detailDismantleModal">
+        <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                <div class="modal-title"><i class="fa-solid fa-circle-info text-primary"></i> <span class="text-slate-900 font-bold">Info Lengkap Dismantle</span></div>
+                <button class="modal-close" onclick="closeCustomModal('detailDismantleModal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div><span class="text-[11px] font-bold text-slate-400 uppercase block">Nama Pelanggan</span><p id="det_nama" class="text-base font-black text-slate-900 m-0"></p></div>
+                        <div><span class="text-[11px] font-bold text-slate-400 uppercase block">ID Pelanggan</span><p id="det_id_pel" class="text-sm font-bold text-slate-700 mt-0.5"></p></div>
+                    </div>
+                    <div class="space-y-4">
+                        <div><span class="text-[11px] font-bold text-slate-400 uppercase block">No. WhatsApp</span><div class="flex items-center gap-2 mt-1"><p id="det_wa" class="text-sm font-bold text-emerald-600 m-0"></p><a id="det_wa_link" href="#" target="_blank" class="bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded text-[10px] font-black no-underline"><i class="fa-brands fa-whatsapp"></i> CHAT</a></div></div>
+                        <div><span class="text-[11px] font-bold text-slate-400 uppercase block">Titik Koordinat</span><a id="det_tikor_link" href="#" target="_blank" class="bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded text-[10px] font-black no-underline"><i class="fa-solid fa-location-crosshairs"></i> LIHAT MAPS</a></div>
+                    </div>
+                </div>
+                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                    <span class="text-[11px] font-bold text-slate-400 block uppercase mb-2">Alamat & Keterangan</span>
+                    <p id="det_alamat" class="text-sm font-medium text-slate-600 leading-relaxed mb-3"></p>
+                    <div class="bg-white border border-slate-200 p-4 rounded-xl font-bold text-slate-800 text-sm italic" id="det_keterangan"></div>
+                </div>
+                <div id="det_foto_container" class="hidden">
+                    <span class="text-[11px] font-bold text-slate-400 block uppercase mb-2">Foto Bukti Pencabutan</span>
+                    <div class="aspect-video w-full rounded-2xl overflow-hidden border-2 border-slate-100 bg-slate-50 flex items-center justify-center"><img id="det_foto" src="" class="w-full h-full object-contain"></div>
+                </div>
+            </div>
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl"><button type="button" class="btn-cancel w-full" onclick="closeCustomModal('detailDismantleModal')"><i class="fa-solid fa-xmark"></i> Tutup Detail</button></div>
+        </div>
+    </div>
+
+    {{-- Modal Selesai (Teknisi) --}}
+    <div class="modal-overlay" id="completeDismantleModal">
+        <div class="modal-box max-w-lg bg-white border border-slate-300 shadow-2xl">
+            <form id="completeForm" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                    <div class="modal-title"><i class="fa-solid fa-camera text-emerald-500"></i> <span class="text-slate-900 font-bold text-[17px]">Konfirmasi Pencabutan: <span id="n_pel"></span></span></div>
+                    <button type="button" class="modal-close" onclick="closeCustomModal('completeDismantleModal')"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="modal-body p-8 space-y-6">
+                    <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 text-emerald-700">
+                        <p class="text-xs font-bold leading-relaxed m-0"><i class="fa-solid fa-circle-exclamation mr-1"></i> Pastikan semua perangkat sudah diambil dari lokasi pelanggan sebelum menekan tombol submit.</p>
+                    </div>
+                    <div class="form-group !mb-0">
+                        <label class="form-label !text-slate-800 !font-bold"><i class="fa-solid fa-image text-slate-400 mr-1"></i> Foto Bukti Perangkat Dicabut <span class="text-rose-500">*</span></label>
+                        <input type="file" name="foto_pencabutan" class="form-input" required accept="image/*">
+                    </div>
+                </div>
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl"><button type="button" class="btn-cancel !flex !items-center !justify-center gap-2" onclick="closeCustomModal('completeDismantleModal')"><i class="fa-solid fa-xmark"></i> Batal</button><button type="submit" class="btn-save !flex !items-center !justify-center gap-2 !bg-emerald-600"><i class="fa-solid fa-cloud-arrow-up"></i> Kirim Laporan Selesai</button></div>
+            </form>
+        </div>
+    </div>
 
     @section('Scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -249,36 +302,15 @@
         <script>
             function openCustomModal(modalId) { const modal = document.getElementById(modalId); if (modal) { modal.classList.add('open'); document.body.style.overflow = 'hidden'; } }
             function closeCustomModal(modalId) { const modal = document.getElementById(modalId); if (modal) { modal.classList.remove('open'); document.body.style.overflow = ''; } }
-            function selectCustomer(id, name) {
-                $('#selected_customer_id').val(id); $('#selected_customer_name').val(name);
-                fetch(`/dismantles/customer/${id}`).then(r => r.json()).then(d => {
-                    $('#v_wa').text('WA: ' + d.wa); $('#v_alamat').text('Alamat: ' + d.alamat); $('#customer_preview').slideDown(200);
-                });
-                closeCustomModal('searchCustomerModal');
-            }
-            function openDismantleDetailModal(triggerEl) {
-                const $btn = $(triggerEl);
-                $('#det_nama').text($btn.data('nama')); $('#det_id_pel').text($btn.data('id-pel'));
-                $('#det_alamat').text($btn.data('alamat')); $('#det_keterangan').text($btn.data('keterangan'));
-                openCustomModal('detailDismantleModal');
-            }
-            function openCompleteDismantleModal(triggerEl) {
-                const $btn = $(triggerEl); $('#n_pel').text($btn.data('nama'));
-                $('#completeForm').attr('action', `/dismantles/${$btn.data('id')}/complete`);
-                openCustomModal('completeDismantleModal');
-            }
-
+            function selectCustomer(id, name) { $('#selected_customer_id').val(id); $('#selected_customer_name').val(name); fetch(`/dismantles/customer/${id}`).then(r => r.json()).then(d => { $('#v_wa').text('WA: ' + d.wa); $('#v_alamat').text('Alamat: ' + d.alamat); $('#customer_preview').slideDown(200); }); closeCustomModal('searchCustomerModal'); }
+            function openDismantleDetailModal(triggerEl) { const $btn = $(triggerEl); $('#det_nama').text($btn.data('nama')); $('#det_id_pel').text($btn.data('id-pel')); $('#det_wa').text($btn.data('wa')); $('#det_alamat').text($btn.data('alamat')); $('#det_keterangan').text($btn.data('keterangan')); const wa = String($btn.data('wa') || ''); const waFormatted = wa.startsWith('0') ? '62' + wa.substring(1) : wa; $('#det_wa_link').attr('href', `https://wa.me/${waFormatted}`); const tikor = $btn.data('tikor'); if (tikor && tikor !== 'N/A') { $('#det_tikor_link').attr('href', `https://www.google.com/maps/search/?api=1&query=${tikor}`).show(); } else { $('#det_tikor_link').hide(); } const foto = $btn.data('foto'); if (foto && foto !== '') { $('#det_foto').attr('src', foto); $('#det_foto_container').removeClass('hidden'); } else { $('#det_foto_container').addClass('hidden'); } openCustomModal('detailDismantleModal'); }
+            function openCompleteDismantleModal(triggerEl) { const $btn = $(triggerEl); $('#n_pel').text($btn.data('nama')); $('#completeForm').attr('action', `/dismantles/${$btn.data('id')}/complete`); openCustomModal('completeDismantleModal'); }
             $(document).ready(function() {
                 const dtOptions = { "pageLength": 10, "lengthChange": false, "ordering": false, "info": false, "responsive": true, "dom": 'tpir', "language": { "zeroRecords": "Data tidak ditemukan" } };
                 const adminTable = $('#admin-dismantle-table').DataTable(dtOptions);
                 const pendingTable = $('#pending-tasks-table').DataTable(dtOptions);
                 const customerSearchTable = $('#customer-search-table').DataTable({ ...dtOptions, "pageLength": 5 });
-
-                $('.custom-search').on('keyup', function() {
-                    const val = this.value;
-                    if (adminTable) adminTable.search(val).draw();
-                    if (pendingTable) pendingTable.search(val).draw();
-                });
+                $('.custom-search').on('keyup', function() { const val = this.value; if (adminTable) adminTable.search(val).draw(); if (pendingTable) pendingTable.search(val).draw(); });
                 $('#customer-modal-search').on('keyup', function() { customerSearchTable.search(this.value).draw(); });
                 $('.modal-overlay').on('click', function(e) { if (e.target === this) closeCustomModal(this.id); });
             });
