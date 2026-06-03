@@ -227,7 +227,7 @@
                                             data-tikor="{{ $m->customer->preOrder->titik_koordinat ?? 'N/A' }}"
                                             data-alamat="{{ $m->customer->alamat_lengkap ?? '-' }}"
                                             data-kendala="{{ $m->keterangan_kendala }}"
-                                            data-foto="{{ $m->foto_kendala_awal ? asset('storage/' . $m->foto_kendala_awal) : '' }}">
+                                            data-foto="{{ $m->foto_kendala_awal ? Storage::url($m->foto_kendala_awal) : '' }}">
                                             <i class="fa-solid fa-circle-info text-primary"></i>
                                         </button>
                                         @if ($m->status === 'Selesai')
@@ -239,11 +239,11 @@
                                                 data-kategori="{{ $m->kategori_kendala }}"
                                                 data-sn-baru="{{ $m->sn_baru }}" data-sn-lama="{{ $m->sn_lama }}"
                                                 data-solusi="{{ $m->solusi_kendala }}"
-                                                data-waktu="{{ \Carbon\Carbon::parse($m->completed_at)->format('d-m-Y H:i') }}"
-                                                data-foto-before="{{ asset('storage/' . $m->foto_sebelum_perbaikan) }}"
-                                                data-foto-after="{{ asset('storage/' . $m->foto_setelah_perbaikan) }}"
-                                                data-foto-speed="{{ asset('storage/' . $m->foto_speedtest) }}"
-                                                data-foto-selfie="{{ asset('storage/' . $m->foto_selfie_teknisi) }}">
+                                                data-foto="{{ $m->foto_kendala_awal ? Storage::url($m->foto_kendala_awal) : '' }}">
+                                                    data-foto-before="{{ Storage::url($m->foto_sebelum_perbaikan) }}"
+                                                    data-foto-after="{{ Storage::url($m->foto_setelah_perbaikan) }}"
+                                                    data-foto-speed="{{ Storage::url($m->foto_speedtest) }}"
+                                                    data-foto-selfie="{{ Storage::url($m->foto_selfie_teknisi) }}">
                                                 <i class="fa-solid fa-file-circle-check text-emerald-500"></i>
                                             </button>
                                         @endif
@@ -294,7 +294,7 @@
                                             data-tikor="{{ $m->customer->preOrder->titik_koordinat ?? 'N/A' }}"
                                             data-alamat="{{ $m->customer->alamat_lengkap }}"
                                             data-kendala="{{ $m->keterangan_kendala }}"
-                                            data-foto="{{ $m->foto_kendala_awal ? asset('storage/' . $m->foto_kendala_awal) : '' }}">
+                                            data-foto="{{ $m->foto_kendala_awal ? Storage::url($m->foto_kendala_awal) : '' }}">
                                             <i class="fa-solid fa-circle-info text-primary"></i>
                                         </button>
                                         <button type="button" class="btn-primary-admin !h-9 !px-3 !text-[11px]"

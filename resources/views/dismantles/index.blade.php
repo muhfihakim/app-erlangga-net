@@ -197,7 +197,7 @@
                                             data-tikor="{{ $d->customer->preOrder->titik_koordinat ?? 'N/A' }}"
                                             data-alamat="{{ $d->customer->alamat_lengkap ?? '-' }}"
                                             data-keterangan="{{ $d->keterangan_admin ?: '-' }}"
-                                            data-foto="{{ $d->foto_pencabutan ? asset('storage/' . $d->foto_pencabutan) : '' }}">
+                                            data-foto="{{ $d->foto_pencabutan ? Storage::url($d->foto_pencabutan) : '' }}">
                                             <i class="fa-solid fa-circle-info text-primary"></i>
                                         </button>
                                         @if ($d->status === 'Selesai')

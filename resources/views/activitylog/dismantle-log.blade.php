@@ -176,7 +176,7 @@
                             </td>
                             <td style="text-align: center;">
                                 @if($d->foto_pencabutan)
-                                    <a href="{{ asset('storage/' . $d->foto_pencabutan) }}" target="_blank" 
+                                    <a href="{{ Storage::url($d->foto_pencabutan) }}" target="_blank" 
                                        class="topbar-icon-btn !w-9 !h-9 !rounded-xl mx-auto flex items-center justify-center" title="Lihat Foto">
                                         <i class="fa-solid fa-image text-primary"></i>
                                     </a>

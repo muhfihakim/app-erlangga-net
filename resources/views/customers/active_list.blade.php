@@ -158,9 +158,9 @@
                                         data-po-wa="{{ $customer->no_whatsapp }}"
                                         data-po-tgl-po="{{ \Carbon\Carbon::parse($customer->preOrder->created_at ?? $customer->created_at)->format('d-m-Y') }}"
                                         data-po-tikor="{{ $customer->preOrder->titik_koordinat ?? 'N/A' }}"
-                                        data-foto-petugas="{{ $customer->foto_petugas ? asset('storage/' . $customer->foto_petugas) : '' }}"
-                                        data-foto-terpasang="{{ $customer->foto_terpasang ? asset('storage/' . $customer->foto_terpasang) : '' }}"
-                                        data-foto-speedtest="{{ $customer->foto_speedtest ? asset('storage/' . $customer->foto_speedtest) : '' }}"
+                                        data-foto-petugas="{{ $customer->foto_petugas ? Storage::url($customer->foto_petugas) : '' }}"
+                                        data-foto-terpasang="{{ $customer->foto_terpasang ? Storage::url($customer->foto_terpasang) : '' }}"
+                                        data-foto-speedtest="{{ $customer->foto_speedtest ? Storage::url($customer->foto_speedtest) : '' }}"
                                         data-keterangan="{{ $customer->keterangan ?? 'Tidak ada keterangan.' }}">
                                         <i class="fa-solid fa-circle-info text-primary"></i>
                                     </button>

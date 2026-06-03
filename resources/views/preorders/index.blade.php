@@ -150,8 +150,8 @@
                                         data-alamat-lengkap="{{ $po->alamat_lengkap }}"
                                         data-paket="{{ $po->paket_internet }}"
                                         data-koordinat="{{ $po->titik_koordinat }}"
-                                        data-foto-ktp="{{ $po->foto_ktp ? asset('storage/' . $po->foto_ktp) : '' }}"
-                                        data-foto-rumah="{{ $po->foto_rumah ? asset('storage/' . $po->foto_rumah) : '' }}"><i
+                                        data-foto-ktp="{{ $po->foto_ktp ? Storage::url($po->foto_ktp) : '' }}"
+                                        data-foto-rumah="{{ $po->foto_rumah ? Storage::url($po->foto_rumah) : '' }}"><i
                                             class="fa-solid fa-circle-info text-primary"></i></button>
                                     @if ($po->is_unsubscribed)
                                         <span class="badge badge-archived">BERHENTI</span>

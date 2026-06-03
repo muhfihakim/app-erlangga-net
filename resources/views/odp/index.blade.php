@@ -271,7 +271,7 @@
                                             data-lokasi="{{ $odp->lokasi_odp }}"
                                             data-tikor="{{ $odp->titik_koordinat }}"
                                             data-keterangan="{{ $odp->keterangan }}"
-                                            data-foto="{{ $odp->foto_odp ? asset('storage/' . $odp->foto_odp) : '' }}">
+                                            data-foto="{{ $odp->foto_odp ? Storage::url($odp->foto_odp) : '' }}">
                                             <i class="fa-solid fa-pen-to-square text-primary"></i>
                                         </button>
                                         <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
