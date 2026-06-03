@@ -239,11 +239,11 @@
                                                 data-kategori="{{ $m->kategori_kendala }}"
                                                 data-sn-baru="{{ $m->sn_baru }}" data-sn-lama="{{ $m->sn_lama }}"
                                                 data-solusi="{{ $m->solusi_kendala }}"
-                                                data-foto="{{ $m->foto_kendala_awal ? Storage::url($m->foto_kendala_awal) : '' }}">
-                                                    data-foto-before="{{ Storage::url($m->foto_sebelum_perbaikan) }}"
-                                                    data-foto-after="{{ Storage::url($m->foto_setelah_perbaikan) }}"
-                                                    data-foto-speed="{{ Storage::url($m->foto_speedtest) }}"
-                                                    data-foto-selfie="{{ Storage::url($m->foto_selfie_teknisi) }}">
+                                                data-foto="{{ $m->foto_kendala_awal ? Storage::url($m->foto_kendala_awal) : '' }}"
+                                                data-foto-before="{{ Storage::url($m->foto_sebelum_perbaikan) }}"
+                                                data-foto-after="{{ Storage::url($m->foto_setelah_perbaikan) }}"
+                                                data-foto-speed="{{ Storage::url($m->foto_speedtest) }}"
+                                                data-foto-selfie="{{ Storage::url($m->foto_selfie_teknisi) }}">
                                                 <i class="fa-solid fa-file-circle-check text-emerald-500"></i>
                                             </button>
                                         @endif
