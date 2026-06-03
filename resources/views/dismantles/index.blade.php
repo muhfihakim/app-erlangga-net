@@ -68,6 +68,7 @@
                 transform: translateY(-50%);
                 color: #94a3b8;
                 font-size: 13px;
+                pointer-events: none;
             }
 
             .search-input {

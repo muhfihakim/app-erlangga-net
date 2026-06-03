@@ -1,6 +1,44 @@
 <x-layouts.app>
     @section('Css')
         <style>
+            /* Hakatech DataTables Customization */
+            .dataTables_wrapper {
+                padding: 0;
+            }
+
+            .dataTables_filter {
+                display: none;
+            }
+
+            .dataTables_paginate {
+                display: flex;
+                justify-content: flex-end;
+                padding: 1.25rem 1.5rem;
+                gap: 4px;
+                border-top: 1px solid #f1f5f9;
+            }
+
+            .paginate_button {
+                width: 34px;
+                height: 34px;
+                border-radius: 8px;
+                border: 1.5px solid #e2e8f0;
+                background: #fff;
+                color: #64748b !important;
+                font-size: 13px;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+            }
+
+            .paginate_button.current {
+                background: #0ea5e9;
+                border-color: #0ea5e9;
+                color: #fff !important;
+            }
+
             /* Toolbar & Search */
             .table-toolbar {
                 background: #fff;
@@ -39,10 +77,7 @@
                 border: 2px solid #e2e8f0;
                 border-radius: 10px;
                 font-size: 13px;
-                font-family: 'Inter', sans-serif;
-                color: #374151;
                 outline: none;
-                transition: all .25s;
                 background: #f8fafc;
             }
 
@@ -100,6 +135,8 @@
         </style>
     @endsection
 
+    @php $is_admin = auth()->user()->jabatan === 'Administrator'; @endphp
+
     <!-- Page header -->
     <div
         style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
@@ -112,27 +149,47 @@
         </div>
     </div>
 
-    @if (auth()->user()->jabatan === 'Administrator')
-        <div class="stats-grid mb-6">
-            <div class="stat-card">
-                <div class="stat-icon" style="background:#e0f2fe;color:#0369a1;">
-                    <i class="fa-solid fa-hourglass-start"></i>
-                </div>
-                <div>
-                    <div class="stat-val">{{ $allPreOrders->count() }}</div>
-                    <div class="stat-lbl">Menunggu Aktivasi</div>
-                </div>
+    <!-- Stats Grid -->
+    <div class="stats-grid mb-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#e0f2fe;color:#0369a1;">
+                <i class="fa-solid fa-calendar-check"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $totalThisMonth }}</div>
+                <div class="stat-lbl">Bulan Ini</div>
             </div>
         </div>
-
-        <div class="table-toolbar">
-            <div class="search-wrap">
-                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="search" class="search-input custom-search" placeholder="Cari data pre-order..."
-                    autocomplete="off" />
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
+                <i class="fa-solid fa-calendar-week"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $totalThisWeek }}</div>
+                <div class="stat-lbl">Minggu Ini</div>
             </div>
         </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#dcfce7;color:#15803d;">
+                <i class="fa-solid fa-hourglass-start"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $totalPending }}</div>
+                <div class="stat-lbl">Menunggu Aktivasi</div>
+            </div>
+        </div>
+    </div>
 
+    <!-- Toolbar -->
+    <div class="table-toolbar">
+        <div class="search-wrap">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="search" class="search-input custom-search" placeholder="Cari pelanggan, paket, atau alamat..."
+                autocomplete="off" />
+        </div>
+    </div>
+
+    @if ($is_admin)
         <div class="table-card">
             <div class="table-responsive">
                 <table id="customer-table" class="admin-table">
@@ -169,35 +226,7 @@
             </div>
         </div>
     @else
-        <!-- Stats cards for Technician -->
-        <div class="stats-grid mb-6">
-            <div class="stat-card">
-                <div class="stat-icon" style="background:#f1f5f9;color:#475569;">
-                    <i class="fa-solid fa-list-check"></i>
-                </div>
-                <div>
-                    <div class="stat-val">{{ $generalTasks->count() }}</div>
-                    <div class="stat-lbl">Total Tugas Aktif</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Toolbar -->
-        <div class="table-toolbar">
-            <div class="search-wrap">
-                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="search" class="search-input custom-search"
-                    placeholder="Cari nama pelanggan, paket, atau alamat..." autocomplete="off" />
-            </div>
-            <div style="display:flex;gap:8px;">
-                <div
-                    style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                    Pool Tugas
-                </div>
-            </div>
-        </div>
-
-        <div class="table-card mb-8">
+        <div class="table-card">
             <div class="table-responsive">
                 <table id="generalTasksTable" class="admin-table">
                     <thead>

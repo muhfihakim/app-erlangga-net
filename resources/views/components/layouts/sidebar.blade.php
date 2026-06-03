@@ -33,7 +33,8 @@
                 <i class="fa-solid fa-network-wired"></i>
                 <span>PPPoE Aktif</span>
             </a>
-            <a class="sidebar-link {{ Request::is('monitoring') ? 'active' : '' }}" href="{{ route('monitoring.index') }}">
+            <a class="sidebar-link {{ Request::is('monitoring') ? 'active' : '' }}"
+                href="{{ route('monitoring.index') }}">
                 <i class="fa-solid fa-chart-line"></i>
                 <span>Monitoring</span>
             </a>
@@ -68,21 +69,16 @@
             <a class="sidebar-link {{ Request::is('dismantles') ? 'active' : '' }}"
                 href="{{ route('dismantles.index') }}">
                 <i class="fa-solid fa-user-xmark"></i>
-                <span>Dismantle</span>
+                <span>Pencabutan</span>
             </a>
         @endif
 
         @if (auth()->check() && auth()->user()->jabatan === 'Administrator')
-            <div class="sidebar-section-label" style="margin-top:.5rem;">Manajemen</div>
-            <a class="sidebar-link {{ Request::is('accounts') ? 'active' : '' }}"
-                href="{{ route('accounts.index') }}">
-                <i class="fa-solid fa-users"></i>
-                <span>Akun</span>
-            </a>
-            <a class="sidebar-link {{ Request::is('activity-log') ? 'active' : '' }}"
-                href="{{ route('activitylog.index') }}">
-                <i class="fa-solid fa-clipboard-list"></i>
-                <span>Aktivitas Log</span>
+            <div class="sidebar-section-label" style="margin-top:.5rem;">Keuangan</div>
+            <a class="sidebar-link {{ Request::is('keuangan/teknisi*') ? 'active' : '' }}"
+                href="{{ route('finance.index') }}">
+                <i class="fa-solid fa-wallet"></i>
+                <span>Pendapatan Teknisi</span>
             </a>
 
             <div class="sidebar-section-label" style="margin-top:.5rem;">Laporan</div>
@@ -94,19 +90,24 @@
             <a class="sidebar-link {{ Request::is('laporan/maintenance') ? 'active' : '' }}"
                 href="{{ route('activitylog.maintenance') }}">
                 <i class="fa-solid fa-file-medical"></i>
-                <span>Lap. Maintenance</span>
+                <span>Lap. Pemeliharaan</span>
             </a>
             <a class="sidebar-link {{ Request::is('laporan/dismantle') ? 'active' : '' }}"
                 href="{{ route('activitylog.dismantle') }}">
                 <i class="fa-solid fa-file-excel"></i>
-                <span>Lap. Dismantle</span>
+                <span>Lap. Pencabutan</span>
             </a>
 
-            <div class="sidebar-section-label" style="margin-top:.5rem;">Keuangan</div>
-            <a class="sidebar-link {{ Request::is('keuangan/teknisi*') ? 'active' : '' }}"
-                href="{{ route('finance.index') }}">
-                <i class="fa-solid fa-wallet"></i>
-                <span>Pendapatan Teknisi</span>
+            <div class="sidebar-section-label" style="margin-top:.5rem;">Manajemen</div>
+            <a class="sidebar-link {{ Request::is('accounts') ? 'active' : '' }}"
+                href="{{ route('accounts.index') }}">
+                <i class="fa-solid fa-users"></i>
+                <span>Akun</span>
+            </a>
+            <a class="sidebar-link {{ Request::is('activity-log') ? 'active' : '' }}"
+                href="{{ route('activitylog.index') }}">
+                <i class="fa-solid fa-clipboard-list"></i>
+                <span>Aktivitas Log</span>
             </a>
         @endif
 

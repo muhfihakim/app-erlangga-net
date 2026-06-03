@@ -34,6 +34,23 @@ class CustomerController extends Controller
         // --- QUERY DASAR: PO yang BENAR-BENAR BELUM pernah diaktivasi ---
         $baseQuery = PreOrder::whereNotIn('id', $activatedPOIds);
 
+        // --- STATISTIK ---
+        $thisMonth = Carbon::now()->month;
+        $thisYear = Carbon::now()->year;
+        
+        $totalThisMonth = PreOrder::whereNotIn('id', $activatedPOIds)
+            ->whereMonth('created_at', $thisMonth)
+            ->whereYear('created_at', $thisYear)
+            ->count();
+            
+        $totalThisWeek = PreOrder::whereNotIn('id', $activatedPOIds)
+            ->whereBetween('created_at', [
+                Carbon::now()->startOfWeek(),
+                Carbon::now()->endOfWeek()
+            ])->count();
+
+        $totalPending = $baseQuery->count();
+
         // --- FILTER KHUSUS TEKNISI ---
         if ($user->jabatan === 'Teknisi') {
             // Tugas Umum (Bisa diambil siapa saja)
@@ -41,12 +58,24 @@ class CustomerController extends Controller
                 ->orderBy('created_at', 'asc')
                 ->get();
 
-            return view('customers.index', compact('generalTasks', 'teknisiUsers'));
+            return view('customers.index', compact(
+                'generalTasks', 
+                'teknisiUsers',
+                'totalThisMonth',
+                'totalThisWeek',
+                'totalPending'
+            ));
         } else {
             // Administrator View: Menampilkan semua PO yang menunggu aktivasi
             $allPreOrders = $baseQuery->orderBy('created_at', 'asc')->get();
 
-            return view('customers.index', compact('allPreOrders', 'teknisiUsers'));
+            return view('customers.index', compact(
+                'allPreOrders', 
+                'teknisiUsers',
+                'totalThisMonth',
+                'totalThisWeek',
+                'totalPending'
+            ));
         }
     }
 

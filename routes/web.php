@@ -3,7 +3,7 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\ActivityLogController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DismantleController;
@@ -13,19 +13,16 @@ use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\OdpController;
 use App\Http\Controllers\PreOrderController;
 use App\Http\Controllers\PppoeController;
-use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\FinanceController;
-use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
-
 use App\Http\Controllers\OltController;
 
 Route::get('/', function () {
     return redirect('/login');
 });
 
-Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth.custom'])->group(function () {
     // Keuangan Teknisi
