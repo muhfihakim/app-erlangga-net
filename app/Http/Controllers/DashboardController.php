@@ -203,11 +203,8 @@ class DashboardController extends Controller
         }
 
         // 7. Inisialisasi Variabel Teknisi
-        $delegatedTasks = collect();
         $aktivasiMingguIni = 0;
         $aktivasiBulanIni = 0;
-        $pendingTugas = 0;
-        $totalExpired = 0;
         $personalMaintenanceSelesaiBulanIni = 0;
         $statsMaintenance = ['alone' => 0, 'pair' => 0, 'trio' => 0, 'total' => 0];
         $statsAktivasi = ['alone' => 0, 'pair' => 0, 'trio' => 0, 'total' => 0];
@@ -307,42 +304,6 @@ class DashboardController extends Controller
                     $query->where('id_teknisi', $user->id)
                         ->orWhereJsonContains('partner_ids', (string)$user->id);
                 })->count();
-
-            // Pending Tugas
-            $pendingTugas = PreOrder::whereNotIn('id', $activatedPOIds)
-                ->where('id_teknisi_delegasi', $user->id)
-                ->count();
-
-            // Total Expired
-            $totalExpired = PreOrder::where('id_teknisi_delegasi', $user->id)
-                ->whereNotIn('id', $activatedPOIds)
-                ->whereNotNull('delegated_at')
-                ->get()
-                ->filter(function ($po) {
-                    return Carbon::now()->greaterThan(Carbon::parse($po->delegated_at)->addDays(3));
-                })->count();
-
-            // Tugas Delegasi List
-            $delegatedTasks = PreOrder::whereNotIn('id', $activatedPOIds)
-                ->where('id_teknisi_delegasi', $user->id)
-                ->whereNotNull('delegated_at')
-                ->orderBy('delegated_at', 'asc')
-                ->get()
-                ->map(function ($po) {
-                    $deadline = Carbon::parse($po->delegated_at)->addDays(2);
-                    $po->deadline_date = $deadline->format('d-m-Y H:i');
-                    $po->status_display = 'AKTIF';
-                    $po->bg_color = 'bg-info';
-
-                    if (Carbon::now()->greaterThan($deadline)) {
-                        $po->status_display = 'EXPIRED';
-                        $po->bg_color = 'bg-danger';
-                    } elseif (Carbon::now()->diffInHours($deadline) <= 24) {
-                        $po->status_display = 'URGENT';
-                        $po->bg_color = 'bg-warning text-dark';
-                    }
-                    return $po;
-                });
         }
 
         return view('dashboard', compact(
@@ -357,11 +318,8 @@ class DashboardController extends Controller
             'previousPeriodLabel',
             'totalPelangganSaya',
             'totalIsolirSaya',
-            'delegatedTasks',
             'aktivasiMingguIni',
             'aktivasiBulanIni',
-            'pendingTugas',
-            'totalExpired',
             'totalMaintenanceSelesaiBulanIni',
             'personalMaintenanceSelesaiBulanIni',
             'statsMaintenance',

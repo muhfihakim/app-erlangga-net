@@ -24,12 +24,12 @@ class PreOrderController extends Controller
         $activePOIds = $customerRecords->whereNull('deleted_at')->pluck('pre_order_id')->toArray();
         $unsubscribedPOIds = $customerRecords->whereNotNull('deleted_at')->pluck('pre_order_id')->toArray();
 
-        $query = PreOrder::with(['sales', 'teknisiDelegasi']);
+        $query = PreOrder::with(['sales']);
 
         if ($user->jabatan === 'Administrator') {
             if ($filterSales) $query->where('id_sales', $filterSales);
         } elseif ($user->jabatan === 'Teknisi') {
-            $query->where(fn($q) => $q->where('id_teknisi_delegasi', $user->id)->orWhereNull('id_teknisi_delegasi'));
+            // Can see all
         } else {
             $query->where('id_sales', $user->id);
         }
@@ -49,17 +49,6 @@ class PreOrderController extends Controller
         $results->getCollection()->transform(function ($po) use ($activePOIds, $unsubscribedPOIds) {
             $po->is_active = in_array($po->id, $activePOIds);
             $po->is_unsubscribed = in_array($po->id, $unsubscribedPOIds);
-            $po->is_expired = false;
-            $po->is_segera_expired = false;
-
-            if ($po->delegated_at && !$po->is_active && !$po->is_unsubscribed) {
-                $deadline = Carbon::parse($po->delegated_at)->addDays(2);
-                if (Carbon::now()->greaterThan($deadline)) {
-                    $po->is_expired = true;
-                } elseif (Carbon::now()->diffInHours($deadline) <= 24) {
-                    $po->is_segera_expired = true;
-                }
-            }
             return $po;
         });
 
@@ -96,38 +85,8 @@ class PreOrderController extends Controller
 
     public function show($id)
     {
-        $po = PreOrder::with(['sales', 'teknisiDelegasi'])->findOrFail($id);
+        $po = PreOrder::with(['sales'])->findOrFail($id);
         return response()->json($po);
-    }
-
-    public function delegate(Request $request, $id)
-    {
-        $request->validate(['id_teknisi' => 'required|exists:users,id']);
-        $po = PreOrder::findOrFail($id);
-        $po->update([
-            'id_teknisi_delegasi' => $request->id_teknisi,
-            'delegated_at' => now()
-        ]);
-
-        ActivityLog::create([
-            'user_id' => auth()->id(),
-            'activity_type' => 'preorder_delegate',
-            'description' => 'Mendelegasikan PO "' . $po->nama_lengkap . '" ke teknisi.',
-            'logged_at' => now(),
-        ]);
-
-        return response()->json(['message' => 'PO berhasil didelegasikan']);
-    }
-
-    public function resetDelegation($id)
-    {
-        $po = PreOrder::findOrFail($id);
-        $po->update([
-            'id_teknisi_delegasi' => null,
-            'delegated_at' => null
-        ]);
-
-        return response()->json(['message' => 'Delegasi PO berhasil direset']);
     }
 
     public function unspek(Request $request, $id)
@@ -137,7 +96,6 @@ class PreOrderController extends Controller
         $po->update([
             'is_unspek' => true,
             'keterangan_unspek' => $request->keterangan_unspek,
-            'unspek_at' => now()
         ]);
 
         ActivityLog::create([
@@ -153,7 +111,7 @@ class PreOrderController extends Controller
     public function approveUnspek($id)
     {
         $po = PreOrder::findOrFail($id);
-        $po->update(['unspek_approved_at' => now()]);
+        $po->update(['is_unspek_approved' => true]);
 
         return response()->json(['message' => 'Unspek PO telah disetujui']);
     }
@@ -164,8 +122,7 @@ class PreOrderController extends Controller
         $po->update([
             'is_unspek' => false,
             'keterangan_unspek' => null,
-            'unspek_at' => null,
-            'unspek_approved_at' => null
+            'is_unspek_approved' => false
         ]);
 
         ActivityLog::create([

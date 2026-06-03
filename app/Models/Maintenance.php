@@ -12,10 +12,8 @@ class Maintenance extends Model
     protected $fillable = [
         'customer_id',
         'id_admin',
-        'id_teknisi_delegasi',
         'keterangan_kendala',
         'foto_kendala_awal',
-        'delegated_at',
         'id_teknisi_eksekutor',
         'partner_ids',
         'partner',
@@ -33,7 +31,6 @@ class Maintenance extends Model
 
     protected $casts = [
         'partner_ids' => 'array',
-        'delegated_at' => 'datetime',
         'completed_at' => 'datetime',
     ];
 
@@ -43,14 +40,6 @@ class Maintenance extends Model
         return $this->belongsTo(Customer::class, 'customer_id')->withTrashed();
     }
 
-    // public function customer()
-    // {
-    //     return $this->belongsTo(Customer::class, 'customer_id');
-    // }
-    public function teknisiDelegasi()
-    {
-        return $this->belongsTo(User::class, 'id_teknisi_delegasi');
-    }
     public function teknisiEksekutor()
     {
         return $this->belongsTo(User::class, 'id_teknisi_eksekutor');

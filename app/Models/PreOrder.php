@@ -21,8 +21,6 @@ class PreOrder extends Model
         'titik_koordinat',
         'foto_ktp',
         'foto_rumah',
-        'id_teknisi_delegasi',
-        'delegated_at',
         'is_unspek',
         'keterangan_unspek',
         'is_unspek_approved',

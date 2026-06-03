@@ -60,16 +60,6 @@
                     $('#deleteForm').attr('action', `/pre-orders/${$btn.data('po-id')}`);
                 }
 
-                if (modalId === 'delegateModal') {
-                    $('#delegateForm').attr('action', `/pre-orders/${$btn.data('po-id')}/delegate`);
-                    $('#delegate_po_name').text($btn.data('po-nama'));
-                }
-
-                if (modalId === 'resetModal') {
-                    $('#resetForm').attr('action', `/pre-orders/${$btn.data('po-id')}/reset-delegation`);
-                    $('#reset_po_name').text($btn.data('po-nama'));
-                }
-
                 if (modalId === 'unspekModal') {
                     $('#unspekForm').attr('action', `/pre-orders/${$btn.data('po-id')}/unspek`);
                     $('#unspek_po_name').text($btn.data('po-nama'));

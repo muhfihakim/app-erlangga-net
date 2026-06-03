@@ -158,15 +158,6 @@
                     <p style="font-size: 10px; color: #94a3b8; margin-top: 4px; font-weight: 600;">BULAN INI</p>
                 </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background:#fef2f2;color:#dc2626;">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                </div>
-                <div>
-                    <div class="stat-val">{{ $totalExpired ?? 0 }}</div>
-                    <div class="stat-lbl">Total Expired</div>
-                </div>
-            </div>
         </div>
 
         <!-- Weekly Activation Team Stats -->
@@ -478,72 +469,6 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </div>
-    @endif
-
-    @if (Auth::user()->jabatan === 'Teknisi')
-        <div style="margin-top: 2rem;">
-            <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 0.5rem;">
-                <i class="fa-solid fa-list-check text-primary"></i> Tugas Delegasi Khusus Anda
-            </h3>
-            <p style="font-size: 13px; color: #64748b; margin-bottom: 1.5rem;">Daftar Pre-Order yang ditugaskan kepada
-                Anda dan belum diaktivasi.</p>
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
-                @forelse ($delegatedTasks as $task)
-                    <div class="stat-card"
-                        style="flex-direction: column; align-items: stretch; gap: 0; padding: 0; overflow: hidden;">
-                        <div
-                            style="padding: 1.25rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: flex-start;">
-                            <div style="min-width: 0;">
-                                <h4 style="font-size: 14px; font-weight: 700; margin: 0; text-transform: uppercase;">
-                                    {{ Str::limit($task->nama_lengkap, 25) }}</h4>
-                                <span
-                                    class="badge {{ $task->bg_color === 'bg-danger' ? 'badge-archived' : 'badge-published' }}"
-                                    style="margin-top: 0.5rem; font-size: 9px;">
-                                    {{ $task->status_display }}
-                                </span>
-                            </div>
-                            <div
-                                style="width: 36px; height: 36px; border-radius: 10px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #64748b;">
-                                <i class="fa-solid fa-user-gear"></i>
-                            </div>
-                        </div>
-                        <div style="padding: 1.25rem; font-size: 13px;">
-                            <div style="display: flex; gap: 8px; margin-bottom: 0.75rem;">
-                                <i class="fa-solid fa-wifi" style="width: 16px; color: #94a3b8;"></i>
-                                <span>Paket: <strong>{{ $task->paket_internet }}</strong></span>
-                            </div>
-                            <div style="display: flex; gap: 8px; margin-bottom: 0.75rem;">
-                                <i class="fa-solid fa-map-location-dot" style="width: 16px; color: #94a3b8;"></i>
-                                <span>{{ Str::limit($task->alamat_lengkap, 35) }}</span>
-                            </div>
-                            <div style="display: flex; gap: 8px;">
-                                <i class="fa-brands fa-whatsapp" style="width: 16px; color: #10b981;"></i>
-                                <span style="font-family: monospace;">{{ $task->no_whatsapp }}</span>
-                            </div>
-                        </div>
-                        <div
-                            style="padding: 1rem 1.25rem; background: #f8fafc; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
-                            <div style="font-size: 10px; color: #94a3b8;">
-                                Deadline: <strong style="color: #ef4444;">{{ $task->deadline_date ?? 'N/A' }}</strong>
-                            </div>
-                            <a href="{{ route('customers.index') }}"
-                                class="btn-primary-admin !h-9 !px-3 !text-[11px] activate-btn !flex !items-center !justify-center gap-1"
-                                style="padding: 6px 12px; font-size: 11px;">
-                                Detail Tugas <i class="fa-solid fa-arrow-right ml-1" style="font-size: 10px;"></i>
-                            </a>
-                        </div>
-                    </div>
-                @empty
-                    <div
-                        style="grid-column: 1 / -1; padding: 3rem; background: #fff; border-radius: 14px; text-align: center; border: 2px dashed #e2e8f0;">
-                        <i class="fa-solid fa-circle-check"
-                            style="font-size: 3rem; color: #dcfce7; margin-bottom: 1rem; display: block;"></i>
-                        <p style="font-weight: 600; color: #94a3b8;">Tidak ada tugas delegasi khusus saat ini.</p>
-                    </div>
-                @endforelse
             </div>
         </div>
     @endif

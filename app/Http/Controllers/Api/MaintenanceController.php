@@ -15,10 +15,10 @@ class MaintenanceController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $query = Maintenance::with(['customer', 'teknisiEksekutor', 'teknisiDelegasi']);
+        $query = Maintenance::with(['customer', 'teknisiEksekutor']);
 
         if ($user->jabatan === 'Teknisi') {
-            $query->where('id_teknisi_delegasi', $user->id);
+            $query->where('status', 'Pending');
         }
 
         return response()->json($query->latest()->paginate(20));
@@ -28,7 +28,6 @@ class MaintenanceController extends Controller
     {
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
-            'id_teknisi_delegasi' => 'required|exists:users,id',
             'keterangan_admin' => 'required|string',
             'foto_kendala_awal' => 'nullable|image|max:20480',
         ]);
@@ -41,11 +40,9 @@ class MaintenanceController extends Controller
         $maintenance = Maintenance::create([
             'customer_id' => $request->customer_id,
             'id_admin' => auth()->id(),
-            'id_teknisi_delegasi' => $request->id_teknisi_delegasi,
             'keterangan_admin' => $request->keterangan_admin,
             'foto_kendala_awal' => $fotoPath,
             'status' => 'Pending',
-            'delegated_at' => now(),
         ]);
 
         return response()->json(['message' => 'Tugas maintenance berhasil dibuat', 'data' => $maintenance], 201);
@@ -93,27 +90,6 @@ class MaintenanceController extends Controller
         ]);
 
         return response()->json(['message' => 'Laporan maintenance berhasil disimpan']);
-    }
-
-    public function reassign(Request $request, $id)
-    {
-        $request->validate(['id_teknisi' => 'required|exists:users,id']);
-        $m = Maintenance::findOrFail($id);
-        $m->update([
-            'id_teknisi_delegasi' => $request->id_teknisi,
-            'delegated_at' => now()
-        ]);
-        return response()->json(['message' => 'Tugas berhasil ditugaskan ulang']);
-    }
-
-    public function resetDelegation($id)
-    {
-        $m = Maintenance::findOrFail($id);
-        $m->update([
-            'id_teknisi_delegasi' => null,
-            'delegated_at' => null
-        ]);
-        return response()->json(['message' => 'Delegasi maintenance berhasil direset']);
     }
 
     public function destroy($id)

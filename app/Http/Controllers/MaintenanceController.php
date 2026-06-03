@@ -17,7 +17,7 @@ class MaintenanceController extends Controller
         $user = auth()->user();
 
         // Memuat relasi customer dan preOrder (untuk WA & Tikor) secara eager loading
-        $query = Maintenance::with(['customer.preOrder', 'teknisiDelegasi', 'admin', 'teknisiEksekutor']);
+        $query = Maintenance::with(['customer.preOrder', 'admin', 'teknisiEksekutor']);
 
         // 1. Data untuk Admin (Semua Penugasan)
         $allMaintenances = (clone $query)
@@ -25,15 +25,8 @@ class MaintenanceController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // 2. Data Khusus Teknisi (Tugas yang didelegasikan ke dia)
-        $delegatedTasks = (clone $query)
-            ->where('id_teknisi_delegasi', $user->id)
-            ->where('status', 'Pending')
-            ->get();
-
-        // 3. Data Umum Teknisi (Tugas yang belum ditunjuk ke siapapun)
-        $generalTasks = (clone $query)
-            ->whereNull('id_teknisi_delegasi')
+        // 2. Data untuk Teknisi (Tugas Pending)
+        $pendingTasks = (clone $query)
             ->where('status', 'Pending')
             ->get();
 
@@ -60,8 +53,7 @@ class MaintenanceController extends Controller
 
         return view('maintenances.index', compact(
             'allMaintenances',
-            'delegatedTasks',
-            'generalTasks',
+            'pendingTasks',
             'customers',
             'teknisis',
             'totalThisMonth',
@@ -94,10 +86,8 @@ class MaintenanceController extends Controller
         $maintenance = Maintenance::create([
             'customer_id' => $request->customer_id,
             'id_admin' => auth()->id(),
-            'id_teknisi_delegasi' => $request->id_teknisi_delegasi,
             'keterangan_kendala' => $request->keterangan_kendala,
             'foto_kendala_awal' => $fotoPath,
-            'delegated_at' => $request->id_teknisi_delegasi ? now() : null,
             'status' => 'Pending'
         ]);
 
@@ -109,21 +99,6 @@ class MaintenanceController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Tugas maintenance berhasil dikirim.');
-    }
-
-    public function reassign(Request $request, $id)
-    {
-        if (auth()->user()->jabatan !== 'Administrator') abort(403);
-        $request->validate(['id_teknisi_delegasi' => 'required|exists:users,id']);
-
-        $m = Maintenance::findOrFail($id);
-        $m->update([
-            'id_teknisi_delegasi' => $request->id_teknisi_delegasi,
-            'delegated_at' => now(), // Reset Timer
-            'status' => 'Pending'
-        ]);
-
-        return redirect()->back()->with('success', 'Maintenance berhasil didelegasikan ulang.');
     }
 
     public function destroy($id)

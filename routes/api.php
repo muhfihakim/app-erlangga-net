@@ -28,8 +28,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/pre-orders', [PreOrderController::class, 'index']);
     Route::post('/pre-orders', [PreOrderController::class, 'store']);
     Route::get('/pre-orders/{id}', [PreOrderController::class, 'show']);
-    Route::post('/pre-orders/{id}/delegate', [PreOrderController::class, 'delegate']);
-    Route::post('/pre-orders/{id}/reset-delegation', [PreOrderController::class, 'resetDelegation']);
     Route::post('/pre-orders/{id}/unspek', [PreOrderController::class, 'unspek']);
     Route::post('/pre-orders/{id}/approve-unspek', [PreOrderController::class, 'approveUnspek']);
     Route::post('/pre-orders/{id}/reopen', [PreOrderController::class, 'reopen']);
@@ -47,8 +45,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/maintenances', [MaintenanceController::class, 'index']);
     Route::post('/maintenances', [MaintenanceController::class, 'store']); // Admin Create Task
     Route::post('/maintenances/{id}/complete', [MaintenanceController::class, 'complete']);
-    Route::post('/maintenances/{id}/reassign', [MaintenanceController::class, 'reassign']);
-    Route::post('/maintenances/{id}/reset', [MaintenanceController::class, 'resetDelegation']);
     Route::delete('/maintenances/{id}', [MaintenanceController::class, 'destroy']);
 
     // Dismantle

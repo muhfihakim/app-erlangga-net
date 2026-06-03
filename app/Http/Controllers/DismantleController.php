@@ -20,7 +20,7 @@ class DismantleController extends Controller
         $user = auth()->user();
 
         // Memuat relasi lengkap untuk data detail (Pelanggan, PO, Sales, Teknisi)
-        $query = Dismantle::with(['customer.preOrder', 'customer.sales', 'teknisiDelegasi', 'teknisiEksekutor']);
+        $query = Dismantle::with(['customer.preOrder', 'customer.sales', 'teknisiEksekutor']);
 
         // Data untuk Admin (Semua Penugasan)
         $allDismantles = (clone $query)
@@ -29,17 +29,10 @@ class DismantleController extends Controller
             ->get();
 
         // Data Khusus Teknisi
-        $delegatedTasks = [];
-        $generalTasks = [];
+        $pendingTasks = [];
         
         if ($user->jabatan === 'Teknisi') {
-            $delegatedTasks = (clone $query)
-                ->where('id_teknisi_delegasi', $user->id)
-                ->where('status', 'Pending')
-                ->get();
-            
-            $generalTasks = (clone $query)
-                ->whereNull('id_teknisi_delegasi')
+            $pendingTasks = (clone $query)
                 ->where('status', 'Pending')
                 ->get();
         }
@@ -67,8 +60,7 @@ class DismantleController extends Controller
 
         return view('dismantles.index', compact(
             'allDismantles',
-            'delegatedTasks',
-            'generalTasks',
+            'pendingTasks',
             'customers',
             'teknisis',
             'totalThisMonth',
@@ -99,9 +91,6 @@ class DismantleController extends Controller
      */
     public function store(Request $request)
     {
-        // DEBUG: Cek apakah data masuk ke sini
-        // dd($request->all());
-
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'keterangan_admin' => 'nullable|string'
@@ -110,9 +99,7 @@ class DismantleController extends Controller
         $d = Dismantle::create([
             'customer_id' => $request->customer_id,
             'id_admin' => auth()->id(),
-            'id_teknisi_delegasi' => $request->id_teknisi_delegasi,
             'keterangan_admin' => $request->keterangan_admin,
-            'delegated_at' => $request->id_teknisi_delegasi ? now() : null,
             'status' => 'Pending'
         ]);
 
@@ -171,7 +158,7 @@ class DismantleController extends Controller
             'logged_at' => now(),
         ]);
 
-        $d->delete(); // Hard delete record dismantle (karena tabel dismantle tidak pakai softdelete)
+        $d->delete(); 
 
         return redirect()->back()->with('success', 'Tugas dismantle berhasil dibatalkan.');
     }
@@ -190,7 +177,6 @@ class DismantleController extends Controller
             'logged_at' => now(),
         ]);
 
-        // Karena model Customer menggunakan SoftDeletes, ini hanya akan mengisi kolom deleted_at
         $c->delete();
 
         return redirect()->back()->with('success', "Pelanggan $nama telah dinonaktifkan (Soft Delete). Data laporan tetap aman.");

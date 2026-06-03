@@ -14,10 +14,10 @@ class DismantleController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $query = Dismantle::with(['customer', 'teknisiEksekutor', 'teknisiDelegasi']);
+        $query = Dismantle::with(['customer', 'teknisiEksekutor']);
 
         if ($user->jabatan === 'Teknisi') {
-            $query->where('id_teknisi_delegasi', $user->id);
+            $query->where('status', 'Pending');
         }
 
         return response()->json($query->latest()->paginate(20));
@@ -27,17 +27,14 @@ class DismantleController extends Controller
     {
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
-            'id_teknisi_delegasi' => 'required|exists:users,id',
             'keterangan_admin' => 'nullable|string',
         ]);
 
         $dismantle = Dismantle::create([
             'customer_id' => $request->customer_id,
             'id_admin' => auth()->id(),
-            'id_teknisi_delegasi' => $request->id_teknisi_delegasi,
             'keterangan_admin' => $request->keterangan_admin,
             'status' => 'Pending',
-            'delegated_at' => now(),
         ]);
 
         return response()->json(['message' => 'Tugas dismantle berhasil dibuat', 'data' => $dismantle], 201);

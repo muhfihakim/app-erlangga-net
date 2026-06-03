@@ -59,19 +59,12 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/laporan/preorder', [ActivityLogController::class, 'laporanPreOrder'])->name('activitylog.preorder');
     Route::get('/laporan/preorder/export', [ActivityLogController::class, 'exportPreOrder'])->name('activitylog.preorder.export');
 
-    Route::get('/laporan/preorder-expired', [ActivityLogController::class, 'laporanExpired'])->name('activitylog.expired');
-    Route::get('/laporan/preorder-expired/export', [ActivityLogController::class, 'exportExpired'])->name('activitylog.expired.export');
-
     Route::get('/laporan/aktivasi', [ActivityLogController::class, 'laporanAktivasi'])->name('activitylog.aktivasi');
     Route::get('/laporan/aktivasi/export', [ActivityLogController::class, 'exportAktivasi'])->name('activitylog.aktivasi.export');
 
     // Laporan Maintenance (Selesai)
     Route::get('/laporan/maintenance', [ActivityLogController::class, 'laporanMaintenance'])->name('activitylog.maintenance');
     Route::get('/laporan/maintenance/export', [ActivityLogController::class, 'exportMaintenance'])->name('activitylog.maintenance.export');
-
-    // Laporan Maintenance Expired
-    Route::get('/laporan/maintenance-expired', [ActivityLogController::class, 'laporanMaintenanceExpired'])->name('activitylog.maintenance_expired');
-    Route::get('/laporan/maintenance-expired/export', [ActivityLogController::class, 'exportMaintenanceExpired'])->name('activitylog.maintenance_expired.export');
 
     Route::get('/laporan/dismantle', [ActivityLogController::class, 'laporanDismantle'])->name('activitylog.dismantle');
     Route::get('/laporan/dismantle/export', [ActivityLogController::class, 'exportDismantle'])->name('activitylog.dismantle.export');
@@ -80,8 +73,6 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/maintenances/customer/{id}', [MaintenanceController::class, 'getCustomerData']);
     Route::post('/maintenances', [MaintenanceController::class, 'store'])->name('maintenances.store');
     Route::post('/maintenances/{id}/complete', [MaintenanceController::class, 'complete'])->name('maintenances.complete');
-    Route::post('/maintenances/{maintenance}/reset', [MaintenanceController::class, 'resetDelegation'])->name('maintenances.reset');
-    Route::post('/maintenances/{id}/reassign', [MaintenanceController::class, 'reassign'])->name('maintenances.reassign');
     Route::delete('/maintenances/{id}', [MaintenanceController::class, 'destroy'])->name('maintenances.destroy');
 
     Route::get('/dismantles', [DismantleController::class, 'index'])->name('dismantles.index');
@@ -101,8 +92,6 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('/pre-orders', [PreOrderController::class, 'store'])->name('pre_orders.store');
     Route::put('/pre-orders/{preOrder}', [PreOrderController::class, 'update'])->name('pre_orders.update');
     Route::delete('/pre-orders/{preOrder}', [PreOrderController::class, 'destroy'])->name('pre_orders.destroy');
-    Route::post('pre-orders/{preOrder}/delegate', [PreOrderController::class, 'delegate'])->name('pre_orders.delegate');
-    Route::post('pre-orders/{preOrder}/reset-delegation', [PreOrderController::class, 'resetDelegation'])->name('pre_orders.reset');
     Route::post('pre-orders/{preOrder}/unspek', [PreOrderController::class, 'unspek'])->name('pre_orders.unspek');
     Route::post('pre-orders/{preOrder}/approve-unspek', [PreOrderController::class, 'approveUnspek'])->name('pre_orders.approve_unspek');
     Route::post('pre-orders/{preOrder}/reopen-unspek', [PreOrderController::class, 'reopenUnspek'])->name('pre_orders.reopen_unspek');

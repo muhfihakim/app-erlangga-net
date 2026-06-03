@@ -12,12 +12,10 @@ class Dismantle extends Model
     protected $fillable = [
         'customer_id',
         'id_admin',
-        'id_teknisi_delegasi',
         'id_teknisi_eksekutor',
         'keterangan_admin',
         'foto_pencabutan',
         'status',
-        'delegated_at',
         'completed_at'
     ];
 
@@ -25,7 +23,6 @@ class Dismantle extends Model
      * Casting tipe data otomatis untuk tanggal agar dapat digunakan oleh Carbon.
      */
     protected $casts = [
-        'delegated_at' => 'datetime',
         'completed_at' => 'datetime',
     ];
 
@@ -45,14 +42,6 @@ class Dismantle extends Model
     public function teknisiEksekutor()
     {
         return $this->belongsTo(User::class, 'id_teknisi_eksekutor');
-    }
-
-    /**
-     * Relasi ke Teknisi yang ditugaskan secara khusus oleh admin (Delegasi).
-     */
-    public function teknisiDelegasi()
-    {
-        return $this->belongsTo(User::class, 'id_teknisi_delegasi');
     }
 
     /**
