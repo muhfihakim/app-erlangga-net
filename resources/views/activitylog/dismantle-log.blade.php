@@ -61,7 +61,7 @@
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Riwayat pencabutan perangkat dan pemutusan layanan.</p>
         </div>
         <div style="display:flex; gap:10px;">
-            @if ($start && $end)
+            @if ($isFiltered)
                 <a href="{{ route('activitylog.dismantle.export', ['start_date' => $start, 'end_date' => $end, 'teknisi_id' => $teknisiId]) }}"
                     class="btn-primary-admin !flex !items-center !justify-center gap-2 !bg-rose-600">
                     <i class="fa-solid fa-file-pdf"></i> Export PDF

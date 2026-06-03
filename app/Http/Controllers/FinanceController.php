@@ -17,6 +17,9 @@ class FinanceController extends Controller
         $start = $request->input('start_date');
         $end = $request->input('end_date');
 
+        // Check if user manually applied a filter
+        $isFiltered = $request->filled('start_date') && $request->filled('end_date');
+
         // Set default filter: 2 weeks (Saturday to Friday current cycle + previous cycle)
         if (!$start && !$end) {
             $endOfCurrentCycle = Carbon::now()->isFriday() ? Carbon::now() : Carbon::now()->next(Carbon::FRIDAY);
@@ -87,7 +90,7 @@ class FinanceController extends Controller
             $c->total_techs = $totalTechs;
         }
 
-        return view('finance.index', compact('customers', 'teknisis', 'teknisiId', 'start', 'end', 'baseFee', 'totalPendapatan', 'stats'));
+        return view('finance.index', compact('customers', 'teknisis', 'teknisiId', 'start', 'end', 'baseFee', 'totalPendapatan', 'stats', 'isFiltered'));
     }
 
     public function export(Request $request)

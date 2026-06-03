@@ -70,6 +70,9 @@ class ActivityLogController extends Controller
         $start = $request->input('start_date');
         $end = $request->input('end_date');
 
+        // Check if user manually applied a filter
+        $isFiltered = $request->filled('start_date') && $request->filled('end_date');
+
         $query = Customer::withTrashed()->with(['teknisiUtama', 'sales']);
 
         if ($teknisiId) {
@@ -79,10 +82,14 @@ class ActivityLogController extends Controller
             });
         }
 
-        if ($start) $query->whereDate('created_at', '>=', $start);
-        if ($end) $query->whereDate('created_at', '<=', $end);
+        if ($isFiltered) {
+            if ($start) $query->whereDate('created_at', '>=', $start);
+            if ($end) $query->whereDate('created_at', '<=', $end);
+            $customers = $query->orderBy('created_at', 'desc')->get();
+        } else {
+            $customers = collect();
+        }
 
-        $customers = $query->orderBy('created_at', 'desc')->get();
         $teknisis = User::where('jabatan', 'Teknisi')->get();
 
         $stats = [
@@ -92,7 +99,7 @@ class ActivityLogController extends Controller
             'today' => Customer::withTrashed()->whereDate('created_at', Carbon::today())->count(),
         ];
 
-        return view('activitylog.aktivasi-log', compact('customers', 'teknisis', 'teknisiId', 'start', 'end', 'stats'));
+        return view('activitylog.aktivasi-log', compact('customers', 'teknisis', 'teknisiId', 'start', 'end', 'stats', 'isFiltered'));
     }
 
     public function exportAktivasi(Request $request)
@@ -131,6 +138,9 @@ class ActivityLogController extends Controller
         $start = $request->input('start_date');
         $end = $request->input('end_date');
 
+        // Check if user manually applied a filter
+        $isFiltered = $request->filled('start_date') && $request->filled('end_date');
+
         $query = Maintenance::with(['customer', 'teknisiEksekutor'])
             ->where('status', 'Selesai');
 
@@ -141,10 +151,14 @@ class ActivityLogController extends Controller
             });
         }
 
-        if ($start) $query->whereDate('completed_at', '>=', $start);
-        if ($end) $query->whereDate('completed_at', '<=', $end);
+        if ($isFiltered) {
+            if ($start) $query->whereDate('completed_at', '>=', $start);
+            if ($end) $query->whereDate('completed_at', '<=', $end);
+            $maintenances = $query->orderBy('completed_at', 'desc')->get();
+        } else {
+            $maintenances = collect();
+        }
 
-        $maintenances = $query->orderBy('completed_at', 'desc')->get();
         $teknisis = User::where('jabatan', 'Teknisi')->get();
 
         $stats = [
@@ -154,7 +168,7 @@ class ActivityLogController extends Controller
             'today' => Maintenance::where('status', 'Selesai')->whereDate('completed_at', Carbon::today())->count(),
         ];
 
-        return view('activitylog.maintenance-log', compact('maintenances', 'teknisis', 'teknisiId', 'start', 'end', 'stats'));
+        return view('activitylog.maintenance-log', compact('maintenances', 'teknisis', 'teknisiId', 'start', 'end', 'stats', 'isFiltered'));
     }
 
     public function exportMaintenance(Request $request)
@@ -211,12 +225,18 @@ class ActivityLogController extends Controller
         $start = $request->input('start_date');
         $end = $request->input('end_date');
 
-        $query = PreOrder::with('sales')->orderByDesc('created_at');
-        if ($salesId) $query->where('id_sales', $salesId);
-        if ($start) $query->whereDate('created_at', '>=', $start);
-        if ($end) $query->whereDate('created_at', '<=', $end);
+        // Check if user manually applied a filter
+        $isFiltered = $request->filled('start_date') && $request->filled('end_date');
 
-        $preorders = $this->processPreOrderStatuses($query->get());
+        if ($isFiltered) {
+            $query = PreOrder::with('sales')->orderByDesc('created_at');
+            if ($salesId) $query->where('id_sales', $salesId);
+            if ($start) $query->whereDate('created_at', '>=', $start);
+            if ($end) $query->whereDate('created_at', '<=', $end);
+            $preorders = $this->processPreOrderStatuses($query->get());
+        } else {
+            $preorders = collect();
+        }
 
         $allSales = User::where('jabatan', 'Sales')->get();
 
@@ -227,7 +247,7 @@ class ActivityLogController extends Controller
             'pending' => $preorders->where('po_status', 'Pending')->count(),
         ];
 
-        return view('activitylog.preorder-log', compact('preorders', 'allSales', 'salesId', 'start', 'end', 'stats'));
+        return view('activitylog.preorder-log', compact('preorders', 'allSales', 'salesId', 'start', 'end', 'stats', 'isFiltered'));
     }
 
     public function exportPreOrder(Request $request)
@@ -268,6 +288,9 @@ class ActivityLogController extends Controller
         $start = $request->input('start_date');
         $end = $request->input('end_date');
 
+        // Check if user manually applied a filter
+        $isFiltered = $request->filled('start_date') && $request->filled('end_date');
+
         $query = Dismantle::with(['customer', 'teknisiEksekutor'])
             ->where('status', 'Selesai');
 
@@ -275,10 +298,14 @@ class ActivityLogController extends Controller
             $query->where('id_teknisi_eksekutor', $teknisiId);
         }
 
-        if ($start) $query->whereDate('completed_at', '>=', $start);
-        if ($end) $query->whereDate('completed_at', '<=', $end);
+        if ($isFiltered) {
+            if ($start) $query->whereDate('completed_at', '>=', $start);
+            if ($end) $query->whereDate('completed_at', '<=', $end);
+            $dismantles = $query->orderBy('completed_at', 'desc')->get();
+        } else {
+            $dismantles = collect();
+        }
 
-        $dismantles = $query->orderBy('completed_at', 'desc')->get();
         $teknisis = User::where('jabatan', 'Teknisi')->get();
 
         $stats = [
@@ -288,7 +315,7 @@ class ActivityLogController extends Controller
             'today' => Dismantle::where('status', 'Selesai')->whereDate('completed_at', Carbon::today())->count(),
         ];
 
-        return view('activitylog.dismantle-log', compact('dismantles', 'teknisis', 'teknisiId', 'start', 'end', 'stats'));
+        return view('activitylog.dismantle-log', compact('dismantles', 'teknisis', 'teknisiId', 'start', 'end', 'stats', 'isFiltered'));
     }
 
     public function exportDismantle(Request $request)
