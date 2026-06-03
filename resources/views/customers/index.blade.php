@@ -109,9 +109,6 @@
                 dikerjakan.</p>
         </div>
         <div style="display:flex; gap:10px;">
-            <a href="{{ route('dashboards.index') }}" class="btn-primary-admin btn-glow-soft !flex !items-center !justify-center gap-2">
-                <i class="fa-solid fa-house"></i> Dashboard
-            </a>
         </div>
     </div>
 

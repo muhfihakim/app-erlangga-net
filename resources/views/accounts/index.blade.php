@@ -65,9 +65,6 @@
                 onclick="openCustomModal('addUserModal')">
                 <i class="fa-solid fa-user-plus"></i> Tambah Akun
             </button>
-            <a href="{{ route('dashboards.index') }}" class="btn-primary-admin btn-glow-soft !flex !items-center !justify-center gap-2">
-                <i class="fa-solid fa-house"></i> Dashboard
-            </a>
         </div>
     </div>
 

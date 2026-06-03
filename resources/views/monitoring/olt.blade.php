@@ -189,13 +189,13 @@
     @endsection
 
     <div
-        style="display:flex;align-items:center;justify-content:space-between;margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap;">
+        style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
             <h1 style="font-size:22px;font-weight:900;margin:0;">Manajemen OLT</h1>
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Monitoring dan aktivasi perangkat OLT ZTE C300 secara
                 real-time.</p>
         </div>
-        <div class="flex items-center gap-3">
+        <div style="display:flex; gap:10px;">
             <div class="flex bg-white rounded-xl border border-slate-200 p-1 shadow-sm h-[46px]">
                 <button class="tab-btn active" data-target="panel-generator">
                     <i class="fa-solid fa-wand-magic-sparkles"></i> Generator
@@ -204,9 +204,6 @@
                     <i class="fa-solid fa-chart-pie"></i> Dashboard OLT
                 </button>
             </div>
-            <a href="{{ route('dashboards.index') }}" class="btn-primary-admin btn-glow-soft !flex !items-center !justify-center gap-2 !h-[46px]">
-                <i class="fa-solid fa-house"></i> Dashboard
-            </a>
         </div>
     </div>
 

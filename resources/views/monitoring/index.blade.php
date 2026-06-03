@@ -103,6 +103,8 @@
             <h1 style="font-size:22px;font-weight:900;margin:0;">Monitoring Bandwidth</h1>
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Real-time traffic MikroTik interface.</p>
         </div>
+        <div style="display:flex; gap:10px;">
+        </div>
     </div>
 
     <!-- Info card -->
