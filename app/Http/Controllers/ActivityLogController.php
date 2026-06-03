@@ -55,7 +55,7 @@ class ActivityLogController extends Controller
             ->orderByDesc('logged_at')
             ->get();
 
-        $pdf = PDF::loadView('activitylog.export-pdf', [
+        $pdf = PDF::loadView('activitylog.export', [
             'logs' => $logs,
             'start' => $request->start_date,
             'end' => $request->end_date,
@@ -121,7 +121,7 @@ class ActivityLogController extends Controller
 
         $customers = $query->orderBy('created_at', 'asc')->get();
 
-        $pdf = PDF::loadView('activitylog.export-aktivasi', [
+        $pdf = PDF::loadView('customers.export', [
             'customers' => $customers,
             'start' => $request->start_date,
             'end' => $request->end_date,
@@ -190,7 +190,7 @@ class ActivityLogController extends Controller
         }
 
         $maintenances = $query->orderBy('completed_at', 'asc')->get();
-        $pdf = PDF::loadView('activitylog.export-maintenance', [
+        $pdf = PDF::loadView('maintenances.export', [
             'maintenances' => $maintenances,
             'start' => $request->start_date,
             'end' => $request->end_date,
@@ -271,7 +271,7 @@ class ActivityLogController extends Controller
             'pending' => $preorders->where('po_status', 'Pending')->count(),
         ];
 
-        $pdf = PDF::loadView('activitylog.export-preorder', [
+        $pdf = PDF::loadView('preorders.export', [
             'preorders' => $preorders,
             'start' => $request->start_date,
             'end' => $request->end_date,
@@ -338,7 +338,7 @@ class ActivityLogController extends Controller
 
         $dismantles = $query->orderBy('completed_at', 'asc')->get();
 
-        $pdf = PDF::loadView('activitylog.export-dismantle', [
+        $pdf = PDF::loadView('dismantles.export', [
             'dismantles' => $dismantles,
             'start' => $request->start_date,
             'end' => $request->end_date,

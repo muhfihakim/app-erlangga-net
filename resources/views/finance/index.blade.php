@@ -269,7 +269,7 @@
                 <!-- Button -->
                 <button type="submit"
                     class="btn-primary-admin !h-10 !px-6 !text-[13px] !w-fit flex items-center gap-2">
-                    <i class="fa-solid fa-filter"></i> Terapkan
+                    <i class="fa-solid fa-filter"></i> Terapkan Filter
                 </button>
             </div>
         </form>
