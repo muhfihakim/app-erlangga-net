@@ -31,15 +31,31 @@
                 padding: 1.5rem; margin-bottom: 1.25rem; box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
             }
 
-            .search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 360px; }
-            .search-icon {
-                position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
-                color: #94a3b8; font-size: 13px; pointer-events: none;
+            .form-label-custom {
+                font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase;
+                margin-bottom: 6px; display: block; letter-spacing: 0.025em;
             }
-            .search-input {
-                width: 100%; padding: 9px 12px 9px 36px; border: 2px solid #e2e8f0;
-                border-radius: 10px; font-size: 13px; outline: none; background: #f8fafc;
-                height: 42px;
+
+            .form-input-custom {
+                width: 100%; height: 40px !important; padding: 8px 12px;
+                border: 2px solid #e2e8f0; border-radius: 10px; font-size: 13px;
+                font-weight: 600; color: #334155; background: #f8fafc; outline: none; transition: all 0.2s;
+            }
+            .form-input-custom:focus {
+                border-color: #0ea5e9; background: #fff; box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+            }
+
+            /* Select2 Height Match - OLT Style */
+            .select2-container--default .select2-selection--single {
+                height: 40px !important; border: 2px solid #e2e8f0 !important; border-radius: 10px !important;
+                display: flex !important; align-items: center !important; background-color: #f8fafc !important;
+            }
+            .select2-container--default .select2-selection--single .select2-selection__rendered {
+                line-height: 40px !important; padding-left: 12px !important; font-size: 13px !important; font-weight: 600 !important; color: #334155 !important;
+            }
+            .select2-container--default .select2-selection--single .select2-selection__arrow { height: 38px !important; }
+            .select2-container--default.select2-container--focus .select2-selection--single {
+                border-color: #0ea5e9 !important; background-color: #fff !important; box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1) !important;
             }
 
             .admin-table thead th {
@@ -47,20 +63,6 @@
                 color: #64748b; letter-spacing: 0.05em; text-align: center;
             }
             .admin-table tbody td { font-size: 12px; font-weight: 600; text-align: center; }
-
-            /* Select2 Matching OLT & Hakatech Form Style */
-            .select2-container--default .select2-selection--single {
-                height: 42px !important; border: 2px solid #cbd5e1 !important; border-radius: 10px !important;
-                display: flex !important; align-items: center !important; background-color: #fff !important;
-                transition: all 0.2s;
-            }
-            .select2-container--default .select2-selection--single .select2-selection__rendered {
-                line-height: 42px !important; padding-left: 12px !important; font-size: 13px !important; font-weight: 600 !important; color: #334155 !important;
-            }
-            .select2-container--default .select2-selection--single .select2-selection__arrow { height: 40px !important; right: 8px !important; }
-            .select2-container--default.select2-container--focus .select2-selection--single {
-                border-color: #0ea5e9 !important; box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1) !important;
-            }
         </style>
     @endsection
 
@@ -82,27 +84,27 @@
     <!-- Filters Section -->
     <div class="filter-card">
         <form action="{{ route('assets.transactions') }}" method="GET" class="flex flex-wrap items-end gap-4">
-            <div class="form-group mb-0 flex-1 min-w-[200px]">
-                <label class="form-label !text-[11px] !font-black !text-slate-400 uppercase tracking-widest mb-1.5">Tipe Transaksi</label>
-                <select name="type" class="form-select select2-basic" style="width: 100%;">
+            <div style="flex: 1; min-width: 200px;">
+                <label class="form-label-custom">Tipe Transaksi</label>
+                <select name="type" class="form-input-custom select2-basic" style="width: 100%;">
                     <option value="">Semua Jenis</option>
                     <option value="Masuk" {{ request('type') === 'Masuk' ? 'selected' : '' }}>Barang Masuk (+)</option>
                     <option value="Keluar" {{ request('type') === 'Keluar' ? 'selected' : '' }}>Barang Keluar (-)</option>
                 </select>
             </div>
-            <div class="form-group mb-0 flex-1 min-w-[200px]">
-                <label class="form-label !text-[11px] !font-black !text-slate-400 uppercase tracking-widest mb-1.5">Dari Tanggal</label>
-                <input type="date" name="start_date" class="form-input !h-[42px]" value="{{ request('start_date') }}">
+            <div style="flex: 1; min-width: 200px;">
+                <label class="form-label-custom">Dari Tanggal</label>
+                <input type="date" name="start_date" class="form-input-custom" value="{{ request('start_date') }}">
             </div>
-            <div class="form-group mb-0 flex-1 min-w-[200px]">
-                <label class="form-label !text-[11px] !font-black !text-slate-400 uppercase tracking-widest mb-1.5">Sampai Tanggal</label>
-                <input type="date" name="end_date" class="form-input !h-[42px]" value="{{ request('end_date') }}">
+            <div style="flex: 1; min-width: 200px;">
+                <label class="form-label-custom">Sampai Tanggal</label>
+                <input type="date" name="end_date" class="form-input-custom" value="{{ request('end_date') }}">
             </div>
             <div class="flex gap-2">
-                <button type="submit" class="btn-primary-admin !h-[42px] !px-6 !flex !items-center gap-2">
+                <button type="submit" class="btn-primary-admin !h-[40px] !px-6 !flex !items-center gap-2">
                     <i class="fa-solid fa-filter"></i> Filter
                 </button>
-                <a href="{{ route('assets.transactions') }}" class="btn-cancel !h-[42px] !w-[42px] !p-0 !flex !items-center !justify-center" title="Reset">
+                <a href="{{ route('assets.transactions') }}" class="btn-cancel !h-[40px] !w-[40px] !p-0 !flex !items-center !justify-center" title="Reset">
                     <i class="fa-solid fa-rotate-left"></i>
                 </a>
             </div>

@@ -31,7 +31,7 @@
             .search-input {
                 width: 100%; padding: 9px 12px 9px 36px; border: 2px solid #e2e8f0;
                 border-radius: 10px; font-size: 13px; outline: none; background: #f8fafc;
-                height: 42px;
+                height: 40px; /* MATCH OLT */
             }
 
             #assetTable thead th, #assetTable tbody td { text-transform: uppercase !important; font-weight: 600; font-size: 12px; }
@@ -41,46 +41,58 @@
                 background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0;
             }
 
-            /* Select2 Matching OLT & Hakatech Form Style */
+            /* FORM ELEMENTS - MATCH OLT STANDARDS */
+            .form-input-custom {
+                width: 100%;
+                height: 40px !important;
+                padding: 8px 12px;
+                border: 2px solid #e2e8f0;
+                border-radius: 10px;
+                font-size: 13px;
+                font-weight: 600;
+                color: #334155;
+                background: #f8fafc;
+                outline: none;
+                transition: all 0.2s;
+            }
+            .form-input-custom:focus {
+                border-color: #0ea5e9;
+                background: #fff;
+                box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+            }
+
+            /* Select2 Height Match */
             .select2-container--default .select2-selection--single {
-                height: 42px !important; 
-                border: 2px solid #cbd5e1 !important; 
+                height: 40px !important; 
+                border: 2px solid #e2e8f0 !important; 
                 border-radius: 10px !important;
                 display: flex !important; 
                 align-items: center !important;
-                background-color: #fff !important;
-                transition: all 0.2s;
+                background-color: #f8fafc !important;
             }
             .select2-container--default .select2-selection--single .select2-selection__rendered {
-                line-height: 42px !important; 
+                line-height: 40px !important; 
                 padding-left: 12px !important; 
                 font-size: 13px !important; 
                 font-weight: 600 !important;
                 color: #334155 !important;
             }
-            .select2-container--default .select2-selection--single .select2-selection__arrow { 
-                height: 40px !important; 
-                right: 8px !important;
-            }
+            .select2-container--default .select2-selection--single .select2-selection__arrow { height: 38px !important; }
             .select2-container--default.select2-container--focus .select2-selection--single {
                 border-color: #0ea5e9 !important;
+                background-color: #fff !important;
                 box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1) !important;
             }
-            .select2-dropdown { 
-                border: 2px solid #0ea5e9 !important; 
-                border-radius: 10px !important; 
-                overflow: hidden !important; 
-                box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1) !important; 
-            }
 
-            /* Fix Form Layout */
-            .form-group-row {
+            /* Grid Layout Consistency */
+            .form-row-custom {
                 display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 1.5rem;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.25rem;
+                margin-bottom: 1.25rem;
             }
             @media (max-width: 640px) {
-                .form-group-row { grid-template-columns: 1fr; gap: 1rem; }
+                .form-row-custom { grid-template-columns: 1fr; gap: 1rem; }
             }
         </style>
     @endsection
@@ -198,15 +210,15 @@
                         <div class="modal-title"><i class="fa-solid fa-plus-square text-primary"></i> <span class="text-slate-900 font-bold text-[17px]">Tambah Jenis Barang</span></div>
                         <button type="button" class="modal-close" onclick="closeCustomModal('addAssetModal')"><i class="fa-solid fa-xmark"></i></button>
                     </div>
-                    <div class="modal-body p-8 space-y-6 bg-white">
-                        <div class="form-group-row">
-                            <div class="form-group">
-                                <label class="form-label !text-slate-800 !font-bold">Nama Barang <span class="text-rose-500">*</span></label>
-                                <input type="text" name="name" class="form-input" placeholder="Contoh: ONT Huawei HG8245H" required>
+                    <div class="modal-body p-8 bg-white">
+                        <div class="form-row-custom">
+                            <div>
+                                <label class="form-label !text-slate-800 !font-bold mb-1.5">Nama Barang <span class="text-rose-500">*</span></label>
+                                <input type="text" name="name" class="form-input-custom" placeholder="Contoh: ONT Huawei HG8245H" required>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label !text-slate-800 !font-bold">Tipe Barang <span class="text-rose-500">*</span></label>
-                                <select name="type" class="form-select select2-basic" required>
+                            <div>
+                                <label class="form-label !text-slate-800 !font-bold mb-1.5">Tipe Barang <span class="text-rose-500">*</span></label>
+                                <select name="type" class="form-input-custom select2-basic" required>
                                     <option value="">-- Pilih Tipe --</option>
                                     <option value="ONT">ONT (Network Terminal)</option>
                                     <option value="Kabel">Kabel Fiber Optic</option>
@@ -216,14 +228,14 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="form-group-row">
-                            <div class="form-group">
-                                <label class="form-label !text-slate-800 !font-bold">Satuan <span class="text-rose-500">*</span></label>
-                                <input type="text" name="unit" class="form-input" placeholder="Pcs, Meter, Roll, dll" required>
+                        <div class="form-row-custom">
+                            <div>
+                                <label class="form-label !text-slate-800 !font-bold mb-1.5">Satuan <span class="text-rose-500">*</span></label>
+                                <input type="text" name="unit" class="form-input-custom" placeholder="Pcs, Meter, Roll, dll" required>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label !text-slate-800 !font-bold">Keterangan Tambahan</label>
-                                <input type="text" name="description" class="form-input" placeholder="Opsional...">
+                            <div>
+                                <label class="form-label !text-slate-800 !font-bold mb-1.5">Keterangan Tambahan</label>
+                                <input type="text" name="description" class="form-input-custom" placeholder="Opsional...">
                             </div>
                         </div>
                     </div>
@@ -244,15 +256,15 @@
                         <div class="modal-title"><i class="fa-solid fa-pen-to-square text-primary"></i> <span class="text-slate-900 font-bold text-[17px]">Edit Jenis Barang</span></div>
                         <button type="button" class="modal-close" onclick="closeCustomModal('editAssetModal')"><i class="fa-solid fa-xmark"></i></button>
                     </div>
-                    <div class="modal-body p-8 space-y-6 bg-white">
-                        <div class="form-group-row">
-                            <div class="form-group">
-                                <label class="form-label !text-slate-800 !font-bold">Nama Barang <span class="text-rose-500">*</span></label>
-                                <input type="text" name="name" id="edit_name" class="form-input" required>
+                    <div class="modal-body p-8 bg-white">
+                        <div class="form-row-custom">
+                            <div>
+                                <label class="form-label !text-slate-800 !font-bold mb-1.5">Nama Barang <span class="text-rose-500">*</span></label>
+                                <input type="text" name="name" id="edit_name" class="form-input-custom" required>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label !text-slate-800 !font-bold">Tipe Barang <span class="text-rose-500">*</span></label>
-                                <select name="type" id="edit_type" class="form-select select2-basic" required>
+                            <div>
+                                <label class="form-label !text-slate-800 !font-bold mb-1.5">Tipe Barang <span class="text-rose-500">*</span></label>
+                                <select name="type" id="edit_type" class="form-input-custom select2-basic" required>
                                     <option value="ONT">ONT (Network Terminal)</option>
                                     <option value="Kabel">Kabel Fiber Optic</option>
                                     <option value="Passive">Passive Splitter</option>
@@ -261,14 +273,14 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="form-group-row">
-                            <div class="form-group">
-                                <label class="form-label !text-slate-800 !font-bold">Satuan <span class="text-rose-500">*</span></label>
-                                <input type="text" name="unit" id="edit_unit" class="form-input" required>
+                        <div class="form-row-custom">
+                            <div>
+                                <label class="form-label !text-slate-800 !font-bold mb-1.5">Satuan <span class="text-rose-500">*</span></label>
+                                <input type="text" name="unit" id="edit_unit" class="form-input-custom" required>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label !text-slate-800 !font-bold">Keterangan</label>
-                                <input type="text" name="description" id="edit_description" class="form-input">
+                            <div>
+                                <label class="form-label !text-slate-800 !font-bold mb-1.5">Keterangan</label>
+                                <input type="text" name="description" id="edit_description" class="form-input-custom">
                             </div>
                         </div>
                     </div>
@@ -290,29 +302,29 @@
                     <div class="modal-title"><i class="fa-solid fa-right-left text-emerald-600"></i> <span class="text-slate-900 font-bold text-[17px]">Transaksi: <span id="trans_asset_name" class="text-emerald-600"></span></span></div>
                     <button type="button" class="modal-close" onclick="closeCustomModal('transactionModal')"><i class="fa-solid fa-xmark"></i></button>
                 </div>
-                <div class="modal-body p-8 space-y-6 bg-white">
-                    <div class="form-group-row">
-                        <div class="form-group">
-                            <label class="form-label !text-slate-800 !font-bold">Jenis Transaksi <span class="text-rose-500">*</span></label>
-                            <select name="type" id="trans_type" class="form-select select2-basic" required onchange="toggleTransactionFields()">
+                <div class="modal-body p-8 bg-white">
+                    <div class="form-row-custom">
+                        <div>
+                            <label class="form-label !text-slate-800 !font-bold mb-1.5">Jenis Transaksi <span class="text-rose-500">*</span></label>
+                            <select name="type" id="trans_type" class="form-input-custom select2-basic" required onchange="toggleTransactionFields()">
                                 <option value="Masuk">Barang Masuk (Stok +)</option>
                                 <option value="Keluar">Barang Keluar (Stok -)</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label !text-slate-800 !font-bold">Tanggal <span class="text-rose-500">*</span></label>
-                            <input type="date" name="date" class="form-input" value="{{ date('Y-m-d') }}" required>
+                        <div>
+                            <label class="form-label !text-slate-800 !font-bold mb-1.5">Tanggal <span class="text-rose-500">*</span></label>
+                            <input type="date" name="date" class="form-input-custom" value="{{ date('Y-m-d') }}" required>
                         </div>
                     </div>
 
-                    <div class="form-group-row">
-                        <div class="form-group">
-                            <label class="form-label !text-slate-800 !font-bold">Jumlah <span class="text-rose-500">*</span></label>
-                            <input type="number" name="quantity" class="form-input" min="1" placeholder="0" required>
+                    <div class="form-row-custom">
+                        <div>
+                            <label class="form-label !text-slate-800 !font-bold mb-1.5">Jumlah <span class="text-rose-500">*</span></label>
+                            <input type="number" name="quantity" class="form-input-custom" min="1" placeholder="0" required>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label !text-slate-800 !font-bold" id="label_person">Penerima / Admin</label>
-                            <select name="user_id" class="form-select select2-user">
+                        <div>
+                            <label class="form-label !text-slate-800 !font-bold mb-1.5" id="label_person">Penerima / Admin</label>
+                            <select name="user_id" class="form-input-custom select2-user" style="width: 100%;">
                                 <option value="">-- Pilih User --</option>
                                 @foreach($users as $user)
                                     <option value="{{ $user->id }}">{{ $user->nama_lengkap }} ({{ $user->jabatan }})</option>
@@ -321,14 +333,14 @@
                         </div>
                     </div>
 
-                    <div class="form-group-row">
-                        <div class="form-group">
-                            <label class="form-label !text-slate-800 !font-bold">Nama Pihak Luar (Manual)</label>
-                            <input type="text" name="external_person_name" class="form-input" placeholder="Nama pengirim/penerima luar...">
+                    <div class="form-row-custom">
+                        <div>
+                            <label class="form-label !text-slate-800 !font-bold mb-1.5">Nama Pihak Luar (Manual)</label>
+                            <input type="text" name="external_person_name" class="form-input-custom" placeholder="Nama pengirim/penerima luar...">
                         </div>
-                        <div class="form-group">
-                            <label class="form-label !text-slate-800 !font-bold">Tujuan / Keterangan <span class="text-rose-500">*</span></label>
-                            <input type="text" name="description" class="form-input" placeholder="Contoh: Pengadaan, Pasang Baru, dll" required>
+                        <div>
+                            <label class="form-label !text-slate-800 !font-bold mb-1.5">Tujuan / Keterangan <span class="text-rose-500">*</span></label>
+                            <input type="text" name="description" class="form-input-custom" placeholder="Contoh: Pengadaan, Pasang Baru, dll" required>
                         </div>
                     </div>
                 </div>
