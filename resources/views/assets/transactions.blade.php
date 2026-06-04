@@ -154,7 +154,6 @@
                     <i class="fa-solid fa-rotate-left"></i>
                 </a>
             </div>
-            </div>
         </form>
     </div>
 
