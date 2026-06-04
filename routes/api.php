@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\OdpController;
 use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\FinanceController;
 use App\Http\Controllers\Api\ActivityLogController;
+use App\Http\Controllers\Api\AssetController;
 
 // Auth Routes
 Route::post('/login', [AuthController::class, 'login']);
@@ -20,6 +21,11 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Asset Management
+    Route::get('/assets', [AssetController::class, 'index']);
+    Route::get('/assets/transactions', [AssetController::class, 'transactions']);
+    Route::get('/assets/{id}', [AssetController::class, 'show']);
 
     // Dashboard
     Route::get('/dashboard/stats', [DashboardController::class, 'stats']);

@@ -15,6 +15,7 @@ use App\Http\Controllers\PreOrderController;
 use App\Http\Controllers\PppoeController;
 use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\OltController;
+use App\Http\Controllers\AssetController;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -25,6 +26,16 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth.custom'])->group(function () {
+    // Asset Management
+    Route::prefix('assets')->name('assets.')->group(function () {
+        Route::get('/', [AssetController::class, 'index'])->name('index');
+        Route::post('/', [AssetController::class, 'store'])->name('store');
+        Route::put('/{asset}', [AssetController::class, 'update'])->name('update');
+        Route::delete('/{asset}', [AssetController::class, 'destroy'])->name('destroy');
+        Route::get('/transactions', [AssetController::class, 'transactions'])->name('transactions');
+        Route::post('/transactions', [AssetController::class, 'storeTransaction'])->name('transactions.store');
+    });
+
     // Keuangan Teknisi
     Route::get('/keuangan/teknisi', [FinanceController::class, 'index'])->name('finance.index');
     Route::get('/keuangan/teknisi/export', [FinanceController::class, 'export'])->name('finance.export');
