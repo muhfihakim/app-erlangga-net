@@ -353,9 +353,13 @@
             $(document).ready(function() {
                 const table = $('#assetTable').DataTable({
                     "pageLength": 15,
+                    "lengthChange": false,
+                    "ordering": false,
+                    "info": false,
+                    "responsive": true,
                     "dom": 'tpir',
                     "language": {
-                        "zeroRecords": "Barang tidak ditemukan",
+                        "zeroRecords": "Data barang tidak ditemukan",
                         "paginate": {
                             "previous": '<i class="fa-solid fa-chevron-left"></i>',
                             "next": '<i class="fa-solid fa-chevron-right"></i>'
