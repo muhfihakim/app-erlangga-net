@@ -2,16 +2,16 @@
 
 ## Erlangga Net - Mobile Application (Flutter)
 
-**Versi Dokumen:** 1.0
-**Tanggal:** 30 Mei 2026
-**Platform Tujuan:** Android & iOS (Flutter / Dart)
-**Backend / API:** Laravel 11 (REST API via Sanctum)
+**Versi Dokumen:** 1.1
+**Tanggal:** 3 Juni 2026
+**Platform Tujuan:** Android Only (Flutter / Dart)
+**Backend / API:** Laravel 12 (REST API via Sanctum)
 
 ---
 
 ## 1. Ringkasan Eksekutif
 
-Aplikasi Mobile Erlangga Net adalah ekstensi dari sistem manajemen Web FTTH (Fiber to the Home) & ISP berbasis Laravel yang sudah ada. Aplikasi ini dirancang untuk memudahkan mobilitas tim lapangan (Teknisi) dan tim pemasaran (Sales) dalam menjalankan tugas mereka langsung dari _smartphone_, serta memberikan kontrol penuh bagi Administrator. Aplikasi mobile ini akan mereplikasi seluruh _flow_ bisnis, peran (role), dan modul yang ada di versi Web.
+Aplikasi Mobile Erlangga Net adalah ekstensi eksklusif Android dari sistem manajemen Web FTTH (Fiber to the Home) & ISP berbasis Laravel yang sudah ada. Aplikasi ini dirancang untuk memudahkan mobilitas tim lapangan (Teknisi) dan tim pemasaran (Sales) dalam menjalankan tugas mereka langsung dari smartphone, serta memberikan kontrol penuh bagi Administrator. Aplikasi mobile ini akan mereplikasi secara presisi seluruh flow bisnis, peran (role), dan modul yang ada di versi Web dengan estetika modern.
 
 ## 2. Tujuan & Sasaran
 
@@ -193,22 +193,27 @@ Seluruh endpoint di bawah ini sudah tersedia di `routes/api.php` dan dilindungi 
     - **Primary & Brand:** Blue / Sky Blue (Aksen utama untuk interaksi penting, tombol aktif, dan penanda navigasi).
     - **Semantic/Status:** Emerald (Success), Amber (Warning), Rose (Danger).
     - **Surface & Background:** Slate-50 (Main background aplikasi) dan Pure White `#FFFFFF` (Latar belakang komponen Card/Form).
+- **Aestetika Liquid Glass:**
+    - Menggunakan efek **Liquid Glass (Glassmorphism)** pada komponen-komponen melayang.
+    - Karakteristik: `Backdrop Filter: blur(15px)`, `Opacity: 0.7 - 0.8`, dan `Border` tipis berwarna putih transparan untuk memberikan kesan kedalaman yang elegan.
 - **Elevasi & Komponen:**
-    - Menggunakan komponen _Cards_ dengan sudut tumpul (_border-radius_: `12px` hingga `16px`) untuk menciptakan kesan visual yang modern dan lembut.
+    - Menggunakan komponen _Cards_ dengan sudut tumpul (_border-radius_: `16px` hingga `24px`) untuk menciptakan kesan visual yang modern dan lembut.
     - **Shadow:** Menggunakan _soft-shadow_ (efek elevasi tipis/subtle) untuk memisahkan konten dari background secara elegan tanpa membuat layar terlihat penuh atau kotor.
 
 ### 7.2 Navigasi Utama: Floating Navbar
 
-- **Struktur & Tata Letak:** Menggunakan _Floating Bottom Navigation Bar_ yang melayang di atas konten utama dengan jarak (_padding_) sebesar `16px` dari sisi bawah, kiri, dan kanan layar ponsel.
-- **Visual & Estetika:** Memiliki latar belakang Pure White atau semi-transparan (_glassmorphism_ tipis dengan efek _backdrop-blur_), sudut membulat sempurna (_border-radius_: `24px`), dan dilengkapi dengan _soft shadow_ bertipe _ambient_.
-- **Responsivitas & Batasan:** Memuat maksimal 4 hingga 5 menu utama yang paling sering diakses. Menu yang sedang aktif akan ditandai dengan perubahan warna menjadi warna _Primary_ dan disertai animasi indikator perpindahan yang halus (_micro-interactions_).
+- **Struktur & Tata Letak:** Menggunakan **Floating Bottom Navigation Bar** yang melayang di atas konten utama dengan jarak (_margin_) sebesar `16px` dari sisi bawah, kiri, dan kanan layar.
+- **Visual & Estetika:** Menerapkan efek **Liquid Glass** dengan latar belakang semi-transparan, sudut membulat sempurna (_border-radius_: `30px`), dan dilengkapi dengan _ambient soft shadow_.
+- **Responsivitas & Batasan:** Memuat maksimal 4 hingga 5 menu utama yang paling sering diakses. Menu yang sedang aktif akan ditandai dengan perubahan warna menjadi warna _Primary_ dan disertai animasi indikator perpindahan yang halus (_pill indicator_).
 
 ### 7.3 Transformasi Data: List/Card View & Bottom Sheet Menu
 
 - **Layout Adaptif:** Dilarang keras menggunakan komponen tabel konvensional pada layar mobile. Seluruh data tabel kompleks dari versi web wajib ditransformasikan menjadi bentuk **Card View** yang disusun secara vertikal (_scrollable_).
-- **Hierarki Informasi:** Setiap _Card_ hanya diperbolehkan menampilkan informasi kritikal (misalnya: ID Transaksi, Status Utama, Total Harga, dan Tanggal).
-- **Bottom Sheet Menu (Detail & Action):** Informasi sekunder atau detail lengkap disembunyikan dari halaman utama. Ketika salah satu _Card_ di-tap oleh pengguna, sistem akan memicu _Action Sheet_ atau _Bottom Sheet Menu_ yang muncul dari bawah layar (_slide up_).
-    - **Ketentuan Bottom Sheet:** Harus menutup maksimal 75% dari tinggi layar (kecuali jika ditarik penuh oleh pengguna ke atas), memiliki _handle bar_ (garis penunjuk) di bagian atas, dan latar belakang di belakangnya (_overlay_) secara otomatis berubah menjadi gelap (_backdrop-dimmed_ 50%) untuk menjaga fokus pengguna.
+- **Hierarki Informasi:** Setiap _Card_ hanya diperbolehkan menampilkan informasi kritikal (misalnya: ID Transaksi, Status Utama, Nama Pelanggan, dan Tanggal).
+- **Bottom Sheet (Primary Detail & Action Interface):**
+    - Seluruh detail informasi sekunder (seperti detail ODP, biodata PO, dokumentasi foto) wajib ditampilkan melalui **Bottom Sheet**.
+    - **Ketentuan Bottom Sheet:** Memiliki _handle bar_ di bagian atas, sudut membulat lebar di bagian atas (`border-radius: 28px`), dan latar belakang di belakangnya (_overlay_) secara otomatis berubah menjadi gelap (_backdrop-dimmed_ 50%) untuk menjaga fokus pengguna.
+    - Mendukung _Draggable Scroll Sheet_ untuk konten yang panjang (seperti Log Aktivitas).
 
 ### 7.4 Penanganan Formulir Panjang (Complex Forms)
 
