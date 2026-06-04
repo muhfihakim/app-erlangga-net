@@ -172,11 +172,13 @@ class PreOrderController extends Controller
                 'nama_lengkap' => 'sometimes|string|max:255',
                 'no_identitas' => 'sometimes|string|max:255',
                 'no_whatsapp' => 'sometimes|string|max:255',
-                'alamat_email' => 'sometimes|string|email|max:255',
+                'alamat_email' => 'sometimes|nullable|string|email|max:255',
                 'alamat_lengkap' => 'sometimes|string',
                 'titik_koordinat' => 'sometimes|string',
                 'foto_ktp' => 'sometimes|image|max:20480',
                 'foto_rumah' => 'sometimes|image|max:20480',
+            ], [
+                'alamat_email.email' => 'Format alamat email tidak valid.',
             ]);
 
             // Pisahkan data file dari data teks
