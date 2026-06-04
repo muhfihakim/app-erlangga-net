@@ -60,52 +60,6 @@
                 display: none;
             }
 
-            /* Toolbar Styles */
-            .table-toolbar {
-                background: #fff;
-                border: 1px solid #e2e8f0;
-                border-radius: 14px;
-                padding: 1rem 1.25rem;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 12px;
-                flex-wrap: wrap;
-                margin-bottom: 1rem;
-            }
-
-            .search-wrap {
-                position: relative;
-                flex: 1;
-                min-width: 200px;
-                max-width: 360px;
-            }
-
-            .search-icon {
-                position: absolute;
-                left: 12px;
-                top: 50%;
-                transform: translateY(-50%);
-                color: #94a3b8;
-                font-size: 13px;
-            }
-
-            .search-input {
-                width: 100%;
-                padding: 9px 12px 9px 36px;
-                border: 2px solid #e2e8f0;
-                border-radius: 10px;
-                font-size: 13px;
-                outline: none;
-                transition: all .25s;
-                background: #f8fafc;
-            }
-
-            .search-input:focus {
-                border-color: #0ea5e9;
-                background: #fff;
-            }
-
             .badge-gpon {
                 background: #e0f2fe;
                 color: #0369a1;

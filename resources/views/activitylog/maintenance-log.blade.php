@@ -1,45 +1,6 @@
 <x-layouts.app>
     @section('Css')
         <style>
-            /* Toolbar & Search */
-            .table-toolbar {
-                background: #fff;
-                border: 1px solid #e2e8f0;
-                border-radius: 14px;
-                padding: 1.25rem;
-                margin-bottom: 1rem;
-                box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
-            }
-
-            .filter-group {
-                display: flex;
-                align-items: flex-end;
-                gap: 12px;
-                flex-wrap: wrap;
-            }
-
-            .form-label-custom {
-                font-size: 11px;
-                font-weight: 800;
-                color: #64748b;
-                text-transform: uppercase;
-                margin-bottom: 6px;
-                display: block;
-                letter-spacing: 0.025em;
-            }
-
-            .form-input-custom {
-                padding: 8px 12px;
-                border: 2px solid #e2e8f0;
-                border-radius: 10px;
-                font-size: 13px;
-                font-weight: 600;
-                color: #334155;
-                background: #f8fafc;
-                outline: none;
-                height: 40px;
-            }
-
             /* Full Capitalization for Table */
             #mTable thead th,
             #mTable tbody td {

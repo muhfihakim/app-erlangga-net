@@ -1,19 +1,6 @@
 <x-layouts.app>
     @section('Css')
         <style>
-            /* Toolbar & Search */
-            .table-toolbar {
-                background: #fff; border: 1px solid #e2e8f0; border-radius: 14px;
-                padding: 1rem 1.25rem; display: flex; align-items: center;
-                justify-content: space-between; gap: 12px; flex-wrap: wrap;
-                margin-bottom: 1rem; box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
-            }
-            .filter-group { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; width: 100%; }
-            .form-label-custom { display: block; font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.025em; }
-            .form-input-custom {
-                width: 100%; padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 10px;
-                font-size: 13px; font-weight: 600; color: #334155; background: #f8fafc; outline: none; height: 40px;
-            }
             #preorderTable thead th, #preorderTable tbody td { text-transform: uppercase !important; font-weight: 600; font-size: 12px; }
         </style>
     @endsection

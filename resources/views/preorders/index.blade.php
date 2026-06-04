@@ -2,29 +2,6 @@
     @section('Css')
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
         <style>
-            /* Toolbar & Search */
-            .table-toolbar {
-                background: #fff; border: 1px solid #e2e8f0; border-radius: 14px;
-                padding: 1rem 1.25rem; display: flex; align-items: center;
-                justify-content: space-between; gap: 12px; flex-wrap: wrap;
-                margin-bottom: 1rem; box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
-            }
-            .filter-group { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; width: 100%; }
-            .form-label-custom { display: block; font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.025em; }
-            .form-input-custom {
-                width: 100%; padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 10px;
-                font-size: 13px; font-weight: 600; color: #334155; background: #f8fafc; outline: none; height: 40px;
-            }
-            .form-input-custom:focus { border-color: #0ea5e9; background: #fff; }
-
-            .search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 360px; }
-            .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 13px; pointer-events: none; }
-            .search-input {
-                width: 100%; padding: 9px 12px 9px 36px; border: 2px solid #e2e8f0;
-                border-radius: 10px; font-size: 13px; font-weight: 600; outline: none; background: #f8fafc; height: 40px;
-            }
-            .search-input:focus { border-color: #0ea5e9; background: #fff; }
-
             #preorder-table thead th, #preorder-table tbody td {
                 text-transform: uppercase !important; font-weight: 600; font-size: 12px;
             }
