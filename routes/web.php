@@ -34,6 +34,7 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::delete('/{asset}', [AssetController::class, 'destroy'])->name('destroy');
         Route::get('/transactions', [AssetController::class, 'transactions'])->name('transactions');
         Route::post('/transactions', [AssetController::class, 'storeTransaction'])->name('transactions.store');
+        Route::get('/export', [AssetController::class, 'export'])->name('export');
     });
 
     // Keuangan Teknisi

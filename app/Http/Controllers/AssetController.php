@@ -9,6 +9,7 @@ use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use PDF;
 
 class AssetController extends Controller
 {
@@ -127,5 +128,32 @@ class AssetController extends Controller
         });
 
         return redirect()->back()->with('success', 'Transaksi aset berhasil dicatat.');
+    }
+
+    public function export(Request $request)
+    {
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+        ]);
+
+        $query = AssetTransaction::with(['asset', 'user']);
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        $query->whereBetween('date', [$request->start_date, $request->end_date]);
+
+        $transactions = $query->orderBy('date', 'asc')->get();
+
+        $pdf = PDF::loadView('assets.export', [
+            'transactions' => $transactions,
+            'start' => $request->start_date,
+            'end' => $request->end_date,
+            'type' => $request->type
+        ]);
+
+        return $pdf->download("laporan-mutasi-aset-{$request->start_date}-sd-{$request->end_date}.pdf");
     }
 }
