@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Asset;
 use App\Models\AssetTransaction;
 use App\Models\User;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -116,6 +117,13 @@ class AssetController extends Controller
             } else {
                 $asset->decrement('stock', $validated['quantity']);
             }
+
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'activity_type' => 'asset_transaction',
+                'description' => "Mencatat transaksi " . strtolower($validated['type']) . " aset: " . $asset->name . " sebanyak " . $validated['quantity'] . " " . $asset->unit,
+                'logged_at' => now()
+            ]);
         });
 
         return redirect()->back()->with('success', 'Transaksi aset berhasil dicatat.');
