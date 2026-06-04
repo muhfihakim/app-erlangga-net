@@ -1,6 +1,5 @@
 <x-layouts.app>
     @section('Css')
-        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
         <style>
             /* Hakatech DataTables Customization */
             .dataTables_wrapper { padding: 0; }
@@ -31,7 +30,7 @@
             .search-input {
                 width: 100%; padding: 9px 12px 9px 36px; border: 2px solid #e2e8f0;
                 border-radius: 10px; font-size: 13px; outline: none; background: #f8fafc;
-                height: 40px; /* MATCH OLT */
+                height: 40px;
             }
 
             #assetTable thead th, #assetTable tbody td { text-transform: uppercase !important; font-weight: 600; font-size: 12px; }
@@ -54,34 +53,17 @@
                 background: #f8fafc;
                 outline: none;
                 transition: all 0.2s;
+                appearance: none; /* Reset standard arrow for custom style */
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 12px center;
+                background-size: 16px;
             }
+            select.form-input-custom { padding-right: 36px; }
             .form-input-custom:focus {
                 border-color: #0ea5e9;
-                background: #fff;
+                background-color: #fff;
                 box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
-            }
-
-            /* Select2 Height Match */
-            .select2-container--default .select2-selection--single {
-                height: 40px !important; 
-                border: 2px solid #e2e8f0 !important; 
-                border-radius: 10px !important;
-                display: flex !important; 
-                align-items: center !important;
-                background-color: #f8fafc !important;
-            }
-            .select2-container--default .select2-selection--single .select2-selection__rendered {
-                line-height: 40px !important; 
-                padding-left: 12px !important; 
-                font-size: 13px !important; 
-                font-weight: 600 !important;
-                color: #334155 !important;
-            }
-            .select2-container--default .select2-selection--single .select2-selection__arrow { height: 38px !important; }
-            .select2-container--default.select2-container--focus .select2-selection--single {
-                border-color: #0ea5e9 !important;
-                background-color: #fff !important;
-                box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1) !important;
             }
 
             /* Grid Layout Consistency */
@@ -218,7 +200,7 @@
                             </div>
                             <div>
                                 <label class="form-label !text-slate-800 !font-bold mb-1.5">Tipe Barang <span class="text-rose-500">*</span></label>
-                                <select name="type" class="form-input-custom select2-basic" required>
+                                <select name="type" class="form-input-custom" required>
                                     <option value="">-- Pilih Tipe --</option>
                                     <option value="ONT">ONT (Network Terminal)</option>
                                     <option value="Kabel">Kabel Fiber Optic</option>
@@ -264,7 +246,7 @@
                             </div>
                             <div>
                                 <label class="form-label !text-slate-800 !font-bold mb-1.5">Tipe Barang <span class="text-rose-500">*</span></label>
-                                <select name="type" id="edit_type" class="form-input-custom select2-basic" required>
+                                <select name="type" id="edit_type" class="form-input-custom" required>
                                     <option value="ONT">ONT (Network Terminal)</option>
                                     <option value="Kabel">Kabel Fiber Optic</option>
                                     <option value="Passive">Passive Splitter</option>
@@ -306,7 +288,7 @@
                     <div class="form-row-custom">
                         <div>
                             <label class="form-label !text-slate-800 !font-bold mb-1.5">Jenis Transaksi <span class="text-rose-500">*</span></label>
-                            <select name="type" id="trans_type" class="form-input-custom select2-basic" required onchange="toggleTransactionFields()">
+                            <select name="type" id="trans_type" class="form-input-custom" required onchange="toggleTransactionFields()">
                                 <option value="Masuk">Barang Masuk (Stok +)</option>
                                 <option value="Keluar">Barang Keluar (Stok -)</option>
                             </select>
@@ -324,7 +306,7 @@
                         </div>
                         <div>
                             <label class="form-label !text-slate-800 !font-bold mb-1.5" id="label_person">Penerima / Admin</label>
-                            <select name="user_id" class="form-input-custom select2-user" style="width: 100%;">
+                            <select name="user_id" class="form-input-custom" style="width: 100%;">
                                 <option value="">-- Pilih User --</option>
                                 @foreach($users as $user)
                                     <option value="{{ $user->id }}">{{ $user->nama_lengkap }} ({{ $user->jabatan }})</option>
@@ -335,11 +317,11 @@
 
                     <div class="form-row-custom">
                         <div>
-                            <label class="form-label !text-slate-800 !font-bold mb-1.5">Nama Pihak Luar (Manual)</label>
+                            <label class="form-label !text-slate-800 !font-bold">Nama Pihak Luar (Manual)</label>
                             <input type="text" name="external_person_name" class="form-input-custom" placeholder="Nama pengirim/penerima luar...">
                         </div>
                         <div>
-                            <label class="form-label !text-slate-800 !font-bold mb-1.5">Tujuan / Keterangan <span class="text-rose-500">*</span></label>
+                            <label class="form-label !text-slate-800 !font-bold">Tujuan / Keterangan <span class="text-rose-500">*</span></label>
                             <input type="text" name="description" class="form-input-custom" placeholder="Contoh: Pengadaan, Pasang Baru, dll" required>
                         </div>
                     </div>
@@ -355,7 +337,6 @@
     @section('Scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
-        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
         <script>
             function openCustomModal(modalId) {
                 const modal = document.getElementById(modalId);
@@ -371,16 +352,12 @@
                     "language": { "zeroRecords": "Data tidak ditemukan", "paginate": { "previous": '<i class="fa-solid fa-chevron-left"></i>', "next": '<i class="fa-solid fa-chevron-right"></i>' } }
                 });
                 $('.custom-search').on('keyup', function() { table.search(this.value).draw(); });
-                
-                $('.select2-user').select2({ width: '100%', dropdownParent: $('#transactionModal') });
-                $('.select2-basic').select2({ width: '100%', minimumResultsForSearch: Infinity });
-
                 $('.modal-overlay').on('click', function(e) { if (e.target === this) closeCustomModal(this.id); });
             });
             function openEditAssetModal(btn) {
                 const $btn = $(btn);
                 $('#editAssetForm').attr('action', `/assets/${$btn.data('id')}`);
-                $('#edit_name').val($btn.data('name')); $('#edit_type').val($btn.data('type')).trigger('change');
+                $('#edit_name').val($btn.data('name')); $('#edit_type').val($btn.data('type'));
                 $('#edit_unit').val($btn.data('unit')); $('#edit_description').val($btn.data('description'));
                 openCustomModal('editAssetModal');
             }
