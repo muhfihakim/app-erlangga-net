@@ -31,6 +31,7 @@
             .search-input {
                 width: 100%; padding: 9px 12px 9px 36px; border: 2px solid #e2e8f0;
                 border-radius: 10px; font-size: 13px; outline: none; background: #f8fafc;
+                height: 42px;
             }
 
             #assetTable thead th, #assetTable tbody td { text-transform: uppercase !important; font-weight: 600; font-size: 12px; }
@@ -40,16 +41,47 @@
                 background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0;
             }
 
-            /* Select2 Matching Hakatech Form Style */
+            /* Select2 Matching OLT & Hakatech Form Style */
             .select2-container--default .select2-selection--single {
-                height: 42px !important; border: 2px solid #cbd5e1 !important; border-radius: 10px !important;
-                display: flex !important; align-items: center !important;
+                height: 42px !important; 
+                border: 2px solid #cbd5e1 !important; 
+                border-radius: 10px !important;
+                display: flex !important; 
+                align-items: center !important;
+                background-color: #fff !important;
+                transition: all 0.2s;
             }
             .select2-container--default .select2-selection--single .select2-selection__rendered {
-                line-height: 42px !important; padding-left: 12px !important; font-size: 13px !important; color: #0f172a !important;
+                line-height: 42px !important; 
+                padding-left: 12px !important; 
+                font-size: 13px !important; 
+                font-weight: 600 !important;
+                color: #334155 !important;
             }
-            .select2-container--default .select2-selection--single .select2-selection__arrow { height: 40px !important; }
-            .select2-dropdown { border: 2px solid #0ea5e9 !important; border-radius: 10px !important; overflow: hidden !important; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1) !important; }
+            .select2-container--default .select2-selection--single .select2-selection__arrow { 
+                height: 40px !important; 
+                right: 8px !important;
+            }
+            .select2-container--default.select2-container--focus .select2-selection--single {
+                border-color: #0ea5e9 !important;
+                box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1) !important;
+            }
+            .select2-dropdown { 
+                border: 2px solid #0ea5e9 !important; 
+                border-radius: 10px !important; 
+                overflow: hidden !important; 
+                box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1) !important; 
+            }
+
+            /* Fix Form Layout */
+            .form-group-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1.5rem;
+            }
+            @media (max-width: 640px) {
+                .form-group-row { grid-template-columns: 1fr; gap: 1rem; }
+            }
         </style>
     @endsection
 
@@ -167,14 +199,14 @@
                         <button type="button" class="modal-close" onclick="closeCustomModal('addAssetModal')"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                     <div class="modal-body p-8 space-y-6 bg-white">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="form-group-row">
                             <div class="form-group">
                                 <label class="form-label !text-slate-800 !font-bold">Nama Barang <span class="text-rose-500">*</span></label>
                                 <input type="text" name="name" class="form-input" placeholder="Contoh: ONT Huawei HG8245H" required>
                             </div>
                             <div class="form-group">
                                 <label class="form-label !text-slate-800 !font-bold">Tipe Barang <span class="text-rose-500">*</span></label>
-                                <select name="type" class="form-select" required>
+                                <select name="type" class="form-select select2-basic" required>
                                     <option value="">-- Pilih Tipe --</option>
                                     <option value="ONT">ONT (Network Terminal)</option>
                                     <option value="Kabel">Kabel Fiber Optic</option>
@@ -184,15 +216,15 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="form-group-row">
                             <div class="form-group">
                                 <label class="form-label !text-slate-800 !font-bold">Satuan <span class="text-rose-500">*</span></label>
                                 <input type="text" name="unit" class="form-input" placeholder="Pcs, Meter, Roll, dll" required>
                             </div>
-                        </div>
-                        <div class="form-group !mb-0">
-                            <label class="form-label !text-slate-800 !font-bold">Keterangan</label>
-                            <textarea name="description" class="form-textarea" rows="3" placeholder="Informasi tambahan..."></textarea>
+                            <div class="form-group">
+                                <label class="form-label !text-slate-800 !font-bold">Keterangan Tambahan</label>
+                                <input type="text" name="description" class="form-input" placeholder="Opsional...">
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
@@ -213,14 +245,14 @@
                         <button type="button" class="modal-close" onclick="closeCustomModal('editAssetModal')"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                     <div class="modal-body p-8 space-y-6 bg-white">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="form-group-row">
                             <div class="form-group">
                                 <label class="form-label !text-slate-800 !font-bold">Nama Barang <span class="text-rose-500">*</span></label>
                                 <input type="text" name="name" id="edit_name" class="form-input" required>
                             </div>
                             <div class="form-group">
                                 <label class="form-label !text-slate-800 !font-bold">Tipe Barang <span class="text-rose-500">*</span></label>
-                                <select name="type" id="edit_type" class="form-select" required>
+                                <select name="type" id="edit_type" class="form-select select2-basic" required>
                                     <option value="ONT">ONT (Network Terminal)</option>
                                     <option value="Kabel">Kabel Fiber Optic</option>
                                     <option value="Passive">Passive Splitter</option>
@@ -229,15 +261,15 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="form-group-row">
                             <div class="form-group">
                                 <label class="form-label !text-slate-800 !font-bold">Satuan <span class="text-rose-500">*</span></label>
                                 <input type="text" name="unit" id="edit_unit" class="form-input" required>
                             </div>
-                        </div>
-                        <div class="form-group !mb-0">
-                            <label class="form-label !text-slate-800 !font-bold">Keterangan</label>
-                            <textarea name="description" id="edit_description" class="form-textarea" rows="3"></textarea>
+                            <div class="form-group">
+                                <label class="form-label !text-slate-800 !font-bold">Keterangan</label>
+                                <input type="text" name="description" id="edit_description" class="form-input">
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
@@ -259,10 +291,10 @@
                     <button type="button" class="modal-close" onclick="closeCustomModal('transactionModal')"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="modal-body p-8 space-y-6 bg-white">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-group-row">
                         <div class="form-group">
                             <label class="form-label !text-slate-800 !font-bold">Jenis Transaksi <span class="text-rose-500">*</span></label>
-                            <select name="type" id="trans_type" class="form-select" required onchange="toggleTransactionFields()">
+                            <select name="type" id="trans_type" class="form-select select2-basic" required onchange="toggleTransactionFields()">
                                 <option value="Masuk">Barang Masuk (Stok +)</option>
                                 <option value="Keluar">Barang Keluar (Stok -)</option>
                             </select>
@@ -273,7 +305,7 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-group-row">
                         <div class="form-group">
                             <label class="form-label !text-slate-800 !font-bold">Jumlah <span class="text-rose-500">*</span></label>
                             <input type="number" name="quantity" class="form-input" min="1" placeholder="0" required>
@@ -289,14 +321,15 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label !text-slate-800 !font-bold">Nama Pihak Luar (Manual)</label>
-                        <input type="text" name="external_person_name" class="form-input" placeholder="Nama pengirim/penerima luar...">
-                    </div>
-
-                    <div class="form-group !mb-0">
-                        <label class="form-label !text-slate-800 !font-bold">Tujuan / Keterangan <span class="text-rose-500">*</span></label>
-                        <textarea name="description" class="form-textarea" rows="2" placeholder="Tujuan barang keluar atau asal barang masuk..." required></textarea>
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label class="form-label !text-slate-800 !font-bold">Nama Pihak Luar (Manual)</label>
+                            <input type="text" name="external_person_name" class="form-input" placeholder="Nama pengirim/penerima luar...">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label !text-slate-800 !font-bold">Tujuan / Keterangan <span class="text-rose-500">*</span></label>
+                            <input type="text" name="description" class="form-input" placeholder="Contoh: Pengadaan, Pasang Baru, dll" required>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
@@ -326,13 +359,16 @@
                     "language": { "zeroRecords": "Data tidak ditemukan", "paginate": { "previous": '<i class="fa-solid fa-chevron-left"></i>', "next": '<i class="fa-solid fa-chevron-right"></i>' } }
                 });
                 $('.custom-search').on('keyup', function() { table.search(this.value).draw(); });
+                
                 $('.select2-user').select2({ width: '100%', dropdownParent: $('#transactionModal') });
+                $('.select2-basic').select2({ width: '100%', minimumResultsForSearch: Infinity });
+
                 $('.modal-overlay').on('click', function(e) { if (e.target === this) closeCustomModal(this.id); });
             });
             function openEditAssetModal(btn) {
                 const $btn = $(btn);
                 $('#editAssetForm').attr('action', `/assets/${$btn.data('id')}`);
-                $('#edit_name').val($btn.data('name')); $('#edit_type').val($btn.data('type'));
+                $('#edit_name').val($btn.data('name')); $('#edit_type').val($btn.data('type')).trigger('change');
                 $('#edit_unit').val($btn.data('unit')); $('#edit_description').val($btn.data('description'));
                 openCustomModal('editAssetModal');
             }

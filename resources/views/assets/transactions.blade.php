@@ -6,21 +6,15 @@
             .dataTables_wrapper { padding: 0; }
             .dataTables_filter { display: none; }
             .dataTables_paginate {
-                display: flex;
-                justify-content: flex-end;
-                padding: 1.25rem 1.5rem;
-                gap: 4px;
+                display: flex; justify-content: flex-end; padding: 1.25rem 1.5rem; gap: 4px;
                 border-top: 1px solid #f1f5f9;
             }
             .paginate_button {
-                width: 34px; height: 34px; border-radius: 8px;
-                border: 1.5px solid #e2e8f0; background: #fff;
-                color: #64748b !important; font-size: 13px; font-weight: 600;
+                width: 34px; height: 34px; border-radius: 8px; border: 1.5px solid #e2e8f0;
+                background: #fff; color: #64748b !important; font-size: 13px; font-weight: 600;
                 display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
             }
-            .paginate_button.current {
-                background: #0ea5e9; border-color: #0ea5e9; color: #fff !important;
-            }
+            .paginate_button.current { background: #0ea5e9; border-color: #0ea5e9; color: #fff !important; }
 
             .badge-masuk { background: #dcfce7; color: #15803d; }
             .badge-keluar { background: #fee2e2; color: #dc2626; }
@@ -33,13 +27,11 @@
             }
 
             .filter-card {
-                background: white; border-radius: 16px; border: 1px solid #e2e8f0;
-                padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
+                background: white; border: 1px solid #e2e8f0; border-radius: 16px;
+                padding: 1.5rem; margin-bottom: 1.25rem; box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
             }
 
-            .search-wrap {
-                position: relative; flex: 1; min-width: 200px; max-width: 360px;
-            }
+            .search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 360px; }
             .search-icon {
                 position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
                 color: #94a3b8; font-size: 13px; pointer-events: none;
@@ -47,6 +39,7 @@
             .search-input {
                 width: 100%; padding: 9px 12px 9px 36px; border: 2px solid #e2e8f0;
                 border-radius: 10px; font-size: 13px; outline: none; background: #f8fafc;
+                height: 42px;
             }
 
             .admin-table thead th {
@@ -54,6 +47,20 @@
                 color: #64748b; letter-spacing: 0.05em; text-align: center;
             }
             .admin-table tbody td { font-size: 12px; font-weight: 600; text-align: center; }
+
+            /* Select2 Matching OLT & Hakatech Form Style */
+            .select2-container--default .select2-selection--single {
+                height: 42px !important; border: 2px solid #cbd5e1 !important; border-radius: 10px !important;
+                display: flex !important; align-items: center !important; background-color: #fff !important;
+                transition: all 0.2s;
+            }
+            .select2-container--default .select2-selection--single .select2-selection__rendered {
+                line-height: 42px !important; padding-left: 12px !important; font-size: 13px !important; font-weight: 600 !important; color: #334155 !important;
+            }
+            .select2-container--default .select2-selection--single .select2-selection__arrow { height: 40px !important; right: 8px !important; }
+            .select2-container--default.select2-container--focus .select2-selection--single {
+                border-color: #0ea5e9 !important; box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1) !important;
+            }
         </style>
     @endsection
 
@@ -75,20 +82,20 @@
     <!-- Filters Section -->
     <div class="filter-card">
         <form action="{{ route('assets.transactions') }}" method="GET" class="flex flex-wrap items-end gap-4">
-            <div class="form-group mb-0 flex-1 min-w-[180px]">
-                <label class="form-label !text-[10px] !font-black !text-slate-400 uppercase tracking-widest mb-1.5">Tipe Transaksi</label>
-                <select name="type" class="form-select !h-[42px]">
+            <div class="form-group mb-0 flex-1 min-w-[200px]">
+                <label class="form-label !text-[11px] !font-black !text-slate-400 uppercase tracking-widest mb-1.5">Tipe Transaksi</label>
+                <select name="type" class="form-select select2-basic" style="width: 100%;">
                     <option value="">Semua Jenis</option>
                     <option value="Masuk" {{ request('type') === 'Masuk' ? 'selected' : '' }}>Barang Masuk (+)</option>
                     <option value="Keluar" {{ request('type') === 'Keluar' ? 'selected' : '' }}>Barang Keluar (-)</option>
                 </select>
             </div>
-            <div class="form-group mb-0 flex-1 min-w-[180px]">
-                <label class="form-label !text-[10px] !font-black !text-slate-400 uppercase tracking-widest mb-1.5">Dari Tanggal</label>
+            <div class="form-group mb-0 flex-1 min-w-[200px]">
+                <label class="form-label !text-[11px] !font-black !text-slate-400 uppercase tracking-widest mb-1.5">Dari Tanggal</label>
                 <input type="date" name="start_date" class="form-input !h-[42px]" value="{{ request('start_date') }}">
             </div>
-            <div class="form-group mb-0 flex-1 min-w-[180px]">
-                <label class="form-label !text-[10px] !font-black !text-slate-400 uppercase tracking-widest mb-1.5">Sampai Tanggal</label>
+            <div class="form-group mb-0 flex-1 min-w-[200px]">
+                <label class="form-label !text-[11px] !font-black !text-slate-400 uppercase tracking-widest mb-1.5">Sampai Tanggal</label>
                 <input type="date" name="end_date" class="form-input !h-[42px]" value="{{ request('end_date') }}">
             </div>
             <div class="flex gap-2">
@@ -171,9 +178,13 @@
 
     @section('Scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
         <script>
             $(document).ready(function() {
-                // Initialize Table UI logic if needed
+                $('.select2-basic').select2({
+                    width: '100%',
+                    minimumResultsForSearch: Infinity
+                });
             });
         </script>
     @endsection
