@@ -1,6 +1,5 @@
 <x-layouts.app>
     @section('Css')
-        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
         <style>
             /* Hakatech DataTables Customization */
             .dataTables_wrapper { padding: 0; }
@@ -31,33 +30,6 @@
                 padding: 1.5rem; margin-bottom: 1.25rem; box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
             }
 
-            .form-label-custom {
-                font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase;
-                margin-bottom: 6px; display: block; letter-spacing: 0.025em;
-            }
-
-            .form-input-custom {
-                width: 100%; height: 40px !important; padding: 8px 12px;
-                border: 2px solid #e2e8f0; border-radius: 10px; font-size: 13px;
-                font-weight: 600; color: #334155; background: #f8fafc; outline: none; transition: all 0.2s;
-            }
-            .form-input-custom:focus {
-                border-color: #0ea5e9; background: #fff; box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
-            }
-
-            /* Select2 Height Match - OLT Style */
-            .select2-container--default .select2-selection--single {
-                height: 40px !important; border: 2px solid #e2e8f0 !important; border-radius: 10px !important;
-                display: flex !important; align-items: center !important; background-color: #f8fafc !important;
-            }
-            .select2-container--default .select2-selection--single .select2-selection__rendered {
-                line-height: 40px !important; padding-left: 12px !important; font-size: 13px !important; font-weight: 600 !important; color: #334155 !important;
-            }
-            .select2-container--default .select2-selection--single .select2-selection__arrow { height: 38px !important; }
-            .select2-container--default.select2-container--focus .select2-selection--single {
-                border-color: #0ea5e9 !important; background-color: #fff !important; box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1) !important;
-            }
-
             .admin-table thead th {
                 text-transform: uppercase !important; font-weight: 700; font-size: 11px;
                 color: #64748b; letter-spacing: 0.05em; text-align: center;
@@ -81,30 +53,30 @@
         </div>
     </div>
 
-    <!-- Filters Section -->
+    <!-- Filters Section (Pre-Order Style) -->
     <div class="filter-card">
         <form action="{{ route('assets.transactions') }}" method="GET" class="flex flex-wrap items-end gap-4">
-            <div style="flex: 1; min-width: 200px;">
-                <label class="form-label-custom">Tipe Transaksi</label>
-                <select name="type" class="form-input-custom select2-basic" style="width: 100%;">
+            <div style="flex: 1; min-width: 180px;">
+                <label class="form-label text-slate-800 font-bold">Tipe Transaksi</label>
+                <select name="type" class="form-select bg-white text-slate-900 border-slate-300">
                     <option value="">Semua Jenis</option>
                     <option value="Masuk" {{ request('type') === 'Masuk' ? 'selected' : '' }}>Barang Masuk (+)</option>
                     <option value="Keluar" {{ request('type') === 'Keluar' ? 'selected' : '' }}>Barang Keluar (-)</option>
                 </select>
             </div>
-            <div style="flex: 1; min-width: 200px;">
-                <label class="form-label-custom">Dari Tanggal</label>
-                <input type="date" name="start_date" class="form-input-custom" value="{{ request('start_date') }}">
+            <div style="flex: 1; min-width: 180px;">
+                <label class="form-label text-slate-800 font-bold">Dari Tanggal</label>
+                <input type="date" name="start_date" class="form-input bg-white text-slate-900 border-slate-300" value="{{ request('start_date') }}">
             </div>
-            <div style="flex: 1; min-width: 200px;">
-                <label class="form-label-custom">Sampai Tanggal</label>
-                <input type="date" name="end_date" class="form-input-custom" value="{{ request('end_date') }}">
+            <div style="flex: 1; min-width: 180px;">
+                <label class="form-label text-slate-800 font-bold">Sampai Tanggal</label>
+                <input type="date" name="end_date" class="form-input bg-white text-slate-900 border-slate-300" value="{{ request('end_date') }}">
             </div>
             <div class="flex gap-2">
-                <button type="submit" class="btn-primary-admin !h-[40px] !px-6 !flex !items-center gap-2">
+                <button type="submit" class="btn-primary-admin !h-[42px] !px-6 !flex !items-center gap-2">
                     <i class="fa-solid fa-filter"></i> Filter
                 </button>
-                <a href="{{ route('assets.transactions') }}" class="btn-cancel !h-[40px] !w-[40px] !p-0 !flex !items-center !justify-center" title="Reset">
+                <a href="{{ route('assets.transactions') }}" class="btn-cancel !h-[42px] !w-[42px] !p-0 !flex !items-center !justify-center" title="Reset">
                     <i class="fa-solid fa-rotate-left"></i>
                 </a>
             </div>
@@ -180,14 +152,5 @@
 
     @section('Scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-        <script>
-            $(document).ready(function() {
-                $('.select2-basic').select2({
-                    width: '100%',
-                    minimumResultsForSearch: Infinity
-                });
-            });
-        </script>
     @endsection
 </x-layouts.app>
