@@ -61,6 +61,13 @@
         @endif
 
         @if (auth()->check() && (auth()->user()->jabatan === 'Administrator' || auth()->user()->jabatan === 'Teknisi'))
+            <div class="sidebar-section-label" style="margin-top:.5rem;">Gudang</div>
+            <a class="sidebar-link {{ Request::is('assets*') ? 'active' : '' }}"
+                href="{{ route('assets.index') }}">
+                <i class="fa-solid fa-boxes-stacked"></i>
+                <span>Pengelolaan Aset</span>
+            </a>
+
             <a class="sidebar-link {{ Request::is('maintenances') ? 'active' : '' }}"
                 href="{{ route('maintenances.index') }}">
                 <i class="fa-solid fa-screwdriver-wrench"></i>
