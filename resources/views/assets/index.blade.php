@@ -1,41 +1,101 @@
 <x-layouts.app>
     @section('Css')
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
         <style>
-            .stat-card-asset {
-                background: white;
-                padding: 1.5rem;
-                border-radius: 20px;
-                border: 1px solid #e2e8f0;
-                display: flex;
-                align-items: center;
-                gap: 1rem;
-                transition: all 0.3s ease;
+            /* Hakatech DataTables Customization */
+            .dataTables_wrapper {
+                padding: 0;
             }
-            .stat-card-asset:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+
+            .dataTables_filter {
+                display: none;
             }
-            .stat-icon-asset {
-                width: 48px;
-                height: 48px;
-                border-radius: 12px;
+
+            .dataTables_paginate {
                 display: flex;
+                justify-content: flex-end;
+                padding: 1.25rem 1.5rem;
+                gap: 4px;
+                border-top: 1px solid #f1f5f9;
+            }
+
+            .paginate_button {
+                width: 34px;
+                height: 34px;
+                border-radius: 8px;
+                border: 1.5px solid #e2e8f0;
+                background: #fff;
+                color: #64748b !important;
+                font-size: 13px;
+                font-weight: 600;
+                display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 20px;
+                cursor: pointer;
             }
-            .asset-table-wrap {
-                background: white;
-                border-radius: 20px;
+
+            .paginate_button.current {
+                background: #0ea5e9;
+                border-color: #0ea5e9;
+                color: #fff !important;
+            }
+
+            .table-toolbar {
+                background: #fff;
                 border: 1px solid #e2e8f0;
-                overflow: hidden;
+                border-radius: 14px;
+                padding: 1rem 1.25rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                flex-wrap: wrap;
+                margin-bottom: 1rem;
+                box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
             }
+
+            .search-wrap {
+                position: relative;
+                flex: 1;
+                min-width: 200px;
+                max-width: 360px;
+            }
+
+            .search-icon {
+                position: absolute;
+                left: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #94a3b8;
+                font-size: 13px;
+                pointer-events: none;
+            }
+
+            .search-input {
+                width: 100%;
+                padding: 9px 12px 9px 36px;
+                border: 2px solid #e2e8f0;
+                border-radius: 10px;
+                font-size: 13px;
+                outline: none;
+                background: #f8fafc;
+            }
+
+            #assetTable thead th,
+            #assetTable tbody td {
+                text-transform: uppercase !important;
+                font-weight: 600;
+                font-size: 12px;
+            }
+
             .badge-type {
-                padding: 4px 10px;
-                border-radius: 8px;
+                padding: 3px 9px;
+                border-radius: 20px;
                 font-size: 10px;
-                font-weight: 800;
-                text-transform: uppercase;
+                font-weight: 700;
+                background: #f1f5f9;
+                color: #64748b;
+                border: 1px solid #e2e8f0;
             }
         </style>
     @endsection
@@ -44,169 +104,158 @@
         $isAdmin = auth()->user()->jabatan === 'Administrator';
     @endphp
 
-    <!-- Header -->
-    <div class="flex flex-wrap items-start justify-between gap-4 mb-6">
+    <div
+        style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
-            <h1 class="text-2xl font-black text-slate-900">Pengelolaan Aset & Inventaris</h1>
-            <p class="text-sm text-slate-500">Monitor stok barang, material, dan alat kerja secara real-time.</p>
+            <h1 style="font-size:22px;font-weight:900;margin:0;">Pengelolaan Aset</h1>
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Monitor stok barang, material, dan alat kerja secara real-time.</p>
         </div>
-        <div class="flex gap-3">
-            <a href="{{ route('assets.transactions') }}" class="btn-primary-admin !bg-slate-800 !flex items-center gap-2">
-                <i class="fa-solid fa-history"></i> Riwayat Transaksi
+        <div style="display:flex; gap:10px;">
+            <a href="{{ route('assets.transactions') }}" class="btn-primary-admin !bg-slate-800 !flex !items-center !justify-center gap-2">
+                <i class="fa-solid fa-history"></i> Riwayat
             </a>
-            @if($isAdmin)
-                <button onclick="openCustomModal('addAssetModal')" class="btn-primary-admin !flex items-center gap-2">
-                    <i class="fa-solid fa-plus-circle"></i> Tambah Jenis Barang
+            @if ($isAdmin)
+                <button type="button" class="btn-primary-admin !flex !items-center !justify-center gap-2"
+                    onclick="openCustomModal('addAssetModal')">
+                    <i class="fa-solid fa-plus-square"></i> Tambah Barang
                 </button>
             @endif
         </div>
     </div>
 
-    <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="stat-card-asset">
-            <div class="stat-icon-asset bg-blue-50 text-blue-600">
-                <i class="fa-solid fa-boxes-stacked"></i>
-            </div>
+    <div class="stats-grid mb-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#e0f2fe;color:#0369a1;"><i
+                    class="fa-solid fa-boxes-stacked"></i></div>
             <div>
-                <div class="text-2xl font-black text-slate-900">{{ $totalItems }}</div>
-                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Jenis Barang</div>
+                <div class="stat-val">{{ $totalItems }}</div>
+                <div class="stat-lbl">Jenis Barang</div>
             </div>
         </div>
-        <div class="stat-card-asset">
-            <div class="stat-icon-asset bg-emerald-50 text-emerald-600">
-                <i class="fa-solid fa-warehouse"></i>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#dcfce7;color:#15803d;"><i class="fa-solid fa-warehouse"></i>
             </div>
             <div>
-                <div class="text-2xl font-black text-slate-900">{{ number_format($totalStock) }}</div>
-                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Stok Global</div>
+                <div class="stat-val">{{ number_format($totalStock) }}</div>
+                <div class="stat-lbl">Total Stok</div>
             </div>
         </div>
-        <div class="stat-card-asset">
-            <div class="stat-icon-asset bg-rose-50 text-rose-600">
-                <i class="fa-solid fa-triangle-exclamation"></i>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fff1f2;color:#e11d48;"><i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <div>
-                <div class="text-2xl font-black text-slate-900">{{ $lowStockCount }}</div>
-                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Stok Hampir Habis</div>
+                <div class="stat-val">{{ $lowStockCount }}</div>
+                <div class="stat-lbl">Stok Menipis</div>
             </div>
         </div>
     </div>
 
-    <!-- Toolbar & Search -->
-    <div class="bg-white p-4 rounded-2xl border border-slate-200 mb-4 flex flex-wrap items-center justify-between gap-4">
-        <div class="relative flex-1 max-w-md">
-            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-            <input type="text" id="assetSearch" class="form-input !pl-12" placeholder="Cari nama barang atau tipe...">
-        </div>
-        <div class="flex items-center gap-2">
-            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-3 py-2 rounded-lg border border-slate-100">
-                Inventory List
-            </span>
+    <div class="table-toolbar">
+        <div class="search-wrap">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="search" class="search-input custom-search" placeholder="Cari nama barang atau tipe..."
+                autocomplete="off" />
         </div>
     </div>
 
-    <!-- Table -->
-    <div class="asset-table-wrap">
-        <table id="assetTable" class="admin-table w-full">
-            <thead>
-                <tr>
-                    <th class="text-center w-16">#</th>
-                    <th>Nama Barang</th>
-                    <th>Tipe</th>
-                    <th class="text-center">Stok</th>
-                    <th>Satuan</th>
-                    <th class="text-center w-32">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($assets as $asset)
+    <div class="table-card">
+        <div class="table-responsive">
+            <table id="assetTable" class="admin-table">
+                <thead>
                     <tr>
-                        <td class="text-center font-bold text-slate-400">{{ $loop->iteration }}</td>
-                        <td class="font-bold text-slate-800 uppercase">{{ $asset->name }}</td>
-                        <td>
-                            <span class="badge-type bg-slate-100 text-slate-600 border border-slate-200">
-                                {{ $asset->type }}
-                            </span>
-                        </td>
-                        <td class="text-center">
-                            <span class="text-sm font-black {{ $asset->stock <= 5 ? 'text-rose-600' : 'text-slate-900' }}">
-                                {{ number_format($asset->stock) }}
-                            </span>
-                        </td>
-                        <td class="text-xs font-bold text-slate-500 uppercase">{{ $asset->unit }}</td>
-                        <td class="text-center">
-                            <div class="flex items-center justify-center gap-2">
-                                <button onclick="openTransactionModal({{ $asset->id }}, '{{ $asset->name }}')" 
-                                    class="topbar-icon-btn !w-9 !h-9 !rounded-xl !bg-emerald-50" title="Input Transaksi">
-                                    <i class="fa-solid fa-right-left text-emerald-600"></i>
-                                </button>
-                                @if($isAdmin)
-                                    <button onclick="openEditAssetModal(this)" 
-                                        data-id="{{ $asset->id }}"
-                                        data-name="{{ $asset->name }}"
-                                        data-type="{{ $asset->type }}"
-                                        data-unit="{{ $asset->unit }}"
-                                        data-description="{{ $asset->description }}"
-                                        class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Edit">
-                                        <i class="fa-solid fa-pen-to-square text-primary"></i>
-                                    </button>
-                                    <button onclick="confirmGlobalDelete('{{ route('assets.destroy', $asset->id) }}', '{{ $asset->name }}')"
-                                        class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Hapus">
-                                        <i class="fa-solid fa-trash text-rose-600"></i>
-                                    </button>
-                                @endif
-                            </div>
-                        </td>
+                        <th style="text-align: center; width: 50px;">#</th>
+                        <th>Nama Barang</th>
+                        <th style="text-align: center;">Tipe</th>
+                        <th style="text-align: center;">Stok</th>
+                        <th style="text-align: center;">Satuan</th>
+                        <th style="text-align: center; width: 150px;">Opsi</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach($assets as $asset)
+                        <tr>
+                            <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}</td>
+                            <td style="text-align: left; font-weight: 700; color: #0f172a;">{{ $asset->name }}</td>
+                            <td style="text-align: center;">
+                                <span class="badge-type">
+                                    {{ $asset->type }}
+                                </span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span style="font-weight: 800; font-size: 14px; {{ $asset->stock <= 5 ? 'color: #e11d48;' : 'color: #0f172a;' }}">
+                                    {{ number_format($asset->stock) }}
+                                </span>
+                            </td>
+                            <td style="text-align: center; color: #64748b;">{{ $asset->unit }}</td>
+                            <td style="text-align: center;">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button type="button" onclick="openTransactionModal({{ $asset->id }}, '{{ $asset->name }}')" 
+                                        class="topbar-icon-btn !w-9 !h-9 !rounded-xl !bg-emerald-50" title="Input Transaksi">
+                                        <i class="fa-solid fa-right-left text-emerald-600"></i>
+                                    </button>
+                                    @if($isAdmin)
+                                        <button type="button" onclick="openEditAssetModal(this)" 
+                                            data-id="{{ $asset->id }}"
+                                            data-name="{{ $asset->name }}"
+                                            data-type="{{ $asset->type }}"
+                                            data-unit="{{ $asset->unit }}"
+                                            data-description="{{ $asset->description }}"
+                                            class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Edit">
+                                            <i class="fa-solid fa-pen-to-square text-primary"></i>
+                                        </button>
+                                        <button type="button" onclick="confirmGlobalDelete('{{ route('assets.destroy', $asset->id) }}', '{{ $asset->name }}')"
+                                            class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Hapus">
+                                            <i class="fa-solid fa-trash text-rose-600"></i>
+                                        </button>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <!-- Modals -->
+    {{-- Modals --}}
     @if($isAdmin)
-        {{-- Modal Tambah Asset --}}
         <div class="modal-overlay" id="addAssetModal">
             <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
                 <form action="{{ route('assets.store') }}" method="POST" novalidate>
                     @csrf
                     <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                        <div class="modal-title">
-                            <i class="fa-solid fa-plus-circle text-primary"></i>
-                            <span class="text-slate-900 font-bold">Tambah Jenis Barang Baru</span>
-                        </div>
-                        <button type="button" class="modal-close" onclick="closeCustomModal('addAssetModal')">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
+                        <div class="modal-title"><i class="fa-solid fa-plus-square text-primary"></i> <span
+                                class="text-slate-900 font-bold text-[17px]">Tambah Jenis Barang</span></div>
+                        <button type="button" class="modal-close" onclick="closeCustomModal('addAssetModal')"><i
+                                class="fa-solid fa-xmark"></i></button>
                     </div>
-                    <div class="modal-body p-8 space-y-5">
+                    <div class="modal-body p-8 space-y-6 bg-white">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="form-group">
-                                <label class="form-label font-bold uppercase text-[11px]">Nama Barang <span class="text-rose-500">*</span></label>
+                                <label class="form-label !text-slate-800 !font-bold">Nama Barang <span class="text-rose-500">*</span></label>
                                 <input type="text" name="name" class="form-input" placeholder="Contoh: ONT Huawei HG8245H" required>
                             </div>
                             <div class="form-group">
-                                <label class="form-label font-bold uppercase text-[11px]">Tipe Barang <span class="text-rose-500">*</span></label>
+                                <label class="form-label !text-slate-800 !font-bold">Tipe Barang <span class="text-rose-500">*</span></label>
                                 <select name="type" class="form-select" required>
                                     <option value="">-- Pilih Tipe --</option>
-                                    <option value="ONT">ONT (Optical Network Terminal)</option>
+                                    <option value="ONT">ONT (Network Terminal)</option>
                                     <option value="Kabel">Kabel Fiber Optic</option>
-                                    <option value="Passive">Passive Splitter / Box</option>
-                                    <option value="Tools">Alat Kerja (Tang, Splicer, dll)</option>
+                                    <option value="Passive">Passive Splitter</option>
+                                    <option value="Tools">Alat Kerja</option>
                                     <option value="Lainnya">Lain-lain</option>
                                 </select>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="form-group">
-                                <label class="form-label font-bold uppercase text-[11px]">Satuan <span class="text-rose-500">*</span></label>
+                                <label class="form-label !text-slate-800 !font-bold">Satuan <span class="text-rose-500">*</span></label>
                                 <input type="text" name="unit" class="form-input" placeholder="Pcs, Meter, Roll, dll" required>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label font-bold uppercase text-[11px]">Keterangan</label>
-                            <textarea name="description" class="form-textarea" rows="3" placeholder="Informasi tambahan mengenai barang ini..."></textarea>
+                        <div class="form-group !mb-0">
+                            <label class="form-label !text-slate-800 !font-bold">Keterangan</label>
+                            <textarea name="description" class="form-textarea" rows="3" placeholder="Informasi tambahan..."></textarea>
                         </div>
                     </div>
                     <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
@@ -221,46 +270,42 @@
             </div>
         </div>
 
-        {{-- Modal Edit Asset --}}
         <div class="modal-overlay" id="editAssetModal">
             <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
                 <form id="editAssetForm" method="POST" novalidate>
                     @csrf
                     @method('PUT')
                     <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                        <div class="modal-title">
-                            <i class="fa-solid fa-pen-to-square text-primary"></i>
-                            <span class="text-slate-900 font-bold">Edit Jenis Barang</span>
-                        </div>
-                        <button type="button" class="modal-close" onclick="closeCustomModal('editAssetModal')">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
+                        <div class="modal-title"><i class="fa-solid fa-pen-to-square text-primary"></i> <span
+                                class="text-slate-900 font-bold text-[17px]">Edit Jenis Barang</span></div>
+                        <button type="button" class="modal-close" onclick="closeCustomModal('editAssetModal')"><i
+                                class="fa-solid fa-xmark"></i></button>
                     </div>
-                    <div class="modal-body p-8 space-y-5">
+                    <div class="modal-body p-8 space-y-6 bg-white">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="form-group">
-                                <label class="form-label font-bold uppercase text-[11px]">Nama Barang <span class="text-rose-500">*</span></label>
+                                <label class="form-label !text-slate-800 !font-bold">Nama Barang <span class="text-rose-500">*</span></label>
                                 <input type="text" name="name" id="edit_name" class="form-input" required>
                             </div>
                             <div class="form-group">
-                                <label class="form-label font-bold uppercase text-[11px]">Tipe Barang <span class="text-rose-500">*</span></label>
+                                <label class="form-label !text-slate-800 !font-bold">Tipe Barang <span class="text-rose-500">*</span></label>
                                 <select name="type" id="edit_type" class="form-select" required>
-                                    <option value="ONT">ONT (Optical Network Terminal)</option>
+                                    <option value="ONT">ONT (Network Terminal)</option>
                                     <option value="Kabel">Kabel Fiber Optic</option>
-                                    <option value="Passive">Passive Splitter / Box</option>
-                                    <option value="Tools">Alat Kerja (Tang, Splicer, dll)</option>
+                                    <option value="Passive">Passive Splitter</option>
+                                    <option value="Tools">Alat Kerja</option>
                                     <option value="Lainnya">Lain-lain</option>
                                 </select>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="form-group">
-                                <label class="form-label font-bold uppercase text-[11px]">Satuan <span class="text-rose-500">*</span></label>
+                                <label class="form-label !text-slate-800 !font-bold">Satuan <span class="text-rose-500">*</span></label>
                                 <input type="text" name="unit" id="edit_unit" class="form-input" required>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label font-bold uppercase text-[11px]">Keterangan</label>
+                        <div class="form-group !mb-0">
+                            <label class="form-label !text-slate-800 !font-bold">Keterangan</label>
                             <textarea name="description" id="edit_description" class="form-textarea" rows="3"></textarea>
                         </div>
                     </div>
@@ -277,45 +322,41 @@
         </div>
     @endif
 
-    {{-- Modal Transaksi (Semua Role) --}}
     <div class="modal-overlay" id="transactionModal">
         <div class="modal-box max-w-xl bg-white border border-slate-300 shadow-2xl">
             <form action="{{ route('assets.transactions.store') }}" method="POST" novalidate>
                 @csrf
                 <input type="hidden" name="asset_id" id="trans_asset_id">
                 <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                    <div class="modal-title">
-                        <i class="fa-solid fa-right-left text-emerald-600"></i>
-                        <span class="text-slate-900 font-bold">Transaksi Aset: <span id="trans_asset_name" class="text-emerald-600"></span></span>
-                    </div>
-                    <button type="button" class="modal-close" onclick="closeCustomModal('transactionModal')">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
+                    <div class="modal-title"><i class="fa-solid fa-right-left text-emerald-600"></i> <span
+                            class="text-slate-900 font-bold text-[17px]">Transaksi: <span id="trans_asset_name" class="text-emerald-600"></span></span></div>
+                    <button type="button" class="modal-close" onclick="closeCustomModal('transactionModal')"><i
+                            class="fa-solid fa-xmark"></i></button>
                 </div>
-                <div class="modal-body p-8 space-y-5">
+                <div class="modal-body p-8 space-y-6 bg-white">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="form-group">
-                            <label class="form-label font-bold uppercase text-[11px]">Jenis Transaksi <span class="text-rose-500">*</span></label>
+                            <label class="form-label !text-slate-800 !font-bold">Jenis Transaksi <span class="text-rose-500">*</span></label>
                             <select name="type" id="trans_type" class="form-select" required onchange="toggleTransactionFields()">
-                                <option value="Masuk">Barang Masuk (Stok Bertambah)</option>
-                                <option value="Keluar">Barang Keluar (Stok Berkurang)</option>
+                                <option value="Masuk">Barang Masuk (Stok +)</option>
+                                <option value="Keluar">Barang Keluar (Stok -)</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label font-bold uppercase text-[11px]">Tanggal <span class="text-rose-500">*</span></label>
+                            <label class="form-label !text-slate-800 !font-bold">Tanggal <span class="text-rose-500">*</span></label>
                             <input type="date" name="date" class="form-input" value="{{ date('Y-m-d') }}" required>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="form-group">
-                            <label class="form-label font-bold uppercase text-[11px]">Jumlah <span class="text-rose-500">*</span></label>
+                            <label class="form-label !text-slate-800 !font-bold">Jumlah <span class="text-rose-500">*</span></label>
                             <input type="number" name="quantity" class="form-input" min="1" placeholder="0" required>
                         </div>
                         <div class="form-group" id="field_person_dropdown">
-                            <label class="form-label font-bold uppercase text-[11px]" id="label_person">Penanggung Jawab / User</label>
+                            <label class="form-label !text-slate-800 !font-bold" id="label_person">Penerima / Admin</label>
                             <select name="user_id" class="form-select select2-user">
-                                <option value="">-- Pilih User (Optional) --</option>
+                                <option value="">-- Pilih User --</option>
                                 @foreach($users as $user)
                                     <option value="{{ $user->id }}">{{ $user->nama_lengkap }} ({{ $user->jabatan }})</option>
                                 @endforeach
@@ -324,13 +365,13 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label font-bold uppercase text-[11px]">Nama Pihak Luar (Manual)</label>
-                        <input type="text" name="external_person_name" class="form-input" placeholder="Isi jika orang tersebut tidak terdaftar di sistem">
+                        <label class="form-label !text-slate-800 !font-bold">Pihak Luar (Manual)</label>
+                        <input type="text" name="external_person_name" class="form-input" placeholder="Nama pengirim/penerima luar...">
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label font-bold uppercase text-[11px]">Keterangan / Tujuan <span class="text-rose-500">*</span></label>
-                        <textarea name="description" class="form-textarea" rows="2" placeholder="Contoh: Pengadaan rutin, Pemasangan pelanggan A, dll" required></textarea>
+                    <div class="form-group !mb-0">
+                        <label class="form-label !text-slate-800 !font-bold">Tujuan / Keterangan <span class="text-rose-500">*</span></label>
+                        <textarea name="description" class="form-textarea" rows="2" placeholder="Tujuan barang keluar atau asal barang masuk..." required></textarea>
                     </div>
                 </div>
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
@@ -338,7 +379,7 @@
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
                     <button type="submit" class="btn-save !bg-emerald-600 !flex !items-center !justify-center gap-2">
-                        <i class="fa-solid fa-save"></i> Catat Transaksi
+                        <i class="fa-solid fa-check-circle"></i> Catat Transaksi
                     </button>
                 </div>
             </form>
@@ -346,10 +387,26 @@
     </div>
 
     @section('Scripts')
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
-        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
         <script>
+            function openCustomModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.add('open');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            function closeCustomModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove('open');
+                    document.body.style.overflow = '';
+                }
+            }
+
             $(document).ready(function() {
                 const table = $('#assetTable').DataTable({
                     "pageLength": 15,
@@ -367,13 +424,17 @@
                     }
                 });
 
-                $('#assetSearch').on('keyup', function() {
+                $('.custom-search').on('keyup', function() {
                     table.search(this.value).draw();
                 });
 
                 $('.select2-user').select2({
                     width: '100%',
                     dropdownParent: $('#transactionModal')
+                });
+
+                $('.modal-overlay').on('click', function(e) {
+                    if (e.target === this) closeCustomModal(this.id);
                 });
             });
 
@@ -397,7 +458,7 @@
             function toggleTransactionFields() {
                 const type = $('#trans_type').val();
                 if (type === 'Masuk') {
-                    $('#label_person').text('Penerima / Admin Gudang');
+                    $('#label_person').text('Penerima / Admin');
                 } else {
                     $('#label_person').text('Pengambil / Teknisi');
                 }
