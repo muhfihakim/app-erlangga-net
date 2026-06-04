@@ -482,7 +482,13 @@
                 L.control.layers(baseMaps).addTo(map);
 
                 // Markers
-                const odps = {!! json_encode($odps) !!};
+                @php
+                    $odpData = $odps->map(function($odp) {
+                        $odp->foto_url = $odp->foto_odp ? Storage::url($odp->foto_odp) : null;
+                        return $odp;
+                    });
+                @endphp
+                const odps = {!! json_encode($odpData) !!};
                 const markers = L.layerGroup().addTo(map);
                 window.odpMarkers = markers; // Expose for focusOnOdp
 
@@ -511,7 +517,7 @@
                                 <div style="font-size: 11px; color: #475569;">
                                     ${odp.keterangan || 'Tanpa keterangan'}
                                 </div>
-                                ${odp.foto_odp ? `<img src="/storage/${odp.foto_odp}" style="width: 100%; border-radius: 8px; margin-top: 8px;">` : ''}
+                                ${odp.foto_odp ? `<img src="${odp.foto_url}" style="width: 100%; border-radius: 8px; margin-top: 8px;">` : ''}
                                 <button onclick="startMeasureFromMarker('${odp.titik_koordinat}')" style="width:100%; margin-top:8px; background:#0ea5e9; color:white; border:none; padding:6px; border-radius:6px; font-size:10px; font-weight:700; cursor:pointer;">
                                     <i class="fa-solid fa-ruler"></i> Ukur dari sini
                                 </button>
