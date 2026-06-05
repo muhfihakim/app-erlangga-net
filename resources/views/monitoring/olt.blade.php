@@ -120,168 +120,176 @@
         </div>
         <div style="display:flex; gap:10px;">
             <div class="flex bg-white rounded-xl border border-slate-200 p-1 shadow-sm h-[46px]">
-                <button class="tab-btn active" data-target="panel-generator">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> Generator
-                </button>
-                <button class="tab-btn" data-target="panel-dashboard" id="btn-tab-dashboard">
-                    <i class="fa-solid fa-chart-pie"></i> Dashboard OLT
-                </button>
+                @if (auth()->user()->isAdmin())
+                    <button class="tab-btn active" data-target="panel-generator">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Generator
+                    </button>
+                    <button class="tab-btn" data-target="panel-dashboard" id="btn-tab-dashboard">
+                        <i class="fa-solid fa-chart-pie"></i> Dashboard OLT
+                    </button>
+                @else
+                    <button class="tab-btn active" data-target="panel-dashboard" id="btn-tab-dashboard">
+                        <i class="fa-solid fa-chart-pie"></i> Dashboard OLT
+                    </button>
+                @endif
             </div>
         </div>
     </div>
 
     <!-- Generator Panel -->
-    <div id="panel-generator" class="tab-content active">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <!-- Input Panel -->
-            <div class="lg:col-span-4 h-full">
-                <div class="olt-card h-full overflow-y-auto custom-scrollbar">
-                    <div class="flex items-center gap-3 mb-6 sticky top-0 bg-white z-10 pb-2 border-b border-slate-100">
-                        <div
-                            class="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-gears"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h6 class="text-sm font-black text-slate-800 leading-tight">Parameter ONU</h6>
-                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Konfigurasi
-                                Perangkat</p>
-                        </div>
-                        <button type="button" id="btn_quick_check_uncfg" title="Cek Perangkat Baru"
-                            class="bg-amber-100 text-amber-700 hover:bg-amber-200 h-9 px-3 rounded-xl text-[10px] font-black transition-all flex items-center gap-2 border border-amber-200 shadow-sm uppercase">
-                            <i class="fa-solid fa-bolt-lightning"></i> Cek Baru
-                        </button>
-                    </div>
-
-
-                    <div class="space-y-4">
-                        <div>
-                            <label class="form-label">Tipe OLT / ONU</label>
-                            <select id="olt_type" class="form-input">
-                                <option value="ZTE_ERLANGGA">ZTE ERLANGGA</option>
-                                <option value="ZTE_BBS">ZTE BBS</option>
-                                <option value="HUAWEI" disabled>HUAWEI (Coming Soon)</option>
-                            </select>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="form-label">OLT Port</label>
-                                <input type="text" id="olt_port" class="form-input" placeholder="1/2/8"
-                                    value="1/2/8">
-                            </div>
-                            <div>
-                                <label class="form-label">ONU ID</label>
-                                <input type="number" id="onu_id" class="form-input" placeholder="55" value="1">
-                            </div>
-                        </div>
-
-
-                        <div>
-                            <label class="form-label">Serial Number (SN)</label>
-                            <input type="text" id="onu_sn" class="form-input" placeholder="ZTEGXXXXXXXX">
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="form-label">ONU Type SN</label>
-                                <input type="text" id="onu_type_sn" class="form-input" value="ALL-GPON">
-                            </div>
-                            <div>
-                                <label class="form-label">VLAN ID</label>
-                                <input type="number" id="vlan_id" class="form-input" value="525">
-                            </div>
-                        </div>
-
-                        <hr class="border-slate-100 my-2">
-
-                        <div>
-                            <label class="form-label">ID Pelanggan (Name)</label>
-                            <input type="text" id="cust_id" class="form-input" placeholder="24000XXX"
-                                value="24000007801">
-                        </div>
-
-                        <div class="grid grid-cols-1 gap-4">
-                            <div>
-                                <label class="form-label">PPPoE Username</label>
-                                <input type="text" id="pppoe_user" class="form-input"
-                                    placeholder="user@erlangga.net">
-                            </div>
-                            <div>
-                                <label class="form-label">PPPoE Password</label>
-                                <input type="text" id="pppoe_pass" class="form-input" placeholder="password">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="form-label">Description</label>
-                            <input type="text" id="onu_desc" class="form-input" value="2$$2$$">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Panel -->
-            <div class="lg:col-span-8 flex flex-col gap-6 h-full">
-                <!-- Script Panel -->
-                <div class="olt-card flex flex-col" style="flex: 1.2; min-height: 350px;">
-                    <div class="flex items-center justify-between mb-4 shrink-0">
-                        <div class="flex items-center gap-3">
+    @if (auth()->user()->isAdmin())
+        <div id="panel-generator" class="tab-content active">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Input Panel -->
+                <div class="lg:col-span-4 h-full">
+                    <div class="olt-card h-full overflow-y-auto custom-scrollbar">
+                        <div class="flex items-center gap-3 mb-6 sticky top-0 bg-white z-10 pb-2 border-b border-slate-100">
                             <div
-                                class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
-                                <i class="fa-solid fa-code"></i>
+                                class="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-gears"></i>
                             </div>
-                            <div>
-                                <h6 class="text-sm font-black text-slate-800 leading-tight">Generated Script</h6>
-                                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Siap digunakan
-                                    di Terminal/Putty</p>
+                            <div class="flex-1">
+                                <h6 class="text-sm font-black text-slate-800 leading-tight">Parameter ONU</h6>
+                                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Konfigurasi
+                                    Perangkat</p>
                             </div>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="copyScript()"
-                                class="btn-primary-admin !py-2.5 !px-5 !text-[12px] !bg-indigo-600 hover:!bg-indigo-700 border-none shadow-sm flex items-center gap-2">
-                                <i class="fa-solid fa-copy"></i> SALIN SKRIP
-                            </button>
-                            <button id="btn_execute"
-                                class="btn-primary-admin !py-2.5 !px-5 !text-[12px] !bg-rose-600 hover:!bg-rose-700 border-none shadow-sm flex items-center gap-2">
-                                <i class="fa-solid fa-rocket"></i> EKSEKUSI DI OLT
+                            <button type="button" id="btn_quick_check_uncfg" title="Cek Perangkat Baru"
+                                class="bg-amber-100 text-amber-700 hover:bg-amber-200 h-9 px-3 rounded-xl text-[10px] font-black transition-all flex items-center gap-2 border border-amber-200 shadow-sm uppercase">
+                                <i class="fa-solid fa-bolt-lightning"></i> Cek Baru
                             </button>
                         </div>
-                    </div>
 
-                    <div class="relative flex-1 min-h-0">
-                        <textarea id="script_output" readonly
-                            class="w-full h-full p-4 bg-slate-50 text-slate-800 font-mono text-[11px] leading-relaxed rounded-xl border-2 border-slate-200 outline-none resize-none shadow-inner custom-scrollbar"></textarea>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="form-label">Tipe OLT / ONU</label>
+                                <select id="olt_type" class="form-input">
+                                    <option value="ZTE_ERLANGGA">ZTE ERLANGGA</option>
+                                    <option value="ZTE_BBS">ZTE BBS</option>
+                                    <option value="HUAWEI" disabled>HUAWEI (Coming Soon)</option>
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="form-label">OLT Port</label>
+                                    <input type="text" id="olt_port" class="form-input" placeholder="1/2/8"
+                                        value="1/2/8">
+                                </div>
+                                <div>
+                                    <label class="form-label">ONU ID</label>
+                                    <input type="number" id="onu_id" class="form-input" placeholder="55" value="1">
+                                </div>
+                            </div>
+
+
+                            <div>
+                                <label class="form-label">Serial Number (SN)</label>
+                                <input type="text" id="onu_sn" class="form-input" placeholder="ZTEGXXXXXXXX">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="form-label">ONU Type SN</label>
+                                    <input type="text" id="onu_type_sn" class="form-input" value="ALL-GPON">
+                                </div>
+                                <div>
+                                    <label class="form-label">VLAN ID</label>
+                                    <input type="number" id="vlan_id" class="form-input" value="525">
+                                </div>
+                            </div>
+
+                            <hr class="border-slate-100 my-2">
+
+                            <div>
+                                <label class="form-label">ID Pelanggan (Name)</label>
+                                <input type="text" id="cust_id" class="form-input" placeholder="24000XXX"
+                                    value="24000007801">
+                            </div>
+
+                            <div class="grid grid-cols-1 gap-4">
+                                <div>
+                                    <label class="form-label">PPPoE Username</label>
+                                    <input type="text" id="pppoe_user" class="form-input"
+                                        placeholder="user@erlangga.net">
+                                </div>
+                                <div>
+                                    <label class="form-label">PPPoE Password</label>
+                                    <input type="text" id="pppoe_pass" class="form-input" placeholder="password">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Description</label>
+                                <input type="text" id="onu_desc" class="form-input" value="2$$2$$">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Terminal Output -->
-                <div class="rounded-2xl overflow-hidden border-2 border-slate-800 bg-[#0c0c0c] shadow-xl flex flex-col"
-                    style="flex: 1; min-height: 250px;">
-                    <div class="bg-slate-800 px-4 py-2 flex items-center justify-between shrink-0">
-                        <div class="flex items-center gap-2">
-                            <div class="flex gap-1.5">
-                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                <!-- Right Panel -->
+                <div class="lg:col-span-8 flex flex-col gap-6 h-full">
+                    <!-- Script Panel -->
+                    <div class="olt-card flex flex-col" style="flex: 1.2; min-height: 350px;">
+                        <div class="flex items-center justify-between mb-4 shrink-0">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                                    <i class="fa-solid fa-code"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-sm font-black text-slate-800 leading-tight">Generated Script</h6>
+                                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Siap digunakan
+                                        di Terminal/Putty</p>
+                                </div>
                             </div>
-                            <span class="text-[10px] text-slate-300 font-mono font-bold tracking-wider ml-2">OLT
-                                Terminal Output</span>
+                            <div class="flex gap-2">
+                                <button onclick="copyScript()"
+                                    class="btn-primary-admin !py-2.5 !px-5 !text-[12px] !bg-indigo-600 hover:!bg-indigo-700 border-none shadow-sm flex items-center gap-2">
+                                    <i class="fa-solid fa-copy"></i> SALIN SKRIP
+                                </button>
+                                <button id="btn_execute"
+                                    class="btn-primary-admin !py-2.5 !px-5 !text-[12px] !bg-rose-600 hover:!bg-rose-700 border-none shadow-sm flex items-center gap-2">
+                                    <i class="fa-solid fa-rocket"></i> EKSEKUSI DI OLT
+                                </button>
+                            </div>
                         </div>
-                        <button id="btn_clear_terminal" class="text-slate-400 hover:text-white transition-colors"
-                            title="Clear Terminal">
-                            <i class="fa-solid fa-eraser text-xs"></i>
-                        </button>
+
+                        <div class="relative flex-1 min-h-0">
+                            <textarea id="script_output" readonly
+                                class="w-full h-full p-4 bg-slate-50 text-slate-800 font-mono text-[11px] leading-relaxed rounded-xl border-2 border-slate-200 outline-none resize-none shadow-inner custom-scrollbar"></textarea>
+                        </div>
                     </div>
-                    <textarea id="terminal_output" readonly
-                        class="w-full h-full p-4 bg-transparent text-[#00ff00] font-mono text-[11px] leading-relaxed outline-none resize-none custom-scrollbar"
-                        placeholder="Menunggu eksekusi perintah..."></textarea>
+
+                    <!-- Terminal Output -->
+                    <div class="rounded-2xl overflow-hidden border-2 border-slate-800 bg-[#0c0c0c] shadow-xl flex flex-col"
+                        style="flex: 1; min-height: 250px;">
+                        <div class="bg-slate-800 px-4 py-2 flex items-center justify-between shrink-0">
+                            <div class="flex items-center gap-2">
+                                <div class="flex gap-1.5">
+                                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                </div>
+                                <span class="text-[10px] text-slate-300 font-mono font-bold tracking-wider ml-2">OLT
+                                    Terminal Output</span>
+                            </div>
+                            <button id="btn_clear_terminal" class="text-slate-400 hover:text-white transition-colors"
+                                title="Clear Terminal">
+                                <i class="fa-solid fa-eraser text-xs"></i>
+                            </button>
+                        </div>
+                        <textarea id="terminal_output" readonly
+                            class="w-full h-full p-4 bg-transparent text-[#00ff00] font-mono text-[11px] leading-relaxed outline-none resize-none custom-scrollbar"
+                            placeholder="Menunggu eksekusi perintah..."></textarea>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    @endif
 
     <!-- Dashboard Panel -->
-    <div id="panel-dashboard" class="tab-content">
+    <div id="panel-dashboard" class="tab-content {{ auth()->user()->jabatan !== 'Administrator' ? 'active' : '' }}">
         <!-- Stats cards -->
         <div class="stats-grid">
             <div class="stat-card">
@@ -425,7 +433,7 @@
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-[11px] font-bold text-slate-400">VLAN</span>
-                                <span id="det_wan_vlan" class="text-xs font-black text-slate-700">-</span>
+                                <span id="det_wan_user_vlan" class="text-xs font-black text-slate-700">-</span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-[11px] font-bold text-slate-400">RX POWER (ATT)</span>
@@ -648,7 +656,7 @@ show gpon onu state gpon-olt_${port}`;
                             // Fill WAN Info
                             $('#det_wan_user').text(res.wan_info.username);
                             $('#det_wan_ip').text(res.wan_info.ip);
-                            $('#det_wan_vlan').text(res.wan_info.vlan);
+                            $('#det_wan_user_vlan').text(res.wan_info.vlan);
                             $('#det_rx_power').text(res.rx_power);
 
                             const $status = $('#det_wan_status');

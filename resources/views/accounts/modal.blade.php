@@ -47,6 +47,7 @@
                          <select class="form-select" name="jabatan" required>
                              <option value="">Pilih Jabatan</option>
                              <option value="Administrator">Administrator</option>
+                             <option value="Web Developer">Web Developer</option>
                              <option value="Sales">Sales</option>
                              <option value="Teknisi">Teknisi</option>
                          </select>
@@ -118,6 +119,7 @@
                          <label class="form-label !text-slate-800 !font-bold">Jabatan <span class="text-rose-500">*</span></label>
                          <select class="form-select" id="edit_jabatan" name="jabatan" required>
                              <option value="Administrator">Administrator</option>
+                             <option value="Web Developer">Web Developer</option>
                              <option value="Sales">Sales</option>
                              <option value="Teknisi">Teknisi</option>
                          </select>

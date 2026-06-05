@@ -58,7 +58,7 @@
         </style>
     @endsection
 
-    @php $isAdmin = auth()->user()->jabatan === 'Administrator'; @endphp
+    @php $isAdmin = auth()->user()->isAdmin(); @endphp
 
     <div
         style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">

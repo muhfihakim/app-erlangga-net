@@ -101,7 +101,7 @@
                                 <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">{{ $user->jenis_kelamin ?? '-' }} | {{ $user->tanggal_lahir ? \Carbon\Carbon::parse($user->tanggal_lahir)->format('d/m/Y') : '-' }}</div>
                             </td>
                             <td style="text-align: center;">
-                                @if($user->jabatan === 'Administrator')
+                                @if($user->isAdmin())
                                     <span class="badge" style="background: #fef2f2; color: #dc2626; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800;">ADMIN</span>
                                 @elseif($user->jabatan === 'Sales')
                                     <span class="badge" style="background: #f0f9ff; color: #0ea5e9; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800;">SALES</span>
