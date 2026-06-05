@@ -32,7 +32,7 @@
                      </div>
                      <div class="form-group">
                          <label class="form-label !text-slate-800 !font-bold">Jenis Kelamin</label>
-                         <select class="form-select" name="jenis_kelamin">
+                         <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" name="jenis_kelamin">
                              <option value="">Pilih Jenis Kelamin</option>
                              <option value="Laki-laki">Laki-laki</option>
                              <option value="Perempuan">Perempuan</option>
@@ -44,7 +44,7 @@
                      </div>
                      <div class="form-group md:col-span-2">
                          <label class="form-label !text-slate-800 !font-bold">Jabatan <span class="text-rose-500">*</span></label>
-                         <select class="form-select" name="jabatan" required>
+                         <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" name="jabatan" required>
                              <option value="">Pilih Jabatan</option>
                              <option value="Administrator">Administrator</option>
                              <option value="Web Developer">Web Developer</option>
@@ -105,7 +105,7 @@
                      </div>
                      <div class="form-group">
                          <label class="form-label !text-slate-800 !font-bold">Jenis Kelamin</label>
-                         <select class="form-select" id="edit_jenis_kelamin" name="jenis_kelamin">
+                         <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" id="edit_jenis_kelamin" name="jenis_kelamin">
                              <option value="">Pilih Jenis Kelamin</option>
                              <option value="Laki-laki">Laki-laki</option>
                              <option value="Perempuan">Perempuan</option>
@@ -117,7 +117,7 @@
                      </div>
                      <div class="form-group md:col-span-2">
                          <label class="form-label !text-slate-800 !font-bold">Jabatan <span class="text-rose-500">*</span></label>
-                         <select class="form-select" id="edit_jabatan" name="jabatan" required>
+                         <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" id="edit_jabatan" name="jabatan" required>
                              <option value="Administrator">Administrator</option>
                              <option value="Web Developer">Web Developer</option>
                              <option value="Sales">Sales</option>
