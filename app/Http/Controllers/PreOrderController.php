@@ -31,11 +31,12 @@ class PreOrderController extends Controller
             // 2. Query PreOrder
             $query = PreOrder::query();
 
-            if ($user->jabatan === 'Administrator') {
+            if ($user->isAdmin()) {
                 if ($filterSales) {
                     $query->where('id_sales', $filterSales);
                 }
-            } elseif ($user->jabatan === 'Teknisi') {
+            }
+ elseif ($user->jabatan === 'Teknisi') {
                 // Teknisi bisa melihat semua PO yang belum aktif
             } else {
                 $query->where('id_sales', $user->id);
@@ -108,7 +109,7 @@ class PreOrderController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->jabatan !== 'Sales' && $user->jabatan !== 'Administrator') {
+        if ($user->jabatan !== 'Sales' && !$user->isAdmin()) {
             return redirect()->route('pre_orders.index')->with('error', 'Akses ditolak.');
         }
 
@@ -162,7 +163,7 @@ class PreOrderController extends Controller
 
     public function update(Request $request, PreOrder $preOrder)
     {
-        if (Auth::user()->jabatan !== 'Sales' && Auth::user()->jabatan !== 'Administrator') {
+        if (Auth::user()->jabatan !== 'Sales' && !Auth::user()->isAdmin()) {
             abort(403, 'Akses ditolak.');
         }
 
@@ -223,7 +224,7 @@ class PreOrderController extends Controller
 
     public function destroy(PreOrder $preOrder)
     {
-        if (Auth::user()->jabatan !== 'Sales' && Auth::user()->jabatan !== 'Administrator') {
+        if (Auth::user()->jabatan !== 'Sales' && !Auth::user()->isAdmin()) {
             abort(403, 'Akses ditolak.');
         }
 
@@ -244,7 +245,7 @@ class PreOrderController extends Controller
 
     public function unspek(Request $request, PreOrder $preOrder)
     {
-        if (!in_array(auth()->user()->jabatan, ['Administrator', 'Teknisi'])) {
+        if (!in_array(auth()->user()->jabatan, ['Administrator', 'Teknisi', 'Web Developer'])) {
             abort(403, 'Akses ditolak.');
         }
 
@@ -271,7 +272,7 @@ class PreOrderController extends Controller
     public function approveUnspek(PreOrder $preOrder)
     {
         $user = auth()->user();
-        if ($user->jabatan !== 'Administrator' && ($user->jabatan !== 'Sales' || $preOrder->id_sales !== $user->id)) {
+        if (!$user->isAdmin() && ($user->jabatan !== 'Sales' || $preOrder->id_sales !== $user->id)) {
             abort(403, 'Akses ditolak.');
         }
 
@@ -291,7 +292,7 @@ class PreOrderController extends Controller
 
     public function reopenUnspek(PreOrder $preOrder)
     {
-        if (auth()->user()->jabatan !== 'Administrator') {
+        if (!auth()->user()->isAdmin()) {
             abort(403, 'Akses ditolak.');
         }
 

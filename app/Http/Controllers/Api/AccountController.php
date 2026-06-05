@@ -13,7 +13,7 @@ class AccountController extends Controller
 {
     public function index()
     {
-        if (auth()->user()->jabatan !== 'Administrator') {
+        if (!auth()->user()->isAdmin()) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
@@ -33,7 +33,7 @@ class AccountController extends Controller
 
     public function store(Request $request)
     {
-        if (auth()->user()->jabatan !== 'Administrator') {
+        if (!auth()->user()->isAdmin()) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
@@ -63,7 +63,7 @@ class AccountController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (auth()->user()->jabatan !== 'Administrator') {
+        if (!auth()->user()->isAdmin()) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
@@ -100,7 +100,7 @@ class AccountController extends Controller
 
     public function destroy($id)
     {
-        if (auth()->user()->jabatan !== 'Administrator') {
+        if (!auth()->user()->isAdmin()) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
@@ -120,7 +120,7 @@ class AccountController extends Controller
 
     public function reset2FA($id)
     {
-        if (auth()->user()->jabatan !== 'Administrator') {
+        if (!auth()->user()->isAdmin()) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 

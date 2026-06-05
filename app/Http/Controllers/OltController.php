@@ -14,6 +14,9 @@ class OltController extends Controller
 
     public function index()
     {
+        if (auth()->user()->jabatan === 'Sales') {
+            abort(403, 'Akses khusus Administrator dan Teknisi.');
+        }
         return view('monitoring.olt');
     }
 
@@ -83,6 +86,7 @@ class OltController extends Controller
 
     public function getDashboardData(Request $request)
     {
+        if (auth()->user()->jabatan === 'Sales') abort(403);
         $port = $request->query('port');
 
         try {
@@ -159,6 +163,7 @@ class OltController extends Controller
 
     public function getOnuDetails(Request $request)
     {
+        if (auth()->user()->jabatan === 'Sales') abort(403);
         $port = $request->query('port');
         $onuId = $request->query('onu_id');
 

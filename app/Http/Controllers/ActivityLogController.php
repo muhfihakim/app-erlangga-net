@@ -17,7 +17,7 @@ class ActivityLogController extends Controller
     public function index()
     {
         // Hanya Administrator yang bisa mengakses
-        if (auth()->user()->jabatan !== 'Administrator') {
+        if (!auth()->user()->isAdmin()) {
             abort(403, 'Akses ditolak.');
         }
 

@@ -21,7 +21,7 @@ class LocationController extends Controller
         $user = Auth::user();
 
         // Cek jika pengguna bukan Administrator
-        if ($user->jabatan === 'Administrator') {
+        if ($user->isAdmin()) {
             return response()->json(['message' => 'Lokasi Administrator tidak dilacak.'], 403);
         }
 
@@ -71,7 +71,7 @@ class LocationController extends Controller
     public function getUserLocation(User $user)
     {
         // Pastikan jabatan bukan Administrator sebelum mengambil lokasi
-        if ($user->jabatan === 'Administrator') {
+        if ($user->isAdmin()) {
             return response()->json([], 200);
         }
 

@@ -44,7 +44,7 @@ class DashboardController extends Controller
         ];
 
         // 1. CARDS (Role Based)
-        if ($user->jabatan === 'Administrator') {
+        if ($user->isAdmin()) {
             $response['cards'] = [
                 'total_po' => PreOrder::whereBetween('created_at', [$startOfMonth, $endOfMonth])->count(),
                 'total_aktivasi' => Customer::whereBetween('created_at', [$startOfMonth, $endOfMonth])->count(),

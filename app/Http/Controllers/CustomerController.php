@@ -16,7 +16,7 @@ class CustomerController extends Controller
 {
     public function index()
     {
-        if (auth()->user()->jabatan !== 'Teknisi' && auth()->user()->jabatan !== 'Administrator') {
+        if (auth()->user()->jabatan !== 'Teknisi' && !auth()->user()->isAdmin()) {
             abort(403, 'Akses ditolak.');
         }
 
@@ -131,7 +131,7 @@ class CustomerController extends Controller
 
         // --- DATA PELANGGAN ISOLIR ---
         $pelangganIsolir = collect();
-        if ($user->jabatan === 'Sales' || $user->jabatan === 'Administrator') {
+        if ($user->jabatan === 'Sales' || $user->isAdmin()) {
             $pppoeData = \Illuminate\Support\Facades\Cache::get('mikrotik_pppoe_active');
 
             if ($pppoeData && isset($pppoeData['success']) && $pppoeData['success']) {
@@ -165,7 +165,7 @@ class CustomerController extends Controller
 
     public function store(Request $request)
     {
-        if (auth()->user()->jabatan !== 'Teknisi' && auth()->user()->jabatan !== 'Administrator') {
+        if (auth()->user()->jabatan !== 'Teknisi' && !auth()->user()->isAdmin()) {
             abort(403, 'Akses ditolak.');
         }
 

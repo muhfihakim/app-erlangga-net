@@ -26,7 +26,7 @@ class PreOrderController extends Controller
 
         $query = PreOrder::with(['sales']);
 
-        if ($user->jabatan === 'Administrator') {
+        if ($user->isAdmin()) {
             if ($filterSales) $query->where('id_sales', $filterSales);
         } elseif ($user->jabatan === 'Teknisi') {
             // Can see all

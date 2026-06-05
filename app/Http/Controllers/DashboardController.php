@@ -21,7 +21,7 @@ class DashboardController extends Controller
 
         // 1. Data Dasar & Log Aktivitas
         $logs = collect();
-        if ($user->jabatan === 'Administrator') {
+        if ($user->isAdmin()) {
             $logs = ActivityLog::latest()->take(10)->get();
         }
 
@@ -89,7 +89,7 @@ class DashboardController extends Controller
         $sChartLabels = []; $sChartActivated = []; $sChartPending = [];
 
         // 6. Logika Admin: Fetch Stats
-        if ($user->jabatan === 'Administrator') {
+        if ($user->isAdmin()) {
             $thisMonth = Carbon::now()->month;
             $thisYear = Carbon::now()->year;
 
@@ -213,7 +213,7 @@ class DashboardController extends Controller
         $totalPelangganSaya = 0;
         $totalIsolirSaya = 0;
 
-        if ($user->jabatan === 'Sales' || $user->jabatan === 'Administrator') {
+        if ($user->jabatan === 'Sales' || $user->isAdmin()) {
             $myCustomersQuery = Customer::query();
             if ($user->jabatan === 'Sales') {
                 $myCustomersQuery->where('id_sales', $user->id);

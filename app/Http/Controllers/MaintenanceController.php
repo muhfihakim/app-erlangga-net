@@ -103,7 +103,7 @@ class MaintenanceController extends Controller
 
     public function destroy($id)
     {
-        if (auth()->user()->jabatan === 'Administrator') {
+        if (auth()->user()->isAdmin()) {
             $m = Maintenance::findOrFail($id);
 
             // Hapus file-file terkait

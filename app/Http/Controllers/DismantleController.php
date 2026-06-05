@@ -146,7 +146,7 @@ class DismantleController extends Controller
 
     public function destroy($id)
     {
-        if (auth()->user()->jabatan !== 'Administrator') abort(403);
+        if (!auth()->user()->isAdmin()) abort(403);
 
         $d = Dismantle::findOrFail($id);
         $nama = $d->customer->nama_lengkap;
@@ -168,7 +168,7 @@ class DismantleController extends Controller
 
     public function deleteCustomer($id)
     {
-        if (auth()->user()->jabatan !== 'Administrator') abort(403);
+        if (!auth()->user()->isAdmin()) abort(403);
 
         $c = Customer::findOrFail($id);
         $nama = $c->nama_lengkap;

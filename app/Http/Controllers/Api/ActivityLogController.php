@@ -10,7 +10,7 @@ class ActivityLogController extends Controller
 {
     public function index()
     {
-        if (auth()->user()->jabatan !== 'Administrator') {
+        if (!auth()->user()->isAdmin()) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 

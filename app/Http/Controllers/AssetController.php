@@ -16,7 +16,7 @@ class AssetController extends Controller
     public function index(Request $request)
     {
         $assets = Asset::orderBy('name')->get();
-        
+
         // Statistics
         $totalItems = $assets->count();
         $totalStock = $assets->sum('stock');
@@ -29,7 +29,7 @@ class AssetController extends Controller
 
     public function store(Request $request)
     {
-        if (auth()->user()->jabatan !== 'Administrator') abort(403);
+        if (!auth()->user()->isAdmin()) abort(403);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -45,7 +45,7 @@ class AssetController extends Controller
 
     public function update(Request $request, Asset $asset)
     {
-        if (auth()->user()->jabatan !== 'Administrator') abort(403);
+        if (!auth()->user()->isAdmin()) abort(403);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -61,7 +61,7 @@ class AssetController extends Controller
 
     public function destroy(Asset $asset)
     {
-        if (auth()->user()->jabatan !== 'Administrator') abort(403);
+        if (!auth()->user()->isAdmin()) abort(403);
 
         if ($asset->transactions()->exists()) {
             return redirect()->back()->with('error', 'Asset tidak bisa dihapus karena memiliki riwayat transaksi.');
@@ -84,7 +84,7 @@ class AssetController extends Controller
             $query->whereBetween('date', [$request->start_date, $request->end_date]);
         }
 
-        $transactions = $query->latest()->paginate(25);
+        $transactions = $query->latest()->get();
         $assets = Asset::orderBy('name')->get();
         $users = User::whereIn('jabatan', ['Administrator', 'Teknisi'])->orderBy('nama_lengkap')->get();
 
