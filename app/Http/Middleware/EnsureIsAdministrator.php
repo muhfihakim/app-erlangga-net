@@ -15,7 +15,7 @@ class EnsureIsAdministrator
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (auth()->check() && auth()->user()->jabatan === 'Administrator') {
+        if (auth()->check() && auth()->user()->isAdmin()) {
             return $next($request);
         }
 
