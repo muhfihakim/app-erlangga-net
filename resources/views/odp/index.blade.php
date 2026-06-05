@@ -84,7 +84,7 @@
     @endsection
 
     @php
-        $canCrud = auth()->user()->jabatan === 'Administrator' || auth()->user()->jabatan === 'Teknisi';
+        $canCrud = auth()->user()->isAdmin() || auth()->user()->jabatan === 'Teknisi';
     @endphp
 
     <!-- Page Header -->

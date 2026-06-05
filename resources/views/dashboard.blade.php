@@ -199,7 +199,7 @@
         </div>
     @endif
 
-    @if ($user->jabatan === 'Administrator')
+    @if ($user->isAdmin())
         <!-- Performa Aktivasi -->
         <div style="margin-top: 2rem;">
             <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 1rem;">
@@ -339,7 +339,7 @@
         </div>
     @endif
 
-    @if ($user->jabatan === 'Administrator')
+    @if ($user->isAdmin())
         <div style="margin-top: 2rem;">
             <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 1rem;">
                 <i class="fa-solid fa-person-walking text-indigo-500 mr-2"></i> Aktivitas Terbaru
@@ -482,7 +482,7 @@
                     table.search(this.value).draw();
                 });
 
-                @if ($user->jabatan === 'Administrator')
+                @if ($user->isAdmin())
                     // Initialize Activation Trend Chart
                     const aCtx = document.getElementById('activationTrendChart').getContext('2d');
                     new Chart(aCtx, {

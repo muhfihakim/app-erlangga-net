@@ -15,7 +15,7 @@
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola data pendaftaran calon pelanggan internet.</p>
         </div>
         <div style="display:flex; gap:10px;">
-            @if (auth()->user()->jabatan === 'Sales' || auth()->user()->jabatan === 'Administrator')
+            @if (auth()->user()->jabatan === 'Sales' || auth()->user()->isAdmin())
                 <button type="button" class="btn-primary-admin btn-glow-primary !flex !items-center !justify-center gap-2"
                     onclick="openCustomModal('addPreOrderModal')"><i class="fa-solid fa-user-plus"></i> Tambah
                     Pre-Order</button>
@@ -67,7 +67,7 @@
                         </option>
                     </select>
                 </div>
-                @if (Auth::user()->jabatan === 'Administrator')
+                @if (Auth::user()->isAdmin())
                     <div style="flex: 1; min-width: 180px;">
                         <label class="form-label-custom">Sales</label>
                         <select name="id_sales" class="form-input-custom">
@@ -136,7 +136,7 @@
                                         <span class="badge badge-published">AKTIF</span>
                                     @elseif ($po->is_unspek)
                                         <span class="badge" style="background:#fef2f2;color:#be123c;">UNSPEK</span>
-                                        @if (Auth::user()->jabatan === 'Administrator')
+                                        @if (Auth::user()->isAdmin())
                                             <form action="{{ route('pre_orders.reopen_unspek', $po->id) }}" method="POST"
                                                 class="inline">@csrf<button type="submit"
                                                     class="topbar-icon-btn !w-8 !h-8 !rounded-lg"><i

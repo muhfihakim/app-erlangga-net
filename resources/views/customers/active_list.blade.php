@@ -21,7 +21,7 @@
         </style>
     @endsection
 
-    @php $is_admin = Auth::user()->jabatan === 'Administrator'; @endphp
+    @php $is_admin = Auth::user()->isAdmin(); @endphp
 
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
@@ -150,7 +150,7 @@
                                         <i class="fa-solid fa-circle-info text-primary"></i>
                                     </button>
 
-                                    @if (auth()->user()->jabatan === 'Administrator')
+                                    @if (auth()->user()->isAdmin())
                                         @if ($customer->trashed())
                                             <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
                                                 title="Aktifkan"
@@ -174,7 +174,7 @@
         </div>
     </div>
 
-    @if (Auth::user()->jabatan === 'Sales' || Auth::user()->jabatan === 'Administrator')
+    @if (Auth::user()->jabatan === 'Sales' || Auth::user()->isAdmin())
         @if (isset($pelangganIsolir) && $pelangganIsolir->count() > 0)
             <div
                 style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;margin-top:1rem;flex-wrap:wrap;">

@@ -20,15 +20,17 @@
         </a>
 
         <div class="sidebar-section-label" style="margin-top:.5rem;">Infrastruktur</div>
-        <a class="sidebar-link {{ Request::is('olt*') ? 'active' : '' }}" href="{{ route('olt.index') }}">
-            <i class="fa-solid fa-server"></i>
-            <span>Manajemen OLT</span>
-        </a>
+        @if (auth()->user()->jabatan !== 'Sales')
+            <a class="sidebar-link {{ Request::is('olt*') ? 'active' : '' }}" href="{{ route('olt.index') }}">
+                <i class="fa-solid fa-server"></i>
+                <span>Manajemen OLT</span>
+            </a>
+        @endif
         <a class="sidebar-link {{ Request::is('odp*') ? 'active' : '' }}" href="{{ route('odp.index') }}">
             <i class="fa-solid fa-tower-broadcast"></i>
             <span>Manajemen ODP</span>
         </a>
-        @if (auth()->user()->jabatan === 'Administrator')
+        @if (auth()->user()->isAdmin())
             <a class="sidebar-link {{ Request::is('pppoe*') ? 'active' : '' }}" href="{{ route('pppoe.index') }}">
                 <i class="fa-solid fa-network-wired"></i>
                 <span>PPPoE Aktif</span>
@@ -50,7 +52,7 @@
         @endif
 
         @if (auth()->check() &&
-                (auth()->user()->jabatan === 'Administrator' ||
+                (auth()->user()->isAdmin() ||
                     auth()->user()->jabatan === 'Teknisi' ||
                     auth()->user()->jabatan === 'Sales'))
             <a class="sidebar-link {{ Request::is('customers*') ? 'active' : '' }}"
@@ -58,16 +60,6 @@
                 <i class="fa-solid fa-users"></i>
                 <span>Pelanggan</span>
             </a>
-        @endif
-
-        @if (auth()->check() && (auth()->user()->jabatan === 'Administrator' || auth()->user()->jabatan === 'Teknisi'))
-            <div class="sidebar-section-label" style="margin-top:.5rem;">Gudang</div>
-            <a class="sidebar-link {{ Request::is('assets*') ? 'active' : '' }}"
-                href="{{ route('assets.index') }}">
-                <i class="fa-solid fa-boxes-stacked"></i>
-                <span>Pengelolaan Aset</span>
-            </a>
-
             <a class="sidebar-link {{ Request::is('maintenances') ? 'active' : '' }}"
                 href="{{ route('maintenances.index') }}">
                 <i class="fa-solid fa-screwdriver-wrench"></i>
@@ -80,7 +72,13 @@
             </a>
         @endif
 
-        @if (auth()->check() && auth()->user()->jabatan === 'Administrator')
+        @if (auth()->check() && auth()->user()->isAdmin())
+            <div class="sidebar-section-label" style="margin-top:.5rem;">Gudang</div>
+            <a class="sidebar-link {{ Request::is('assets*') ? 'active' : '' }}" href="{{ route('assets.index') }}">
+                <i class="fa-solid fa-boxes-stacked"></i>
+                <span>Pengelolaan Aset</span>
+            </a>
+
             <div class="sidebar-section-label" style="margin-top:.5rem;">Keuangan</div>
             <a class="sidebar-link {{ Request::is('keuangan/teknisi*') ? 'active' : '' }}"
                 href="{{ route('finance.index') }}">

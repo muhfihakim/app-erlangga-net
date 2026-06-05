@@ -91,7 +91,7 @@
                         <p class="text-xs">Memuat notifikasi...</p>
                     </div>
                 </div>
-                @if (auth()->user()->jabatan === 'Administrator')
+                @if (auth()->user()->isAdmin())
                     <div class="notif-footer">
                         <a href="{{ route('activitylog.index') }}" class="notif-view-all">Lihat Semua Log</a>
                     </div>

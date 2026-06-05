@@ -1,5 +1,5 @@
 {{-- Modal Tambah Pre-Order --}}
-@if (auth()->user()->jabatan === 'Sales' || auth()->user()->jabatan === 'Administrator')
+@if (auth()->user()->jabatan === 'Sales' || auth()->user()->isAdmin())
     <div class="modal-overlay" id="addPreOrderModal">
         <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
             <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
@@ -82,10 +82,10 @@
                             <label class="form-label text-slate-800 font-bold">Titik Koordinat</label>
                             <div class="flex gap-2">
                                 <input type="text"
-                                    class="form-input {{ auth()->user()->jabatan === 'Administrator' ? 'bg-white' : 'bg-slate-50' }} text-slate-900 border-slate-300"
+                                    class="form-input {{ auth()->user()->isAdmin() ? 'bg-white' : 'bg-slate-50' }} text-slate-900 border-slate-300"
                                     id="titik_koordinat" name="titik_koordinat"
-                                    placeholder="{{ auth()->user()->jabatan === 'Administrator' ? 'Ketik manual / klik ikon...' : 'Koordinat...' }}"
-                                    {{ auth()->user()->jabatan === 'Administrator' ? '' : 'readonly' }}>
+                                    placeholder="{{ auth()->user()->isAdmin() ? 'Ketik manual / klik ikon...' : 'Koordinat...' }}"
+                                    {{ auth()->user()->isAdmin() ? '' : 'readonly' }}>
                                 <button type="button"
                                     class="btn-primary-admin !shadow-none !flex !items-center !justify-center"
                                     id="get-location-btn">
@@ -192,10 +192,10 @@
                         <label class="form-label text-slate-800 font-bold">Titik Koordinat</label>
                         <div class="flex gap-2">
                             <input type="text"
-                                class="form-input {{ auth()->user()->jabatan === 'Administrator' ? 'bg-white' : 'bg-slate-50' }} text-slate-900 border-slate-300"
+                                class="form-input {{ auth()->user()->isAdmin() ? 'bg-white' : 'bg-slate-50' }} text-slate-900 border-slate-300"
                                 id="edit_titik_koordinat" name="titik_koordinat"
-                                placeholder="{{ auth()->user()->jabatan === 'Administrator' ? 'Ketik manual / klik ikon...' : '' }}"
-                                {{ auth()->user()->jabatan === 'Administrator' ? '' : 'readonly' }}>
+                                placeholder="{{ auth()->user()->isAdmin() ? 'Ketik manual / klik ikon...' : '' }}"
+                                {{ auth()->user()->isAdmin() ? '' : 'readonly' }}>
                             <button type="button"
                                 class="btn-primary-admin !shadow-none !flex !items-center !justify-center"
                                 id="edit-get-location-btn">

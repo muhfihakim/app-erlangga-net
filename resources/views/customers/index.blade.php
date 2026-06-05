@@ -88,7 +88,7 @@
         </style>
     @endsection
 
-    @php $is_admin = auth()->user()->jabatan === 'Administrator'; @endphp
+    @php $is_admin = auth()->user()->isAdmin(); @endphp
 
     <!-- Page header -->
     <div
