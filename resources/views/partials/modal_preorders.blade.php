@@ -63,7 +63,7 @@
                         <div class="form-group">
                             <label class="form-label text-slate-800 font-bold">Pilih Paket Internet <span
                                     class="text-rose-500">*</span></label>
-                            <select class="form-select bg-white text-slate-900 border-slate-300" name="paket_internet"
+                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" name="paket_internet"
                                 required>
                                 <option value="">-- Pilih Paket --</option>
                                 <option value="Bronze 10Mbps - 112K/Bulan">Bronze 10Mbps - 112K/Bulan</option>
@@ -175,7 +175,7 @@
                 <div class="tab-panel" id="edit-tab-paket">
                     <div class="form-group">
                         <label class="form-label text-slate-800 font-bold">Paket Internet</label>
-                        <select class="form-select bg-white text-slate-900 border-slate-300" id="edit_paket_internet"
+                        <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" id="edit_paket_internet"
                             name="paket_internet" required>
                             <option value="Bronze 10Mbps - 112K/Bulan">Bronze 10Mbps - 112K/Bulan</option>
                             <option value="Silver 20Mbps - 179K/Bulan">Silver 20Mbps - 179K/Bulan</option>
@@ -183,6 +183,7 @@
                             <option value="Platinum 50Mbps - 279K/Bulan">Platinum 50Mbps - 279K/Bulan</option>
                         </select>
                     </div>
+
                     <div class="form-group">
                         <label class="form-label text-slate-800 font-bold">Alamat Lengkap</label>
                         <textarea class="form-textarea bg-white text-slate-900 border-slate-300" id="edit_alamat_lengkap"
