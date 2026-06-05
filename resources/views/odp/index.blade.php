@@ -261,18 +261,18 @@
                     <div class="modal-body p-8 space-y-5">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Jenis ODP
+                                <label class="form-label text-slate-800 font-bold">Jenis ODP
                                     <span class="text-rose-500">*</span></label>
-                                <select name="jenis_odp" class="form-select" required>
+                                <select name="jenis_odp" class="form-input-custom w-full bg-white text-slate-900 border-slate-300" required>
                                     <option value="EPON">EPON (Amber)</option>
                                     <option value="GPON">GPON (Blue)</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Titik
+                                <label class="form-label text-slate-800 font-bold">Titik
                                     Koordinat <span class="text-rose-500">*</span></label>
                                 <div class="flex gap-2">
-                                    <input type="text" name="titik_koordinat" id="add_tikor" class="form-input"
+                                    <input type="text" name="titik_koordinat" id="add_tikor" class="form-input bg-white text-slate-900 border-slate-300"
                                         placeholder="-7.xxx, 110.xxx" required>
                                     <button type="button" class="btn-primary-admin !shadow-none !px-4"
                                         onclick="getAddLocation()">
@@ -282,18 +282,18 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Lokasi / Nama ODP
+                            <label class="form-label text-slate-800 font-bold">Lokasi / Nama ODP
                                 <span class="text-rose-500">*</span></label>
-                            <input type="text" name="lokasi_odp" class="form-input"
+                            <input type="text" name="lokasi_odp" class="form-input bg-white text-slate-900 border-slate-300"
                                 placeholder="Contoh: ODP-KLT-01" required>
                         </div>
                         <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Foto ODP</label>
-                            <input type="file" name="foto_odp" class="form-input" accept="image/*">
+                            <label class="form-label text-slate-800 font-bold">Foto ODP</label>
+                            <input type="file" name="foto_odp" class="form-input bg-white text-slate-900 border-slate-300" accept="image/*">
                         </div>
                         <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Keterangan</label>
-                            <textarea name="keterangan" class="form-textarea" rows="3" placeholder="Informasi tambahan..."></textarea>
+                            <label class="form-label text-slate-800 font-bold">Keterangan</label>
+                            <textarea name="keterangan" class="form-textarea bg-white text-slate-900 border-slate-300" rows="3" placeholder="Informasi tambahan..."></textarea>
                         </div>
                     </div>
                     <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
@@ -327,19 +327,19 @@
                     <div class="modal-body p-8 space-y-5">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Jenis ODP
+                                <label class="form-label text-slate-800 font-bold">Jenis ODP
                                     <span class="text-rose-500">*</span></label>
-                                <select name="jenis_odp" id="edit_jenis" class="form-select" required>
+                                <select name="jenis_odp" id="edit_jenis" class="form-input-custom w-full bg-white text-slate-900 border-slate-300" required>
                                     <option value="EPON">EPON (Amber)</option>
                                     <option value="GPON">GPON (Blue)</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Titik
+                                <label class="form-label text-slate-800 font-bold">Titik
                                     Koordinat <span class="text-rose-500">*</span></label>
                                 <div class="flex gap-2">
                                     <input type="text" name="titik_koordinat" id="edit_tikor_input"
-                                        class="form-input" required>
+                                        class="form-input bg-white text-slate-900 border-slate-300" required>
                                     <button type="button" class="btn-primary-admin !shadow-none !px-4"
                                         onclick="getEditLocation()">
                                         <i class="fa-solid fa-location-crosshairs"></i>
@@ -348,14 +348,14 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Lokasi / Nama ODP
+                            <label class="form-label text-slate-800 font-bold">Lokasi / Nama ODP
                                 <span class="text-rose-500">*</span></label>
-                            <input type="text" name="lokasi_odp" id="edit_lokasi" class="form-input" required>
+                            <input type="text" name="lokasi_odp" id="edit_lokasi" class="form-input bg-white text-slate-900 border-slate-300" required>
                         </div>
                         <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Foto ODP
+                            <label class="form-label text-slate-800 font-bold">Foto ODP
                                 (Kosongkan jika tidak diubah)</label>
-                            <input type="file" name="foto_odp" class="form-input" accept="image/*">
+                            <input type="file" name="foto_odp" class="form-input bg-white text-slate-900 border-slate-300" accept="image/*">
                             <div id="current_foto_wrap" class="mt-2 hidden">
                                 <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">Foto Saat Ini:</p>
                                 <img id="current_foto" src=""
@@ -363,8 +363,8 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Keterangan</label>
-                            <textarea name="keterangan" id="edit_keterangan" class="form-textarea" rows="3"></textarea>
+                            <label class="form-label text-slate-800 font-bold">Keterangan</label>
+                            <textarea name="keterangan" id="edit_keterangan" class="form-textarea bg-white text-slate-900 border-slate-300" rows="3"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
