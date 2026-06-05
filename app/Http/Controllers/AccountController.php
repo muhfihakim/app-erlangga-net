@@ -18,7 +18,7 @@ class AccountController extends Controller
     public function index()
     {
 
-        if (auth()->user()->jabatan !== 'Administrator') {
+        if (!auth()->user()->isAdmin()) {
             abort(403, 'Akses ditolak.');
         }
 
@@ -26,7 +26,7 @@ class AccountController extends Controller
         
         // --- STATISTIK ---
         $totalUsers = User::count();
-        $totalAdmin = User::where('jabatan', 'Administrator')->count();
+        $totalAdmin = User::whereIn('jabatan', ['Administrator', 'Web Developer'])->count();
         $totalSales = User::where('jabatan', 'Sales')->count();
         $totalTeknisi = User::where('jabatan', 'Teknisi')->count();
 
@@ -42,7 +42,7 @@ class AccountController extends Controller
     public function store(Request $request)
     {
 
-        if (auth()->user()->jabatan !== 'Administrator') {
+        if (!auth()->user()->isAdmin()) {
             abort(403, 'Akses ditolak.');
         }
 
@@ -54,7 +54,7 @@ class AccountController extends Controller
             'alamat' => 'nullable|string',
             'jenis_kelamin' => 'nullable|string|max:255',
             'tanggal_lahir' => 'nullable|date',
-            'jabatan' => 'required|in:Administrator,Sales,Teknisi',
+            'jabatan' => 'required|in:Administrator,Sales,Teknisi,Web Developer',
         ]);
 
         User::create([
@@ -80,7 +80,7 @@ class AccountController extends Controller
 
     public function update(Request $request, User $user)
     {
-        if (auth()->user()->jabatan !== 'Administrator') {
+        if (!auth()->user()->isAdmin()) {
             abort(403, 'Akses ditolak.');
         }
 
@@ -92,7 +92,7 @@ class AccountController extends Controller
             'alamat' => 'nullable|string',
             'jenis_kelamin' => 'nullable|string|max:255',
             'tanggal_lahir' => 'nullable|date',
-            'jabatan' => 'required|in:Administrator,Sales,Teknisi',
+            'jabatan' => 'required|in:Administrator,Sales,Teknisi,Web Developer',
         ]);
 
         $dataToUpdate = $validatedData;
@@ -120,7 +120,7 @@ class AccountController extends Controller
     public function reset2FA(Request $request, User $user)
     {
         // Pastikan hanya Administrator yang bisa melakukan ini
-        if (auth()->user()->jabatan !== 'Administrator') {
+        if (!auth()->user()->isAdmin()) {
             abort(403, 'Akses ditolak.');
         }
 
@@ -135,7 +135,7 @@ class AccountController extends Controller
 
     public function show2FA(User $user)
     {
-        if (auth()->user()->jabatan !== 'Administrator') {
+        if (!auth()->user()->isAdmin()) {
             abort(403, 'Akses ditolak.');
         }
 
@@ -166,7 +166,7 @@ class AccountController extends Controller
 
     public function destroy(User $user)
     {
-        if (auth()->user()->jabatan !== 'Administrator') {
+        if (!auth()->user()->isAdmin()) {
             abort(403, 'Akses ditolak.');
         }
 
