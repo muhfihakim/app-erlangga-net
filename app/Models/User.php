@@ -55,4 +55,9 @@ class User extends Authenticatable
             'tanggal_lahir' => 'datetime',
         ];
     }
+
+    public function isAdmin(): bool
+    {
+        return in_array($this->jabatan, ['Administrator', 'Web Developer']);
+    }
 }
