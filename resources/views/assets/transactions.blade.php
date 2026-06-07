@@ -1,21 +1,6 @@
 <x-layouts.app>
     @section('Css')
         <style>
-            /* Hakatech DataTables Customization */
-            .dataTables_wrapper { padding: 0; }
-            .dataTables_filter { display: none; }
-            .dataTables_paginate {
-                @apply flex justify-end items-center gap-[16px] p-5 border-t border-slate-100;
-            }
-            .paginate_button {
-                width: 36px; height: 36px; border-radius: 10px;
-                @apply border border-slate-200 bg-white text-slate-500 font-semibold text-sm transition-all duration-200 inline-flex items-center justify-center cursor-pointer no-underline mx-1;
-            }
-            .paginate_button.current {
-                @apply bg-primary border-primary text-white;
-                box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3);
-            }
-
             .badge-masuk { background: #dcfce7; color: #15803d; }
             .badge-keluar { background: #fee2e2; color: #dc2626; }
 
@@ -64,6 +49,14 @@
                     <label class="form-label-custom">Sampai Tanggal</label>
                     <input type="date" name="end_date" class="form-input-custom" value="{{ request('end_date') }}">
                 </div>
+                <div style="flex: 1.5; min-width: 200px;">
+                    <label class="form-label-custom">Cari Transaksi</label>
+                    <div class="search-wrap !max-w-full">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="search" class="search-input" id="custom-search" placeholder="Cari barang, user..."
+                            autocomplete="off" />
+                    </div>
+                </div>
                 <div class="flex gap-2">
                     <button type="submit" class="btn-primary-admin !h-[40px] !px-6 !flex !items-center gap-2">
                         <i class="fa-solid fa-filter"></i> Filter
@@ -94,7 +87,7 @@
                     @forelse($transactions as $trans)
                         <tr>
                             <td style="color: #94a3b8; font-weight: 700;">
-                                {{ ($transactions->currentPage() - 1) * $transactions->perPage() + $loop->iteration }}
+                                {{ $loop->iteration }}
                             </td>
                             <td style="color: #64748b; font-size: 11px;">
                                 {{ \Carbon\Carbon::parse($trans->date)->format('d/m/Y') }}
@@ -136,14 +129,33 @@
                 </tbody>
             </table>
         </div>
-        @if ($transactions->hasPages())
-            <div class="p-4 bg-slate-50 border-t border-slate-100">
-                {{ $transactions->links() }}
-            </div>
-        @endif
     </div>
 
     @section('Scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
+        <script>
+            $(document).ready(function() {
+                const table = $('#transactionTable').DataTable({
+                    "pageLength": 10,
+                    "lengthChange": false,
+                    "ordering": false,
+                    "info": false,
+                    "responsive": true,
+                    "dom": 'tpir',
+                    "language": {
+                        "zeroRecords": "Data tidak ditemukan",
+                        "paginate": {
+                            "previous": '<i class="fa-solid fa-chevron-left"></i>',
+                            "next": '<i class="fa-solid fa-chevron-right"></i>'
+                        }
+                    }
+                });
+
+                $('#custom-search').on('keyup', function() {
+                    table.search(this.value).draw();
+                });
+            });
+        </script>
     @endsection
 </x-layouts.app>

@@ -26,15 +26,21 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth.custom'])->group(function () {
-    // Asset Management
-    Route::prefix('assets')->name('assets.')->group(function () {
-        Route::get('/', [AssetController::class, 'index'])->name('index');
-        Route::post('/', [AssetController::class, 'store'])->name('store');
-        Route::put('/{asset}', [AssetController::class, 'update'])->name('update');
-        Route::delete('/{asset}', [AssetController::class, 'destroy'])->name('destroy');
-        Route::get('/transactions', [AssetController::class, 'transactions'])->name('transactions');
-        Route::post('/transactions', [AssetController::class, 'storeTransaction'])->name('transactions.store');
-        Route::get('/export', [AssetController::class, 'export'])->name('export');
+    // Routes only for Administrator
+    Route::middleware(['admin'])->group(function () {
+        Route::get('/pppoe', [PppoeController::class, 'index'])->name('pppoe.index');
+        Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring.index');
+
+        // Asset Management
+        Route::prefix('assets')->name('assets.')->group(function () {
+            Route::get('/', [AssetController::class, 'index'])->name('index');
+            Route::post('/', [AssetController::class, 'store'])->name('store');
+            Route::put('/{asset}', [AssetController::class, 'update'])->name('update');
+            Route::delete('/{asset}', [AssetController::class, 'destroy'])->name('destroy');
+            Route::get('/transactions', [AssetController::class, 'transactions'])->name('transactions');
+            Route::post('/transactions', [AssetController::class, 'storeTransaction'])->name('transactions.store');
+            Route::get('/export', [AssetController::class, 'export'])->name('export');
+        });
     });
 
     // Keuangan Teknisi
@@ -48,12 +54,6 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::delete('/odp/{id}', [OdpController::class, 'destroy'])->name('odp.destroy');
 
     Route::get('/olt', [OltController::class, 'index'])->name('olt.index');
-
-    // Routes only for Administrator
-    Route::middleware(['admin'])->group(function () {
-        Route::get('/pppoe', [PppoeController::class, 'index'])->name('pppoe.index');
-        Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring.index');
-    });
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboards.index');
     Route::get('/accounts', [AccountController::class, 'index'])->name('accounts.index');
@@ -110,7 +110,7 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('customers/active-list', [CustomerController::class, 'activeList'])->name('customers.active_list');
     Route::post('/customers/{id}/restore', [CustomerController::class, 'restore'])->name('customers.restore');
 
-    // MikroTik Monitoring API (Protected by session auth)
+    // MikroTik & Admin APIs (Administrator only)
     Route::prefix('api')->middleware(['admin'])->group(function () {
         Route::get('/mikrotik/traffic', [MonitoringController::class, 'traffic']);
         Route::get('/mikrotik/status', [MonitoringController::class, 'status']);
@@ -118,11 +118,15 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::get('/pppoe/data', [PppoeController::class, 'data'])->name('pppoe.data');
         Route::get('/pppoe/realtime-traffic', [PppoeController::class, 'traffic'])->name('pppoe.traffic');
         
-        // OLT Telnet API Routes
+        // OLT Telnet API Routes (Admin only: Generator)
         Route::post('/olt/check-next-id', [OltController::class, 'checkNextOnuId']);
         Route::post('/olt/execute', [OltController::class, 'executeScript']);
-        Route::get('/olt/dashboard-data', [OltController::class, 'getDashboardData']);
-        Route::get('/olt/onu-details', [OltController::class, 'getOnuDetails']);
+    });
+
+    // OLT Monitoring APIs (Accessible by Admin & Teknisi)
+    Route::prefix('api/olt')->group(function () {
+        Route::get('/dashboard-data', [OltController::class, 'getDashboardData']);
+        Route::get('/onu-details', [OltController::class, 'getOnuDetails']);
     });
 
     Route::resource('customers', CustomerController::class)->except(['create', 'edit', 'show']);

@@ -26,6 +26,9 @@ return new class extends Migration
             $table->foreignId('id_teknisi_eksekutor')->nullable()->constrained('users'); // Siapa yang klik selesai
             $table->json('partner_ids')->nullable(); // Multi-id partner
             $table->text('partner')->nullable(); // Nama partner string
+            $table->string('kategori_kendala')->nullable();
+            $table->string('sn_baru')->nullable();
+            $table->string('sn_lama')->nullable();
             $table->text('solusi_kendala')->nullable();
             $table->string('foto_sebelum_perbaikan')->nullable();
             $table->string('foto_setelah_perbaikan')->nullable();

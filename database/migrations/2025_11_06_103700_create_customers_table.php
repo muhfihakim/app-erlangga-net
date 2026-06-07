@@ -33,6 +33,7 @@ return new class extends Migration
             // --- Data Administrasi ---
             $table->enum('pembayaran', ['Cash', 'Aplikasi']);
             $table->string('partner', 255)->nullable(); // Misal: Nama partner/partner kedua
+            $table->json('partner_ids')->nullable();
             $table->text('keterangan')->nullable();
 
             // --- Data Foto ---
@@ -41,6 +42,7 @@ return new class extends Migration
             $table->string('foto_speedtest')->nullable();
 
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

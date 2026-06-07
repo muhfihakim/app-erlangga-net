@@ -20,10 +20,12 @@ return new class extends Migration
             $table->string('alamat')->nullable();
             $table->string('jenis_kelamin')->nullable();
             $table->string('tanggal_lahir')->nullable();
-            $table->enum('jabatan', ['Administrator', 'Sales', 'Teknisi'])->default('Teknisi');
+            $table->enum('jabatan', ['Administrator', 'Sales', 'Teknisi', 'Web Developer'])->default('Teknisi');
+            $table->string('google2fa_secret')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
