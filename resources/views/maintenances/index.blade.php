@@ -602,15 +602,18 @@
                     </div>
                     <div class="tab-panel" id="tab-m-solusi">
                         <div class="space-y-4">
-                            <div class="form-group"><label
-                                    class="form-label text-slate-800 font-bold uppercase text-[11px]">Kategori Masalah
-                                    <span class="text-rose-500">*</span></label><select name="kategori_kendala"
-                                    id="m_kategori_kendala" class="form-input" required onchange="toggleOntFields()">
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold">Kategori Masalah <span
+                                        class="text-rose-500">*</span></label>
+                                <select name="kategori_kendala" id="m_kategori_kendala"
+                                    class="form-input-custom w-full bg-white text-slate-900 border-slate-300" required
+                                    onchange="toggleOntFields()">
                                     <option value="">-- Pilih Kategori --</option>
                                     <option value="ONT">PERGANTIAN ONT / MODEM</option>
                                     <option value="Kabel Fiber Optic">PERBAIKAN KABEL FIBER OPTIC</option>
                                     <option value="Lainnya">MASALAH LAINNYA</option>
-                                </select></div>
+                                </select>
+                            </div>
                             <div id="ont_fields" style="display: none;"
                                 class="bg-amber-50 p-4 rounded-xl border border-amber-100 space-y-4">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
