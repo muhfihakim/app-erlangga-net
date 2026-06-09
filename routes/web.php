@@ -11,6 +11,7 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\OdpController;
+use App\Http\Controllers\SupportingActivityController;
 use App\Http\Controllers\PreOrderController;
 use App\Http\Controllers\PppoeController;
 use App\Http\Controllers\FinanceController;
@@ -130,4 +131,8 @@ Route::middleware(['auth.custom'])->group(function () {
     });
 
     Route::resource('customers', CustomerController::class)->except(['create', 'edit', 'show']);
+    
+    // Perbantuan BBSNET
+    Route::resource('supporting', SupportingActivityController::class);
+    Route::get('supporting-export', [SupportingActivityController::class, 'export'])->name('supporting.export');
 });
