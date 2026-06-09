@@ -4,6 +4,26 @@
             #supporting-table thead th, #supporting-table tbody td {
                 text-transform: uppercase !important; font-weight: 600; font-size: 12px;
             }
+            /* Custom Modal Styles for Partner Selection */
+            .partner-card-scroll {
+                max-height: 200px;
+                overflow-y: auto;
+                background: #f8fafc;
+                border: 1px solid #e2e8f0;
+                border-radius: 12px;
+                padding: 12px;
+            }
+            .partner-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px;
+                border-radius: 8px;
+                transition: background 0.2s;
+            }
+            .partner-item:hover {
+                background: #f1f5f9;
+            }
         </style>
     @endsection
 
@@ -146,8 +166,17 @@
 
     @include('supporting.modal')
 
-    @section('Js')
+    @section('Scripts')
     <script>
+        function addModal() {
+            document.getElementById('modalTitle').innerText = 'Tambah Perbantuan';
+            document.getElementById('modalForm').action = "{{ route('supporting.store') }}";
+            document.getElementById('modalMethod').value = 'POST';
+            document.getElementById('modalForm').reset();
+            document.querySelectorAll('.partner-check').forEach(c => c.checked = false);
+            openCustomModal('supportingModal');
+        }
+
         function editModal(data) {
             document.getElementById('modalTitle').innerText = 'Edit Perbantuan';
             document.getElementById('modalForm').action = "/supporting/" + data.id;
@@ -161,22 +190,6 @@
             document.querySelectorAll('.partner-check').forEach(c => {
                 c.checked = data.partner_ids && data.partner_ids.includes(parseInt(c.value));
             });
-
-            openCustomModal('supportingModal');
-        }
-
-        // Live Search
-        document.getElementById('searchInput').addEventListener('keyup', function() {
-            let val = this.value.toLowerCase();
-            document.querySelectorAll('.activity-row').forEach(row => {
-                let text = row.innerText.toLowerCase();
-                row.style.display = text.includes(val) ? '' : 'none';
-            });
-        });
-    </script>
-    @endsection
-</x-layouts.app>
-         });
 
             openCustomModal('supportingModal');
         }

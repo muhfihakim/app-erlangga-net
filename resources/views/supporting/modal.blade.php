@@ -42,14 +42,23 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Partner (Opsional)</label>
+                    <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Partner / Teknisi Tambahan (Opsional)</label>
                     <div class="partner-card-scroll">
-                        @foreach($technicians as $t)
-                            <label class="partner-item" for="partner_{{ $t->id }}">
-                                <input type="checkbox" name="partner_ids[]" value="{{ $t->id }}" id="partner_{{ $t->id }}" class="partner-check w-4 h-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900">
-                                <span class="text-sm font-600 text-slate-700">{{ $t->nama_lengkap }}</span>
-                            </label>
-                        @endforeach
+                        <div class="grid grid-cols-1 gap-1">
+                            @forelse($technicians as $t)
+                                @if($t->id != auth()->id())
+                                    <div class="partner-item">
+                                        <input class="partner-check w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary" 
+                                            type="checkbox" name="partner_ids[]" value="{{ $t->id }}" id="partner_{{ $t->id }}">
+                                        <label class="text-sm font-semibold text-slate-700 cursor-pointer w-full" for="partner_{{ $t->id }}">
+                                            {{ $t->nama_lengkap }}
+                                        </label>
+                                    </div>
+                                @endif
+                            @empty
+                                <div class="text-center py-4 text-slate-400 italic text-sm">Tidak ada teknisi lain.</div>
+                            @endforelse
+                        </div>
                     </div>
                 </div>
 
