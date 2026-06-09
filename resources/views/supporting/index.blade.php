@@ -129,8 +129,7 @@
                         <th style="text-align: center;">Teknisi Utama</th>
                         <th style="text-align: center;">Partner</th>
                         <th style="text-align: center;">Keterangan</th>
-                        <th style="text-align: center;">Foto</th>
-                        <th style="text-align: center; width: 100px;">Aksi</th>
+                        <th style="text-align: center; width: 150px;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -152,15 +151,11 @@
                         </td>
                         <td style="text-align: left; color:#64748b; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ $act->description ?? '-' }}</td>
                         <td style="text-align: center;">
-                            @if($act->photo)
-                                <a href="{{ asset('storage/'.$act->photo) }}" target="_blank" class="badge" style="background:#e0f2fe;color:#0369a1;text-decoration:none;">LIHAT</a>
-                            @else
-                                <span class="badge" style="background:#f1f5f9;color:#cbd5e1;">TIADA</span>
-                            @endif
-                        </td>
-                        <td style="text-align: center;">
                             <div class="flex items-center justify-center gap-1">
-                                <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" onclick="editModal({{ $act->toJson() }})">
+                                <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" onclick='showDetail(@json($act), "{{ $act->mainTechnician->nama_lengkap ?? '-' }}", "{{ implode(', ', $partners->toArray()) }}", "{{ $act->photo ? Storage::url($act->photo) : '' }}")'>
+                                    <i class="fa-solid fa-circle-info text-primary"></i>
+                                </button>
+                                <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" onclick='editModal(@json($act))'>
                                     <i class="fa-solid fa-pen-to-square text-amber-500"></i>
                                 </button>
                                 <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" onclick="confirmGlobalDelete('{{ route('supporting.destroy', $act->id) }}', 'Catatan {{ $act->activity_type }} - {{ $act->activity_date->format('d/m/Y') }}')">
@@ -184,8 +179,82 @@
 
     @include('supporting.modal')
 
+    {{-- Detail Modal --}}
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                <div class="modal-title">
+                    <i class="fa-solid fa-circle-info text-primary"></i>
+                    <span class="text-slate-900 font-bold">Detail Perbantuan</span>
+                </div>
+                <button class="modal-close" onclick="closeCustomModal('detailModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body bg-white p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-400 block uppercase">Tanggal & Tipe</span>
+                            <p id="det_tanggal_tipe" class="text-sm font-bold text-slate-800"></p>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-400 block uppercase">Teknisi Utama</span>
+                            <p id="det_teknisi_utama" class="text-sm font-bold text-slate-800"></p>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-400 block uppercase">Partner</span>
+                            <p id="det_partner" class="text-sm font-medium text-slate-600"></p>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-400 block uppercase">Keterangan</span>
+                            <p id="det_keterangan" class="text-sm text-slate-600 leading-relaxed"></p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold text-slate-400 block uppercase mb-2">Foto Kegiatan</span>
+                        <div class="aspect-video rounded-xl overflow-hidden border-2 border-slate-100 bg-slate-50 flex items-center justify-center">
+                            <img id="det_foto" src="" class="w-full h-full object-cover hidden cursor-pointer" onclick="window.open(this.src, '_blank')">
+                            <div id="det_no_foto" class="text-slate-300 text-xs text-center hidden">
+                                <i class="fa-solid fa-image text-3xl mb-2 block"></i>
+                                Tidak ada foto
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                <button type="button" class="btn-cancel w-full" onclick="closeCustomModal('detailModal')">
+                    <i class="fa-solid fa-xmark"></i> Tutup Detail
+                </button>
+            </div>
+        </div>
+    </div>
+
     @section('Scripts')
     <script>
+        function showDetail(data, mainTech, partners, photoUrl) {
+            const date = new Date(data.activity_date).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            document.getElementById('det_tanggal_tipe').innerText = `${date} - ${data.activity_type}`;
+            document.getElementById('det_teknisi_utama').innerText = mainTech;
+            document.getElementById('det_partner').innerText = partners || '-';
+            document.getElementById('det_keterangan').innerText = data.description || '-';
+
+            const img = document.getElementById('det_foto');
+            const noImg = document.getElementById('det_no_foto');
+            
+            if (photoUrl) {
+                img.src = photoUrl;
+                img.classList.remove('hidden');
+                noImg.classList.add('hidden');
+            } else {
+                img.classList.add('hidden');
+                noImg.classList.remove('hidden');
+            }
+
+            openCustomModal('detailModal');
+        }
+
         function addModal() {
             document.getElementById('modalTitle').innerText = 'Tambah Perbantuan';
             document.getElementById('modalForm').action = "{{ route('supporting.store') }}";

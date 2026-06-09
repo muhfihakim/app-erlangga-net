@@ -49,7 +49,7 @@ class SupportingActivityController extends Controller
         ]);
 
         if ($request->hasFile('photo')) {
-            $validated['photo'] = $request->file('photo')->store('supporting_activities', 'public');
+            $validated['photo'] = $request->file('photo')->store('supporting_activities');
         }
 
         $validated['created_by'] = auth()->id();
@@ -72,7 +72,7 @@ class SupportingActivityController extends Controller
         ]);
 
         if ($request->hasFile('photo')) {
-            $validated['photo'] = $request->file('photo')->store('supporting_activities', 'public');
+            $validated['photo'] = $request->file('photo')->store('supporting_activities');
         }
 
         $activity->update($validated);
