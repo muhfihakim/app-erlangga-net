@@ -57,7 +57,7 @@ class SupportingActivityController extends Controller
 
 
         // Calculate Stats
-        $stats = $this->calculateStats($request);
+        $stats = $this->calculateStats($query);
 
         return view('supporting.index', compact('activities', 'technicians', 'stats'));
     }
@@ -191,19 +191,9 @@ class SupportingActivityController extends Controller
         return $pdf->download($fileName);
     }
 
-    private function calculateStats(Request $request)
+    private function calculateStats($baseQuery)
     {
-        $user = auth()->user();
-        $isTechnician = $user->jabatan === 'Teknisi';
-
-        $baseQuery = SupportingActivity::query();
-        if ($isTechnician) {
-            $baseQuery->where(function ($q) use ($user) {
-                $q->where('main_technician_id', $user->id)
-                    ->orWhereJsonContains('partner_ids', (string)$user->id);
-            });
-        }
-
+        // Clone the base query to prevent modifying the original instance used for listing
         $all = (clone $baseQuery)->get();
 
         $now = Carbon::now();
