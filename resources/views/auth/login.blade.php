@@ -501,11 +501,7 @@
                 </div>
 
                 <div class="card-foot">
-                    <span class="foot-ver">v1.0.0 · PT. BBS © {{ date('Y') }}</span>
-                    <div class="foot-links">
-                        <a href="#" class="foot-link">Lupa Password?</a>
-                        <a href="#" class="foot-link">Bantuan</a>
-                    </div>
+                    <span class="foot-ver">v1.1.0 · PT. BBS © {{ date('Y') }}</span>
                 </div>
             </div>
 
