@@ -70,6 +70,11 @@
                 <i class="fa-solid fa-user-xmark"></i>
                 <span>Pencabutan</span>
             </a>
+            <a class="sidebar-link {{ Request::is('supporting*') ? 'active' : '' }}"
+                href="{{ route('supporting.index') }}">
+                <i class="fa-solid fa-handshake-angle"></i>
+                <span>Perbantuan</span>
+            </a>
         @endif
 
         @if (auth()->check() && auth()->user()->isAdmin())
