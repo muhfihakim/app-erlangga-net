@@ -37,6 +37,67 @@ class SupportingActivityController extends Controller
         return view('supporting.index', compact('activities', 'technicians', 'stats'));
     }
 
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'activity_type' => 'required|in:PO,Pemeliharaan,Buat ODP,Aktivasi Jalur',
+            'activity_date' => 'required|date',
+            'main_technician_id' => 'required|exists:users,id',
+            'partner_ids' => 'nullable|array',
+            'description' => 'nullable|string',
+            'photo' => 'nullable|image|max:2048'
+        ]);
+
+        if ($request->hasFile('photo')) {
+            $validated['photo'] = $request->file('photo')->store('supporting_activities', 'public');
+        }
+
+        $validated['created_by'] = auth()->id();
+        SupportingActivity::create($validated);
+
+        return back()->with('success', 'Data perbantuan berhasil disimpan.');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $activity = SupportingActivity::findOrFail($id);
+        
+        $validated = $request->validate([
+            'activity_type' => 'required|in:PO,Pemeliharaan,Buat ODP,Aktivasi Jalur',
+            'activity_date' => 'required|date',
+            'main_technician_id' => 'required|exists:users,id',
+            'partner_ids' => 'nullable|array',
+            'description' => 'nullable|string',
+            'photo' => 'nullable|image|max:2048'
+        ]);
+
+        if ($request->hasFile('photo')) {
+            $validated['photo'] = $request->file('photo')->store('supporting_activities', 'public');
+        }
+
+        $activity->update($validated);
+
+        return back()->with('success', 'Data perbantuan berhasil diperbarui.');
+    }
+
+    public function destroy($id)
+    {
+        $activity = SupportingActivity::findOrFail($id);
+        $activity->delete();
+
+        return back()->with('success', 'Data perbantuan berhasil dihapus.');
+    }
+
+    public function export(Request $request)
+    {
+        $activities = SupportingActivity::with(['mainTechnician', 'createdBy'])
+            ->whereBetween('activity_date', [$request->start_date, $request->end_date])
+            ->get();
+
+        $pdf = PDF::loadView('supporting.export', compact('activities'));
+        return $pdf->download('laporan-perbantuan.pdf');
+    }
+
     private function calculateStats(Request $request)
     {
         $all = SupportingActivity::all();
