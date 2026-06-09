@@ -29,8 +29,9 @@ class SupportingActivityController extends Controller
             $query->where('description', 'like', '%' . $request->search . '%');
         }
 
-        $activities = $query->orderBy('activity_date', 'desc')->paginate(15);
+        $activities = $query->orderBy('activity_date', 'desc')->get();
         $technicians = User::where('jabatan', 'Teknisi')->get();
+
 
         // Calculate Stats
         $stats = $this->calculateStats($request);
@@ -62,7 +63,7 @@ class SupportingActivityController extends Controller
     public function update(Request $request, $id)
     {
         $activity = SupportingActivity::findOrFail($id);
-        
+
         $validated = $request->validate([
             'activity_type' => 'required|in:PO,Pemeliharaan,Buat ODP,Aktivasi Jalur',
             'activity_date' => 'required|date',
@@ -88,12 +89,12 @@ class SupportingActivityController extends Controller
     public function destroy($id)
     {
         $activity = SupportingActivity::findOrFail($id);
-        
+
         // Delete photo from storage if exists
         if ($activity->photo) {
             Storage::delete($activity->photo);
         }
-        
+
         $activity->delete();
 
         return back()->with('success', 'Data perbantuan berhasil dihapus.');
@@ -113,17 +114,17 @@ class SupportingActivityController extends Controller
     {
         $user = auth()->user();
         $isTechnician = $user->jabatan === 'Teknisi';
-        
+
         $baseQuery = SupportingActivity::query();
         if ($isTechnician) {
-            $baseQuery->where(function($q) use ($user) {
+            $baseQuery->where(function ($q) use ($user) {
                 $q->where('main_technician_id', $user->id)
-                  ->orWhereJsonContains('partner_ids', (string)$user->id);
+                    ->orWhereJsonContains('partner_ids', (string)$user->id);
             });
         }
 
         $all = (clone $baseQuery)->get();
-        
+
         $now = Carbon::now();
         $thisMonth = (clone $baseQuery)->whereMonth('activity_date', $now->month)
             ->whereYear('activity_date', $now->year)->count();
@@ -146,7 +147,7 @@ class SupportingActivityController extends Controller
 
         // Map to names
         $techs = User::whereIn('id', array_keys($scoreboard))->get();
-        $mappedScoreboard = $techs->map(function($t) use ($scoreboard) {
+        $mappedScoreboard = $techs->map(function ($t) use ($scoreboard) {
             return [
                 'name' => $t->nama_lengkap,
                 'count' => $scoreboard[$t->id]

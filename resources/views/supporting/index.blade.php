@@ -1,6 +1,40 @@
 <x-layouts.app>
     @section('Css')
         <style>
+            /* Hakatech DataTables Customization */
+            .dataTables_wrapper { padding: 0; }
+            .dataTables_filter { display: none; }
+            .dataTables_paginate {
+                display: flex;
+                justify-content: flex-end;
+                padding: 1.25rem 1.5rem;
+                gap: 4px;
+                border-top: 1px solid #f1f5f9;
+            }
+            .paginate_button {
+                width: 34px;
+                height: 34px;
+                border-radius: 8px;
+                border: 1.5px solid #e2e8f0;
+                background: #fff;
+                color: #64748b !important;
+                font-size: 13px;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                text-decoration: none !important;
+            }
+            .paginate_button.current {
+                background: #0ea5e9;
+                border-color: #0ea5e9;
+                color: #fff !important;
+            }
+            .paginate_button.disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
             #supporting-table thead th, #supporting-table tbody td {
                 text-transform: uppercase !important; font-weight: 600; font-size: 12px;
             }
@@ -87,7 +121,7 @@
                     <label class="form-label-custom">Cari Keterangan</label>
                     <div class="search-wrap !max-w-full">
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                        <input type="search" name="search" value="{{ request('search') }}" id="searchInput" class="search-input custom-search" placeholder="Cari..." autocomplete="off">
+                        <input type="search" name="search" value="{{ request('search') }}" id="custom-search" class="search-input custom-search" placeholder="Cari..." autocomplete="off">
                     </div>
                 </div>
                 <div style="width:180px;">
@@ -166,14 +200,11 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" style="padding:40px;text-align:center;color:#94a3b8;font-weight:600;">Belum ada data perbantuan.</td>
+                        <td colspan="7" style="padding:40px;text-align:center;color:#94a3b8;font-weight:600;">Belum ada data perbantuan.</td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
-        </div>
-        <div style="padding:1rem;border-top:1px solid #f1f5f9;">
-            {{ $activities->links() }}
         </div>
     </div>
 
@@ -232,7 +263,30 @@
     </div>
 
     @section('Scripts')
+    <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
     <script>
+        $(document).ready(function() {
+            const table = $('#supporting-table').DataTable({
+                "pageLength": 10,
+                "lengthChange": false,
+                "ordering": false,
+                "info": false,
+                "responsive": true,
+                "dom": 'tpir',
+                "language": {
+                    "zeroRecords": "Data tidak ditemukan",
+                    "paginate": {
+                        "previous": '<i class="fa-solid fa-chevron-left"></i>',
+                        "next": '<i class="fa-solid fa-chevron-right"></i>'
+                    }
+                }
+            });
+
+            $('#custom-search').on('keyup', function() {
+                table.search(this.value).draw();
+            });
+        });
+
         function showDetail(data, mainTech, partners, photoUrl) {
             const date = new Date(data.activity_date).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
             document.getElementById('det_tanggal_tipe').innerText = `${date} - ${data.activity_type}`;
@@ -283,15 +337,6 @@
 
             openCustomModal('supportingModal');
         }
-
-        // Live Search
-        document.getElementById('searchInput').addEventListener('keyup', function() {
-            let val = this.value.toLowerCase();
-            document.querySelectorAll('.activity-row').forEach(row => {
-                let text = row.innerText.toLowerCase();
-                row.style.display = text.includes(val) ? '' : 'none';
-            });
-        });
     </script>
     @endsection
 </x-layouts.app>
