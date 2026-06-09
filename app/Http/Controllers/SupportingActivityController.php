@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\SupportingActivity;
 use App\Models\User;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
@@ -65,7 +66,14 @@ class SupportingActivityController extends Controller
         }
 
         $validated['created_by'] = auth()->id();
-        SupportingActivity::create($validated);
+        $supporting = SupportingActivity::create($validated);
+
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity_type' => 'tambah_perbantuan',
+            'description' => "Menambahkan catatan perbantuan baru: {$supporting->activity_type}",
+            'logged_at' => now(),
+        ]);
 
         return back()->with('success', 'Data perbantuan berhasil disimpan.');
     }
@@ -93,12 +101,20 @@ class SupportingActivityController extends Controller
 
         $activity->update($validated);
 
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity_type' => 'update_perbantuan',
+            'description' => "Memperbarui catatan perbantuan: {$activity->activity_type}",
+            'logged_at' => now(),
+        ]);
+
         return back()->with('success', 'Data perbantuan berhasil diperbarui.');
     }
 
     public function destroy($id)
     {
         $activity = SupportingActivity::findOrFail($id);
+        $type = $activity->activity_type;
 
         // Delete photo from storage if exists
         if ($activity->photo) {
@@ -106,6 +122,13 @@ class SupportingActivityController extends Controller
         }
 
         $activity->delete();
+
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity_type' => 'hapus_perbantuan',
+            'description' => "Menghapus catatan perbantuan: $type",
+            'logged_at' => now(),
+        ]);
 
         return back()->with('success', 'Data perbantuan berhasil dihapus.');
     }
