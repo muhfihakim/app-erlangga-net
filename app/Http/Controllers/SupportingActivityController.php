@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SupportingActivity;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use PDF;
 
@@ -72,6 +73,10 @@ class SupportingActivityController extends Controller
         ]);
 
         if ($request->hasFile('photo')) {
+            // Delete old photo if exists
+            if ($activity->photo) {
+                Storage::delete($activity->photo);
+            }
             $validated['photo'] = $request->file('photo')->store('supporting_activities');
         }
 
@@ -83,6 +88,12 @@ class SupportingActivityController extends Controller
     public function destroy($id)
     {
         $activity = SupportingActivity::findOrFail($id);
+        
+        // Delete photo from storage if exists
+        if ($activity->photo) {
+            Storage::delete($activity->photo);
+        }
+        
         $activity->delete();
 
         return back()->with('success', 'Data perbantuan berhasil dihapus.');
