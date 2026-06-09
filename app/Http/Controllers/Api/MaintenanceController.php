@@ -24,6 +24,12 @@ class MaintenanceController extends Controller
         return response()->json($query->latest()->paginate(20));
     }
 
+    public function show($id)
+    {
+        $maintenance = Maintenance::with(['customer', 'teknisiEksekutor', 'admin'])->findOrFail($id);
+        return response()->json($maintenance);
+    }
+
     public function store(Request $request)
     {
         $request->validate([

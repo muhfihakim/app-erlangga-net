@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\FinanceController;
 use App\Http\Controllers\Api\ActivityLogController;
 use App\Http\Controllers\Api\AssetController;
+use App\Http\Controllers\OltController;
 
 // Auth Routes
 Route::post('/login', [AuthController::class, 'login']);
@@ -24,8 +25,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Asset Management
     Route::get('/assets', [AssetController::class, 'index']);
+    Route::post('/assets', [AssetController::class, 'store']);
     Route::get('/assets/transactions', [AssetController::class, 'transactions']);
+    Route::post('/assets/transactions', [AssetController::class, 'storeTransaction']);
     Route::get('/assets/{id}', [AssetController::class, 'show']);
+    Route::put('/assets/{id}', [AssetController::class, 'update']);
+    Route::delete('/assets/{id}', [AssetController::class, 'destroy']);
 
     // Dashboard
     Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
@@ -34,6 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/pre-orders', [PreOrderController::class, 'index']);
     Route::post('/pre-orders', [PreOrderController::class, 'store']);
     Route::get('/pre-orders/{id}', [PreOrderController::class, 'show']);
+    Route::put('/pre-orders/{id}', [PreOrderController::class, 'update']);
     Route::post('/pre-orders/{id}/unspek', [PreOrderController::class, 'unspek']);
     Route::post('/pre-orders/{id}/approve-unspek', [PreOrderController::class, 'approveUnspek']);
     Route::post('/pre-orders/{id}/reopen', [PreOrderController::class, 'reopen']);
@@ -44,18 +50,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/customers', [CustomerController::class, 'store']); // Activation Action
     Route::get('/customers/isolir', [CustomerController::class, 'isolir']);
     Route::get('/customers/{id}', [CustomerController::class, 'show']);
+    Route::put('/customers/{id}', [CustomerController::class, 'update']);
     Route::delete('/customers/{id}', [CustomerController::class, 'destroy']);
     Route::post('/customers/{id}/restore', [CustomerController::class, 'restore']);
 
     // Maintenance
     Route::get('/maintenances', [MaintenanceController::class, 'index']);
     Route::post('/maintenances', [MaintenanceController::class, 'store']); // Admin Create Task
+    Route::get('/maintenances/{id}', [MaintenanceController::class, 'show']);
     Route::post('/maintenances/{id}/complete', [MaintenanceController::class, 'complete']);
     Route::delete('/maintenances/{id}', [MaintenanceController::class, 'destroy']);
 
     // Dismantle
     Route::get('/dismantles', [DismantleController::class, 'index']);
     Route::post('/dismantles', [DismantleController::class, 'store']); // Admin Create Task
+    Route::get('/dismantles/{id}', [DismantleController::class, 'show']);
     Route::post('/dismantles/{id}/complete', [DismantleController::class, 'complete']);
     Route::delete('/dismantles/{id}', [DismantleController::class, 'destroy']);
 
@@ -69,6 +78,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware(['admin'])->group(function () {
         Route::get('/accounts', [AccountController::class, 'index']);
         Route::post('/accounts', [AccountController::class, 'store']);
+        Route::get('/accounts/{id}', [AccountController::class, 'show']);
         Route::put('/accounts/{id}', [AccountController::class, 'update']);
         Route::delete('/accounts/{id}', [AccountController::class, 'destroy']);
         Route::post('/accounts/{id}/2fa/reset', [AccountController::class, 'reset2FA']);
@@ -85,6 +95,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/traffic', [\App\Http\Controllers\MonitoringController::class, 'traffic']);
         Route::get('/status', [\App\Http\Controllers\MonitoringController::class, 'status']);
         Route::get('/pppoe-active', [\App\Http\Controllers\PppoeController::class, 'active']);
+        Route::get('/pppoe/data', [\App\Http\Controllers\PppoeController::class, 'data']);
+    });
+
+    // OLT Management
+    Route::prefix('olt')->group(function () {
+        Route::get('/dashboard-data', [OltController::class, 'getDashboardData']);
+        Route::get('/onu-details', [OltController::class, 'getOnuDetails']);
+        Route::post('/check-next-id', [OltController::class, 'checkNextOnuId']);
+        Route::post('/execute', [OltController::class, 'executeScript']);
     });
 
     // Location Tracking

@@ -111,6 +111,63 @@ class CustomerController extends Controller
         return response()->json(['message' => 'Aktivasi pelanggan berhasil', 'data' => $customer], 201);
     }
 
+    public function update(Request $request, $id)
+    {
+        $customer = Customer::findOrFail($id);
+
+        if (auth()->user()->jabatan !== 'Teknisi' && !auth()->user()->isAdmin()) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $validated = $request->validate([
+            'pppoe_username' => 'sometimes|string|max:255|unique:customers,pppoe_username,' . $id,
+            'pppoe_password' => 'sometimes|string|min:1',
+            'id_pelanggan' => 'sometimes|string|max:255|unique:customers,id_pelanggan,' . $id,
+            'jenis_modem' => 'sometimes|in:EPON,GPON',
+            'sn_perangkat' => 'sometimes|string|max:255',
+            'pembayaran' => 'sometimes|in:Cash,Aplikasi',
+            'id_teknisi' => 'sometimes|exists:users,id',
+            'partner_ids' => 'sometimes|nullable|array',
+            'partner_ids.*' => 'exists:users,id',
+            'keterangan' => 'sometimes|nullable|string',
+            'foto_petugas' => 'sometimes|image|max:20480',
+            'foto_terpasang' => 'sometimes|image|max:20480',
+            'foto_speedtest' => 'sometimes|image|max:20480',
+        ]);
+
+        if ($request->has('partner_ids')) {
+            $partnerNames = "";
+            if (!empty($request->partner_ids)) {
+                $partnerNames = User::whereIn('id', $request->partner_ids)->pluck('nama_lengkap')->implode(', ');
+            }
+            $validated['partner'] = $partnerNames;
+        }
+
+        if ($request->hasFile('foto_petugas')) {
+            if ($customer->foto_petugas) Storage::delete($customer->foto_petugas);
+            $validated['foto_petugas'] = $request->file('foto_petugas')->store('customers/foto_petugas');
+        }
+        if ($request->hasFile('foto_terpasang')) {
+            if ($customer->foto_terpasang) Storage::delete($customer->foto_terpasang);
+            $validated['foto_terpasang'] = $request->file('foto_terpasang')->store('customers/foto_terpasang');
+        }
+        if ($request->hasFile('foto_speedtest')) {
+            if ($customer->foto_speedtest) Storage::delete($customer->foto_speedtest);
+            $validated['foto_speedtest'] = $request->file('foto_speedtest')->store('customers/foto_speedtest');
+        }
+
+        $customer->update($validated);
+
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity_type' => 'customer_update',
+            'description' => 'Memperbarui data pelanggan: ' . $customer->nama_lengkap,
+            'logged_at' => now(),
+        ]);
+
+        return response()->json(['message' => 'Data pelanggan berhasil diperbarui', 'data' => $customer]);
+    }
+
     public function isolir(Request $request)
     {
         $user = $request->user();

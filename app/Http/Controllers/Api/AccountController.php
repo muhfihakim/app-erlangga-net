@@ -31,6 +31,16 @@ class AccountController extends Controller
         ]);
     }
 
+    public function show($id)
+    {
+        if (!auth()->user()->isAdmin() && auth()->id() != $id) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $user = User::findOrFail($id);
+        return response()->json($user);
+    }
+
     public function store(Request $request)
     {
         if (!auth()->user()->isAdmin()) {

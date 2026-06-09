@@ -23,6 +23,12 @@ class DismantleController extends Controller
         return response()->json($query->latest()->paginate(20));
     }
 
+    public function show($id)
+    {
+        $dismantle = Dismantle::with(['customer', 'teknisiEksekutor', 'admin'])->findOrFail($id);
+        return response()->json($dismantle);
+    }
+
     public function store(Request $request)
     {
         $request->validate([

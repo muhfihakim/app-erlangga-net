@@ -89,6 +89,41 @@ class PreOrderController extends Controller
         return response()->json($po);
     }
 
+    public function update(Request $request, $id)
+    {
+        $po = PreOrder::findOrFail($id);
+
+        if (auth()->user()->jabatan !== 'Sales' && !auth()->user()->isAdmin()) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $validated = $request->validate([
+            'paket_internet' => 'sometimes|string|max:255',
+            'nama_lengkap' => 'sometimes|string|max:255',
+            'no_identitas' => 'sometimes|string|max:255|unique:pre_orders,no_identitas,' . $id,
+            'no_whatsapp' => 'sometimes|string|max:255',
+            'alamat_email' => 'sometimes|nullable|string|email|max:255',
+            'alamat_lengkap' => 'sometimes|string',
+            'titik_koordinat' => 'sometimes|string',
+            'foto_ktp' => 'sometimes|image|max:20480',
+            'foto_rumah' => 'sometimes|image|max:20480',
+        ]);
+
+        if ($request->hasFile('foto_ktp')) {
+            if ($po->foto_ktp) Storage::delete($po->foto_ktp);
+            $validated['foto_ktp'] = $request->file('foto_ktp')->store('preorders/ktp');
+        }
+
+        if ($request->hasFile('foto_rumah')) {
+            if ($po->foto_rumah) Storage::delete($po->foto_rumah);
+            $validated['foto_rumah'] = $request->file('foto_rumah')->store('preorders/rumah');
+        }
+
+        $po->update($validated);
+
+        return response()->json(['message' => 'Pre-Order berhasil diperbarui', 'data' => $po]);
+    }
+
     public function unspek(Request $request, $id)
     {
         $request->validate(['keterangan_unspek' => 'required|string']);
