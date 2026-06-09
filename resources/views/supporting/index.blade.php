@@ -67,7 +67,7 @@
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Catatan bantuan teknis dalam berbagai kegiatan.</p>
         </div>
         <div style="display:flex; gap:10px;">
-            @if(request()->filled('start_date') || request()->filled('end_date') || request()->filled('activity_type') || request()->filled('search'))
+            @if(request()->filled('start_date') || request()->filled('end_date') || request()->filled('activity_type') || request()->filled('search') || request()->filled('teknisi_id'))
                 <a href="{{ route('supporting.export', request()->all()) }}" class="btn-primary-admin !bg-rose-600 !h-10 !px-6 flex items-center gap-2">
                     <i class="fa-solid fa-file-pdf"></i> Export PDF
                 </a>
@@ -134,6 +134,17 @@
                         <option value="Aktivasi Jalur" {{ request('activity_type') == 'Aktivasi Jalur' ? 'selected' : '' }}>Aktivasi Jalur</option>
                     </select>
                 </div>
+                @if(auth()->user()->isAdmin())
+                <div style="width:180px;">
+                    <label class="form-label-custom">Teknisi</label>
+                    <select name="teknisi_id" class="form-input-custom">
+                        <option value="">Semua Teknisi</option>
+                        @foreach($technicians as $t)
+                            <option value="{{ $t->id }}" {{ request('teknisi_id') == $t->id ? 'selected' : '' }}>{{ $t->nama_lengkap }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
                 <div style="width:150px;">
                     <label class="form-label-custom">Mulai</label>
                     <input type="date" name="start_date" value="{{ request('start_date') }}" class="form-input-custom">

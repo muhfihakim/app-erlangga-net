@@ -37,6 +37,12 @@ class SupportingActivityController extends Controller
         if ($request->filled('search')) {
             $query->where('description', 'like', '%' . $request->search . '%');
         }
+        if ($request->filled('teknisi_id')) {
+            $query->where(function($q) use ($request) {
+                $q->where('main_technician_id', $request->teknisi_id)
+                  ->orWhereJsonContains('partner_ids', (string)$request->teknisi_id);
+            });
+        }
 
         $activities = $query->orderBy('activity_date', 'desc')->get();
         $technicians = User::where('jabatan', 'Teknisi')->get();
@@ -137,9 +143,26 @@ class SupportingActivityController extends Controller
     public function export(Request $request)
     {
         $this->checkAccess();
-        $activities = SupportingActivity::with(['mainTechnician', 'createdBy'])
-            ->whereBetween('activity_date', [$request->start_date, $request->end_date])
-            ->get();
+        
+        $query = SupportingActivity::with(['mainTechnician', 'createdBy']);
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('activity_date', [$request->start_date, $request->end_date]);
+        }
+        if ($request->filled('activity_type')) {
+            $query->where('activity_type', $request->activity_type);
+        }
+        if ($request->filled('search')) {
+            $query->where('description', 'like', '%' . $request->search . '%');
+        }
+        if ($request->filled('teknisi_id')) {
+            $query->where(function($q) use ($request) {
+                $q->where('main_technician_id', $request->teknisi_id)
+                  ->orWhereJsonContains('partner_ids', (string)$request->teknisi_id);
+            });
+        }
+        
+        $activities = $query->orderBy('activity_date', 'asc')->get();
 
         $pdf = PDF::loadView('supporting.export', compact('activities'));
         return $pdf->download('laporan-perbantuan.pdf');
