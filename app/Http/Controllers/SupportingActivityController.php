@@ -11,6 +11,16 @@ use PDF;
 
 class SupportingActivityController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (auth()->check() && auth()->user()->jabatan === 'Sales') {
+                abort(403, 'Akses ditolak.');
+            }
+            return $next($request);
+        });
+    }
+
     public function index(Request $request)
     {
         $query = SupportingActivity::with(['mainTechnician', 'createdBy']);
