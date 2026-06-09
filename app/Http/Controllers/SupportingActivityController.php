@@ -12,18 +12,16 @@ use PDF;
 
 class SupportingActivityController extends Controller
 {
-    public function __construct()
+    private function checkAccess()
     {
-        $this->middleware(function ($request, $next) {
-            if (auth()->check() && auth()->user()->jabatan === 'Sales') {
-                abort(403, 'Akses ditolak.');
-            }
-            return $next($request);
-        });
+        if (auth()->check() && auth()->user()->jabatan === 'Sales') {
+            abort(403, 'Akses ditolak.');
+        }
     }
 
     public function index(Request $request)
     {
+        $this->checkAccess();
         $query = SupportingActivity::with(['mainTechnician', 'createdBy']);
 
         // Filters
@@ -52,6 +50,7 @@ class SupportingActivityController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkAccess();
         $validated = $request->validate([
             'activity_type' => 'required|in:PO,Pemeliharaan,Buat ODP,Aktivasi Jalur',
             'activity_date' => 'required|date',
@@ -80,6 +79,7 @@ class SupportingActivityController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkAccess();
         $activity = SupportingActivity::findOrFail($id);
 
         $validated = $request->validate([
@@ -113,6 +113,7 @@ class SupportingActivityController extends Controller
 
     public function destroy($id)
     {
+        $this->checkAccess();
         $activity = SupportingActivity::findOrFail($id);
         $type = $activity->activity_type;
 
@@ -135,6 +136,7 @@ class SupportingActivityController extends Controller
 
     public function export(Request $request)
     {
+        $this->checkAccess();
         $activities = SupportingActivity::with(['mainTechnician', 'createdBy'])
             ->whereBetween('activity_date', [$request->start_date, $request->end_date])
             ->get();
