@@ -18,8 +18,9 @@
     <div
         style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
-            <h1 style="font-size:22px;font-weight:900;margin:0;">Laporan Dismantle</h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Riwayat pencabutan perangkat dan pemutusan layanan.</p>
+            <h1 style="font-size:22px;font-weight:900;margin:0;">Laporan Pencabutan</h1>
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Riwayat pencabutan perangkat dan pemutusan layanan.
+            </p>
         </div>
         <div style="display:flex; gap:10px;">
             @if ($isFiltered)
@@ -91,13 +92,15 @@
                 </div>
                 <div style="width: 180px;">
                     <label class="form-label-custom">Dari Tanggal</label>
-                    <input type="date" name="start_date" class="form-input-custom w-full" value="{{ $start }}">
+                    <input type="date" name="start_date" class="form-input-custom w-full"
+                        value="{{ $start }}">
                 </div>
                 <div style="width: 180px;">
                     <label class="form-label-custom">Sampai Tanggal</label>
                     <input type="date" name="end_date" class="form-input-custom w-full" value="{{ $end }}">
                 </div>
-                <button type="submit" class="btn-primary-admin !h-10 !px-6 !text-[13px] !w-fit flex items-center gap-2">
+                <button type="submit"
+                    class="btn-primary-admin !h-10 !px-6 !text-[13px] !w-fit flex items-center gap-2">
                     <i class="fa-solid fa-filter"></i> Terapkan Filter
                 </button>
             </div>
@@ -120,25 +123,31 @@
                 <tbody>
                     @foreach ($dismantles as $d)
                         <tr>
-                            <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}</td>
+                            <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}
+                            </td>
                             <td style="text-align: center; font-size: 12px; font-weight: 700; color: #0f172a;">
                                 {{ $d->completed_at->format('d/m/Y') }}
-                                <div style="font-size: 10px; color: #94a3b8; font-weight: 600;">{{ $d->completed_at->format('H:i') }} WIB</div>
+                                <div style="font-size: 10px; color: #94a3b8; font-weight: 600;">
+                                    {{ $d->completed_at->format('H:i') }} WIB</div>
                             </td>
                             <td style="text-align: left;">
-                                <div style="font-weight: 700; color: #0f172a;">{{ $d->customer->nama_lengkap ?? 'Data Terhapus' }}</div>
+                                <div style="font-weight: 700; color: #0f172a;">
+                                    {{ $d->customer->nama_lengkap ?? 'Data Terhapus' }}</div>
                                 <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
-                                    <i class="fa-solid fa-hashtag mr-1"></i> ID: {{ $d->customer->id_pelanggan ?? '-' }}
+                                    <i class="fa-solid fa-hashtag mr-1"></i> ID:
+                                    {{ $d->customer->id_pelanggan ?? '-' }}
                                 </div>
                             </td>
                             <td style="text-align: center;">
-                                <div style="font-weight: 700; color: #475569; font-size: 12px;">{{ $d->teknisiEksekutor->nama_lengkap ?? 'N/A' }}</div>
+                                <div style="font-weight: 700; color: #475569; font-size: 12px;">
+                                    {{ $d->teknisiEksekutor->nama_lengkap ?? 'N/A' }}</div>
                                 <div style="font-size: 10px; color: #94a3b8; font-weight: 600;">EKSEKUTOR</div>
                             </td>
                             <td style="text-align: center;">
-                                @if($d->foto_pencabutan)
-                                    <a href="{{ Storage::url($d->foto_pencabutan) }}" target="_blank" 
-                                       class="topbar-icon-btn !w-9 !h-9 !rounded-xl mx-auto flex items-center justify-center" title="Lihat Foto">
+                                @if ($d->foto_pencabutan)
+                                    <a href="{{ Storage::url($d->foto_pencabutan) }}" target="_blank"
+                                        class="topbar-icon-btn !w-9 !h-9 !rounded-xl mx-auto flex items-center justify-center"
+                                        title="Lihat Foto">
                                         <i class="fa-solid fa-image text-primary"></i>
                                     </a>
                                 @else

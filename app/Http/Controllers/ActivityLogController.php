@@ -43,13 +43,13 @@ class ActivityLogController extends Controller
     public function getNotifications()
     {
         $types = ['preorder_create', 'aktivasi_pelanggan', 'maintenance_complete', 'eksekusi_dismantle', 'tambah_perbantuan'];
-        
+
         $notifications = ActivityLog::with('user')
             ->whereIn('activity_type', $types)
             ->orderByDesc('logged_at')
             ->limit(10)
             ->get()
-            ->map(function($log) {
+            ->map(function ($log) {
                 return [
                     'id' => $log->id,
                     'user' => $log->user->nama_lengkap ?? 'System',
@@ -66,7 +66,7 @@ class ActivityLogController extends Controller
 
     private function getIconForType($type)
     {
-        return match($type) {
+        return match ($type) {
             'preorder_create' => 'fa-cart-plus',
             'aktivasi_pelanggan' => 'fa-user-check',
             'maintenance_complete' => 'fa-screwdriver-wrench',
@@ -78,7 +78,7 @@ class ActivityLogController extends Controller
 
     private function getColorForType($type)
     {
-        return match($type) {
+        return match ($type) {
             'preorder_create' => 'text-blue-500',
             'aktivasi_pelanggan' => 'text-emerald-500',
             'maintenance_complete' => 'text-indigo-500',
@@ -246,7 +246,7 @@ class ActivityLogController extends Controller
             'total' => $maintenances->count()
         ]);
 
-        return $pdf->download("laporan-maintenance-{$request->start_date}-ke-{$request->end_date}.pdf");
+        return $pdf->download("laporan-pemeliharaan-{$request->start_date}-ke-{$request->end_date}.pdf");
     }
 
     private function processPreOrderStatuses($preorders)
@@ -394,6 +394,6 @@ class ActivityLogController extends Controller
             'total' => $dismantles->count()
         ]);
 
-        return $pdf->download("laporan-dismantle-{$request->start_date}-ke-{$request->end_date}.pdf");
+        return $pdf->download("laporan-pencabutan-{$request->start_date}-ke-{$request->end_date}.pdf");
     }
 }

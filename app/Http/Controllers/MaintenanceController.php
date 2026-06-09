@@ -36,11 +36,11 @@ class MaintenanceController extends Controller
         // --- STATISTIK ---
         $thisMonth = Carbon::now()->month;
         $thisYear = Carbon::now()->year;
-        
+
         $totalThisMonth = Maintenance::whereMonth('created_at', $thisMonth)
             ->whereYear('created_at', $thisYear)
             ->count();
-            
+
         $totalThisWeek = Maintenance::whereBetween('created_at', [
             Carbon::now()->startOfWeek(),
             Carbon::now()->endOfWeek()
@@ -133,7 +133,7 @@ class MaintenanceController extends Controller
 
         $m = Maintenance::findOrFail($id);
         $customer = Customer::findOrFail($m->customer_id);
-        
+
         $partnerNames = $request->has('partner_ids') ? User::whereIn('id', $request->partner_ids)->pluck('nama_lengkap')->implode(', ') : "";
 
         // Jika kategori ONT, update SN di tabel customer
@@ -166,6 +166,6 @@ class MaintenanceController extends Controller
             'logged_at' => now()
         ]);
 
-        return redirect()->back()->with('success', 'Laporan maintenance berhasil disimpan.');
+        return redirect()->back()->with('success', 'Laporan pemeliharaan berhasil disimpan.');
     }
 }

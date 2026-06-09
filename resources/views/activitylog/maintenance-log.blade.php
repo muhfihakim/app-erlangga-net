@@ -18,8 +18,9 @@
     <div
         style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
-            <h1 style="font-size:22px;font-weight:900;margin:0;">Laporan Maintenance</h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Riwayat pemeliharaan dan perbaikan jaringan pelanggan.</p>
+            <h1 style="font-size:22px;font-weight:900;margin:0;">Laporan Pemeliharaan</h1>
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Riwayat pemeliharaan dan perbaikan jaringan
+                pelanggan.</p>
         </div>
         <div style="display:flex; gap:10px;">
             @if ($isFiltered)
@@ -91,13 +92,15 @@
                 </div>
                 <div style="width: 180px;">
                     <label class="form-label-custom">Dari Tanggal</label>
-                    <input type="date" name="start_date" class="form-input-custom w-full" value="{{ $start }}">
+                    <input type="date" name="start_date" class="form-input-custom w-full"
+                        value="{{ $start }}">
                 </div>
                 <div style="width: 180px;">
                     <label class="form-label-custom">Sampai Tanggal</label>
                     <input type="date" name="end_date" class="form-input-custom w-full" value="{{ $end }}">
                 </div>
-                <button type="submit" class="btn-primary-admin !h-10 !px-6 !text-[13px] !w-fit flex items-center gap-2">
+                <button type="submit"
+                    class="btn-primary-admin !h-10 !px-6 !text-[13px] !w-fit flex items-center gap-2">
                     <i class="fa-solid fa-filter"></i> Terapkan Filter
                 </button>
             </div>
@@ -121,23 +124,27 @@
                 <tbody>
                     @foreach ($maintenances as $m)
                         <tr>
-                            <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}</td>
+                            <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}
+                            </td>
                             <td style="text-align: center; font-size: 12px; font-weight: 700; color: #0f172a;">
                                 {{ $m->completed_at->format('d/m/Y') }}
-                                <div style="font-size: 10px; color: #94a3b8; font-weight: 600;">{{ $m->completed_at->format('H:i') }} WIB</div>
+                                <div style="font-size: 10px; color: #94a3b8; font-weight: 600;">
+                                    {{ $m->completed_at->format('H:i') }} WIB</div>
                             </td>
                             <td style="text-align: left;">
                                 <div style="font-weight: 700; color: #0f172a;">{{ $m->customer->nama_lengkap }}</div>
                                 <div style="font-size: 10px; color: #64748b; font-weight: 600;">PELANGGAN</div>
                             </td>
                             <td style="text-align: center;">
-                                <div style="font-weight: 700; color: #475569; font-size: 12px;">{{ $m->teknisiEksekutor->nama_lengkap ?? 'N/A' }}</div>
+                                <div style="font-weight: 700; color: #475569; font-size: 12px;">
+                                    {{ $m->teknisiEksekutor->nama_lengkap ?? 'N/A' }}</div>
                                 <div style="font-size: 10px; color: #94a3b8; font-weight: 600;">EKSEKUTOR</div>
                             </td>
                             <td style="text-align: center; font-size: 11px; color: #64748b; font-weight: 600;">
                                 {{ $m->partner ?: '-' }}
                             </td>
-                            <td style="text-align: left; font-size: 12px; color: #475569; font-weight: 500; line-height: 1.5;">
+                            <td
+                                style="text-align: left; font-size: 12px; color: #475569; font-weight: 500; line-height: 1.5;">
                                 {{ Str::limit($m->solusi_kendala, 100) }}
                             </td>
                         </tr>
