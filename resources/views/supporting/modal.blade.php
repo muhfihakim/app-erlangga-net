@@ -33,12 +33,10 @@
 
                 <div class="form-group">
                     <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Teknisi Utama <span class="text-rose-500">*</span></label>
-                    <select name="main_technician_id" required class="form-input-custom w-full bg-white text-slate-900 border-slate-300">
-                        <option value="">-- Pilih Teknisi --</option>
-                        @foreach($technicians as $t)
-                            <option value="{{ $t->id }}">{{ $t->nama_lengkap }}</option>
-                        @endforeach
+                    <select name="main_technician_id" required class="form-input-custom w-full bg-slate-50 text-slate-900 border-slate-300 cursor-not-allowed" readonly>
+                        <option value="{{ auth()->id() }}">{{ auth()->user()->nama_lengkap }}</option>
                     </select>
+                    <p class="text-[10px] text-slate-400 mt-1">* Otomatis berdasarkan akun Anda.</p>
                 </div>
 
                 <div class="form-group">
