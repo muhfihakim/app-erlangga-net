@@ -22,7 +22,15 @@ class SupportingActivityController extends Controller
     public function index(Request $request)
     {
         $this->checkAccess();
+        $user = auth()->user();
         $query = SupportingActivity::with(['mainTechnician', 'createdBy']);
+
+        if ($user->jabatan === 'Teknisi') {
+            $query->where(function($q) use ($user) {
+                $q->where('main_technician_id', $user->id)
+                  ->orWhereJsonContains('partner_ids', (string)$user->id);
+            });
+        }
 
         // Filters
         if ($request->filled('start_date')) {
@@ -143,8 +151,16 @@ class SupportingActivityController extends Controller
     public function export(Request $request)
     {
         $this->checkAccess();
+        $user = auth()->user();
         
         $query = SupportingActivity::with(['mainTechnician', 'createdBy']);
+
+        if ($user->jabatan === 'Teknisi') {
+            $query->where(function($q) use ($user) {
+                $q->where('main_technician_id', $user->id)
+                  ->orWhereJsonContains('partner_ids', (string)$user->id);
+            });
+        }
 
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('activity_date', [$request->start_date, $request->end_date]);
