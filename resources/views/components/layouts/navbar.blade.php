@@ -169,7 +169,7 @@
                                         <i class="fa-solid ${notif.icon}"></i>
                                     </div>
                                     <div class="notif-content">
-                                        <div class="notif-text">${notif.description}</div>
+                                        <div class="notif-text"><span style="font-weight:700; color:#0f172a;">${notif.user}</span>: ${notif.description}</div>
                                         <div class="notif-time">${notif.time}</div>
                                     </div>
                                 </div>

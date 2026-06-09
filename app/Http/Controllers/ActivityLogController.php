@@ -42,7 +42,7 @@ class ActivityLogController extends Controller
 
     public function getNotifications()
     {
-        $types = ['preorder_create', 'aktivasi_pelanggan', 'maintenance_complete', 'eksekusi_dismantle'];
+        $types = ['preorder_create', 'aktivasi_pelanggan', 'maintenance_complete', 'eksekusi_dismantle', 'tambah_perbantuan'];
         
         $notifications = ActivityLog::with('user')
             ->whereIn('activity_type', $types)
@@ -71,6 +71,7 @@ class ActivityLogController extends Controller
             'aktivasi_pelanggan' => 'fa-user-check',
             'maintenance_complete' => 'fa-screwdriver-wrench',
             'eksekusi_dismantle' => 'fa-house-circle-xmark',
+            'tambah_perbantuan' => 'fa-handshake-angle',
             default => 'fa-info-circle'
         };
     }
@@ -82,6 +83,7 @@ class ActivityLogController extends Controller
             'aktivasi_pelanggan' => 'text-emerald-500',
             'maintenance_complete' => 'text-indigo-500',
             'eksekusi_dismantle' => 'text-rose-500',
+            'tambah_perbantuan' => 'text-amber-500',
             default => 'text-slate-500'
         };
     }
