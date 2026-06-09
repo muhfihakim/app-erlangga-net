@@ -33,6 +33,11 @@
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Catatan bantuan teknis dalam berbagai kegiatan.</p>
         </div>
         <div style="display:flex; gap:10px;">
+            @if(request()->filled('start_date') || request()->filled('end_date') || request()->filled('activity_type') || request()->filled('search'))
+                <a href="{{ route('supporting.export', request()->all()) }}" class="btn-primary-admin !bg-rose-600 !h-10 !px-6 flex items-center gap-2">
+                    <i class="fa-solid fa-file-pdf"></i> Export PDF
+                </a>
+            @endif
             <button type="button" class="btn-primary-admin btn-glow-primary !flex !items-center !justify-center gap-2"
                 onclick="addModal()"><i class="fa-solid fa-plus"></i> Tambah Catatan</button>
         </div>
@@ -47,15 +52,31 @@
                 <div class="stat-lbl">Total Perbantuan</div>
             </div>
         </div>
-        @foreach($stats['scoreboard']->take(3) as $sb)
         <div class="stat-card">
-            <div class="stat-icon" style="background:#dcfce7;color:#15803d;"><i class="fa-solid fa-trophy"></i></div>
+            <div class="stat-icon" style="background:#dcfce7;color:#15803d;"><i class="fa-solid fa-calendar-check"></i></div>
             <div>
-                <div class="stat-val">{{ $sb['count'] }}</div>
-                <div class="stat-lbl">{{ $sb['name'] }}</div>
+                <div class="stat-val">{{ $stats['this_month'] }}</div>
+                <div class="stat-lbl">Bulan Ini</div>
             </div>
         </div>
-        @endforeach
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#f1f5f9;color:#475569;"><i class="fa-solid fa-calendar-minus"></i></div>
+            <div>
+                <div class="stat-val">{{ $stats['last_month'] }}</div>
+                <div class="stat-lbl">Bulan Lalu</div>
+            </div>
+        </div>
+        @if(auth()->user()->isAdmin())
+            @foreach($stats['scoreboard']->take(1) as $sb)
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fef3c7;color:#d97706;"><i class="fa-solid fa-trophy"></i></div>
+                <div>
+                    <div class="stat-val">{{ $sb['count'] }}</div>
+                    <div class="stat-lbl">Top: {{ $sb['name'] }}</div>
+                </div>
+            </div>
+            @endforeach
+        @endif
     </div>
 
     <!-- Filters & Search -->
@@ -91,9 +112,6 @@
                     <button type="submit" class="btn-primary-admin !h-10 !px-6 flex items-center gap-2">
                         <i class="fa-solid fa-filter"></i> Filter
                     </button>
-                    <a href="{{ route('supporting.export', request()->all()) }}" class="btn-primary-admin !bg-rose-600 !h-10 !px-6 flex items-center gap-2">
-                        <i class="fa-solid fa-file-pdf"></i> PDF
-                    </a>
                 </div>
             </div>
         </form>

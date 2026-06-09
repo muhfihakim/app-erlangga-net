@@ -100,9 +100,26 @@ class SupportingActivityController extends Controller
 
     private function calculateStats(Request $request)
     {
-        $all = SupportingActivity::all();
-        $scoreboard = [];
+        $user = auth()->user();
+        $isTechnician = $user->jabatan === 'Teknisi';
+        
+        $baseQuery = SupportingActivity::query();
+        if ($isTechnician) {
+            $baseQuery->where(function($q) use ($user) {
+                $q->where('main_technician_id', $user->id)
+                  ->orWhereJsonContains('partner_ids', (string)$user->id);
+            });
+        }
 
+        $all = (clone $baseQuery)->get();
+        
+        $now = Carbon::now();
+        $thisMonth = (clone $baseQuery)->whereMonth('activity_date', $now->month)
+            ->whereYear('activity_date', $now->year)->count();
+        $lastMonth = (clone $baseQuery)->whereMonth('activity_date', $now->subMonth()->month)
+            ->whereYear('activity_date', $now->year)->count();
+
+        $scoreboard = [];
         foreach ($all as $act) {
             // Main Tech
             $mid = $act->main_technician_id;
@@ -127,6 +144,8 @@ class SupportingActivityController extends Controller
 
         return [
             'total' => $all->count(),
+            'this_month' => $thisMonth,
+            'last_month' => $lastMonth,
             'scoreboard' => $mappedScoreboard
         ];
     }
