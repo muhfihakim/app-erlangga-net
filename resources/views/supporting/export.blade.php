@@ -142,15 +142,7 @@
                         @php
                             $partners = \App\Models\User::whereIn('id', $m->partner_ids ?? [])->pluck('nama_lengkap');
                         @endphp
-                        @if($partners->isEmpty())
-                            -
-                        @else
-                            <ul style="margin:0; padding-left: 15px;">
-                                @foreach($partners as $p)
-                                    <li>{{ $p }}</li>
-                                @endforeach
-                            </ul>
-                        @endif
+                        {{ $partners->isEmpty() ? '-' : $partners->implode(', ') }}
                     </td>
                     <td style="vertical-align: top;">{{ $m->description ?: '-' }}</td>
                 </tr>
