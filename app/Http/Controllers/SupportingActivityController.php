@@ -165,7 +165,14 @@ class SupportingActivityController extends Controller
         $activities = $query->orderBy('activity_date', 'asc')->get();
 
         $pdf = PDF::loadView('supporting.export', compact('activities'));
-        return $pdf->download('laporan-perbantuan.pdf');
+        
+        $fileName = 'laporan-perbantuan';
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $fileName .= "-{$request->start_date}-ke-{$request->end_date}";
+        }
+        $fileName .= '.pdf';
+
+        return $pdf->download($fileName);
     }
 
     private function calculateStats(Request $request)
