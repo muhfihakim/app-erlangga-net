@@ -202,7 +202,10 @@
             
             document.querySelector('[name="activity_type"]').value = data.activity_type;
             document.querySelector('[name="activity_date"]').value = data.activity_date.split('T')[0];
-            document.querySelector('[name="main_technician_id"]').value = data.main_technician_id;
+            
+            const mainTechEl = document.querySelector('[name="main_technician_id"]');
+            if (mainTechEl) mainTechEl.value = data.main_technician_id;
+            
             document.querySelector('[name="description"]').value = data.description || '';
             
             document.querySelectorAll('.partner-check').forEach(c => {
