@@ -501,7 +501,7 @@
                 </div>
 
                 <div class="card-foot">
-                    <span class="foot-ver">v1.1.0 · PT. BBS © {{ date('Y') }}</span>
+                    <span class="foot-ver">v1.1.1 · PT. BBS © {{ date('Y') }}</span>
                 </div>
             </div>
 
