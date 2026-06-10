@@ -28,12 +28,13 @@ class OltController extends Controller
         }
 
         try {
-            $output = $this->oltService->execute("show gpon onu state gpon-olt_{$port}");
+            // Gunakan baseinfo karena biasanya lebih cepat dan datanya lebih ringkas untuk SN/ID
+            $output = $this->oltService->execute("show gpon onu baseinfo gpon-olt_{$port}");
             
             // Parsing Logic: Mencari ONU ID yang sudah terpakai
-            // Baris biasanya: gpon-onu_1/2/8:1  ready  ...
-            preg_match_all('/gpon-onu_[\d\/]+:(\d+)/', $output, $matches);
-            $usedIds = array_map('intval', $matches[1] ?? []);
+            // Format: gpon-onu_1/2/8:1
+            preg_match_all('/:(\d+)\s+/', $output, $matches);
+            $usedIds = array_unique(array_map('intval', $matches[1] ?? []));
             sort($usedIds);
 
             // Cari ID terkecil yang belum dipakai (1-128)
@@ -153,7 +154,7 @@ class OltController extends Controller
                     'type' => 'all',
                     'configured' => $allConfigured,
                     'unconfigured' => $unconfigured,
-                    'raw_output' => $fullRawOutput
+                    'raw_output' => $fullRawOutput . "--- UNCONFIGURED ---\n" . $uncfgOutput
                 ]);
             }
         } catch (Exception $e) {
@@ -305,7 +306,9 @@ class OltController extends Controller
     private function parseUnconfigured($output)
     {
         $data = [];
-        preg_match_all('/gpon-olt_([\d\/]+(?::\d+)?)\s+([A-Z0-9]{12})\s+/', $output, $matches, PREG_SET_ORDER);
+        // Match: gpon-onu_1/2/12:2        ZTEGDBADA8D1        unknown
+        // Or: gpon-olt_1/2/12            ZTEGDBADA8D1        ...
+        preg_match_all('/(?:gpon-onu_|gpon-olt_)?([\d\/]+(?::\d+)?)\s+([A-Z0-9]{12})/i', $output, $matches, PREG_SET_ORDER);
         foreach ($matches as $match) {
             $port = $match[1];
             if (str_contains($port, ':')) {

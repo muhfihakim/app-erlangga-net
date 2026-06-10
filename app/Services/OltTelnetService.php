@@ -13,7 +13,7 @@ class OltTelnetService
     private $port;
     private $username;
     private $password;
-    private $timeout = 10;
+    private $timeout = 30; // Increased timeout
 
     public function __construct()
     {
@@ -26,23 +26,23 @@ class OltTelnetService
     public function connect()
     {
         try {
-            $this->connection = fsockopen($this->host, $this->port, $errno, $errstr, $this->timeout);
+            $this->connection = @fsockopen($this->host, $this->port, $errno, $errstr, $this->timeout);
             if (!$this->connection) {
-                throw new Exception("Could not connect to OLT: $errstr ($errno)");
+                throw new Exception("Could not connect to OLT {$this->host}:{$this->port} - $errstr ($errno)");
             }
 
             stream_set_timeout($this->connection, $this->timeout);
 
             // 1. Handle Handshake / Username prompt
-            $output = $this->readUntil(['Username:', 'login:', 'User Name:']);
+            $this->readUntil(['Username:', 'login:', 'User Name:']);
             $this->write($this->username);
 
             // 2. Handle Password prompt
-            $output = $this->readUntil(['Password:', 'password:']);
+            $this->readUntil(['Password:', 'password:']);
             $this->write($this->password);
 
             // 3. Wait for Command Prompt
-            $output = $this->readUntil(['>', '#']);
+            $this->readUntil(['>', '#']);
 
             return true;
         } catch (Exception $e) {
@@ -60,7 +60,7 @@ class OltTelnetService
 
         // 1. Clear any leftover data in the buffer
         stream_set_blocking($this->connection, false);
-        while (fgetc($this->connection) !== false);
+        while (fread($this->connection, 1024) !== "");
         stream_set_blocking($this->connection, true);
 
         // 2. Send command
@@ -93,43 +93,57 @@ class OltTelnetService
 
         while (!feof($this->connection)) {
             if (time() - $start > $this->timeout) {
+                // Log the buffer so far to help debugging
+                Log::warning("OLT Read Timeout. Buffer content: " . substr($buffer, -200));
                 throw new Exception("Telnet Read Timeout for prompts: " . implode(', ', $prompts));
             }
 
-            $char = fgetc($this->connection);
-            if ($char === false) continue;
-            
-            // 1. Filter out Telnet IAC sequences (starts with 0xFF / 255)
-            $ord = ord($char);
-            if ($ord === 255) {
-                // Read next 2 bytes (Command + Option)
-                fread($this->connection, 2);
+            // Read in chunks for efficiency
+            $chunk = fread($this->connection, 1024);
+            if ($chunk === false || $chunk === "") {
+                usleep(50000); // 50ms wait if no data
                 continue;
             }
 
-            // 2. Handle Backspace (0x08)
-            if ($ord === 8) {
-                $buffer = substr($buffer, 0, -1);
-                continue;
-            }
+            // Process characters in chunk
+            $processedChunk = '';
+            for ($i = 0; $i < strlen($chunk); $i++) {
+                $char = $chunk[$i];
+                $ord = ord($char);
 
-            // 3. Keep printable characters and basic whitespace
-            if ($ord === 10 || $ord === 13 || $ord === 9 || ($ord >= 32 && $ord <= 126)) {
-                $buffer .= $char;
-            }
+                // 1. Filter Telnet IAC
+                if ($ord === 255) {
+                    $i += 2; // Skip command + option
+                    continue;
+                }
 
-            // 4. Check for prompts
-            $trimmedBuffer = trim($buffer);
-            foreach ($prompts as $prompt) {
-                if (str_ends_with($trimmedBuffer, $prompt)) {
-                    return $buffer;
+                // 2. Handle Backspace
+                if ($ord === 8) {
+                    $processedChunk = substr($processedChunk, 0, -1);
+                    continue;
+                }
+
+                // 3. Basic printable characters
+                if ($ord === 10 || $ord === 13 || $ord === 9 || ($ord >= 32 && $ord <= 126)) {
+                    $processedChunk .= $char;
                 }
             }
+            
+            $buffer .= $processedChunk;
 
-            // 5. Handle --More-- pagination
-            if (str_ends_with($buffer, "--More--")) {
+            // 4. Handle --More-- pagination
+            if (str_contains($buffer, "--More--")) {
                 $this->write(" "); // Send space to get more
                 $buffer = str_replace("--More--", "", $buffer);
+                continue; 
+            }
+
+            // 5. Check for prompts at the end of buffer
+            $tail = substr($buffer, -20);
+            foreach ($prompts as $prompt) {
+                if (preg_match("/" . preg_quote($prompt, '/') . "\s*$/", $tail)) {
+                    return $buffer;
+                }
             }
         }
 
