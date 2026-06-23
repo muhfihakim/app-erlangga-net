@@ -102,11 +102,17 @@
                             </td>
                             <td style="text-align: center;">
                                 @if($user->isAdmin())
-                                    <span class="badge" style="background: #fef2f2; color: #dc2626; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800;">ADMIN</span>
+                                    <span class="badge" style="background: #fef2f2; color: #dc2626; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; display: inline-block; margin-bottom: 4px;">ADMIN</span>
                                 @elseif($user->jabatan === 'Sales')
-                                    <span class="badge" style="background: #f0f9ff; color: #0ea5e9; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800;">SALES</span>
+                                    <span class="badge" style="background: #f0f9ff; color: #0ea5e9; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; display: inline-block; margin-bottom: 4px;">SALES</span>
                                 @else
-                                    <span class="badge" style="background: #f0fdf4; color: #16a34a; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800;">TEKNISI</span>
+                                    <span class="badge" style="background: #f0fdf4; color: #16a34a; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; display: inline-block; margin-bottom: 4px;">TEKNISI</span>
+                                @endif
+                                <br>
+                                @if($user->is_active)
+                                    <span class="badge" style="background: #e0e7ff; color: #4338ca; padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: 700;">Aktif</span>
+                                @else
+                                    <span class="badge" style="background: #f1f5f9; color: #64748b; padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: 700;">Nonaktif</span>
                                 @endif
                             </td>
                             <td style="text-align: left; font-size: 11px; color: #64748b; line-height: 1.4;">
@@ -143,6 +149,18 @@
                                         title="Hapus Akun" onclick="confirmGlobalDelete('{{ route('accounts.destroy', $user->id) }}', '{{ $user->nama_lengkap }}')">
                                         <i class="fa-solid fa-trash text-rose-600"></i>
                                     </button>
+
+                                    @if(auth()->id() !== $user->id)
+                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                            title="{{ $user->is_active ? 'Nonaktifkan Akun' : 'Aktifkan Akun' }}"
+                                            onclick="confirmToggleStatus('{{ route('accounts.toggleStatus', $user->id) }}', '{{ $user->nama_lengkap }}', {{ $user->is_active ? 'true' : 'false' }})">
+                                            @if($user->is_active)
+                                                <i class="fa-solid fa-user-slash text-slate-500"></i>
+                                            @else
+                                                <i class="fa-solid fa-user-check text-green-600"></i>
+                                            @endif
+                                        </button>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -198,6 +216,30 @@
                 const resetForm = document.getElementById('reset2FAForm');
                 resetForm.action = `/accounts/${userId}/2fa/reset`;
                 openCustomModal('reset2FAModal');
+            }
+
+            function confirmToggleStatus(actionUrl, userName, isActive) {
+                const form = document.getElementById('toggleStatusForm');
+                const nameEl = document.getElementById('toggle_user_name');
+                const textEl = document.getElementById('toggle-status-text');
+                const iconEl = document.getElementById('toggle-status-icon');
+                const btnSubmit = document.getElementById('toggle-status-btn-submit');
+                
+                if (form && nameEl && textEl && iconEl) {
+                    form.action = actionUrl;
+                    nameEl.textContent = userName;
+                    textEl.textContent = isActive ? 'menonaktifkan' : 'mengaktifkan';
+                    
+                    if (isActive) {
+                        iconEl.className = 'fa-solid fa-user-slash text-rose-500 text-4xl mb-4';
+                        btnSubmit.className = 'btn-save flex-1 !flex !items-center !justify-center !bg-rose-600';
+                    } else {
+                        iconEl.className = 'fa-solid fa-user-check text-green-500 text-4xl mb-4';
+                        btnSubmit.className = 'btn-save flex-1 !flex !items-center !justify-center !bg-green-600';
+                    }
+                    
+                    openCustomModal('toggleStatusModal');
+                }
             }
 
             let qrModalInstance = null;

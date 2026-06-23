@@ -64,65 +64,6 @@
             max-width: 850px;
         }
 
-        /* ── BRAND ───────────────────────────────────────────── */
-        .brand {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-
-        .brand-mark {
-            width: 52px;
-            height: 52px;
-            border-radius: 14px;
-            background: var(--navy);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 14px;
-            position: relative;
-        }
-
-        .brand-mark::after {
-            content: '';
-            position: absolute;
-            bottom: 4px;
-            right: 4px;
-            width: 10px;
-            height: 10px;
-            border-radius: 3px;
-            background: var(--gold);
-        }
-
-        .brand-mark i {
-            font-size: 22px;
-            color: #fff;
-            position: relative;
-            z-index: 1;
-        }
-
-        .brand-name {
-            font-size: 20px;
-            font-weight: 600;
-            letter-spacing: -.3px;
-            color: var(--text-main);
-            line-height: 1;
-            margin-bottom: 4px;
-        }
-
-        .brand-name em {
-            font-style: normal;
-            color: var(--blue);
-        }
-
-        .brand-tagline {
-            font-size: 11.5px;
-            color: var(--text-faint);
-            letter-spacing: .3px;
-            text-transform: uppercase;
-        }
-
         /* ── CARD ────────────────────────────────────────────── */
         .card {
             background: var(--bg-card);
@@ -131,16 +72,18 @@
             overflow: hidden;
             display: grid;
             grid-template-columns: 1.1fr 0.9fr;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
         }
-        
+
         @media (max-width: 768px) {
             .card {
                 grid-template-columns: 1fr;
             }
+
             .card-widgets {
                 display: none !important;
             }
+
             .shell {
                 max-width: 400px;
             }
@@ -326,17 +269,24 @@
             opacity: 0.85;
             background: var(--navy-mid);
         }
-        
+
         .btn-submit .fa-spinner {
             display: none;
             animation: spinBtn 1s linear infinite;
         }
-        
-        .btn-submit.loading .fa-arrow-right { display: none; }
-        .btn-submit.loading .fa-spinner { display: inline-block; }
-        
+
+        .btn-submit.loading .fa-arrow-right {
+            display: none;
+        }
+
+        .btn-submit.loading .fa-spinner {
+            display: inline-block;
+        }
+
         @keyframes spinBtn {
-            100% { transform: rotate(360deg); }
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         /* ── CARD FOOTER ─────────────────────────────────────── */
@@ -371,14 +321,22 @@
         .card-widgets::before {
             content: '';
             position: absolute;
-            top: -50%; left: -50%; width: 200%; height: 200%;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
             background: radial-gradient(circle, rgba(200, 164, 90, 0.08) 0%, transparent 60%);
             animation: pulseGlow 6s infinite alternate;
         }
 
         @keyframes pulseGlow {
-            0% { transform: scale(1) translate(0, 0); }
-            100% { transform: scale(1.1) translate(10px, 10px); }
+            0% {
+                transform: scale(1) translate(0, 0);
+            }
+
+            100% {
+                transform: scale(1.1) translate(10px, 10px);
+            }
         }
 
         .widget-box {
@@ -408,7 +366,9 @@
             letter-spacing: 0.3px;
         }
 
-        .widget-title i { color: var(--gold); }
+        .widget-title i {
+            color: var(--gold);
+        }
 
         /* Traffic Bar Chart */
         .bar-chart {
@@ -417,31 +377,65 @@
             gap: 10px;
             height: 70px;
         }
+
         .bar {
             flex: 1;
+            height: 100%;
             background: rgba(255, 255, 255, 0.08);
             border-radius: 4px 4px 0 0;
             position: relative;
             overflow: hidden;
-            display: flex;
-            align-items: flex-end;
         }
+
         .bar-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
             width: 100%;
             background: var(--blue-lt);
             border-radius: 4px 4px 0 0;
             animation: growBar 1.5s ease-out infinite alternate;
             transform-origin: bottom;
         }
-        .bar:nth-child(1) .bar-fill { height: 45%; animation-delay: 0s; background: #3b82f6; }
-        .bar:nth-child(2) .bar-fill { height: 75%; animation-delay: -0.4s; background: #60a5fa; }
-        .bar:nth-child(3) .bar-fill { height: 55%; animation-delay: -0.8s; background: #93c5fd; }
-        .bar:nth-child(4) .bar-fill { height: 90%; animation-delay: -1.2s; background: var(--gold); }
-        .bar:nth-child(5) .bar-fill { height: 35%; animation-delay: -1.6s; background: #bfdbfe; }
+
+        .bar:nth-child(1) .bar-fill {
+            height: 45%;
+            animation-delay: 0s;
+            background: #3b82f6;
+        }
+
+        .bar:nth-child(2) .bar-fill {
+            height: 75%;
+            animation-delay: -0.4s;
+            background: #60a5fa;
+        }
+
+        .bar:nth-child(3) .bar-fill {
+            height: 55%;
+            animation-delay: -0.8s;
+            background: #93c5fd;
+        }
+
+        .bar:nth-child(4) .bar-fill {
+            height: 90%;
+            animation-delay: -1.2s;
+            background: var(--gold);
+        }
+
+        .bar:nth-child(5) .bar-fill {
+            height: 35%;
+            animation-delay: -1.6s;
+            background: #bfdbfe;
+        }
 
         @keyframes growBar {
-            0% { transform: scaleY(0.85); }
-            100% { transform: scaleY(1.05); }
+            0% {
+                transform: scaleY(0.85);
+            }
+
+            100% {
+                transform: scaleY(1.05);
+            }
         }
 
         /* Status Pie Chart */
@@ -450,40 +444,70 @@
             align-items: center;
             gap: 24px;
         }
+
         .pie-chart {
             width: 76px;
             height: 76px;
             border-radius: 50%;
-            background: conic-gradient(var(--gold) 0% 75%, rgba(255,255,255,0.1) 75% 100%);
+            background: conic-gradient(var(--gold) 0% 75%, rgba(255, 255, 255, 0.1) 75% 100%);
             animation: spinPie 8s linear infinite;
-            box-shadow: 0 0 20px rgba(0,0,0,0.15);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
             position: relative;
             flex-shrink: 0;
         }
+
         .pie-chart::after {
             content: '';
             position: absolute;
-            top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 56px; height: 56px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 56px;
+            height: 56px;
             background: var(--navy-mid);
             border-radius: 50%;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
         }
+
         @keyframes spinPie {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
+
         .pie-stats {
-            color: rgba(255,255,255,0.85);
+            color: rgba(255, 255, 255, 0.85);
             font-size: 12px;
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
-        .pie-stat { display: flex; align-items: center; gap: 8px; font-weight: 500; }
-        .pie-dot { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 5px rgba(255,255,255,0.2); }
-        .pie-dot.gold { background: var(--gold); }
-        .pie-dot.gray { background: rgba(255,255,255,0.2); }
+
+        .pie-stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .pie-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+        }
+
+        .pie-dot.gold {
+            background: var(--gold);
+        }
+
+        .pie-dot.gray {
+            background: rgba(255, 255, 255, 0.2);
+        }
 
         /* ── TOAST ───────────────────────────────────────────── */
         .toast-container {
@@ -522,9 +546,17 @@
             flex-shrink: 0;
         }
 
-        .toast-success .toast-icon { color: #15803d; }
-        .toast-error .toast-icon { color: var(--danger); }
-        .toast-info .toast-icon { color: var(--blue); }
+        .toast-success .toast-icon {
+            color: #15803d;
+        }
+
+        .toast-error .toast-icon {
+            color: var(--danger);
+        }
+
+        .toast-info .toast-icon {
+            color: var(--blue);
+        }
 
         .toast-title {
             font-size: 14px;
@@ -541,13 +573,27 @@
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @keyframes slideDown {
-            from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(15px); }
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateY(15px);
+            }
         }
     </style>
 </head>
@@ -556,18 +602,9 @@
     <div class="page">
         <div class="shell">
 
-            {{-- BRAND --}}
-            <div class="brand">
-                <div class="brand-mark">
-                    <i class="fa-solid fa-microchip"></i>
-                </div>
-                <div class="brand-name">Erlangga<em>Net</em></div>
-                <div class="brand-tagline">Sistem Informasi Layanan Internet</div>
-            </div>
-
             {{-- CARD --}}
             <div class="card">
-                
+
                 {{-- LEFT: LOGIN FORM --}}
                 <div class="card-left">
                     <div class="card-head">
@@ -638,18 +675,28 @@
 
                 {{-- RIGHT: WIDGETS --}}
                 <div class="card-widgets">
-                    
+
                     {{-- Widget 1: Traffic --}}
                     <div class="widget-box">
                         <div class="widget-title">
                             <i class="fa-solid fa-chart-simple"></i> Live Traffic
                         </div>
                         <div class="bar-chart">
-                            <div class="bar"><div class="bar-fill"></div></div>
-                            <div class="bar"><div class="bar-fill"></div></div>
-                            <div class="bar"><div class="bar-fill"></div></div>
-                            <div class="bar"><div class="bar-fill"></div></div>
-                            <div class="bar"><div class="bar-fill"></div></div>
+                            <div class="bar">
+                                <div class="bar-fill"></div>
+                            </div>
+                            <div class="bar">
+                                <div class="bar-fill"></div>
+                            </div>
+                            <div class="bar">
+                                <div class="bar-fill"></div>
+                            </div>
+                            <div class="bar">
+                                <div class="bar-fill"></div>
+                            </div>
+                            <div class="bar">
+                                <div class="bar-fill"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -757,7 +804,7 @@
             // ── Client-side validation ────────────────────────────
             $('#login-form').on('submit', function(e) {
                 const form = this;
-                
+
                 // Jika sedang loading, jangan submit lagi
                 if ($('#btn-submit').hasClass('loading')) {
                     e.preventDefault();

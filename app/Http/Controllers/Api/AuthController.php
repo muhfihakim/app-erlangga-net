@@ -30,6 +30,19 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
 
+            if (!$user->is_active) {
+                Auth::logout();
+                
+                if ($request->expectsJson()) {
+                    throw ValidationException::withMessages([
+                        'email' => ['Akun Anda telah dinonaktifkan. Silakan hubungi Administrator.'],
+                    ]);
+                }
+                return back()->withErrors([
+                    'email' => 'Akun Anda telah dinonaktifkan. Silakan hubungi Administrator.',
+                ])->withInput($request->only('email'));
+            }
+
             // Log activity
             \App\Models\ActivityLog::create([
                 'user_id' => $user->id,

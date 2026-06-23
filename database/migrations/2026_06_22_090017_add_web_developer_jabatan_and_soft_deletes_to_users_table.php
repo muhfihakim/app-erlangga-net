@@ -12,9 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->softDeletes();
-        });
+        if (!Schema::hasColumn('users', 'deleted_at')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->softDeletes();
+            });
+        }
         DB::statement("ALTER TABLE users MODIFY COLUMN jabatan ENUM('Administrator', 'Sales', 'Teknisi', 'Web Developer') DEFAULT 'Teknisi'");
     }
 

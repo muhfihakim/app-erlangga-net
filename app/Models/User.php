@@ -30,6 +30,7 @@ class User extends Authenticatable
         'jenis_kelamin',
         'tanggal_lahir',
         'jabatan',
+        'is_active',
     ];
 
     /**
@@ -53,6 +54,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'tanggal_lahir' => 'datetime',
+            'is_active' => 'boolean',
         ];
     }
 

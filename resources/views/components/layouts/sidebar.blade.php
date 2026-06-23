@@ -1,14 +1,9 @@
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
     <!-- Logo -->
-    <div class="sidebar-logo">
-        <div class="sidebar-logo-icon">
-            <i class="fa-solid fa-microchip text-white text-base"></i>
-        </div>
-        <div>
-            <div class="sidebar-logo-text">Erlangga<span class="text-primary-light">Net</span></div>
-            <div class="sidebar-logo-sub">Admin Panel</div>
-        </div>
+    <div class="sidebar-logo" style="display: flex; justify-content: center; align-items: center; padding: 0.5rem 0rem;">
+        <img src="{{ asset('dist/assets/img/logo.png') }}" alt="Erlangga Net Logo"
+            style="height: 65px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
     </div>
 
     <!-- Navigation -->
@@ -52,9 +47,7 @@
         @endif
 
         @if (auth()->check() &&
-                (auth()->user()->isAdmin() ||
-                    auth()->user()->jabatan === 'Teknisi' ||
-                    auth()->user()->jabatan === 'Sales'))
+                (auth()->user()->isAdmin() || auth()->user()->jabatan === 'Teknisi' || auth()->user()->jabatan === 'Sales'))
             <a class="sidebar-link {{ Request::is('customers*') ? 'active' : '' }}"
                 href="{{ auth()->user()->jabatan === 'Teknisi' ? route('customers.index') : route('customers.active_list') }}">
                 <i class="fa-solid fa-users"></i>
@@ -71,11 +64,11 @@
                 <span>Pencabutan</span>
             </a>
             @if (auth()->user()->jabatan !== 'Sales')
-            <a class="sidebar-link {{ Request::is('supporting*') ? 'active' : '' }}"
-                href="{{ route('supporting.index') }}">
-                <i class="fa-solid fa-handshake-angle"></i>
-                <span>Perbantuan</span>
-            </a>
+                <a class="sidebar-link {{ Request::is('supporting*') ? 'active' : '' }}"
+                    href="{{ route('supporting.index') }}">
+                    <i class="fa-solid fa-handshake-angle"></i>
+                    <span>Perbantuan</span>
+                </a>
             @endif
         @endif
 

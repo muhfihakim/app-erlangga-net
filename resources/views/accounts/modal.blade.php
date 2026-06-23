@@ -225,3 +225,33 @@
          </div>
      </div>
  </div>
+
+ {{-- Modal Toggle Status --}}
+ <div class="modal-overlay" id="toggleStatusModal">
+     <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
+         <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+             <div class="modal-title">
+                 <i class="fa-solid fa-power-off text-primary"></i>
+                 <span class="text-slate-900 font-bold text-[17px]">Konfirmasi Status</span>
+             </div>
+             <button type="button" class="modal-close" onclick="closeCustomModal('toggleStatusModal')">
+                 <i class="fa-solid fa-xmark"></i>
+             </button>
+         </div>
+         <div class="modal-body p-8 bg-white text-center">
+             <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                 <i id="toggle-status-icon" class="fa-solid fa-user-slash text-slate-500 text-3xl mb-3"></i>
+                 <p class="text-sm font-bold text-slate-800 leading-relaxed">
+                     <span id="toggle-status-text"></span> akun <span class="text-primary" id="toggle_user_name"></span>?
+                 </p>
+             </div>
+         </div>
+         <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+             <form id="toggleStatusForm" method="POST" class="w-full flex gap-3">
+                 @csrf
+                 <button type="button" class="btn-cancel flex-1 !flex !items-center !justify-center" onclick="closeCustomModal('toggleStatusModal')">Batal</button>
+                 <button type="submit" class="btn-save flex-1 !flex !items-center !justify-center !bg-primary" id="toggle-status-btn-submit">Ya, Lanjutkan</button>
+             </form>
+         </div>
+     </div>
+ </div>

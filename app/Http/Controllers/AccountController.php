@@ -185,4 +185,29 @@ class AccountController extends Controller
 
         return redirect()->route('accounts.index')->with('success', 'Akun berhasil dihapus.');
     }
+
+    public function toggleStatus(User $user)
+    {
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        if (auth()->id() === $user->id) {
+            return redirect()->back()->with('error', 'Anda tidak dapat menonaktifkan akun Anda sendiri.');
+        }
+
+        $user->is_active = !$user->is_active;
+        $user->save();
+
+        $statusText = $user->is_active ? 'diaktifkan' : 'dinonaktifkan';
+
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity_type' => 'user_status_update',
+            'description' => 'Akun ' . $user->nama_lengkap . ' ' . $statusText,
+            'logged_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Akun berhasil ' . $statusText . '.');
+    }
 }
