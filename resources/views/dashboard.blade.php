@@ -567,6 +567,11 @@
                                 indexAxis: 'y',
                                 responsive: true,
                                 maintainAspectRatio: false,
+                                layout: {
+                                    padding: {
+                                        right: 30
+                                    }
+                                },
                                 plugins: {
                                     legend: {
                                         display: false
