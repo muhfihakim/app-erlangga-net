@@ -56,6 +56,49 @@ class MikroTikService
     }
 
     /**
+     * Helper to run raw query and bypass vendor package !re bug
+     */
+    public function runRawQuery(string $command): array
+    {
+        try {
+            $client = new \ZillEAli\MikrotikLaravel\Connections\RouterosClient(
+                config('mikrotik.host', env('MIKROTIK_HOST')),
+                config('mikrotik.port', env('MIKROTIK_PORT', 8728)),
+                config('mikrotik.username', env('MIKROTIK_USER')),
+                config('mikrotik.password', env('MIKROTIK_PASS'))
+            );
+            $client->connect();
+            $raw = $client->send([$command]);
+            $client->disconnect();
+
+            $result = [];
+            $row = [];
+            foreach ($raw as $word) {
+                // If we see !re or a new .id, start a new row
+                if ($word === '!re' || str_starts_with($word, '=.id=')) {
+                    if (!empty($row)) {
+                        $result[] = $row;
+                        $row = [];
+                    }
+                    if ($word === '!re') continue;
+                }
+
+                if (str_starts_with($word, '=')) {
+                    $parts = explode('=', substr($word, 1), 2);
+                    $row[$parts[0]] = $parts[1] ?? '';
+                }
+            }
+            if (!empty($row)) {
+                $result[] = $row;
+            }
+            return $result;
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("runRawQuery Error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
      * Check connection status to MikroTik.
      *
      * @return array{online: bool, interface: string, host: string}
@@ -115,14 +158,17 @@ class MikroTikService
     public function getPppoeActive(): array
     {
         try {
-            $active = \MikroTik::pppoe()->getActiveSessions();
+            $active = $this->runRawQuery('/ppp/active/print');
             
             // Get all interfaces to find the PPPoE dynamic ones
-            $interfaces = \MikroTik::interfaces()->getInterfaces();
+            $interfaces = $this->runRawQuery('/interface/print');
+
             $ifaceMap = [];
             foreach ($interfaces as $iface) {
                 // PPPoE dynamic interfaces usually follow <pppoe-username> pattern
-                $ifaceMap[$iface['name']] = $iface;
+                if (isset($iface['name'])) {
+                    $ifaceMap[$iface['name']] = $iface;
+                }
             }
 
             $merged = [];
