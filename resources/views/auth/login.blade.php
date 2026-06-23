@@ -61,7 +61,7 @@
 
         .shell {
             width: 100%;
-            max-width: 400px;
+            max-width: 850px;
         }
 
         /* ── BRAND ───────────────────────────────────────────── */
@@ -84,7 +84,6 @@
             position: relative;
         }
 
-        /* Gold corner accent */
         .brand-mark::after {
             content: '';
             position: absolute;
@@ -130,40 +129,61 @@
             border: 1px solid var(--border);
             border-radius: 18px;
             overflow: hidden;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        
+        @media (max-width: 768px) {
+            .card {
+                grid-template-columns: 1fr;
+            }
+            .card-widgets {
+                display: none !important;
+            }
+            .shell {
+                max-width: 400px;
+            }
+        }
+
+        .card-left {
+            display: flex;
+            flex-direction: column;
         }
 
         .card-head {
-            padding: 28px 32px 0;
+            padding: 32px 32px 0;
             text-align: center;
         }
 
         .card-head-title {
-            font-size: 16px;
-            font-weight: 600;
+            font-size: 18px;
+            font-weight: 700;
             color: var(--text-main);
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .card-head-sub {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--text-faint);
         }
 
         .card-body {
-            padding: 24px 32px 28px;
+            padding: 28px 32px;
+            flex: 1;
         }
 
         /* ── FORM ELEMENTS ───────────────────────────────────── */
         .field {
-            margin-bottom: 16px;
+            margin-bottom: 18px;
         }
 
         .field-label {
             display: block;
             font-size: 12px;
-            font-weight: 500;
+            font-weight: 600;
             color: var(--text-muted);
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             letter-spacing: .1px;
         }
 
@@ -173,10 +193,10 @@
 
         .input-icon {
             position: absolute;
-            left: 13px;
+            left: 14px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 13px;
+            font-size: 14px;
             color: var(--text-faint);
             pointer-events: none;
             width: 16px;
@@ -185,16 +205,16 @@
 
         .field-input {
             width: 100%;
-            height: 42px;
-            padding: 0 42px 0 38px;
+            height: 44px;
+            padding: 0 42px 0 40px;
             background: #f8f9fb;
-            border: 1px solid var(--border);
+            border: 1.5px solid var(--border);
             border-radius: 10px;
             font-family: inherit;
             font-size: 13.5px;
             color: var(--text-main);
             outline: none;
-            transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+            transition: all .2s ease;
         }
 
         .field-input::placeholder {
@@ -208,18 +228,18 @@
         .field-input:focus {
             background: var(--bg-card);
             border-color: var(--border-focus);
-            box-shadow: 0 0 0 3px rgba(29, 94, 160, 0.1);
+            box-shadow: 0 0 0 4px rgba(29, 94, 160, 0.1);
         }
 
         .field-input.is-invalid {
             border-color: var(--danger);
-            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+            box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.08);
             background: var(--danger-lt);
         }
 
         .eye-toggle {
             position: absolute;
-            right: 11px;
+            right: 12px;
             top: 50%;
             transform: translateY(-50%);
             background: none;
@@ -227,11 +247,10 @@
             cursor: pointer;
             padding: 5px;
             color: var(--text-faint);
-            font-size: 13px;
-            line-height: 1;
+            font-size: 14px;
             display: flex;
             align-items: center;
-            transition: color .15s;
+            transition: color .2s;
         }
 
         .eye-toggle:hover {
@@ -240,10 +259,10 @@
 
         .field-error {
             display: none;
-            font-size: 11px;
+            font-size: 11.5px;
             color: var(--danger);
             font-style: italic;
-            margin-top: 5px;
+            margin-top: 6px;
             font-weight: 500;
         }
 
@@ -255,10 +274,10 @@
         .turnstile-row {
             display: flex;
             justify-content: center;
-            margin: 18px 0;
+            margin: 20px 0;
             padding: 12px;
             background: #f8f9fb;
-            border: 1px solid var(--border);
+            border: 1px dashed var(--border);
             border-radius: 10px;
             min-height: 68px;
             align-items: center;
@@ -267,82 +286,214 @@
         /* ── SUBMIT BUTTON ───────────────────────────────────── */
         .btn-submit {
             width: 100%;
-            height: 44px;
+            height: 46px;
             background: var(--navy);
             color: #fff;
             border: none;
             border-radius: 10px;
             font-family: inherit;
-            font-size: 13.5px;
-            font-weight: 500;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
             letter-spacing: .2px;
-            transition: background .15s ease, transform .1s ease;
+            transition: all .2s ease;
         }
 
-        .btn-submit:hover {
+        .btn-submit:hover:not(.loading) {
             background: var(--navy-mid);
+            box-shadow: 0 4px 12px rgba(13, 31, 53, 0.2);
         }
 
-        .btn-submit:active {
-            transform: scale(0.99);
+        .btn-submit:active:not(.loading) {
+            transform: scale(0.98);
         }
 
         .btn-submit i {
-            font-size: 12px;
+            font-size: 13px;
             transition: transform .2s;
         }
 
-        .btn-submit:hover i {
-            transform: translateX(2px);
+        .btn-submit:hover:not(.loading) i.fa-arrow-right {
+            transform: translateX(4px);
+        }
+
+        .btn-submit.loading {
+            pointer-events: none;
+            opacity: 0.85;
+            background: var(--navy-mid);
+        }
+        
+        .btn-submit .fa-spinner {
+            display: none;
+            animation: spinBtn 1s linear infinite;
+        }
+        
+        .btn-submit.loading .fa-arrow-right { display: none; }
+        .btn-submit.loading .fa-spinner { display: inline-block; }
+        
+        @keyframes spinBtn {
+            100% { transform: rotate(360deg); }
         }
 
         /* ── CARD FOOTER ─────────────────────────────────────── */
         .card-foot {
             border-top: 1px solid var(--border);
-            padding: 13px 32px;
+            padding: 16px 32px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             background: #fafbfc;
         }
 
         .foot-ver {
-            font-size: 10.5px;
-            color: var(--text-faint);
-            font-family: 'DM Mono', monospace;
-            letter-spacing: .2px;
-        }
-
-        .foot-links {
-            display: flex;
-            gap: 16px;
-        }
-
-        .foot-link {
             font-size: 11px;
             color: var(--text-faint);
-            text-decoration: none;
-            transition: color .15s;
+            font-family: 'DM Mono', monospace;
+            letter-spacing: .5px;
         }
 
-        .foot-link:hover {
-            color: var(--blue);
+        /* ── WIDGETS RIGHT PANEL ─────────────────────────────── */
+        .card-widgets {
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+            padding: 40px 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 24px;
+            position: relative;
+            overflow: hidden;
         }
+
+        .card-widgets::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(200, 164, 90, 0.08) 0%, transparent 60%);
+            animation: pulseGlow 6s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1) translate(0, 0); }
+            100% { transform: scale(1.1) translate(10px, 10px); }
+        }
+
+        .widget-box {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+
+        .widget-box:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .widget-title {
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        .widget-title i { color: var(--gold); }
+
+        /* Traffic Bar Chart */
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            height: 70px;
+        }
+        .bar {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+        }
+        .bar-fill {
+            width: 100%;
+            background: var(--blue-lt);
+            border-radius: 4px 4px 0 0;
+            animation: growBar 1.5s ease-out infinite alternate;
+            transform-origin: bottom;
+        }
+        .bar:nth-child(1) .bar-fill { height: 45%; animation-delay: 0s; background: #3b82f6; }
+        .bar:nth-child(2) .bar-fill { height: 75%; animation-delay: -0.4s; background: #60a5fa; }
+        .bar:nth-child(3) .bar-fill { height: 55%; animation-delay: -0.8s; background: #93c5fd; }
+        .bar:nth-child(4) .bar-fill { height: 90%; animation-delay: -1.2s; background: var(--gold); }
+        .bar:nth-child(5) .bar-fill { height: 35%; animation-delay: -1.6s; background: #bfdbfe; }
+
+        @keyframes growBar {
+            0% { transform: scaleY(0.85); }
+            100% { transform: scaleY(1.05); }
+        }
+
+        /* Status Pie Chart */
+        .pie-chart-wrap {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .pie-chart {
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            background: conic-gradient(var(--gold) 0% 75%, rgba(255,255,255,0.1) 75% 100%);
+            animation: spinPie 8s linear infinite;
+            box-shadow: 0 0 20px rgba(0,0,0,0.15);
+            position: relative;
+            flex-shrink: 0;
+        }
+        .pie-chart::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 56px; height: 56px;
+            background: var(--navy-mid);
+            border-radius: 50%;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+        }
+        @keyframes spinPie {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .pie-stats {
+            color: rgba(255,255,255,0.85);
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .pie-stat { display: flex; align-items: center; gap: 8px; font-weight: 500; }
+        .pie-dot { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 5px rgba(255,255,255,0.2); }
+        .pie-dot.gold { background: var(--gold); }
+        .pie-dot.gray { background: rgba(255,255,255,0.2); }
 
         /* ── TOAST ───────────────────────────────────────────── */
         .toast-container {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: 24px;
+            right: 24px;
             z-index: 9999;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 12px;
             pointer-events: none;
         }
 
@@ -350,77 +501,53 @@
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 12px 16px;
+            padding: 16px 20px;
             display: flex;
             align-items: flex-start;
-            gap: 10px;
-            min-width: 240px;
-            max-width: 320px;
+            gap: 14px;
+            min-width: 260px;
+            max-width: 340px;
             pointer-events: all;
-            animation: slideUp .2s ease;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, .06);
+            animation: slideUp .3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .08);
         }
 
         .custom-toast.out {
-            animation: slideDown .2s ease forwards;
+            animation: slideDown .25s ease-in forwards;
         }
 
         .toast-icon {
-            font-size: 15px;
-            margin-top: 1px;
+            font-size: 18px;
+            margin-top: 2px;
             flex-shrink: 0;
         }
 
-        .toast-success .toast-icon {
-            color: #15803d;
-        }
-
-        .toast-error .toast-icon {
-            color: var(--danger);
-        }
-
-        .toast-info .toast-icon {
-            color: var(--blue);
-        }
-
-        .toast-content {}
+        .toast-success .toast-icon { color: #15803d; }
+        .toast-error .toast-icon { color: var(--danger); }
+        .toast-info .toast-icon { color: var(--blue); }
 
         .toast-title {
-            font-size: 12.5px;
-            font-weight: 600;
+            font-size: 14px;
+            font-weight: 700;
             color: var(--text-main);
-            line-height: 1;
-            margin-bottom: 2px;
+            line-height: 1.1;
+            margin-bottom: 4px;
         }
 
         .toast-message {
-            font-size: 11.5px;
+            font-size: 12.5px;
             color: var(--text-muted);
-            line-height: 1.4;
+            line-height: 1.5;
         }
 
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(8px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes slideDown {
-            from {
-                opacity: 1;
-                transform: translateY(0);
-            }
-
-            to {
-                opacity: 0;
-                transform: translateY(8px);
-            }
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(15px); }
         }
     </style>
 </head>
@@ -440,69 +567,112 @@
 
             {{-- CARD --}}
             <div class="card">
+                
+                {{-- LEFT: LOGIN FORM --}}
+                <div class="card-left">
+                    <div class="card-head">
+                        <div class="card-head-title">Masuk ke Panel</div>
+                        <div class="card-head-sub">Gunakan kredensial akun yang telah diberikan</div>
+                    </div>
 
-                <div class="card-head">
-                    <div class="card-head-title">Masuk ke Panel</div>
-                    <div class="card-head-sub">Gunakan kredensial akun yang telah diberikan</div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ route('login') }}" novalidate id="login-form">
+                            @csrf
+
+                            {{-- Email --}}
+                            <div class="field">
+                                <label class="field-label" for="email">Email Address</label>
+                                <div class="input-wrap">
+                                    <i class="fa-regular fa-envelope input-icon"></i>
+                                    <input type="email" id="email" name="email"
+                                        class="field-input {{ $errors->has('email') ? 'is-invalid' : '' }}"
+                                        placeholder="nama@email.com" value="{{ old('email') }}" autocomplete="email"
+                                        required>
+                                </div>
+                                @error('email')
+                                    <div class="field-error show">{{ $message }}</div>
+                                @enderror
+                                <div class="field-error" id="email-js-error"></div>
+                            </div>
+
+                            {{-- Password --}}
+                            <div class="field">
+                                <label class="field-label" for="password">Password</label>
+                                <div class="input-wrap">
+                                    <i class="fa-solid fa-lock input-icon"></i>
+                                    <input type="password" id="password" name="password"
+                                        class="field-input {{ $errors->has('password') ? 'is-invalid' : '' }}"
+                                        placeholder="••••••••" required>
+                                    <button type="button" class="eye-toggle" id="eye-toggle"
+                                        title="Tampilkan/sembunyikan password">
+                                        <i class="fa-regular fa-eye" id="eye-icon"></i>
+                                    </button>
+                                </div>
+                                @error('password')
+                                    <div class="field-error show">{{ $message }}</div>
+                                @enderror
+                                <div class="field-error" id="password-js-error"></div>
+                            </div>
+
+                            {{-- Cloudflare Turnstile --}}
+                            <div class="turnstile-row">
+                                <div class="turnstile-wrapper">
+                                    <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}"
+                                        data-theme="light">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-submit" id="btn-submit">
+                                <span>Sign In Sekarang</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                                <i class="fa-solid fa-spinner"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card-foot">
+                        <span class="foot-ver">v1.1.1 · PT. BBS © {{ date('Y') }}</span>
+                    </div>
                 </div>
 
-                <div class="card-body">
-                    <form method="POST" action="{{ route('login') }}" novalidate id="login-form">
-                        @csrf
-
-                        {{-- Email --}}
-                        <div class="field">
-                            <label class="field-label" for="email">Email Address</label>
-                            <div class="input-wrap">
-                                <i class="fa-regular fa-envelope input-icon"></i>
-                                <input type="email" id="email" name="email"
-                                    class="field-input {{ $errors->has('email') ? 'is-invalid' : '' }}"
-                                    placeholder="nama@email.com" value="{{ old('email') }}" autocomplete="email"
-                                    required>
-                            </div>
-                            @error('email')
-                                <div class="field-error show">{{ $message }}</div>
-                            @enderror
-                            <div class="field-error" id="email-js-error"></div>
+                {{-- RIGHT: WIDGETS --}}
+                <div class="card-widgets">
+                    
+                    {{-- Widget 1: Traffic --}}
+                    <div class="widget-box">
+                        <div class="widget-title">
+                            <i class="fa-solid fa-chart-simple"></i> Live Traffic
                         </div>
-
-                        {{-- Password --}}
-                        <div class="field">
-                            <label class="field-label" for="password">Password</label>
-                            <div class="input-wrap">
-                                <i class="fa-solid fa-lock input-icon"></i>
-                                <input type="password" id="password" name="password"
-                                    class="field-input {{ $errors->has('password') ? 'is-invalid' : '' }}"
-                                    placeholder="••••••••" required>
-                                <button type="button" class="eye-toggle" id="eye-toggle"
-                                    title="Tampilkan/sembunyikan password">
-                                    <i class="fa-regular fa-eye" id="eye-icon"></i>
-                                </button>
-                            </div>
-                            @error('password')
-                                <div class="field-error show">{{ $message }}</div>
-                            @enderror
-                            <div class="field-error" id="password-js-error"></div>
+                        <div class="bar-chart">
+                            <div class="bar"><div class="bar-fill"></div></div>
+                            <div class="bar"><div class="bar-fill"></div></div>
+                            <div class="bar"><div class="bar-fill"></div></div>
+                            <div class="bar"><div class="bar-fill"></div></div>
+                            <div class="bar"><div class="bar-fill"></div></div>
                         </div>
+                    </div>
 
-                        {{-- Cloudflare Turnstile --}}
-                        <div class="turnstile-row">
-                            <div class="turnstile-wrapper">
-                                <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}"
-                                    data-theme="light">
+                    {{-- Widget 2: Status --}}
+                    <div class="widget-box">
+                        <div class="widget-title">
+                            <i class="fa-solid fa-network-wired"></i> Network Status
+                        </div>
+                        <div class="pie-chart-wrap">
+                            <div class="pie-chart"></div>
+                            <div class="pie-stats">
+                                <div class="pie-stat">
+                                    <div class="pie-dot gold"></div> Online (75%)
+                                </div>
+                                <div class="pie-stat">
+                                    <div class="pie-dot gray"></div> Offline (25%)
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <button type="submit" class="btn-submit">
-                            Sign In Sekarang <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </form>
                 </div>
 
-                <div class="card-foot">
-                    <span class="foot-ver">v1.1.1 · PT. BBS © {{ date('Y') }}</span>
-                </div>
             </div>
 
         </div>
@@ -587,7 +757,19 @@
             // ── Client-side validation ────────────────────────────
             $('#login-form').on('submit', function(e) {
                 const form = this;
-                if (form.checkValidity()) return; // Let Laravel handle valid submits
+                
+                // Jika sedang loading, jangan submit lagi
+                if ($('#btn-submit').hasClass('loading')) {
+                    e.preventDefault();
+                    return;
+                }
+
+                if (form.checkValidity()) {
+                    // Validasi lolos, tambahkan animasi loading
+                    $('#btn-submit').addClass('loading');
+                    $('#btn-submit span').text('Memproses...');
+                    return; // Biarkan form tersubmit ke server
+                }
 
                 e.preventDefault();
                 e.stopPropagation();
