@@ -30,8 +30,20 @@ class PppoeTest extends Command
         $raw = $client->send(['/ppp/active/print']);
         $this->info("Raw words count: " . count($raw));
         $reCount = 0;
-        foreach($raw as $w) if ($w === '!re') $reCount++;
+        $exclamations = [];
+        $nonAttr = [];
+        foreach($raw as $w) {
+            if ($w === '!re') $reCount++;
+            if (str_starts_with($w, '!')) {
+                $exclamations[$w] = ($exclamations[$w] ?? 0) + 1;
+            }
+            if (!str_starts_with($w, '=')) {
+                $nonAttr[$w] = ($nonAttr[$w] ?? 0) + 1;
+            }
+        }
         $this->info("!re count: " . $reCount);
+        $this->info("Words starting with ! : " . json_encode($exclamations));
+        $this->info("Non-attribute words : " . json_encode($nonAttr));
 
         $pppoe = $service->getPppoeActive();
         if (isset($pppoe['success']) && $pppoe['success']) {
