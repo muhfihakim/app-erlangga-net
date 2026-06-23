@@ -19,6 +19,20 @@ class PppoeTest extends Command
             $this->info("Sessions: " . json_encode($active, JSON_PRETTY_PRINT));
         }
 
+        $this->info("Testing RAW connection...");
+        $client = new \ZillEAli\MikrotikLaravel\Connections\RouterosClient(
+            env('MIKROTIK_HOST'),
+            env('MIKROTIK_PORT', 8728),
+            env('MIKROTIK_USER'),
+            env('MIKROTIK_PASS')
+        );
+        $client->connect();
+        $raw = $client->send(['/ppp/active/print']);
+        $this->info("Raw words count: " . count($raw));
+        $reCount = 0;
+        foreach($raw as $w) if ($w === '!re') $reCount++;
+        $this->info("!re count: " . $reCount);
+
         $pppoe = $service->getPppoeActive();
         if (isset($pppoe['success']) && $pppoe['success']) {
             $this->info("Service returned " . count($pppoe['data']) . " merged sessions.");
