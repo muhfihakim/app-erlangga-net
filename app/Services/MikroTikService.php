@@ -7,11 +7,25 @@ use Illuminate\Support\Facades\Config;
 
 class MikroTikService
 {
-    private string $interface;
+    private ?\ZillEAli\MikrotikLaravel\Connections\RouterosClient $client = null;
 
     public function __construct()
     {
         $this->interface = Config::get('mikrotik.interface', 'ether1');
+    }
+
+    protected function getClient(): \ZillEAli\MikrotikLaravel\Connections\RouterosClient
+    {
+        if (!$this->client || !$this->client->isConnected()) {
+            $this->client = new \ZillEAli\MikrotikLaravel\Connections\RouterosClient(
+                config('mikrotik.host', env('MIKROTIK_HOST')),
+                config('mikrotik.port', env('MIKROTIK_PORT', 8728)),
+                config('mikrotik.username', env('MIKROTIK_USER')),
+                config('mikrotik.password', env('MIKROTIK_PASS'))
+            );
+            $this->client->connect();
+        }
+        return $this->client;
     }
 
     /**
@@ -22,8 +36,23 @@ class MikroTikService
     public function getTraffic(): array
     {
         try {
-            $traffic = \MikroTik::interfaces()->getTraffic($this->interface, 1);
-            $iface = \MikroTik::interfaces()->getInterface($this->interface);
+            $client = $this->getClient();
+            
+            // Raw query for traffic
+            $trafficRaw = $client->send([
+                '/interface/monitor-traffic',
+                '=interface=' . $this->interface,
+                '=once='
+            ]);
+            
+            // Raw query for interface info
+            $ifaceRaw = $client->send([
+                '/interface/print',
+                '?name=' . $this->interface
+            ]);
+
+            $traffic = $this->parseRawResponse($trafficRaw)[0] ?? [];
+            $iface = $this->parseRawResponse($ifaceRaw)[0] ?? [];
 
             if (empty($traffic)) {
                 return ['success' => false, 'error' => 'No traffic data returned'];
@@ -48,6 +77,7 @@ class MikroTikService
                 ],
             ];
         } catch (Exception $e) {
+            $this->client = null; // force reconnect next time
             return [
                 'success' => false,
                 'error' => $e->getMessage(),
@@ -56,43 +86,43 @@ class MikroTikService
     }
 
     /**
+     * Helper to parse raw API response manually (bypasses vendor !re bug)
+     */
+    protected function parseRawResponse(array $raw): array
+    {
+        $result = [];
+        $row = [];
+        foreach ($raw as $word) {
+            if ($word === '!re' || str_starts_with($word, '=.id=')) {
+                if (!empty($row)) {
+                    $result[] = $row;
+                    $row = [];
+                }
+                if ($word === '!re') continue;
+            }
+
+            if (str_starts_with($word, '=')) {
+                $parts = explode('=', substr($word, 1), 2);
+                $row[$parts[0]] = $parts[1] ?? '';
+            }
+        }
+        if (!empty($row)) {
+            $result[] = $row;
+        }
+        return $result;
+    }
+
+    /**
      * Helper to run raw query and bypass vendor package !re bug
      */
     public function runRawQuery(string $command): array
     {
         try {
-            $client = new \ZillEAli\MikrotikLaravel\Connections\RouterosClient(
-                config('mikrotik.host', env('MIKROTIK_HOST')),
-                config('mikrotik.port', env('MIKROTIK_PORT', 8728)),
-                config('mikrotik.username', env('MIKROTIK_USER')),
-                config('mikrotik.password', env('MIKROTIK_PASS'))
-            );
-            $client->connect();
+            $client = $this->getClient();
             $raw = $client->send([$command]);
-            $client->disconnect();
-
-            $result = [];
-            $row = [];
-            foreach ($raw as $word) {
-                // If we see !re or a new .id, start a new row
-                if ($word === '!re' || str_starts_with($word, '=.id=')) {
-                    if (!empty($row)) {
-                        $result[] = $row;
-                        $row = [];
-                    }
-                    if ($word === '!re') continue;
-                }
-
-                if (str_starts_with($word, '=')) {
-                    $parts = explode('=', substr($word, 1), 2);
-                    $row[$parts[0]] = $parts[1] ?? '';
-                }
-            }
-            if (!empty($row)) {
-                $result[] = $row;
-            }
-            return $result;
+            return $this->parseRawResponse($raw);
         } catch (\Exception $e) {
+            $this->client = null; // force reconnect next time
             \Illuminate\Support\Facades\Log::error("runRawQuery Error: " . $e->getMessage());
             return [];
         }
@@ -106,13 +136,18 @@ class MikroTikService
     public function getStatus(): array
     {
         try {
-            \MikroTik::interfaces()->getInterface($this->interface);
+            $client = $this->getClient();
+            $client->send([
+                '/interface/print',
+                '?name=' . $this->interface
+            ]);
             return [
                 'online' => true,
                 'interface' => $this->interface,
                 'host' => Config::get('mikrotik.host'),
             ];
         } catch (Exception $e) {
+            $this->client = null;
             return [
                 'online' => false,
                 'interface' => $this->interface,
@@ -132,14 +167,14 @@ class MikroTikService
         if (empty($interfaceNames)) return [];
 
         try {
-            // monitor-traffic can take multiple interfaces comma-separated
+            $client = $this->getClient();
             $names = implode(',', $interfaceNames);
-            $results = \MikroTik::interfaces()->getTraffic($names, 1);
-
-            // If only one interface, library might return single array instead of array of arrays
-            if (count($interfaceNames) === 1 && isset($results['name'])) {
-                $results = [$results];
-            }
+            $resultsRaw = $client->send([
+                '/interface/monitor-traffic',
+                '=interface=' . $names,
+                '=once='
+            ]);
+            $results = $this->parseRawResponse($resultsRaw);
 
             $formatted = [];
             foreach ($results as $res) {
@@ -152,6 +187,7 @@ class MikroTikService
 
             return $formatted;
         } catch (Exception $e) {
+            $this->client = null;
             return [];
         }
     }
