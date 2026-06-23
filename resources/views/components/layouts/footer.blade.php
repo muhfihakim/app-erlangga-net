@@ -6,7 +6,7 @@
             reserved.
         </p>
         <div class="flex items-center gap-4 text-xs font-bold footer-text-muted uppercase tracking-widest">
-            <span>v1.1.1</span>
+            <span>v1.2.0</span>
             <span class="hidden md:inline">•</span>
             <span>Develop by Luthfikim</span>
         </div>
