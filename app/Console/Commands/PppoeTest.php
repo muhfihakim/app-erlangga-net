@@ -15,6 +15,9 @@ class PppoeTest extends Command
         $this->info("Fetching PPPoE...");
         $active = \MikroTik::pppoe()->getActiveSessions();
         $this->info("Mikrotik returned " . count($active) . " sessions.");
+        if (count($active) > 0 && count($active) <= 5) {
+            $this->info("Sessions: " . json_encode($active, JSON_PRETTY_PRINT));
+        }
 
         $pppoe = $service->getPppoeActive();
         if (isset($pppoe['success']) && $pppoe['success']) {
