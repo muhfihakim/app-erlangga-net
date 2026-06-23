@@ -248,10 +248,6 @@
                                     class="btn-primary-admin !py-2.5 !px-5 !text-[12px] !bg-indigo-600 hover:!bg-indigo-700 border-none shadow-sm flex items-center gap-2">
                                     <i class="fa-solid fa-copy"></i> SALIN SKRIP
                                 </button>
-                                <button id="btn_execute"
-                                    class="btn-primary-admin !py-2.5 !px-5 !text-[12px] !bg-rose-600 hover:!bg-rose-700 border-none shadow-sm flex items-center gap-2">
-                                    <i class="fa-solid fa-rocket"></i> EKSEKUSI DI OLT
-                                </button>
                             </div>
                         </div>
 
@@ -748,51 +744,6 @@ show gpon onu state gpon-olt_${port}`;
                     });
                 });
 
-
-                // Handle Execute Script
-                $('#btn_execute').click(function() {
-                    const script = $('#script_output').val();
-                    if (!script) {
-                        showToast('Skrip kosong.', 'error');
-                        return;
-                    }
-
-                    if (confirm("Jalankan skrip ini langsung ke OLT?")) {
-                        const $btn = $(this);
-                        const originalHtml = $btn.html();
-                        $btn.html('<i class="fa-solid fa-spinner fa-spin"></i> EKSEKUSI...').prop('disabled',
-                            true);
-                        $('#terminal_output').val(
-                            'Menghubungi OLT dan menjalankan perintah...\nMohon tunggu...');
-
-                        $.ajax({
-                            url: '/api/olt/execute',
-                            type: 'POST',
-                            data: {
-                                _token: '{{ csrf_token() }}',
-                                script: script
-                            },
-                            success: function(res) {
-                                if (res.success) {
-                                    $('#terminal_output').val(res.log);
-                                    showToast('Skrip selesai dieksekusi.', 'success');
-                                    $('#terminal_output').scrollTop($('#terminal_output')[0]
-                                        .scrollHeight);
-                                } else {
-                                    $('#terminal_output').val('ERROR: ' + res.error);
-                                    showToast(res.error, 'error');
-                                }
-                            },
-                            error: function(err) {
-                                $('#terminal_output').val('Koneksi gagal atau timeout.');
-                                showToast('Gagal terhubung ke server atau OLT.', 'error');
-                            },
-                            complete: function() {
-                                $btn.html(originalHtml).prop('disabled', false);
-                            }
-                        });
-                    }
-                });
 
                 // Handle Sync Global (All ONUs)
                 $('#btn_sync_global').click(function() {
