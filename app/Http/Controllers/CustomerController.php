@@ -79,7 +79,7 @@ class CustomerController extends Controller
         }
     }
 
-    public function activeList()
+    public function activeList(Request $request)
     {
         if (!auth()->check()) {
             return redirect('/login')->with('error', 'Silakan login.');
@@ -94,7 +94,7 @@ class CustomerController extends Controller
             $query->where('id_sales', $user->id);
         }
 
-        $customers = $query->orderBy('id', 'desc')->get();
+        $query->orderBy('id', 'desc');
 
         // --- MAPPING STATUS ONLINE/OFFLINE ---
         $pppoeData = \Illuminate\Support\Facades\Cache::get('mikrotik_pppoe_active');
@@ -102,6 +102,120 @@ class CustomerController extends Controller
         if ($pppoeData && isset($pppoeData['success']) && $pppoeData['success']) {
             $activeUsernames = collect($pppoeData['data'])->pluck('name')->toArray();
         }
+
+        // --- DATATABLES SERVER SIDE ---
+        if ($request->ajax()) {
+            return \Yajra\DataTables\Facades\DataTables::of($query)
+                ->addColumn('is_online', function ($customer) use ($activeUsernames) {
+                    return in_array($customer->pppoe_username, $activeUsernames);
+                })
+                ->addColumn('titik_koordinat', function ($customer) {
+                    return $customer->preOrder ? $customer->preOrder->titik_koordinat : null;
+                })
+                ->addColumn('nama_lengkap_formatted', function($customer) use ($activeUsernames) {
+                    $isOnline = in_array($customer->pppoe_username, $activeUsernames);
+                    $badgeOnline = $isOnline 
+                        ? '<span class="badge" style="background: #dcfce7; color: #15803d; font-size: 8px; padding: 2px 6px; border-radius: 4px; font-weight: 800;">ONLINE</span>'
+                        : '<span class="badge" style="background: #f1f5f9; color: #64748b; font-size: 8px; padding: 2px 6px; border-radius: 4px; font-weight: 800;">OFFLINE</span>';
+                    $badgeTrashed = $customer->trashed() 
+                        ? '<span class="badge badge-archived" style="font-size: 9px; margin-top: 2px;">NON-AKTIF</span>' 
+                        : '';
+                    $pppoe = $customer->pppoe_username ?? '-';
+                    return '
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <div style="font-weight: 700; color: #0f172a;">' . htmlspecialchars($customer->nama_lengkap, ENT_QUOTES) . '</div>
+                            ' . $badgeOnline . '
+                        </div>
+                        ' . $badgeTrashed . '
+                        <div style="font-size: 10px; color: #94a3b8; font-weight: 600; margin-top: 2px;">
+                            PPPoE: ' . htmlspecialchars($pppoe, ENT_QUOTES) . '
+                        </div>
+                    ';
+                })
+                ->addColumn('wa_formatted', function($customer) {
+                    return '
+                        <a href="https://wa.me/' . htmlspecialchars($customer->no_whatsapp, ENT_QUOTES) . '" target="_blank"
+                            style="color: #10b981; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                            <i class="fa-brands fa-whatsapp"></i> ' . htmlspecialchars($customer->no_whatsapp, ENT_QUOTES) . '
+                        </a>
+                    ';
+                })
+                ->addColumn('teknisi_formatted', function($customer) {
+                    $teknisi = $customer->teknisiUtama->nama_lengkap ?? 'N/A';
+                    $partner = $customer->partner ? '<div style="font-size: 10px; color: #94a3b8;">Partner: ' . htmlspecialchars($customer->partner, ENT_QUOTES) . '</div>' : '';
+                    return '
+                        <div style="font-weight: 600; color: #475569;">' . htmlspecialchars($teknisi, ENT_QUOTES) . '</div>
+                        ' . $partner . '
+                    ';
+                })
+                ->addColumn('tgl_formatted', function($customer) {
+                    return \Carbon\Carbon::parse($customer->created_at)->format('d-m-Y');
+                })
+                ->addColumn('action', function($customer) {
+                    $isAdmin = auth()->user()->isAdmin();
+                    $btnDetail = '
+                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Detail"
+                            onclick="openCustomerDetailModal(this)"
+                            data-customer-id="' . htmlspecialchars($customer->id_pelanggan, ENT_QUOTES) . '"
+                            data-nama-lengkap="' . htmlspecialchars($customer->nama_lengkap, ENT_QUOTES) . '"
+                            data-pppoe-user="' . htmlspecialchars($customer->pppoe_username, ENT_QUOTES) . '"
+                            data-pppoe-pass="' . htmlspecialchars($customer->pppoe_password, ENT_QUOTES) . '"
+                            data-jenis-modem="' . htmlspecialchars($customer->jenis_modem, ENT_QUOTES) . '"
+                            data-sn-perangkat="' . htmlspecialchars($customer->sn_perangkat, ENT_QUOTES) . '"
+                            data-pembayaran="' . htmlspecialchars($customer->pembayaran, ENT_QUOTES) . '"
+                            data-tgl-aktivasi="' . \Carbon\Carbon::parse($customer->created_at)->format('d-m-Y') . '"
+                            data-po-paket="' . htmlspecialchars($customer->paket_internet, ENT_QUOTES) . '"
+                            data-po-sales="' . htmlspecialchars($customer->sales->nama_lengkap ?? 'N/A', ENT_QUOTES) . '"
+                            data-po-nik="' . htmlspecialchars($customer->preOrder->no_identitas ?? 'N/A', ENT_QUOTES) . '"
+                            data-po-email="' . htmlspecialchars($customer->preOrder->alamat_email ?? 'N/A', ENT_QUOTES) . '"
+                            data-po-alamat="' . htmlspecialchars($customer->alamat_lengkap, ENT_QUOTES) . '"
+                            data-po-wa="' . htmlspecialchars($customer->no_whatsapp, ENT_QUOTES) . '"
+                            data-po-tgl-po="' . \Carbon\Carbon::parse($customer->preOrder->created_at ?? $customer->created_at)->format('d-m-Y') . '"
+                            data-po-tikor="' . htmlspecialchars($customer->preOrder->titik_koordinat ?? 'N/A', ENT_QUOTES) . '"
+                            data-foto-petugas="' . ($customer->foto_petugas ? \Storage::url($customer->foto_petugas) : '') . '"
+                            data-foto-terpasang="' . ($customer->foto_terpasang ? \Storage::url($customer->foto_terpasang) : '') . '"
+                            data-foto-speedtest="' . ($customer->foto_speedtest ? \Storage::url($customer->foto_speedtest) : '') . '"
+                            data-keterangan="' . htmlspecialchars($customer->keterangan ?? 'Tidak ada keterangan.', ENT_QUOTES) . '">
+                            <i class="fa-solid fa-circle-info text-primary"></i>
+                        </button>
+                    ';
+
+                    $btnMap = '';
+                    if (!$customer->trashed() && $customer->preOrder && $customer->preOrder->titik_koordinat) {
+                        $btnMap = '
+                            <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Lihat di Peta"
+                                onclick="focusOnCustomer(\'' . $customer->preOrder->titik_koordinat . '\', \'' . $customer->id_pelanggan . '\')">
+                                <i class="fa-solid fa-location-dot text-emerald-500"></i>
+                            </button>
+                        ';
+                    }
+
+                    $btnAdmin = '';
+                    if ($isAdmin) {
+                        if ($customer->trashed()) {
+                            $btnAdmin = '
+                                <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Aktifkan"
+                                    onclick="confirmGlobalDelete(\'' . route('customers.restore', $customer->id) . '\', \'' . htmlspecialchars($customer->nama_lengkap, ENT_QUOTES) . ' (Restore)\')">
+                                    <i class="fa-solid fa-rotate-left text-emerald-500"></i>
+                                </button>
+                            ';
+                        } else {
+                            $btnAdmin = '
+                                <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Non-aktifkan"
+                                    onclick="confirmGlobalDelete(\'' . route('customers.destroy', $customer->id) . '\', \'' . htmlspecialchars($customer->nama_lengkap, ENT_QUOTES) . '\')">
+                                    <i class="fa-solid fa-trash text-rose-500"></i>
+                                </button>
+                            ';
+                        }
+                    }
+
+                    return '<div style="display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;">' . $btnDetail . $btnMap . $btnAdmin . '</div>';
+                })
+                ->rawColumns(['nama_lengkap_formatted', 'wa_formatted', 'teknisi_formatted', 'tgl_formatted', 'action'])
+                ->make(true);
+        }
+
+        $customers = $query->orderBy('id', 'desc')->get();
 
         foreach ($customers as $customer) {
             $customer->is_online = in_array($customer->pppoe_username, $activeUsernames);

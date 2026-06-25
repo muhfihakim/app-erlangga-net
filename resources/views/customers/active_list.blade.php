@@ -89,6 +89,27 @@
                 font-size: 10.5px;
             }
         }
+        
+        .dataTables_wrapper {
+            position: relative;
+            min-height: 200px;
+        }
+        .dataTables_wrapper .dataTables_processing {
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            padding: 15px 25px !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+            z-index: 50 !important;
+            margin: 0 !important;
+            border: 1px solid #e2e8f0 !important;
+            width: auto !important;
+            height: auto !important;
+            text-align: center;
+        }
     </style>
 
     <div class="stats-grid mb-6 {{ $is_admin ? 'stats-grid-6' : '' }}">
@@ -159,116 +180,14 @@
                         <th style="text-align: center; width: 50px;">#</th>
                         <th style="text-align: center; width: 120px;">ID Pelanggan</th>
                         <th style="text-align: center; width: 250px;">Nama Pelanggan</th>
-                        <th style="text-align: center; width: 180px;">Paket</th>
                         <th style="text-align: center; width: 150px;">No. WA</th>
                         <th style="text-align: center; width: 150px;">Teknisi</th>
                         <th style="text-align: center; width: 120px;">Tgl Aktivasi</th>
                         <th style="text-align: center; width: 120px;">Opsi</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach ($customers as $customer)
-                        <tr>
-                            <td style="text-align: center; color: #94a3b8; font-weight: 700;">
-                                {{ $customers->count() - $loop->index }}</td>
-                            <td style="text-align: center; font-weight: 800; color: #0ea5e9;">
-                                {{ $customer->id_pelanggan }}</td>
-                            <td style="text-align: center;">
-                                <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                                    <div style="font-weight: 700; color: #0f172a;">{{ $customer->nama_lengkap }}</div>
-                                    @if ($customer->is_online)
-                                        <span class="badge"
-                                            style="background: #dcfce7; color: #15803d; font-size: 8px; padding: 2px 6px; border-radius: 4px; font-weight: 800;">ONLINE</span>
-                                    @else
-                                        <span class="badge"
-                                            style="background: #f1f5f9; color: #64748b; font-size: 8px; padding: 2px 6px; border-radius: 4px; font-weight: 800;">OFFLINE</span>
-                                    @endif
-                                </div>
-                                @if ($customer->trashed())
-                                    <span class="badge badge-archived"
-                                        style="font-size: 9px; margin-top: 2px;">NON-AKTIF</span>
-                                @endif
-                                <div style="font-size: 10px; color: #94a3b8; font-weight: 600; margin-top: 2px;">
-                                    PPPoE: {{ $customer->pppoe_username ?? '-' }}
-                                </div>
-                            </td>
-                            <td style="text-align: center;">
-                                <span class="badge"
-                                    style="background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 6px; font-size: 10px;">
-                                    {{ $customer->paket_internet }}
-                                </span>
-                            </td>
-                            <td style="text-align: center;">
-                                <a href="https://wa.me/{{ $customer->no_whatsapp }}" target="_blank"
-                                    style="color: #10b981; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-                                    <i class="fa-brands fa-whatsapp"></i> {{ $customer->no_whatsapp }}
-                                </a>
-                            </td>
-                            <td style="text-align: center;">
-                                <div style="font-weight: 600; color: #475569;">
-                                    {{ $customer->teknisiUtama->nama_lengkap ?? 'N/A' }}</div>
-                                @if ($customer->partner)
-                                    <div style="font-size: 10px; color: #94a3b8;">Partner: {{ $customer->partner }}
-                                    </div>
-                                @endif
-                            </td>
-                            <td style="text-align: center; color: #64748b; font-size: 12px; font-weight: 600;">
-                                {{ \Carbon\Carbon::parse($customer->created_at)->format('d-m-Y') }}
-                            </td>
-                            <td style="text-align: center;">
-                                <div
-                                    style="display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;">
-                                    <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Detail"
-                                        onclick="openCustomerDetailModal(this)"
-                                        data-customer-id="{{ $customer->id_pelanggan }}"
-                                        data-nama-lengkap="{{ $customer->nama_lengkap }}"
-                                        data-pppoe-user="{{ $customer->pppoe_username }}"
-                                        data-pppoe-pass="{{ $customer->pppoe_password }}"
-                                        data-jenis-modem="{{ $customer->jenis_modem }}"
-                                        data-sn-perangkat="{{ $customer->sn_perangkat }}"
-                                        data-pembayaran="{{ $customer->pembayaran }}"
-                                        data-tgl-aktivasi="{{ \Carbon\Carbon::parse($customer->created_at)->format('d-m-Y') }}"
-                                        data-po-paket="{{ $customer->paket_internet }}"
-                                        data-po-sales="{{ $customer->sales->nama_lengkap ?? 'N/A' }}"
-                                        data-po-nik="{{ $customer->preOrder->no_identitas ?? 'N/A' }}"
-                                        data-po-email="{{ $customer->preOrder->alamat_email ?? 'N/A' }}"
-                                        data-po-alamat="{{ $customer->alamat_lengkap }}"
-                                        data-po-wa="{{ $customer->no_whatsapp }}"
-                                        data-po-tgl-po="{{ \Carbon\Carbon::parse($customer->preOrder->created_at ?? $customer->created_at)->format('d-m-Y') }}"
-                                        data-po-tikor="{{ $customer->preOrder->titik_koordinat ?? 'N/A' }}"
-                                        data-foto-petugas="{{ $customer->foto_petugas ? Storage::url($customer->foto_petugas) : '' }}"
-                                        data-foto-terpasang="{{ $customer->foto_terpasang ? Storage::url($customer->foto_terpasang) : '' }}"
-                                        data-foto-speedtest="{{ $customer->foto_speedtest ? Storage::url($customer->foto_speedtest) : '' }}"
-                                        data-keterangan="{{ $customer->keterangan ?? 'Tidak ada keterangan.' }}">
-                                        <i class="fa-solid fa-circle-info text-primary"></i>
-                                    </button>
-
-                                    @if (!$customer->trashed() && $customer->preOrder && $customer->preOrder->titik_koordinat)
-                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Lihat di Peta"
-                                            onclick="focusOnCustomer('{{ $customer->preOrder->titik_koordinat }}', '{{ $customer->id_pelanggan }}')">
-                                            <i class="fa-solid fa-location-dot text-emerald-500"></i>
-                                        </button>
-                                    @endif
-
-                                    @if (auth()->user()->isAdmin())
-                                        @if ($customer->trashed())
-                                            <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
-                                                title="Aktifkan"
-                                                onclick="confirmGlobalDelete('{{ route('customers.restore', $customer->id) }}', '{{ $customer->nama_lengkap }} (Restore)')">
-                                                <i class="fa-solid fa-rotate-left text-emerald-500"></i>
-                                            </button>
-                                        @else
-                                            <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
-                                                title="Non-aktifkan"
-                                                onclick="confirmGlobalDelete('{{ route('customers.destroy', $customer->id) }}', '{{ $customer->nama_lengkap }}')">
-                                                <i class="fa-solid fa-trash text-rose-500"></i>
-                                            </button>
-                                        @endif
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
+                <tbody style="border-top: none;">
+                    <!-- Data is loaded via AJAX -->
                 </tbody>
             </table>
         </div>
@@ -710,19 +629,40 @@
                     }
                 });
 
-                // DataTables Utama
+                // DataTables Utama (Server Side)
                 const table = $('#customer-table').DataTable({
-                    "pageLength": 10,
-                    "lengthChange": false,
-                    "ordering": false,
-                    "info": false,
-                    "responsive": true,
-                    "dom": 'tpir',
-                    "language": {
-                        "zeroRecords": "Data tidak ditemukan",
-                        "paginate": {
-                            "previous": '<i class="fa-solid fa-chevron-left"></i>',
-                            "next": '<i class="fa-solid fa-chevron-right"></i>'
+                    processing: true,
+                    serverSide: true,
+                    ajax: '{{ route("customers.active_list") }}',
+                    columns: [
+                        { data: null, name: 'id', searchable: false, orderable: false, className: 'text-center align-middle', render: function (data, type, row, meta) {
+                            return `<div style="color: #94a3b8; font-weight: 700;">${meta.row + meta.settings._iDisplayStart + 1}</div>`;
+                        }},
+                        { data: 'id_pelanggan', name: 'id_pelanggan', className: 'text-center align-middle', render: function(data) {
+                            return `<div style="font-weight: 800; color: #0ea5e9;">${data}</div>`;
+                        }},
+                        { data: 'nama_lengkap_formatted', name: 'nama_lengkap', orderable: true, searchable: true, className: 'text-center align-middle' },
+                        { data: 'wa_formatted', name: 'no_whatsapp', orderable: false, searchable: true, className: 'text-center align-middle' },
+                        { data: 'teknisi_formatted', name: 'teknisiUtama.nama_lengkap', orderable: false, searchable: true, className: 'text-center align-middle' },
+                        { data: 'tgl_formatted', name: 'created_at', orderable: true, searchable: false, className: 'text-center align-middle text-slate-500 font-semibold text-xs' },
+                        { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center align-middle' }
+                    ],
+                    dom: 'tpir',
+                    pageLength: 10,
+                    lengthChange: false,
+                    info: false,
+                    ordering: false,
+                    responsive: true,
+                    language: {
+                        processing: "<i class='fa-solid fa-circle-notch fa-spin text-primary text-2xl'></i>",
+                        infoEmpty: "Data tidak ditemukan",
+                        emptyTable: "Belum ada data pelanggan",
+                        zeroRecords: "Pencarian tidak menemukan hasil",
+                        paginate: {
+                            first: "<i class='fa-solid fa-angles-left'></i>",
+                            last: "<i class='fa-solid fa-angles-right'></i>",
+                            next: "<i class='fa-solid fa-angle-right'></i>",
+                            previous: "<i class='fa-solid fa-angle-left'></i>"
                         }
                     }
                 });
