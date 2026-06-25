@@ -83,8 +83,8 @@
                     <label class="form-label-custom">Cari Pelanggan</label>
                     <div class="search-wrap !max-w-full">
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                        <input type="search" class="search-input custom-search" placeholder="Cari nama, alamat..."
-                            autocomplete="off" />
+                        <input type="search" class="search-input custom-search" id="custom-search" placeholder="Cari nama, alamat..."
+                            autocomplete="off" onkeydown="return event.key != 'Enter';" />
                     </div>
                 </div>
                 <button type="submit" class="btn-primary-admin !h-10 !px-6 flex items-center gap-2">
