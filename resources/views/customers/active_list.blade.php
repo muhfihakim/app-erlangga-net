@@ -18,7 +18,47 @@
             #customer-table thead th, #customer-table tbody td {
                 text-transform: uppercase !important; font-weight: 600; font-size: 12px;
             }
+
+            /* Map Customizations */
+            #customer-map {
+                height: 400px;
+                width: 100%;
+                border-radius: 16px;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+                z-index: 1;
+            }
+            .map-container {
+                position: relative;
+                margin-bottom: 2rem;
+            }
+            .map-legend {
+                position: absolute;
+                bottom: 20px;
+                left: 20px;
+                background: white;
+                padding: 12px 16px;
+                border-radius: 12px;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                z-index: 1000;
+            }
+            .legend-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 11px;
+                font-weight: 700;
+                color: #475569;
+                margin-bottom: 4px;
+            }
+            .legend-dot {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+            }
         </style>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     @endsection
 
     @php $is_admin = Auth::user()->isAdmin(); @endphp
@@ -30,7 +70,28 @@
         </div>
     </div>
 
-    <div class="stats-grid mb-6">
+    <style>
+        @media (min-width: 1280px) {
+            .stats-grid-6 {
+                grid-template-columns: repeat(6, minmax(0, 1fr));
+            }
+            .stats-grid-6 .stat-card {
+                padding: 1rem;
+                gap: 10px;
+            }
+            .stats-grid-6 .stat-icon {
+                width: 38px; height: 38px; font-size: 16px;
+            }
+            .stats-grid-6 .stat-val {
+                font-size: 20px;
+            }
+            .stats-grid-6 .stat-lbl {
+                font-size: 10.5px;
+            }
+        }
+    </style>
+
+    <div class="stats-grid mb-6 {{ $is_admin ? 'stats-grid-6' : '' }}">
         <div class="stat-card">
             <div class="stat-icon" style="background:#e0f2fe;color:#0369a1;"><i class="fa-solid fa-users"></i></div>
             <div><div class="stat-val">{{ $totalActive }}</div><div class="stat-lbl">Aktif</div></div>
@@ -40,8 +101,40 @@
             <div><div class="stat-val">{{ $newThisMonth }}</div><div class="stat-lbl">Bulan Ini</div></div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon" style="background:#fef2f2;color:#dc2626;"><i class="fa-solid fa-user-slash"></i></div>
+            <div class="stat-icon" style="background:#f1f5f9;color:#475569;"><i class="fa-solid fa-user-slash"></i></div>
             <div><div class="stat-val">{{ $totalArchived }}</div><div class="stat-lbl">Non-Aktif</div></div>
+        </div>
+        
+        @if ($is_admin)
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#d1fae5;color:#059669;"><i class="fa-solid fa-wifi"></i></div>
+            <div><div class="stat-val">{{ $totalOnlineAll }}</div><div class="stat-lbl">Online</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fee2e2;color:#b91c1c;"><i class="fa-solid fa-plane-slash"></i></div>
+            <div><div class="stat-val">{{ $totalOfflineAll }}</div><div class="stat-lbl">Offline</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fef3c7;color:#d97706;"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div><div class="stat-val">{{ $totalIsolirAll }}</div><div class="stat-lbl">Isolir</div></div>
+        </div>
+        @endif
+    </div>
+
+
+    <!-- Map Section -->
+    <div class="map-container">
+        <div id="customer-map"></div>
+
+        <div class="map-legend">
+            <div class="legend-item">
+                <div class="legend-dot" style="background: #10b981; border: 2px solid #fff;"></div>
+                Online
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background: #ef4444; border: 2px solid #fff;"></div>
+                Offline
+            </div>
         </div>
     </div>
 
@@ -150,6 +243,13 @@
                                         <i class="fa-solid fa-circle-info text-primary"></i>
                                     </button>
 
+                                    @if (!$customer->trashed() && $customer->preOrder && $customer->preOrder->titik_koordinat)
+                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Lihat di Peta"
+                                            onclick="focusOnCustomer('{{ $customer->preOrder->titik_koordinat }}', '{{ $customer->id_pelanggan }}')">
+                                            <i class="fa-solid fa-location-dot text-emerald-500"></i>
+                                        </button>
+                                    @endif
+
                                     @if (auth()->user()->isAdmin())
                                         @if ($customer->trashed())
                                             <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
@@ -176,14 +276,32 @@
 
     @if (Auth::user()->jabatan === 'Sales' || Auth::user()->isAdmin())
         @if (isset($pelangganIsolir) && $pelangganIsolir->count() > 0)
-            <div
-                style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;margin-top:1rem;flex-wrap:wrap;">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;margin-top:2rem;">
                 <div>
-                    <h1 style="font-size:18px;font-weight:900;margin:0;color:#dc2626;"><i
-                            class="fa-solid fa-triangle-exclamation mr-2"></i>Pelanggan Terisolir</h1>
-                    <p style="font-size:12px;color:#64748b;margin:3px 0 0;">Daftar pelanggan Anda yang saat ini sedang
-                        dalam masa isolir/suspend.</p>
+                    <h1 style="font-size:18px;font-weight:900;margin:0;color:#dc2626;">
+                        <i class="fa-solid fa-triangle-exclamation mr-2"></i>Pelanggan Terisolir
+                    </h1>
+                    <p style="font-size:12px;color:#64748b;margin:3px 0 0;">Daftar pelanggan yang saat ini sedang dalam masa isolir/suspend.</p>
                 </div>
+                
+                <!-- Filter & Export Isolir -->
+                <form action="{{ route('customers.export_isolir') }}" method="GET" style="display:flex; gap:8px; align-items:center;">
+                    @if(Auth::user()->isAdmin())
+                        <select name="sales_id" class="form-control" style="font-size:12px; padding:6px 12px; border-radius:8px; border:1px solid #e2e8f0;">
+                            <option value="">-- Semua Sales --</option>
+                            @php
+                                // Unique sales from the isolir list
+                                $salesList = $pelangganIsolir->pluck('sales')->filter()->unique('id');
+                            @endphp
+                            @foreach($salesList as $s)
+                                <option value="{{ $s->id }}">{{ $s->nama_lengkap }}</option>
+                            @endforeach
+                        </select>
+                    @endif
+                    <button type="submit" class="btn btn-primary" style="font-size:12px; padding:6px 16px; border-radius:8px; background:#dc2626; border-color:#dc2626; font-weight:700; cursor:pointer; color:#ffffff;">
+                        <i class="fa-solid fa-file-pdf"></i> Export PDF
+                    </button>
+                </form>
             </div>
 
             <div class="table-card mb-8 border border-red-200 shadow-sm shadow-red-100">
@@ -205,8 +323,7 @@
                                     <td style="text-align: center; color: #94a3b8; font-weight: 700;">
                                         {{ $loop->iteration }}</td>
                                     <td style="font-weight: 700; color: #0f172a;">{{ $isolir->nama_lengkap }}</td>
-                                    <td
-                                        style="text-align: center; font-family:monospace; color:#0ea5e9; font-weight:700;">
+                                    <td style="text-align: center; font-family:monospace; color:#0ea5e9; font-weight:700;">
                                         {{ $isolir->pppoe_username }}</td>
                                     <td style="text-align: center; font-weight: 600;">
                                         {{ $isolir->sales->nama_lengkap ?? '-' }}</td>
@@ -473,8 +590,31 @@
     @section('Scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
         <script>
+            // Focus Map
+            function focusOnCustomer(tikor, customerId) {
+                const coords = tikor.split(',').map(c => parseFloat(c.trim()));
+                if (coords.length === 2) {
+                    document.getElementById('customer-map').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+
+                    if (window.customerMap) {
+                        window.customerMap.setView(coords, 18);
+                        if (window.customerMarkers) {
+                            window.customerMarkers.eachLayer(function(marker) {
+                                const mCoords = marker.getLatLng();
+                                if (Math.abs(mCoords.lat - coords[0]) < 0.0001 && Math.abs(mCoords.lng - coords[1]) < 0.0001) {
+                                    marker.openPopup();
+                                }
+                            });
+                        }
+                    }
+                }
+            }
             // Custom Modal Functions
             function openCustomModal(modalId) {
                 const modal = document.getElementById(modalId);
@@ -606,6 +746,113 @@
                 $('.modal-overlay').on('click', function(e) {
                     if (e.target === this) closeCustomModal(this.id);
                 });
+
+                // Init Map
+                const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap'
+                });
+
+                const gmapsSatellite = L.tileLayer('https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
+                    maxZoom: 20,
+                    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                    attribution: '© Google Maps'
+                });
+
+                const map = L.map('customer-map', {
+                    center: [-6.56272, 107.75107], // Default view
+                    zoom: 14,
+                    layers: [osm]
+                });
+
+                const baseMaps = {
+                    "Standard (OSM)": osm,
+                    "Realistic (Google Satellite)": gmapsSatellite
+                };
+
+                L.control.layers(baseMaps).addTo(map);
+                window.customerMap = map;
+
+                const customers = @json($mapData ?? []);
+                const markers = L.layerGroup().addTo(map);
+                window.customerMarkers = markers;
+
+                function formatBytes(bytes, decimals = 2) {
+                    if (!bytes || bytes === 0) return '0 Bytes';
+                    const k = 1024;
+                    const dm = decimals < 0 ? 0 : decimals;
+                    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+                }
+
+                customers.forEach(c => {
+                    if (c.koordinat) {
+                        const coords = c.koordinat.split(',').map(v => parseFloat(v.trim()));
+                        if (coords.length === 2) {
+                            const color = c.is_online ? '#10b981' : '#ef4444'; // Emerald for online, Red for offline
+                            const marker = L.circleMarker(coords, {
+                                radius: 8,
+                                fillColor: color,
+                                color: "#fff",
+                                weight: 2,
+                                opacity: 1,
+                                fillOpacity: 0.9
+                            }).addTo(markers);
+
+                            let trafficInfo = '';
+                            if (c.is_online) {
+                                const rx = formatBytes(c.bytes_in);
+                                const tx = formatBytes(c.bytes_out);
+                                trafficInfo = `
+                                    <div style="display:flex; justify-content:space-between; margin-top:5px; font-size:10px;">
+                                        <span><i class="fa-solid fa-arrow-down" style="color:#0ea5e9;"></i> RX: ${rx}</span>
+                                        <span><i class="fa-solid fa-arrow-up" style="color:#f59e0b;"></i> TX: ${tx}</span>
+                                    </div>
+                                `;
+                            }
+
+                            const popupContent = `
+                                <div style="min-width: 200px; font-family: 'Inter', sans-serif;">
+                                    <div style="font-weight: 800; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 6px;">
+                                        ${c.nama}
+                                    </div>
+                                    <div style="font-size: 11px; margin-bottom: 4px; display:flex; justify-content:space-between;">
+                                        <span style="color: #94a3b8; font-weight: 700;">USERNAME:</span>
+                                        <span style="font-weight: 800; color: #0ea5e9;">${c.username}</span>
+                                    </div>
+                                    <div style="font-size: 11px; margin-bottom: 4px; display:flex; justify-content:space-between;">
+                                        <span style="color: #94a3b8; font-weight: 700;">STATUS:</span>
+                                        <span style="font-weight: 800; color: ${color};">${c.is_online ? 'ONLINE' : 'OFFLINE'}</span>
+                                    </div>
+                                    <div style="font-size: 11px; margin-bottom: 4px; display:flex; justify-content:space-between;">
+                                        <span style="color: #94a3b8; font-weight: 700;">UPTIME:</span>
+                                        <span style="font-weight: 700; color: #475569;">${c.uptime}</span>
+                                    </div>
+                                    <div style="font-size: 11px; margin-bottom: 4px; display:flex; justify-content:space-between;">
+                                        <span style="color: #94a3b8; font-weight: 700;">IP:</span>
+                                        <span style="font-weight: 700; color: #475569;">${c.ip_address}</span>
+                                    </div>
+                                    ${trafficInfo}
+                                </div>
+                            `;
+                            marker.bindPopup(popupContent);
+                        }
+                    }
+                });
+
+                if (customers.length > 0) {
+                    const allCoords = customers
+                        .filter(c => c.koordinat)
+                        .map(c => c.koordinat.split(',').map(v => parseFloat(v.trim())));
+                    
+                    if (allCoords.length > 0) {
+                        const bounds = L.latLngBounds(allCoords);
+                        map.fitBounds(bounds, {
+                            padding: [50, 50]
+                        });
+                    }
+                }
             });
         </script>
     @endsection

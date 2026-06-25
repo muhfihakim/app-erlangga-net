@@ -132,8 +132,6 @@ class CustomerController extends Controller
         // --- DATA PELANGGAN ISOLIR ---
         $pelangganIsolir = collect();
         if ($user->jabatan === 'Sales' || $user->isAdmin()) {
-            $pppoeData = \Illuminate\Support\Facades\Cache::get('mikrotik_pppoe_active');
-
             if ($pppoeData && isset($pppoeData['success']) && $pppoeData['success']) {
                 $isolirUsernames = collect($pppoeData['data'])
                     ->filter(fn($item) => str_starts_with($item['address'] ?? '', '172.30.'))
@@ -153,14 +151,134 @@ class CustomerController extends Controller
             }
         }
 
+        // --- MAP DATA ---
+        $activeData = [];
+        if ($pppoeData && isset($pppoeData['success']) && $pppoeData['success']) {
+            $activeData = collect($pppoeData['data'])->keyBy('name')->toArray();
+        }
+
+        $mapData = [];
+        foreach ($customers as $c) {
+            $tikor = $c->preOrder ? $c->preOrder->titik_koordinat : null;
+            if ($tikor && !$c->trashed()) {
+                $isOnline = $c->is_online;
+                $uptime = $isOnline ? ($activeData[$c->pppoe_username]['uptime'] ?? '-') : '-';
+                $address = $isOnline ? ($activeData[$c->pppoe_username]['address'] ?? '-') : '-';
+                $bytesIn = $isOnline ? ($activeData[$c->pppoe_username]['bytes-in'] ?? null) : null;
+                $bytesOut = $isOnline ? ($activeData[$c->pppoe_username]['bytes-out'] ?? null) : null;
+                
+                $mapData[] = [
+                    'id' => $c->id,
+                    'nama' => $c->nama_lengkap,
+                    'username' => $c->pppoe_username,
+                    'paket' => $c->paket_internet,
+                    'alamat' => $c->alamat_lengkap,
+                    'koordinat' => $tikor,
+                    'is_online' => $isOnline,
+                    'uptime' => $uptime,
+                    'ip_address' => $address,
+                    'bytes_in' => $bytesIn,
+                    'bytes_out' => $bytesOut,
+                ];
+            }
+        }
+
+        $statsMap = [
+            'total' => count($mapData),
+            'online' => collect($mapData)->where('is_online', true)->count(),
+            'offline' => collect($mapData)->where('is_online', false)->count(),
+        ];
+
+        // --- STATS ONLINE/OFFLINE/ISOLIR KESELURUHAN (ADMIN) ---
+        $totalOnlineAll = 0;
+        $totalOfflineAll = 0;
+        $totalIsolirAll = 0;
+
+        if ($user->isAdmin()) {
+            $totalOnlineAll = $customers->whereNull('deleted_at')->where('is_online', true)->count();
+            $totalOfflineAll = $customers->whereNull('deleted_at')->where('is_online', false)->count();
+            $totalIsolirAll = $pelangganIsolir->count();
+        }
+
         return view('customers.active_list', compact(
             'customers',
             'totalActive',
             'newThisMonth',
             'newThisWeek',
             'totalArchived',
-            'pelangganIsolir'
+            'pelangganIsolir',
+            'mapData',
+            'statsMap',
+            'totalOnlineAll',
+            'totalOfflineAll',
+            'totalIsolirAll'
         ));
+    }
+
+    public function exportIsolir(Request $request)
+    {
+        $user = auth()->user();
+        if ($user->jabatan !== 'Sales' && !$user->isAdmin()) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $pppoeData = \Illuminate\Support\Facades\Cache::get('mikrotik_pppoe_active');
+        $pelangganIsolir = collect();
+
+        if ($pppoeData && isset($pppoeData['success']) && $pppoeData['success']) {
+            $isolirUsernames = collect($pppoeData['data'])
+                ->filter(fn($item) => str_starts_with($item['address'] ?? '', '172.30.'))
+                ->pluck('name')
+                ->toArray();
+
+            if (!empty($isolirUsernames)) {
+                $isolirQuery = Customer::with('sales')->whereIn('pppoe_username', $isolirUsernames);
+
+                if ($user->jabatan === 'Sales') {
+                    $isolirQuery->where('id_sales', $user->id);
+                } else if ($request->sales_id) {
+                    $isolirQuery->where('id_sales', $request->sales_id);
+                }
+
+                $pelangganIsolir = $isolirQuery->get();
+            }
+        }
+
+        $salesFilter = null;
+        if ($request->sales_id && $user->isAdmin()) {
+            $salesFilter = User::find($request->sales_id);
+        }
+
+        // Summary isolir per sales (mengabaikan administrator)
+        $salesSummary = [];
+        $salesGroups = $pelangganIsolir->groupBy('id_sales');
+        foreach ($salesGroups as $salesId => $groupCustomers) {
+            if ($salesId) {
+                $salesUser = User::find($salesId);
+                // Hanya masukkan jika jabatan adalah Sales
+                if ($salesUser && $salesUser->jabatan === 'Sales') {
+                    $salesSummary[] = [
+                        'nama' => $salesUser->nama_lengkap,
+                        'total' => $groupCustomers->count()
+                    ];
+                }
+            }
+        }
+        
+        // Urutkan summary berdasarkan total isolir terbanyak
+        usort($salesSummary, function($a, $b) {
+            return $b['total'] <=> $a['total'];
+        });
+
+        $pdf = \PDF::loadView('customers.export-isolir', [
+            'pelangganIsolir' => $pelangganIsolir,
+            'sales' => $salesFilter,
+            'total' => $pelangganIsolir->count(),
+            'salesSummary' => $salesSummary
+        ]);
+
+        $fileName = 'laporan-isolir-' . now()->format('Y-m-d') . '.pdf';
+        return $pdf->download($fileName);
     }
 
     public function store(Request $request)

@@ -48,7 +48,7 @@
 
         @if (auth()->check() &&
                 (auth()->user()->isAdmin() || auth()->user()->jabatan === 'Teknisi' || auth()->user()->jabatan === 'Sales'))
-            <a class="sidebar-link {{ Request::is('customers*') ? 'active' : '' }}"
+            <a class="sidebar-link {{ Request::is('customers') || Request::is('customers/active-list') ? 'active' : '' }}"
                 href="{{ auth()->user()->jabatan === 'Teknisi' ? route('customers.index') : route('customers.active_list') }}">
                 <i class="fa-solid fa-users"></i>
                 <span>Pelanggan</span>

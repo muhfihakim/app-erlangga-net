@@ -421,8 +421,8 @@
                 });
 
                 const map = L.map('odp-map', {
-                    center: [-7.728, 110.602], // Klaten default
-                    zoom: 13,
+                    center: [-6.56272, 107.75107], // Default view
+                    zoom: 14,
                     layers: [osm]
                 });
 
