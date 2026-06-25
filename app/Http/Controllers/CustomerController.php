@@ -156,6 +156,7 @@ class CustomerController extends Controller
                     $btnDetail = '
                         <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Detail"
                             onclick="openCustomerDetailModal(this)"
+                            data-id="' . $customer->id . '"
                             data-customer-id="' . htmlspecialchars($customer->id_pelanggan, ENT_QUOTES) . '"
                             data-nama-lengkap="' . htmlspecialchars($customer->nama_lengkap, ENT_QUOTES) . '"
                             data-pppoe-user="' . htmlspecialchars($customer->pppoe_username, ENT_QUOTES) . '"
@@ -164,13 +165,16 @@ class CustomerController extends Controller
                             data-sn-perangkat="' . htmlspecialchars($customer->sn_perangkat, ENT_QUOTES) . '"
                             data-pembayaran="' . htmlspecialchars($customer->pembayaran, ENT_QUOTES) . '"
                             data-tgl-aktivasi="' . \Carbon\Carbon::parse($customer->created_at)->format('d-m-Y') . '"
+                            data-tgl-aktivasi-raw="' . \Carbon\Carbon::parse($customer->created_at)->format('Y-m-d') . '"
                             data-po-paket="' . htmlspecialchars($customer->paket_internet, ENT_QUOTES) . '"
                             data-po-sales="' . htmlspecialchars($customer->sales->nama_lengkap ?? 'N/A', ENT_QUOTES) . '"
+                            data-id-sales="' . htmlspecialchars($customer->id_sales ?? '', ENT_QUOTES) . '"
                             data-po-nik="' . htmlspecialchars($customer->preOrder->no_identitas ?? 'N/A', ENT_QUOTES) . '"
                             data-po-email="' . htmlspecialchars($customer->preOrder->alamat_email ?? 'N/A', ENT_QUOTES) . '"
                             data-po-alamat="' . htmlspecialchars($customer->alamat_lengkap, ENT_QUOTES) . '"
                             data-po-wa="' . htmlspecialchars($customer->no_whatsapp, ENT_QUOTES) . '"
                             data-po-tgl-po="' . \Carbon\Carbon::parse($customer->preOrder->created_at ?? $customer->created_at)->format('d-m-Y') . '"
+                            data-tgl-po-raw="' . \Carbon\Carbon::parse($customer->preOrder->created_at ?? $customer->created_at)->format('Y-m-d') . '"
                             data-po-tikor="' . htmlspecialchars($customer->preOrder->titik_koordinat ?? 'N/A', ENT_QUOTES) . '"
                             data-foto-petugas="' . ($customer->foto_petugas ? \Storage::url($customer->foto_petugas) : '') . '"
                             data-foto-terpasang="' . ($customer->foto_terpasang ? \Storage::url($customer->foto_terpasang) : '') . '"
@@ -314,6 +318,8 @@ class CustomerController extends Controller
             $totalIsolirAll = $pelangganIsolir->count();
         }
 
+        $salesUsers = User::where('jabatan', 'Sales')->get();
+
         return view('customers.active_list', compact(
             'customers',
             'totalActive',
@@ -325,7 +331,8 @@ class CustomerController extends Controller
             'statsMap',
             'totalOnlineAll',
             'totalOfflineAll',
-            'totalIsolirAll'
+            'totalIsolirAll',
+            'salesUsers'
         ));
     }
 
@@ -406,17 +413,15 @@ class CustomerController extends Controller
         $fotoSpeedtestPath = null;
 
         try {
-            // 1. Validasi data input
             $validatedData = $request->validate([
-                'pre_order_id' => 'required|exists:pre_orders,id|unique:customers,pre_order_id',
-                'id_sales' => 'required|exists:users,id',
+                'pre_order_id' => 'required|exists:pre_orders,id',
+                'id_pelanggan' => 'required|string|unique:customers,id_pelanggan',
                 'id_teknisi' => 'required|exists:users,id',
-                'pppoe_username' => 'required|string|max:255|unique:customers,pppoe_username',
-                'pppoe_password' => 'required|string|min:1',
-                'id_pelanggan' => 'required|string|max:255|unique:customers,id_pelanggan',
-                'jenis_modem' => 'required|in:EPON,GPON',
-                'sn_perangkat' => 'required|string|max:255',
-                'pembayaran' => 'required|in:Cash,Aplikasi',
+                'pppoe_username' => 'required|string',
+                'pppoe_password' => 'required|string',
+                'jenis_modem' => 'required|string',
+                'sn_perangkat' => 'required|string',
+                'pembayaran' => 'required|in:Cash,Aplikasi,Transfer',
                 'partner_ids' => 'nullable|array',
                 'partner_ids.*' => 'exists:users,id',
                 'keterangan' => 'nullable|string',
@@ -472,11 +477,104 @@ class CustomerController extends Controller
             $errorMessages = implode('<br>', $e->validator->errors()->all());
             return redirect()->back()->withInput()->withErrors($e->validator)->with('error', $errorMessages);
         } catch (\Exception $e) {
-            if (isset($fotoPetugasPath)) Storage::delete($fotoPetugasPath);
-            if (isset($fotoTerpasangPath)) Storage::delete($fotoTerpasangPath);
-            if (isset($fotoSpeedtestPath)) Storage::delete($fotoSpeedtestPath);
+            if (isset($fotoPetugasPath)) \Storage::delete($fotoPetugasPath);
+            if (isset($fotoTerpasangPath)) \Storage::delete($fotoTerpasangPath);
+            if (isset($fotoSpeedtestPath)) \Storage::delete($fotoSpeedtestPath);
             return redirect()->back()->withInput()->with('error', 'Gagal Aktivasi: ' . $e->getMessage());
         }
+    }
+
+    public function update(Request $request, $id)
+    {
+        if (!auth()->user()->isAdmin()) {
+            return redirect()->route('customers.active-list')->with('error', 'Unauthorized action.');
+        }
+
+        $customer = Customer::findOrFail($id);
+
+        $request->validate([
+            'id_pelanggan' => 'required|string|unique:customers,id_pelanggan,' . $customer->id,
+            'nama_lengkap' => 'required|string',
+            'no_identitas' => 'nullable|string',
+            'alamat_email' => 'nullable|email',
+            'id_sales' => 'nullable|exists:users,id',
+            'tgl_po' => 'nullable|date',
+            'titik_koordinat' => 'nullable|string',
+            'alamat_lengkap' => 'required|string',
+            'no_whatsapp' => 'required|string',
+            'paket_internet' => 'required|string',
+            'pembayaran' => 'required|string',
+            'pppoe_username' => 'nullable|string',
+            'pppoe_password' => 'nullable|string',
+            'jenis_modem' => 'nullable|string',
+            'sn_perangkat' => 'nullable|string',
+            'keterangan' => 'nullable|string',
+            'tgl_aktivasi' => 'nullable|date',
+            'foto_petugas' => 'nullable|image|max:20480',
+            'foto_terpasang' => 'nullable|image|max:20480',
+            'foto_speedtest' => 'nullable|image|max:20480',
+        ]);
+
+        if ($customer->preOrder) {
+            $newSalesId = $request->id_sales ?? $customer->preOrder->id_sales;
+            $newSalesName = $newSalesId ? User::find($newSalesId)->nama_lengkap : $customer->preOrder->nama_sales;
+
+            $customer->preOrder->update([
+                'nama_lengkap' => $request->nama_lengkap,
+                'no_identitas' => $request->no_identitas,
+                'alamat_email' => $request->alamat_email,
+                'id_sales' => $newSalesId,
+                'nama_sales' => $newSalesName,
+                'no_whatsapp' => $request->no_whatsapp,
+                'alamat_lengkap' => $request->alamat_lengkap,
+                'titik_koordinat' => $request->titik_koordinat,
+                'paket_internet' => $request->paket_internet,
+                'created_at' => $request->tgl_po ? \Carbon\Carbon::parse($request->tgl_po) : $customer->preOrder->created_at,
+            ]);
+        }
+
+        $updateData = [
+            'id_pelanggan' => $request->id_pelanggan,
+            'id_sales' => $request->id_sales ?? $customer->id_sales,
+            'nama_lengkap' => $request->nama_lengkap,
+            'alamat_lengkap' => $request->alamat_lengkap,
+            'no_whatsapp' => $request->no_whatsapp,
+            'paket_internet' => $request->paket_internet,
+            'pembayaran' => $request->pembayaran,
+            'pppoe_username' => $request->pppoe_username,
+            'pppoe_password' => $request->pppoe_password,
+            'jenis_modem' => $request->jenis_modem,
+            'sn_perangkat' => $request->sn_perangkat,
+            'keterangan' => $request->keterangan,
+        ];
+
+        if ($request->tgl_aktivasi) {
+            $updateData['created_at'] = \Carbon\Carbon::parse($request->tgl_aktivasi);
+        }
+
+        if ($request->hasFile('foto_petugas')) {
+            if ($customer->foto_petugas) \Storage::delete($customer->foto_petugas);
+            $updateData['foto_petugas'] = $request->file('foto_petugas')->store('customers/foto_petugas');
+        }
+        if ($request->hasFile('foto_terpasang')) {
+            if ($customer->foto_terpasang) \Storage::delete($customer->foto_terpasang);
+            $updateData['foto_terpasang'] = $request->file('foto_terpasang')->store('customers/foto_terpasang');
+        }
+        if ($request->hasFile('foto_speedtest')) {
+            if ($customer->foto_speedtest) \Storage::delete($customer->foto_speedtest);
+            $updateData['foto_speedtest'] = $request->file('foto_speedtest')->store('customers/foto_speedtest');
+        }
+
+        $customer->update($updateData);
+
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity_type' => 'customer_update',
+            'description' => "Memperbarui semua data pelanggan: " . $customer->nama_lengkap,
+            'logged_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Semua data pelanggan berhasil diperbarui.');
     }
 
     public function restore($id)
