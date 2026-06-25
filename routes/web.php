@@ -74,6 +74,9 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/laporan/aktivasi', [ActivityLogController::class, 'laporanAktivasi'])->name('activitylog.aktivasi');
     Route::get('/laporan/aktivasi/export', [ActivityLogController::class, 'exportAktivasi'])->name('activitylog.aktivasi.export');
 
+    Route::get('/laporan/aktivasi-sales', [ActivityLogController::class, 'laporanAktivasiSales'])->name('activitylog.aktivasi_sales');
+    Route::get('/laporan/aktivasi-sales/export', [ActivityLogController::class, 'exportAktivasiSales'])->name('activitylog.aktivasi_sales.export');
+
     // Laporan Maintenance (Selesai)
     Route::get('/laporan/maintenance', [ActivityLogController::class, 'laporanMaintenance'])->name('activitylog.maintenance');
     Route::get('/laporan/maintenance/export', [ActivityLogController::class, 'exportMaintenance'])->name('activitylog.maintenance.export');

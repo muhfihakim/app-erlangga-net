@@ -92,6 +92,11 @@
                 <i class="fa-solid fa-file-contract"></i>
                 <span>Lap. Aktivasi</span>
             </a>
+            <a class="sidebar-link {{ Request::is('laporan/aktivasi-sales') ? 'active' : '' }}"
+                href="{{ route('activitylog.aktivasi_sales') }}">
+                <i class="fa-solid fa-file-invoice"></i>
+                <span>Lap. Aktivasi Sales</span>
+            </a>
             <a class="sidebar-link {{ Request::is('laporan/maintenance') ? 'active' : '' }}"
                 href="{{ route('activitylog.maintenance') }}">
                 <i class="fa-solid fa-file-medical"></i>

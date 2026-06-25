@@ -180,6 +180,68 @@ class ActivityLogController extends Controller
         return $pdf->download("laporan-aktivasi-{$request->start_date}-ke-{$request->end_date}.pdf");
     }
 
+    public function laporanAktivasiSales(Request $request)
+    {
+        $salesId = $request->input('sales_id');
+        $start = $request->input('start_date');
+        $end = $request->input('end_date');
+
+        // Check if user manually applied a filter
+        $isFiltered = $request->filled('start_date') && $request->filled('end_date');
+
+        $query = Customer::withTrashed()->with(['teknisiUtama', 'sales']);
+
+        if ($salesId) {
+            $query->where('id_sales', $salesId);
+        }
+
+        if ($isFiltered) {
+            if ($start) $query->whereDate('created_at', '>=', $start);
+            if ($end) $query->whereDate('created_at', '<=', $end);
+            $customers = $query->orderBy('created_at', 'desc')->get();
+        } else {
+            $customers = collect();
+        }
+
+        $allSales = User::where('jabatan', 'Sales')->get();
+
+        $stats = [
+            'total_filtered' => $customers->count(),
+            'total_all' => Customer::withTrashed()->count(),
+            'this_month' => Customer::withTrashed()->whereMonth('created_at', Carbon::now()->month)->whereYear('created_at', Carbon::now()->year)->count(),
+            'today' => Customer::withTrashed()->whereDate('created_at', Carbon::today())->count(),
+        ];
+
+        return view('activitylog.aktivasi-sales-log', compact('customers', 'allSales', 'salesId', 'start', 'end', 'stats', 'isFiltered'));
+    }
+
+    public function exportAktivasiSales(Request $request)
+    {
+        $request->validate(['start_date' => 'required|date', 'end_date' => 'required|date']);
+
+        $query = Customer::withTrashed()->with(['teknisiUtama', 'sales'])
+            ->whereBetween('created_at', [
+                Carbon::parse($request->start_date)->startOfDay(),
+                Carbon::parse($request->end_date)->endOfDay()
+            ]);
+
+        if ($request->sales_id) {
+            $query->where('id_sales', $request->sales_id);
+        }
+
+        $customers = $query->orderBy('created_at', 'asc')->get();
+
+        $pdf = PDF::loadView('customers.export-sales', [
+            'customers' => $customers,
+            'start' => $request->start_date,
+            'end' => $request->end_date,
+            'sales' => User::find($request->sales_id),
+            'total' => $customers->count()
+        ]);
+
+        return $pdf->download("laporan-aktivasi-sales-{$request->start_date}-ke-{$request->end_date}.pdf");
+    }
+
     public function laporanMaintenance(Request $request)
     {
         $teknisiId = $request->input('teknisi_id');
