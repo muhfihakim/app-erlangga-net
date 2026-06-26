@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\FinanceController;
 use App\Http\Controllers\Api\ActivityLogController;
 use App\Http\Controllers\Api\AssetController;
+use App\Http\Controllers\Api\SupportingActivityController;
 use App\Http\Controllers\OltController;
 
 // Auth Routes
@@ -73,6 +74,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/odps', [OdpController::class, 'store']);
     Route::put('/odps/{id}', [OdpController::class, 'update']);
     Route::delete('/odps/{id}', [OdpController::class, 'destroy']);
+
+    // Supporting Activity
+    Route::apiResource('supporting', SupportingActivityController::class)->names('api.supporting');
 
     // Account Management (Admin Only)
     Route::middleware(['admin'])->group(function () {

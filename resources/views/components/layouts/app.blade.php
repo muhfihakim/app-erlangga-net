@@ -16,7 +16,7 @@
             <x-layouts.navbar />
 
             <!-- Main Content -->
-            <main class="page-body" role="main">
+            <main class="page-body relative" role="main">
                 <div class="max-w-[1600px] mx-auto w-full">
                     {{ $slot }}
                 </div>
@@ -70,6 +70,26 @@
 
     <!-- Global Toast Container -->
     <div id="toast-container" class="toast-container" style="z-index: 999999;"></div>
+
+    <!-- Global Page Loader Skeleton -->
+    <div id="page-skeleton" class="page-skeleton-overlay">
+        <div class="skeleton-header">
+            <div class="skeleton-title"></div>
+            <div class="skeleton-btn"></div>
+        </div>
+        <div class="skeleton-card">
+            <div class="skeleton-line full"></div>
+            <div class="skeleton-line half"></div>
+            <div class="skeleton-line three-quarter"></div>
+            <div class="skeleton-line full mt-4"></div>
+            <div class="skeleton-line full"></div>
+            <div class="skeleton-line half"></div>
+        </div>
+        <div class="skeleton-card mt-4">
+            <div class="skeleton-line full"></div>
+            <div class="skeleton-line three-quarter"></div>
+        </div>
+    </div>
 
     <script>
         function toggleSidebar() {
@@ -239,6 +259,28 @@
             $(document).on('input change', 'input, select, textarea', function() {
                 $(this).removeClass('!border-rose-500 !ring-2 !ring-rose-200');
             });
+        });
+
+        // Global Skeleton Loader Logic
+        window.addEventListener('load', () => {
+            const skeleton = document.getElementById('page-skeleton');
+            if (skeleton) skeleton.classList.add('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a');
+            if (link && link.href && !link.href.includes('#') && !link.hasAttribute('download') && link.target !== '_blank' && link.origin === window.location.origin) {
+                const skeleton = document.getElementById('page-skeleton');
+                if (skeleton) skeleton.classList.remove('hidden');
+            }
+        });
+
+        document.addEventListener('submit', (e) => {
+            const form = e.target;
+            if (!form.hasAttribute('target') && !form.classList.contains('no-loader')) {
+                const skeleton = document.getElementById('page-skeleton');
+                if (skeleton) skeleton.classList.remove('hidden');
+            }
         });
     </script>
 
