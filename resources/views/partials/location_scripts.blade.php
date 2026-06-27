@@ -1,5 +1,5 @@
 {{-- Background Geolocation Tracking for Capacitor WebView --}}
-@if (auth()->check())
+@if (auth()->check() && in_array(auth()->user()->jabatan, ['Teknisi', 'Sales']))
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         // Detect if running inside Capacitor APK
@@ -12,18 +12,34 @@
 
                 BackgroundGeolocation.addWatcher(
                     {
-                        backgroundMessage: "Erlangga Net melacak lokasi Anda di latar belakang.",
-                        backgroundTitle: "Pelacakan Aktif",
+                        backgroundMessage: "Aplikasi berjalan di latar belakang.",
+                        backgroundTitle: "Erlangga Net",
                         requestPermissions: true,
                         stale: false,
-                        distanceFilter: 10 // Update every 10 meters
+                        distanceFilter: 5 // Update every 5 meters
                     },
                     function callback(location, error) {
                         if (error) {
+                            console.error("BG Geo Error:", error);
+                            // Detect if GPS is disabled or permission denied
+                            let errorMsg = "Gagal melacak lokasi. Mohon periksa pengaturan GPS Anda.";
                             if (error.code === "NOT_AUTHORIZED") {
-                                console.warn("Location permission not granted.");
+                                errorMsg = "Izin lokasi tidak diberikan. Mohon izinkan akses lokasi (Selalu/Allow all the time).";
+                            } else if (error.code === "LOCATION_SERVICES_DISABLED") {
+                                errorMsg = "GPS HP Anda sedang dimatikan. Mohon nyalakan GPS untuk menggunakan aplikasi.";
                             }
-                            return console.error("BG Geo Error:", error);
+                            
+                            if (window.Swal) {
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Perhatian!',
+                                    text: errorMsg,
+                                    confirmButtonText: 'Mengerti'
+                                });
+                            } else {
+                                alert(errorMsg);
+                            }
+                            return;
                         }
 
                         // Send location to Laravel backend
@@ -44,11 +60,8 @@
                           .then(data => console.log("Location synced:", data))
                           .catch(err => console.error("Location sync failed:", err));
                     }
-                ).then(function(watcher_id) {
-                    console.log("Background Geolocation active. Watcher ID:", watcher_id);
-                }).catch(function(err) {
-                    console.error("Failed to start Background Geolocation:", err);
-                });
+                );
+                console.log("Background Geolocation watcher request sent.");
             } else {
                 console.warn("BackgroundGeolocation plugin is not injected.");
             }

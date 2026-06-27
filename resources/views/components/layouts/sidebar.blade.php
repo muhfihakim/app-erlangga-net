@@ -53,11 +53,13 @@
                 <i class="fa-solid fa-users"></i>
                 <span>Pelanggan</span>
             </a>
+            @if(auth()->user()->isAdmin() || auth()->user()->jabatan === 'Teknisi')
             <a class="sidebar-link {{ Request::is('maintenances') ? 'active' : '' }}"
                 href="{{ route('maintenances.index') }}">
                 <i class="fa-solid fa-screwdriver-wrench"></i>
                 <span>Pemeliharaan</span>
             </a>
+            @endif
             <a class="sidebar-link {{ Request::is('dismantles') ? 'active' : '' }}"
                 href="{{ route('dismantles.index') }}">
                 <i class="fa-solid fa-user-xmark"></i>
@@ -114,6 +116,11 @@
                 <i class="fa-solid fa-users"></i>
                 <span>Akun</span>
             </a>
+            <a class="sidebar-link {{ Request::is('tracking') ? 'active' : '' }}"
+                href="{{ route('accounts.tracking') }}">
+                <i class="fa-solid fa-map-location-dot"></i>
+                <span>Pelacakan Akun</span>
+            </a>
             <a class="sidebar-link {{ Request::is('activity-log') ? 'active' : '' }}"
                 href="{{ route('activitylog.index') }}">
                 <i class="fa-solid fa-clipboard-list"></i>
@@ -124,7 +131,7 @@
         <div class="sidebar-section-label" style="margin-top:.5rem;">Pengaturan</div>
         <form action="{{ route('logout') }}" method="POST" id="logout-form" class="hidden">@csrf</form>
         <a class="sidebar-link" href="#" style="color:#f87171;"
-            onclick="document.getElementById('logout-form').submit(); return false;">
+            onclick="localStorage.removeItem('app_token'); document.getElementById('logout-form').submit(); return false;">
             <i class="fa-solid fa-arrow-right-from-bracket" style="color:#f87171;"></i>
             <span>Keluar</span>
         </a>

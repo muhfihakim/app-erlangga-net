@@ -39,5 +39,17 @@ public class MainActivity extends BridgeActivity {
                 Toast.makeText(getApplicationContext(), "Downloading File...", Toast.LENGTH_LONG).show();
             }
         });
+
+        // Add Swipe-to-Refresh functionality natively
+        androidx.swiperefreshlayout.widget.SwipeRefreshLayout swipeRefreshLayout = new androidx.swiperefreshlayout.widget.SwipeRefreshLayout(this);
+        android.view.ViewGroup parent = (android.view.ViewGroup) webView.getParent();
+        parent.removeView(webView);
+        swipeRefreshLayout.addView(webView);
+        parent.addView(swipeRefreshLayout);
+
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            webView.reload();
+            swipeRefreshLayout.setRefreshing(false);
+        });
     }
 }

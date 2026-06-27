@@ -27,7 +27,7 @@ class AuthController extends Controller
 
         $credentials = $request->only('email', 'password');
 
-        if (Auth::attempt($credentials)) {
+        if (Auth::attempt($credentials, true)) {
             $user = Auth::user();
 
             if (!$user->is_active) {
@@ -59,7 +59,9 @@ class AuthController extends Controller
                 ]);
             }
 
+            $token = $user->createToken('webview')->plainTextToken;
             $request->session()->regenerate();
+            $request->session()->put('api_token', $token);
             return redirect()->route('dashboards.index');
         }
 
@@ -106,5 +108,17 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         return response()->json($request->user());
+    }
+
+    public function magicLogin(Request $request)
+    {
+        $token = $request->bearerToken();
+        if (!$token) return response()->json(['error' => 'No token'], 401);
+        
+        $tokenRecord = \Laravel\Sanctum\PersonalAccessToken::findToken($token);
+        if (!$tokenRecord || !$tokenRecord->tokenable) return response()->json(['error' => 'Invalid token'], 401);
+        
+        Auth::login($tokenRecord->tokenable, true);
+        return response()->json(['success' => true]);
     }
 }

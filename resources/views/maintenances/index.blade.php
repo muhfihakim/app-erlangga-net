@@ -256,12 +256,14 @@
                                             data-foto="{{ $m->foto_kendala_awal ? Storage::url($m->foto_kendala_awal) : '' }}">
                                             <i class="fa-solid fa-circle-info text-primary"></i>
                                         </button>
-                                        <button type="button" class="btn-primary-admin !h-9 !px-3 !text-[11px]"
-                                            onclick="openCompleteModal(this)" data-id="{{ $m->id }}"
-                                            data-nama="{{ $m->customer->nama_lengkap }}"
-                                            data-sn="{{ $m->customer->sn_perangkat }}">
-                                            <i class="fa-solid fa-hand-holding-hand"></i> Ambil & Selesaikan
-                                        </button>
+                                        @if(auth()->user()->jabatan === 'Teknisi' || auth()->user()->isAdmin())
+                                            <button type="button" class="btn-primary-admin !h-9 !px-3 !text-[11px]"
+                                                onclick="openCompleteModal(this)" data-id="{{ $m->id }}"
+                                                data-nama="{{ $m->customer->nama_lengkap }}"
+                                                data-sn="{{ $m->customer->sn_perangkat }}">
+                                                <i class="fa-solid fa-hand-holding-hand"></i> Ambil & Selesaikan
+                                            </button>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

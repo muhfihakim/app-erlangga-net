@@ -171,6 +171,9 @@
             @if(session('error'))
                 showToast('{{ session('error') }}', 'error');
             @endif
+            @if(session('api_token'))
+                localStorage.setItem('app_token', '{{ session('api_token') }}');
+            @endif
             
             // Handle clicking outside to close
             $('.modal-overlay').on('click', function(e) {

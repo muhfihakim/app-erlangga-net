@@ -774,6 +774,35 @@
                 showToast('{{ session('success') }}', 'success');
             @endif
 
+            // ── Auto-Login via LocalStorage (Capacitor WebView) ──
+            const appToken = localStorage.getItem('app_token');
+            if (appToken) {
+                $('#btn-submit').addClass('loading');
+                $('#btn-submit span').text('Otentikasi otomatis...');
+                
+                fetch('/magic-login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': 'Bearer ' + appToken,
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                }).then(res => res.json()).then(data => {
+                    if (data.success) {
+                        window.location.href = '/dashboard';
+                    } else {
+                        localStorage.removeItem('app_token');
+                        $('#btn-submit').removeClass('loading');
+                        $('#btn-submit span').text('Sign In Sekarang');
+                    }
+                }).catch(() => {
+                    localStorage.removeItem('app_token');
+                    $('#btn-submit').removeClass('loading');
+                    $('#btn-submit span').text('Sign In Sekarang');
+                });
+            }
+
             // ── Password visibility toggle ────────────────────────
             $('#eye-toggle').on('click', function() {
                 const input = $('#password');

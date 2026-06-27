@@ -1,9 +1,14 @@
 {
-  "appId": "io.erlangga.app",
-  "appName": "app-erlangga",
-  "webDir": "public",
-  "server": {
-    "url": "http://192.168.1.4:8000",
-    "cleartext": true
-  }
+    "appId": "io.erlangga.app",
+    "appName": "app-erlangga",
+    "webDir": "public",
+    "server": {
+        "url": "http://192.168.20.254:8000",
+        "cleartext": true
+    },
+    "plugins": {
+        "CapacitorCookies": {
+            "enabled": true
+        }
+    }
 }
