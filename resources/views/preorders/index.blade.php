@@ -135,17 +135,32 @@
                                     @elseif ($po->is_active)
                                         <span class="badge badge-published">AKTIF</span>
                                     @elseif ($po->is_unspek)
-                                        <span class="badge" style="background:#fef2f2;color:#be123c;">UNSPEK</span>
-                                        @if (Auth::user()->isAdmin())
-                                            <form action="{{ route('pre_orders.reopen_unspek', $po->id) }}" method="POST"
-                                                class="inline">@csrf<button type="submit"
-                                                    class="topbar-icon-btn !w-8 !h-8 !rounded-lg"><i
-                                                        class="fa-solid fa-folder-open text-sky-500"></i></button></form>
+                                        @if ($po->is_unspek_approved)
+                                            <span class="badge" style="background:#fef2f2;color:#be123c;">UNSPEK</span>
+                                            @if (Auth::user()->isAdmin() || (auth()->user()->jabatan === 'Sales' && $po->id_sales == auth()->id()))
+                                                <form action="{{ route('pre_orders.reopen_unspek', $po->id) }}" method="POST"
+                                                    class="inline">@csrf<button type="submit" title="Buka Kembali"
+                                                        class="topbar-icon-btn !w-8 !h-8 !rounded-lg"><i
+                                                            class="fa-solid fa-folder-open text-sky-500"></i></button></form>
+                                            @endif
+                                        @else
+                                            <span class="badge" style="background:#fef3c7;color:#b45309;">UNSPEK (PENDING)</span>
+                                            @if (Auth::user()->isAdmin() || (auth()->user()->jabatan === 'Sales' && $po->id_sales == auth()->id()))
+                                                <form action="{{ route('pre_orders.approve_unspek', $po->id) }}" method="POST"
+                                                    class="inline">@csrf<button type="submit" title="Setujui Unspek"
+                                                        class="topbar-icon-btn !w-8 !h-8 !rounded-lg"><i
+                                                            class="fa-solid fa-check text-emerald-500"></i></button></form>
+                                                <form action="{{ route('pre_orders.reopen_unspek', $po->id) }}" method="POST"
+                                                    class="inline">@csrf<button type="submit" title="Tolak (Buka Kembali)"
+                                                        class="topbar-icon-btn !w-8 !h-8 !rounded-lg"><i
+                                                            class="fa-solid fa-xmark text-rose-500"></i></button></form>
+                                            @endif
                                         @endif
                                     @else
                                         @if (in_array(auth()->user()->jabatan, ['Administrator', 'Teknisi']))
                                             <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
-                                                onclick="openUnspekModal('{{ $po->id }}', '{{ $po->nama_lengkap }}')"><i
+                                                onclick="openCustomModal('unspekModal', this)"
+                                                data-po-id="{{ $po->id }}" data-po-nama="{{ $po->nama_lengkap }}"><i
                                                     class="fa-solid fa-ban text-amber-500"></i></button>
                                         @endif
                                         @if (auth()->user()->jabatan === 'Teknisi')

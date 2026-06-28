@@ -292,7 +292,8 @@ class PreOrderController extends Controller
 
     public function reopenUnspek(PreOrder $preOrder)
     {
-        if (!auth()->user()->isAdmin()) {
+        $user = auth()->user();
+        if (!$user->isAdmin() && ($user->jabatan !== 'Sales' || $preOrder->id_sales !== $user->id)) {
             abort(403, 'Akses ditolak.');
         }
 
