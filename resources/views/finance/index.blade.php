@@ -18,6 +18,16 @@
             #finance-table thead th, #finance-table tbody td {
                 text-transform: uppercase !important; font-weight: 600; font-size: 12px;
             }
+
+            /* Responsive overrides for inline styles */
+            @media (max-width: 768px) {
+                .stats-grid {
+                    grid-template-columns: 1fr !important;
+                }
+                .stat-card {
+                    grid-column: span 1 !important;
+                }
+            }
         </style>
     @endsection
 
