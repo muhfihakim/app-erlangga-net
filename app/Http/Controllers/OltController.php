@@ -57,6 +57,31 @@ class OltController extends Controller
         }
     }
 
+    public function connectTerminal()
+    {
+        try {
+            $banner = $this->oltService->getBanner();
+            return response()->json([
+                'success' => true,
+                'banner' => $banner
+            ]);
+        } catch (Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function verifyLogin(Request $request)
+    {
+        $user = $request->input('username');
+        $pass = $request->input('password');
+
+        if ($this->oltService->verifyCredentials($user, $pass)) {
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['success' => false, 'error' => '%Error 20209: No username or bad password']);
+    }
+
     public function executeScript(Request $request)
     {
         $script = $request->input('script');

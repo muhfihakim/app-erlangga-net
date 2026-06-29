@@ -127,6 +127,8 @@ Route::middleware(['auth.custom'])->group(function () {
         
         // OLT Telnet API Routes (Admin only: Generator)
         Route::post('/olt/check-next-id', [OltController::class, 'checkNextOnuId']);
+        Route::post('/olt/connect', [OltController::class, 'connectTerminal']);
+        Route::post('/olt/verify-login', [OltController::class, 'verifyLogin']);
         Route::post('/olt/execute', [OltController::class, 'executeScript']);
     });
 

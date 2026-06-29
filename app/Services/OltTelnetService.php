@@ -52,6 +52,51 @@ class OltTelnetService
         }
     }
 
+    public function getBanner()
+    {
+        try {
+            $this->connection = @fsockopen($this->host, $this->port, $errno, $errstr, $this->timeout);
+            if (!$this->connection) {
+                throw new Exception("Could not connect to OLT {$this->host}:{$this->port} - $errstr ($errno)");
+            }
+            stream_set_timeout($this->connection, $this->timeout);
+            $banner = $this->readUntil(['Username:', 'login:', 'User Name:']);
+            $this->disconnect();
+            return $banner;
+        } catch (Exception $e) {
+            return "Connection Failed: " . $e->getMessage();
+        }
+    }
+
+    public function verifyCredentials($user, $pass)
+    {
+        $user = (string) $user;
+        $pass = (string) $pass;
+        try {
+            $this->connection = @fsockopen($this->host, $this->port, $errno, $errstr, $this->timeout);
+            if (!$this->connection) {
+                throw new Exception("Could not connect");
+            }
+            stream_set_timeout($this->connection, $this->timeout);
+
+            $this->readUntil(['Username:', 'login:', 'User Name:']);
+            $this->write($user);
+
+            $this->readUntil(['Password:', 'password:']);
+            $this->write($pass);
+
+            $result = $this->readUntil(['>', '#', 'Username:', 'login:', 'User Name:']);
+            $this->disconnect();
+
+            if (str_contains(strtolower($result), 'bad password') || str_contains(strtolower($result), 'fail') || str_contains(strtolower($result), 'username:')) {
+                return false;
+            }
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
     public function execute(string $command)
     {
         if (!$this->connection) {
@@ -133,7 +178,7 @@ class OltTelnetService
 
             // 4. Handle --More-- pagination
             if (str_contains($buffer, "--More--")) {
-                $this->write(" "); // Send space to get more
+                fputs($this->connection, " "); // Just space, no \r\n
                 $buffer = str_replace("--More--", "", $buffer);
                 continue; 
             }

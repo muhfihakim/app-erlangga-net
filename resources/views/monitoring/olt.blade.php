@@ -267,17 +267,20 @@
                                     <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
                                     <div class="w-3 h-3 rounded-full bg-green-500"></div>
                                 </div>
-                                <span class="text-[10px] text-slate-300 font-mono font-bold tracking-wider ml-2">OLT
-                                    Terminal Output</span>
+                                <span class="text-[10px] text-slate-300 font-mono font-bold tracking-wider ml-2">OLT Terminal Output</span>
                             </div>
-                            <button id="btn_clear_terminal" class="text-slate-400 hover:text-white transition-colors"
-                                title="Clear Terminal">
-                                <i class="fa-solid fa-eraser text-xs"></i>
-                            </button>
+                            <div class="flex items-center gap-3">
+                                <button id="btn_connect_terminal" class="bg-emerald-500 hover:bg-emerald-400 text-slate-900 px-3 py-1 rounded-lg text-[10px] font-black shadow-sm transition-colors flex items-center gap-1">
+                                    <i class="fa-solid fa-plug"></i> HUBUNGKAN
+                                </button>
+                                <button id="btn_clear_terminal" class="text-slate-400 hover:text-white transition-colors" title="Clear Terminal">
+                                    <i class="fa-solid fa-eraser text-xs"></i>
+                                </button>
+                            </div>
                         </div>
-                        <textarea id="terminal_output" readonly
+                        <textarea id="terminal_output"
                             class="w-full h-full p-4 bg-transparent text-[#00ff00] font-mono text-[11px] leading-relaxed outline-none resize-none custom-scrollbar"
-                            placeholder="Menunggu eksekusi perintah..."></textarea>
+                            placeholder="Ketik perintah/paste skrip di sini, lalu tekan Enter..."></textarea>
                     </div>
                 </div>
             </div>
@@ -917,6 +920,198 @@ show gpon onu state gpon-olt_${port}`;
                 // Handle Clear Terminal
                 $('#btn_clear_terminal').click(function() {
                     $('#terminal_output').val('');
+                    termState = 'disconnected';
+                });
+
+                let termState = 'disconnected';
+                const oltIp = '136.1.1.100';
+
+                // Handle Connect
+                $('#btn_connect_terminal').click(function() {
+                    const $textarea = $('#terminal_output');
+                    $textarea.val(`Trying ${oltIp}...\nConnected to ${oltIp}.\nEscape character is '^]'.\n`);
+                    $textarea.focus();
+                    termState = 'connecting';
+
+                    $.ajax({
+                        url: '/api/olt/connect',
+                        type: 'POST',
+                        data: { _token: '{{ csrf_token() }}' },
+                        success: function(res) {
+                            if (res.success && res.banner) {
+                                $textarea.val($textarea.val() + res.banner);
+                                termState = 'username';
+                            } else {
+                                $textarea.val($textarea.val() + '\nFailed to get banner.');
+                                termState = 'disconnected';
+                            }
+                            $textarea.scrollTop($textarea[0].scrollHeight);
+                        },
+                        error: function() {
+                            $textarea.val($textarea.val() + '\nConnection failed.');
+                            termState = 'disconnected';
+                        }
+                    });
+                });
+
+                const zteCommands = [
+                    "show", "config", "interface", "gpon-olt", "gpon-onu", "pon-onu-mng", 
+                    "service-port", "wan-ip", "security-mgmt", "exit", "write", "end", 
+                    "show gpon onu state", "show gpon onu baseinfo", "show pon power olt-rx"
+                ];
+
+                // Handle Interactive Terminal
+                $('#terminal_output').on('keydown', function(e) {
+                    const val = $(this).val();
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    
+                    // Prevent editing past the prompt
+                    const lastPromptIndex = Math.max(
+                        val.lastIndexOf('Username:'), 
+                        val.lastIndexOf('Password:'), 
+                        val.lastIndexOf('ZXAN#')
+                    );
+                    
+                    let protectedLength = 0;
+                    if (val.lastIndexOf('ZXAN#') === lastPromptIndex && lastPromptIndex !== -1) protectedLength = lastPromptIndex + 5;
+                    else if (val.lastIndexOf('Username:') === lastPromptIndex && lastPromptIndex !== -1) protectedLength = lastPromptIndex + 9;
+                    else if (val.lastIndexOf('Password:') === lastPromptIndex && lastPromptIndex !== -1) protectedLength = lastPromptIndex + 9;
+
+                    if (start < protectedLength) {
+                        if (!e.ctrlKey && !e.metaKey && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'ArrowUp' && e.key !== 'ArrowDown' && e.key !== 'c') {
+                            e.preventDefault();
+                            this.selectionStart = this.selectionEnd = val.length;
+                        }
+                    } else if (start === protectedLength && e.key === 'Backspace') {
+                        e.preventDefault();
+                    }
+
+                    if (e.key === 'Tab') {
+                        e.preventDefault();
+                        const val = $(this).val();
+                        const start = this.selectionStart;
+                        const end = this.selectionEnd;
+                        
+                        const textBeforeCursor = val.substring(0, start);
+                        const lines = textBeforeCursor.split('\n');
+                        let lastLine = lines[lines.length - 1];
+                        lastLine = lastLine.replace(/^ZXAN#/, '').trimStart();
+                        
+                        if (lastLine.length > 0) {
+                            const matches = zteCommands.filter(c => c.startsWith(lastLine));
+                            if (matches.length === 1) {
+                                const remainder = matches[0].substring(lastLine.length);
+                                const newVal = val.substring(0, start) + remainder + " " + val.substring(end);
+                                $(this).val(newVal);
+                                this.selectionStart = this.selectionEnd = start + remainder.length + 1;
+                            } else if (matches.length > 1) {
+                                const suggestion = "\n" + matches.join("   ") + "\nZXAN#" + lastLine;
+                                const newVal = val.substring(0, start) + suggestion + val.substring(end);
+                                $(this).val(newVal);
+                                this.selectionStart = this.selectionEnd = start + suggestion.length;
+                            }
+                        }
+                        return;
+                    }
+
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        const val = $(this).val();
+                        const start = this.selectionStart;
+                        const end = this.selectionEnd;
+                        
+                        let scriptToRun = '';
+                        if (start !== end) {
+                            scriptToRun = val.substring(start, end);
+                        } else {
+                            const lines = val.substring(0, start).split('\n');
+                            scriptToRun = lines[lines.length - 1];
+                            // Remove prompt strings from the line
+                            scriptToRun = scriptToRun.replace(/^Username:/, '')
+                                                     .replace(/^Password:/, '')
+                                                     .replace(/^ZXAN#/, '')
+                                                     .trim();
+                        }
+
+                        if (termState === 'username') {
+                            window.termUsername = scriptToRun;
+                            $(this).val(val + '\nPassword:');
+                            $(this).scrollTop($(this)[0].scrollHeight);
+                            termState = 'password';
+                            return;
+                        }
+
+                        if (termState === 'password') {
+                            const termPassword = scriptToRun;
+                            const $textarea = $(this);
+                            $textarea.val(val + '\n> Verifying...');
+                            $textarea.scrollTop($textarea[0].scrollHeight);
+
+                            $.ajax({
+                                url: '/api/olt/verify-login',
+                                type: 'POST',
+                                data: {
+                                    _token: '{{ csrf_token() }}',
+                                    username: window.termUsername,
+                                    password: termPassword
+                                },
+                                success: function(res) {
+                                    let currentVal = $textarea.val().replace('\n> Verifying...', '');
+                                    if (res.success) {
+                                        $textarea.val(currentVal + '\n\nZXAN#');
+                                        termState = 'connected';
+                                    } else {
+                                        $textarea.val(currentVal + '\n' + res.error + '\nUsername:');
+                                        termState = 'username';
+                                    }
+                                    $textarea.scrollTop($textarea[0].scrollHeight);
+                                },
+                                error: function() {
+                                    let currentVal = $textarea.val().replace('\n> Verifying...', '');
+                                    $textarea.val(currentVal + '\nConnection Error\nUsername:');
+                                    termState = 'username';
+                                    $textarea.scrollTop($textarea[0].scrollHeight);
+                                }
+                            });
+                            return;
+                        }
+
+                        if (!scriptToRun || scriptToRun.trim() === '') {
+                            if (termState === 'connected') {
+                                $(this).val(val + '\nZXAN#');
+                                $(this).scrollTop($(this)[0].scrollHeight);
+                            }
+                            return;
+                        }
+
+                        const $textarea = $(this);
+                        $textarea.val(val + '\n');
+                        $textarea.scrollTop($textarea[0].scrollHeight);
+
+                        $.ajax({
+                            url: '/api/olt/execute',
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                script: scriptToRun
+                            },
+                            success: function(res) {
+                                let currentVal = $textarea.val();
+                                if (res.success) {
+                                    $textarea.val(currentVal + res.log + '\nZXAN#');
+                                } else {
+                                    $textarea.val(currentVal + 'Error: ' + res.error + '\nZXAN#');
+                                }
+                                $textarea.scrollTop($textarea[0].scrollHeight);
+                            },
+                            error: function() {
+                                let currentVal = $textarea.val();
+                                $textarea.val(currentVal + 'Connection Error\nZXAN#');
+                                $textarea.scrollTop($textarea[0].scrollHeight);
+                            }
+                        });
+                    }
                 });
             });
         </script>
