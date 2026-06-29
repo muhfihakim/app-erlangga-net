@@ -18,6 +18,27 @@
             #activity-log-table thead th, #activity-log-table tbody td {
                 text-transform: uppercase !important; font-weight: 600; font-size: 12px;
             }
+
+            .dataTables_wrapper {
+                position: relative;
+                min-height: 200px;
+            }
+            .dataTables_wrapper .dataTables_processing {
+                position: absolute !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                background: rgba(255, 255, 255, 0.95) !important;
+                padding: 15px 25px !important;
+                border-radius: 12px !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+                z-index: 50 !important;
+                margin: 0 !important;
+                border: 1px solid #e2e8f0 !important;
+                width: auto !important;
+                height: auto !important;
+                text-align: center;
+            }
         </style>
     @endsection
 
@@ -107,42 +128,6 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse ($logs as $log)
-                    <tr>
-                        <td style="text-align: center; font-size: 12px; color: #64748b; font-weight: 600;">
-                            <div class="text-slate-900 font-bold">{{ $log->logged_at->format('d/m/Y') }}</div>
-                            <div class="text-[10px] text-slate-400 uppercase tracking-wider">{{ $log->logged_at->format('H:i:s') }}</div>
-                        </td>
-                        <td style="text-align: left;">
-                            <div style="font-weight: 700; color: #0f172a;">{{ $log->user->nama_lengkap ?? 'Sistem' }}</div>
-                            <div style="font-size: 10px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
-                                {{ $log->user->jabatan ?? 'ROOT' }}
-                            </div>
-                        </td>
-                        <td style="text-align: center;">
-                            @php
-                                $bg = '#f1f5f9'; $color = '#64748b';
-                                if(str_contains($log->activity_type, 'create')) { $bg = '#f0fdf4'; $color = '#16a34a'; }
-                                elseif(str_contains($log->activity_type, 'update')) { $bg = '#fffbeb'; $color = '#d97706'; }
-                                elseif(str_contains($log->activity_type, 'delete')) { $bg = '#fef2f2'; $color = '#dc2626'; }
-                                elseif(str_contains($log->activity_type, 'aktivasi')) { $bg = '#f0f9ff'; $color = '#0ea5e9'; }
-                            @endphp
-                            <span class="badge" style="background: {{ $bg }}; color: {{ $color }}; padding: 4px 10px; border-radius: 6px; font-size: 9px; font-weight: 800; text-transform: uppercase;">
-                                {{ str_replace('_', ' ', $log->activity_type) }}
-                            </span>
-                        </td>
-                        <td style="text-align: left; font-size: 12px; color: #475569; font-weight: 500; line-height: 1.5;">
-                            {{ $log->description }}
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="4" class="text-center py-12">
-                            <i class="fa-solid fa-clock-rotate-left text-slate-200 text-5xl mb-3 block"></i>
-                            <p class="text-slate-400 font-bold text-xs uppercase">Belum ada aktivitas yang tercatat</p>
-                        </td>
-                    </tr>
-                @endforelse
             </tbody>
             </table>
             </div>
@@ -175,6 +160,16 @@
 
             $(document).ready(function() {
             const table = $('#activity-log-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: '{{ route('activitylog.index') }}',
+                columns: [
+                    { data: 'logged_at', name: 'logged_at', className: 'text-center' },
+                    { data: 'user', name: 'user.nama_lengkap', className: 'text-left' },
+                    { data: 'activity_type', name: 'activity_type', className: 'text-center' },
+                    { data: 'description', name: 'description', className: 'text-left' }
+                ],
+                order: [[0, 'desc']], // Default order by logged_at desc
                 "pageLength": 15,
                 "lengthChange": false,
                 "ordering": false,
@@ -182,6 +177,7 @@
                 "responsive": true,
                 "dom": 'tpir',
                 "language": {
+                    "processing": "<i class='fa-solid fa-circle-notch fa-spin text-sky-500 text-2xl'></i>",
                     "zeroRecords": "Data tidak ditemukan",
                     "paginate": {
                         "previous": '<i class="fa-solid fa-chevron-left"></i>',

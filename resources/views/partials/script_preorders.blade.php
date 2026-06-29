@@ -136,6 +136,19 @@
         $(document).ready(function() {
             // DataTables Initialization
             const table = $('#preorder-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: window.location.href,
+                columns: [
+                    { data: 'no', name: 'no', searchable: false, orderable: false, className: 'text-center text-slate-400 font-bold', render: function (data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }},
+                    { data: 'created_at', name: 'created_at' },
+                    { data: 'sales', name: 'nama_sales' },
+                    { data: 'nama_lengkap', name: 'nama_lengkap' },
+                    { data: 'paket', name: 'paket_internet' },
+                    { data: 'status_opsi', name: 'status_opsi', searchable: false, orderable: false }
+                ],
                 "pageLength": 10,
                 "lengthChange": false,
                 "ordering": false,
@@ -143,6 +156,7 @@
                 "responsive": true,
                 "dom": 'tpir',
                 "language": {
+                    "processing": "<i class='fa-solid fa-circle-notch fa-spin text-sky-500 text-2xl'></i>",
                     "zeroRecords": "Data tidak ditemukan",
                     "paginate": {
                         "previous": '<i class="fa-solid fa-chevron-left"></i>',

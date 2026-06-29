@@ -71,6 +71,30 @@ class PreOrderController extends Controller
             $teknisiUsers = User::where('jabatan', 'Teknisi')->orderBy('nama_lengkap')->get();
             $salesUsers = User::where('jabatan', 'Sales')->orderBy('nama_lengkap')->get();
 
+            if ($request->ajax()) {
+                return \Yajra\DataTables\Facades\DataTables::of($preOrders)
+                    ->addColumn('no', function ($po) {
+                        return ''; // Handled by DataTables JS
+                    })
+                    ->editColumn('created_at', function($po) {
+                        return '<div style="text-align: center; color: #64748b; font-size: 12px;">' . \Carbon\Carbon::parse($po->created_at)->format('d-m-Y') . '</div>';
+                    })
+                    ->addColumn('sales', function($po) {
+                        return '<div style="text-align: center;">' . htmlspecialchars($po->nama_sales) . '</div>';
+                    })
+                    ->addColumn('nama_lengkap', function($po) {
+                        return '<div style="text-align: center; font-weight: 700;">' . htmlspecialchars($po->nama_lengkap) . '</div>';
+                    })
+                    ->addColumn('paket', function($po) {
+                        return '<div style="text-align: center;"><span class="badge" style="background: #e0f2fe; color: #0369a1;">' . htmlspecialchars($po->paket_internet) . '</span></div>';
+                    })
+                    ->addColumn('status_opsi', function($po) {
+                        return view('preorders.action_buttons', compact('po'))->render();
+                    })
+                    ->rawColumns(['created_at', 'sales', 'nama_lengkap', 'paket', 'status_opsi'])
+                    ->make(true);
+            }
+
             // --- STATISTIK ---
             $thisMonth = Carbon::now()->month;
             $thisYear = Carbon::now()->year;

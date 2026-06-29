@@ -4,7 +4,26 @@
         <style>
             /* Hakatech DataTables Customization */
             .dataTables_wrapper {
+                position: relative;
+                min-height: 200px;
                 padding: 0;
+            }
+
+            .dataTables_wrapper .dataTables_processing {
+                position: absolute !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                background: rgba(255, 255, 255, 0.95) !important;
+                padding: 15px 25px !important;
+                border-radius: 12px !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+                z-index: 50 !important;
+                margin: 0 !important;
+                border: 1px solid #e2e8f0 !important;
+                width: auto !important;
+                height: auto !important;
+                text-align: center;
             }
 
             .dataTables_filter {
@@ -143,77 +162,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($allMaintenances as $m)
-                            <tr>
-                                <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}
-                                </td>
-                                <td style="text-align: left;">
-                                    <div style="font-weight: 700; color: #0f172a;">
-                                        {{ $m->customer->nama_lengkap ?? 'N/A' }}</div>
-                                    <div style="font-size: 11px; color: #64748b;">ID:
-                                        {{ $m->customer->id_pelanggan ?? '-' }}</div>
-                                </td>
-                                <td style="text-align: center;">
-                                    <span
-                                        class="badge {{ $m->status === 'Selesai' ? 'badge-published' : 'badge-pending' }}"
-                                        style="{{ $m->status !== 'Selesai' ? 'background:#fef9c3;color:#854d0e;' : '' }}">
-                                        {{ strtoupper($m->status) }}
-                                    </span>
-                                </td>
-                                <td style="text-align: center;">
-                                    @if ($m->teknisiEksekutor)
-                                        <div style="font-weight: 600; color: #475569;">
-                                            {{ $m->teknisiEksekutor->nama_lengkap }}</div>
-                                        @if ($m->partner)
-                                            <div style="font-size: 10px; color: #94a3b8;">Team: {{ $m->partner }}
-                                            </div>
-                                        @endif
-                                    @else
-                                        <span class="text-slate-400 italic">BELUM DIAMBIL</span>
-                                    @endif
-                                </td>
-                                <td style="text-align: center;">
-                                    {{ $m->completed_at ? \Carbon\Carbon::parse($m->completed_at)->format('d-m-Y H:i') : '-' }}
-                                </td>
-                                <td style="text-align: center;">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
-                                            onclick="openMaintenanceDetailModal(this)"
-                                            data-nama="{{ $m->customer->nama_lengkap ?? 'N/A' }}"
-                                            data-id-pel="{{ $m->customer->id_pelanggan ?? '-' }}"
-                                            data-pppoe="{{ $m->customer->pppoe_username ?? '-' }}"
-                                            data-wa="{{ $m->customer->no_whatsapp ?? '-' }}"
-                                            data-tikor="{{ $m->customer->preOrder->titik_koordinat ?? 'N/A' }}"
-                                            data-alamat="{{ $m->customer->alamat_lengkap ?? '-' }}"
-                                            data-kendala="{{ $m->keterangan_kendala }}"
-                                            data-foto="{{ $m->foto_kendala_awal ? Storage::url($m->foto_kendala_awal) : '' }}">
-                                            <i class="fa-solid fa-circle-info text-primary"></i>
-                                        </button>
-                                        @if ($m->status === 'Selesai')
-                                            <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
-                                                onclick="openMaintenanceResultModal(this)"
-                                                data-nama="{{ $m->customer->nama_lengkap ?? 'N/A' }}"
-                                                data-eksekutor="{{ $m->teknisiEksekutor->nama_lengkap ?? 'N/A' }}"
-                                                data-partner="{{ $m->partner ?: '-' }}"
-                                                data-kategori="{{ $m->kategori_kendala }}"
-                                                data-sn-baru="{{ $m->sn_baru }}" data-sn-lama="{{ $m->sn_lama }}"
-                                                data-solusi="{{ $m->solusi_kendala }}"
-                                                data-foto="{{ $m->foto_kendala_awal ? Storage::url($m->foto_kendala_awal) : '' }}"
-                                                data-foto-before="{{ Storage::url($m->foto_sebelum_perbaikan) }}"
-                                                data-foto-after="{{ Storage::url($m->foto_setelah_perbaikan) }}"
-                                                data-foto-speed="{{ Storage::url($m->foto_speedtest) }}"
-                                                data-foto-selfie="{{ Storage::url($m->foto_selfie_teknisi) }}">
-                                                <i class="fa-solid fa-file-circle-check text-emerald-500"></i>
-                                            </button>
-                                        @endif
-                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
-                                            onclick="confirmGlobalDelete('{{ route('maintenances.destroy', $m->id) }}', '{{ $m->customer->nama_lengkap ?? 'N/A' }}')">
-                                            <i class="fa-solid fa-trash text-rose-600"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -231,43 +179,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($pendingTasks as $m)
-                            <tr>
-                                <td style="text-align: center; color: #94a3b8; font-weight: 700;">
-                                    {{ $loop->iteration }}</td>
-                                <td style="text-align: left;">
-                                    <div style="font-weight: 700; color: #0f172a;">{{ $m->customer->nama_lengkap }}
-                                    </div>
-                                    <div style="font-size: 11px; color: #64748b;">ID: {{ $m->customer->id_pelanggan }}
-                                    </div>
-                                </td>
-                                <td style="text-align: center;">{{ Str::limit($m->keterangan_kendala, 40) }}</td>
-                                <td style="text-align: center;">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
-                                            onclick="openMaintenanceDetailModal(this)"
-                                            data-nama="{{ $m->customer->nama_lengkap }}"
-                                            data-id-pel="{{ $m->customer->id_pelanggan }}"
-                                            data-pppoe="{{ $m->customer->pppoe_username }}"
-                                            data-wa="{{ $m->customer->no_whatsapp }}"
-                                            data-tikor="{{ $m->customer->preOrder->titik_koordinat ?? 'N/A' }}"
-                                            data-alamat="{{ $m->customer->alamat_lengkap }}"
-                                            data-kendala="{{ $m->keterangan_kendala }}"
-                                            data-foto="{{ $m->foto_kendala_awal ? Storage::url($m->foto_kendala_awal) : '' }}">
-                                            <i class="fa-solid fa-circle-info text-primary"></i>
-                                        </button>
-                                        @if(auth()->user()->jabatan === 'Teknisi' || auth()->user()->isAdmin())
-                                            <button type="button" class="btn-primary-admin !h-9 !px-3 !text-[11px]"
-                                                onclick="openCompleteModal(this)" data-id="{{ $m->id }}"
-                                                data-nama="{{ $m->customer->nama_lengkap }}"
-                                                data-sn="{{ $m->customer->sn_perangkat }}">
-                                                <i class="fa-solid fa-hand-holding-hand"></i> Ambil & Selesaikan
-                                            </button>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -817,8 +728,35 @@
                         }
                     }
                 };
-                const adminTable = $('#admin-maintenance-table').DataTable(dtOptions);
-                const pendingTable = $('#pending-tasks-table').DataTable(dtOptions);
+                const adminTable = $('#admin-maintenance-table').length ? $('#admin-maintenance-table').DataTable({
+                    ...dtOptions,
+                    processing: true,
+                    serverSide: true,
+                    ajax: '{{ route('maintenances.index') }}?type=admin',
+                    columns: [
+                        { data: 'no', name: 'no', searchable: false, orderable: false, className: 'text-center text-slate-400 font-bold', render: function(d,t,r,m){ return m.row + m.settings._iDisplayStart + 1; } },
+                        { data: 'pelanggan', name: 'customer.nama_lengkap', className: 'text-left' },
+                        { data: 'status', name: 'status', className: 'text-center' },
+                        { data: 'teknisi', name: 'teknisiEksekutor.nama_lengkap', className: 'text-center' },
+                        { data: 'completed_at', name: 'completed_at', className: 'text-center' },
+                        { data: 'opsi', name: 'opsi', searchable: false, orderable: false, className: 'text-center' }
+                    ],
+                    language: { ...dtOptions.language, processing: "<i class='fa-solid fa-circle-notch fa-spin text-sky-500 text-2xl'></i>" }
+                }) : null;
+
+                const pendingTable = $('#pending-tasks-table').length ? $('#pending-tasks-table').DataTable({
+                    ...dtOptions,
+                    processing: true,
+                    serverSide: true,
+                    ajax: '{{ route('maintenances.index') }}?type=pending',
+                    columns: [
+                        { data: 'no', name: 'no', searchable: false, orderable: false, className: 'text-center text-slate-400 font-bold', render: function(d,t,r,m){ return m.row + m.settings._iDisplayStart + 1; } },
+                        { data: 'pelanggan', name: 'customer.nama_lengkap', className: 'text-left' },
+                        { data: 'keterangan_kendala', name: 'keterangan_kendala', className: 'text-center' },
+                        { data: 'opsi', name: 'opsi', searchable: false, orderable: false, className: 'text-center' }
+                    ],
+                    language: { ...dtOptions.language, processing: "<i class='fa-solid fa-circle-notch fa-spin text-sky-500 text-2xl'></i>" }
+                }) : null;
                 const customerSearchTable = $('#customer-search-table').DataTable({
                     ...dtOptions,
                     "pageLength": 5

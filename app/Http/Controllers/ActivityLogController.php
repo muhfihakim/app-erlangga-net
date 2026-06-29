@@ -14,16 +14,46 @@ use Carbon\Carbon;
 
 class ActivityLogController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         // Hanya Administrator yang bisa mengakses
         if (!auth()->user()->isAdmin()) {
             abort(403, 'Akses ditolak.');
         }
 
-        $logs = ActivityLog::with('user')
-            ->orderBy('logged_at', 'desc')
-            ->get();
+        if ($request->ajax()) {
+            $query = ActivityLog::with('user')->orderBy('logged_at', 'desc');
+            
+            return \Yajra\DataTables\Facades\DataTables::of($query)
+                ->editColumn('logged_at', function ($log) {
+                    $date = \Carbon\Carbon::parse($log->logged_at)->format('d/m/Y');
+                    $time = \Carbon\Carbon::parse($log->logged_at)->format('H:i:s');
+                    return '<div class="text-slate-900 font-bold">' . $date . '</div>
+                            <div class="text-[10px] text-slate-400 uppercase tracking-wider">' . $time . '</div>';
+                })
+                ->addColumn('user', function ($log) {
+                    $nama = $log->user->nama_lengkap ?? 'Sistem';
+                    $jabatan = $log->user->jabatan ?? 'ROOT';
+                    return '<div style="font-weight: 700; color: #0f172a;">' . htmlspecialchars($nama) . '</div>
+                            <div style="font-size: 10px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">' . htmlspecialchars($jabatan) . '</div>';
+                })
+                ->editColumn('activity_type', function ($log) {
+                    $bg = '#f1f5f9'; $color = '#64748b';
+                    $type = strtolower($log->activity_type);
+                    if(str_contains($type, 'create')) { $bg = '#f0fdf4'; $color = '#16a34a'; }
+                    elseif(str_contains($type, 'update')) { $bg = '#fffbeb'; $color = '#d97706'; }
+                    elseif(str_contains($type, 'delete')) { $bg = '#fef2f2'; $color = '#dc2626'; }
+                    elseif(str_contains($type, 'aktivasi')) { $bg = '#f0f9ff'; $color = '#0ea5e9'; }
+                    
+                    $label = str_replace('_', ' ', $log->activity_type);
+                    return '<span class="badge" style="background: ' . $bg . '; color: ' . $color . '; padding: 4px 10px; border-radius: 6px; font-size: 9px; font-weight: 800; text-transform: uppercase;">' . htmlspecialchars($label) . '</span>';
+                })
+                ->editColumn('description', function ($log) {
+                    return '<div style="font-size: 12px; color: #475569; font-weight: 500; line-height: 1.5;">' . htmlspecialchars($log->description) . '</div>';
+                })
+                ->rawColumns(['logged_at', 'user', 'activity_type', 'description'])
+                ->make(true);
+        }
 
         // --- STATISTIK ---
         $totalLogs = ActivityLog::count();
@@ -32,7 +62,6 @@ class ActivityLogController extends Controller
         $logsAktivasi = ActivityLog::where('activity_type', 'LIKE', '%aktivasi%')->count();
 
         return view('activitylog.activity-log', compact(
-            'logs',
             'totalLogs',
             'logsToday',
             'logsPreOrder',

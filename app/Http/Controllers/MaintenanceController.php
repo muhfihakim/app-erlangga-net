@@ -33,6 +33,59 @@ class MaintenanceController extends Controller
         $customers = Customer::all();
         $teknisis = User::where('jabatan', 'Teknisi')->get();
 
+        if (request()->ajax()) {
+            $type = request()->query('type');
+            if ($type === 'admin') {
+                return \Yajra\DataTables\Facades\DataTables::of($allMaintenances)
+                    ->addColumn('no', function ($m) { return ''; })
+                    ->addColumn('pelanggan', function($m) {
+                        $nama = htmlspecialchars($m->customer->nama_lengkap ?? 'N/A');
+                        $id_pel = htmlspecialchars($m->customer->id_pelanggan ?? '-');
+                        return '<div style="text-align: left;"><div style="font-weight: 700; color: #0f172a;">' . $nama . '</div><div style="font-size: 11px; color: #64748b;">ID: ' . $id_pel . '</div></div>';
+                    })
+                    ->editColumn('status', function($m) {
+                        $badgeClass = $m->status === 'Selesai' ? 'badge-published' : 'badge-pending';
+                        $style = $m->status !== 'Selesai' ? 'background:#fef9c3;color:#854d0e;' : '';
+                        return '<div style="text-align: center;"><span class="badge ' . $badgeClass . '" style="' . $style . '">' . strtoupper($m->status) . '</span></div>';
+                    })
+                    ->addColumn('teknisi', function($m) {
+                        if ($m->teknisiEksekutor) {
+                            $html = '<div style="font-weight: 600; color: #475569;">' . htmlspecialchars($m->teknisiEksekutor->nama_lengkap) . '</div>';
+                            if ($m->partner) {
+                                $html .= '<div style="font-size: 10px; color: #94a3b8;">Team: ' . htmlspecialchars($m->partner) . '</div>';
+                            }
+                            return '<div style="text-align: center;">' . $html . '</div>';
+                        }
+                        return '<div style="text-align: center;"><span class="text-slate-400 italic">BELUM DIAMBIL</span></div>';
+                    })
+                    ->editColumn('completed_at', function($m) {
+                        $date = $m->completed_at ? \Carbon\Carbon::parse($m->completed_at)->format('d-m-Y H:i') : '-';
+                        return '<div style="text-align: center;">' . $date . '</div>';
+                    })
+                    ->addColumn('opsi', function($m) {
+                        return view('maintenances.action_buttons_admin', compact('m'))->render();
+                    })
+                    ->rawColumns(['pelanggan', 'status', 'teknisi', 'completed_at', 'opsi'])
+                    ->make(true);
+            } else {
+                return \Yajra\DataTables\Facades\DataTables::of($pendingTasks)
+                    ->addColumn('no', function ($m) { return ''; })
+                    ->addColumn('pelanggan', function($m) {
+                        $nama = htmlspecialchars($m->customer->nama_lengkap ?? 'N/A');
+                        $id_pel = htmlspecialchars($m->customer->id_pelanggan ?? '-');
+                        return '<div style="text-align: left;"><div style="font-weight: 700; color: #0f172a;">' . $nama . '</div><div style="font-size: 11px; color: #64748b;">ID: ' . $id_pel . '</div></div>';
+                    })
+                    ->editColumn('keterangan_kendala', function($m) {
+                        return '<div style="text-align: center;">' . htmlspecialchars(\Illuminate\Support\Str::limit($m->keterangan_kendala, 40)) . '</div>';
+                    })
+                    ->addColumn('opsi', function($m) {
+                        return view('maintenances.action_buttons_pending', compact('m'))->render();
+                    })
+                    ->rawColumns(['pelanggan', 'keterangan_kendala', 'opsi'])
+                    ->make(true);
+            }
+        }
+
         // --- STATISTIK ---
         $thisMonth = Carbon::now()->month;
         $thisYear = Carbon::now()->year;
