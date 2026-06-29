@@ -59,7 +59,9 @@
                 data-po-email="{{ $po->alamat_email }}"
                 data-po-alamat="{{ $po->alamat_lengkap }}"
                 data-po-identitas="{{ $po->no_identitas }}"
-                data-po-koordinat="{{ $po->titik_koordinat }}"><i
+                data-po-koordinat="{{ $po->titik_koordinat }}"
+                data-foto-ktp="{{ $po->foto_ktp ? Storage::url($po->foto_ktp) : '' }}"
+                data-foto-rumah="{{ $po->foto_rumah ? Storage::url($po->foto_rumah) : '' }}"><i
                     class="fa-solid fa-pen-to-square text-amber-500"></i></button>
             <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                 onclick="confirmGlobalDelete('{{ route('pre_orders.destroy', $po->id) }}', '{{ $po->nama_lengkap }}')"><i

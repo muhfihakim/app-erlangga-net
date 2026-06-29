@@ -22,6 +22,21 @@
                     $('#edit_alamat_email').val($btn.data('po-email'));
                     $('#edit_alamat_lengkap').val($btn.data('po-alamat'));
                     $('#edit_titik_koordinat').val($btn.data('po-koordinat'));
+
+                    const fotoKtpEdit = $btn.data('foto-ktp');
+                    const fotoRumahEdit = $btn.data('foto-rumah');
+
+                    if (fotoKtpEdit) {
+                        $('#current_foto_ktp').html(`<img src="${fotoKtpEdit}" class="w-full h-auto max-h-48 object-contain bg-slate-50">`);
+                    } else {
+                        $('#current_foto_ktp').html(`<div class="w-full h-24 bg-slate-50 flex items-center justify-center text-slate-400 text-xs font-bold">TIDAK ADA FOTO</div>`);
+                    }
+
+                    if (fotoRumahEdit) {
+                        $('#current_foto_rumah').html(`<img src="${fotoRumahEdit}" class="w-full h-auto max-h-48 object-contain bg-slate-50">`);
+                    } else {
+                        $('#current_foto_rumah').html(`<div class="w-full h-24 bg-slate-50 flex items-center justify-center text-slate-400 text-xs font-bold">TIDAK ADA FOTO</div>`);
+                    }
                     
                     // Reset tabs to first
                     $(`#${modalId} .modal-tab`).first().trigger('click');
