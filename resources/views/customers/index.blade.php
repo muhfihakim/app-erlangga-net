@@ -186,6 +186,7 @@
                         <tr>
                             <th style="text-align: center; width: 50px;">#</th>
                             <th style="text-align: center; width: 100px;">Tgl PO</th>
+                            <th style="text-align: center; width: 150px;">Sales</th>
                             <th style="text-align: center;">Nama Pelanggan</th>
                             <th style="text-align: center;">Paket</th>
                             <th style="text-align: center; width: 150px;">Opsi</th>
@@ -199,6 +200,7 @@
                                 <td style="text-align: center; color: #64748b; font-size: 12px; font-weight: 600;">
                                     {{ \Carbon\Carbon::parse($po->created_at)->format('d-m-Y') }}
                                 </td>
+                                <td style="text-align: center; font-weight: 600;">{{ $po->nama_sales }}</td>
                                 <td style="text-align: left;">
                                     <div style="font-weight: 700; color: #0f172a;">{{ $po->nama_lengkap }}</div>
                                     <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
@@ -224,14 +226,26 @@
                                             data-tgl="{{ \Carbon\Carbon::parse($po->created_at)->format('d/m/Y') }}">
                                             <i class="fa-solid fa-circle-info text-primary"></i>
                                         </button>
-                                        <button type="button"
-                                            class="btn-primary-admin !h-9 !px-3 !text-[11px] activate-btn !flex !items-center !justify-center gap-1"
-                                            onclick="openActivationModal(this)" data-po-id="{{ $po->id }}"
-                                            data-po-sales-id="{{ $po->id_sales }}"
-                                            data-po-nama="{{ $po->nama_lengkap }}"
-                                            data-po-paket="{{ $po->paket_internet }}">
-                                            <i class="fa-solid fa-bolt"></i> Ambil & Aktivasi
-                                        </button>
+                                        @if ($po->is_unspek)
+                                            @if ($po->is_unspek_approved)
+                                                <span class="badge" style="background:#fef2f2;color:#be123c;">UNSPEK</span>
+                                            @else
+                                                <span class="badge" style="background:#fef3c7;color:#b45309;">UNSPEK (PENDING)</span>
+                                            @endif
+                                        @else
+                                            <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                                title="Unspek" onclick="openUnspekModal('{{ $po->id }}', '{{ $po->nama_lengkap }}')">
+                                                <i class="fa-solid fa-ban text-amber-500"></i>
+                                            </button>
+                                            <button type="button"
+                                                class="btn-primary-admin !h-9 !px-3 !text-[11px] activate-btn !flex !items-center !justify-center gap-1"
+                                                onclick="openActivationModal(this)" data-po-id="{{ $po->id }}"
+                                                data-po-sales-id="{{ $po->id_sales }}"
+                                                data-po-nama="{{ $po->nama_lengkap }}"
+                                                data-po-paket="{{ $po->paket_internet }}">
+                                                <i class="fa-solid fa-bolt"></i> Ambil & Aktivasi
+                                            </button>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
