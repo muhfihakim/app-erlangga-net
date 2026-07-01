@@ -90,7 +90,19 @@ class FinanceController extends Controller
             $c->total_techs = $totalTechs;
         }
 
-        return view('finance.index', compact('customers', 'teknisis', 'teknisiId', 'start', 'end', 'baseFee', 'totalPendapatan', 'stats', 'isFiltered'));
+        // Fetch Kasbon
+        $kasbonsQuery = \App\Models\Kasbon::with('teknisi');
+        if ($teknisiId) {
+            $kasbonsQuery->where('teknisi_id', $teknisiId);
+        }
+        if ($start) $kasbonsQuery->whereDate('tanggal', '>=', $start);
+        if ($end) $kasbonsQuery->whereDate('tanggal', '<=', $end);
+        
+        $kasbons = $kasbonsQuery->orderBy('tanggal', 'desc')->get();
+        $totalKasbon = $kasbons->sum('nominal');
+        $pendapatanBersih = $totalPendapatan - $totalKasbon;
+
+        return view('finance.index', compact('customers', 'teknisis', 'teknisiId', 'start', 'end', 'baseFee', 'totalPendapatan', 'stats', 'isFiltered', 'kasbons', 'totalKasbon', 'pendapatanBersih'));
     }
 
     public function export(Request $request)

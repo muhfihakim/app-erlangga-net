@@ -87,6 +87,11 @@
                 <i class="fa-solid fa-wallet"></i>
                 <span>Pendapatan Teknisi</span>
             </a>
+            <a class="sidebar-link {{ Request::is('keuangan/kasbon*') ? 'active' : '' }}"
+                href="{{ route('kasbons.index') }}">
+                <i class="fa-solid fa-hand-holding-dollar"></i>
+                <span>Kasbon Teknisi</span>
+            </a>
 
             <div class="sidebar-section-label" style="margin-top:.5rem;">Laporan</div>
             <a class="sidebar-link {{ Request::is('laporan/aktivasi') ? 'active' : '' }}"

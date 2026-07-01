@@ -19,15 +19,6 @@
                 text-transform: uppercase !important; font-weight: 600; font-size: 12px;
             }
 
-            /* Responsive overrides for inline styles */
-            @media (max-width: 768px) {
-                .stats-grid {
-                    grid-template-columns: 1fr !important;
-                }
-                .stat-card {
-                    grid-column: span 1 !important;
-                }
-            }
         </style>
     @endsection
 
@@ -46,6 +37,7 @@
                     <i class="fa-solid fa-file-pdf"></i> Export PDF
                 </a>
             @endif
+
         </div>
     </div>
 
@@ -71,20 +63,40 @@
             </div>
         </div>
 
-        <div class="stat-card" style="grid-column: span 2;">
+        <div class="stat-card">
             <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
                 <i class="fa-solid fa-wallet"></i>
             </div>
             <div>
                 <div class="stat-val" style="color: #d97706;">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}
                 </div>
-                <div class="stat-lbl">Estimasi Pendapatan {{ $teknisiId ? 'Teknisi' : 'Keseluruhan' }}</div>
+                <div class="stat-lbl">Pendapatan Kotor</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fee2e2;color:#ef4444;">
+                <i class="fa-solid fa-hand-holding-dollar"></i>
+            </div>
+            <div>
+                <div class="stat-val" style="color: #ef4444;">Rp {{ number_format($totalKasbon, 0, ',', '.') }}</div>
+                <div class="stat-lbl">Total Kasbon</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#dcfce7;color:#15803d;">
+                <i class="fa-solid fa-sack-dollar"></i>
+            </div>
+            <div>
+                <div class="stat-val" style="color: #15803d;">Rp {{ number_format($pendapatanBersih, 0, ',', '.') }}</div>
+                <div class="stat-lbl">Pendapatan Bersih</div>
             </div>
         </div>
     </div>
 
     <!-- Team Size Stats -->
-    <div class="stats-grid mb-6" style="grid-template-columns: repeat(4, 1fr);">
+    <div class="stats-grid mb-6">
         <div class="stat-card">
             <div class="stat-icon" style="background:#f0f9ff;color:#0ea5e9;">
                 <i class="fa-solid fa-user"></i>
@@ -244,6 +256,7 @@
                 </tbody>
             </table>
         </div>
+        </div>
     </div>
 
     @section('Scripts')
@@ -261,11 +274,12 @@
                     "language": {
                         "zeroRecords": "Data tidak ditemukan",
                         "paginate": {
-                            "previous": '<i class="fa-solid fa-chevron-left"></i>',
-                            "next": '<i class="fa-solid fa-chevron-right"></i>'
+                            "previous": "<i class='fa-solid fa-chevron-left'></i>",
+                            "next": "<i class='fa-solid fa-chevron-right'></i>"
                         }
                     }
                 });
+
 
                 $('#custom-search').on('keyup', function() {
                     table.search(this.value).draw();
