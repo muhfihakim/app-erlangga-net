@@ -507,12 +507,12 @@
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <a id="det_wa_link" href="#" target="_blank"
-                        class="btn-primary-admin !bg-emerald-50 !text-emerald-700 !border-emerald-200 !shadow-none !flex !items-center !justify-center gap-2 h-12 rounded-xl">
+                        class="btn-primary-admin !text-white !shadow-none !flex !items-center !justify-center gap-2 h-12 rounded-xl">
                         <i class="fa-brands fa-whatsapp text-lg"></i>
                         <span class="font-bold">Hubungi via WA</span>
                     </a>
                     <a id="det_tikor_link" href="#" target="_blank"
-                        class="btn-primary-admin !bg-indigo-50 !text-indigo-700 !border-indigo-200 !shadow-none !flex !items-center !justify-center gap-2 h-12 rounded-xl">
+                        class="btn-primary-admin !text-white !shadow-none !flex !items-center !justify-center gap-2 h-12 rounded-xl">
                         <i class="fa-solid fa-map-location-dot text-lg"></i>
                         <span class="font-bold">Petunjuk Arah</span>
                     </a>
