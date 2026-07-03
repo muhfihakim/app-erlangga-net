@@ -213,6 +213,12 @@
                 const originalHtml = btn.html();
                 btn.html('<i class="fa-solid fa-spinner fa-spin"></i> Menyiapkan tunnel...').prop('disabled', true).css('opacity', '0.7');
                 
+                // Buka tab baru SEBELUM proses AJAX agar tidak diblokir oleh fitur Popup Blocker browser
+                const newTab = window.open('about:blank', '_blank');
+                if (newTab) {
+                    newTab.document.write('<div style="font-family:sans-serif; text-align:center; padding-top:50px; color:#555;">Menghubungkan ke Remote ONT... Harap tunggu.</div>');
+                }
+                
                 $.ajax({
                     url: '{{ route('pppoe.remote_tunnel') }}',
                     method: 'POST',
@@ -225,13 +231,19 @@
                         btn.html(originalHtml).prop('disabled', false).css('opacity', '1');
                         if (res.success) {
                             showToast(res.message, 'success');
-                            window.open(res.url, '_blank');
+                            if (newTab) {
+                                newTab.location.href = res.url;
+                            } else {
+                                window.open(res.url, '_blank');
+                            }
                         } else {
                             showToast(res.message, 'error');
+                            if (newTab) newTab.close();
                         }
                     },
                     error: function(err) {
                         btn.html(originalHtml).prop('disabled', false).css('opacity', '1');
+                        if (newTab) newTab.close();
                         let msg = 'Terjadi kesalahan sistem.';
                         if (err.responseJSON && err.responseJSON.message) {
                             msg = err.responseJSON.message;
