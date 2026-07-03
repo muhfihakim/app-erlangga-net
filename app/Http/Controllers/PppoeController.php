@@ -130,9 +130,9 @@ class PppoeController extends Controller
         // Eksekusi cloudflared di latar belakang
         shell_exec("nohup /usr/local/bin/cloudflared tunnel --url http://{$ip}:{$port} > {$log_file} 2>&1 &");
 
-        // Tunggu maksimal 5 detik untuk mendapatkan URL dari log
+        // Tunggu maksimal 10 detik untuk mendapatkan URL dari log
         $url = "";
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 10; $i++) {
             sleep(1);
             $log_content = @file_get_contents($log_file);
             if ($log_content && preg_match('/https:\/\/[a-zA-Z0-9.-]+\.trycloudflare\.com/', $log_content, $matches)) {
