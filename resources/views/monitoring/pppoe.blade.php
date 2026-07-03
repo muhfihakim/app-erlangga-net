@@ -213,10 +213,41 @@
                 const originalHtml = btn.html();
                 btn.html('<i class="fa-solid fa-spinner fa-spin"></i> Menyiapkan tunnel...').prop('disabled', true).css('opacity', '0.7');
                 
-                // Buka tab baru SEBELUM proses AJAX agar tidak diblokir oleh fitur Popup Blocker browser
+                // Buka tab baru SEBELUM proses AJAX
                 const newTab = window.open('about:blank', '_blank');
                 if (newTab) {
-                    newTab.document.write('<div style="font-family:sans-serif; text-align:center; padding-top:50px; color:#555;">Menghubungkan ke Remote ONT... Harap tunggu.</div>');
+                    const loadingHtml = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Menyiapkan Remote Akses</title>
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <script src="https://cdn.tailwindcss.com"><\/script>
+                        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+                        <style>
+                            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+                            body { font-family: 'Inter', sans-serif; background: #f8fafc; }
+                            .pulse-ring { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+                            @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .7; transform: scale(1.05); } }
+                            @keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
+                        </style>
+                    </head>
+                    <body class="flex items-center justify-center min-h-screen m-0">
+                        <div class="bg-white p-10 rounded-3xl shadow-xl flex flex-col items-center text-center max-w-md w-full mx-4 border border-slate-100">
+                            <div class="w-24 h-24 mb-6 rounded-full bg-sky-50 flex items-center justify-center pulse-ring">
+                                <i class="fa-solid fa-satellite-dish text-4xl text-sky-500"></i>
+                            </div>
+                            <h2 class="text-2xl font-extrabold text-slate-800 mb-2">Membangun Tunnel Aman</h2>
+                            <p class="text-slate-500 text-sm mb-8" id="status-text">Sedang menegosiasikan enkripsi dan rute dengan server Cloudflare. Proses ini membutuhkan waktu beberapa detik...</p>
+                            <div class="w-full bg-slate-100 rounded-full h-2 mb-2 overflow-hidden relative">
+                                <div class="bg-sky-500 h-2 rounded-full absolute top-0 left-0 w-1/2" style="animation: slide 1.5s ease-in-out infinite alternate;"></div>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                    `;
+                    newTab.document.write(loadingHtml);
+                    newTab.document.close();
                 }
                 
                 $.ajax({
@@ -232,7 +263,19 @@
                         if (res.success) {
                             showToast(res.message, 'success');
                             if (newTab) {
-                                newTab.location.href = res.url;
+                                // Ubah UI untuk indikator selesai dan mulai hitung mundur 4 detik untuk propagasi DNS Cloudflare
+                                newTab.document.getElementById('status-text').innerHTML = 'Tunnel aktif! Mengarahkan lalu lintas dalam <span id="countdown" class="font-bold text-sky-600 text-base">4</span> detik untuk memastikan kestabilan jalur...';
+                                let count = 4;
+                                const interval = setInterval(() => {
+                                    count--;
+                                    const countEl = newTab.document.getElementById('countdown');
+                                    if(countEl) countEl.innerText = count;
+                                    
+                                    if(count <= 0) {
+                                        clearInterval(interval);
+                                        newTab.location.href = res.url;
+                                    }
+                                }, 1000);
                             } else {
                                 window.open(res.url, '_blank');
                             }
