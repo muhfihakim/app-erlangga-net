@@ -127,8 +127,8 @@ class PppoeController extends Controller
         shell_exec("pkill -f '/usr/local/bin/cloudflared tunnel --url http://{$ip}:{$port}'");
         @unlink($log_file);
 
-        // Eksekusi cloudflared di latar belakang
-        shell_exec("nohup /usr/local/bin/cloudflared tunnel --url http://{$ip}:{$port} > {$log_file} 2>&1 &");
+        // Eksekusi cloudflared di latar belakang dengan batasan waktu 5 menit (300 detik)
+        shell_exec("nohup timeout 5m /usr/local/bin/cloudflared tunnel --url http://{$ip}:{$port} > {$log_file} 2>&1 &");
 
         // Tunggu maksimal 10 detik untuk mendapatkan URL dari log
         $url = "";
