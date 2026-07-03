@@ -107,4 +107,51 @@ class PppoeController extends Controller
         }
         return response()->json($data);
     }
+
+    /**
+     * Create temporary remote tunnel for ONT/ONU using Mikrotik dst-nat
+     */
+    public function remoteTunnel(Request $request)
+    {
+        $request->validate([
+            'ip' => 'required|ip',
+            'port' => 'nullable|integer'
+        ]);
+
+        $ip = $request->ip;
+        $port = $request->port ?? 80;
+
+        $log_file = "/tmp/tunnel_" . str_replace('.', '_', $ip) . ".log";
+
+        // Bersihkan tunnel lama untuk IP ini jika masih berjalan
+        shell_exec("pkill -f 'cloudflared tunnel --url http://{$ip}:{$port}'");
+        @unlink($log_file);
+
+        // Eksekusi cloudflared di latar belakang
+        shell_exec("nohup cloudflared tunnel --url http://{$ip}:{$port} > {$log_file} 2>&1 &");
+
+        // Tunggu maksimal 5 detik untuk mendapatkan URL dari log
+        $url = "";
+        for ($i = 0; $i < 5; $i++) {
+            sleep(1);
+            $log_content = @file_get_contents($log_file);
+            if ($log_content && preg_match('/https:\/\/[a-zA-Z0-9.-]+\.trycloudflare\.com/', $log_content, $matches)) {
+                $url = $matches[0];
+                break;
+            }
+        }
+
+        if ($url) {
+            return response()->json([
+                'success' => true,
+                'url' => $url,
+                'message' => 'Tunnel Cloudflare berhasil dibuat.'
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal mendapatkan tautan dari Cloudflare. Periksa log server.'
+        ], 500);
+    }
 }
