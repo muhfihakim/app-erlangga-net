@@ -27,6 +27,9 @@
         </div>
     </div>
 
+    <!-- Mobile Navigation -->
+    <x-layouts.mobile-nav />
+
     <!-- Global Delete Confirmation Modal -->
     <div class="modal-overlay" id="globalDeleteModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
