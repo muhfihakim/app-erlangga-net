@@ -25,11 +25,13 @@
             <i class="fa-solid fa-tower-broadcast"></i>
             <span>Manajemen ODP</span>
         </a>
-        @if (auth()->user()->isAdmin())
+        @if (auth()->user()->isAdmin() || auth()->user()->jabatan === 'Teknisi')
             <a class="sidebar-link {{ Request::is('pppoe*') ? 'active' : '' }}" href="{{ route('pppoe.index') }}">
                 <i class="fa-solid fa-network-wired"></i>
                 <span>PPPoE Aktif</span>
             </a>
+        @endif
+        @if (auth()->user()->isAdmin())
             <a class="sidebar-link {{ Request::is('monitoring') ? 'active' : '' }}"
                 href="{{ route('monitoring.index') }}">
                 <i class="fa-solid fa-chart-line"></i>

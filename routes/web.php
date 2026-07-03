@@ -28,9 +28,11 @@ Route::post('/magic-login', [AuthController::class, 'magicLogin']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth.custom'])->group(function () {
+    // Routes accessible by Admin and Teknisi
+    Route::get('/pppoe', [PppoeController::class, 'index'])->name('pppoe.index');
+
     // Routes only for Administrator
     Route::middleware(['admin'])->group(function () {
-        Route::get('/pppoe', [PppoeController::class, 'index'])->name('pppoe.index');
         Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring.index');
 
         // Asset Management
@@ -122,13 +124,17 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('customers/isolir/export', [CustomerController::class, 'exportIsolir'])->name('customers.export_isolir');
     Route::post('/customers/{id}/restore', [CustomerController::class, 'restore'])->name('customers.restore');
 
+    // PPPoE APIs (Accessible by Admin and Teknisi)
+    Route::prefix('api')->group(function () {
+        Route::get('/pppoe/active', [PppoeController::class, 'active']);
+        Route::get('/pppoe/data', [PppoeController::class, 'data'])->name('pppoe.data');
+        Route::get('/pppoe/realtime-traffic', [PppoeController::class, 'traffic'])->name('pppoe.traffic');
+    });
+
     // MikroTik & Admin APIs (Administrator only)
     Route::prefix('api')->middleware(['admin'])->group(function () {
         Route::get('/mikrotik/traffic', [MonitoringController::class, 'traffic']);
         Route::get('/mikrotik/status', [MonitoringController::class, 'status']);
-        Route::get('/pppoe/active', [PppoeController::class, 'active']);
-        Route::get('/pppoe/data', [PppoeController::class, 'data'])->name('pppoe.data');
-        Route::get('/pppoe/realtime-traffic', [PppoeController::class, 'traffic'])->name('pppoe.traffic');
         
         // OLT Telnet API Routes (Admin only: Generator)
         Route::post('/olt/check-next-id', [OltController::class, 'checkNextOnuId']);
@@ -142,6 +148,9 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::get('/dashboard-data', [OltController::class, 'getDashboardData']);
         Route::get('/onu-details', [OltController::class, 'getOnuDetails']);
     });
+
+    // PPPoE Remote Tunnel (Accessible by Admin & Teknisi)
+    Route::post('/api/pppoe/remote-tunnel', [PppoeController::class, 'remoteTunnel'])->name('pppoe.remote_tunnel');
 
     Route::resource('customers', CustomerController::class)->except(['create', 'edit', 'show']);
     

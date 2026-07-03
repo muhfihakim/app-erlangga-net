@@ -51,11 +51,13 @@
                 <i class="fa-solid fa-tower-broadcast"></i>
                 <span>Manajemen ODP</span>
             </a>
-            @if (auth()->check() && auth()->user()->isAdmin())
+            @if (auth()->check() && (auth()->user()->isAdmin() || auth()->user()->jabatan === 'Teknisi'))
                 <a class="mobile-grid-item {{ Request::is('pppoe*') ? 'active' : '' }}" href="{{ route('pppoe.index') }}">
                     <i class="fa-solid fa-network-wired"></i>
                     <span>PPPoE Aktif</span>
                 </a>
+            @endif
+            @if (auth()->check() && auth()->user()->isAdmin())
                 <a class="mobile-grid-item {{ Request::is('monitoring') ? 'active' : '' }}" href="{{ route('monitoring.index') }}">
                     <i class="fa-solid fa-chart-line"></i>
                     <span>Monitoring</span>

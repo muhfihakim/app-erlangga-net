@@ -232,4 +232,69 @@ class MikroTikService
             ];
         }
     }
+
+    public function createRemoteTunnel(string $targetIp, string $targetPort = '80'): array
+    {
+        try {
+            $this->cleanupOldTunnels(); // Clean up expired tunnels first
+            
+            $client = $this->getClient();
+            $host = Config::get('mikrotik.host');
+            $randomPort = rand(50000, 60000);
+            $timestamp = time();
+            $comment = "remote-tunnel-{$timestamp}";
+            
+            $client->send([
+                '/ip/firewall/nat/add',
+                '=chain=dstnat',
+                '=protocol=tcp',
+                '=dst-port=' . $randomPort,
+                '=action=dst-nat',
+                '=to-addresses=' . $targetIp,
+                '=to-ports=' . $targetPort,
+                '=comment=' . $comment
+            ]);
+
+            return [
+                'success' => true,
+                'url' => "http://{$host}:{$randomPort}",
+                'port' => $randomPort,
+                'comment' => $comment
+            ];
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+
+    protected function cleanupOldTunnels()
+    {
+        try {
+            $client = $this->getClient();
+            $natsRaw = $client->send(['/ip/firewall/nat/print']);
+            $nats = $this->parseRawResponse($natsRaw);
+            
+            $currentTime = time();
+            // TTL 15 minutes = 900 seconds
+            $ttl = 900; 
+
+            foreach ($nats as $nat) {
+                $comment = $nat['comment'] ?? '';
+                if (str_starts_with($comment, 'remote-tunnel-')) {
+                    $ts = (int) str_replace('remote-tunnel-', '', $comment);
+                    if ($ts > 0 && ($currentTime - $ts) > $ttl) {
+                        $client->send([
+                            '/ip/firewall/nat/remove',
+                            '=.id=' . $nat['.id']
+                        ]);
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            // Silently fail cleanup if it errors
+            \Illuminate\Support\Facades\Log::error("cleanupOldTunnels Error: " . $e->getMessage());
+        }
+    }
 }

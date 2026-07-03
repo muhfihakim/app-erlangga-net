@@ -196,10 +196,49 @@
                         <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Uptime</span><span class="text-sm font-bold text-slate-700">${formatUptimeToHMS(uptime)}</span></div>
                         <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Total Upload (TX)</span><span class="text-sm font-bold text-orange-600">${formatBytes(bin)}</span></div>
                         <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Total Download (RX)</span><span class="text-sm font-bold text-sky-600">${formatBytes(bout)}</span></div>
-                        <div class="flex justify-between"><span class="text-[11px] font-bold text-slate-400 uppercase">Caller ID (MAC)</span><span class="text-sm font-bold text-slate-700 font-mono">${caller || '-'}</span></div>
+                        <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Caller ID (MAC)</span><span class="text-sm font-bold text-slate-700 font-mono">${caller || '-'}</span></div>
+                        
+                        <div class="mt-6">
+                            <button onclick="createRemoteTunnel('${addr}')" class="btn-primary-admin w-full flex items-center justify-center gap-2" style="padding: 12px; border-radius: 12px; font-weight: 700; width: 100%;">
+                                <i class="fa-solid fa-satellite-dish"></i> Remote Akses ONT/ONU
+                            </button>
+                        </div>
                     </div>
                 `);
                 openCustomModal('pppoeDetailModal');
+            }
+
+            function createRemoteTunnel(ip) {
+                const btn = $(event.currentTarget);
+                const originalHtml = btn.html();
+                btn.html('<i class="fa-solid fa-spinner fa-spin"></i> Menyiapkan tunnel...').prop('disabled', true).css('opacity', '0.7');
+                
+                $.ajax({
+                    url: '{{ route('pppoe.remote_tunnel') }}',
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        ip: ip,
+                        port: 80
+                    },
+                    success: function(res) {
+                        btn.html(originalHtml).prop('disabled', false).css('opacity', '1');
+                        if (res.success) {
+                            showToast(res.message, 'success');
+                            window.open(res.url, '_blank');
+                        } else {
+                            showToast(res.message, 'error');
+                        }
+                    },
+                    error: function(err) {
+                        btn.html(originalHtml).prop('disabled', false).css('opacity', '1');
+                        let msg = 'Terjadi kesalahan sistem.';
+                        if (err.responseJSON && err.responseJSON.message) {
+                            msg = err.responseJSON.message;
+                        }
+                        showToast(msg, 'error');
+                    }
+                });
             }
         </script>
     @endsection
