@@ -124,11 +124,11 @@ class PppoeController extends Controller
         $log_file = "/tmp/tunnel_" . str_replace('.', '_', $ip) . ".log";
 
         // Bersihkan tunnel lama untuk IP ini jika masih berjalan
-        shell_exec("pkill -f 'cloudflared tunnel --url http://{$ip}:{$port}'");
+        shell_exec("pkill -f '/usr/local/bin/cloudflared tunnel --url http://{$ip}:{$port}'");
         @unlink($log_file);
 
         // Eksekusi cloudflared di latar belakang
-        shell_exec("nohup cloudflared tunnel --url http://{$ip}:{$port} > {$log_file} 2>&1 &");
+        shell_exec("nohup /usr/local/bin/cloudflared tunnel --url http://{$ip}:{$port} > {$log_file} 2>&1 &");
 
         // Tunggu maksimal 5 detik untuk mendapatkan URL dari log
         $url = "";
