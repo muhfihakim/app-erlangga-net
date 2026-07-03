@@ -186,6 +186,43 @@
         </tfoot>
     </table>
 
+    @if(isset($kasbons) && count($kasbons) > 0)
+    <h3 style="margin-top: 30px; margin-bottom: 10px; color: #2c3e50; text-transform: uppercase; font-size: 12px;">Rincian Kasbon</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th width="5%">No</th>
+                <th width="20%">Tanggal</th>
+                <th width="55%">Keterangan</th>
+                <th width="20%">Nominal (Rp)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($kasbons as $k)
+                <tr>
+                    <td class="text-center">{{ $loop->iteration }}</td>
+                    <td class="text-center">{{ \Carbon\Carbon::parse($k->tanggal)->format('d/m/Y') }}</td>
+                    <td>{{ $k->keterangan ?? '-' }}</td>
+                    <td class="text-center fw-bold" style="color: #c0392b;">Rp {{ number_format($k->nominal, 0, ',', '.') }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+        <tfoot>
+            <tr style="background-color: #ecf0f1;">
+                <td colspan="3" class="text-right fw-bold">TOTAL KASBON</td>
+                <td class="text-center fw-bold" style="color: #c0392b;">Rp {{ number_format($totalKasbon, 0, ',', '.') }}</td>
+            </tr>
+        </tfoot>
+    </table>
+    @endif
+
+    <table class="table" style="width: 100%; margin-top: 20px;">
+        <tr style="background-color: #2c3e50; color: white;">
+            <td class="fw-bold" style="padding: 10px; width: 75%; text-align: right;">PENDAPATAN BERSIH (TOTAL ESTIMASI - TOTAL KASBON)</td>
+            <td class="text-center fw-bold" style="padding: 10px; width: 25%;">Rp {{ number_format($totalPendapatan - ($totalKasbon ?? 0), 0, ',', '.') }}</td>
+        </tr>
+    </table>
+
     <div class="summary">
         Total Aktivasi: {{ $customers->count() }} Data
     </div>

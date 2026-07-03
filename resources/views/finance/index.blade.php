@@ -258,6 +258,39 @@
         </div>
     </div>
 
+    @if(count($kasbons) > 0)
+    <div style="margin-top:2rem; margin-bottom:1rem;">
+        <h2 style="font-size:18px;font-weight:800;margin:0;color:#0f172a;">Rincian Kasbon</h2>
+    </div>
+    <div class="table-card">
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th style="text-align: center; width: 50px;">#</th>
+                        <th style="text-align: center; width: 120px;">Tanggal</th>
+                        <th style="text-align: center;">Teknisi</th>
+                        <th style="text-align: center;">Keterangan</th>
+                        <th style="text-align: center; width: 150px;">Nominal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($kasbons as $k)
+                        <tr>
+                            <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}</td>
+                            <td style="text-align: center; color: #64748b;">{{ \Carbon\Carbon::parse($k->tanggal)->format('d/m/Y') }}</td>
+                            <td style="text-align: left; font-weight: 700; color: #0f172a;">{{ $k->teknisi->nama_lengkap ?? 'Unknown' }}</td>
+                            <td style="text-align: left; color: #475569;">{{ $k->keterangan ?? '-' }}</td>
+                            <td style="text-align: center; font-weight: 800; color: #ef4444;">Rp {{ number_format($k->nominal, 0, ',', '.') }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @endif
+
+
     @section('Scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>

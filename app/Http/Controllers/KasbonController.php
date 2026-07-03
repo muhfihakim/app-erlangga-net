@@ -35,9 +35,22 @@ class KasbonController extends Controller
         
         $kasbons = $kasbonsQuery->orderBy('tanggal', 'desc')->get();
         $totalKasbon = $kasbons->sum('nominal');
+
+        // Total Kasbon Previous Cycle
+        $prevStart = \Carbon\Carbon::parse($start)->subDays(14)->format('Y-m-d');
+        $prevEnd = \Carbon\Carbon::parse($start)->subDays(1)->format('Y-m-d');
+        $kasbonPrevQuery = \App\Models\Kasbon::query();
+        if ($teknisiId) $kasbonPrevQuery->where('teknisi_id', $teknisiId);
+        $totalKasbonPrevious = $kasbonPrevQuery->whereDate('tanggal', '>=', $prevStart)->whereDate('tanggal', '<=', $prevEnd)->sum('nominal');
+
+        // Total Kasbon This Month
+        $kasbonMonthQuery = \App\Models\Kasbon::query();
+        if ($teknisiId) $kasbonMonthQuery->where('teknisi_id', $teknisiId);
+        $totalKasbonThisMonth = $kasbonMonthQuery->whereMonth('tanggal', \Carbon\Carbon::now()->month)->whereYear('tanggal', \Carbon\Carbon::now()->year)->sum('nominal');
+
         $teknisis = \App\Models\User::where('jabatan', 'Teknisi')->get();
 
-        return view('finance.kasbon', compact('kasbons', 'totalKasbon', 'teknisis', 'teknisiId', 'start', 'end', 'isFiltered'));
+        return view('finance.kasbon', compact('kasbons', 'totalKasbon', 'totalKasbonPrevious', 'totalKasbonThisMonth', 'teknisis', 'teknisiId', 'start', 'end', 'isFiltered'));
     }
 
     public function store(Request $request)
@@ -48,7 +61,7 @@ class KasbonController extends Controller
             'teknisi_id' => 'required|exists:users,id',
             'nominal' => 'required|numeric|min:0',
             'tanggal' => 'required|date',
-            'bukti' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
+            'bukti' => 'nullable|mimes:jpeg,png,jpg,pdf|max:5120',
             'keterangan' => 'nullable|string'
         ]);
 

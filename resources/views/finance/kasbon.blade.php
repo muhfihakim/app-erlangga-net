@@ -46,6 +46,24 @@
                 <div class="stat-lbl">Total Kasbon Periode Ini</div>
             </div>
         </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#ffedd5;color:#f97316;">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <div>
+                <div class="stat-val" style="color: #f97316;">Rp {{ number_format($totalKasbonPrevious ?? 0, 0, ',', '.') }}</div>
+                <div class="stat-lbl">Kasbon Periode Sebelumnya</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fce7f3;color:#ec4899;">
+                <i class="fa-solid fa-calendar-days"></i>
+            </div>
+            <div>
+                <div class="stat-val" style="color: #ec4899;">Rp {{ number_format($totalKasbonThisMonth ?? 0, 0, ',', '.') }}</div>
+                <div class="stat-lbl">Kasbon Bulan Ini</div>
+            </div>
+        </div>
     </div>
 
     <!-- Filter & Search Form -->
@@ -170,7 +188,7 @@
                         </div>
                         <div class="form-group md:col-span-2">
                             <label class="form-label-custom">Bukti (Opsional)</label>
-                            <input type="file" name="bukti" class="form-input-custom w-full" accept="image/*">
+                            <input type="file" name="bukti" class="form-input-custom w-full" accept="image/jpeg,image/png,application/pdf" capture="environment">
                         </div>
                         <div class="form-group md:col-span-2">
                             <label class="form-label-custom">Keterangan (Opsional)</label>

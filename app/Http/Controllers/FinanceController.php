@@ -170,6 +170,19 @@ class FinanceController extends Controller
 
         $teknisi = $teknisiId ? User::find($teknisiId) : null;
 
+        // Fetch Kasbon for export
+        $kasbonsQuery = \App\Models\Kasbon::with('teknisi');
+        if ($teknisiId) {
+            $kasbonsQuery->where('teknisi_id', $teknisiId);
+        }
+        $kasbonsQuery->whereBetween('tanggal', [
+            Carbon::parse($request->start_date)->startOfDay(),
+            Carbon::parse($request->end_date)->endOfDay()
+        ]);
+        
+        $kasbons = $kasbonsQuery->orderBy('tanggal', 'desc')->get();
+        $totalKasbon = $kasbons->sum('nominal');
+
         $pdf = PDF::loadView('finance.export', [
             'customers' => $customers,
             'start' => $request->start_date,
@@ -177,7 +190,9 @@ class FinanceController extends Controller
             'teknisi' => $teknisi,
             'totalPendapatan' => $totalPendapatan,
             'baseFee' => $baseFee,
-            'stats' => $stats
+            'stats' => $stats,
+            'kasbons' => $kasbons,
+            'totalKasbon' => $totalKasbon
         ]);
 
         return $pdf->download("laporan-keuangan-teknisi-{$request->start_date}-ke-{$request->end_date}.pdf");
