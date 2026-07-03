@@ -22,11 +22,6 @@
             <i class="fa-solid fa-wallet"></i>
             <span>Keuangan</span>
         </a>
-    @else
-        <a href="{{ route('activitylog.index') }}" class="mobile-nav-item {{ Request::is('activity-log') ? 'active' : '' }}">
-            <i class="fa-solid fa-clipboard-list"></i>
-            <span>Log</span>
-        </a>
     @endif
 
     <button type="button" class="mobile-nav-item" onclick="openMobileMenuSheet()">
