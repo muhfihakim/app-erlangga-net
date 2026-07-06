@@ -34,12 +34,22 @@ export class PTT {
             const data = e.payload;
             if (String(data.to) !== String(window.userId)) return; 
 
+            if (data.action === 'stop') {
+                if (this.peers[data.from]) {
+                    this.peers[data.from].close();
+                    delete this.peers[data.from];
+                }
+                showToast('PTT selesai.', 'success');
+                return;
+            }
+
             let peer = this.peers[data.from];
             if (!peer) peer = this.createPeer(data.from);
 
             if (data.sdp) {
                 await peer.setRemoteDescription(new RTCSessionDescription(data.sdp));
                 if (data.sdp.type === 'offer') {
+                    showToast('Mendengarkan PTT...', 'info');
                     const answer = await peer.createAnswer();
                     await peer.setLocalDescription(answer);
                     this.sendSignal(data.from, { sdp: peer.localDescription });
@@ -104,6 +114,11 @@ export class PTT {
             this.localStream.getTracks().forEach(t => t.stop());
             this.localStream = null;
         }
+        
+        // Notify others to stop
+        const targets = this.activeUsers.filter(id => id !== String(window.userId));
+        targets.forEach(id => this.sendSignal(id, { action: 'stop' }));
+
         Object.values(this.peers).forEach(p => p.close());
         this.peers = {};
         showToast('PTT: Berhenti.', 'success');
