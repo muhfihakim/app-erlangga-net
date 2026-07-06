@@ -2,6 +2,7 @@ export class PTT {
     constructor() {
         this.localStream = null;
         this.peers = {};
+        this.iceQueue = {};
         this.activeUsers = [];
         this.channel = Echo.join('ptt');
         this.setupListeners();
@@ -44,20 +45,43 @@ export class PTT {
             }
 
             let peer = this.peers[data.from];
-            if (!peer) peer = this.createPeer(data.from);
+            if (!peer) {
+                peer = this.createPeer(data.from);
+                this.iceQueue[data.from] = [];
+            }
 
             if (data.sdp) {
                 if (data.sdp.type === 'offer') {
                     showToast('Mendengarkan PTT...', 'info');
                 }
-                await peer.setRemoteDescription(new RTCSessionDescription(data.sdp)).catch(e => console.error("SDP Error:", e));
-                if (data.sdp.type === 'offer') {
-                    const answer = await peer.createAnswer();
-                    await peer.setLocalDescription(answer);
-                    this.sendSignal(data.from, { sdp: peer.localDescription });
+                try {
+                    const decodedSdp = atob(data.sdp.sdp);
+                    await peer.setRemoteDescription(new RTCSessionDescription({ type: data.sdp.type, sdp: decodedSdp }));
+                    
+                    // Process queued candidates
+                    if (this.iceQueue[data.from]) {
+                        for (let c of this.iceQueue[data.from]) {
+                            const decodedCandidate = { ...c, candidate: atob(c.candidate) };
+                            await peer.addIceCandidate(new RTCIceCandidate(decodedCandidate)).catch(e => console.error("ICE Queue Error:", e));
+                        }
+                        this.iceQueue[data.from] = [];
+                    }
+
+                    if (data.sdp.type === 'offer') {
+                        const answer = await peer.createAnswer();
+                        await peer.setLocalDescription(answer);
+                        this.sendSignal(data.from, { sdp: { type: peer.localDescription.type, sdp: btoa(peer.localDescription.sdp) } });
+                    }
+                } catch (e) {
+                    console.error("SDP Error:", e);
                 }
             } else if (data.candidate) {
-                await peer.addIceCandidate(new RTCIceCandidate(data.candidate));
+                if (peer.remoteDescription) {
+                    const decodedCandidate = { ...data.candidate, candidate: atob(data.candidate.candidate) };
+                    await peer.addIceCandidate(new RTCIceCandidate(decodedCandidate)).catch(e => console.error("ICE Error:", e));
+                } else {
+                    this.iceQueue[data.from].push(data.candidate);
+                }
             }
         });
     }
@@ -68,14 +92,27 @@ export class PTT {
         });
 
         peer.onicecandidate = (e) => {
-            if (e.candidate) this.sendSignal(userId, { candidate: e.candidate });
+            if (e.candidate) {
+                const encodedCandidate = { ...e.candidate.toJSON(), candidate: btoa(e.candidate.candidate) };
+                this.sendSignal(userId, { candidate: encodedCandidate });
+            }
         };
 
         peer.ontrack = (e) => {
             console.log('Terima Suara/Track!');
-            const audio = new Audio();
+            let audio = document.getElementById('ptt-audio-' + userId);
+            if (!audio) {
+                audio = document.createElement('audio');
+                audio.id = 'ptt-audio-' + userId;
+                audio.autoplay = true;
+                audio.playsInline = true;
+                document.body.appendChild(audio);
+            }
             audio.srcObject = e.streams[0];
-            audio.play().catch(err => console.error("AutoPlay Error:", err));
+            audio.play().catch(err => {
+                console.error("AutoPlay Error:", err);
+                showToast('HP memblokir suara otomatis', 'error');
+            });
         };
 
         if (this.localStream) {
@@ -110,7 +147,7 @@ export class PTT {
             const peer = this.createPeer(id);
             const offer = await peer.createOffer({ offerToReceiveAudio: true });
             await peer.setLocalDescription(offer);
-            this.sendSignal(id, { sdp: peer.localDescription });
+            this.sendSignal(id, { sdp: { type: peer.localDescription.type, sdp: btoa(peer.localDescription.sdp) } });
             console.log('Kirim Offer ke:', id);
         });
         showToast('PTT: Berbicara...', 'info');
@@ -128,6 +165,10 @@ export class PTT {
 
         Object.values(this.peers).forEach(p => p.close());
         this.peers = {};
+        
+        // Remove all audio elements
+        document.querySelectorAll('audio[id^="ptt-audio-"]').forEach(el => el.remove());
+        
         showToast('PTT: Berhenti.', 'success');
     }
 }
