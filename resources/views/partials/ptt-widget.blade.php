@@ -16,7 +16,6 @@
 </div>
 <script>
     window.userId = {{ auth()->id() }};
-    window.axios.defaults.headers.common['X-CSRF-TOKEN'] = '{{ csrf_token() }}';
 
     // Drag Logic
     (function initDrag() {
