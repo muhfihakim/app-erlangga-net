@@ -756,7 +756,7 @@ show gpon onu state gpon-olt_${port}`;
                         true);
 
                     $.ajax({
-                        url: '/api/olt/dashboard-data?force=1',
+                        url: '/api/olt/dashboard-data',
                         type: 'GET',
                         success: function(res) {
                             if (res.success) {
