@@ -2,8 +2,8 @@ export class PTT {
     constructor() {
         this.localStream = null;
         this.peers = {};
+        this.activeUsers = [];
         this.channel = Echo.join('ptt');
-        
         this.setupListeners();
     }
 
@@ -20,18 +20,19 @@ export class PTT {
 
     setupListeners() {
         this.channel.here((users) => {
-            console.log('PTT Users:', users);
+            this.activeUsers = users.map(u => String(u.id));
         }).joining((user) => {
-            console.log('PTT Joined:', user);
+            this.activeUsers.push(String(user.id));
         }).leaving((user) => {
-            console.log('PTT Left:', user);
+            this.activeUsers = this.activeUsers.filter(id => id !== String(user.id));
             if (this.peers[user.id]) {
                 this.peers[user.id].close();
                 delete this.peers[user.id];
             }
         }).listen('.WebRTCSignaling', async (e) => {
+            console.log('Terima Signal:', e);
             const data = e.payload;
-            if (data.to !== window.userId) return; // window.userId from blade
+            if (String(data.to) !== String(window.userId)) return; 
 
             let peer = this.peers[data.from];
             if (!peer) peer = this.createPeer(data.from);
@@ -55,15 +56,14 @@ export class PTT {
         });
 
         peer.onicecandidate = (e) => {
-            if (e.candidate) {
-                this.sendSignal(userId, { candidate: e.candidate });
-            }
+            if (e.candidate) this.sendSignal(userId, { candidate: e.candidate });
         };
 
         peer.ontrack = (e) => {
+            console.log('Terima Suara/Track!');
             const audio = new Audio();
             audio.srcObject = e.streams[0];
-            audio.play();
+            audio.play().catch(err => console.error("AutoPlay Error:", err));
         };
 
         if (this.localStream) {
@@ -79,18 +79,22 @@ export class PTT {
             to,
             from: window.userId,
             ...payload
+        }).catch(err => {
+            console.error("Signal API Error:", err);
+            showToast('Gagal kirim sinyal', 'error');
         });
     }
 
     async startPTT() {
         await this.initAudio();
-        // create offer to all users
-        const users = Object.keys(this.channel.users || {}).filter(id => id != window.userId);
-        users.forEach(async (id) => {
+        const targets = this.activeUsers.filter(id => id !== String(window.userId));
+        
+        targets.forEach(async (id) => {
             const peer = this.createPeer(id);
             const offer = await peer.createOffer();
             await peer.setLocalDescription(offer);
             this.sendSignal(id, { sdp: peer.localDescription });
+            console.log('Kirim Offer ke:', id);
         });
         showToast('PTT: Berbicara...', 'info');
     }
