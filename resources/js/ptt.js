@@ -47,9 +47,11 @@ export class PTT {
             if (!peer) peer = this.createPeer(data.from);
 
             if (data.sdp) {
-                await peer.setRemoteDescription(new RTCSessionDescription(data.sdp));
                 if (data.sdp.type === 'offer') {
                     showToast('Mendengarkan PTT...', 'info');
+                }
+                await peer.setRemoteDescription(new RTCSessionDescription(data.sdp)).catch(e => console.error("SDP Error:", e));
+                if (data.sdp.type === 'offer') {
                     const answer = await peer.createAnswer();
                     await peer.setLocalDescription(answer);
                     this.sendSignal(data.from, { sdp: peer.localDescription });
