@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\OltTelnetService;
+use Illuminate\Support\Facades\Cache;
 use Exception;
 
 class OltController extends Controller
@@ -138,52 +139,70 @@ class OltController extends Controller
                     'raw_output' => $output . "\n\n" . $powerOutput
                 ]);
             } else {
-                // 2. Deep Global Sync
-                $stateOutput = $this->oltService->execute("show gpon onu state");
-                $initialList = $this->parseOnuState($stateOutput);
-
-                $activePorts = [];
-                foreach ($initialList as $onu) {
-                    $activePorts[$onu['port']] = true;
-                }
-                $activePorts = array_keys($activePorts);
-
-                $allConfigured = [];
-                $fullRawOutput = "--- CONFIGURED (GLOBAL STATE) ---\n" . $stateOutput . "\n\n";
-
-                foreach ($activePorts as $p) {
-                    usleep(100000); // 100ms
-                    // Get Base Info (SN)
-                    $portBaseOutput = $this->oltService->execute("show gpon onu baseinfo gpon-olt_{$p}");
-                    $portData = $this->parseOnuBaseInfo($portBaseOutput);
-                    
-                    // Get Power (RX)
-                    usleep(50000); // 50ms
-                    $portPowerOutput = $this->oltService->execute("show pon power olt-rx gpon-olt_{$p}");
-                    $powerMap = $this->parseOnuPower($portPowerOutput);
-
-                    foreach ($portData as &$onu) {
-                        $key = "{$onu['port']}:{$onu['onu_id']}";
-                        $onu['rx_power'] = $powerMap[$key] ?? '-';
-                    }
-
-                    $allConfigured = array_merge($allConfigured, $portData);
-                    $fullRawOutput .= "--- PORT {$p} ---\n" . $portBaseOutput . "\n" . $portPowerOutput . "\n\n";
-                }
-
-                $uncfgOutput = $this->oltService->execute("show gpon onu uncfg");
-                $unconfigured = $this->parseUnconfigured($uncfgOutput);
-
-                return response()->json([
-                    'success' => true,
-                    'type' => 'all',
-                    'configured' => $allConfigured,
-                    'unconfigured' => $unconfigured,
-                    'raw_output' => $fullRawOutput . "--- UNCONFIGURED ---\n" . $uncfgOutput
-                ]);
+                // 2. Deep Global Sync (using cache or background sync)
+                $force = $request->query('force', false);
+                $data = $this->syncGlobalData($force);
+                return response()->json($data);
             }
         } catch (Exception $e) {
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function syncGlobalData($forceRefresh = false)
+    {
+        if (!$forceRefresh && Cache::has('olt_dashboard_data')) {
+            return Cache::get('olt_dashboard_data');
+        }
+
+        try {
+            $stateOutput = $this->oltService->execute("show gpon onu state");
+            $initialList = $this->parseOnuState($stateOutput);
+
+            $activePorts = [];
+            foreach ($initialList as $onu) {
+                $activePorts[$onu['port']] = true;
+            }
+            $activePorts = array_keys($activePorts);
+
+            $allConfigured = [];
+            $fullRawOutput = "--- CONFIGURED (GLOBAL STATE) ---\n" . $stateOutput . "\n\n";
+
+            foreach ($activePorts as $p) {
+                usleep(100000); // 100ms
+                $portBaseOutput = $this->oltService->execute("show gpon onu baseinfo gpon-olt_{$p}");
+                $portData = $this->parseOnuBaseInfo($portBaseOutput);
+                
+                usleep(50000); // 50ms
+                $portPowerOutput = $this->oltService->execute("show pon power olt-rx gpon-olt_{$p}");
+                $powerMap = $this->parseOnuPower($portPowerOutput);
+
+                foreach ($portData as &$onu) {
+                    $key = "{$onu['port']}:{$onu['onu_id']}";
+                    $onu['rx_power'] = $powerMap[$key] ?? '-';
+                }
+
+                $allConfigured = array_merge($allConfigured, $portData);
+                $fullRawOutput .= "--- PORT {$p} ---\n" . $portBaseOutput . "\n" . $portPowerOutput . "\n\n";
+            }
+
+            $uncfgOutput = $this->oltService->execute("show gpon onu uncfg");
+            $unconfigured = $this->parseUnconfigured($uncfgOutput);
+
+            $result = [
+                'success' => true,
+                'type' => 'all',
+                'configured' => $allConfigured,
+                'unconfigured' => $unconfigured,
+                'raw_output' => $fullRawOutput . "--- UNCONFIGURED ---\n" . $uncfgOutput
+            ];
+
+            // Cache for 6 minutes (Background worker will refresh it every 5 minutes)
+            Cache::put('olt_dashboard_data', $result, 360);
+
+            return $result;
+        } catch (Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
         }
     }
 
