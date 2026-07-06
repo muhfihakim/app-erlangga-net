@@ -99,11 +99,16 @@ export class PTT {
 
     async startPTT() {
         await this.initAudio();
+        if (!this.localStream) {
+            console.error("Mic stream is null. Aborting PTT.");
+            return;
+        }
+        
         const targets = this.activeUsers.filter(id => id !== String(window.userId));
         
         targets.forEach(async (id) => {
             const peer = this.createPeer(id);
-            const offer = await peer.createOffer();
+            const offer = await peer.createOffer({ offerToReceiveAudio: true });
             await peer.setLocalDescription(offer);
             this.sendSignal(id, { sdp: peer.localDescription });
             console.log('Kirim Offer ke:', id);
