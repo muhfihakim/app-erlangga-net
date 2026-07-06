@@ -20,6 +20,7 @@
         "@capacitor/android": "^8.4.1",
         "@capacitor/cli": "^8.4.1",
         "@capacitor/core": "^8.4.1",
+        "@capawesome-team/capacitor-android-foreground-service": "^8.1.0",
         "laravel-echo": "^2.3.7",
         "pusher-js": "^8.5.0"
     }

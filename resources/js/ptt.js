@@ -1,3 +1,5 @@
+import { ForegroundService } from '@capawesome-team/capacitor-android-foreground-service';
+
 export class PTT {
     constructor() {
         this.localStream = null;
@@ -6,6 +8,14 @@ export class PTT {
         this.activeUsers = [];
         this.channel = Echo.join('ptt');
         this.setupListeners();
+        
+        if (window.Capacitor && window.Capacitor.getPlatform() === 'android') {
+            ForegroundService.start({
+                id: 1,
+                title: 'PTT Aktif',
+                body: 'Siap menerima suara PTT di latar belakang',
+            }).catch(e => console.error("ForegroundService error:", e));
+        }
     }
 
     async initAudio() {
