@@ -258,6 +258,29 @@
                             });
                         }, 50);
                     }
+                } else {
+                    // Valid form, add loading state to submit button
+                    let submitBtn = $(this).find('button[type="submit"]');
+                    if (submitBtn.length) {
+                        if (submitBtn.data('is-loading')) {
+                            e.preventDefault();
+                            return;
+                        }
+                        submitBtn.data('is-loading', true);
+                        
+                        let originalWidth = submitBtn.outerWidth();
+                        if (originalWidth > 0) {
+                            submitBtn.css('min-width', originalWidth + 'px');
+                        }
+                        submitBtn.css('pointer-events', 'none').css('opacity', '0.8');
+                        
+                        let hasText = submitBtn.text().trim().length > 0;
+                        if (hasText) {
+                            submitBtn.html('<i class="fa-solid fa-spinner fa-spin"></i> Memproses...');
+                        } else {
+                            submitBtn.html('<i class="fa-solid fa-spinner fa-spin"></i>');
+                        }
+                    }
                 }
             });
 
