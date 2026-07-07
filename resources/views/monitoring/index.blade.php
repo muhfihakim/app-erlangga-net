@@ -111,11 +111,13 @@
     <div class="info-card">
         <div class="info-item">
             <div class="lbl">Interface</div>
-            <div class="val" id="info-interface">{{ config('mikrotik.interface') }}</div>
-        </div>
-        <div class="info-item">
-            <div class="lbl">IP Address</div>
-            <div class="val" id="info-host">{{ config('mikrotik.host') }}</div>
+            <div class="val">
+                <select id="interface-select" onchange="changeInterface()" style="padding: 4px 8px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 14px; font-weight: 700; color: #0f172a; outline: none; width: 100%; cursor: pointer;">
+                    @foreach($interfaces as $iface)
+                        <option value="{{ $iface }}" {{ $iface == config('mikrotik.interface') ? 'selected' : '' }}>{{ $iface }}</option>
+                    @endforeach
+                </select>
+            </div>
         </div>
         <div class="info-item">
             <div class="lbl">Status</div>
@@ -135,19 +137,19 @@
     <div class="stats-grid">
         <div class="stat-card">
             <div class="lbl">RX Saat Ini</div>
-            <div class="val rx" id="stat-rx" data-value="0">0 B/s</div>
+            <div class="val rx" id="stat-rx" data-value="0">0 bps</div>
         </div>
         <div class="stat-card">
             <div class="lbl">TX Saat Ini</div>
-            <div class="val tx" id="stat-tx" data-value="0">0 B/s</div>
+            <div class="val tx" id="stat-tx" data-value="0">0 bps</div>
         </div>
         <div class="stat-card">
             <div class="lbl">Peak RX</div>
-            <div class="val rx" id="stat-peak-rx" data-value="0">0 B/s</div>
+            <div class="val rx" id="stat-peak-rx" data-value="0">0 bps</div>
         </div>
         <div class="stat-card">
             <div class="lbl">Peak TX</div>
-            <div class="val tx" id="stat-peak-tx" data-value="0">0 B/s</div>
+            <div class="val tx" id="stat-peak-tx" data-value="0">0 bps</div>
         </div>
     </div>
 
@@ -219,9 +221,10 @@
                     y: {
                         ticks: {
                             callback: function(value) {
-                                if (value >= 1048576) return (value / 1048576).toFixed(1) + ' MB/s';
-                                if (value >= 1024) return (value / 1024).toFixed(1) + ' KB/s';
-                                return value + ' B/s';
+                                if (value >= 1000000000) return (value / 1000000000).toFixed(1) + ' Gbps';
+                                if (value >= 1000000) return (value / 1000000).toFixed(1) + ' Mbps';
+                                if (value >= 1000) return (value / 1000).toFixed(1) + ' Kbps';
+                                return value + ' bps';
                             },
                             font: { size: 11 }
                         },
@@ -234,7 +237,7 @@
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return context.dataset.label + ': ' + formatBytes(context.raw);
+                                return context.dataset.label + ': ' + formatBits(context.raw);
                             }
                         }
                     }
@@ -243,12 +246,12 @@
             }
         });
 
-        function formatBytes(bytes) {
-            if (bytes == null) return 'N/A';
-            if (bytes >= 1099511627776) return (bytes / 1099511627776).toFixed(2) + ' TB';
-            if (bytes >= 1048576) return (bytes / 1048576).toFixed(2) + ' MB';
-            if (bytes >= 1024) return (bytes / 1024).toFixed(2) + ' KB';
-            return bytes + ' B';
+        function formatBits(bits) {
+            if (bits == null) return 'N/A';
+            if (bits >= 1000000000) return (bits / 1000000000).toFixed(2) + ' Gbps';
+            if (bits >= 1000000) return (bits / 1000000).toFixed(2) + ' Mbps';
+            if (bits >= 1000) return (bits / 1000).toFixed(2) + ' Kbps';
+            return bits + ' bps';
         }
 
         function formatBytesLarge(bytes) {
@@ -259,11 +262,12 @@
             return bytes + ' B';
         }
 
-        function formatBytesShort(bytes) {
-            if (bytes == null || bytes === 0) return '0 B/s';
-            if (bytes >= 1048576) return (bytes / 1048576).toFixed(2) + ' MB/s';
-            if (bytes >= 1024) return (bytes / 1024).toFixed(2) + ' KB/s';
-            return bytes + ' B/s';
+        function formatBitsShort(bits) {
+            if (bits == null || bits === 0) return '0 bps';
+            if (bits >= 1000000000) return (bits / 1000000000).toFixed(2) + ' Gbps';
+            if (bits >= 1000000) return (bits / 1000000).toFixed(2) + ' Mbps';
+            if (bits >= 1000) return (bits / 1000).toFixed(2) + ' Kbps';
+            return bits + ' bps';
         }
 
         function zeroPad(n) { return n.toString().padStart(2, '0'); }
@@ -292,8 +296,26 @@
                 });
         }
 
+        let currentInterface = document.getElementById('interface-select') ? document.getElementById('interface-select').value : '';
+
+        function changeInterface() {
+            currentInterface = document.getElementById('interface-select').value;
+            // Reset chart and stats for new interface
+            for (let i = 0; i < MAX_POINTS; i++) {
+                rxData[i] = 0;
+                txData[i] = 0;
+            }
+            peakRx = 0;
+            peakTx = 0;
+            document.getElementById('stat-peak-rx').textContent = '0 bps';
+            document.getElementById('stat-peak-tx').textContent = '0 bps';
+            trafficChart.update('none');
+            updateChart(); // fetch immediately
+        }
+
         function updateChart() {
-            fetch('/api/mikrotik/traffic')
+            const url = currentInterface ? `/api/mikrotik/traffic?interface=${encodeURIComponent(currentInterface)}` : '/api/mikrotik/traffic';
+            fetch(url)
                 .then(res => res.json())
                 .then(response => {
                     const timeStr = getTimeStr();
@@ -311,16 +333,16 @@
 
                         trafficChart.update('none');
 
-                        document.getElementById('stat-rx').textContent = formatBytesShort(rxRate);
-                        document.getElementById('stat-tx').textContent = formatBytesShort(txRate);
+                        document.getElementById('stat-rx').textContent = formatBitsShort(rxRate);
+                        document.getElementById('stat-tx').textContent = formatBitsShort(txRate);
 
                         if (rxRate > peakRx) {
                             peakRx = rxRate;
-                            document.getElementById('stat-peak-rx').textContent = formatBytesShort(peakRx);
+                            document.getElementById('stat-peak-rx').textContent = formatBitsShort(peakRx);
                         }
                         if (txRate > peakTx) {
                             peakTx = txRate;
-                            document.getElementById('stat-peak-tx').textContent = formatBytesShort(peakTx);
+                            document.getElementById('stat-peak-tx').textContent = formatBitsShort(peakTx);
                         }
 
                         // Total & uptime

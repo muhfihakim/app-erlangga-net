@@ -20,10 +20,10 @@ class MikrotikMonitor extends Command
 
         while (true) {
             try {
-                $traffic = $service->getTraffic();
+                $traffic = $service->getAllInterfacesTraffic();
                 $status = $service->getStatus();
 
-                Cache::put('mikrotik_traffic_data', $traffic, 5);
+                Cache::put('mikrotik_traffic_data_all', $traffic, 5);
                 Cache::put('mikrotik_status_data', $status, 5);
 
                 // Fetch PPPoE heavily every 15 seconds to avoid API desync/timeout

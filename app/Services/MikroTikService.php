@@ -86,6 +86,78 @@ class MikroTikService
     }
 
     /**
+     * Get real-time traffic stats for all non-pppoe interfaces.
+     */
+    public function getAllInterfacesTraffic(): array
+    {
+        try {
+            $client = $this->getClient();
+            
+            // Raw query for interface info
+            $ifaceRaw = $client->send([
+                '/interface/print'
+            ]);
+            $interfaces = $this->parseRawResponse($ifaceRaw);
+            
+            $names = [];
+            $ifaceDataMap = [];
+            foreach ($interfaces as $iface) {
+                $name = $iface['name'] ?? '';
+                if ($name && !str_starts_with(strtolower($name), '<pppoe-')) {
+                    $names[] = $name;
+                    $ifaceDataMap[$name] = $iface;
+                }
+            }
+
+            if (empty($names)) {
+                return ['success' => false, 'error' => 'No interfaces found'];
+            }
+
+            $trafficRaw = $client->send([
+                '/interface/monitor-traffic',
+                '=interface=' . implode(',', $names),
+                '=once='
+            ]);
+            
+            $traffics = $this->parseRawResponse($trafficRaw);
+            
+            $result = [];
+            foreach ($traffics as $traffic) {
+                $name = $traffic['name'] ?? '';
+                if (!$name || !isset($ifaceDataMap[$name])) continue;
+
+                $iface = $ifaceDataMap[$name];
+                $rxBps = (int) ($traffic['rx-bits-per-second'] ?? 0);
+                $txBps = (int) ($traffic['tx-bits-per-second'] ?? 0);
+
+                $result[$name] = [
+                    'interface' => $name,
+                    'rx_bytes' => $rxBps,
+                    'tx_bytes' => $txBps,
+                    'rx_rate' => $rxBps, // Already in bits per second from Mikrotik, keeping it as is
+                    'tx_rate' => $txBps, // Already in bits per second
+                    'total_rx' => (int) ($iface['rx-byte'] ?? 0),
+                    'total_tx' => (int) ($iface['tx-byte'] ?? 0),
+                    'last_link_up' => $iface['last-link-up-time'] ?? null,
+                    'link_downs' => (int) ($iface['link-downs'] ?? 0),
+                    'timestamp' => now()->toIso8601String(),
+                ];
+            }
+
+            return [
+                'success' => true,
+                'data' => $result,
+            ];
+        } catch (Exception $e) {
+            $this->client = null; // force reconnect next time
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
      * Helper to parse raw API response manually (bypasses vendor !re bug)
      */
     protected function parseRawResponse(array $raw): array
