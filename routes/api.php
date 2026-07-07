@@ -114,7 +114,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/locations/all', [LocationController::class, 'getAllLocations']);
     Route::get('/locations/{user}', [LocationController::class, 'getUserLocation']);
     Route::post('/location/update', [LocationController::class, 'update']);
-    
-    // PTT Async Audio Upload
-    Route::post('/ptt/upload', [\App\Http\Controllers\PttController::class, 'upload']);
 });

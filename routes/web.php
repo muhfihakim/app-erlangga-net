@@ -157,9 +157,6 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::resource('supporting', SupportingActivityController::class);
     Route::get('supporting-export', [SupportingActivityController::class, 'export'])->name('supporting.export');
 
-    // PTT Signaling
-    Route::post('/api/ptt/signal', function (\Illuminate\Http\Request $request) {
-        broadcast(new \App\Events\WebRTCSignaling($request->all(), 'ptt'))->toOthers();
-        return response()->json(['status' => 'ok']);
-    })->name('ptt.signal');
+    // PTT Async Audio Upload
+    Route::post('/api/ptt/upload', [\App\Http\Controllers\PttController::class, 'upload'])->name('ptt.upload');
 });
