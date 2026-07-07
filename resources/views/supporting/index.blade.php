@@ -212,7 +212,7 @@
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    @forelse($activities as $act)
+                    @foreach($activities as $act)
                         <tr class="activity-row">
                             <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}
                             </td>
@@ -254,12 +254,7 @@
                                 </div>
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" style="padding:40px;text-align:center;color:#94a3b8;font-weight:600;">
-                                Belum ada data perbantuan.</td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>

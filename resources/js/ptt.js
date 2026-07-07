@@ -6,6 +6,7 @@ export class PTT {
         this.peers = {};
         this.iceQueue = {};
         this.activeUsers = [];
+        this.activeUsersInfo = {};
         this.channel = Echo.join('ptt');
         this.setupListeners();
         
@@ -32,10 +33,15 @@ export class PTT {
     setupListeners() {
         this.channel.here((users) => {
             this.activeUsers = users.map(u => String(u.id));
+            users.forEach(u => this.activeUsersInfo[String(u.id)] = u.name);
         }).joining((user) => {
-            this.activeUsers.push(String(user.id));
+            if (!this.activeUsers.includes(String(user.id))) {
+                this.activeUsers.push(String(user.id));
+            }
+            this.activeUsersInfo[String(user.id)] = user.name;
         }).leaving((user) => {
             this.activeUsers = this.activeUsers.filter(id => id !== String(user.id));
+            delete this.activeUsersInfo[String(user.id)];
             if (this.peers[user.id]) {
                 this.peers[user.id].close();
                 delete this.peers[user.id];
@@ -50,7 +56,7 @@ export class PTT {
                     this.peers[data.from].close();
                     delete this.peers[data.from];
                 }
-                showToast('PTT selesai.', 'success');
+                this.hideSpeaker();
                 return;
             }
 
@@ -62,7 +68,7 @@ export class PTT {
 
             if (data.sdp) {
                 if (data.sdp.type === 'offer') {
-                    showToast('Mendengarkan PTT...', 'info');
+                    this.showSpeaker(data.from);
                 }
                 try {
                     const decodedSdp = atob(data.sdp.sdp);
@@ -179,7 +185,24 @@ export class PTT {
         // Remove all audio elements
         document.querySelectorAll('audio[id^="ptt-audio-"]').forEach(el => el.remove());
         
+        this.hideSpeaker();
         showToast('PTT: Berhenti.', 'success');
+    }
+
+    showSpeaker(userId) {
+        const info = document.getElementById('ptt-speaker-info');
+        const nameEl = document.getElementById('ptt-speaker-name');
+        if (info && nameEl) {
+            nameEl.textContent = this.activeUsersInfo[String(userId)] || 'Seseorang';
+            info.classList.remove('hidden');
+        }
+    }
+
+    hideSpeaker() {
+        const info = document.getElementById('ptt-speaker-info');
+        if (info) {
+            info.classList.add('hidden');
+        }
     }
 }
 

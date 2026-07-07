@@ -453,8 +453,8 @@
 
     @section('Scripts')
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+        <script src="{{ asset('dist/js/chart.umd.min.js') }}"></script>
+        <script src="{{ asset('dist/js/chartjs-plugin-datalabels.min.js') }}"></script>
 
         <script>
             // Register DataLabels Plugin

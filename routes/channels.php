@@ -7,5 +7,5 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 });
 
 Broadcast::channel('ptt', function ($user) {
-    return ['id' => $user->id, 'name' => $user->name];
+    return ['id' => session()->getId(), 'name' => $user->nama_lengkap ?? $user->name];
 });

@@ -4,6 +4,11 @@
     <div id="ptt-drag-handle" style="touch-action: none;" class="w-10 h-5 mb-2 bg-gray-600 rounded-full flex items-center justify-center cursor-move opacity-50 hover:opacity-100 shadow-md">
         <div class="w-5 h-1 border-y border-white opacity-80 pointer-events-none"></div>
     </div>
+    <!-- Speaker Info -->
+    <div id="ptt-speaker-info" class="hidden mb-2 px-3 py-1 bg-slate-800 text-white text-xs font-bold rounded-full shadow-lg whitespace-nowrap flex items-center gap-2">
+        <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+        <span id="ptt-speaker-name"></span>
+    </div>
     <!-- Mic Button -->
     <button id="ptt-button" class="w-16 h-16 bg-blue-600 rounded-full shadow-lg flex items-center justify-center text-white text-2xl hover:bg-blue-700 active:bg-red-600 transition-colors select-none"
             onmousedown="PTTManager.startPTT()"
@@ -15,7 +20,7 @@
     </button>
 </div>
 <script>
-    window.userId = {{ auth()->id() }};
+    window.userId = '{{ session()->getId() }}';
 
     // Drag Logic
     (function initDrag() {
