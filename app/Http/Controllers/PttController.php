@@ -11,7 +11,7 @@ class PttController extends Controller
     public function upload(Request $request)
     {
         $request->validate([
-            'audio' => 'required|file|mimes:webm,mp3,wav,ogg,mp4',
+            'audio' => 'required|file',
         ]);
 
         $file = $request->file('audio');
