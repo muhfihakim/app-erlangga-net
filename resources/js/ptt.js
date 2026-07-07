@@ -3,8 +3,8 @@ import { ForegroundService } from '@capawesome-team/capacitor-android-foreground
 export class PTT {
     constructor() {
         this.localStream = null;
-        this.peers = {};
-        this.iceQueue = {};
+        this.mediaRecorder = null;
+        this.audioChunks = [];
         this.activeUsers = [];
         this.activeUsersInfo = {};
         this.channel = Echo.join('ptt');
@@ -42,114 +42,33 @@ export class PTT {
         }).leaving((user) => {
             this.activeUsers = this.activeUsers.filter(id => id !== String(user.id));
             delete this.activeUsersInfo[String(user.id)];
-            if (this.peers[user.id]) {
-                this.peers[user.id].close();
-                delete this.peers[user.id];
-            }
-        }).listen('.WebRTCSignaling', async (e) => {
-            console.log('Terima Signal:', e);
-            const data = e.payload;
-            if (String(data.to) !== String(window.userId)) return; 
+        }).listen('.PttAudioSent', (e) => {
+            console.log('Terima Pesan Suara dari:', e.senderName);
+            
+            // Tampilkan UI speaker
+            this.showSpeaker(e.senderName);
 
-            if (data.action === 'stop') {
-                if (this.peers[data.from]) {
-                    this.peers[data.from].close();
-                    delete this.peers[data.from];
-                }
-                this.hideSpeaker();
-                return;
-            }
-
-            let peer = this.peers[data.from];
-            if (!peer) {
-                peer = this.createPeer(data.from);
-                this.iceQueue[data.from] = [];
-            }
-
-            if (data.sdp) {
-                if (data.sdp.type === 'offer') {
-                    this.showSpeaker(data.from);
-                }
-                try {
-                    const decodedSdp = atob(data.sdp.sdp);
-                    await peer.setRemoteDescription(new RTCSessionDescription({ type: data.sdp.type, sdp: decodedSdp }));
-                    
-                    // Process queued candidates
-                    if (this.iceQueue[data.from]) {
-                        for (let c of this.iceQueue[data.from]) {
-                            const decodedCandidate = { ...c, candidate: atob(c.candidate) };
-                            await peer.addIceCandidate(new RTCIceCandidate(decodedCandidate)).catch(e => console.error("ICE Queue Error:", e));
-                        }
-                        this.iceQueue[data.from] = [];
-                    }
-
-                    if (data.sdp.type === 'offer') {
-                        const answer = await peer.createAnswer();
-                        await peer.setLocalDescription(answer);
-                        this.sendSignal(data.from, { sdp: { type: peer.localDescription.type, sdp: btoa(peer.localDescription.sdp) } });
-                    }
-                } catch (e) {
-                    console.error("SDP Error:", e);
-                }
-            } else if (data.candidate) {
-                if (peer.remoteDescription) {
-                    const decodedCandidate = { ...data.candidate, candidate: atob(data.candidate.candidate) };
-                    await peer.addIceCandidate(new RTCIceCandidate(decodedCandidate)).catch(e => console.error("ICE Error:", e));
-                } else {
-                    if (!this.iceQueue[data.from]) {
-                        this.iceQueue[data.from] = [];
-                    }
-                    this.iceQueue[data.from].push(data.candidate);
-                }
-            }
-        });
-    }
-
-    createPeer(userId) {
-        const peer = new RTCPeerConnection({
-            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-        });
-
-        peer.onicecandidate = (e) => {
-            if (e.candidate) {
-                const encodedCandidate = { ...e.candidate.toJSON(), candidate: btoa(e.candidate.candidate) };
-                this.sendSignal(userId, { candidate: encodedCandidate });
-            }
-        };
-
-        peer.ontrack = (e) => {
-            console.log('Terima Suara/Track!');
-            let audio = document.getElementById('ptt-audio-' + userId);
+            // Putar audio
+            let audio = document.getElementById('ptt-playback');
             if (!audio) {
                 audio = document.createElement('audio');
-                audio.id = 'ptt-audio-' + userId;
+                audio.id = 'ptt-playback';
                 audio.autoplay = true;
                 audio.playsInline = true;
+                
+                // Hide UI saat selesai
+                audio.onended = () => {
+                    this.hideSpeaker();
+                };
+                
                 document.body.appendChild(audio);
             }
-            audio.srcObject = e.streams[0];
+            
+            audio.src = e.audioUrl;
             audio.play().catch(err => {
                 console.error("AutoPlay Error:", err);
-                showToast('HP memblokir suara otomatis', 'error');
+                showToast('Klik layar untuk mainkan suara dari ' + e.senderName, 'warning');
             });
-        };
-
-        if (this.localStream) {
-            this.localStream.getTracks().forEach(track => peer.addTrack(track, this.localStream));
-        }
-
-        this.peers[userId] = peer;
-        return peer;
-    }
-
-    sendSignal(to, payload) {
-        axios.post('/api/ptt/signal', {
-            to,
-            from: window.userId,
-            ...payload
-        }).catch(err => {
-            console.error("Signal API Error:", err);
-            showToast('Gagal kirim sinyal', 'error');
         });
     }
 
@@ -159,44 +78,68 @@ export class PTT {
             console.error("Mic stream is null. Aborting PTT.");
             return;
         }
-        
-        const targets = this.activeUsers.filter(id => id !== String(window.userId));
-        
-        targets.forEach(async (id) => {
-            const peer = this.createPeer(id);
-            const offer = await peer.createOffer({ offerToReceiveAudio: true });
-            await peer.setLocalDescription(offer);
-            this.sendSignal(id, { sdp: { type: peer.localDescription.type, sdp: btoa(peer.localDescription.sdp) } });
-            console.log('Kirim Offer ke:', id);
-        });
-        showToast('PTT: Berbicara...', 'info');
+
+        this.audioChunks = [];
+        try {
+            // Gunakan mimeType standar
+            let options = { mimeType: 'audio/webm;codecs=opus' };
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                options = { mimeType: 'audio/webm' };
+            }
+            
+            this.mediaRecorder = new MediaRecorder(this.localStream, options);
+            
+            this.mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) {
+                    this.audioChunks.push(e.data);
+                }
+            };
+            
+            this.mediaRecorder.start();
+            showToast('PTT: Merekam...', 'info');
+        } catch (err) {
+            console.error("MediaRecorder start error:", err);
+            showToast('Gagal mulai rekam', 'error');
+        }
     }
 
     stopPTT() {
-        if (this.localStream) {
-            this.localStream.getTracks().forEach(t => t.stop());
-            this.localStream = null;
+        if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+            this.mediaRecorder.onstop = () => {
+                this.uploadAudio();
+            };
+            this.mediaRecorder.stop();
         }
-        
-        // Notify others to stop
-        const targets = this.activeUsers.filter(id => id !== String(window.userId));
-        targets.forEach(id => this.sendSignal(id, { action: 'stop' }));
-
-        Object.values(this.peers).forEach(p => p.close());
-        this.peers = {};
-        
-        // Remove all audio elements
-        document.querySelectorAll('audio[id^="ptt-audio-"]').forEach(el => el.remove());
-        
-        this.hideSpeaker();
-        showToast('PTT: Berhenti.', 'success');
+        showToast('PTT: Mengirim...', 'info');
     }
 
-    showSpeaker(userId) {
+    uploadAudio() {
+        if (this.audioChunks.length === 0) return;
+        
+        const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+        const formData = new FormData();
+        formData.append('audio', audioBlob, 'ptt_voice.webm');
+        
+        axios.post('/api/ptt/upload', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        }).then(response => {
+            console.log("Audio terkirim:", response.data);
+            showToast('PTT terkirim.', 'success');
+        }).catch(err => {
+            console.error("PTT Upload Error:", err);
+            showToast('Gagal kirim PTT', 'error');
+        });
+        
+        this.audioChunks = [];
+    }
+
+    showSpeaker(name) {
         const info = document.getElementById('ptt-speaker-info');
         const nameEl = document.getElementById('ptt-speaker-name');
         if (info && nameEl) {
-            nameEl.textContent = this.activeUsersInfo[String(userId)] || 'Seseorang';
+            nameEl.textContent = name || 'Seseorang';
             info.classList.remove('hidden');
         }
     }
