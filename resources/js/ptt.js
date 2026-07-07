@@ -96,6 +96,9 @@ export class PTT {
                     const decodedCandidate = { ...data.candidate, candidate: atob(data.candidate.candidate) };
                     await peer.addIceCandidate(new RTCIceCandidate(decodedCandidate)).catch(e => console.error("ICE Error:", e));
                 } else {
+                    if (!this.iceQueue[data.from]) {
+                        this.iceQueue[data.from] = [];
+                    }
                     this.iceQueue[data.from].push(data.candidate);
                 }
             }
