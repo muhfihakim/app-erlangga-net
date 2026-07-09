@@ -2,21 +2,49 @@
     @section('Css')
         <style>
             /* Hakatech DataTables Customization */
-            .dataTables_wrapper { padding: 0; }
-            .dataTables_filter { display: none; }
+            .dataTables_wrapper {
+                padding: 0;
+            }
+
+            .dataTables_filter {
+                display: none;
+            }
+
             .dataTables_paginate {
-                display: flex; justify-content: flex-end; padding: 1.25rem 1.5rem; gap: 4px; border-top: 1px solid #f1f5f9;
+                display: flex;
+                justify-content: flex-end;
+                padding: 1.25rem 1.5rem;
+                gap: 4px;
+                border-top: 1px solid #f1f5f9;
             }
+
             .paginate_button {
-                width: 34px; height: 34px; border-radius: 8px; border: 1.5px solid #e2e8f0;
-                background: #fff; color: #64748b !important; font-size: 13px; font-weight: 600;
-                display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+                width: 34px;
+                height: 34px;
+                border-radius: 8px;
+                border: 1.5px solid #e2e8f0;
+                background: #fff;
+                color: #64748b !important;
+                font-size: 13px;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
             }
-            .paginate_button.current { background: #0ea5e9; border-color: #0ea5e9; color: #fff !important; }
+
+            .paginate_button.current {
+                background: #0ea5e9;
+                border-color: #0ea5e9;
+                color: #fff !important;
+            }
 
             /* Full Capitalization for Table */
-            #customer-table thead th, #customer-table tbody td {
-                text-transform: uppercase !important; font-weight: 600; font-size: 12px;
+            #customer-table thead th,
+            #customer-table tbody td {
+                text-transform: uppercase !important;
+                font-weight: 600;
+                font-size: 12px;
             }
 
             /* Map Customizations */
@@ -28,10 +56,12 @@
                 box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
                 z-index: 1;
             }
+
             .map-container {
                 position: relative;
                 margin-bottom: 2rem;
             }
+
             .map-legend {
                 position: absolute;
                 bottom: 20px;
@@ -43,6 +73,7 @@
                 box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
                 z-index: 10;
             }
+
             .legend-item {
                 display: flex;
                 align-items: center;
@@ -52,6 +83,7 @@
                 color: #475569;
                 margin-bottom: 4px;
             }
+
             .legend-dot {
                 width: 12px;
                 height: 12px;
@@ -63,10 +95,12 @@
 
     @php $is_admin = Auth::user()->isAdmin(); @endphp
 
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+    <div
+        style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
             <h1 style="font-size:22px;font-weight:900;margin:0;">Data Pelanggan</h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola data pelanggan yang sudah aktif dan monitoring isolir.</p>
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola data pelanggan yang sudah aktif dan monitoring
+                isolir.</p>
         </div>
     </div>
 
@@ -75,25 +109,32 @@
             .stats-grid-6 {
                 grid-template-columns: repeat(6, minmax(0, 1fr));
             }
+
             .stats-grid-6 .stat-card {
                 padding: 1rem;
                 gap: 10px;
             }
+
             .stats-grid-6 .stat-icon {
-                width: 38px; height: 38px; font-size: 16px;
+                width: 38px;
+                height: 38px;
+                font-size: 16px;
             }
+
             .stats-grid-6 .stat-val {
                 font-size: 20px;
             }
+
             .stats-grid-6 .stat-lbl {
                 font-size: 10.5px;
             }
         }
-        
+
         .dataTables_wrapper {
             position: relative;
             min-height: 200px;
         }
+
         .dataTables_wrapper .dataTables_processing {
             position: absolute !important;
             top: 50% !important;
@@ -115,30 +156,52 @@
     <div class="stats-grid mb-6 {{ $is_admin ? 'stats-grid-6' : '' }}">
         <div class="stat-card">
             <div class="stat-icon" style="background:#e0f2fe;color:#0369a1;"><i class="fa-solid fa-users"></i></div>
-            <div><div class="stat-val">{{ $totalActive }}</div><div class="stat-lbl">Aktif</div></div>
+            <div>
+                <div class="stat-val">{{ $totalActive }}</div>
+                <div class="stat-lbl">Aktif</div>
+            </div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon" style="background:#dcfce7;color:#15803d;"><i class="fa-solid fa-calendar-check"></i></div>
-            <div><div class="stat-val">{{ $newThisMonth }}</div><div class="stat-lbl">Bulan Ini</div></div>
+            <div class="stat-icon" style="background:#dcfce7;color:#15803d;"><i class="fa-solid fa-calendar-check"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $newThisMonth }}</div>
+                <div class="stat-lbl">Bulan Ini</div>
+            </div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon" style="background:#f1f5f9;color:#475569;"><i class="fa-solid fa-user-slash"></i></div>
-            <div><div class="stat-val">{{ $totalArchived }}</div><div class="stat-lbl">Non-Aktif</div></div>
+            <div class="stat-icon" style="background:#f1f5f9;color:#475569;"><i class="fa-solid fa-user-slash"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $totalArchived }}</div>
+                <div class="stat-lbl">Non-Aktif</div>
+            </div>
         </div>
-        
+
         @if ($is_admin)
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#d1fae5;color:#059669;"><i class="fa-solid fa-wifi"></i></div>
-            <div><div class="stat-val">{{ $totalOnlineAll }}</div><div class="stat-lbl">Online</div></div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#fee2e2;color:#b91c1c;"><i class="fa-solid fa-plane-slash"></i></div>
-            <div><div class="stat-val">{{ $totalOfflineAll }}</div><div class="stat-lbl">Offline</div></div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#fef3c7;color:#d97706;"><i class="fa-solid fa-triangle-exclamation"></i></div>
-            <div><div class="stat-val">{{ $totalIsolirAll }}</div><div class="stat-lbl">Isolir</div></div>
-        </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#d1fae5;color:#059669;"><i class="fa-solid fa-wifi"></i></div>
+                <div>
+                    <div class="stat-val">{{ $totalOnlineAll }}</div>
+                    <div class="stat-lbl">Online</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fee2e2;color:#b91c1c;"><i class="fa-solid fa-plane-slash"></i>
+                </div>
+                <div>
+                    <div class="stat-val">{{ $totalOfflineAll }}</div>
+                    <div class="stat-lbl">Offline</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fef3c7;color:#d97706;"><i
+                        class="fa-solid fa-triangle-exclamation"></i></div>
+                <div>
+                    <div class="stat-val">{{ $totalIsolirAll }}</div>
+                    <div class="stat-lbl">Isolir</div>
+                </div>
+            </div>
         @endif
     </div>
 
@@ -162,10 +225,12 @@
     <div class="table-toolbar">
         <div class="search-wrap">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            <input type="search" class="search-input custom-search" id="custom-search" placeholder="Cari ID, Nama, atau Paket..." autocomplete="off" />
+            <input type="search" class="search-input custom-search" id="custom-search"
+                placeholder="Cari ID, Nama, atau Paket..." autocomplete="off" />
         </div>
         <div style="display:flex;gap:8px;">
-            <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+            <div
+                style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
                 {{ $is_admin ? 'Data Keseluruhan' : 'Data Saya' }}
             </div>
         </div>
@@ -195,29 +260,34 @@
 
     @if (Auth::user()->jabatan === 'Sales' || Auth::user()->isAdmin())
         @if (isset($pelangganIsolir) && $pelangganIsolir->count() > 0)
-            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;margin-top:2rem;">
+            <div
+                style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;margin-top:2rem;">
                 <div>
                     <h1 style="font-size:18px;font-weight:900;margin:0;color:#dc2626;">
                         <i class="fa-solid fa-triangle-exclamation mr-2"></i>Pelanggan Terisolir
                     </h1>
-                    <p style="font-size:12px;color:#64748b;margin:3px 0 0;">Daftar pelanggan yang saat ini sedang dalam masa isolir/suspend.</p>
+                    <p style="font-size:12px;color:#64748b;margin:3px 0 0;">Daftar pelanggan yang saat ini sedang dalam
+                        masa isolir/suspend.</p>
                 </div>
-                
+
                 <!-- Filter & Export Isolir -->
-                <form action="{{ route('customers.export_isolir') }}" method="GET" style="display:flex; gap:8px; align-items:center;">
-                    @if(Auth::user()->isAdmin())
-                        <select name="sales_id" class="form-control" style="font-size:12px; padding:6px 12px; border-radius:8px; border:1px solid #e2e8f0;">
+                <form action="{{ route('customers.export_isolir') }}" method="GET"
+                    style="display:flex; gap:8px; align-items:center;">
+                    @if (Auth::user()->isAdmin())
+                        <select name="sales_id" class="form-control"
+                            style="font-size:12px; padding:6px 12px; border-radius:8px; border:1px solid #e2e8f0;">
                             <option value="">-- Semua Sales --</option>
                             @php
                                 // Unique sales from the isolir list
                                 $salesList = $pelangganIsolir->pluck('sales')->filter()->unique('id');
                             @endphp
-                            @foreach($salesList as $s)
+                            @foreach ($salesList as $s)
                                 <option value="{{ $s->id }}">{{ $s->nama_lengkap }}</option>
                             @endforeach
                         </select>
                     @endif
-                    <button type="submit" class="btn btn-primary" style="font-size:12px; padding:6px 16px; border-radius:8px; background:#dc2626; border-color:#dc2626; font-weight:700; cursor:pointer; color:#ffffff;">
+                    <button type="submit" class="btn btn-primary"
+                        style="font-size:12px; padding:6px 16px; border-radius:8px; background:#dc2626; border-color:#dc2626; font-weight:700; cursor:pointer; color:#ffffff;">
                         <i class="fa-solid fa-file-pdf"></i> Export PDF
                     </button>
                 </form>
@@ -242,7 +312,8 @@
                                     <td style="text-align: center; color: #94a3b8; font-weight: 700;">
                                         {{ $loop->iteration }}</td>
                                     <td style="font-weight: 700; color: #0f172a;">{{ $isolir->nama_lengkap }}</td>
-                                    <td style="text-align: center; font-family:monospace; color:#0ea5e9; font-weight:700;">
+                                    <td
+                                        style="text-align: center; font-family:monospace; color:#0ea5e9; font-weight:700;">
                                         {{ $isolir->pppoe_username }}</td>
                                     <td style="text-align: center; font-weight: 600;">
                                         {{ $isolir->sales->nama_lengkap ?? '-' }}</td>
@@ -271,19 +342,36 @@
 
     {{-- Custom Tabbed Detail Modal --}}
     <style>
-        #customerDetailModal .edit-only { display: none !important; }
-        #customerDetailModal.is-editing .edit-only { display: block !important; }
-        #customerDetailModal.is-editing select.edit-only { display: block !important; }
-        #customerDetailModal.is-editing input.edit-only { display: block !important; }
-        #customerDetailModal.is-editing textarea.edit-only { display: block !important; }
-        #customerDetailModal.is-editing .view-only { display: none !important; }
+        #customerDetailModal .edit-only {
+            display: none !important;
+        }
+
+        #customerDetailModal.is-editing .edit-only {
+            display: block !important;
+        }
+
+        #customerDetailModal.is-editing select.edit-only {
+            display: block !important;
+        }
+
+        #customerDetailModal.is-editing input.edit-only {
+            display: block !important;
+        }
+
+        #customerDetailModal.is-editing textarea.edit-only {
+            display: block !important;
+        }
+
+        #customerDetailModal.is-editing .view-only {
+            display: none !important;
+        }
     </style>
-    <div class="modal-overlay" id="customerDetailModal">
+    <div class="modal-overlay !items-center" id="customerDetailModal">
         <div class="modal-box max-w-4xl bg-white border border-slate-300 shadow-2xl">
             @if ($is_admin)
-            <form id="detailFormInline" action="" method="POST" enctype="multipart/form-data">
-                @csrf
-                @method('PUT')
+                <form id="detailFormInline" action="" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
             @endif
             <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
                 <div class="modal-title flex flex-col gap-1">
@@ -321,37 +409,54 @@
                                         Biodata Inti</h6>
                                     <div class="space-y-4">
                                         <div>
-                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Nomor Identitas (NIK)</span>
-                                            <p id="detail_nik_view" class="view-only text-xl font-black text-slate-900 leading-none mt-1"></p>
-                                            @if($is_admin)
-                                                <input type="text" name="no_identitas" id="detail_nik_input" class="edit-only form-input-custom mt-1 !text-sm !font-bold">
+                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Nomor
+                                                Identitas (NIK)</span>
+                                            <p id="detail_nik_view"
+                                                class="view-only text-xl font-black text-slate-900 leading-none mt-1">
+                                            </p>
+                                            @if ($is_admin)
+                                                <input type="text" name="no_identitas" id="detail_nik_input"
+                                                    class="edit-only form-input-custom mt-1 !text-sm !font-bold">
                                             @endif
                                         </div>
                                         <div>
-                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Nama Lengkap</span>
-                                            <p id="detail_nama_view" class="view-only text-base font-black text-slate-900 truncate mt-1"></p>
-                                            @if($is_admin)
-                                                <input type="text" name="nama_lengkap" id="detail_nama_input" class="edit-only form-input-custom mt-1 !text-sm !font-bold" required>
+                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Nama
+                                                Lengkap</span>
+                                            <p id="detail_nama_view"
+                                                class="view-only text-base font-black text-slate-900 truncate mt-1">
+                                            </p>
+                                            @if ($is_admin)
+                                                <input type="text" name="nama_lengkap" id="detail_nama_input"
+                                                    class="edit-only form-input-custom mt-1 !text-sm !font-bold"
+                                                    required>
                                             @endif
                                         </div>
                                         <div>
-                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Alamat Email</span>
-                                            <p id="detail_email_view" class="view-only text-base font-black text-primary truncate mt-1"></p>
-                                            @if($is_admin)
-                                                <input type="email" name="alamat_email" id="detail_email_input" class="edit-only form-input-custom mt-1 !text-sm !font-bold">
+                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Alamat
+                                                Email</span>
+                                            <p id="detail_email_view"
+                                                class="view-only text-base font-black text-primary truncate mt-1"></p>
+                                            @if ($is_admin)
+                                                <input type="email" name="alamat_email" id="detail_email_input"
+                                                    class="edit-only form-input-custom mt-1 !text-sm !font-bold">
                                             @endif
                                         </div>
                                         <div>
-                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">No. WhatsApp</span>
-                                                                                            <div class="view-only flex items-center gap-2 mt-1">
-                                                    <p id="detail_wa_view" class="text-sm font-bold text-emerald-600 m-0"></p>
-                                                    <a id="detail_wa_link" href="#" target="_blank" class="bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded text-[10px] font-black no-underline">
-                                                        <i class="fa-brands fa-whatsapp"></i> CHAT
-                                                    </a>
-                                                </div>
-                                                @if($is_admin)
-                                                <input type="text" name="no_whatsapp" id="detail_wa_input" class="edit-only form-input-custom mt-1 !text-sm !font-bold !text-emerald-600" required>
-                                                @endif
+                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">No.
+                                                WhatsApp</span>
+                                            <div class="view-only flex items-center gap-2 mt-1">
+                                                <p id="detail_wa_view" class="text-sm font-bold text-emerald-600 m-0">
+                                                </p>
+                                                <a id="detail_wa_link" href="#" target="_blank"
+                                                    class="bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded text-[10px] font-black no-underline">
+                                                    <i class="fa-brands fa-whatsapp"></i> CHAT
+                                                </a>
+                                            </div>
+                                            @if ($is_admin)
+                                                <input type="text" name="no_whatsapp" id="detail_wa_input"
+                                                    class="edit-only form-input-custom mt-1 !text-sm !font-bold !text-emerald-600"
+                                                    required>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -363,12 +468,15 @@
                                         <div>
                                             <span class="text-[11px] font-bold text-slate-400 block uppercase">Petugas
                                                 Sales</span>
-                                            <p id="detail_sales_view" class="view-only text-sm font-bold text-slate-800 mt-1"></p>
-                                            @if($is_admin)
-                                                <select name="id_sales" id="detail_sales_input" class="edit-only form-input-custom mt-1 !text-sm !font-bold">
+                                            <p id="detail_sales_view"
+                                                class="view-only text-sm font-bold text-slate-800 mt-1"></p>
+                                            @if ($is_admin)
+                                                <select name="id_sales" id="detail_sales_input"
+                                                    class="edit-only form-input-custom mt-1 !text-sm !font-bold">
                                                     <option value="">-- Pilih Sales --</option>
-                                                    @foreach($salesUsers as $sales)
-                                                        <option value="{{ $sales->id }}">{{ $sales->nama_lengkap }}</option>
+                                                    @foreach ($salesUsers as $sales)
+                                                        <option value="{{ $sales->id }}">
+                                                            {{ $sales->nama_lengkap }}</option>
                                                     @endforeach
                                                 </select>
                                             @endif
@@ -376,22 +484,27 @@
                                         <div>
                                             <span class="text-[11px] font-bold text-slate-400 block uppercase">Tgl.
                                                 Pre-Order</span>
-                                            <p id="detail_tgl_po_view" class="view-only text-sm font-bold text-slate-800 mt-1"></p>
-                                            @if($is_admin)
-                                                <input type="date" name="tgl_po" id="detail_tgl_po_input" class="edit-only form-input-custom mt-1 !text-sm !font-bold">
+                                            <p id="detail_tgl_po_view"
+                                                class="view-only text-sm font-bold text-slate-800 mt-1"></p>
+                                            @if ($is_admin)
+                                                <input type="date" name="tgl_po" id="detail_tgl_po_input"
+                                                    class="edit-only form-input-custom mt-1 !text-sm !font-bold">
                                             @endif
                                         </div>
                                         <div>
-                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Titik Koordinat</span>
+                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Titik
+                                                Koordinat</span>
                                             <div class="view-only flex items-center gap-2 mt-1">
-                                                <p id="detail_tikor_view" class="text-sm font-bold text-indigo-600 m-0"></p>
+                                                <p id="detail_tikor_view"
+                                                    class="text-sm font-bold text-indigo-600 m-0"></p>
                                                 <a id="detail_tikor_link" href="#" target="_blank"
                                                     class="bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded text-[10px] font-black no-underline">
                                                     <i class="fa-solid fa-map-location-dot"></i> MAPS
                                                 </a>
                                             </div>
-                                            @if($is_admin)
-                                                <input type="text" name="titik_koordinat" id="detail_tikor_input" class="edit-only form-input-custom mt-1 !text-sm !font-bold">
+                                            @if ($is_admin)
+                                                <input type="text" name="titik_koordinat" id="detail_tikor_input"
+                                                    class="edit-only form-input-custom mt-1 !text-sm !font-bold">
                                             @endif
                                         </div>
                                     </div>
@@ -402,9 +515,11 @@
                                     class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-l-4 border-slate-400 pl-3">
                                     Lokasi Pasang</h6>
                                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                                    <p id="detail_alamat_lengkap_view" class="view-only text-sm font-bold text-slate-700 leading-relaxed"></p>
-                                    @if($is_admin)
-                                        <textarea name="alamat_lengkap" id="detail_alamat_lengkap_input" class="edit-only form-input-custom !text-sm !font-bold" rows="3" required></textarea>
+                                    <p id="detail_alamat_lengkap_view"
+                                        class="view-only text-sm font-bold text-slate-700 leading-relaxed"></p>
+                                    @if ($is_admin)
+                                        <textarea name="alamat_lengkap" id="detail_alamat_lengkap_input"
+                                            class="edit-only form-input-custom !text-sm !font-bold" rows="3" required></textarea>
                                     @endif
                                 </div>
                             </div>
@@ -428,60 +543,86 @@
                                 Akun & Layanan</h6>
                             <div class="bg-sky-50 p-5 rounded-2xl border border-sky-100 space-y-4">
                                 <div>
-                                    <span class="text-[10px] font-black text-sky-400 block uppercase">ID Pelanggan</span>
-                                    <p id="detail_customer_id_view" class="view-only text-xl font-black text-sky-700 mt-1"></p>
-                                    @if($is_admin)
-                                        <input type="text" name="id_pelanggan" id="detail_customer_id_input" class="edit-only form-input-custom mt-1 !text-sm !font-black !text-sky-700" required>
+                                    <span class="text-[10px] font-black text-sky-400 block uppercase">ID
+                                        Pelanggan</span>
+                                    <p id="detail_customer_id_view"
+                                        class="view-only text-xl font-black text-sky-700 mt-1"></p>
+                                    @if ($is_admin)
+                                        <input type="text" name="id_pelanggan" id="detail_customer_id_input"
+                                            class="edit-only form-input-custom mt-1 !text-sm !font-black !text-sky-700"
+                                            required>
                                     @endif
                                 </div>
                                 <div>
-                                    <span class="text-[10px] font-black text-sky-400 block uppercase">Paket Internet</span>
-                                    <p id="detail_paket_view" class="view-only text-sm font-black text-sky-800 mt-1"></p>
-                                    @if($is_admin)
-                                        <input type="text" name="paket_internet" id="detail_paket_input" class="edit-only form-input-custom mt-1 !text-sm !font-black !text-sky-800" required>
+                                    <span class="text-[10px] font-black text-sky-400 block uppercase">Paket
+                                        Internet</span>
+                                    <p id="detail_paket_view" class="view-only text-sm font-black text-sky-800 mt-1">
+                                    </p>
+                                    @if ($is_admin)
+                                        <input type="text" name="paket_internet" id="detail_paket_input"
+                                            class="edit-only form-input-custom mt-1 !text-sm !font-black !text-sky-800"
+                                            required>
                                     @endif
                                 </div>
                                 <hr class="border-sky-200">
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
-                                        <span class="text-[10px] font-black text-sky-400 block uppercase">PPPoE User</span>
-                                        <p id="detail_pppoe_user_view" class="view-only text-xs font-bold text-slate-700"></p>
-                                        @if($is_admin)
-                                            <input type="text" name="pppoe_username" id="detail_pppoe_user_input" class="edit-only form-input-custom mt-1 !text-xs !font-bold">
+                                        <span class="text-[10px] font-black text-sky-400 block uppercase">PPPoE
+                                            User</span>
+                                        <p id="detail_pppoe_user_view"
+                                            class="view-only text-xs font-bold text-slate-700"></p>
+                                        @if ($is_admin)
+                                            <input type="text" name="pppoe_username" id="detail_pppoe_user_input"
+                                                class="edit-only form-input-custom mt-1 !text-xs !font-bold">
                                         @endif
                                     </div>
                                     <div>
-                                        <span class="text-[10px] font-black text-sky-400 block uppercase">PPPoE Pass</span>
-                                        <p id="detail_pppoe_pass_view" class="view-only text-xs font-bold text-slate-700"></p>
-                                        @if($is_admin)
-                                            <input type="text" name="pppoe_password" id="detail_pppoe_pass_input" class="edit-only form-input-custom mt-1 !text-xs !font-bold">
+                                        <span class="text-[10px] font-black text-sky-400 block uppercase">PPPoE
+                                            Pass</span>
+                                        <p id="detail_pppoe_pass_view"
+                                            class="view-only text-xs font-bold text-slate-700"></p>
+                                        @if ($is_admin)
+                                            <input type="text" name="pppoe_password" id="detail_pppoe_pass_input"
+                                                class="edit-only form-input-custom mt-1 !text-xs !font-bold">
                                         @endif
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="space-y-6">
-                            <h6 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-l-4 border-amber-500 pl-3">Perangkat & Billing</h6>
+                            <h6
+                                class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-l-4 border-amber-500 pl-3">
+                                Perangkat & Billing</h6>
                             <div class="space-y-4">
                                 <div>
-                                    <span class="text-[11px] font-bold text-slate-400 block uppercase">Jenis Modem</span>
-                                    <p id="detail_jenis_modem_view" class="view-only text-sm font-bold text-slate-800 mt-1"></p>
-                                    @if($is_admin)
-                                        <input type="text" name="jenis_modem" id="detail_jenis_modem_input" class="edit-only form-input-custom mt-1 !text-sm !font-bold">
+                                    <span class="text-[11px] font-bold text-slate-400 block uppercase">Jenis
+                                        Modem</span>
+                                    <p id="detail_jenis_modem_view"
+                                        class="view-only text-sm font-bold text-slate-800 mt-1"></p>
+                                    @if ($is_admin)
+                                        <input type="text" name="jenis_modem" id="detail_jenis_modem_input"
+                                            class="edit-only form-input-custom mt-1 !text-sm !font-bold">
                                     @endif
                                 </div>
                                 <div>
-                                    <span class="text-[11px] font-bold text-slate-400 block uppercase">SN Perangkat</span>
-                                    <p id="detail_sn_view" class="view-only text-sm font-bold text-slate-800 mt-1"></p>
-                                    @if($is_admin)
-                                        <input type="text" name="sn_perangkat" id="detail_sn_input" class="edit-only form-input-custom mt-1 !text-sm !font-bold">
+                                    <span class="text-[11px] font-bold text-slate-400 block uppercase">SN
+                                        Perangkat</span>
+                                    <p id="detail_sn_view" class="view-only text-sm font-bold text-slate-800 mt-1">
+                                    </p>
+                                    @if ($is_admin)
+                                        <input type="text" name="sn_perangkat" id="detail_sn_input"
+                                            class="edit-only form-input-custom mt-1 !text-sm !font-bold">
                                     @endif
                                 </div>
                                 <div>
-                                    <span class="text-[11px] font-bold text-slate-400 block uppercase">Metode Pembayaran</span>
-                                    <p id="detail_pembayaran_view" class="view-only text-sm font-bold text-amber-600 mt-1"></p>
-                                    @if($is_admin)
-                                        <select name="pembayaran" id="detail_pembayaran_input" class="edit-only form-input-custom mt-1 !text-sm !font-bold !text-amber-600" required>
+                                    <span class="text-[11px] font-bold text-slate-400 block uppercase">Metode
+                                        Pembayaran</span>
+                                    <p id="detail_pembayaran_view"
+                                        class="view-only text-sm font-bold text-amber-600 mt-1"></p>
+                                    @if ($is_admin)
+                                        <select name="pembayaran" id="detail_pembayaran_input"
+                                            class="edit-only form-input-custom mt-1 !text-sm !font-bold !text-amber-600"
+                                            required>
                                             <option value="Transfer">Transfer</option>
                                             <option value="Cash">Cash</option>
                                             <option value="Aplikasi">Aplikasi</option>
@@ -489,10 +630,13 @@
                                     @endif
                                 </div>
                                 <div>
-                                    <span class="text-[11px] font-bold text-slate-400 block uppercase">Tanggal Aktivasi</span>
-                                    <p id="detail_tgl_aktivasi_view" class="view-only text-sm font-bold text-slate-800 mt-1"></p>
-                                    @if($is_admin)
-                                        <input type="date" name="tgl_aktivasi" id="detail_tgl_aktivasi_input" class="edit-only form-input-custom mt-1 !text-sm !font-bold">
+                                    <span class="text-[11px] font-bold text-slate-400 block uppercase">Tanggal
+                                        Aktivasi</span>
+                                    <p id="detail_tgl_aktivasi_view"
+                                        class="view-only text-sm font-bold text-slate-800 mt-1"></p>
+                                    @if ($is_admin)
+                                        <input type="date" name="tgl_aktivasi" id="detail_tgl_aktivasi_input"
+                                            class="edit-only form-input-custom mt-1 !text-sm !font-bold">
                                     @endif
                                 </div>
                             </div>
@@ -519,8 +663,9 @@
                                         <i class="fa-solid fa-user-gear text-slate-300 text-3xl"
                                             id="placeholder_petugas"></i>
                                     </div>
-                                    @if($is_admin)
-                                    <input type="file" name="foto_petugas" class="edit-only form-input-custom mt-2 !text-xs !p-1 !h-auto">
+                                    @if ($is_admin)
+                                        <input type="file" name="foto_petugas"
+                                            class="edit-only form-input-custom mt-2 !text-xs !p-1 !h-auto">
                                     @endif
                                 </div>
                                 <div class="space-y-2">
@@ -534,8 +679,9 @@
                                         <i class="fa-solid fa-microchip text-slate-300 text-3xl"
                                             id="placeholder_terpasang"></i>
                                     </div>
-                                    @if($is_admin)
-                                    <input type="file" name="foto_terpasang" class="edit-only form-input-custom mt-2 !text-xs !p-1 !h-auto">
+                                    @if ($is_admin)
+                                        <input type="file" name="foto_terpasang"
+                                            class="edit-only form-input-custom mt-2 !text-xs !p-1 !h-auto">
                                     @endif
                                 </div>
                                 <div class="space-y-2">
@@ -549,8 +695,9 @@
                                         <i class="fa-solid fa-gauge-high text-slate-300 text-3xl"
                                             id="placeholder_speedtest"></i>
                                     </div>
-                                    @if($is_admin)
-                                    <input type="file" name="foto_speedtest" class="edit-only form-input-custom mt-2 !text-xs !p-1 !h-auto">
+                                    @if ($is_admin)
+                                        <input type="file" name="foto_speedtest"
+                                            class="edit-only form-input-custom mt-2 !text-xs !p-1 !h-auto">
                                     @endif
                                 </div>
                             </div>
@@ -560,9 +707,12 @@
                             <h6 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Catatan
                                 Teknisi</h6>
                             <div class="bg-white p-4 rounded-2xl border border-slate-200 min-h-[120px]">
-                                <p id="detail_keterangan_view" class="view-only text-sm font-medium text-slate-600 italic leading-relaxed break-words"></p>
-                                @if($is_admin)
-                                    <textarea name="keterangan" id="detail_keterangan_input" class="edit-only form-input-custom !text-sm !italic" rows="3"></textarea>
+                                <p id="detail_keterangan_view"
+                                    class="view-only text-sm font-medium text-slate-600 italic leading-relaxed break-words">
+                                </p>
+                                @if ($is_admin)
+                                    <textarea name="keterangan" id="detail_keterangan_input" class="edit-only form-input-custom !text-sm !italic"
+                                        rows="3"></textarea>
                                 @endif
                             </div>
                         </div>
@@ -571,23 +721,28 @@
             </div>
 
             <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl flex justify-between gap-3">
-                <button type="button" class="view-only btn-cancel flex-1" onclick="closeCustomModal('customerDetailModal')">
+                <button type="button" class="view-only btn-cancel flex flex-1 items-center justify-center !gap-2"
+                    onclick="closeCustomModal('customerDetailModal')">
                     <i class="fa-solid fa-xmark"></i> Tutup
                 </button>
                 @if ($is_admin)
-                    <button type="button" id="btnToggleEdit" class="view-only btn-primary-admin !bg-amber-500 hover:!bg-amber-600 flex-1 !shadow-amber-500/30" onclick="toggleEditMode()">
+                    <button type="button" id="btnToggleEdit"
+                        class="view-only btn-primary-admin justify-center !gap-2 !bg-emerald-500 hover:!bg-emerald-600 flex-1 !shadow-emerald-500/30"
+                        onclick="toggleEditMode()">
                         <i class="fa-solid fa-pen-to-square"></i> Edit Data
                     </button>
-                    <button type="button" class="edit-only btn-cancel flex-1" onclick="toggleEditMode()">
+                    <button type="button" class="edit-only btn-cancel flex flex-1 items-center justify-center !gap-2"
+                        onclick="toggleEditMode()">
                         <i class="fa-solid fa-ban"></i> Batal Edit
                     </button>
-                    <button type="submit" class="edit-only btn-primary-admin !bg-emerald-500 hover:!bg-emerald-600 flex-1 !shadow-emerald-500/30">
+                    <button type="submit"
+                        class="edit-only btn-primary-admin justify-center !gap-2 !bg-emerald-500 hover:!bg-emerald-600 flex-1 !shadow-emerald-500/30">
                         <i class="fa-solid fa-save"></i> Simpan Perubahan
                     </button>
                 @endif
             </div>
             @if ($is_admin)
-            </form>
+                </form>
             @endif
         </div>
     </div>
@@ -612,7 +767,8 @@
                         if (window.customerMarkers) {
                             window.customerMarkers.eachLayer(function(marker) {
                                 const mCoords = marker.getLatLng();
-                                if (Math.abs(mCoords.lat - coords[0]) < 0.0001 && Math.abs(mCoords.lng - coords[1]) < 0.0001) {
+                                if (Math.abs(mCoords.lat - coords[0]) < 0.0001 && Math.abs(mCoords.lng - coords[1]) <
+                                    0.0001) {
                                     marker.openPopup();
                                 }
                             });
@@ -638,7 +794,7 @@
             }
 
             let currentCustomerTrigger = null;
-            
+
             function setValOrText(id, val) {
                 const el = document.getElementById(id);
                 if (!el) return;
@@ -668,13 +824,13 @@
 
                 setValOrText('detail_nama_view', $btn.data('nama-lengkap'));
                 setValOrText('detail_nama_input', $btn.data('nama-lengkap'));
-                
+
                 setValOrText('detail_nik_view', $btn.data('po-nik'));
                 setValOrText('detail_nik_input', $btn.data('po-nik') === 'N/A' ? '' : $btn.data('po-nik'));
-                
+
                 setValOrText('detail_email_view', $btn.data('po-email'));
                 setValOrText('detail_email_input', $btn.data('po-email') === 'N/A' ? '' : $btn.data('po-email'));
-                
+
                 const wa = $btn.data('po-wa');
                 setValOrText('detail_wa_view', wa);
                 setValOrText('detail_wa_input', wa);
@@ -683,13 +839,13 @@
                 } else {
                     $('#detail_wa_link').hide();
                 }
-                
+
                 setValOrText('detail_sales_view', $btn.data('po-sales'));
                 setValOrText('detail_sales_input', $btn.data('id-sales'));
-                
+
                 setValOrText('detail_tgl_po_view', $btn.data('po-tgl-po'));
-                if($btn.data('tgl-po-raw')) setValOrText('detail_tgl_po_input', $btn.data('tgl-po-raw'));
-                
+                if ($btn.data('tgl-po-raw')) setValOrText('detail_tgl_po_input', $btn.data('tgl-po-raw'));
+
                 setValOrText('detail_alamat_lengkap_view', $btn.data('po-alamat'));
                 setValOrText('detail_alamat_lengkap_input', $btn.data('po-alamat'));
 
@@ -704,27 +860,27 @@
 
                 setValOrText('detail_customer_id_view', $btn.data('customer-id'));
                 setValOrText('detail_customer_id_input', $btn.data('customer-id'));
-                
+
                 setValOrText('detail_paket_view', $btn.data('po-paket'));
                 setValOrText('detail_paket_input', $btn.data('po-paket'));
-                
+
                 setValOrText('detail_pppoe_user_view', $btn.data('pppoe-user'));
                 setValOrText('detail_pppoe_user_input', $btn.data('pppoe-user'));
-                
+
                 setValOrText('detail_pppoe_pass_view', $btn.data('pppoe-pass'));
                 setValOrText('detail_pppoe_pass_input', $btn.data('pppoe-pass'));
-                
+
                 setValOrText('detail_jenis_modem_view', $btn.data('jenis-modem'));
                 setValOrText('detail_jenis_modem_input', $btn.data('jenis-modem'));
-                
+
                 setValOrText('detail_sn_view', $btn.data('sn-perangkat'));
                 setValOrText('detail_sn_input', $btn.data('sn-perangkat'));
-                
+
                 setValOrText('detail_pembayaran_view', $btn.data('pembayaran'));
                 setValOrText('detail_pembayaran_input', $btn.data('pembayaran'));
-                
+
                 setValOrText('detail_tgl_aktivasi_view', $btn.data('tgl-aktivasi'));
-                if($btn.data('tgl-aktivasi-raw')) setValOrText('detail_tgl_aktivasi_input', $btn.data('tgl-aktivasi-raw'));
+                if ($btn.data('tgl-aktivasi-raw')) setValOrText('detail_tgl_aktivasi_input', $btn.data('tgl-aktivasi-raw'));
 
                 const handleImage = (imgId, placeholderId, src) => {
                     const $img = $(`#${imgId}`);
@@ -741,7 +897,7 @@
                 handleImage('img_petugas', 'placeholder_petugas', $btn.data('foto-petugas'));
                 handleImage('img_terpasang', 'placeholder_terpasang', $btn.data('foto-terpasang'));
                 handleImage('img_speedtest', 'placeholder_speedtest', $btn.data('foto-speedtest'));
-                
+
                 setValOrText('detail_keterangan_view', $btn.data('keterangan'));
                 setValOrText('detail_keterangan_input', $btn.data('keterangan'));
 
@@ -775,19 +931,60 @@
                 const table = $('#customer-table').DataTable({
                     processing: true,
                     serverSide: true,
-                    ajax: '{{ route("customers.active_list") }}',
-                    columns: [
-                        { data: null, name: 'id', searchable: false, orderable: false, className: 'text-center align-middle', render: function (data, type, row, meta) {
-                            return `<div style="color: #94a3b8; font-weight: 700;">${meta.row + meta.settings._iDisplayStart + 1}</div>`;
-                        }},
-                        { data: 'id_pelanggan', name: 'id_pelanggan', className: 'text-center align-middle', render: function(data) {
-                            return `<div style="font-weight: 800; color: #0ea5e9;">${data}</div>`;
-                        }},
-                        { data: 'nama_lengkap_formatted', name: 'nama_lengkap', orderable: true, searchable: true, className: 'text-center align-middle' },
-                        { data: 'wa_formatted', name: 'no_whatsapp', orderable: false, searchable: true, className: 'text-center align-middle' },
-                        { data: 'teknisi_formatted', name: 'teknisiUtama.nama_lengkap', orderable: false, searchable: true, className: 'text-center align-middle' },
-                        { data: 'tgl_formatted', name: 'created_at', orderable: true, searchable: false, className: 'text-center align-middle text-slate-500 font-semibold text-xs' },
-                        { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center align-middle' }
+                    ajax: '{{ route('customers.active_list') }}',
+                    columns: [{
+                            data: null,
+                            name: 'id',
+                            searchable: false,
+                            orderable: false,
+                            className: 'text-center align-middle',
+                            render: function(data, type, row, meta) {
+                                return `<div style="color: #94a3b8; font-weight: 700;">${meta.row + meta.settings._iDisplayStart + 1}</div>`;
+                            }
+                        },
+                        {
+                            data: 'id_pelanggan',
+                            name: 'id_pelanggan',
+                            className: 'text-center align-middle',
+                            render: function(data) {
+                                return `<div style="font-weight: 800; color: #0ea5e9;">${data}</div>`;
+                            }
+                        },
+                        {
+                            data: 'nama_lengkap_formatted',
+                            name: 'nama_lengkap',
+                            orderable: true,
+                            searchable: true,
+                            className: 'text-center align-middle'
+                        },
+                        {
+                            data: 'wa_formatted',
+                            name: 'no_whatsapp',
+                            orderable: false,
+                            searchable: true,
+                            className: 'text-center align-middle'
+                        },
+                        {
+                            data: 'teknisi_formatted',
+                            name: 'teknisiUtama.nama_lengkap',
+                            orderable: false,
+                            searchable: true,
+                            className: 'text-center align-middle'
+                        },
+                        {
+                            data: 'tgl_formatted',
+                            name: 'created_at',
+                            orderable: true,
+                            searchable: false,
+                            className: 'text-center align-middle text-slate-500 font-semibold text-xs'
+                        },
+                        {
+                            data: 'action',
+                            name: 'action',
+                            orderable: false,
+                            searchable: false,
+                            className: 'text-center align-middle'
+                        }
                     ],
                     dom: 'tpir',
                     pageLength: 10,
@@ -872,7 +1069,8 @@
                     if (c.koordinat) {
                         const coords = c.koordinat.split(',').map(v => parseFloat(v.trim()));
                         if (coords.length === 2) {
-                            const color = c.is_online ? '#10b981' : '#ef4444'; // Emerald for online, Red for offline
+                            const color = c.is_online ? '#10b981' :
+                                '#ef4444'; // Emerald for online, Red for offline
                             const marker = L.circleMarker(coords, {
                                 radius: 8,
                                 fillColor: color,
@@ -927,7 +1125,7 @@
                     const allCoords = customers
                         .filter(c => c.koordinat)
                         .map(c => c.koordinat.split(',').map(v => parseFloat(v.trim())));
-                    
+
                     if (allCoords.length > 0) {
                         const bounds = L.latLngBounds(allCoords);
                         map.fitBounds(bounds, {

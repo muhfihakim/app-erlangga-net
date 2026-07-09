@@ -77,4 +77,41 @@ class MonitoringController extends Controller
 
         return response()->json($data);
     }
+
+    public function pppoeLogs(MikroTikService $service): JsonResponse
+    {
+        try {
+            $logsRaw = $service->runRawQuery('/log/print', ['?topics' => 'pppoe,info']);
+            
+            if (empty($logsRaw)) {
+                $logsRaw = $service->runRawQuery('/log/print');
+            }
+            
+            $pppoeLogs = [];
+            foreach (array_reverse($logsRaw) as $log) {
+                $topics = $log['topics'] ?? '';
+                $message = $log['message'] ?? '';
+                
+                if (str_contains(strtolower($topics), 'pppoe') || str_contains(strtolower($message), 'pppoe')) {
+                    $pppoeLogs[] = [
+                        'time' => $log['time'] ?? '',
+                        'topics' => $topics,
+                        'message' => $message,
+                    ];
+                }
+                
+                if (count($pppoeLogs) >= 50) break; // Limit to 50 logs
+            }
+            
+            return response()->json([
+                'success' => true,
+                'data' => $pppoeLogs
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
 }

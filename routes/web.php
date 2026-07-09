@@ -135,6 +135,7 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::prefix('api')->middleware(['admin'])->group(function () {
         Route::get('/mikrotik/traffic', [MonitoringController::class, 'traffic']);
         Route::get('/mikrotik/status', [MonitoringController::class, 'status']);
+        Route::get('/mikrotik/pppoe-logs', [MonitoringController::class, 'pppoeLogs']);
         
         // OLT Telnet API Routes (Admin only: Generator)
         Route::post('/olt/check-next-id', [OltController::class, 'checkNextOnuId']);

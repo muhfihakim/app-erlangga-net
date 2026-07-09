@@ -100,8 +100,8 @@
     <!-- Page header -->
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
-            <h1 style="font-size:22px;font-weight:900;margin:0;">Monitoring Bandwidth</h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Real-time traffic MikroTik interface.</p>
+            <h1 style="font-size:22px;font-weight:900;margin:0;">Monitoring Router</h1>
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Real-time status & traffic MikroTik router.</p>
         </div>
         <div style="display:flex; gap:10px;">
         </div>
@@ -169,6 +169,17 @@
         <canvas id="trafficChart" style="max-height:280px;"></canvas>
         <div style="text-align:center;font-size:12px;color:#94a3b8;margin-top:8px;">
             Terakhir diperbarui: <span id="last-updated">--:--:--</span>
+        </div>
+    </div>
+
+    <!-- PPPoE Logs -->
+    <div class="chart-card" style="margin-top: 1rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:8px;">
+            <div style="font-size:14px;font-weight:800;color:#334155;">Log PPPoE MikroTik</div>
+            <button onclick="fetchPppoeLogs()" style="background:#f1f5f9;border:1px solid #e2e8f0;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;color:#475569;cursor:pointer;">Refresh</button>
+        </div>
+        <div style="background:#0f172a; border-radius:10px; padding:12px; max-height:300px; overflow-y:auto; font-family:monospace; font-size:12px; color:#e2e8f0;" id="pppoe-log-container">
+            <div style="text-align:center; color:#94a3b8; padding:20px;">Memuat log...</div>
         </div>
     </div>
 
@@ -385,5 +396,31 @@
 
         // Initial call
         updateChart();
+        fetchPppoeLogs();
+
+        function fetchPppoeLogs() {
+            const container = document.getElementById('pppoe-log-container');
+            container.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:20px;">Memuat log...</div>';
+            fetch('/api/mikrotik/pppoe-logs')
+                .then(res => res.json())
+                .then(res => {
+                    if (res.success && res.data && res.data.length > 0) {
+                        container.innerHTML = '';
+                        res.data.forEach(log => {
+                            const timeSpan = `<span style="color:#38bdf8;">[${log.time}]</span>`;
+                            const topicSpan = `<span style="color:#a78bfa;">[${log.topics}]</span>`;
+                            const msgSpan = `<span style="color:#f8fafc;">${log.message}</span>`;
+                            container.innerHTML += `<div style="margin-bottom:4px;border-bottom:1px solid #1e293b;padding-bottom:4px;">${timeSpan} ${topicSpan} ${msgSpan}</div>`;
+                        });
+                    } else {
+                        container.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:20px;">' + (res.error || 'Tidak ada log PPPoE.') + '</div>';
+                    }
+                })
+                .catch(() => {
+                    container.innerHTML = '<div style="text-align:center; color:#ef4444; padding:20px;">Gagal memuat log.</div>';
+                });
+        }
+        
+        setInterval(fetchPppoeLogs, 30000);
     </script>
 </x-layouts.app>
