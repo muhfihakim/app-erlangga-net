@@ -14,6 +14,7 @@ use App\Http\Controllers\OdpController;
 use App\Http\Controllers\SupportingActivityController;
 use App\Http\Controllers\PreOrderController;
 use App\Http\Controllers\PppoeController;
+use App\Http\Controllers\PppoeAccountController;
 use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\OltController;
 use App\Http\Controllers\AssetController;
@@ -45,6 +46,25 @@ Route::middleware(['auth.custom'])->group(function () {
             Route::post('/transactions', [AssetController::class, 'storeTransaction'])->name('transactions.store');
             Route::get('/export', [AssetController::class, 'export'])->name('export');
         });
+
+        // Manage PPPoE Accounts
+        Route::get('/pppoe-accounts', [\App\Http\Controllers\PppoeAccountController::class, 'index'])->name('pppoe_accounts.index');
+        Route::post('/pppoe-accounts', [\App\Http\Controllers\PppoeAccountController::class, 'store'])->name('pppoe_accounts.store');
+        Route::put('/pppoe-accounts/{pppoe}', [\App\Http\Controllers\PppoeAccountController::class, 'update'])->name('pppoe_accounts.update');
+        Route::delete('/pppoe-accounts/{pppoe}', [\App\Http\Controllers\PppoeAccountController::class, 'destroy'])->name('pppoe_accounts.destroy');
+        
+        // Manage Paket
+        Route::get('/pakets', [\App\Http\Controllers\PaketController::class, 'index'])->name('pakets.index');
+        Route::post('/pakets', [\App\Http\Controllers\PaketController::class, 'store'])->name('pakets.store');
+        Route::put('/pakets/{paket}', [\App\Http\Controllers\PaketController::class, 'update'])->name('pakets.update');
+        Route::delete('/pakets/{paket}', [\App\Http\Controllers\PaketController::class, 'destroy'])->name('pakets.destroy');
+        
+        // Invoices
+        Route::get('/invoices', [\App\Http\Controllers\InvoiceController::class, 'index'])->name('invoices.index');
+        Route::post('/invoices/{invoice}/pay-manual', [\App\Http\Controllers\InvoiceController::class, 'payManual'])->name('invoices.pay_manual');
+
+        // Transactions
+        Route::get('/transactions', [\App\Http\Controllers\TransactionController::class, 'index'])->name('transactions.index');
     });
 
     // Keuangan Teknisi

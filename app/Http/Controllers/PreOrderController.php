@@ -29,7 +29,7 @@ class PreOrderController extends Controller
             $unsubscribedPOIds = $customerRecords->whereNotNull('deleted_at')->pluck('pre_order_id')->toArray();
 
             // 2. Query PreOrder
-            $query = PreOrder::query();
+            $query = PreOrder::with('pppoe');
 
             if ($user->isAdmin()) {
                 if ($filterSales) {
@@ -86,7 +86,7 @@ class PreOrderController extends Controller
                         return '<div style="text-align: center; font-weight: 700;">' . htmlspecialchars($po->nama_lengkap) . '</div>';
                     })
                     ->addColumn('paket', function($po) {
-                        return '<div style="text-align: center;"><span class="badge" style="background: #e0f2fe; color: #0369a1;">' . htmlspecialchars($po->paket_internet) . '</span></div>';
+                        return '<div style="text-align: center;"><span class="badge" style="background: #e0f2fe; color: #0369a1;">' . htmlspecialchars($po->paket ? $po->paket->nama_paket : '') . '</span></div>';
                     })
                     ->addColumn('status_opsi', function($po) {
                         return view('preorders.action_buttons', compact('po'))->render();
@@ -116,10 +116,13 @@ class PreOrderController extends Controller
             $allMyPOs = $statsQuery->get();
             $totalPending = $allMyPOs->filter(fn($po) => !in_array($po->id, $activePOIds) && !in_array($po->id, $unsubscribedPOIds))->count();
 
+            $pakets = \App\Models\Paket::orderBy('harga', 'asc')->get();
+
             return view('preorders.index', compact(
                 'preOrders',
                 'teknisiUsers',
                 'salesUsers',
+                'pakets',
                 'totalThisMonth',
                 'totalThisWeek',
                 'totalPending',
@@ -139,7 +142,7 @@ class PreOrderController extends Controller
 
         try {
             $validatedData = $request->validate([
-                'paket_internet' => 'required|string|max:255',
+                'paket_id' => 'required|exists:pakets,id',
                 'nama_lengkap' => 'required|string|max:255',
                 'no_identitas' => 'required|string|max:255|unique:pre_orders,no_identitas',
                 'no_whatsapp' => 'required|string|max:255',
@@ -193,7 +196,7 @@ class PreOrderController extends Controller
 
         try {
             $validatedData = $request->validate([
-                'paket_internet' => 'sometimes|string|max:255',
+                'paket_id' => 'sometimes|exists:pakets,id',
                 'nama_lengkap' => 'sometimes|string|max:255',
                 'no_identitas' => 'sometimes|string|max:255',
                 'no_whatsapp' => 'sometimes|string|max:255',

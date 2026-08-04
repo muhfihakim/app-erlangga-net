@@ -150,7 +150,7 @@
                     <td class="text-center" style="font-family: monospace">{{ $isolir->pppoe_username }}</td>
                     <td class="text-center">{{ $isolir->sales->nama_lengkap ?? '-' }}</td>
                     <td class="text-center">{{ $isolir->no_whatsapp }}</td>
-                    <td class="text-center">{{ $isolir->paket_internet }}</td>
+                    <td class="text-center">{{ $isolir->paket ? $isolir->paket->nama_paket : '-' }}</td>
                 </tr>
             @empty
                 <tr>

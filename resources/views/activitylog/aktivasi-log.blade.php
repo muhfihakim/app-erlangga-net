@@ -134,7 +134,7 @@
                             </td>
                             <td style="text-align: center;">
                                 <span class="badge" style="background: #f0f9ff; color: #0ea5e9; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800;">
-                                    {{ $c->paket_internet }}
+                                    {{ $c->paket ? $c->paket->nama_paket : '-' }}
                                 </span>
                             </td>
                             <td style="text-align: center;">

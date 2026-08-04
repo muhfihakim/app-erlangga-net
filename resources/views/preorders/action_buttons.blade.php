@@ -4,7 +4,7 @@
         data-nama="{{ $po->nama_lengkap }}" data-identitas="{{ $po->no_identitas }}"
         data-email-lengkap="{{ $po->alamat_email }}"
         data-alamat-lengkap="{{ $po->alamat_lengkap }}"
-        data-paket="{{ $po->paket_internet }}"
+        data-paket="{{ $po->paket ? $po->paket->nama_paket : '-' }}"
         data-koordinat="{{ $po->titik_koordinat }}"
         data-foto-ktp="{{ $po->foto_ktp ? Storage::url($po->foto_ktp) : '' }}"
         data-foto-rumah="{{ $po->foto_rumah ? Storage::url($po->foto_rumah) : '' }}"><i
@@ -47,14 +47,27 @@
                 onclick="openActivationModal(this)" data-po-id="{{ $po->id }}"
                 data-po-sales-id="{{ $po->id_sales }}"
                 data-po-nama="{{ $po->nama_lengkap }}"
-                data-po-paket="{{ $po->paket_internet }}"><i
+                data-po-paket="{{ $po->paket_id }}"><i
                     class="fa-solid fa-bolt"></i></button>
+        @endif
+        @if ($po->pppoe)
+            <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1.5 rounded-md border border-emerald-200" title="PPPoE Sudah Dibuat">
+                <i class="fa-solid fa-check"></i> PPPoE Aktif
+            </span>
+        @else
+            @if (auth()->user()->isAdmin())
+                <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
+                    onclick="openCustomModal('createPppoeModal', this)" data-po-id="{{ $po->id }}"
+                    data-po-nama="{{ $po->nama_lengkap }}" data-po-alamat="{{ $po->alamat_lengkap }}"
+                    data-po-paket="{{ $po->paket_id }}"
+                    title="Buat PPPoE"><i class="fa-solid fa-network-wired text-emerald-500"></i></button>
+            @endif
         @endif
         @if (in_array(auth()->user()->jabatan, ['Administrator', 'Sales']))
             <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                 onclick="openCustomModal('editModal', this)"
                 data-po-id="{{ $po->id }}" data-po-nama="{{ $po->nama_lengkap }}"
-                data-po-paket="{{ $po->paket_internet }}"
+                data-po-paket="{{ $po->paket_id }}"
                 data-po-wa="{{ $po->no_whatsapp }}"
                 data-po-email="{{ $po->alamat_email }}"
                 data-po-alamat="{{ $po->alamat_lengkap }}"

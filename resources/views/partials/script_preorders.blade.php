@@ -16,7 +16,7 @@
                     const poId = $btn.data('po-id');
                     $('#editForm').attr('action', `/pre-orders/${poId}`);
                     $('#edit_nama_lengkap').val($btn.data('po-nama'));
-                    $('#edit_paket_internet').val($btn.data('po-paket'));
+                    $('#edit_paket_id').val($btn.data('po-paket'));
                     $('#edit_no_identitas').val($btn.data('po-identitas'));
                     $('#edit_no_whatsapp').val($btn.data('po-wa'));
                     $('#edit_alamat_email').val($btn.data('po-email'));
@@ -88,6 +88,14 @@
                         initModalMap(koordinat);
                     }
                     return; // Avoid double open below
+                }
+
+                if (modalId === 'createPppoeModal') {
+                    $('#pppoe_pre_order_id').val($btn.data('po-id'));
+                    $('#create_pppoe_po_nama').text($btn.data('po-nama'));
+                    $('#create_pppoe_po_alamat').text($btn.data('po-alamat'));
+                    $('#create_pppoe_paket_id').val($btn.data('po-paket'));
+                    $(`#${modalId} .modal-tab`).first().trigger('click');
                 }
             }
 
@@ -161,7 +169,7 @@
                     { data: 'created_at', name: 'created_at' },
                     { data: 'sales', name: 'nama_sales' },
                     { data: 'nama_lengkap', name: 'nama_lengkap' },
-                    { data: 'paket', name: 'paket_internet' },
+                    { data: 'paket', name: 'paket_id' },
                     { data: 'status_opsi', name: 'status_opsi', searchable: false, orderable: false }
                 ],
                 "pageLength": 10,

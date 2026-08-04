@@ -17,7 +17,7 @@ class Customer extends Model
         'nama_lengkap',
         'alamat_lengkap',
         'no_whatsapp',
-        'paket_internet',
+        'paket_id',
         'id_pelanggan',
         'pppoe_username',
         'pppoe_password',
@@ -66,5 +66,10 @@ class Customer extends Model
     public function dismantles()
     {
         return $this->hasMany(Dismantle::class, 'customer_id');
+    }
+
+    public function paket()
+    {
+        return $this->belongsTo(Paket::class, 'paket_id');
     }
 }

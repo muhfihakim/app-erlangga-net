@@ -166,7 +166,8 @@ class CustomerController extends Controller
                             data-pembayaran="' . htmlspecialchars($customer->pembayaran, ENT_QUOTES) . '"
                             data-tgl-aktivasi="' . \Carbon\Carbon::parse($customer->created_at)->format('d-m-Y') . '"
                             data-tgl-aktivasi-raw="' . \Carbon\Carbon::parse($customer->created_at)->format('Y-m-d') . '"
-                            data-po-paket="' . htmlspecialchars($customer->paket_internet, ENT_QUOTES) . '"
+                            data-po-paket="' . htmlspecialchars($customer->paket ? $customer->paket->nama_paket : '', ENT_QUOTES) . '"
+                            data-paket-id="' . htmlspecialchars($customer->paket_id, ENT_QUOTES) . '"
                             data-po-sales="' . htmlspecialchars($customer->sales->nama_lengkap ?? 'N/A', ENT_QUOTES) . '"
                             data-id-sales="' . htmlspecialchars($customer->id_sales ?? '', ENT_QUOTES) . '"
                             data-po-nik="' . htmlspecialchars($customer->preOrder->no_identitas ?? 'N/A', ENT_QUOTES) . '"
@@ -289,7 +290,7 @@ class CustomerController extends Controller
                     'id' => $c->id,
                     'nama' => $c->nama_lengkap,
                     'username' => $c->pppoe_username,
-                    'paket' => $c->paket_internet,
+                    'paket' => $c->paket ? $c->paket->nama_paket : '',
                     'alamat' => $c->alamat_lengkap,
                     'koordinat' => $tikor,
                     'is_online' => $isOnline,
@@ -450,7 +451,7 @@ class CustomerController extends Controller
                 'nama_lengkap' => $po->nama_lengkap,
                 'alamat_lengkap' => $po->alamat_lengkap,
                 'no_whatsapp' => $po->no_whatsapp,
-                'paket_internet' => $po->paket_internet,
+                'paket_id' => $po->paket_id,
                 'id_pelanggan' => $validatedData['id_pelanggan'],
                 'pppoe_username' => $validatedData['pppoe_username'],
                 'pppoe_password' => $validatedData['pppoe_password'],
@@ -502,7 +503,7 @@ class CustomerController extends Controller
             'titik_koordinat' => 'nullable|string',
             'alamat_lengkap' => 'required|string',
             'no_whatsapp' => 'required|string',
-            'paket_internet' => 'required|string',
+            'paket_id' => 'required|exists:pakets,id',
             'pembayaran' => 'required|string',
             'pppoe_username' => 'nullable|string',
             'pppoe_password' => 'nullable|string',
@@ -528,7 +529,7 @@ class CustomerController extends Controller
                 'no_whatsapp' => $request->no_whatsapp,
                 'alamat_lengkap' => $request->alamat_lengkap,
                 'titik_koordinat' => $request->titik_koordinat,
-                'paket_internet' => $request->paket_internet,
+                'paket_id' => $request->paket_id,
                 'created_at' => $request->tgl_po ? \Carbon\Carbon::parse($request->tgl_po) : $customer->preOrder->created_at,
             ]);
         }
@@ -539,7 +540,7 @@ class CustomerController extends Controller
             'nama_lengkap' => $request->nama_lengkap,
             'alamat_lengkap' => $request->alamat_lengkap,
             'no_whatsapp' => $request->no_whatsapp,
-            'paket_internet' => $request->paket_internet,
+            'paket_id' => $request->paket_id,
             'pembayaran' => $request->pembayaran,
             'pppoe_username' => $request->pppoe_username,
             'pppoe_password' => $request->pppoe_password,

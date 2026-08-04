@@ -86,7 +86,7 @@ class CustomerController extends Controller
             'nama_lengkap' => $po->nama_lengkap,
             'alamat_lengkap' => $po->alamat_lengkap,
             'no_whatsapp' => $po->no_whatsapp,
-            'paket_internet' => $po->paket_internet,
+            'paket_id' => $po->paket_id,
             'id_pelanggan' => $request->id_pelanggan,
             'pppoe_username' => $request->pppoe_username,
             'pppoe_password' => $request->pppoe_password,

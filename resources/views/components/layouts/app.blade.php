@@ -174,6 +174,11 @@
             @if(session('error'))
                 showToast('{{ session('error') }}', 'error');
             @endif
+            @if($errors->any())
+                @foreach($errors->all() as $error)
+                    showToast('{{ str_replace("'", "\'", $error) }}', 'error');
+                @endforeach
+            @endif
             @if(session('api_token'))
                 localStorage.setItem('app_token', '{{ session('api_token') }}');
             @endif

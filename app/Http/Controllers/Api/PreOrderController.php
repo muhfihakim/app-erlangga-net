@@ -58,7 +58,7 @@ class PreOrderController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'paket_internet' => 'required|string|max:255',
+            'paket_id' => 'required|exists:pakets,id',
             'nama_lengkap' => 'required|string|max:255',
             'no_identitas' => 'required|string|max:255|unique:pre_orders,no_identitas',
             'no_whatsapp' => 'required|string|max:255',
@@ -98,7 +98,7 @@ class PreOrderController extends Controller
         }
 
         $validated = $request->validate([
-            'paket_internet' => 'sometimes|string|max:255',
+            'paket_id' => 'sometimes|exists:pakets,id',
             'nama_lengkap' => 'sometimes|string|max:255',
             'no_identitas' => 'sometimes|string|max:255|unique:pre_orders,no_identitas,' . $id,
             'no_whatsapp' => 'sometimes|string|max:255',

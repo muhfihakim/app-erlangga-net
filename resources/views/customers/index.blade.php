@@ -169,7 +169,7 @@
                                 <td style="text-align: center;">
                                     <span class="badge"
                                         style="background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 6px; font-size: 10px;">
-                                        {{ $po->paket_internet }}
+                                        {{ $po->paket ? $po->paket->nama_paket : '-' }}
                                     </span>
                                 </td>
                             </tr>
@@ -210,7 +210,7 @@
                                 <td style="text-align: center;">
                                     <span class="badge"
                                         style="background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 6px; font-size: 10px;">
-                                        {{ $po->paket_internet }}
+                                        {{ $po->paket ? $po->paket->nama_paket : '-' }}
                                     </span>
                                 </td>
                                 <td style="text-align: center;">
@@ -220,7 +220,7 @@
                                             data-nama="{{ $po->nama_lengkap }}"
                                             data-email="{{ $po->alamat_email ?? '-' }}"
                                             data-wa="{{ $po->no_whatsapp }}" data-alamat="{{ $po->alamat_lengkap }}"
-                                            data-paket="{{ $po->paket_internet }}"
+                                            data-paket="{{ $po->paket ? $po->paket->nama_paket : '-' }}"
                                             data-koordinat="{{ $po->titik_koordinat }}"
                                             data-sales="{{ $po->nama_sales }}"
                                             data-tgl="{{ \Carbon\Carbon::parse($po->created_at)->format('d/m/Y') }}">
@@ -242,7 +242,7 @@
                                                 onclick="openActivationModal(this)" data-po-id="{{ $po->id }}"
                                                 data-po-sales-id="{{ $po->id_sales }}"
                                                 data-po-nama="{{ $po->nama_lengkap }}"
-                                                data-po-paket="{{ $po->paket_internet }}">
+                                                data-po-paket="{{ $po->paket ? $po->paket->nama_paket : '-' }}">
                                                 <i class="fa-solid fa-bolt"></i> Ambil & Aktivasi
                                             </button>
                                         @endif

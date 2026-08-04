@@ -26,9 +26,15 @@
             <span>Manajemen ODP</span>
         </a>
         @if (auth()->user()->isAdmin() || auth()->user()->jabatan === 'Teknisi')
-            <a class="sidebar-link {{ Request::is('pppoe*') ? 'active' : '' }}" href="{{ route('pppoe.index') }}">
+            <a class="sidebar-link {{ Request::is('pppoe') ? 'active' : '' }}" href="{{ route('pppoe.index') }}">
                 <i class="fa-solid fa-network-wired"></i>
                 <span>PPPoE Aktif</span>
+            </a>
+        @endif
+        @if (auth()->user()->isAdmin())
+            <a class="sidebar-link {{ Request::is('pppoe-accounts*') ? 'active' : '' }}" href="{{ route('pppoe_accounts.index') }}">
+                <i class="fa-solid fa-users-gear"></i>
+                <span>Manajemen PPPoE</span>
             </a>
         @endif
         @if (auth()->user()->isAdmin())
@@ -84,6 +90,16 @@
             </a>
 
             <div class="sidebar-section-label" style="margin-top:.5rem;">Keuangan</div>
+            <a class="sidebar-link {{ Request::is('invoices*') ? 'active' : '' }}"
+                href="{{ route('invoices.index') }}">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+                <span>Invoice Pelanggan</span>
+            </a>
+            <a class="sidebar-link {{ Request::is('transactions*') ? 'active' : '' }}"
+                href="{{ route('transactions.index') }}">
+                <i class="fa-solid fa-receipt"></i>
+                <span>Log Transaksi</span>
+            </a>
             <a class="sidebar-link {{ Request::is('keuangan/teknisi*') ? 'active' : '' }}"
                 href="{{ route('finance.index') }}">
                 <i class="fa-solid fa-wallet"></i>
@@ -118,6 +134,11 @@
             </a>
 
             <div class="sidebar-section-label" style="margin-top:.5rem;">Manajemen</div>
+            <a class="sidebar-link {{ Request::is('pakets*') ? 'active' : '' }}"
+                href="{{ route('pakets.index') }}">
+                <i class="fa-solid fa-box-open"></i>
+                <span>Paket Layanan</span>
+            </a>
             <a class="sidebar-link {{ Request::is('accounts') ? 'active' : '' }}"
                 href="{{ route('accounts.index') }}">
                 <i class="fa-solid fa-users"></i>

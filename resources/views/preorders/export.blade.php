@@ -133,7 +133,7 @@
                     <td class="text-center">{{ $po->created_at->format('d/m/Y') }}</td>
                     <td>{{ $po->sales->nama_lengkap ?? $po->nama_sales }}</td>
                     <td>{{ $po->nama_lengkap }}</td>
-                    <td class="text-center">{{ $po->paket_internet }}</td>
+                    <td class="text-center">{{ $po->paket ? $po->paket->nama_paket : '-' }}</td>
                     <td class="text-center">
                         @if ($po->po_status === 'Aktif')
                             <span style="color: green; font-weight: bold;">AKTIF</span>

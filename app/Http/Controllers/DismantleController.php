@@ -79,7 +79,7 @@ class DismantleController extends Controller
             'alamat' => $c->alamat_lengkap,
             'wa' => $c->no_whatsapp,
             'tikor' => $c->preOrder->titik_koordinat ?? 'N/A',
-            'paket' => $c->paket_internet,
+            'paket' => $c->paket ? $c->paket->nama_paket : '-',
             'sales' => $c->sales->nama_lengkap ?? 'N/A',
             'id_pel' => $c->id_pelanggan,
             'pppoe' => $c->pppoe_username

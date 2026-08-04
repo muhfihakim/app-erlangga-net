@@ -12,7 +12,7 @@ class PreOrder extends Model
     protected $fillable = [
         'id_sales',
         'nama_sales',
-        'paket_internet',
+        'paket_id',
         'nama_lengkap',
         'no_identitas',
         'no_whatsapp',
@@ -29,5 +29,15 @@ class PreOrder extends Model
     public function sales()
     {
         return $this->belongsTo(User::class, 'id_sales');
+    }
+
+    public function pppoe()
+    {
+        return $this->hasOne(Pppoe::class, 'pre_order_id');
+    }
+
+    public function paket()
+    {
+        return $this->belongsTo(Paket::class, 'paket_id');
     }
 }

@@ -134,7 +134,7 @@
                     <td style="text-align: center; vertical-align: middle">{{ $c->created_at->format('d/m/Y H:i') }}
                     </td>
                     <td>{{ $c->nama_lengkap }}</td>
-                    <td>{{ $c->paket_internet }}</td>
+                    <td>{{ $c->paket ? $c->paket->nama_paket : '-' }}</td>
                     <td>{{ $c->sales->nama_lengkap ?? 'N/A' }}</td>
                     <td>{{ $c->teknisiUtama->nama_lengkap ?? 'N/A' }}</td>
                     <td style="text-align: center; vertical-align: middle">{{ $c->id_pelanggan }}</td>

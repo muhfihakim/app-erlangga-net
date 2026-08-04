@@ -326,7 +326,7 @@
                                     <td style="text-align: center;">
                                         <span class="badge"
                                             style="background:#fef2f2; color:#dc2626; padding:4px 8px; border-radius:6px; font-size:10px; font-weight:800;">
-                                            {{ $isolir->paket_internet }}
+                                            {{ $isolir->paket ? $isolir->paket->nama_paket : '-' }}
                                         </span>
                                     </td>
                                 </tr>
@@ -559,9 +559,13 @@
                                     <p id="detail_paket_view" class="view-only text-sm font-black text-sky-800 mt-1">
                                     </p>
                                     @if ($is_admin)
-                                        <input type="text" name="paket_internet" id="detail_paket_input"
+                                        <select name="paket_id" id="detail_paket_input"
                                             class="edit-only form-input-custom mt-1 !text-sm !font-black !text-sky-800"
                                             required>
+                                            @foreach(\App\Models\Paket::all() as $paket)
+                                                <option value="{{ $paket->id }}">{{ $paket->nama_paket }} - Rp {{ number_format($paket->harga, 0, ',', '.') }}</option>
+                                            @endforeach
+                                        </select>
                                     @endif
                                 </div>
                                 <hr class="border-sky-200">
@@ -862,7 +866,7 @@
                 setValOrText('detail_customer_id_input', $btn.data('customer-id'));
 
                 setValOrText('detail_paket_view', $btn.data('po-paket'));
-                setValOrText('detail_paket_input', $btn.data('po-paket'));
+                setValOrText('detail_paket_input', $btn.data('paket-id'));
 
                 setValOrText('detail_pppoe_user_view', $btn.data('pppoe-user'));
                 setValOrText('detail_pppoe_user_input', $btn.data('pppoe-user'));
