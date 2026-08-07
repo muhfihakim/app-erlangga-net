@@ -36,4 +36,9 @@ class Pppoe extends Model
     {
         return $this->belongsTo(Paket::class, 'paket_id');
     }
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class, 'pppoe_id');
+    }
 }

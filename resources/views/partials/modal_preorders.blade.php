@@ -63,11 +63,12 @@
                         <div class="form-group">
                             <label class="form-label text-slate-800 font-bold">Pilih Paket Internet <span
                                     class="text-rose-500">*</span></label>
-                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" name="paket_id"
-                                required>
+                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
+                                name="paket_id" required>
                                 <option value="">-- Pilih Paket --</option>
-                                @foreach($pakets as $paket)
-                                    <option value="{{ $paket->id }}">{{ $paket->nama_paket }} - Rp {{ number_format($paket->harga, 0, ',', '.') }}</option>
+                                @foreach ($pakets as $paket)
+                                    <option value="{{ $paket->id }}">{{ $paket->nama_paket }} - Rp
+                                        {{ number_format($paket->harga, 0, ',', '.') }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -174,10 +175,11 @@
                 <div class="tab-panel" id="edit-tab-paket">
                     <div class="form-group">
                         <label class="form-label text-slate-800 font-bold">Paket Internet</label>
-                        <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" id="edit_paket_id"
-                            name="paket_id" required>
-                            @foreach($pakets as $paket)
-                                <option value="{{ $paket->id }}">{{ $paket->nama_paket }} - Rp {{ number_format($paket->harga, 0, ',', '.') }}</option>
+                        <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
+                            id="edit_paket_id" name="paket_id" required>
+                            @foreach ($pakets as $paket)
+                                <option value="{{ $paket->id }}">{{ $paket->nama_paket }} - Rp
+                                    {{ number_format($paket->harga, 0, ',', '.') }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -364,8 +366,7 @@
             </div>
         </div>
         <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-            <button type="button" class="btn-cancel w-full"
-                onclick="closeCustomModal('detailModal')">
+            <button type="button" class="btn-cancel w-full" onclick="closeCustomModal('detailModal')">
                 <i class="fa-solid fa-xmark"></i> Tutup Detail
             </button>
         </div>
@@ -440,128 +441,154 @@
 </div>
 
 {{-- Modal Buat PPPoE --}}
-@if(auth()->user()->isAdmin())
-<div class="modal-overlay" id="createPppoeModal">
-    <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
-        <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-            <div class="modal-title">
-                <i class="fa-solid fa-network-wired text-emerald-500"></i>
-                <span class="text-slate-900 font-bold text-[17px]">Buat Akun PPPoE</span>
+@if (auth()->user()->isAdmin())
+    <div class="modal-overlay" id="createPppoeModal">
+        <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                <div class="modal-title">
+                    <i class="fa-solid fa-network-wired text-emerald-500"></i>
+                    <span class="text-slate-900 font-bold text-[17px]">Buat Akun PPPoE</span>
+                </div>
+                <button type="button" class="modal-close" onclick="closeCustomModal('createPppoeModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
-            <button type="button" class="modal-close" onclick="closeCustomModal('createPppoeModal')">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </div>
 
-        <div class="modal-tabs bg-white border-b border-slate-200">
-            <button class="modal-tab active" data-tab="pppoe-tab-akun">
-                <i class="fa-solid fa-user-shield"></i> Akun PPPoE
-            </button>
-            <button class="modal-tab" data-tab="pppoe-tab-pembayaran">
-                <i class="fa-solid fa-money-bill"></i> Pembayaran
-            </button>
-        </div>
+            <div class="modal-tabs bg-white border-b border-slate-200">
+                <button class="modal-tab active" data-tab="pppoe-tab-akun">
+                    <i class="fa-solid fa-user-shield"></i> Akun PPPoE
+                </button>
+                <button class="modal-tab" data-tab="pppoe-tab-pembayaran">
+                    <i class="fa-solid fa-money-bill"></i> Pembayaran
+                </button>
+            </div>
 
-        <form id="createPppoeForm" action="{{ route('pppoe_accounts.store') }}" method="POST">
-            @csrf
-            <input type="hidden" name="pre_order_id" id="pppoe_pre_order_id">
-            
-            <div class="modal-body bg-white">
-                <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 mb-4">
-                    <span class="text-[10px] font-black text-indigo-500 block uppercase">Calon Pelanggan</span>
-                    <p id="create_pppoe_po_nama" class="text-base font-black text-indigo-700 mt-1 mb-1"></p>
-                    <p id="create_pppoe_po_alamat" class="text-xs font-medium text-indigo-600"></p>
-                </div>
-                <!-- Tab Akun PPPoE -->
-                <div class="tab-panel active" id="pppoe-tab-akun">
-                    <div class="form-grid-2">
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Username <span class="text-rose-500">*</span></label>
-                            <input type="text" class="form-input bg-white text-slate-900 border-slate-300" name="username" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Password <span class="text-rose-500">*</span></label>
-                            <input type="text" class="form-input bg-white text-slate-900 border-slate-300" name="password" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label text-slate-800 font-bold">Profile / Paket <span class="text-rose-500">*</span></label>
-                        <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" id="create_pppoe_paket_id" name="paket_id" required>
-                            @foreach($pakets as $paket)
-                                <option value="{{ $paket->id }}">{{ $paket->nama_paket }} - Rp {{ number_format($paket->harga, 0, ',', '.') }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-grid-2">
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Router (Spesifik/All)</label>
-                            <input type="text" class="form-input bg-white text-slate-900 border-slate-300" name="router" placeholder="Contoh: all">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">IP Address</label>
-                            <input type="text" class="form-input bg-white text-slate-900 border-slate-300" name="ip_address" placeholder="192.168...">
-                        </div>
-                    </div>
-                </div>
+            <form id="createPppoeForm" action="{{ route('pppoe_accounts.store') }}" method="POST">
+                @csrf
+                <input type="hidden" name="pre_order_id" id="pppoe_pre_order_id">
 
-                <!-- Tab Pembayaran -->
-                <div class="tab-panel" id="pppoe-tab-pembayaran">
-                    <div class="form-grid-2">
+                <div class="modal-body bg-white">
+                    <!-- Tab Akun PPPoE -->
+                    <div class="tab-panel active" id="pppoe-tab-akun">
+                        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 mb-6">
+                            <span class="text-[10px] font-black text-indigo-500 block uppercase">Calon Pelanggan</span>
+                            <p id="create_pppoe_po_nama_akun" class="text-base font-black text-indigo-700 mt-1 mb-1">
+                            </p>
+                            <p id="create_pppoe_po_alamat_akun" class="text-xs font-medium text-indigo-600"></p>
+                        </div>
+
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold">Username <span
+                                        class="text-rose-500">*</span></label>
+                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
+                                    name="username" placeholder="pengguna@erlangga.net" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold">Password <span
+                                        class="text-rose-500">*</span></label>
+                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
+                                    name="password" placeholder="123" required>
+                            </div>
+                        </div>
                         <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Tipe Pembayaran</label>
-                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" name="tipe_pembayaran">
-                                <option value="postpaid">Postpaid</option>
-                                <option value="prepaid">Prepaid</option>
+                            <label class="form-label text-slate-800 font-bold">Profile / Paket <span
+                                    class="text-rose-500">*</span></label>
+                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
+                                id="create_pppoe_paket_id" name="paket_id" required>
+                                @foreach ($pakets as $paket)
+                                    <option value="{{ $paket->id }}">{{ $paket->nama_paket }} - Rp
+                                        {{ number_format($paket->harga, 0, ',', '.') }}</option>
+                                @endforeach
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Tanggal Aktif</label>
-                            <input type="date" class="form-input bg-white text-slate-900 border-slate-300" name="tanggal_aktif">
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold">Router (Spesifik/All)</label>
+                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
+                                    name="router" placeholder="Contoh: all">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold">IP Address</label>
+                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
+                                    name="ip_address" placeholder="192.168...">
+                            </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label text-slate-800 font-bold">Periode Billing</label>
-                        <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" name="periode_billing">
-                            <option value="fixed">Fixed</option>
-                            <option value="renewal">Renewal</option>
-                        </select>
-                    </div>
-                    <div class="form-grid-2">
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Pajak (Rp)</label>
-                            <input type="number" class="form-input bg-white text-slate-900 border-slate-300" name="pajak" value="0">
+
+                    <!-- Tab Pembayaran -->
+                    <div class="tab-panel" id="pppoe-tab-pembayaran">
+                        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 mb-6">
+                            <span class="text-[10px] font-black text-indigo-500 block uppercase">Calon Pelanggan</span>
+                            <p id="create_pppoe_po_nama_pembayaran"
+                                class="text-base font-black text-indigo-700 mt-1 mb-1"></p>
+                            <p id="create_pppoe_po_alamat_pembayaran" class="text-xs font-medium text-indigo-600"></p>
+                        </div>
+
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold">Tipe Pembayaran</label>
+                                <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
+                                    name="tipe_pembayaran">
+                                    <option value="postpaid">Postpaid</option>
+                                    <option value="prepaid">Prepaid</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold">Tanggal Aktif</label>
+                                <input type="date" class="form-input bg-white text-slate-900 border-slate-300"
+                                    name="tanggal_aktif">
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Diskon (Rp)</label>
-                            <input type="number" class="form-input bg-white text-slate-900 border-slate-300" name="diskon" value="0">
+                            <label class="form-label text-slate-800 font-bold">Periode Billing</label>
+                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
+                                name="periode_billing">
+                                <option value="fixed">Fixed</option>
+                                <option value="renewal">Renewal</option>
+                            </select>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label text-slate-800 font-bold">Status Invoice</label>
-                        <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" name="status_invoice">
-                            <option value="belum_bayar">Belum Bayar</option>
-                            <option value="terbayar">Terbayar</option>
-                        </select>
-                    </div>
-                    <div class="form-group mt-2">
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" name="generate_invoice" class="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500">
-                            <span class="text-sm font-medium text-slate-700">Generate Invoice sekarang</span>
-                        </label>
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold">Pajak (Rp)</label>
+                                <input type="number" class="form-input bg-white text-slate-900 border-slate-300"
+                                    name="pajak" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label text-slate-800 font-bold">Diskon (Rp)</label>
+                                <input type="number" class="form-input bg-white text-slate-900 border-slate-300"
+                                    name="diskon" value="0">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-slate-800 font-bold">Status Invoice</label>
+                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
+                                name="status_invoice">
+                                <option value="belum_bayar">Belum Bayar</option>
+                                <option value="terbayar">Terbayar</option>
+                            </select>
+                        </div>
+                        <div class="form-group mt-2">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="generate_invoice"
+                                    class="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500">
+                                <span class="text-sm font-medium text-slate-700">Generate Invoice sekarang</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
-                    onclick="closeCustomModal('createPppoeModal')">
-                    <i class="fa-solid fa-xmark"></i> Batal
-                </button>
-                <button type="submit" class="btn-save !flex !items-center !justify-center gap-2 !bg-emerald-600 hover:!bg-emerald-700">
-                    <i class="fa-solid fa-floppy-disk"></i> Simpan PPPoE
-                </button>
-            </div>
-        </form>
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+                        onclick="closeCustomModal('createPppoeModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
+                    </button>
+                    <button type="submit"
+                        class="btn-save !flex !items-center !justify-center gap-2 !bg-emerald-600 hover:!bg-emerald-700">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan PPPoE
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 @endif

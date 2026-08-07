@@ -92,8 +92,8 @@
 
                 if (modalId === 'createPppoeModal') {
                     $('#pppoe_pre_order_id').val($btn.data('po-id'));
-                    $('#create_pppoe_po_nama').text($btn.data('po-nama'));
-                    $('#create_pppoe_po_alamat').text($btn.data('po-alamat'));
+                    $('#create_pppoe_po_nama_akun, #create_pppoe_po_nama_pembayaran').text($btn.data('po-nama'));
+                    $('#create_pppoe_po_alamat_akun, #create_pppoe_po_alamat_pembayaran').text($btn.data('po-alamat') || '-');
                     $('#create_pppoe_paket_id').val($btn.data('po-paket'));
                     $(`#${modalId} .modal-tab`).first().trigger('click');
                 }

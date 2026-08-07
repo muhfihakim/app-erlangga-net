@@ -61,6 +61,9 @@ Route::middleware(['auth.custom'])->group(function () {
         
         // Invoices
         Route::get('/invoices', [\App\Http\Controllers\InvoiceController::class, 'index'])->name('invoices.index');
+        Route::get('/invoices/{pppoe}', [\App\Http\Controllers\InvoiceController::class, 'show'])->name('invoices.show');
+        Route::get('/invoices/{invoice}/print', [\App\Http\Controllers\InvoiceController::class, 'print'])->name('invoices.print');
+        Route::post('/invoices/generate', [\App\Http\Controllers\InvoiceController::class, 'generate'])->name('invoices.generate');
         Route::post('/invoices/{invoice}/pay-manual', [\App\Http\Controllers\InvoiceController::class, 'payManual'])->name('invoices.pay_manual');
 
         // Transactions

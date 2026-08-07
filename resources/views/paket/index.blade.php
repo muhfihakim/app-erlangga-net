@@ -77,6 +77,8 @@
                         <th style="text-align: center; width: 50px;">#</th>
                         <th style="text-align: left;">Nama Paket</th>
                         <th style="text-align: right;">Harga (Rp)</th>
+                        <th style="text-align: center;">Limitasi (Radius)</th>
+                        <th style="text-align: center;">Pengguna</th>
                         <th style="text-align: left;">Keterangan</th>
                         <th style="text-align: center; width: 100px;">Opsi</th>
                     </tr>
@@ -88,11 +90,19 @@
                             <td style="text-align: left; font-weight: 700; color: #0f172a;">{{ $paket->nama_paket }}</td>
                             <td style="text-align: right; color: #059669; font-weight: 800;">
                                 {{ number_format($paket->harga, 0, ',', '.') }}</td>
+                            <td style="text-align: center; color: #475569; font-weight: 700;">
+                                {{ $paket->rate_limit ?? '-' }}
+                            </td>
+                            <td style="text-align: center;">
+                                <span class="badge" style="background:#f1f5f9;color:#64748b;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid #e2e8f0;">
+                                    <i class="fa-solid fa-users mr-1"></i> {{ number_format($paket->customers_count) }}
+                                </span>
+                            </td>
                             <td style="color: #64748b;">{{ $paket->keterangan ?? '-' }}</td>
                             <td style="text-align: center;">
                                 <div class="flex items-center justify-center gap-2">
                                     <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
-                                        onclick="editPaketModal({{ $paket->id }}, '{{ $paket->nama_paket }}', '{{ $paket->harga }}', '{{ $paket->keterangan }}')"
+                                        onclick="editPaketModal({{ $paket->id }}, '{{ $paket->nama_paket }}', '{{ $paket->harga }}', '{{ $paket->rate_limit }}', '{{ $paket->keterangan }}')"
                                         title="Edit Paket"><i class="fa-solid fa-pen-to-square text-primary"></i></button>
                                     <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
                                         onclick="confirmGlobalDelete('{{ route('pakets.destroy', $paket->id) }}', 'Paket {{ $paket->nama_paket }}')"
@@ -130,11 +140,18 @@
                         <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
                             id="nama_paket" name="nama_paket" required placeholder="Contoh: Bronze 10Mbps">
                     </div>
-                    <div class="form-group">
-                        <label class="form-label text-slate-800 font-bold">Harga (Rp) <span
-                                class="text-rose-500">*</span></label>
-                        <input type="number" class="form-input bg-white text-slate-900 border-slate-300" id="harga"
-                            name="harga" required min="0" placeholder="0">
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label text-slate-800 font-bold">Harga (Rp) <span
+                                    class="text-rose-500">*</span></label>
+                            <input type="number" class="form-input bg-white text-slate-900 border-slate-300" id="harga"
+                                name="harga" required min="0" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-slate-800 font-bold">Limit Bandwidth (Radius)</label>
+                            <input type="text" class="form-input bg-white text-slate-900 border-slate-300" id="rate_limit"
+                                name="rate_limit" placeholder="Contoh: 10M/10M">
+                        </div>
                     </div>
                     <div class="form-group !mb-0">
                         <label class="form-label text-slate-800 font-bold">Keterangan Tambahan</label>
@@ -191,6 +208,7 @@
 
                 $('#nama_paket').val('');
                 $('#harga').val('');
+                $('#rate_limit').val('');
                 $('#keterangan').val('');
 
                 const modal = document.getElementById('formPaketModal');
@@ -198,13 +216,14 @@
                 document.body.style.overflow = 'hidden';
             }
 
-            function editPaketModal(id, nama, harga, ket) {
+            function editPaketModal(id, nama, harga, rate_limit, ket) {
                 $('#modalPaketTitle').text('Edit Paket Layanan');
                 $('#formPaket').attr('action', `/pakets/${id}`);
                 $('#paketMethod').val('PUT');
 
                 $('#nama_paket').val(nama);
                 $('#harga').val(harga);
+                $('#rate_limit').val(rate_limit);
                 $('#keterangan').val(ket);
 
                 const modal = document.getElementById('formPaketModal');
