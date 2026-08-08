@@ -61,6 +61,9 @@ Route::middleware(['auth.custom'])->group(function () {
         
         // Invoices
         Route::get('/invoices', [\App\Http\Controllers\InvoiceController::class, 'index'])->name('invoices.index');
+
+        // NAS / Router
+        Route::resource('nas', \App\Http\Controllers\NasController::class)->except(['create', 'show', 'edit']);
         Route::get('/invoices/{pppoe}', [\App\Http\Controllers\InvoiceController::class, 'show'])->name('invoices.show');
         Route::get('/invoices/{invoice}/print', [\App\Http\Controllers\InvoiceController::class, 'print'])->name('invoices.print');
         Route::post('/invoices/generate', [\App\Http\Controllers\InvoiceController::class, 'generate'])->name('invoices.generate');

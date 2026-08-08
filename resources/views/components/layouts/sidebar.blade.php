@@ -139,6 +139,11 @@
                 <i class="fa-solid fa-box-open"></i>
                 <span>Paket Layanan</span>
             </a>
+            <a class="sidebar-link {{ Request::is('nas*') ? 'active' : '' }}"
+                href="{{ route('nas.index') }}">
+                <i class="fa-solid fa-network-wired"></i>
+                <span>Router (NAS)</span>
+            </a>
             <a class="sidebar-link {{ Request::is('accounts') ? 'active' : '' }}"
                 href="{{ route('accounts.index') }}">
                 <i class="fa-solid fa-users"></i>

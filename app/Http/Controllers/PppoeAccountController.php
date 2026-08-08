@@ -43,7 +43,7 @@ class PppoeAccountController extends Controller
             \App\Models\Radreply::create([
                 'username' => $pppoe->username,
                 'attribute' => 'Framed-IP-Address',
-                'op' => '=',
+                'op' => ':=',
                 'value' => $pppoe->ip_address,
             ]);
         }
