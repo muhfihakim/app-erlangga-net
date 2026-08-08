@@ -179,6 +179,9 @@ Route::middleware(['auth.custom'])->group(function () {
     // PPPoE Remote Tunnel (Accessible by Admin & Teknisi)
     Route::post('/api/pppoe/remote-tunnel', [PppoeController::class, 'remoteTunnel'])->name('pppoe.remote_tunnel');
 
+    Route::post('/paket/sync-mikrotik', [App\Http\Controllers\PaketController::class, 'syncFromMikrotik'])->name('paket.sync');
+    Route::resource('paket', \App\Http\Controllers\PaketController::class)->except(['create', 'edit', 'show']);
+    
     Route::resource('customers', CustomerController::class)->except(['create', 'edit', 'show']);
     
     Route::resource('supporting', SupportingActivityController::class);

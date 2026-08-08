@@ -305,6 +305,65 @@ class MikroTikService
         }
     }
 
+    public function createOrUpdatePppProfile(string $name, string $localAddress = '192.168.100.1'): bool
+    {
+        try {
+            $client = $this->getClient();
+            $profiles = $this->runRawQuery('/ppp/profile/print');
+            $id = null;
+            foreach ($profiles as $profile) {
+                if (isset($profile['name']) && $profile['name'] === $name) {
+                    $id = $profile['.id'] ?? null;
+                    break;
+                }
+            }
+
+            if ($id) {
+                $client->send([
+                    '/ppp/profile/set',
+                    '=.id=' . $id,
+                    '=local-address=' . $localAddress
+                ]);
+            } else {
+                $client->send([
+                    '/ppp/profile/add',
+                    '=name=' . $name,
+                    '=local-address=' . $localAddress
+                ]);
+            }
+            return true;
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("createOrUpdatePppProfile Error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function removePppProfile(string $name): bool
+    {
+        try {
+            $client = $this->getClient();
+            $profiles = $this->runRawQuery('/ppp/profile/print');
+            $id = null;
+            foreach ($profiles as $profile) {
+                if (isset($profile['name']) && $profile['name'] === $name) {
+                    $id = $profile['.id'] ?? null;
+                    break;
+                }
+            }
+
+            if ($id) {
+                $client->send([
+                    '/ppp/profile/remove',
+                    '=.id=' . $id
+                ]);
+            }
+            return true;
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("removePppProfile Error: " . $e->getMessage());
+            return false;
+        }
+    }
+
     public function createRemoteTunnel(string $targetIp, string $targetPort = '80'): array
     {
         try {

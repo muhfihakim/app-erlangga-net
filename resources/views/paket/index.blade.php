@@ -54,6 +54,13 @@
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola data paket layanan yang tersedia.</p>
         </div>
         <div style="display:flex; gap:10px;">
+            <form action="{{ route('paket.sync') }}" method="POST" style="margin:0;">
+                @csrf
+                <button type="submit" class="btn-primary-admin !flex !items-center !justify-center gap-2" style="background-color: #10b981; border-color: #10b981;"
+                    onclick="return confirm('Tarik semua Profile dari MikroTik dan masukkan ke database lokal?')">
+                    <i class="fa-solid fa-rotate"></i> Sync Mikrotik
+                </button>
+            </form>
             <button type="button" class="btn-primary-admin !flex !items-center !justify-center gap-2"
                 onclick="openPaketModal()">
                 <i class="fa-solid fa-plus-square"></i> Tambah Paket
