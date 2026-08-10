@@ -63,7 +63,9 @@ class PppoeAccountController extends Controller
             'address' => $pppoe->preOrder->alamat ?? '',
             'mobilephone' => $pppoe->preOrder->no_whatsapp ?? '',
             'creationdate' => date('Y-m-d H:i:s'),
+            'updatedate' => date('Y-m-d H:i:s'),
             'creationby' => 'administrator',
+            'updateby' => 'administrator',
         ]);
 
         if ($pppoe->generate_invoice && $pppoe->tanggal_aktif) {

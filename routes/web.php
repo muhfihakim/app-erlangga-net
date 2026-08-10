@@ -67,8 +67,9 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::get('/invoices/{pppoe}', [\App\Http\Controllers\InvoiceController::class, 'show'])->name('invoices.show');
         Route::get('/invoices/{invoice}/print', [\App\Http\Controllers\InvoiceController::class, 'print'])->name('invoices.print');
         Route::post('/invoices/generate', [\App\Http\Controllers\InvoiceController::class, 'generate'])->name('invoices.generate');
+        Route::post('/invoices/{pppoe}/generate-single', [\App\Http\Controllers\InvoiceController::class, 'generateSingle'])->name('invoices.generate_single');
         Route::post('/invoices/{invoice}/pay-manual', [\App\Http\Controllers\InvoiceController::class, 'payManual'])->name('invoices.pay_manual');
-
+        Route::post('/invoices/{invoice}/pay-xendit', [\App\Http\Controllers\InvoiceController::class, 'payXendit'])->name('invoices.pay_xendit');
         // Transactions
         Route::get('/transactions', [\App\Http\Controllers\TransactionController::class, 'index'])->name('transactions.index');
     });

@@ -115,3 +115,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/locations/{user}', [LocationController::class, 'getUserLocation']);
     Route::post('/location/update', [LocationController::class, 'update']);
 });
+
+Route::post('/webhooks/xendit', [\App\Http\Controllers\XenditWebhookController::class, 'handleInvoice']);

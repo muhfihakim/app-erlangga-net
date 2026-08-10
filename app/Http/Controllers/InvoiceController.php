@@ -76,6 +76,34 @@ class InvoiceController extends Controller
         return redirect()->back()->with('success', "Berhasil generate $count tagihan baru bulan ini.");
     }
 
+    public function generateSingle(Pppoe $pppoe)
+    {
+        $pppoe->load('paket');
+        if (!$pppoe->paket) {
+            return redirect()->back()->with('error', 'Gagal generate: Pelanggan belum memiliki paket.');
+        }
+
+        $amount = $pppoe->paket->harga;
+        $tax = $pppoe->pajak ?? 0;
+        $discount = $pppoe->diskon ?? 0;
+        $total = $amount + $tax - $discount;
+        $dueDate = Carbon::now()->addDays(7);
+        $invoiceNumber = 'INV-' . date('Ymd') . '-' . str_pad($pppoe->id, 4, '0', STR_PAD_LEFT) . '-' . rand(100, 999);
+
+        Invoice::create([
+            'pppoe_id' => $pppoe->id,
+            'invoice_number' => $invoiceNumber,
+            'amount' => $amount,
+            'tax' => $tax,
+            'discount' => $discount,
+            'total' => $total,
+            'status' => 'unpaid',
+            'due_date' => $dueDate
+        ]);
+
+        return redirect()->back()->with('success', 'Berhasil generate tagihan manual untuk pelanggan ini.');
+    }
+
     public function payManual(Request $request, Invoice $invoice)
     {
         $request->validate([
@@ -95,6 +123,60 @@ class InvoiceController extends Controller
             'status' => 'success',
         ]);
 
+        if ($invoice->pppoe) {
+            $invoice->pppoe->update(['status_invoice' => 'terbayar']);
+        }
+
         return redirect()->back()->with('success', 'Invoice berhasil dibayar secara manual.');
+    }
+
+    public function payXendit(Request $request, Invoice $invoice)
+    {
+        if ($invoice->xendit_invoice_url && $invoice->status !== 'paid') {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['url' => $invoice->xendit_invoice_url]);
+            }
+            return redirect($invoice->xendit_invoice_url);
+        }
+
+        if ($invoice->status === 'paid') {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['error' => 'Invoice sudah dibayar.']);
+            }
+            return redirect()->back()->with('error', 'Invoice sudah dibayar.');
+        }
+
+        \Xendit\Configuration::setXenditKey(config('services.xendit.secret_key'));
+        $apiInstance = new \Xendit\Invoice\InvoiceApi();
+
+        $invoice->load('pppoe.preOrder');
+        $preOrder = $invoice->pppoe->preOrder;
+
+        $createInvoiceRequest = new \Xendit\Invoice\CreateInvoiceRequest([
+            'external_id' => $invoice->invoice_number,
+            'amount' => $invoice->total,
+            'payer_email' => $preOrder ? $preOrder->alamat_email : 'customer@example.com',
+            'description' => 'Pembayaran Tagihan ' . $invoice->invoice_number,
+            'success_redirect_url' => route('invoices.show', $invoice->pppoe_id),
+            'failure_redirect_url' => route('invoices.show', $invoice->pppoe_id),
+        ]);
+
+        try {
+            $result = $apiInstance->createInvoice($createInvoiceRequest);
+            $invoice->update([
+                'xendit_invoice_id' => $result['id'],
+                'xendit_invoice_url' => $result['invoice_url']
+            ]);
+            
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['url' => $result['invoice_url']]);
+            }
+            return redirect($result['invoice_url']);
+        } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['error' => 'Gagal membuat Xendit invoice: ' . $e->getMessage()]);
+            }
+            return redirect()->back()->with('error', 'Gagal membuat Xendit invoice: ' . $e->getMessage());
+        }
     }
 }

@@ -9,6 +9,12 @@
                 Username PPPoE: <strong>{{ $pppoe->username }}</strong> | Paket: <strong>{{ $pppoe->paket->nama_paket ?? '-' }}</strong>
             </p>
         </div>
+        <form action="{{ route('invoices.generate_single', $pppoe->id) }}" method="POST" class="ml-auto">
+            @csrf
+            <button type="submit" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700" onclick="return confirm('Buat tagihan baru untuk pelanggan ini?')">
+                <i class="fa-solid fa-plus"></i> Buat Tagihan Baru
+            </button>
+        </form>
     </div>
 
     @if(session('success'))
@@ -53,8 +59,14 @@
                                     <i class="fa-solid fa-file-pdf"></i>
                                 </a>
                                 @if($invoice->status == 'unpaid')
-                                    <button type="button" class="btn-primary-admin !h-8 !px-3 !text-[11px] !bg-emerald-600 hover:!bg-emerald-700" onclick="openPayModal({{ $invoice->id }})" title="Bayar">
-                                        <i class="fa-solid fa-money-bill-wave"></i> Bayar
+                                    <form action="{{ route('invoices.pay_xendit', $invoice->id) }}" method="POST" class="inline-block" onsubmit="openXenditModal(event, this)">
+                                        @csrf
+                                        <button type="submit" class="btn-primary-admin !h-8 !px-3 !text-[11px] !bg-indigo-600 hover:!bg-indigo-700 mr-1" title="Bayar via Xendit">
+                                            <i class="fa-solid fa-credit-card"></i> Xendit
+                                        </button>
+                                    </form>
+                                    <button type="button" class="btn-primary-admin !h-8 !px-3 !text-[11px] !bg-emerald-600 hover:!bg-emerald-700" onclick="openPayModal({{ $invoice->id }})" title="Bayar Manual">
+                                        <i class="fa-solid fa-money-bill-wave"></i> Manual
                                     </button>
                                 @else
                                     <span class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-check"></i> Selesai</span>
@@ -106,6 +118,32 @@
         </div>
     </div>
 
+    <!-- Modal Link Xendit -->
+    <div class="modal-overlay" id="xenditModal">
+        <div class="modal-box max-w-3xl bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                <div class="modal-title">
+                    <i class="fa-solid fa-link text-indigo-500"></i>
+                    <span class="text-slate-900 font-bold text-[17px]">Pembayaran Xendit</span>
+                </div>
+                <button type="button" class="modal-close" onclick="closeXenditModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body p-6 space-y-4 bg-white text-center">
+                <div class="flex items-center gap-2 mb-4">
+                    <input type="text" id="xenditLink" class="form-input-custom w-full !bg-slate-100" readonly>
+                    <button type="button" class="btn-primary-admin !h-10 !px-4 !bg-indigo-600 hover:!bg-indigo-700" onclick="copyXenditLink()" title="Salin Link">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                </div>
+                <div class="border rounded-xl overflow-hidden shadow-sm" style="height: 500px; background: #f8fafc;">
+                    <iframe id="xenditIframe" src="" width="100%" height="100%" frameborder="0"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @section('Scripts')
         <script>
             function openPayModal(invoiceId) {
@@ -122,6 +160,61 @@
             document.querySelector('#payModal .modal-overlay').addEventListener('click', function(e) {
                 if (e.target === this) closePayModal();
             });
+
+            function openXenditModal(event, form) {
+                event.preventDefault();
+                const btn = form.querySelector('button');
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading';
+                btn.disabled = true;
+
+                fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    body: new FormData(form)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    btn.innerHTML = originalHtml;
+                    btn.disabled = false;
+                    
+                    if (data.url) {
+                        document.getElementById('xenditLink').value = data.url;
+                        document.getElementById('xenditIframe').src = data.url;
+                        const modal = document.getElementById('xenditModal');
+                        modal.classList.add('open');
+                        document.body.style.overflow = 'hidden';
+                    } else if (data.error) {
+                        alert(data.error);
+                    }
+                })
+                .catch(err => {
+                    btn.innerHTML = originalHtml;
+                    btn.disabled = false;
+                    alert('Gagal mengambil URL. Cek koneksi.');
+                });
+            }
+
+            function closeXenditModal() {
+                const modal = document.getElementById('xenditModal');
+                modal.classList.remove('open');
+                document.getElementById('xenditIframe').src = "";
+                document.body.style.overflow = '';
+            }
+
+            document.querySelector('#xenditModal').addEventListener('click', function(e) {
+                if (e.target === this) closeXenditModal();
+            });
+
+            function copyXenditLink() {
+                const copyText = document.getElementById("xenditLink");
+                copyText.select();
+                copyText.setSelectionRange(0, 99999); 
+                navigator.clipboard.writeText(copyText.value);
+                alert("Link disalin!");
+            }
         </script>
     @endsection
 </x-layouts.app>
