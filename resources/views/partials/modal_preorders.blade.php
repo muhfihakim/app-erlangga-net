@@ -570,7 +570,7 @@
                         </div>
                         <div class="form-group mt-2">
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" name="generate_invoice"
+                                <input type="checkbox" name="generate_invoice" checked
                                     class="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500">
                                 <span class="text-sm font-medium text-slate-700">Generate Invoice sekarang</span>
                             </label>

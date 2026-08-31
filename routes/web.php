@@ -70,8 +70,13 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::post('/invoices/{pppoe}/generate-single', [\App\Http\Controllers\InvoiceController::class, 'generateSingle'])->name('invoices.generate_single');
         Route::post('/invoices/{invoice}/pay-manual', [\App\Http\Controllers\InvoiceController::class, 'payManual'])->name('invoices.pay_manual');
         Route::post('/invoices/{invoice}/pay-xendit', [\App\Http\Controllers\InvoiceController::class, 'payXendit'])->name('invoices.pay_xendit');
+        Route::post('/invoices/{invoice}/sync-xendit', [\App\Http\Controllers\InvoiceController::class, 'syncXendit'])->name('invoices.sync_xendit');
         // Transactions
         Route::get('/transactions', [\App\Http\Controllers\TransactionController::class, 'index'])->name('transactions.index');
+
+        // Data Migration / Import
+        Route::get('/migration', [\App\Http\Controllers\MigrationController::class, 'index'])->name('migration.index');
+        Route::post('/migration/import', [\App\Http\Controllers\MigrationController::class, 'import'])->name('migration.import');
     });
 
     // Keuangan Teknisi
@@ -190,4 +195,9 @@ Route::middleware(['auth.custom'])->group(function () {
 
     // PTT Async Audio Upload
     Route::post('/api/ptt/upload', [\App\Http\Controllers\PttController::class, 'upload'])->name('ptt.upload');
+
+    // Migrasi & Pemulihan Data Radboox
+    Route::get('/migration', [\App\Http\Controllers\MigrationController::class, 'index'])->name('migration.index');
+    Route::post('/migration/import', [\App\Http\Controllers\MigrationController::class, 'import'])->name('migration.import');
+    Route::post('/migration/reset', [\App\Http\Controllers\MigrationController::class, 'reset'])->name('migration.reset');
 });

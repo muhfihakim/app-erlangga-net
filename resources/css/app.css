@@ -281,7 +281,7 @@
     .badge-archived  { background: #f1f5f9; color: #64748b; }
 
     .btn-primary-admin {
-        @apply inline-flex items-center gap-7 bg-primary text-white font-bold text-[13px] px-[18px] py-[9px] rounded-[10px] border-none transition-all duration-250 cursor-pointer whitespace-nowrap;
+        @apply inline-flex items-center gap-2 bg-primary text-white font-bold text-[13px] px-[18px] py-[9px] rounded-[10px] border-none transition-all duration-250 cursor-pointer whitespace-nowrap;
         background: linear-gradient(135deg, #0ea5e9, #0369a1);
         box-shadow: 0 4px 12px rgba(14,165,233,.35);
     }

@@ -9,12 +9,9 @@
                 Username PPPoE: <strong>{{ $pppoe->username }}</strong> | Paket: <strong>{{ $pppoe->paket->nama_paket ?? '-' }}</strong>
             </p>
         </div>
-        <form action="{{ route('invoices.generate_single', $pppoe->id) }}" method="POST" class="ml-auto">
-            @csrf
-            <button type="submit" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700" onclick="return confirm('Buat tagihan baru untuk pelanggan ini?')">
-                <i class="fa-solid fa-plus"></i> Buat Tagihan Baru
-            </button>
-        </form>
+        <button type="button" onclick="openCustomModal('generateSingleModal')" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !gap-2 inline-flex items-center shadow-sm ml-auto">
+            <i class="fa-solid fa-plus"></i> Buat Tagihan Baru
+        </button>
     </div>
 
     @if(session('success'))
@@ -42,9 +39,9 @@
                         <tr>
                             <td class="text-center">{{ $loop->iteration }}</td>
                             <td class="text-left font-bold text-slate-700">{{ $invoice->invoice_number }}</td>
-                            <td class="text-right font-black text-slate-800">{{ number_format($invoice->total, 0, ',', '.') }}</td>
+                            <td class="text-right font-medium text-slate-700">{{ number_format($invoice->total, 0, ',', '.') }}</td>
                             <td class="text-center text-slate-500">{{ $invoice->created_at->format('d/m/Y') }}</td>
-                            <td class="text-center font-bold text-rose-600">{{ $invoice->due_date ? \Carbon\Carbon::parse($invoice->due_date)->format('d/m/Y') : '-' }}</td>
+                            <td class="text-center font-medium text-slate-600">{{ $invoice->due_date ? \Carbon\Carbon::parse($invoice->due_date)->format('d/m/Y') : '-' }}</td>
                             <td class="text-center">
                                 @if($invoice->status == 'paid')
                                     <span class="badge badge-published">LUNAS</span>
@@ -55,22 +52,29 @@
                                 @endif
                             </td>
                             <td class="text-center">
-                                <a href="{{ route('invoices.print', $invoice->id) }}" target="_blank" class="btn-primary-admin !h-8 !px-3 !text-[11px] !bg-sky-600 hover:!bg-sky-700 mr-1" title="Unduh PDF">
-                                    <i class="fa-solid fa-file-pdf"></i>
-                                </a>
-                                @if($invoice->status == 'unpaid')
-                                    <form action="{{ route('invoices.pay_xendit', $invoice->id) }}" method="POST" class="inline-block" onsubmit="openXenditModal(event, this)">
-                                        @csrf
-                                        <button type="submit" class="btn-primary-admin !h-8 !px-3 !text-[11px] !bg-indigo-600 hover:!bg-indigo-700 mr-1" title="Bayar via Xendit">
-                                            <i class="fa-solid fa-credit-card"></i> Xendit
+                                <div class="inline-flex items-center justify-center gap-1.5 flex-wrap">
+                                    <a href="{{ route('invoices.print', $invoice->id) }}" target="_blank" class="btn-primary-admin !h-8 !px-2.5 !text-[11px] !bg-sky-600 hover:!bg-sky-700 !gap-1 inline-flex items-center justify-center" title="Unduh PDF">
+                                        <i class="fa-solid fa-file-pdf"></i>
+                                    </a>
+                                    @if($invoice->status == 'unpaid')
+                                        <form action="{{ route('invoices.pay_xendit', $invoice->id) }}" method="POST" class="inline-block no-loader" data-no-validation="true" onsubmit="openXenditModal(event, this)">
+                                            @csrf
+                                            <button type="submit" class="btn-primary-admin !h-8 !px-3 !text-[11px] !bg-indigo-600 hover:!bg-indigo-700 !gap-1.5 inline-flex items-center" title="Bayar via Xendit">
+                                                <i class="fa-solid fa-credit-card"></i> Xendit
+                                            </button>
+                                        </form>
+                                        @if($invoice->xendit_invoice_url)
+                                            <button type="button" class="btn-primary-admin !h-8 !px-3 !text-[11px] !bg-amber-500 hover:!bg-amber-600 !gap-1.5 inline-flex items-center" onclick="syncXendit({{ $invoice->id }}, this)" title="Cek & Sinkronkan Status Xendit">
+                                                <i class="fa-solid fa-arrows-rotate"></i> Cek Status
+                                            </button>
+                                        @endif
+                                        <button type="button" class="btn-primary-admin !h-8 !px-3 !text-[11px] !bg-emerald-600 hover:!bg-emerald-700 !gap-1.5 inline-flex items-center" onclick="openPayModal({{ $invoice->id }})" title="Bayar Manual">
+                                            <i class="fa-solid fa-money-bill-wave"></i> Manual
                                         </button>
-                                    </form>
-                                    <button type="button" class="btn-primary-admin !h-8 !px-3 !text-[11px] !bg-emerald-600 hover:!bg-emerald-700" onclick="openPayModal({{ $invoice->id }})" title="Bayar Manual">
-                                        <i class="fa-solid fa-money-bill-wave"></i> Manual
-                                    </button>
-                                @else
-                                    <span class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-check"></i> Selesai</span>
-                                @endif
+                                    @else
+                                        <span class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-check"></i> Selesai</span>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @empty
@@ -144,76 +148,156 @@
         </div>
     </div>
 
+    <!-- Modal Konfirmasi Buat Tagihan Baru -->
+    <div class="modal-overlay" id="generateSingleModal">
+        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                <div class="modal-title">
+                    <i class="fa-solid fa-file-circle-plus text-sky-600"></i>
+                    <span class="text-slate-900 font-bold text-[17px]">Buat Tagihan Baru?</span>
+                </div>
+                <button type="button" class="modal-close" onclick="closeCustomModal('generateSingleModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body p-8 bg-white">
+                <div class="bg-sky-50 p-4 rounded-2xl border border-sky-100 text-center">
+                    <i class="fa-solid fa-file-invoice text-sky-600 text-3xl mb-3"></i>
+                    <p class="text-sm font-bold text-slate-800 leading-relaxed">
+                        Apakah Anda yakin ingin membuat tagihan faktur baru untuk pelanggan <span class="text-sky-600 font-bold">{{ $pppoe->preOrder->nama_lengkap ?? $pppoe->username }}</span>?
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                <form action="{{ route('invoices.generate_single', $pppoe->id) }}" method="POST" class="w-full flex justify-center gap-3">
+                    @csrf
+                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2" 
+                        style="padding: 10px 24px;"
+                        onclick="closeCustomModal('generateSingleModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
+                    </button>
+                    <button type="submit" class="btn-save !bg-sky-600 hover:!bg-sky-700 !flex !items-center !justify-center gap-2"
+                        style="padding: 10px 24px;">
+                        <i class="fa-solid fa-plus"></i> Ya, Buat Tagihan!
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     @section('Scripts')
         <script>
             function openPayModal(invoiceId) {
                 document.getElementById('payForm').action = `/invoices/${invoiceId}/pay-manual`;
-                const modal = document.getElementById('payModal');
-                modal.classList.add('open');
-                document.body.style.overflow = 'hidden';
+                openCustomModal('payModal');
             }
+
             function closePayModal() {
-                const modal = document.getElementById('payModal');
-                modal.classList.remove('open');
-                document.body.style.overflow = '';
+                closeCustomModal('payModal');
             }
-            document.querySelector('#payModal .modal-overlay').addEventListener('click', function(e) {
-                if (e.target === this) closePayModal();
-            });
 
             function openXenditModal(event, form) {
                 event.preventDefault();
-                const btn = form.querySelector('button');
+                event.stopPropagation();
+                
+                const btn = form.querySelector('button[type="submit"]');
                 const originalHtml = btn.innerHTML;
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading';
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading...';
                 btn.disabled = true;
 
                 fetch(form.action, {
                     method: 'POST',
                     headers: {
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     body: new FormData(form)
                 })
-                .then(res => res.json())
+                .then(async res => {
+                    const data = await res.json().catch(() => null);
+                    if (!res.ok) {
+                        throw new Error((data && data.error) ? data.error : `Error ${res.status}: Gagal memproses pembayaran`);
+                    }
+                    return data;
+                })
                 .then(data => {
                     btn.innerHTML = originalHtml;
                     btn.disabled = false;
                     
-                    if (data.url) {
+                    if (data && data.url) {
                         document.getElementById('xenditLink').value = data.url;
                         document.getElementById('xenditIframe').src = data.url;
-                        const modal = document.getElementById('xenditModal');
-                        modal.classList.add('open');
-                        document.body.style.overflow = 'hidden';
-                    } else if (data.error) {
-                        alert(data.error);
+                        openCustomModal('xenditModal');
+                    } else if (data && data.error) {
+                        showToast(data.error, 'error');
                     }
                 })
                 .catch(err => {
                     btn.innerHTML = originalHtml;
                     btn.disabled = false;
-                    alert('Gagal mengambil URL. Cek koneksi.');
+                    showToast(err.message || 'Gagal mengambil URL pembayaran Xendit. Cek koneksi.', 'error');
+                });
+            }
+
+            function syncXendit(invoiceId, btn) {
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                btn.disabled = true;
+
+                fetch(`/invoices/${invoiceId}/sync-xendit`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(async res => {
+                    const data = await res.json().catch(() => null);
+                    if (!res.ok) {
+                        throw new Error((data && data.error) ? data.error : `Error ${res.status}`);
+                    }
+                    return data;
+                })
+                .then(data => {
+                    btn.innerHTML = originalHtml;
+                    btn.disabled = false;
+                    showToast(data.message || 'Status berhasil disinkronkan!', 'success');
+                    if (data.status === 'paid' || data.status === 'SETTLED') {
+                        setTimeout(() => window.location.reload(), 1000);
+                    }
+                })
+                .catch(err => {
+                    btn.innerHTML = originalHtml;
+                    btn.disabled = false;
+                    showToast(err.message || 'Gagal sinkronisasi status Xendit.', 'error');
                 });
             }
 
             function closeXenditModal() {
-                const modal = document.getElementById('xenditModal');
-                modal.classList.remove('open');
+                closeCustomModal('xenditModal');
                 document.getElementById('xenditIframe').src = "";
-                document.body.style.overflow = '';
+                window.location.reload();
             }
-
-            document.querySelector('#xenditModal').addEventListener('click', function(e) {
-                if (e.target === this) closeXenditModal();
-            });
 
             function copyXenditLink() {
                 const copyText = document.getElementById("xenditLink");
+                if (!copyText || !copyText.value) return;
+                
                 copyText.select();
-                copyText.setSelectionRange(0, 99999); 
-                navigator.clipboard.writeText(copyText.value);
-                alert("Link disalin!");
+                copyText.setSelectionRange(0, 99999);
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(copyText.value).then(() => {
+                        showToast('Link Xendit berhasil disalin!', 'success');
+                    }).catch(() => {
+                        document.execCommand('copy');
+                        showToast('Link Xendit berhasil disalin!', 'success');
+                    });
+                } else {
+                    document.execCommand('copy');
+                    showToast('Link Xendit berhasil disalin!', 'success');
+                }
             }
         </script>
     @endsection

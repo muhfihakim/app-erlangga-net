@@ -159,6 +159,11 @@
                 <i class="fa-solid fa-clipboard-list"></i>
                 <span>Aktivitas Log</span>
             </a>
+            <a class="sidebar-link {{ Request::is('migration*') ? 'active' : '' }}"
+                href="{{ route('migration.index') }}">
+                <i class="fa-solid fa-file-import"></i>
+                <span>Pulihkan / Migrasi Data</span>
+            </a>
         @endif
 
         <div class="sidebar-section-label" style="margin-top:.5rem;">Pengaturan</div>

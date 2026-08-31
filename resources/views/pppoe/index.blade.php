@@ -1,74 +1,165 @@
 <x-layouts.app>
     @section('Css')
         <style>
-            #pppoe-table thead th,
-            #pppoe-table tbody td {
+            #pppoe-table thead th, #pppoe-table tbody td {
                 text-transform: uppercase !important;
                 font-weight: 600;
                 font-size: 12px;
             }
+            .dataTables_wrapper {
+                position: relative;
+                min-height: 200px;
+                padding: 0;
+            }
+            .dataTables_wrapper .dataTables_processing {
+                position: absolute !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                background: rgba(255, 255, 255, 0.95) !important;
+                padding: 15px 25px !important;
+                border-radius: 12px !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+                z-index: 50 !important;
+                margin: 0 !important;
+                border: 1px solid #e2e8f0 !important;
+                width: auto !important;
+                height: auto !important;
+                text-align: center;
+            }
+            .dataTables_paginate {
+                display: flex;
+                justify-content: flex-end;
+                padding: 1.25rem 1.5rem;
+                gap: 4px;
+                border-top: 1px solid #f1f5f9;
+            }
+            .paginate_button {
+                width: 34px;
+                height: 34px;
+                border-radius: 8px;
+                border: 1.5px solid #e2e8f0;
+                background: #fff;
+                color: #64748b !important;
+                font-size: 13px;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+            }
+            .paginate_button.current {
+                background: #0ea5e9 !important;
+                border-color: #0ea5e9 !important;
+                color: #fff !important;
+            }
         </style>
     @endsection
 
-    <div
-        style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
-            <h1 style="font-size:22px;font-weight:900;margin:0;">Manage PPPoE</h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola data akun PPPoE dan pembayaran.</p>
+            <h1 style="font-size:22px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
+                <i class="fa-solid fa-users-gear text-indigo-600"></i> Manage PPPoE
+            </h1>
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola data akun PPPoE pelanggan, IP Address, router, dan status billing.</p>
         </div>
     </div>
 
-    <div class="table-card mt-6">
+    <!-- Stats Cards Grid -->
+    <div class="stats-grid mb-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#e0e7ff;color:#4338ca;">
+                <i class="fa-solid fa-users-gear"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ number_format($totalPppoeCount, 0, ',', '.') }}</div>
+                <div class="stat-lbl">Total Akun PPPoE</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#dcfce7;color:#15803d;">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ number_format($totalPaidCount, 0, ',', '.') }}</div>
+                <div class="stat-lbl">Status Terbayar</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fee2e2;color:#be123c;">
+                <i class="fa-solid fa-clock"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ number_format($totalUnpaidCount, 0, ',', '.') }}</div>
+                <div class="stat-lbl">Status Belum Bayar</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Toolbar -->
+    <div class="table-toolbar">
+        <form method="GET" action="{{ route('pppoe_accounts.index') }}" class="w-full" id="filterForm">
+            <div class="filter-group">
+                <div style="flex: 1; min-width: 160px;">
+                    <label class="form-label-custom">Status Invoice</label>
+                    <select name="status_invoice" class="form-input-custom" id="filter-status">
+                        <option value="">Semua Status</option>
+                        <option value="terbayar" {{ $filterStatus === 'terbayar' ? 'selected' : '' }}>Terbayar</option>
+                        <option value="belum_bayar" {{ $filterStatus === 'belum_bayar' ? 'selected' : '' }}>Belum Bayar</option>
+                    </select>
+                </div>
+                <div style="flex: 1; min-width: 180px;">
+                    <label class="form-label-custom">Paket Layanan</label>
+                    <select name="paket_id" class="form-input-custom" id="filter-paket">
+                        <option value="">Semua Paket</option>
+                        @foreach ($pakets as $p)
+                            <option value="{{ $p->id }}" {{ $filterPaket == $p->id ? 'selected' : '' }}>
+                                {{ $p->nama_paket }} (Rp {{ number_format($p->harga, 0, ',', '.') }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div style="flex: 1; min-width: 150px;">
+                    <label class="form-label-custom">Tipe Bayar</label>
+                    <select name="tipe_pembayaran" class="form-input-custom" id="filter-tipe">
+                        <option value="">Semua Tipe</option>
+                        <option value="prepaid" {{ $filterTipe === 'prepaid' ? 'selected' : '' }}>Prepaid</option>
+                        <option value="postpaid" {{ $filterTipe === 'postpaid' ? 'selected' : '' }}>Postpaid</option>
+                    </select>
+                </div>
+                <div style="flex: 1.5; min-width: 220px;">
+                    <label class="form-label-custom">Live Search</label>
+                    <div class="search-wrap !max-w-full">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="search" class="search-input custom-search" id="custom-search" placeholder="Cari username, nama, IP..."
+                            autocomplete="off" onkeydown="return event.key != 'Enter';" />
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary-admin !h-10 !px-6 flex items-center gap-2">
+                    <i class="fa-solid fa-filter"></i> Filter
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Table Card -->
+    <div class="table-card">
         <div class="table-responsive">
-            <table class="admin-table w-full">
+            <table id="pppoe-table" class="admin-table w-full">
                 <thead>
                     <tr>
                         <th style="text-align: center; width: 50px;">#</th>
-                        <th style="text-align: center;">Pelanggan</th>
-                        <th style="text-align: center;">Username</th>
-                        <th style="text-align: center;">Profile/Paket</th>
-                        <th style="text-align: center;">Router</th>
-                        <th style="text-align: center;">IP Address</th>
-                        <th style="text-align: center;">Tipe Bayar</th>
-                        <th style="text-align: center;">Status Invoice</th>
-                        <th style="text-align: center; width: 100px;">Opsi</th>
+                        <th style="text-align: left;">Pelanggan</th>
+                        <th style="text-align: left; width: 180px;">Username</th>
+                        <th style="text-align: left; width: 190px;">Profile/Paket</th>
+                        <th style="text-align: center; width: 100px;">Router</th>
+                        <th style="text-align: center; width: 120px;">IP Address</th>
+                        <th style="text-align: center; width: 110px;">Tipe Bayar</th>
+                        <th style="text-align: center; width: 130px;">Status Invoice</th>
+                        <th style="text-align: center; width: 90px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($pppoes as $pppoe)
-                        <tr>
-                            <td class="text-center">{{ $loop->iteration }}</td>
-                            <td class="text-center">{{ $pppoe->preOrder->nama_lengkap ?? '-' }}</td>
-                            <td class="text-center font-bold">{{ $pppoe->username }}</td>
-                            <td class="text-center"><span class="badge"
-                                    style="background:#e0f2fe;color:#0369a1;">{{ $pppoe->paket ? $pppoe->paket->nama_paket : '' }}</span></td>
-                            <td class="text-center">{{ $pppoe->router ?? 'All' }}</td>
-                            <td class="text-center">{{ $pppoe->ip_address ?? '-' }}</td>
-                            <td class="text-center">{{ ucfirst($pppoe->tipe_pembayaran) ?? '-' }}</td>
-                            <td class="text-center">
-                                @if ($pppoe->status_invoice == 'terbayar')
-                                    <span class="badge badge-published">TERBAYAR</span>
-                                @else
-                                    <span class="badge" style="background:#fef2f2;color:#be123c;">BELUM BAYAR</span>
-                                @endif
-                            </td>
-                            <td class="text-center">
-                                <div class="flex items-center justify-center gap-1">
-                                    <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
-                                        onclick="openEditModal({{ $pppoe->id }}, '{{ $pppoe->username }}', '{{ $pppoe->password }}', '{{ $pppoe->paket_id }}', '{{ $pppoe->router }}', '{{ $pppoe->ip_address }}', '{{ $pppoe->tipe_pembayaran }}', '{{ $pppoe->tanggal_aktif ? $pppoe->tanggal_aktif->format('Y-m-d') : '' }}', '{{ $pppoe->periode_billing }}', '{{ $pppoe->pajak }}', '{{ $pppoe->diskon }}', '{{ $pppoe->status_invoice }}', '{{ $pppoe->generate_invoice }}')"
-                                        title="Edit PPPoE"><i
-                                            class="fa-solid fa-pen-to-square text-amber-500"></i></button>
-                                    <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
-                                        onclick="confirmGlobalDelete('{{ route('pppoe_accounts.destroy', $pppoe->id) }}', 'PPPoE {{ $pppoe->username }}')"
-                                        title="Hapus"><i class="fa-solid fa-trash text-rose-500"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="9" class="text-center text-slate-400 py-4">Belum ada akun PPPoE dibuat.</td>
-                        </tr>
-                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -105,38 +196,30 @@
                     <div class="tab-panel active" id="edit-pppoe-tab-akun">
                         <div class="form-grid-2">
                             <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">Username <span
-                                        class="text-rose-500">*</span></label>
-                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
-                                    id="edit_username" name="username" required>
+                                <label class="form-label text-slate-800 font-bold">Username <span class="text-rose-500">*</span></label>
+                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300" id="edit_username" name="username" required>
                             </div>
                             <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">Password <span
-                                        class="text-rose-500">*</span></label>
-                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
-                                    id="edit_password" name="password" required>
+                                <label class="form-label text-slate-800 font-bold">Password <span class="text-rose-500">*</span></label>
+                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300" id="edit_password" name="password" required>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Profile / Paket <span
-                                    class="text-rose-500">*</span></label>
-                                <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
-                                    id="edit_paket_id" name="paket_id" required>
-                                    @foreach(\App\Models\Paket::all() as $paket)
-                                        <option value="{{ $paket->id }}">{{ $paket->nama_paket }} - Rp {{ number_format($paket->harga, 0, ',', '.') }}</option>
-                                    @endforeach
-                                </select>
+                            <label class="form-label text-slate-800 font-bold">Profile / Paket <span class="text-rose-500">*</span></label>
+                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" id="edit_paket_id" name="paket_id" required>
+                                @foreach($pakets as $paket)
+                                    <option value="{{ $paket->id }}">{{ $paket->nama_paket }} - Rp {{ number_format($paket->harga, 0, ',', '.') }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="form-grid-2">
                             <div class="form-group">
                                 <label class="form-label text-slate-800 font-bold">Router</label>
-                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
-                                    id="edit_router" name="router">
+                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300" id="edit_router" name="router">
                             </div>
                             <div class="form-group">
                                 <label class="form-label text-slate-800 font-bold">IP Address</label>
-                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
-                                    id="edit_ip_address" name="ip_address">
+                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300" id="edit_ip_address" name="ip_address">
                             </div>
                         </div>
                     </div>
@@ -146,22 +229,19 @@
                         <div class="form-grid-2">
                             <div class="form-group">
                                 <label class="form-label text-slate-800 font-bold">Tipe Pembayaran</label>
-                                <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
-                                    id="edit_tipe_pembayaran" name="tipe_pembayaran">
+                                <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" id="edit_tipe_pembayaran" name="tipe_pembayaran">
                                     <option value="postpaid">Postpaid</option>
                                     <option value="prepaid">Prepaid</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label class="form-label text-slate-800 font-bold">Tanggal Aktif</label>
-                                <input type="date" class="form-input bg-white text-slate-900 border-slate-300"
-                                    id="edit_tanggal_aktif" name="tanggal_aktif">
+                                <input type="date" class="form-input bg-white text-slate-900 border-slate-300" id="edit_tanggal_aktif" name="tanggal_aktif">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="form-label text-slate-800 font-bold">Periode Billing</label>
-                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
-                                id="edit_periode_billing" name="periode_billing">
+                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" id="edit_periode_billing" name="periode_billing">
                                 <option value="fixed">Fixed</option>
                                 <option value="renewal">Renewal</option>
                             </select>
@@ -169,27 +249,23 @@
                         <div class="form-grid-2">
                             <div class="form-group">
                                 <label class="form-label text-slate-800 font-bold">Pajak (Rp)</label>
-                                <input type="number" class="form-input bg-white text-slate-900 border-slate-300"
-                                    id="edit_pajak" name="pajak">
+                                <input type="number" class="form-input bg-white text-slate-900 border-slate-300" id="edit_pajak" name="pajak">
                             </div>
                             <div class="form-group">
                                 <label class="form-label text-slate-800 font-bold">Diskon (Rp)</label>
-                                <input type="number" class="form-input bg-white text-slate-900 border-slate-300"
-                                    id="edit_diskon" name="diskon">
+                                <input type="number" class="form-input bg-white text-slate-900 border-slate-300" id="edit_diskon" name="diskon">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="form-label text-slate-800 font-bold">Status Invoice</label>
-                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
-                                id="edit_status_invoice" name="status_invoice">
+                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" id="edit_status_invoice" name="status_invoice">
                                 <option value="belum_bayar">Belum Bayar</option>
                                 <option value="terbayar">Terbayar</option>
                             </select>
                         </div>
                         <div class="form-group mt-2">
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" id="edit_generate_invoice" name="generate_invoice"
-                                    class="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500">
+                                <input type="checkbox" id="edit_generate_invoice" name="generate_invoice" class="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500">
                                 <span class="text-sm font-medium text-slate-700">Generate Invoice</span>
                             </label>
                         </div>
@@ -197,12 +273,10 @@
                 </div>
 
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
-                        onclick="closeCustomModal('editPppoeModal')">
+                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2" onclick="closeCustomModal('editPppoeModal')">
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit"
-                        class="btn-save !flex !items-center !justify-center gap-2 !bg-amber-500 hover:!bg-amber-600">
+                    <button type="submit" class="btn-save !flex !items-center !justify-center gap-2 !bg-amber-500 hover:!bg-amber-600">
                         <i class="fa-solid fa-rotate"></i> Update PPPoE
                     </button>
                 </div>
@@ -211,9 +285,73 @@
     </div>
 
     @section('Scripts')
+        <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
         <script>
-            function openEditModal(id, username, password, paket_id, router, ip_address, tipe, tgl, periode, pajak, diskon,
-                status, gen) {
+            let table;
+
+            $(document).ready(function() {
+                table = $('#pppoe-table').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: "{{ route('pppoe_accounts.index') }}",
+                        data: function (d) {
+                            d.status_invoice = $('#filter-status').val();
+                            d.paket_id = $('#filter-paket').val();
+                            d.tipe_pembayaran = $('#filter-tipe').val();
+                        }
+                    },
+                    columns: [
+                        { data: 'no', name: 'no', searchable: false, orderable: false, className: 'text-center text-slate-400 font-bold', render: function (data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }},
+                        { data: 'pelanggan', name: 'username' },
+                        { data: 'username_col', name: 'username' },
+                        { data: 'paket', name: 'paket_id' },
+                        { data: 'router', name: 'router' },
+                        { data: 'ip_address', name: 'ip_address' },
+                        { data: 'tipe_pembayaran_badge', name: 'tipe_pembayaran' },
+                        { data: 'status_invoice_badge', name: 'status_invoice', searchable: false, orderable: false },
+                        { data: 'opsi', name: 'opsi', searchable: false, orderable: false }
+                    ],
+                    pageLength: 10,
+                    lengthChange: false,
+                    ordering: false,
+                    info: false,
+                    responsive: true,
+                    dom: 'tpir',
+                    language: {
+                        processing: "<i class='fa-solid fa-circle-notch fa-spin text-sky-500 text-2xl'></i>",
+                        zeroRecords: "Data tidak ditemukan",
+                        paginate: {
+                            previous: '<i class="fa-solid fa-chevron-left"></i>',
+                            next: '<i class="fa-solid fa-chevron-right"></i>'
+                        }
+                    }
+                });
+
+                // Debounced Live Search
+                let searchTimeout;
+                $('#custom-search').on('keyup input', function() {
+                    const val = this.value;
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(function() {
+                        table.search(val).draw();
+                    }, 350);
+                });
+
+                // Filter on select change
+                $('#filter-status, #filter-paket, #filter-tipe').on('change', function() {
+                    table.draw();
+                });
+
+                $('#filterForm').on('submit', function(e) {
+                    e.preventDefault();
+                    table.draw();
+                });
+            });
+
+            function openEditModal(id, username, password, paket_id, router, ip_address, tipe, tgl, periode, pajak, diskon, status, gen) {
                 document.getElementById('editPppoeForm').action = `/pppoe-accounts/${id}`;
                 document.getElementById('edit_username').value = username;
                 document.getElementById('edit_password').value = password;
