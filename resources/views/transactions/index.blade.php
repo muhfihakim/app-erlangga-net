@@ -74,34 +74,60 @@
     </div>
 
     <!-- Stats Cards Grid -->
-    <div class="stats-grid mb-6">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#e0e7ff;color:#4338ca;">
-                <i class="fa-solid fa-receipt"></i>
-            </div>
-            <div>
-                <div class="stat-val">{{ number_format($totalTransactionsCount, 0, ',', '.') }}</div>
-                <div class="stat-lbl">Total Transaksi</div>
-            </div>
-        </div>
+    <div class="stats-grid mb-6" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+        <!-- Monthly Earning -->
         <div class="stat-card">
             <div class="stat-icon" style="background:#dcfce7;color:#15803d;">
                 <i class="fa-solid fa-sack-dollar"></i>
             </div>
             <div>
-                <div class="stat-val">Rp {{ number_format($totalTransactionsAmount, 0, ',', '.') }}</div>
-                <div class="stat-lbl">Total Penerimaan</div>
+                <div class="stat-val">Rp {{ number_format($monthlyEarning, 0, ',', '.') }}</div>
+                <div style="font-size:11px; color:#64748b; font-weight:600; margin-top:2px;">
+                    Rp {{ number_format($lastMonthEarning, 0, ',', '.') }} Last Month
+                </div>
+                <div class="stat-lbl" style="margin-top:2px;">Monthly Earning</div>
             </div>
         </div>
+
+        <!-- Monthly Expenses -->
         <div class="stat-card">
-            <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
-                <i class="fa-solid fa-calendar-check"></i>
+            <div class="stat-icon" style="background:#fee2e2;color:#be123c;">
+                <i class="fa-solid fa-money-bill-transfer"></i>
             </div>
             <div>
-                <div class="stat-val">{{ number_format($thisMonthCount, 0, ',', '.') }} <span
-                        style="font-size:12px;color:#64748b;font-weight:600;">(Rp
-                        {{ number_format($thisMonthAmount, 0, ',', '.') }})</span></div>
-                <div class="stat-lbl">Transaksi Bulan Ini</div>
+                <div class="stat-val">Rp {{ number_format($monthlyExpenses, 0, ',', '.') }}</div>
+                <div style="font-size:11px; color:#64748b; font-weight:600; margin-top:2px;">
+                    Rp {{ number_format($lastMonthExpenses, 0, ',', '.') }} Last Month
+                </div>
+                <div class="stat-lbl" style="margin-top:2px;">Monthly Expenses</div>
+            </div>
+        </div>
+
+        <!-- Monthly Profit -->
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#e0e7ff;color:#4338ca;">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <div>
+                <div class="stat-val">Rp {{ number_format($monthlyProfit, 0, ',', '.') }}</div>
+                <div style="font-size:11px; color:#059669; font-weight:600; margin-top:2px;">
+                    <i class="fa-solid fa-arrow-trend-up mr-1"></i> Pendapatan Bersih
+                </div>
+                <div class="stat-lbl" style="margin-top:2px;">Monthly Profit</div>
+            </div>
+        </div>
+
+        <!-- Monthly Transaction -->
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#e0f2fe;color:#0284c7;">
+                <i class="fa-solid fa-receipt"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ number_format($monthlyTxCount, 0, ',', '.') }}</div>
+                <div style="font-size:11px; color:#64748b; font-weight:600; margin-top:2px;">
+                    {{ number_format($lastMonthTxCount, 0, ',', '.') }} Last Month
+                </div>
+                <div class="stat-lbl" style="margin-top:2px;">Monthly Transaction</div>
             </div>
         </div>
     </div>

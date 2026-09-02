@@ -103,18 +103,66 @@ class TransactionController extends Controller
                 ->make(true);
         }
 
-        // Stats calculation for the top cards
+        // Stats calculation for the top cards (matching Radboox metrics)
         $now = Carbon::now();
-        $totalTransactionsCount = Transaction::count();
-        $totalTransactionsAmount = Transaction::where('status', 'success')->sum('amount_paid');
-        $thisMonthCount = Transaction::whereMonth('created_at', $now->month)->whereYear('created_at', $now->year)->count();
-        $thisMonthAmount = Transaction::whereMonth('created_at', $now->month)->whereYear('created_at', $now->year)->where('status', 'success')->sum('amount_paid');
+        $startThisMonth = $now->copy()->startOfMonth();
+        $endThisMonth = $now->copy()->endOfMonth();
+        $startLastMonth = $now->copy()->subMonth()->startOfMonth();
+        $endLastMonth = $now->copy()->subMonth()->endOfMonth();
+
+        // 1. Monthly Earning (This Month vs Last Month) based on payment_date
+        $monthlyEarning = Transaction::where('status', 'success')
+            ->where(function ($q) use ($startThisMonth, $endThisMonth) {
+                $q->whereBetween('payment_date', [$startThisMonth, $endThisMonth])
+                  ->orWhere(function ($sq) use ($startThisMonth, $endThisMonth) {
+                      $sq->whereNull('payment_date')
+                         ->whereBetween('created_at', [$startThisMonth, $endThisMonth]);
+                  });
+            })
+            ->sum('amount_paid');
+
+        $lastMonthEarning = Transaction::where('status', 'success')
+            ->where(function ($q) use ($startLastMonth, $endLastMonth) {
+                $q->whereBetween('payment_date', [$startLastMonth, $endLastMonth])
+                  ->orWhere(function ($sq) use ($startLastMonth, $endLastMonth) {
+                      $sq->whereNull('payment_date')
+                         ->whereBetween('created_at', [$startLastMonth, $endLastMonth]);
+                  });
+            })
+            ->sum('amount_paid');
+
+        // 2. Monthly Expenses (Kasbon / Operasional)
+        $monthlyExpenses = \App\Models\Kasbon::whereBetween('tanggal', [$startThisMonth->toDateString(), $endThisMonth->toDateString()])->sum('nominal');
+        $lastMonthExpenses = \App\Models\Kasbon::whereBetween('tanggal', [$startLastMonth->toDateString(), $endLastMonth->toDateString()])->sum('nominal');
+
+        // 3. Monthly Profit (Earning - Expenses)
+        $monthlyProfit = max(0, $monthlyEarning - $monthlyExpenses);
+
+        // 4. Monthly Transaction Count (This Month vs Last Month)
+        $monthlyTxCount = Transaction::where(function ($q) use ($startThisMonth, $endThisMonth) {
+            $q->whereBetween('payment_date', [$startThisMonth, $endThisMonth])
+              ->orWhere(function ($sq) use ($startThisMonth, $endThisMonth) {
+                  $sq->whereNull('payment_date')
+                     ->whereBetween('created_at', [$startThisMonth, $endThisMonth]);
+              });
+        })->count();
+
+        $lastMonthTxCount = Transaction::where(function ($q) use ($startLastMonth, $endLastMonth) {
+            $q->whereBetween('payment_date', [$startLastMonth, $endLastMonth])
+              ->orWhere(function ($sq) use ($startLastMonth, $endLastMonth) {
+                  $sq->whereNull('payment_date')
+                     ->whereBetween('created_at', [$startLastMonth, $endLastMonth]);
+              });
+        })->count();
 
         return view('transactions.index', compact(
-            'totalTransactionsCount',
-            'totalTransactionsAmount',
-            'thisMonthCount',
-            'thisMonthAmount',
+            'monthlyEarning',
+            'lastMonthEarning',
+            'monthlyExpenses',
+            'lastMonthExpenses',
+            'monthlyProfit',
+            'monthlyTxCount',
+            'lastMonthTxCount',
             'filterMethod',
             'filterStatus',
             'filterDateFrom',

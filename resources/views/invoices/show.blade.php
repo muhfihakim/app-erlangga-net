@@ -1,17 +1,137 @@
 <x-layouts.app>
+    @php
+        $unpaidInvoices = $pppoe->invoices->where('status', 'unpaid');
+        $unpaidCount = $unpaidInvoices->count();
+        $unpaidAmount = $unpaidInvoices->sum('total');
+        $earliestUnpaid = $unpaidInvoices->sortBy('due_date')->first();
+
+        $nextDueDate = null;
+        $dueStatusText = '';
+        $dueStatusBadgeClass = '';
+        $dueIconClass = 'fa-solid fa-calendar-check text-emerald-600';
+        $dueIconBg = '#ecfdf5';
+
+        if ($earliestUnpaid && $earliestUnpaid->due_date) {
+            $due = \Carbon\Carbon::parse($earliestUnpaid->due_date);
+            $isOverdue = $due->isPast() && !$due->isToday();
+            $nextDueDate = $due->format('d/m/Y');
+
+            if ($isOverdue) {
+                $diff = (int) $due->copy()->startOfDay()->diffInDays(now()->startOfDay());
+                $dueStatusText = 'Lewat ' . $diff . ' hari';
+                $dueStatusBadgeClass = 'background:#fff1f2; color:#e11d48; border:1px solid #fecdd3;';
+                $dueIconClass = 'fa-solid fa-clock-rotate-left text-rose-600';
+                $dueIconBg = '#fff1f2';
+            } else {
+                $dueStatusText = 'Jatuh Tempo';
+                $dueStatusBadgeClass = 'background:#fffbeb; color:#b45309; border:1px solid #fef3c7;';
+                $dueIconClass = 'fa-solid fa-hourglass-half text-amber-600';
+                $dueIconBg = '#fffbeb';
+            }
+        } else {
+            if ($pppoe->tanggal_aktif) {
+                $dt = \Carbon\Carbon::parse($pppoe->tanggal_aktif);
+                if ($dt->isPast()) {
+                    $nextDue = now()->copy()->setDay(min($dt->day, now()->daysInMonth));
+                    if ($nextDue->isPast()) {
+                        $nextDue = now()->copy()->addMonth()->setDay(min($dt->day, now()->addMonth()->daysInMonth));
+                    }
+                } else {
+                    $nextDue = $dt;
+                }
+                $nextDueDate = $nextDue->format('d/m/Y');
+                $dueStatusText = 'Siklus Berikutnya';
+                $dueStatusBadgeClass = 'background:#ecfdf5; color:#059669; border:1px solid #a7f3d0;';
+            } else {
+                $nextDueDate = '-';
+                $dueStatusText = 'Belum Ada';
+                $dueStatusBadgeClass = 'background:#f1f5f9; color:#64748b; border:1px solid #e2e8f0;';
+            }
+        }
+    @endphp
+
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
-            <h1 style="font-size:22px;font-weight:900;margin:0;">
-                <a href="{{ route('invoices.index') }}" class="text-slate-400 hover:text-primary transition-colors"><i class="fa-solid fa-arrow-left mr-2"></i></a>
+            <h1 style="font-size:22px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
+                <a href="{{ route('invoices.index') }}" class="text-slate-400 hover:text-sky-600 transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i></a>
                 Detail Tagihan: {{ $pppoe->preOrder->nama_lengkap ?? 'Pelanggan' }}
             </h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0; margin-left:35px;">
-                Username PPPoE: <strong>{{ $pppoe->username }}</strong> | Paket: <strong>{{ $pppoe->paket->nama_paket ?? '-' }}</strong>
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0; margin-left:28px;">
+                Username PPPoE: <strong class="text-slate-800">{{ $pppoe->username }}</strong> | No. WhatsApp: <strong class="text-slate-800">{{ $pppoe->preOrder->no_whatsapp ?? '-' }}</strong>
             </p>
         </div>
-        <button type="button" onclick="openCustomModal('generateSingleModal')" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !gap-2 inline-flex items-center shadow-sm ml-auto">
-            <i class="fa-solid fa-plus"></i> Buat Tagihan Baru
-        </button>
+        <div class="flex items-center gap-2 ml-auto">
+            <a href="{{ route('pppoe.index') }}" class="btn-primary-admin !bg-slate-100 hover:!bg-slate-200 !text-slate-700 !border !border-slate-300 !gap-2 inline-flex items-center shadow-sm">
+                <i class="fa-solid fa-user-gear"></i> Kelola PPPoE
+            </a>
+            <button type="button" onclick="openCustomModal('generateSingleModal')" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !gap-2 inline-flex items-center shadow-sm">
+                <i class="fa-solid fa-plus"></i> Buat Tagihan Manual
+            </button>
+        </div>
+    </div>
+
+    <!-- Summary Cards Grid -->
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+        <!-- Card 1: Tagihan Selanjutnya -->
+        <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:1.1rem 1.25rem; display:flex; align-items:center; gap:1rem; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <div style="width:46px; height:46px; border-radius:10px; background:{{ $dueIconBg }}; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;">
+                <i class="{{ $dueIconClass }}"></i>
+            </div>
+            <div>
+                <div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">Tagihan Selanjutnya</div>
+                <div style="font-size:17px; font-weight:900; color:#1e293b; display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                    {{ $nextDueDate }}
+                    <span class="badge" style="{{ $dueStatusBadgeClass }} font-size:10.5px; padding:2px 7px; border-radius:5px; font-weight:700;">{{ $dueStatusText }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2: Status Tagihan -->
+        <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:1.1rem 1.25rem; display:flex; align-items:center; gap:1rem; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <div style="width:46px; height:46px; border-radius:10px; background:{{ $unpaidCount > 0 ? '#fff1f2' : '#ecfdf5' }}; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;">
+                <i class="fa-solid {{ $unpaidCount > 0 ? 'fa-file-invoice-dollar text-rose-600' : 'fa-circle-check text-emerald-600' }}"></i>
+            </div>
+            <div>
+                <div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">Status Pembayaran</div>
+                @if($unpaidCount > 0)
+                    <div style="font-size:15px; font-weight:800; color:#be123c;">
+                        {{ $unpaidCount }} Belum Lunas <span style="font-size:12.5px; font-weight:600; color:#e11d48;">(Rp {{ number_format($unpaidAmount, 0, ',', '.') }})</span>
+                    </div>
+                @else
+                    <div style="font-size:15px; font-weight:800; color:#059669;">
+                        Lunas <span style="font-size:12px; font-weight:500; color:#64748b;">(Semua Terbayar)</span>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Card 3: Paket & Biaya -->
+        <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:1.1rem 1.25rem; display:flex; align-items:center; gap:1rem; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <div style="width:46px; height:46px; border-radius:10px; background:#e0e7ff; display:flex; align-items:center; justify-content:center; font-size:18px; color:#4338ca; flex-shrink:0;">
+                <i class="fa-solid fa-wifi"></i>
+            </div>
+            <div>
+                <div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">Paket Internet</div>
+                <div style="font-size:15px; font-weight:800; color:#1e293b;">
+                    {{ $pppoe->paket->nama_paket ?? '-' }}
+                </div>
+                <div style="font-size:11.5px; color:#64748b; font-weight:600;">Rp {{ number_format($pppoe->paket->harga ?? 0, 0, ',', '.') }} / bulan</div>
+            </div>
+        </div>
+
+        <!-- Card 4: Tipe & Periode Billing -->
+        <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:1.1rem 1.25rem; display:flex; align-items:center; gap:1rem; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <div style="width:46px; height:46px; border-radius:10px; background:#f0fdf4; display:flex; align-items:center; justify-content:center; font-size:18px; color:#16a34a; flex-shrink:0;">
+                <i class="fa-solid fa-arrows-rotate"></i>
+            </div>
+            <div>
+                <div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">Metode & Siklus</div>
+                <div style="font-size:14.5px; font-weight:800; color:#1e293b;">
+                    {{ strtoupper($pppoe->tipe_pembayaran ?? 'Prepaid') }}
+                </div>
+                <div style="font-size:11.5px; color:#64748b; font-weight:600;">Periode: <span class="badge" style="background:#f1f5f9; color:#475569; font-size:10.5px; padding:1px 6px; border-radius:4px; font-weight:700;">{{ ucfirst($pppoe->periode_billing ?? 'Fixed') }}</span></div>
+            </div>
+        </div>
     </div>
 
     @if(session('success'))
@@ -20,7 +140,7 @@
         </div>
     @endif
 
-    <div class="table-card mt-6">
+    <div class="table-card mt-4">
         <div class="table-responsive">
             <table class="admin-table w-full">
                 <thead>
