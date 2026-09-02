@@ -64,12 +64,33 @@ class TransactionController extends Controller
                 })
                 ->addColumn('metode', function ($tx) {
                     $method = strtoupper($tx->payment_method ?? 'CASH');
-                    if (str_contains($method, 'XENDIT') || str_contains($method, 'QRIS') || str_contains($method, 'CASHLESS')) {
+                    $badgeStyle = 'background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;';
+                    $icon = 'fa-money-bill-wave';
+
+                    if (str_contains($method, 'BCA')) {
+                        $badgeStyle = 'background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe;';
+                        $icon = 'fa-building-columns';
+                    } elseif (str_contains($method, 'BRI')) {
+                        $badgeStyle = 'background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe;';
+                        $icon = 'fa-building-columns';
+                    } elseif (str_contains($method, 'BNI') || str_contains($method, 'MANDIRI') || str_contains($method, 'PERMATA') || str_contains($method, 'CIMB') || str_contains($method, 'BSI')) {
+                        $badgeStyle = 'background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe;';
+                        $icon = 'fa-building-columns';
+                    } elseif (str_contains($method, 'QRIS')) {
+                        $badgeStyle = 'background: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8;';
+                        $icon = 'fa-qrcode';
+                    } elseif (str_contains($method, 'OVO') || str_contains($method, 'DANA') || str_contains($method, 'SHOPEEPAY') || str_contains($method, 'GOPAY') || str_contains($method, 'EWALLET')) {
+                        $badgeStyle = 'background: #faf5ff; color: #7e22ce; border: 1px solid #e9d5ff;';
+                        $icon = 'fa-wallet';
+                    } elseif (str_contains($method, 'XENDIT') || str_contains($method, 'VIRTUAL_ACCOUNT')) {
                         $badgeStyle = 'background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe;';
-                    } else {
-                        $badgeStyle = 'background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;';
+                        $icon = 'fa-credit-card';
+                    } elseif (str_contains($method, 'CASHLESS')) {
+                        $badgeStyle = 'background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0;';
+                        $icon = 'fa-receipt';
                     }
-                    return '<div style="text-align: center;"><span class="badge" style="' . $badgeStyle . ' font-size: 11px; padding: 3px 8px; border-radius: 6px; font-weight: 700;">' . htmlspecialchars($method) . '</span></div>';
+
+                    return '<div style="text-align: center;"><span class="badge" style="' . $badgeStyle . ' font-size: 11px; padding: 3px 9px; border-radius: 6px; font-weight: 700;"><i class="fa-solid ' . $icon . ' mr-1"></i> ' . htmlspecialchars($method) . '</span></div>';
                 })
                 ->addColumn('status_badge', function ($tx) {
                     $st = strtolower($tx->status ?? 'success');

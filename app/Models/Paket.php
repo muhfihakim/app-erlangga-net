@@ -9,9 +9,16 @@ class Paket extends Model
     protected $fillable = [
         'nama_paket',
         'harga',
+        'pajak',
+        'diskon',
         'rate_limit',
         'keterangan',
     ];
+
+    public function getTotalHargaAttribute(): float
+    {
+        return max(0, (float)$this->harga + (float)($this->pajak ?? 0) - (float)($this->diskon ?? 0));
+    }
 
     public function customers()
     {

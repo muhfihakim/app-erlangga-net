@@ -203,10 +203,10 @@ class PppoeAccountController extends Controller
         if ($pppoe->generate_invoice) {
             $paket = \App\Models\Paket::find($pppoe->paket_id);
             if ($paket) {
-                $amount = $paket->harga;
-                $tax = $pppoe->pajak ?? 0;
-                $discount = $pppoe->diskon ?? 0;
-                $total = $amount + $tax - $discount;
+                $amount = (float) $paket->harga;
+                $tax = ($pppoe->pajak !== null && (float)$pppoe->pajak > 0) ? (float)$pppoe->pajak : (float)($paket->pajak ?? 0);
+                $discount = ($pppoe->diskon !== null && (float)$pppoe->diskon > 0) ? (float)$pppoe->diskon : (float)($paket->diskon ?? 0);
+                $total = max(0, $amount + $tax - $discount);
                 $isPaid = ($pppoe->status_invoice === 'terbayar');
                 $status = $isPaid ? 'paid' : 'unpaid';
                 $dueDate = $pppoe->tanggal_aktif ? \Carbon\Carbon::parse($pppoe->tanggal_aktif)->addDays(7) : \Carbon\Carbon::now()->addDays(7);

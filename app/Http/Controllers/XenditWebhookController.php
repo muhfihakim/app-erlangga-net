@@ -24,10 +24,8 @@ class XenditWebhookController extends Controller
         }
 
         if ($data['status'] === 'PAID' || $data['status'] === 'SETTLED') {
-            $payMethod = ($data['payment_method'] ?? 'XENDIT');
-            if (!empty($data['payment_channel'])) {
-                $payMethod .= ' - ' . $data['payment_channel'];
-            }
+            $channel = !empty($data['payment_channel']) ? strtoupper($data['payment_channel']) : (!empty($data['payment_method']) ? strtoupper($data['payment_method']) : 'ONLINE');
+            $payMethod = 'Xendit - ' . $channel;
 
             $invoice->markAsPaid(
                 $payMethod,

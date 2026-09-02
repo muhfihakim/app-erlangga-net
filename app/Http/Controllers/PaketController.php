@@ -26,9 +26,14 @@ class PaketController extends Controller
         $validated = $request->validate([
             'nama_paket' => 'required|string|max:255|unique:pakets,nama_paket',
             'harga' => 'required|numeric|min:0',
+            'pajak' => 'nullable|numeric|min:0',
+            'diskon' => 'nullable|numeric|min:0',
             'rate_limit' => 'nullable|string|max:255',
             'keterangan' => 'nullable|string',
         ]);
+
+        $validated['pajak'] = $validated['pajak'] ?? 0;
+        $validated['diskon'] = $validated['diskon'] ?? 0;
 
         $paket = Paket::create($validated);
 
@@ -71,9 +76,14 @@ class PaketController extends Controller
         $validated = $request->validate([
             'nama_paket' => 'required|string|max:255|unique:pakets,nama_paket,' . $paket->id,
             'harga' => 'required|numeric|min:0',
+            'pajak' => 'nullable|numeric|min:0',
+            'diskon' => 'nullable|numeric|min:0',
             'rate_limit' => 'nullable|string|max:255',
             'keterangan' => 'nullable|string',
         ]);
+
+        $validated['pajak'] = $validated['pajak'] ?? 0;
+        $validated['diskon'] = $validated['diskon'] ?? 0;
 
         $oldName = $paket->nama_paket;
         $paket->update($validated);
@@ -119,14 +129,30 @@ class PaketController extends Controller
             ]);
         }
 
-        // Auto-update PPP Profile in Mikrotik via API
-        try {
-            $this->mikrotikService->createOrUpdatePppProfile($paket->nama_paket, '192.168.100.1');
-        } catch (\Throwable $e) {
-            \Log::warning('MikroTik PPP Profile update failed (FreeRADIUS still synced): ' . $e->getMessage());
+        // Auto-sync all unpaid invoices of PPPoE accounts on this package
+        $pppoeIds = \App\Models\Pppoe::where('paket_id', $paket->id)->pluck('id');
+        if ($pppoeIds->isNotEmpty()) {
+            $unpaidInvoices = \App\Models\Invoice::whereIn('pppoe_id', $pppoeIds)
+                ->where('status', 'unpaid')
+                ->with('pppoe')
+                ->get();
+
+            foreach ($unpaidInvoices as $inv) {
+                $tax = ($inv->pppoe && $inv->pppoe->pajak !== null && (float)$inv->pppoe->pajak > 0) ? (float)$inv->pppoe->pajak : (float)($paket->pajak ?? 0);
+                $discount = ($inv->pppoe && $inv->pppoe->diskon !== null && (float)$inv->pppoe->diskon > 0) ? (float)$inv->pppoe->diskon : (float)($paket->diskon ?? 0);
+                $amount = (float) $paket->harga;
+                $total = max(0, $amount + $tax - $discount);
+
+                $inv->update([
+                    'amount' => $amount,
+                    'tax' => $tax,
+                    'discount' => $discount,
+                    'total' => $total,
+                ]);
+            }
         }
 
-        return redirect()->route('pakets.index')->with('success', 'Paket berhasil diperbarui & tersinkronisasi ke Radius.');
+        return redirect()->route('pakets.index')->with('success', 'Paket berhasil diperbarui, tagihan belum lunas disinkronkan, & data tersinkronisasi ke Radius.');
     }
 
     public function destroy(Paket $paket)

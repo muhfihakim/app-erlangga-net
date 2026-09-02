@@ -72,8 +72,8 @@ class ProcessBillingCommand extends Command
 
             if ($shouldGenerate) {
                 $amount = (float) $pppoe->paket->harga;
-                $tax = (float) ($pppoe->pajak ?? 0);
-                $discount = (float) ($pppoe->diskon ?? 0);
+                $tax = ($pppoe->pajak !== null && (float)$pppoe->pajak > 0) ? (float)$pppoe->pajak : (float)($pppoe->paket->pajak ?? 0);
+                $discount = ($pppoe->diskon !== null && (float)$pppoe->diskon > 0) ? (float)$pppoe->diskon : (float)($pppoe->paket->diskon ?? 0);
                 $total = max(0, $amount + $tax - $discount);
 
                 $invoiceNumber = 'INV-' . date('Ymd') . '-' . str_pad($pppoe->id, 4, '0', STR_PAD_LEFT) . '-' . rand(100, 999);

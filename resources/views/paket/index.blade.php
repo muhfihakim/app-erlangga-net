@@ -83,10 +83,12 @@
                     <tr>
                         <th style="text-align: center; width: 50px;">#</th>
                         <th style="text-align: left;">Nama Paket</th>
-                        <th style="text-align: right;">Harga (Rp)</th>
+                        <th style="text-align: right;">Harga Pokok</th>
+                        <th style="text-align: right;">Pajak (Rp)</th>
+                        <th style="text-align: right;">Diskon (Rp)</th>
+                        <th style="text-align: right;">Total Tagihan</th>
                         <th style="text-align: center;">Limitasi (Radius)</th>
                         <th style="text-align: center;">Pengguna</th>
-                        <th style="text-align: left;">Keterangan</th>
                         <th style="text-align: center; width: 100px;">Opsi</th>
                     </tr>
                 </thead>
@@ -95,8 +97,18 @@
                         <tr>
                             <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}</td>
                             <td style="text-align: left; font-weight: 700; color: #0f172a;">{{ $paket->nama_paket }}</td>
-                            <td style="text-align: right; color: #059669; font-weight: 800;">
-                                {{ number_format($paket->harga, 0, ',', '.') }}</td>
+                            <td style="text-align: right; color: #334155; font-weight: 700;">
+                                Rp {{ number_format($paket->harga, 0, ',', '.') }}
+                            </td>
+                            <td style="text-align: right; color: #e11d48; font-weight: 700;">
+                                {{ ($paket->pajak > 0) ? '+ ' . number_format($paket->pajak, 0, ',', '.') : '-' }}
+                            </td>
+                            <td style="text-align: right; color: #059669; font-weight: 700;">
+                                {{ ($paket->diskon > 0) ? '- ' . number_format($paket->diskon, 0, ',', '.') : '-' }}
+                            </td>
+                            <td style="text-align: right; color: #334155; font-weight: 700;">
+                                Rp {{ number_format($paket->total_harga, 0, ',', '.') }}
+                            </td>
                             <td style="text-align: center; color: #475569; font-weight: 700;">
                                 {{ $paket->rate_limit ?? '-' }}
                             </td>
@@ -105,12 +117,11 @@
                                     <i class="fa-solid fa-users mr-1"></i> {{ number_format($paket->customers_count) }}
                                 </span>
                             </td>
-                            <td style="color: #64748b;">{{ $paket->keterangan ?? '-' }}</td>
                             <td style="text-align: center;">
                                 <div class="flex items-center justify-center gap-2">
                                     <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
-                                        onclick="editPaketModal({{ $paket->id }}, '{{ $paket->nama_paket }}', '{{ $paket->harga }}', '{{ $paket->rate_limit }}', '{{ $paket->keterangan }}')"
-                                        title="Edit Paket"><i class="fa-solid fa-pen-to-square text-primary"></i></button>
+                                        onclick="editPaketModal({{ $paket->id }}, '{{ $paket->nama_paket }}', '{{ $paket->harga }}', '{{ $paket->pajak ?? 0 }}', '{{ $paket->diskon ?? 0 }}', '{{ $paket->rate_limit }}', '{{ $paket->keterangan }}')"
+                                        title="Edit Paket"><i class="fa-solid fa-pen-to-square text-amber-500"></i></button>
                                     <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
                                         onclick="confirmGlobalDelete('{{ route('pakets.destroy', $paket->id) }}', 'Paket {{ $paket->nama_paket }}')"
                                         title="Hapus"><i class="fa-solid fa-trash text-rose-600"></i></button>
@@ -147,20 +158,46 @@
                         <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
                             id="nama_paket" name="nama_paket" required placeholder="Contoh: Bronze 10Mbps">
                     </div>
-                    <div class="form-grid-2">
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Harga (Rp) <span
+                            <label class="form-label text-slate-800 font-bold">Harga Pokok (Rp) <span
                                     class="text-rose-500">*</span></label>
                             <input type="number" class="form-input bg-white text-slate-900 border-slate-300" id="harga"
-                                name="harga" required min="0" placeholder="0">
+                                name="harga" required min="0" placeholder="0" oninput="calculatePaketTotal()">
                         </div>
                         <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Limit Bandwidth (Radius)</label>
-                            <input type="text" class="form-input bg-white text-slate-900 border-slate-300" id="rate_limit"
-                                name="rate_limit" placeholder="Contoh: 10M/20M">
-                            <span class="text-[11px] text-slate-500 mt-1 block">Format: [Upload]/[Download], contoh: <code>5M/10M</code> atau <code>10M/20M</code></span>
+                            <label class="form-label text-slate-800 font-bold">Pajak (Rp)</label>
+                            <input type="number" class="form-input bg-white text-slate-900 border-slate-300" id="pajak"
+                                name="pajak" min="0" placeholder="0" oninput="calculatePaketTotal()">
+                            <span class="text-[10.5px] text-slate-500 mt-1 block">PPN / Fee Admin</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-slate-800 font-bold">Diskon (Rp)</label>
+                            <input type="number" class="form-input bg-white text-slate-900 border-slate-300" id="diskon"
+                                name="diskon" min="0" placeholder="0" oninput="calculatePaketTotal()">
+                            <span class="text-[10.5px] text-slate-500 mt-1 block">Potongan Paket</span>
                         </div>
                     </div>
+
+                    <!-- Total Tagihan Preview Card -->
+                    <div class="p-3.5 rounded-xl border border-sky-200 bg-sky-50 flex items-center justify-between">
+                        <div>
+                            <div class="text-[11px] font-bold text-sky-800 uppercase tracking-wide">Total Tagihan Final Paket</div>
+                            <div class="text-[12px] text-sky-600">Harga Pokok + Pajak - Diskon</div>
+                        </div>
+                        <div class="text-lg font-black text-sky-700" id="previewTotalTagihan">
+                            Rp 0
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label text-slate-800 font-bold">Limit Bandwidth (Radius)</label>
+                        <input type="text" class="form-input bg-white text-slate-900 border-slate-300" id="rate_limit"
+                            name="rate_limit" placeholder="Contoh: 10M/20M">
+                        <span class="text-[11px] text-slate-500 mt-1 block">Format: [Upload]/[Download], contoh: <code>5M/10M</code> atau <code>10M/20M</code></span>
+                    </div>
+
                     <div class="form-group !mb-0">
                         <label class="form-label text-slate-800 font-bold">Keterangan Tambahan</label>
                         <textarea class="form-textarea bg-white text-slate-900 border-slate-300" id="keterangan" name="keterangan"
@@ -209,6 +246,15 @@
                 });
             });
 
+            function calculatePaketTotal() {
+                const harga = parseFloat($('#harga').val()) || 0;
+                const pajak = parseFloat($('#pajak').val()) || 0;
+                const diskon = parseFloat($('#diskon').val()) || 0;
+                const total = Math.max(0, harga + pajak - diskon);
+
+                $('#previewTotalTagihan').text('Rp ' + new Intl.NumberFormat('id-ID').format(total));
+            }
+
             function openPaketModal() {
                 $('#modalPaketTitle').text('Tambah Paket Layanan');
                 $('#formPaket').attr('action', '{{ route('pakets.store') }}');
@@ -216,23 +262,29 @@
 
                 $('#nama_paket').val('');
                 $('#harga').val('');
+                $('#pajak').val('');
+                $('#diskon').val('');
                 $('#rate_limit').val('');
                 $('#keterangan').val('');
+                calculatePaketTotal();
 
                 const modal = document.getElementById('formPaketModal');
                 modal.classList.add('open');
                 document.body.style.overflow = 'hidden';
             }
 
-            function editPaketModal(id, nama, harga, rate_limit, ket) {
+            function editPaketModal(id, nama, harga, pajak, diskon, rate_limit, ket) {
                 $('#modalPaketTitle').text('Edit Paket Layanan');
                 $('#formPaket').attr('action', `/pakets/${id}`);
                 $('#paketMethod').val('PUT');
 
                 $('#nama_paket').val(nama);
                 $('#harga').val(harga);
+                $('#pajak').val(pajak || 0);
+                $('#diskon').val(diskon || 0);
                 $('#rate_limit').val(rate_limit);
                 $('#keterangan').val(ket);
+                calculatePaketTotal();
 
                 const modal = document.getElementById('formPaketModal');
                 modal.classList.add('open');

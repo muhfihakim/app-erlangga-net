@@ -47,8 +47,8 @@ class InvoiceController extends Controller
                 })
                 ->addColumn('paket', function ($pppoe) {
                     $namaPaket = $pppoe->paket->nama_paket ?? '-';
-                    $harga = $pppoe->paket->harga ?? 0;
-                    return '<div><span class="badge" style="background:#eef2ff; color:#4338ca; font-weight:700; font-size:11px; padding:3px 8px; border-radius:6px; border:1px solid #c7d2fe;">' . htmlspecialchars($namaPaket) . '</span><div style="font-size: 11px; color: #64748b; margin-top:2px; font-weight:600;">Rp ' . number_format($harga, 0, ',', '.') . '</div></div>';
+                    $totalHarga = $pppoe->paket ? $pppoe->paket->total_harga : 0;
+                    return '<div><span class="badge" style="background:#eef2ff; color:#4338ca; font-weight:700; font-size:11px; padding:3px 8px; border-radius:6px; border:1px solid #c7d2fe;">' . htmlspecialchars($namaPaket) . '</span><div style="font-size: 11px; color: #64748b; margin-top:2px; font-weight:600;">Rp ' . number_format($totalHarga, 0, ',', '.') . '</div></div>';
                 })
                 ->addColumn('tagihan_selanjutnya', function ($pppoe) {
                     $unpaidInv = $pppoe->invoices->where('status', 'unpaid')->sortBy('due_date')->first();
@@ -165,10 +165,8 @@ class InvoiceController extends Controller
                     $res = $apiInstance->getInvoiceById($invoice->xendit_invoice_id);
 
                     if ($res['status'] === 'PAID' || $res['status'] === 'SETTLED') {
-                        $payMethod = 'Xendit - ' . ($res['payment_method'] ?? 'Online');
-                        if (!empty($res['payment_channel'])) {
-                            $payMethod .= ' (' . $res['payment_channel'] . ')';
-                        }
+                        $channel = !empty($res['payment_channel']) ? strtoupper($res['payment_channel']) : (!empty($res['payment_method']) ? strtoupper($res['payment_method']) : 'ONLINE');
+                        $payMethod = 'Xendit - ' . $channel;
 
                         $invoice->markAsPaid($payMethod, $invoice->total, $invoice->xendit_invoice_id);
                     }
@@ -204,12 +202,10 @@ class InvoiceController extends Controller
                 ->exists();
                 
             if (!$exists && $pppoe->paket) {
-                $amount = $pppoe->paket->harga;
-                $tax = $pppoe->pajak ?? 0;
-                $discount = $pppoe->diskon ?? 0;
-                
-                // Calculate tax amount if it's percentage, assuming it's nominal for now
-                $total = $amount + $tax - $discount;
+                $amount = (float) $pppoe->paket->harga;
+                $tax = ($pppoe->pajak !== null && (float)$pppoe->pajak > 0) ? (float)$pppoe->pajak : (float)($pppoe->paket->pajak ?? 0);
+                $discount = ($pppoe->diskon !== null && (float)$pppoe->diskon > 0) ? (float)$pppoe->diskon : (float)($pppoe->paket->diskon ?? 0);
+                $total = max(0, $amount + $tax - $discount);
                 
                 // Due date: usually X days from generate, or exact date of active date
                 $dueDate = Carbon::now()->addDays(7); 
@@ -238,10 +234,10 @@ class InvoiceController extends Controller
             return redirect()->back()->with('error', 'Gagal generate: Pelanggan belum memiliki paket.');
         }
 
-        $amount = $pppoe->paket->harga;
-        $tax = $pppoe->pajak ?? 0;
-        $discount = $pppoe->diskon ?? 0;
-        $total = $amount + $tax - $discount;
+        $amount = (float) $pppoe->paket->harga;
+        $tax = ($pppoe->pajak !== null && (float)$pppoe->pajak > 0) ? (float)$pppoe->pajak : (float)($pppoe->paket->pajak ?? 0);
+        $discount = ($pppoe->diskon !== null && (float)$pppoe->diskon > 0) ? (float)$pppoe->diskon : (float)($pppoe->paket->diskon ?? 0);
+        $total = max(0, $amount + $tax - $discount);
         $dueDate = Carbon::now()->addDays(7);
         $invoiceNumber = 'INV-' . date('Ymd') . '-' . str_pad($pppoe->id, 4, '0', STR_PAD_LEFT) . '-' . rand(100, 999);
 
@@ -387,10 +383,8 @@ class InvoiceController extends Controller
             $res = $apiInstance->getInvoiceById($invoice->xendit_invoice_id);
 
             if ($res['status'] === 'PAID' || $res['status'] === 'SETTLED') {
-                $payMethod = 'Xendit - ' . ($res['payment_method'] ?? 'Online');
-                if (!empty($res['payment_channel'])) {
-                    $payMethod .= ' (' . $res['payment_channel'] . ')';
-                }
+                $channel = !empty($res['payment_channel']) ? strtoupper($res['payment_channel']) : (!empty($res['payment_method']) ? strtoupper($res['payment_method']) : 'ONLINE');
+                $payMethod = 'Xendit - ' . $channel;
 
                 $invoice->markAsPaid($payMethod, $invoice->total, $invoice->xendit_invoice_id);
 
