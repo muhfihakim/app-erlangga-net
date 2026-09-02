@@ -2,91 +2,126 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Invoice {{ $invoice->invoice_number }}</title>
+    <title>Invoice {{ $invoice->invoice_number }} - Erlangga Net</title>
     <style>
+        @page {
+            margin: 25px 30px;
+        }
+        * {
+            font-family: Arial, Helvetica, sans-serif;
+            box-sizing: border-box;
+        }
         body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            font-size: 14px;
-            color: #333;
-            line-height: 1.5;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            color: #334155;
+            line-height: 1.4;
             margin: 0;
             padding: 0;
         }
         .container {
-            padding: 30px;
+            padding: 5px 10px;
         }
-        .header {
+        table {
             width: 100%;
-            margin-bottom: 40px;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 20px;
+            border-collapse: collapse;
         }
-        .header td {
-            vertical-align: top;
+        .header-table {
+            margin-bottom: 20px;
+            border-bottom: 2px solid #0284c7;
+            padding-bottom: 15px;
         }
-        .logo {
-            font-size: 24px;
+        .header-table td {
+            vertical-align: middle;
+        }
+        .brand-logo {
+            max-height: 50px;
+            max-width: 160px;
+        }
+        .brand-title {
+            font-size: 20px;
             font-weight: bold;
-            color: #1e40af;
+            color: #0284c7;
+            margin: 0;
         }
-        .company-info {
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
-        }
-        .invoice-title {
-            text-align: right;
-            font-size: 28px;
-            font-weight: bold;
-            color: #333;
+        .brand-subtitle {
+            font-size: 10.5px;
+            color: #64748b;
+            font-weight: normal;
+            margin-top: 2px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .invoice-meta {
+        .invoice-main-title {
             text-align: right;
-            font-size: 12px;
-            margin-top: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #0f172a;
+            letter-spacing: 0.5px;
+            margin: 0;
         }
-        .info-section {
-            width: 100%;
-            margin-bottom: 30px;
+        .invoice-num {
+            font-size: 13px;
+            font-weight: bold;
+            color: #0284c7;
+            margin-top: 3px;
         }
-        .info-section td {
+        .info-card-table {
+            margin-bottom: 20px;
+        }
+        .info-card-table td {
             width: 50%;
             vertical-align: top;
         }
         .info-box {
             background: #f8fafc;
-            padding: 15px;
-            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px 14px;
+        }
+        .info-box-title {
+            font-size: 10.5px;
+            font-weight: bold;
+            color: #0284c7;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px dashed #cbd5e1;
+            padding-bottom: 4px;
+            margin-bottom: 7px;
+        }
+        .info-row {
+            margin-bottom: 4px;
+            font-size: 11.5px;
         }
         .info-label {
-            font-size: 11px;
             color: #64748b;
-            text-transform: uppercase;
             font-weight: bold;
-            margin-bottom: 5px;
+            display: inline-block;
+            width: 100px;
         }
-        .info-value {
-            font-size: 14px;
-            font-weight: bold;
+        .info-val {
             color: #0f172a;
+            font-weight: bold;
         }
         .items-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            overflow: hidden;
         }
         .items-table th {
-            background: #1e293b;
-            color: white;
-            padding: 12px;
-            text-align: left;
-            font-size: 12px;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 9px 12px;
+            font-size: 10.5px;
+            font-weight: bold;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: left;
         }
         .items-table td {
-            padding: 12px;
+            padding: 10px 12px;
             border-bottom: 1px solid #e2e8f0;
+            font-size: 11.5px;
         }
         .text-right {
             text-align: right !important;
@@ -94,153 +129,209 @@
         .text-center {
             text-align: center !important;
         }
+        .summary-container {
+            width: 100%;
+            margin-bottom: 25px;
+        }
         .summary-table {
-            width: 40%;
+            width: 48%;
             float: right;
             border-collapse: collapse;
         }
         .summary-table td {
-            padding: 8px 12px;
+            padding: 5px 10px;
+            font-size: 11.5px;
         }
-        .summary-label {
+        .summary-lbl {
             font-weight: bold;
             color: #64748b;
         }
-        .summary-total {
-            font-size: 18px;
+        .summary-val {
             font-weight: bold;
-            color: #0f172a;
-            border-top: 2px solid #e2e8f0;
-            padding-top: 12px !important;
+            color: #1e293b;
         }
-        .footer {
-            clear: both;
-            margin-top: 80px;
-            padding-top: 20px;
-            border-top: 1px solid #e2e8f0;
-            text-align: center;
-            font-size: 11px;
-            color: #94a3b8;
+        .total-box {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
         }
-        .status-badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 12px;
+        .total-box td {
+            padding: 9px 10px !important;
+        }
+        .total-title {
+            font-size: 13px;
             font-weight: bold;
+            color: #0369a1;
             text-transform: uppercase;
         }
-        .status-paid {
-            background: #dcfce7;
-            color: #166534;
+        .total-amount {
+            font-size: 16px;
+            font-weight: bold;
+            color: #0284c7;
         }
-        .status-unpaid {
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-paid {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+        }
+        .badge-unpaid {
             background: #fee2e2;
-            color: #991b1b;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+        }
+        .footer-note {
+            clear: both;
+            margin-top: 50px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+            font-size: 10px;
+            color: #94a3b8;
+            line-height: 1.4;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <table class="header">
-            <tr>
-                <td>
-                    <div class="logo">Erlangga Net</div>
-                    <div class="company-info">
-                        Layanan Internet Cepat & Stabil<br>
-                        Jl. Raya Subang No. 123<br>
-                        Telp: 0812-3456-7890
-                    </div>
-                </td>
-                <td>
-                    <div class="invoice-title">INVOICE</div>
-                    <div class="invoice-meta">
-                        <strong>No. Invoice:</strong> {{ $invoice->invoice_number }}<br>
-                        <strong>Tanggal:</strong> {{ $invoice->created_at->format('d/m/Y') }}<br>
-                        <strong>Jatuh Tempo:</strong> {{ $invoice->due_date ? \Carbon\Carbon::parse($invoice->due_date)->format('d/m/Y') : '-' }}<br>
-                        <br>
-                        <span class="status-badge {{ $invoice->status == 'paid' ? 'status-paid' : 'status-unpaid' }}">
-                            {{ $invoice->status == 'paid' ? 'LUNAS' : 'BELUM LUNAS' }}
-                        </span>
-                    </div>
-                </td>
-            </tr>
-        </table>
+    @php
+        $logoPath = public_path('dist/assets/img/logo.png');
+        $logoBase64 = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : null;
+    @endphp
 
-        <table class="info-section">
+    <div class="container">
+        <!-- Header -->
+        <table class="header-table">
             <tr>
-                <td style="padding-right: 15px;">
-                    <div class="info-label">Tagihan Kepada:</div>
-                    <div class="info-value">{{ $invoice->pppoe->preOrder->nama_lengkap ?? 'Pelanggan' }}</div>
-                    <div style="font-size: 12px; color: #475569; margin-top: 5px;">
-                        Alamat: {{ $invoice->pppoe->preOrder->alamat ?? '-' }}<br>
-                        Telepon: {{ $invoice->pppoe->preOrder->no_whatsapp ?? '-' }}<br>
-                        Username PPPoE: {{ $invoice->pppoe->username }}
-                    </div>
+                <td style="width: 55%;">
+                    @if($logoBase64)
+                        <img src="{{ $logoBase64 }}" class="brand-logo" alt="Erlangga Net">
+                    @else
+                        <div class="brand-title">Erlangga Net</div>
+                    @endif
+                    <div class="brand-subtitle">High Speed Internet Service Provider</div>
                 </td>
-                <td style="padding-left: 15px;">
-                    <div class="info-box">
-                        <div class="info-label">Metode Pembayaran</div>
-                        <div class="info-value">{{ strtoupper($invoice->payment_method ?? 'Transfer Bank') }}</div>
-                        @if($invoice->status == 'unpaid')
-                        <div style="font-size: 11px; margin-top: 10px;">
-                            BCA: 1234567890 a.n Erlangga<br>
-                            Mandiri: 0987654321 a.n Erlangga
-                        </div>
+                <td style="width: 45%; text-align: right;">
+                    <div class="invoice-main-title">FAKTUR TAGIHAN</div>
+                    <div class="invoice-num">{{ $invoice->invoice_number }}</div>
+                    <div style="margin-top: 6px;">
+                        @if($invoice->status == 'paid')
+                            <span class="badge badge-paid">LUNAS / TERBAYAR</span>
+                        @else
+                            <span class="badge badge-unpaid">BELUM LUNAS</span>
                         @endif
                     </div>
                 </td>
             </tr>
         </table>
 
+        <!-- Customer & Invoice Info (2 Columns, Clean, No Address, No Manual Norek) -->
+        <table class="info-card-table">
+            <tr>
+                <td style="padding-right: 8px;">
+                    <div class="info-box">
+                        <div class="info-box-title">Ditujukan Kepada</div>
+                        <div class="info-row">
+                            <span class="info-label">Nama Pelanggan</span>: 
+                            <span class="info-val">{{ $invoice->pppoe->preOrder->nama_lengkap ?? 'Pelanggan' }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Username PPPoE</span>: 
+                            <span class="info-val" style="color: #0284c7;">{{ $invoice->pppoe->username }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">No. WhatsApp</span>: 
+                            <span class="info-val">{{ $invoice->pppoe->preOrder->no_whatsapp ?? '-' }}</span>
+                        </div>
+                    </div>
+                </td>
+                <td style="padding-left: 8px;">
+                    <div class="info-box">
+                        <div class="info-box-title">Detail Faktur & Waktu</div>
+                        <div class="info-row">
+                            <span class="info-label">Tanggal Terbit</span>: 
+                            <span class="info-val">{{ $invoice->created_at->format('d/m/Y') }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Jatuh Tempo</span>: 
+                            <span class="info-val" style="color: {{ $invoice->status == 'unpaid' ? '#e11d48' : '#0f172a' }};">
+                                {{ $invoice->due_date ? \Carbon\Carbon::parse($invoice->due_date)->format('d/m/Y') : '-' }}
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Metode Bayar</span>: 
+                            <span class="info-val">{{ strtoupper($invoice->payment_method ?? 'Gateway Online / Tunai') }}</span>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Line Items Table -->
         <table class="items-table">
             <thead>
                 <tr>
+                    <th style="width: 35px;" class="text-center">#</th>
                     <th>Deskripsi Layanan</th>
-                    <th class="text-center">Periode</th>
-                    <th class="text-right">Harga</th>
+                    <th style="width: 130px;" class="text-center">Periode Tagihan</th>
+                    <th style="width: 140px;" class="text-right">Jumlah (Rp)</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
+                    <td class="text-center" style="font-weight: bold; color: #94a3b8;">1</td>
                     <td>
-                        <strong>Paket {{ $invoice->pppoe->paket->nama_paket ?? '-' }}</strong><br>
-                        <span style="font-size: 11px; color: #64748b;">Langganan Internet Bulanan</span>
+                        <strong style="color: #0f172a; font-size: 12px;">Langganan Internet - {{ $invoice->pppoe->paket->nama_paket ?? 'Paket Broadband' }}</strong>
+                        @if(!empty($invoice->pppoe->paket->rate_limit))
+                            <div style="font-size: 10.5px; color: #64748b; margin-top: 2px;">Kecepatan Akses: {{ $invoice->pppoe->paket->rate_limit }}</div>
+                        @endif
                     </td>
-                    <td class="text-center">
-                        {{ $invoice->created_at->format('M Y') }}
+                    <td class="text-center" style="font-weight: bold; color: #475569;">
+                        {{ $invoice->created_at->translatedFormat('F Y') }}
                     </td>
-                    <td class="text-right">Rp {{ number_format($invoice->amount, 0, ',', '.') }}</td>
+                    <td class="text-right" style="font-weight: bold; color: #0f172a;">
+                        Rp {{ number_format($invoice->amount, 0, ',', '.') }}
+                    </td>
                 </tr>
             </tbody>
         </table>
 
-        <table class="summary-table">
-            <tr>
-                <td class="summary-label">Subtotal</td>
-                <td class="text-right">Rp {{ number_format($invoice->amount, 0, ',', '.') }}</td>
-            </tr>
-            @if($invoice->tax > 0)
-            <tr>
-                <td class="summary-label">PPN</td>
-                <td class="text-right">Rp {{ number_format($invoice->tax, 0, ',', '.') }}</td>
-            </tr>
-            @endif
-            @if($invoice->discount > 0)
-            <tr>
-                <td class="summary-label">Diskon</td>
-                <td class="text-right">- Rp {{ number_format($invoice->discount, 0, ',', '.') }}</td>
-            </tr>
-            @endif
-            <tr>
-                <td class="summary-label summary-total">Total Tagihan</td>
-                <td class="text-right summary-total">Rp {{ number_format($invoice->total, 0, ',', '.') }}</td>
-            </tr>
-        </table>
+        <!-- Totals Summary Table -->
+        <div class="summary-container">
+            <table class="summary-table">
+                <tr>
+                    <td class="summary-lbl">Harga Pokok</td>
+                    <td class="text-right summary-val">Rp {{ number_format($invoice->amount, 0, ',', '.') }}</td>
+                </tr>
+                @if($invoice->tax > 0)
+                <tr>
+                    <td class="summary-lbl">Pajak / PPN / Fee</td>
+                    <td class="text-right summary-val" style="color: #e11d48;">+ Rp {{ number_format($invoice->tax, 0, ',', '.') }}</td>
+                </tr>
+                @endif
+                @if($invoice->discount > 0)
+                <tr>
+                    <td class="summary-lbl">Potongan Diskon</td>
+                    <td class="text-right summary-val" style="color: #16a34a;">- Rp {{ number_format($invoice->discount, 0, ',', '.') }}</td>
+                </tr>
+                @endif
+                <tr class="total-box">
+                    <td class="total-title">Total Tagihan</td>
+                    <td class="text-right total-amount">Rp {{ number_format($invoice->total, 0, ',', '.') }}</td>
+                </tr>
+            </table>
+        </div>
 
-        <div class="footer">
-            Terima kasih telah menggunakan layanan Erlangga Net.<br>
-            Untuk pertanyaan terkait tagihan ini, silakan hubungi customer service kami.
+        <!-- Footer -->
+        <div class="footer-note">
+            Dokumen ini merupakan bukti tagihan resmi dari <strong>Erlangga Net</strong> yang diterbitkan secara elektronik.<br>
+            Untuk konfirmasi atau informasi bantuan, silakan hubungi Customer Support resmi kami.
         </div>
     </div>
 </body>
