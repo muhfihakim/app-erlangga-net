@@ -130,23 +130,7 @@ class InvoiceController extends Controller
                             $payMethod .= ' (' . $res['payment_channel'] . ')';
                         }
 
-                        $invoice->update([
-                            'status' => 'paid',
-                            'payment_method' => $payMethod,
-                        ]);
-
-                        Transaction::firstOrCreate(
-                            ['invoice_id' => $invoice->id],
-                            [
-                                'payment_method' => $payMethod,
-                                'amount_paid' => $invoice->total,
-                                'payment_date' => now(),
-                                'status' => 'success',
-                                'xendit_payment_id' => $invoice->xendit_invoice_id,
-                            ]
-                        );
-
-                        $pppoe->update(['status_invoice' => 'terbayar']);
+                        $invoice->markAsPaid($payMethod, $invoice->total, $invoice->xendit_invoice_id);
                     }
                 } catch (\Throwable $e) {
                     // Ignore transient network errors on show view
@@ -241,22 +225,7 @@ class InvoiceController extends Controller
             'payment_method' => 'required|in:cash,cashless',
         ]);
 
-        $invoice->update([
-            'status' => 'paid',
-            'payment_method' => $request->payment_method,
-        ]);
-
-        Transaction::create([
-            'invoice_id' => $invoice->id,
-            'payment_method' => $request->payment_method,
-            'amount_paid' => $invoice->total,
-            'payment_date' => now(),
-            'status' => 'success',
-        ]);
-
-        if ($invoice->pppoe) {
-            $invoice->pppoe->update(['status_invoice' => 'terbayar']);
-        }
+        $invoice->markAsPaid($request->payment_method);
 
         return redirect()->back()->with('success', 'Invoice berhasil dibayar secara manual.');
     }
@@ -281,19 +250,63 @@ class InvoiceController extends Controller
             \Xendit\Configuration::setXenditKey(\App\Models\Setting::get('xendit_secret_key', config('services.xendit.secret_key')));
             $apiInstance = new \Xendit\Invoice\InvoiceApi();
 
-            $invoice->load('pppoe.preOrder');
-            $preOrder = $invoice->pppoe ? $invoice->pppoe->preOrder : null;
+            $invoice->load(['pppoe.preOrder', 'pppoe.paket']);
+            $pppoe = $invoice->pppoe;
+            $preOrder = $pppoe ? $pppoe->preOrder : null;
             $payerEmail = ($preOrder && !empty($preOrder->alamat_email) && filter_var($preOrder->alamat_email, FILTER_VALIDATE_EMAIL))
                 ? $preOrder->alamat_email
-                : 'customer@erlangga.net';
+                : 'billing@erlangga.net';
+
+            // Calculate invoice duration until due date (minimum 1 day = 86400 seconds)
+            $dueDate = $invoice->due_date ? Carbon::parse($invoice->due_date)->endOfDay() : now()->addDays(7);
+            $durationSeconds = max(86400, $dueDate->diffInSeconds(now()));
+
+            // Build detailed items breakdown for checkout screen
+            $items = [];
+            $items[] = [
+                'name' => 'Paket Internet ' . ($pppoe && $pppoe->paket ? $pppoe->paket->nama_paket : ''),
+                'quantity' => 1,
+                'price' => (float) $invoice->amount,
+                'category' => 'INTERNET_SERVICE',
+            ];
+
+            if ($invoice->tax > 0) {
+                $items[] = [
+                    'name' => 'Pajak / PPN',
+                    'quantity' => 1,
+                    'price' => (float) $invoice->tax,
+                    'category' => 'TAX',
+                ];
+            }
+
+            if ($invoice->discount > 0) {
+                $items[] = [
+                    'name' => 'Diskon Promo',
+                    'quantity' => 1,
+                    'price' => -1 * (float) $invoice->discount,
+                    'category' => 'DISCOUNT',
+                ];
+            }
+
+            $customer = [
+                'given_names' => $preOrder ? ($preOrder->nama_lengkap ?? $pppoe->username) : ($pppoe->username ?? 'Pelanggan'),
+                'email' => $payerEmail,
+                'mobile_number' => $preOrder && !empty($preOrder->no_whatsapp) ? $preOrder->no_whatsapp : null,
+            ];
+
+            $baseUrl = $request->getSchemeAndHttpHost();
+            $redirectUrl = $baseUrl . '/invoices/' . $invoice->pppoe_id;
 
             $createInvoiceRequest = new \Xendit\Invoice\CreateInvoiceRequest([
                 'external_id' => $invoice->invoice_number,
                 'amount' => (float) $invoice->total,
                 'payer_email' => $payerEmail,
-                'description' => 'Pembayaran Tagihan ' . $invoice->invoice_number,
-                'success_redirect_url' => route('invoices.show', $invoice->pppoe_id),
-                'failure_redirect_url' => route('invoices.show', $invoice->pppoe_id),
+                'description' => 'Tagihan Internet ' . $invoice->invoice_number . ' - ' . ($pppoe ? $pppoe->username : ''),
+                'invoice_duration' => (int) $durationSeconds,
+                'customer' => $customer,
+                'items' => $items,
+                'success_redirect_url' => $redirectUrl,
+                'failure_redirect_url' => $redirectUrl,
             ]);
 
             $result = $apiInstance->createInvoice($createInvoiceRequest);
@@ -339,30 +352,12 @@ class InvoiceController extends Controller
                     $payMethod .= ' (' . $res['payment_channel'] . ')';
                 }
 
-                $invoice->update([
-                    'status' => 'paid',
-                    'payment_method' => $payMethod,
-                ]);
-
-                Transaction::firstOrCreate(
-                    ['invoice_id' => $invoice->id],
-                    [
-                        'payment_method' => $payMethod,
-                        'amount_paid' => $invoice->total,
-                        'payment_date' => now(),
-                        'status' => 'success',
-                        'xendit_payment_id' => $invoice->xendit_invoice_id,
-                    ]
-                );
-
-                if ($invoice->pppoe) {
-                    $invoice->pppoe->update(['status_invoice' => 'terbayar']);
-                }
+                $invoice->markAsPaid($payMethod, $invoice->total, $invoice->xendit_invoice_id);
 
                 if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json(['status' => 'paid', 'message' => 'Status pembayaran berhasil disinkronkan (LUNAS).']);
+                    return response()->json(['status' => 'paid', 'message' => 'Pembayaran lunas terverifikasi via Xendit!']);
                 }
-                return redirect()->back()->with('success', 'Status pembayaran berhasil disinkronkan (LUNAS).');
+                return redirect()->back()->with('success', 'Pembayaran lunas terverifikasi via Xendit!');
             }
 
             if ($request->ajax() || $request->wantsJson()) {

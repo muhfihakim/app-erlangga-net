@@ -423,9 +423,36 @@ class MikroTikService
                     }
                 }
             }
-        } catch (Exception $e) {
-            // Silently fail cleanup if it errors
-            \Illuminate\Support\Facades\Log::error("cleanupOldTunnels Error: " . $e->getMessage());
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("cleanupOldTunnels warning: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Kick / Disconnect an active PPPoE session by username
+     */
+    public function kickPppoeUser(string $username): bool
+    {
+        try {
+            $client = $this->getClient();
+            $sessionsRaw = $client->send([
+                '/ppp/active/print',
+                '?name=' . $username,
+            ]);
+            $sessions = $this->parseRawResponse($sessionsRaw);
+
+            foreach ($sessions as $sess) {
+                if (isset($sess['.id'])) {
+                    $client->send([
+                        '/ppp/active/remove',
+                        '=.id=' . $sess['.id'],
+                    ]);
+                }
+            }
+            return true;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("MikroTik kickPppoeUser ({$username}) warning: " . $e->getMessage());
+            return false;
         }
     }
 }

@@ -24,31 +24,16 @@ class XenditWebhookController extends Controller
         }
 
         if ($data['status'] === 'PAID' || $data['status'] === 'SETTLED') {
-            if ($invoice->status !== 'paid') {
-                $payMethod = ($data['payment_method'] ?? 'XENDIT');
-                if (!empty($data['payment_channel'])) {
-                    $payMethod .= ' - ' . $data['payment_channel'];
-                }
-
-                $invoice->update([
-                    'status' => 'paid',
-                    'payment_method' => $payMethod,
-                ]);
-
-                \App\Models\Transaction::create([
-                    'invoice_id' => $invoice->id,
-                    'payment_method' => $payMethod,
-                    'amount_paid' => $data['paid_amount'],
-                    'payment_date' => now(),
-                    'status' => 'success',
-                    'xendit_payment_id' => $data['payment_id'] ?? ($data['id'] ?? null),
-                ]);
-
-                // Update PPPoE status
-                if ($invoice->pppoe) {
-                    $invoice->pppoe->update(['status_invoice' => 'terbayar']);
-                }
+            $payMethod = ($data['payment_method'] ?? 'XENDIT');
+            if (!empty($data['payment_channel'])) {
+                $payMethod .= ' - ' . $data['payment_channel'];
             }
+
+            $invoice->markAsPaid(
+                $payMethod,
+                $data['paid_amount'] ?? $invoice->total,
+                $data['payment_id'] ?? ($data['id'] ?? null)
+            );
         }
 
         return response()->json(['message' => 'Success']);
