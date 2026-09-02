@@ -55,9 +55,12 @@ class PaketController extends Controller
                 'value' => 'Accept',
             ]);
 
-            // Auto-create PPP Profile in Mikrotik via API
-            // Local address kita set default ke 192.168.100.1, bisa disesuaikan nanti
-            $this->mikrotikService->createOrUpdatePppProfile($paket->nama_paket, '192.168.100.1');
+            // Auto-create PPP Profile in Mikrotik via API (Graceful fallback)
+            try {
+                $this->mikrotikService->createOrUpdatePppProfile($paket->nama_paket, '192.168.100.1');
+            } catch (\Throwable $e) {
+                \Log::warning('MikroTik PPP Profile creation failed (FreeRADIUS still synced): ' . $e->getMessage());
+            }
         }
 
         return redirect()->route('pakets.index')->with('success', 'Paket berhasil ditambahkan & tersinkronisasi ke Radius.');
@@ -83,7 +86,9 @@ class PaketController extends Controller
             \App\Models\Radusergroup::where('groupname', $oldName)->update(['groupname' => $paket->nama_paket]);
             
             // Remove old profile from Mikrotik
-            $this->mikrotikService->removePppProfile($oldName);
+            try {
+                $this->mikrotikService->removePppProfile($oldName);
+            } catch (\Throwable $e) {}
         }
 
         \App\Models\Radgroupreply::where('groupname', $paket->nama_paket)
@@ -115,7 +120,11 @@ class PaketController extends Controller
         }
 
         // Auto-update PPP Profile in Mikrotik via API
-        $this->mikrotikService->createOrUpdatePppProfile($paket->nama_paket, '192.168.100.1');
+        try {
+            $this->mikrotikService->createOrUpdatePppProfile($paket->nama_paket, '192.168.100.1');
+        } catch (\Throwable $e) {
+            \Log::warning('MikroTik PPP Profile update failed (FreeRADIUS still synced): ' . $e->getMessage());
+        }
 
         return redirect()->route('pakets.index')->with('success', 'Paket berhasil diperbarui & tersinkronisasi ke Radius.');
     }
@@ -126,12 +135,13 @@ class PaketController extends Controller
         
         \App\Models\Radgroupreply::where('groupname', $oldName)->delete();
         \App\Models\Radgroupcheck::where('groupname', $oldName)->delete();
-        // optionally radusergroup? No, let the users stay but they lose the rate limit
 
         $paket->delete();
         
         // Remove PPP Profile from Mikrotik via API
-        $this->mikrotikService->removePppProfile($oldName);
+        try {
+            $this->mikrotikService->removePppProfile($oldName);
+        } catch (\Throwable $e) {}
 
         return redirect()->route('pakets.index')->with('success', 'Paket berhasil dihapus dari Sistem dan Radius.');
     }

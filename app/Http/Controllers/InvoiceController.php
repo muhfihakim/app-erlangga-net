@@ -50,10 +50,46 @@ class InvoiceController extends Controller
                     $harga = $pppoe->paket->harga ?? 0;
                     return '<div><span class="badge" style="background:#eef2ff; color:#4338ca; font-weight:700; font-size:11px; padding:3px 8px; border-radius:6px; border:1px solid #c7d2fe;">' . htmlspecialchars($namaPaket) . '</span><div style="font-size: 11px; color: #64748b; margin-top:2px; font-weight:600;">Rp ' . number_format($harga, 0, ',', '.') . '</div></div>';
                 })
-                ->addColumn('tanggal_aktif', function ($pppoe) {
-                    if (!$pppoe->tanggal_aktif) return '<div class="text-center text-slate-400 font-semibold">-</div>';
-                    $dt = Carbon::parse($pppoe->tanggal_aktif);
-                    return '<div style="text-align: center; color: #334155; font-size: 12px; font-weight: 700;">' . $dt->format('d/m/Y') . '</div>';
+                ->addColumn('tagihan_selanjutnya', function ($pppoe) {
+                    $unpaidInv = $pppoe->invoices->where('status', 'unpaid')->sortBy('due_date')->first();
+
+                    if ($unpaidInv && $unpaidInv->due_date) {
+                        $due = Carbon::parse($unpaidInv->due_date);
+                        $isOverdue = $due->isPast() && !$due->isToday();
+
+                        if ($isOverdue) {
+                            $diff = (int) $due->copy()->startOfDay()->diffInDays(now()->startOfDay());
+                            return '<div style="text-align: center;">
+                                <div style="color: #e11d48; font-weight: 800; font-size: 12.5px;">' . $due->format('d/m/Y') . '</div>
+                                <span class="badge" style="background:#fff1f2; color:#e11d48; font-size:10px; padding:1px 6px; border-radius:4px; font-weight:700; border:1px solid #fecdd3;">Lewat ' . $diff . ' hari</span>
+                            </div>';
+                        }
+
+                        return '<div style="text-align: center;">
+                            <div style="color: #d97706; font-weight: 800; font-size: 12.5px;">' . $due->format('d/m/Y') . '</div>
+                            <span class="badge" style="background:#fffbeb; color:#b45309; font-size:10px; padding:1px 6px; border-radius:4px; font-weight:700; border:1px solid #fef3c7;">Jatuh Tempo</span>
+                        </div>';
+                    }
+
+                    // Jika semua lunas, tampilkan siklus tagihan berikutnya
+                    if ($pppoe->tanggal_aktif) {
+                        $dt = Carbon::parse($pppoe->tanggal_aktif);
+                        if ($dt->isPast()) {
+                            $nextDue = now()->copy()->setDay(min($dt->day, now()->daysInMonth));
+                            if ($nextDue->isPast()) {
+                                $nextDue = now()->copy()->addMonth()->setDay(min($dt->day, now()->addMonth()->daysInMonth));
+                            }
+                        } else {
+                            $nextDue = $dt;
+                        }
+
+                        return '<div style="text-align: center;">
+                            <div style="color: #059669; font-weight: 800; font-size: 12.5px;">' . $nextDue->format('d/m/Y') . '</div>
+                            <span class="badge" style="background:#ecfdf5; color:#059669; font-size:10px; padding:1px 6px; border-radius:4px; font-weight:700; border:1px solid #a7f3d0;">Siklus Berikutnya</span>
+                        </div>';
+                    }
+
+                    return '<div class="text-center text-slate-400 font-semibold">-</div>';
                 })
                 ->addColumn('status_tagihan', function ($pppoe) {
                     $unpaidCount = $pppoe->invoices->where('status', 'unpaid')->count();
@@ -85,7 +121,7 @@ class InvoiceController extends Controller
                         });
                     }
                 })
-                ->rawColumns(['pelanggan', 'paket', 'tanggal_aktif', 'status_tagihan', 'opsi'])
+                ->rawColumns(['pelanggan', 'paket', 'tagihan_selanjutnya', 'status_tagihan', 'opsi'])
                 ->make(true);
         }
 
@@ -93,6 +129,8 @@ class InvoiceController extends Controller
         $totalPppoeCount = Pppoe::count();
         $totalUnpaidCount = Invoice::where('status', 'unpaid')->count();
         $totalUnpaidAmount = Invoice::where('status', 'unpaid')->sum('total');
+        $totalOverdueCount = Invoice::where('status', 'unpaid')->where('due_date', '<', now()->toDateString())->count();
+        $totalOverdueAmount = Invoice::where('status', 'unpaid')->where('due_date', '<', now()->toDateString())->sum('total');
         $totalPaidCount = Invoice::where('status', 'paid')->count();
         $totalPaidAmount = Invoice::where('status', 'paid')->sum('total');
 
@@ -102,6 +140,8 @@ class InvoiceController extends Controller
             'totalPppoeCount',
             'totalUnpaidCount',
             'totalUnpaidAmount',
+            'totalOverdueCount',
+            'totalOverdueAmount',
             'totalPaidCount',
             'totalPaidAmount',
             'pakets',

@@ -36,11 +36,15 @@ class AppServiceProvider extends ServiceProvider
                 if ($oltPass = \App\Models\Setting::get('olt_password')) config(['olt.password' => $oltPass]);
 
                 // FreeRADIUS Database
-                if ($radHost = \App\Models\Setting::get('db_radius_host')) config(['database.connections.radius.host' => $radHost]);
-                if ($radPort = \App\Models\Setting::get('db_radius_port')) config(['database.connections.radius.port' => $radPort]);
-                if ($radDb = \App\Models\Setting::get('db_radius_database')) config(['database.connections.radius.database' => $radDb]);
-                if ($radUser = \App\Models\Setting::get('db_radius_username')) config(['database.connections.radius.username' => $radUser]);
-                if ($radPass = \App\Models\Setting::get('db_radius_password')) config(['database.connections.radius.password' => $radPass]);
+                $hasRadiusConfig = false;
+                if ($radHost = \App\Models\Setting::get('db_radius_host')) { config(['database.connections.radius.host' => $radHost]); $hasRadiusConfig = true; }
+                if ($radPort = \App\Models\Setting::get('db_radius_port')) { config(['database.connections.radius.port' => $radPort]); $hasRadiusConfig = true; }
+                if ($radDb = \App\Models\Setting::get('db_radius_database')) { config(['database.connections.radius.database' => $radDb]); $hasRadiusConfig = true; }
+                if ($radUser = \App\Models\Setting::get('db_radius_username')) { config(['database.connections.radius.username' => $radUser]); $hasRadiusConfig = true; }
+                if ($radPass = \App\Models\Setting::get('db_radius_password')) { config(['database.connections.radius.password' => $radPass]); $hasRadiusConfig = true; }
+                if ($hasRadiusConfig) {
+                    \Illuminate\Support\Facades\DB::purge('radius');
+                }
 
                 // Xendit Payment Gateway
                 if ($xenKey = \App\Models\Setting::get('xendit_secret_key')) config(['services.xendit.secret_key' => $xenKey]);

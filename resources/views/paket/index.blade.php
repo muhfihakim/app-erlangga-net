@@ -157,7 +157,8 @@
                         <div class="form-group">
                             <label class="form-label text-slate-800 font-bold">Limit Bandwidth (Radius)</label>
                             <input type="text" class="form-input bg-white text-slate-900 border-slate-300" id="rate_limit"
-                                name="rate_limit" placeholder="Contoh: 10M/10M">
+                                name="rate_limit" placeholder="Contoh: 10M/20M">
+                            <span class="text-[11px] text-slate-500 mt-1 block">Format: [Upload]/[Download], contoh: <code>5M/10M</code> atau <code>10M/20M</code></span>
                         </div>
                     </div>
                     <div class="form-group !mb-0">

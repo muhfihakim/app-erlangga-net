@@ -59,9 +59,21 @@ class Invoice extends Model
         $pppoe = $this->pppoe;
 
         if ($pppoe) {
-            // 1. Extend active date (+1 month)
+            // 1. Extend active date based on periode_billing
             $currentAktif = $pppoe->tanggal_aktif ? \Carbon\Carbon::parse($pppoe->tanggal_aktif) : now();
-            $newAktif = $currentAktif->isPast() ? now()->addMonth() : $currentAktif->addMonth();
+            $periode = strtolower($pppoe->periode_billing ?? 'fixed');
+
+            if ($periode === 'renewal') {
+                // Mode RENEWAL: Masa aktif dihitung +1 bulan maju dari tanggal saat bayar (hari ini)
+                $newAktif = $currentAktif->isPast() ? now()->addMonth() : $currentAktif->copy()->addMonth();
+            } else {
+                // Mode FIXED: Tanggal siklus bulanan tetap (misal tgl 9, selalu jatuh di tgl 9 bulan berikutnya)
+                $newAktif = $currentAktif->copy()->addMonth();
+                if ($newAktif->isPast()) {
+                    $day = $currentAktif->day;
+                    $newAktif = now()->copy()->addMonth()->setDay(min($day, now()->addMonth()->daysInMonth));
+                }
+            }
 
             $pppoe->update([
                 'status_invoice' => 'terbayar',

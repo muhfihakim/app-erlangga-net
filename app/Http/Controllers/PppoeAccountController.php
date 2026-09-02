@@ -290,53 +290,57 @@ class PppoeAccountController extends Controller
         }
 
         // Update Radius
-        // 1. Hapus record radius lama berdasarkan username lama
-        \App\Models\Radcheck::where('username', $oldUsername)->delete();
-        \App\Models\Radreply::where('username', $oldUsername)->delete();
+        try {
+            // 1. Hapus record radius lama berdasarkan username lama
+            \App\Models\Radcheck::where('username', $oldUsername)->delete();
+            \App\Models\Radreply::where('username', $oldUsername)->delete();
 
-        // 2. Insert record baru
-        \App\Models\Radcheck::create([
-            'username' => $pppoe->username,
-            'attribute' => 'Cleartext-Password',
-            'op' => ':=',
-            'value' => $pppoe->password,
-        ]);
-
-        if (!empty($pppoe->ip_address)) {
-            \App\Models\Radreply::create([
+            // 2. Insert record baru
+            \App\Models\Radcheck::create([
                 'username' => $pppoe->username,
-                'attribute' => 'Framed-IP-Address',
-                'op' => '=',
-                'value' => $pppoe->ip_address,
+                'attribute' => 'Cleartext-Password',
+                'op' => ':=',
+                'value' => $pppoe->password,
             ]);
+
+            if (!empty($pppoe->ip_address)) {
+                \App\Models\Radreply::create([
+                    'username' => $pppoe->username,
+                    'attribute' => 'Framed-IP-Address',
+                    'op' => '=',
+                    'value' => $pppoe->ip_address,
+                ]);
+            }
+
+            // Hapus & Update daloRADIUS tables
+            \App\Models\Radusergroup::where('username', $oldUsername)->delete();
+            \App\Models\Userinfo::where('username', $oldUsername)->delete();
+
+            $pppoe->load(['preOrder', 'paket']);
+
+            \App\Models\Radusergroup::create([
+                'username' => $pppoe->username,
+                'groupname' => $pppoe->paket->nama_paket ?? 'default',
+                'priority' => 1,
+            ]);
+
+            \App\Models\Userinfo::create([
+                'username' => $pppoe->username,
+                'firstname' => $pppoe->preOrder->nama_lengkap ?? 'Pelanggan',
+                'lastname' => '',
+                'email' => $pppoe->preOrder->alamat_email ?? '',
+                'address' => $pppoe->preOrder->alamat_lengkap ?? '',
+                'mobilephone' => $pppoe->preOrder->no_whatsapp ?? '',
+                'creationdate' => date('Y-m-d H:i:s'),
+                'updatedate' => date('Y-m-d H:i:s'),
+                'creationby' => 'administrator',
+                'updateby' => 'administrator',
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Radius sync warning on PPPoE update ({$pppoe->username}): " . $e->getMessage());
         }
 
-        // Hapus & Update daloRADIUS tables
-        \App\Models\Radusergroup::where('username', $oldUsername)->delete();
-        \App\Models\Userinfo::where('username', $oldUsername)->delete();
-
-        $pppoe->load(['preOrder', 'paket']);
-
-        \App\Models\Radusergroup::create([
-            'username' => $pppoe->username,
-            'groupname' => $pppoe->paket->nama_paket ?? 'default',
-            'priority' => 1,
-        ]);
-
-        \App\Models\Userinfo::create([
-            'username' => $pppoe->username,
-            'firstname' => $pppoe->preOrder->nama_lengkap ?? 'Pelanggan',
-            'lastname' => '',
-            'email' => $pppoe->preOrder->alamat_email ?? '',
-            'address' => $pppoe->preOrder->alamat ?? '',
-            'mobilephone' => $pppoe->preOrder->no_whatsapp ?? '',
-            'creationdate' => date('Y-m-d H:i:s'),
-            'updatedate' => date('Y-m-d H:i:s'),
-            'creationby' => 'administrator',
-            'updateby' => 'administrator',
-        ]);
-
-        return redirect()->back()->with('success', 'Data PPPoE berhasil diperbarui & Tersinkronisasi dengan Radius.');
+        return redirect()->back()->with('success', 'Data PPPoE berhasil diperbarui & Tersinkronisasi.');
     }
 
     public function destroy(\App\Models\Pppoe $pppoe)
@@ -344,10 +348,14 @@ class PppoeAccountController extends Controller
         $username = $pppoe->username;
         
         // Hapus dari Radius
-        \App\Models\Radcheck::where('username', $username)->delete();
-        \App\Models\Radreply::where('username', $username)->delete();
-        \App\Models\Radusergroup::where('username', $username)->delete();
-        \App\Models\Userinfo::where('username', $username)->delete();
+        try {
+            \App\Models\Radcheck::where('username', $username)->delete();
+            \App\Models\Radreply::where('username', $username)->delete();
+            \App\Models\Radusergroup::where('username', $username)->delete();
+            \App\Models\Userinfo::where('username', $username)->delete();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Radius delete warning on PPPoE destroy ({$username}): " . $e->getMessage());
+        }
 
         $pppoe->delete();
         return redirect()->back()->with('success', 'Akun PPPoE berhasil dihapus dari Sistem dan Radius.');

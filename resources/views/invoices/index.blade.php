@@ -79,7 +79,7 @@
     @endif
 
     <!-- Stats Cards Grid -->
-    <div class="stats-grid mb-6">
+    <div class="stats-grid mb-6" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
         <div class="stat-card">
             <div class="stat-icon" style="background:#e0e7ff;color:#4338ca;">
                 <i class="fa-solid fa-users"></i>
@@ -91,11 +91,20 @@
         </div>
         <div class="stat-card">
             <div class="stat-icon" style="background:#fee2e2;color:#be123c;">
-                <i class="fa-solid fa-triangle-exclamation"></i>
+                <i class="fa-solid fa-file-invoice-dollar"></i>
             </div>
             <div>
                 <div class="stat-val">{{ number_format($totalUnpaidCount, 0, ',', '.') }} <span style="font-size:12px;color:#be123c;font-weight:600;">(Rp {{ number_format($totalUnpaidAmount, 0, ',', '.') }})</span></div>
                 <div class="stat-lbl">Tagihan Belum Lunas</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fff7ed;color:#c2410c;">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ number_format($totalOverdueCount, 0, ',', '.') }} <span style="font-size:12px;color:#c2410c;font-weight:600;">(Rp {{ number_format($totalOverdueAmount, 0, ',', '.') }})</span></div>
+                <div class="stat-lbl">Lewat Jatuh Tempo (Overdue)</div>
             </div>
         </div>
         <div class="stat-card">
@@ -156,7 +165,7 @@
                         <th style="text-align: center; width: 50px;">#</th>
                         <th style="text-align: left;">Pelanggan</th>
                         <th style="text-align: left; width: 220px;">Paket Layanan</th>
-                        <th style="text-align: center; width: 120px;">Tgl Aktif</th>
+                        <th style="text-align: center; width: 150px;">Tagihan Selanjutnya</th>
                         <th style="text-align: center; width: 170px;">Status Tagihan</th>
                         <th style="text-align: center; width: 150px;">Opsi</th>
                     </tr>
@@ -224,7 +233,7 @@
                         }},
                         { data: 'pelanggan', name: 'username' },
                         { data: 'paket', name: 'paket_id' },
-                        { data: 'tanggal_aktif', name: 'tanggal_aktif' },
+                        { data: 'tagihan_selanjutnya', name: 'tagihan_selanjutnya', searchable: false, orderable: false },
                         { data: 'status_tagihan', name: 'status_tagihan', searchable: false, orderable: false },
                         { data: 'opsi', name: 'opsi', searchable: false, orderable: false }
                     ],

@@ -307,7 +307,10 @@ class RadbooxImportService
         $customersByPhone = [];
         $customersByPreOrderId = [];
 
-        foreach (Customer::all() as $c) {
+        foreach (Customer::withTrashed()->get() as $c) {
+            if ($c->trashed()) {
+                $c->restore();
+            }
             $customersById[$c->id] = $c;
             if ($c->pppoe_username) {
                 $customersByUsername[strtolower(trim($c->pppoe_username))] = $c;
@@ -441,6 +444,18 @@ class RadbooxImportService
                     $results['preorders_created']++;
                 }
 
+                // Re-check customer by pre_order_id to guarantee no duplicate constraint
+                if (!$existingCustomer && isset($customersByPreOrderId[$preOrderId])) {
+                    $existingCustomer = $customersByPreOrderId[$preOrderId];
+                }
+                if (!$existingCustomer) {
+                    $existingCustomer = Customer::withTrashed()->where('pre_order_id', $preOrderId)->first();
+                    if ($existingCustomer) {
+                        if ($existingCustomer->trashed()) $existingCustomer->restore();
+                        $customersByPreOrderId[$preOrderId] = $existingCustomer;
+                    }
+                }
+
                 // If Customer exists, LINK to it; otherwise create a new Customer
                 if ($existingCustomer) {
                     $existingCustomer->update([
@@ -449,6 +464,7 @@ class RadbooxImportService
                         'paket_id' => $paketId ?: $existingCustomer->paket_id,
                     ]);
                     $customersByUsername[$userKey] = $existingCustomer;
+                    $customersByPreOrderId[$existingCustomer->pre_order_id] = $existingCustomer;
                     $results['customers_linked']++;
                 } else {
                     $cust = Customer::create([
@@ -467,6 +483,7 @@ class RadbooxImportService
                     ]);
                     $customersById[$cust->id] = $cust;
                     $customersByUsername[$userKey] = $cust;
+                    $customersByPreOrderId[$preOrderId] = $cust;
                     if ($cleanName) $customersByName[$cleanName] = $cust;
                     if ($cleanPhone) $customersByPhone[$cleanPhone] = $cust;
                     $results['customers_created']++;
@@ -636,7 +653,10 @@ class RadbooxImportService
         $customersByPhone = [];
         $customersByPreOrderId = [];
 
-        foreach (Customer::all() as $c) {
+        foreach (Customer::withTrashed()->get() as $c) {
+            if ($c->trashed()) {
+                $c->restore();
+            }
             $customersById[$c->id] = $c;
             if ($c->pppoe_username) {
                 $customersByUsername[strtolower(trim($c->pppoe_username))] = $c;
@@ -803,6 +823,18 @@ class RadbooxImportService
                     $results['preorders_created']++;
                 }
 
+                // Re-check customer by pre_order_id to guarantee no duplicate constraint
+                if (!$existingCustomer && isset($customersByPreOrderId[$preOrderId])) {
+                    $existingCustomer = $customersByPreOrderId[$preOrderId];
+                }
+                if (!$existingCustomer) {
+                    $existingCustomer = Customer::withTrashed()->where('pre_order_id', $preOrderId)->first();
+                    if ($existingCustomer) {
+                        if ($existingCustomer->trashed()) $existingCustomer->restore();
+                        $customersByPreOrderId[$preOrderId] = $existingCustomer;
+                    }
+                }
+
                 // Link to Customer or create new with safe unique constraint handling
                 if ($existingCustomer) {
                     $updateCust = [
@@ -821,6 +853,7 @@ class RadbooxImportService
 
                     $existingCustomer->update($updateCust);
                     $customersByUsername[$userKey] = $existingCustomer;
+                    $customersByPreOrderId[$existingCustomer->pre_order_id] = $existingCustomer;
                     $results['customers_linked']++;
                 } else {
                     // Safe ID Pelanggan for new customer
@@ -843,6 +876,7 @@ class RadbooxImportService
                     ]);
                     $customersById[$cust->id] = $cust;
                     $customersByUsername[$userKey] = $cust;
+                    $customersByPreOrderId[$preOrderId] = $cust;
                     if ($assignedIdPelanggan) $customersByIdPelanggan[$assignedIdPelanggan] = $cust;
                     if ($cleanName) $customersByName[$cleanName] = $cust;
                     if ($cleanPhone) $customersByPhone[$cleanPhone] = $cust;
@@ -973,11 +1007,15 @@ class RadbooxImportService
                 $total = (float) ($row[5] ?? 0);
                 $createdAt = !empty($row[8]) ? Carbon::parse($row[8]) : now();
                 $dueDate = !empty($row[9]) ? Carbon::parse($row[9]) : $createdAt->copy()->addDays(7);
-                $isPaid = (isset($row[12]) && $row[12] == 2);
+                $paidDateRaw = trim($row[14] ?? '');
+                $statusFlag = trim($row[15] ?? '');
+
+                // Radboox format: 1 = Unpaid, 2 = Paid. Also if payment date is empty, it is unpaid.
+                $isPaid = ($statusFlag === '2' && !empty($paidDateRaw));
                 $status = $isPaid ? 'paid' : 'unpaid';
                 $payMethodCode = $row[13] ?? '1';
                 $payMethod = ($payMethodCode == '1') ? 'cash' : 'cashless';
-                $paidDate = !empty($row[14]) ? Carbon::parse($row[14]) : $createdAt;
+                $paidDate = $isPaid ? Carbon::parse($paidDateRaw) : null;
 
                 $pppoeId = $radbooxCustToPppoeId[$radbooxCustId] ?? null;
 
@@ -1113,6 +1151,13 @@ class RadbooxImportService
             if ($progressCallback) {
                 $progressCallback('transactions', $totalTx, $totalTx);
             }
+        }
+
+        // Sync PPPoE status_invoice based on active invoices
+        $unpaidPppoeIds = Invoice::where('status', 'unpaid')->pluck('pppoe_id')->unique()->toArray();
+        if (!empty($unpaidPppoeIds)) {
+            Pppoe::whereIn('id', $unpaidPppoeIds)->update(['status_invoice' => 'belum_bayar']);
+            Pppoe::whereNotIn('id', $unpaidPppoeIds)->update(['status_invoice' => 'terbayar']);
         }
 
         $results['time_elapsed'] = round(microtime(true) - $startTime, 2);
