@@ -17,10 +17,10 @@ class OltTelnetService
 
     public function __construct()
     {
-        $this->host = Config::get('olt.host');
-        $this->port = Config::get('olt.port');
-        $this->username = Config::get('olt.username');
-        $this->password = Config::get('olt.password');
+        $this->host = \App\Models\Setting::get('olt_host', Config::get('olt.host'));
+        $this->port = (int) \App\Models\Setting::get('olt_port', Config::get('olt.port', 23));
+        $this->username = \App\Models\Setting::get('olt_username', Config::get('olt.username'));
+        $this->password = \App\Models\Setting::get('olt_password', Config::get('olt.password'));
     }
 
     public function connect()

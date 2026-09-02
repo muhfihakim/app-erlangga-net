@@ -18,10 +18,10 @@ class MikroTikService
     {
         if (!$this->client || !$this->client->isConnected()) {
             $this->client = new \ZillEAli\MikrotikLaravel\Connections\RouterosClient(
-                config('mikrotik.host', env('MIKROTIK_HOST')),
-                config('mikrotik.port', env('MIKROTIK_PORT', 8728)),
-                config('mikrotik.username', env('MIKROTIK_USER')),
-                config('mikrotik.password', env('MIKROTIK_PASS'))
+                \App\Models\Setting::get('mikrotik_host', config('mikrotik.host')),
+                (int) \App\Models\Setting::get('mikrotik_port', config('mikrotik.port', 8728)),
+                \App\Models\Setting::get('mikrotik_user', config('mikrotik.username')),
+                \App\Models\Setting::get('mikrotik_pass', config('mikrotik.password', ''))
             );
             $this->client->connect();
         }

@@ -8,7 +8,7 @@ class XenditWebhookController extends Controller
 {
     public function handleInvoice(Request $request)
     {
-        $xenditXCallbackToken = config('services.xendit.webhook_token');
+        $xenditXCallbackToken = \App\Models\Setting::get('xendit_webhook_token', config('services.xendit.webhook_token'));
         $reqHeaders = $request->header('x-callback-token');
 
         if ($reqHeaders !== $xenditXCallbackToken) {

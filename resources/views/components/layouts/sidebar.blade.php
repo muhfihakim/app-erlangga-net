@@ -167,6 +167,13 @@
         @endif
 
         <div class="sidebar-section-label" style="margin-top:.5rem;">Pengaturan</div>
+        @if (auth()->check() && auth()->user()->isAdmin())
+            <a class="sidebar-link {{ Request::is('settings*') ? 'active' : '' }}"
+                href="{{ route('settings.index') }}">
+                <i class="fa-solid fa-sliders"></i>
+                <span>Pengaturan Sistem</span>
+            </a>
+        @endif
         <form action="{{ route('logout') }}" method="POST" id="logout-form" class="hidden">@csrf</form>
         <a class="sidebar-link" href="#" style="color:#f87171;"
             onclick="localStorage.removeItem('app_token'); document.getElementById('logout-form').submit(); return false;">

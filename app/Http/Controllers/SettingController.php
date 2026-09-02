@@ -1,0 +1,239 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Setting;
+use Illuminate\Http\Request;
+
+class SettingController extends Controller
+{
+    public function index()
+    {
+        $settings = [
+            'mikrotik' => [
+                'host' => Setting::get('mikrotik_host', env('MIKROTIK_HOST', '192.168.10.1')),
+                'port' => Setting::get('mikrotik_port', env('MIKROTIK_PORT', 8728)),
+                'user' => Setting::get('mikrotik_user', env('MIKROTIK_USER', 'admin')),
+                'pass' => Setting::get('mikrotik_pass', env('MIKROTIK_PASS', '')),
+                'interface' => Setting::get('mikrotik_interface', env('MIKROTIK_INTERFACE', 'ether1')),
+                'timeout' => Setting::get('mikrotik_timeout', env('MIKROTIK_TIMEOUT', 10)),
+            ],
+            'olt' => [
+                'host' => Setting::get('olt_host', env('OLT_HOST', '10.10.10.2')),
+                'port' => Setting::get('olt_port', env('OLT_PORT', 23)),
+                'username' => Setting::get('olt_username', env('OLT_USERNAME', 'admin')),
+                'password' => Setting::get('olt_password', env('OLT_PASSWORD', '')),
+            ],
+            'radius' => [
+                'host' => Setting::get('db_radius_host', env('DB_RADIUS_HOST', '127.0.0.1')),
+                'port' => Setting::get('db_radius_port', env('DB_RADIUS_PORT', '3306')),
+                'database' => Setting::get('db_radius_database', env('DB_RADIUS_DATABASE', 'radius')),
+                'username' => Setting::get('db_radius_username', env('DB_RADIUS_USERNAME', 'root')),
+                'password' => Setting::get('db_radius_password', env('DB_RADIUS_PASSWORD', '')),
+            ],
+            'xendit' => [
+                'secret_key' => Setting::get('xendit_secret_key', env('XENDIT_SECRET_KEY', '')),
+                'webhook_token' => Setting::get('xendit_webhook_token', env('XENDIT_WEBHOOK_TOKEN', '')),
+                'webhook_url' => url('/api/webhooks/xendit'),
+            ],
+        ];
+
+        return view('settings.index', compact('settings'));
+    }
+
+    public function update(Request $request)
+    {
+        $tab = $request->input('tab', 'mikrotik');
+
+        if ($tab === 'mikrotik') {
+            $request->validate([
+                'mikrotik_host' => 'required|string',
+                'mikrotik_port' => 'required|numeric',
+                'mikrotik_user' => 'required|string',
+                'mikrotik_pass' => 'nullable|string',
+                'mikrotik_interface' => 'nullable|string',
+                'mikrotik_timeout' => 'nullable|numeric',
+            ]);
+
+            Setting::set('mikrotik_host', $request->mikrotik_host, 'mikrotik');
+            Setting::set('mikrotik_port', $request->mikrotik_port, 'mikrotik');
+            Setting::set('mikrotik_user', $request->mikrotik_user, 'mikrotik');
+            Setting::set('mikrotik_pass', $request->mikrotik_pass ?? '', 'mikrotik');
+            Setting::set('mikrotik_interface', $request->mikrotik_interface ?? 'ether1', 'mikrotik');
+            Setting::set('mikrotik_timeout', $request->mikrotik_timeout ?? 10, 'mikrotik');
+
+            // Apply immediately to runtime config
+            config([
+                'mikrotik.host' => $request->mikrotik_host,
+                'mikrotik.port' => (int) $request->mikrotik_port,
+                'mikrotik.username' => $request->mikrotik_user,
+                'mikrotik.password' => $request->mikrotik_pass ?? '',
+                'mikrotik.interface' => $request->mikrotik_interface ?? 'ether1',
+                'mikrotik.timeout' => (int) ($request->mikrotik_timeout ?? 10),
+            ]);
+        } elseif ($tab === 'olt') {
+            $request->validate([
+                'olt_host' => 'required|string',
+                'olt_port' => 'required|numeric',
+                'olt_username' => 'required|string',
+                'olt_password' => 'nullable|string',
+            ]);
+
+            Setting::set('olt_host', $request->olt_host, 'olt');
+            Setting::set('olt_port', $request->olt_port, 'olt');
+            Setting::set('olt_username', $request->olt_username, 'olt');
+            Setting::set('olt_password', $request->olt_password ?? '', 'olt');
+
+            config([
+                'olt.host' => $request->olt_host,
+                'olt.port' => (int) $request->olt_port,
+                'olt.username' => $request->olt_username,
+                'olt.password' => $request->olt_password ?? '',
+            ]);
+        } elseif ($tab === 'radius') {
+            $request->validate([
+                'db_radius_host' => 'required|string',
+                'db_radius_port' => 'required|numeric',
+                'db_radius_database' => 'required|string',
+                'db_radius_username' => 'required|string',
+                'db_radius_password' => 'nullable|string',
+            ]);
+
+            Setting::set('db_radius_host', $request->db_radius_host, 'radius');
+            Setting::set('db_radius_port', $request->db_radius_port, 'radius');
+            Setting::set('db_radius_database', $request->db_radius_database, 'radius');
+            Setting::set('db_radius_username', $request->db_radius_username, 'radius');
+            Setting::set('db_radius_password', $request->db_radius_password ?? '', 'radius');
+
+            config([
+                'database.connections.radius.host' => $request->db_radius_host,
+                'database.connections.radius.port' => $request->db_radius_port,
+                'database.connections.radius.database' => $request->db_radius_database,
+                'database.connections.radius.username' => $request->db_radius_username,
+                'database.connections.radius.password' => $request->db_radius_password ?? '',
+            ]);
+        } elseif ($tab === 'xendit') {
+            $request->validate([
+                'xendit_secret_key' => 'nullable|string',
+                'xendit_webhook_token' => 'nullable|string',
+            ]);
+
+            Setting::set('xendit_secret_key', $request->xendit_secret_key ?? '', 'xendit');
+            Setting::set('xendit_webhook_token', $request->xendit_webhook_token ?? '', 'xendit');
+
+            config([
+                'services.xendit.secret_key' => $request->xendit_secret_key ?? '',
+                'services.xendit.webhook_token' => $request->xendit_webhook_token ?? '',
+            ]);
+        }
+
+        return redirect()->route('settings.index', ['tab' => $tab])->with('success', 'Pengaturan ' . strtoupper($tab) . ' berhasil disimpan ke Database!');
+    }
+
+    public function testConnection(Request $request)
+    {
+        $type = $request->input('type');
+        $startTime = microtime(true);
+
+        try {
+            if ($type === 'mikrotik') {
+                $host = $request->input('host', Setting::get('mikrotik_host', env('MIKROTIK_HOST', '192.168.10.1')));
+                $port = (int) $request->input('port', Setting::get('mikrotik_port', env('MIKROTIK_PORT', 8728)));
+                $user = $request->input('user', Setting::get('mikrotik_user', env('MIKROTIK_USER', 'admin')));
+                $pass = $request->input('pass', Setting::get('mikrotik_pass', env('MIKROTIK_PASS', '')));
+
+                $client = new \ZillEAli\MikrotikLaravel\Connections\RouterosClient($host, $port, $user, $pass);
+                $client->connect();
+                
+                $identityRaw = $client->send(['/system/identity/print']);
+                $resourceRaw = $client->send(['/system/resource/print']);
+
+                $identity = $identityRaw[0]['name'] ?? 'MikroTik';
+                $version = $resourceRaw[0]['version'] ?? 'RouterOS';
+                $board = $resourceRaw[0]['board-name'] ?? '';
+
+                $elapsed = round((microtime(true) - $startTime) * 1000, 2);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => "Terhubung ke MikroTik ($identity) - $board v$version [{$elapsed}ms]",
+                ]);
+            }
+
+            if ($type === 'olt') {
+                $host = $request->input('host', Setting::get('olt_host', env('OLT_HOST', '10.10.10.2')));
+                $port = (int) $request->input('port', Setting::get('olt_port', env('OLT_PORT', 23)));
+                $username = $request->input('username', Setting::get('olt_username', env('OLT_USERNAME', 'admin')));
+                $password = $request->input('password', Setting::get('olt_password', env('OLT_PASSWORD', '')));
+
+                $fp = @fsockopen($host, $port, $errno, $errstr, 10);
+                if (!$fp) {
+                    throw new \Exception("Gagal membuka port telnet {$host}:{$port} - $errstr ($errno)");
+                }
+
+                stream_set_timeout($fp, 5);
+                $banner = fread($fp, 2048);
+                fclose($fp);
+
+                $elapsed = round((microtime(true) - $startTime) * 1000, 2);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => "Port Telnet OLT {$host}:{$port} Aktif & Merespons [{$elapsed}ms]",
+                ]);
+            }
+
+            if ($type === 'radius') {
+                $host = $request->input('host', Setting::get('db_radius_host', env('DB_RADIUS_HOST', '127.0.0.1')));
+                $port = $request->input('port', Setting::get('db_radius_port', env('DB_RADIUS_PORT', 3306)));
+                $database = $request->input('database', Setting::get('db_radius_database', env('DB_RADIUS_DATABASE', 'radius')));
+                $username = $request->input('username', Setting::get('db_radius_username', env('DB_RADIUS_USERNAME', 'root')));
+                $password = $request->input('password', Setting::get('db_radius_password', env('DB_RADIUS_PASSWORD', '')));
+
+                // Test dynamic PDO connection
+                $dsn = "mysql:host={$host};port={$port};dbname={$database};charset=utf8mb4";
+                $pdo = new \PDO($dsn, $username, $password, [
+                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                    \PDO::ATTR_TIMEOUT => 5,
+                ]);
+
+                $stmt = $pdo->query("SELECT COUNT(*) FROM radcheck");
+                $count = $stmt->fetchColumn();
+
+                $elapsed = round((microtime(true) - $startTime) * 1000, 2);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => "Koneksi Database FreeRADIUS Sukses! Ditemukan {$count} akun di tabel radcheck [{$elapsed}ms]",
+                ]);
+            }
+
+            if ($type === 'xendit') {
+                $secretKey = $request->input('secret_key', Setting::get('xendit_secret_key', env('XENDIT_SECRET_KEY')));
+                if (!$secretKey) {
+                    throw new \Exception("Secret Key Xendit belum diisi.");
+                }
+
+                \Xendit\Configuration::setXenditKey($secretKey);
+                $apiInstance = new \Xendit\BalanceAndTransaction\BalanceApi();
+                $balance = $apiInstance->getBalance('CASH');
+
+                $amount = number_format($balance->getBalance() ?? 0, 0, ',', '.');
+                $elapsed = round((microtime(true) - $startTime) * 1000, 2);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => "API Key Xendit Valid! Saldo Kas: Rp {$amount} [{$elapsed}ms]",
+                ]);
+            }
+
+            throw new \Exception("Tipe pengujian tidak dikenal.");
+        } catch (\Throwable $e) {
+            $elapsed = round((microtime(true) - $startTime) * 1000, 2);
+            return response()->json([
+                'success' => false,
+                'message' => "Gagal terhubung ({$elapsed}ms): " . $e->getMessage(),
+            ], 422);
+        }
+    }
+}

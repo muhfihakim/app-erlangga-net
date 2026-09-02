@@ -110,6 +110,17 @@ class PppoeAccountController extends Controller
         ));
     }
 
+    public function syncRadius()
+    {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('radius:sync');
+            $output = \Illuminate\Support\Facades\Artisan::output();
+            return redirect()->route('pppoe_accounts.index')->with('success', 'Sinkronisasi dengan FreeRADIUS / daloRADIUS berhasil diselesaikan!');
+        } catch (\Throwable $e) {
+            return redirect()->route('pppoe_accounts.index')->with('error', 'Gagal sinkronisasi FreeRADIUS: ' . $e->getMessage());
+        }
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

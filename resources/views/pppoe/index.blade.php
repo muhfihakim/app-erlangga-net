@@ -1,16 +1,19 @@
 <x-layouts.app>
     @section('Css')
         <style>
-            #pppoe-table thead th, #pppoe-table tbody td {
+            #pppoe-table thead th,
+            #pppoe-table tbody td {
                 text-transform: uppercase !important;
                 font-weight: 600;
                 font-size: 12px;
             }
+
             .dataTables_wrapper {
                 position: relative;
                 min-height: 200px;
                 padding: 0;
             }
+
             .dataTables_wrapper .dataTables_processing {
                 position: absolute !important;
                 top: 50% !important;
@@ -27,6 +30,7 @@
                 height: auto !important;
                 text-align: center;
             }
+
             .dataTables_paginate {
                 display: flex;
                 justify-content: flex-end;
@@ -34,6 +38,7 @@
                 gap: 4px;
                 border-top: 1px solid #f1f5f9;
             }
+
             .paginate_button {
                 width: 34px;
                 height: 34px;
@@ -48,6 +53,7 @@
                 justify-content: center;
                 cursor: pointer;
             }
+
             .paginate_button.current {
                 background: #0ea5e9 !important;
                 border-color: #0ea5e9 !important;
@@ -56,12 +62,24 @@
         </style>
     @endsection
 
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+    <div
+        style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
             <h1 style="font-size:22px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
-                <i class="fa-solid fa-users-gear text-indigo-600"></i> Manage PPPoE
+                Manage PPPoE
             </h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola data akun PPPoE pelanggan, IP Address, router, dan status billing.</p>
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola data akun PPPoE pelanggan, IP Address, router,
+                dan status billing.</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <form action="{{ route('pppoe_accounts.sync_radius') }}" method="POST"
+                onsubmit="return confirm('Mulai sinkronisasi data dari server FreeRADIUS / daloRADIUS?');">
+                @csrf
+                <button type="submit"
+                    class="btn-primary-admin !bg-indigo-600 hover:!bg-indigo-700 !h-10 flex items-center gap-2">
+                    <i class="fa-solid fa-rotate"></i> Sync FreeRADIUS
+                </button>
+            </form>
         </div>
     </div>
 
@@ -105,7 +123,8 @@
                     <select name="status_invoice" class="form-input-custom" id="filter-status">
                         <option value="">Semua Status</option>
                         <option value="terbayar" {{ $filterStatus === 'terbayar' ? 'selected' : '' }}>Terbayar</option>
-                        <option value="belum_bayar" {{ $filterStatus === 'belum_bayar' ? 'selected' : '' }}>Belum Bayar</option>
+                        <option value="belum_bayar" {{ $filterStatus === 'belum_bayar' ? 'selected' : '' }}>Belum Bayar
+                        </option>
                     </select>
                 </div>
                 <div style="flex: 1; min-width: 180px;">
@@ -131,8 +150,9 @@
                     <label class="form-label-custom">Live Search</label>
                     <div class="search-wrap !max-w-full">
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                        <input type="search" class="search-input custom-search" id="custom-search" placeholder="Cari username, nama, IP..."
-                            autocomplete="off" onkeydown="return event.key != 'Enter';" />
+                        <input type="search" class="search-input custom-search" id="custom-search"
+                            placeholder="Cari username, nama, IP..." autocomplete="off"
+                            onkeydown="return event.key != 'Enter';" />
                     </div>
                 </div>
                 <button type="submit" class="btn-primary-admin !h-10 !px-6 flex items-center gap-2">
@@ -196,30 +216,39 @@
                     <div class="tab-panel active" id="edit-pppoe-tab-akun">
                         <div class="form-grid-2">
                             <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">Username <span class="text-rose-500">*</span></label>
-                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300" id="edit_username" name="username" required>
+                                <label class="form-label text-slate-800 font-bold">Username <span
+                                        class="text-rose-500">*</span></label>
+                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
+                                    id="edit_username" name="username" required>
                             </div>
                             <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">Password <span class="text-rose-500">*</span></label>
-                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300" id="edit_password" name="password" required>
+                                <label class="form-label text-slate-800 font-bold">Password <span
+                                        class="text-rose-500">*</span></label>
+                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
+                                    id="edit_password" name="password" required>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Profile / Paket <span class="text-rose-500">*</span></label>
-                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" id="edit_paket_id" name="paket_id" required>
-                                @foreach($pakets as $paket)
-                                    <option value="{{ $paket->id }}">{{ $paket->nama_paket }} - Rp {{ number_format($paket->harga, 0, ',', '.') }}</option>
+                            <label class="form-label text-slate-800 font-bold">Profile / Paket <span
+                                    class="text-rose-500">*</span></label>
+                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
+                                id="edit_paket_id" name="paket_id" required>
+                                @foreach ($pakets as $paket)
+                                    <option value="{{ $paket->id }}">{{ $paket->nama_paket }} - Rp
+                                        {{ number_format($paket->harga, 0, ',', '.') }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="form-grid-2">
                             <div class="form-group">
                                 <label class="form-label text-slate-800 font-bold">Router</label>
-                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300" id="edit_router" name="router">
+                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
+                                    id="edit_router" name="router">
                             </div>
                             <div class="form-group">
                                 <label class="form-label text-slate-800 font-bold">IP Address</label>
-                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300" id="edit_ip_address" name="ip_address">
+                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
+                                    id="edit_ip_address" name="ip_address">
                             </div>
                         </div>
                     </div>
@@ -229,19 +258,22 @@
                         <div class="form-grid-2">
                             <div class="form-group">
                                 <label class="form-label text-slate-800 font-bold">Tipe Pembayaran</label>
-                                <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" id="edit_tipe_pembayaran" name="tipe_pembayaran">
+                                <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
+                                    id="edit_tipe_pembayaran" name="tipe_pembayaran">
                                     <option value="postpaid">Postpaid</option>
                                     <option value="prepaid">Prepaid</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label class="form-label text-slate-800 font-bold">Tanggal Aktif</label>
-                                <input type="date" class="form-input bg-white text-slate-900 border-slate-300" id="edit_tanggal_aktif" name="tanggal_aktif">
+                                <input type="date" class="form-input bg-white text-slate-900 border-slate-300"
+                                    id="edit_tanggal_aktif" name="tanggal_aktif">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="form-label text-slate-800 font-bold">Periode Billing</label>
-                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" id="edit_periode_billing" name="periode_billing">
+                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
+                                id="edit_periode_billing" name="periode_billing">
                                 <option value="fixed">Fixed</option>
                                 <option value="renewal">Renewal</option>
                             </select>
@@ -249,23 +281,27 @@
                         <div class="form-grid-2">
                             <div class="form-group">
                                 <label class="form-label text-slate-800 font-bold">Pajak (Rp)</label>
-                                <input type="number" class="form-input bg-white text-slate-900 border-slate-300" id="edit_pajak" name="pajak">
+                                <input type="number" class="form-input bg-white text-slate-900 border-slate-300"
+                                    id="edit_pajak" name="pajak">
                             </div>
                             <div class="form-group">
                                 <label class="form-label text-slate-800 font-bold">Diskon (Rp)</label>
-                                <input type="number" class="form-input bg-white text-slate-900 border-slate-300" id="edit_diskon" name="diskon">
+                                <input type="number" class="form-input bg-white text-slate-900 border-slate-300"
+                                    id="edit_diskon" name="diskon">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="form-label text-slate-800 font-bold">Status Invoice</label>
-                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" id="edit_status_invoice" name="status_invoice">
+                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
+                                id="edit_status_invoice" name="status_invoice">
                                 <option value="belum_bayar">Belum Bayar</option>
                                 <option value="terbayar">Terbayar</option>
                             </select>
                         </div>
                         <div class="form-group mt-2">
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" id="edit_generate_invoice" name="generate_invoice" class="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500">
+                                <input type="checkbox" id="edit_generate_invoice" name="generate_invoice"
+                                    class="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500">
                                 <span class="text-sm font-medium text-slate-700">Generate Invoice</span>
                             </label>
                         </div>
@@ -273,10 +309,12 @@
                 </div>
 
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2" onclick="closeCustomModal('editPppoeModal')">
+                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+                        onclick="closeCustomModal('editPppoeModal')">
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-save !flex !items-center !justify-center gap-2 !bg-amber-500 hover:!bg-amber-600">
+                    <button type="submit"
+                        class="btn-save !flex !items-center !justify-center gap-2 !bg-amber-500 hover:!bg-amber-600">
                         <i class="fa-solid fa-rotate"></i> Update PPPoE
                     </button>
                 </div>
@@ -295,24 +333,58 @@
                     serverSide: true,
                     ajax: {
                         url: "{{ route('pppoe_accounts.index') }}",
-                        data: function (d) {
+                        data: function(d) {
                             d.status_invoice = $('#filter-status').val();
                             d.paket_id = $('#filter-paket').val();
                             d.tipe_pembayaran = $('#filter-tipe').val();
                         }
                     },
-                    columns: [
-                        { data: 'no', name: 'no', searchable: false, orderable: false, className: 'text-center text-slate-400 font-bold', render: function (data, type, row, meta) {
-                            return meta.row + meta.settings._iDisplayStart + 1;
-                        }},
-                        { data: 'pelanggan', name: 'username' },
-                        { data: 'username_col', name: 'username' },
-                        { data: 'paket', name: 'paket_id' },
-                        { data: 'router', name: 'router' },
-                        { data: 'ip_address', name: 'ip_address' },
-                        { data: 'tipe_pembayaran_badge', name: 'tipe_pembayaran' },
-                        { data: 'status_invoice_badge', name: 'status_invoice', searchable: false, orderable: false },
-                        { data: 'opsi', name: 'opsi', searchable: false, orderable: false }
+                    columns: [{
+                            data: 'no',
+                            name: 'no',
+                            searchable: false,
+                            orderable: false,
+                            className: 'text-center text-slate-400 font-bold',
+                            render: function(data, type, row, meta) {
+                                return meta.row + meta.settings._iDisplayStart + 1;
+                            }
+                        },
+                        {
+                            data: 'pelanggan',
+                            name: 'username'
+                        },
+                        {
+                            data: 'username_col',
+                            name: 'username'
+                        },
+                        {
+                            data: 'paket',
+                            name: 'paket_id'
+                        },
+                        {
+                            data: 'router',
+                            name: 'router'
+                        },
+                        {
+                            data: 'ip_address',
+                            name: 'ip_address'
+                        },
+                        {
+                            data: 'tipe_pembayaran_badge',
+                            name: 'tipe_pembayaran'
+                        },
+                        {
+                            data: 'status_invoice_badge',
+                            name: 'status_invoice',
+                            searchable: false,
+                            orderable: false
+                        },
+                        {
+                            data: 'opsi',
+                            name: 'opsi',
+                            searchable: false,
+                            orderable: false
+                        }
                     ],
                     pageLength: 10,
                     lengthChange: false,
@@ -351,7 +423,8 @@
                 });
             });
 
-            function openEditModal(id, username, password, paket_id, router, ip_address, tipe, tgl, periode, pajak, diskon, status, gen) {
+            function openEditModal(id, username, password, paket_id, router, ip_address, tipe, tgl, periode, pajak, diskon,
+                status, gen) {
                 document.getElementById('editPppoeForm').action = `/pppoe-accounts/${id}`;
                 document.getElementById('edit_username').value = username;
                 document.getElementById('edit_password').value = password;

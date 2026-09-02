@@ -120,7 +120,7 @@ class InvoiceController extends Controller
         foreach ($pppoe->invoices as $invoice) {
             if ($invoice->status !== 'paid' && $invoice->xendit_invoice_id) {
                 try {
-                    \Xendit\Configuration::setXenditKey(config('services.xendit.secret_key'));
+                    \Xendit\Configuration::setXenditKey(\App\Models\Setting::get('xendit_secret_key', config('services.xendit.secret_key')));
                     $apiInstance = new \Xendit\Invoice\InvoiceApi();
                     $res = $apiInstance->getInvoiceById($invoice->xendit_invoice_id);
 
@@ -278,7 +278,7 @@ class InvoiceController extends Controller
         }
 
         try {
-            \Xendit\Configuration::setXenditKey(config('services.xendit.secret_key'));
+            \Xendit\Configuration::setXenditKey(\App\Models\Setting::get('xendit_secret_key', config('services.xendit.secret_key')));
             $apiInstance = new \Xendit\Invoice\InvoiceApi();
 
             $invoice->load('pppoe.preOrder');
@@ -329,7 +329,7 @@ class InvoiceController extends Controller
         }
 
         try {
-            \Xendit\Configuration::setXenditKey(config('services.xendit.secret_key'));
+            \Xendit\Configuration::setXenditKey(\App\Models\Setting::get('xendit_secret_key', config('services.xendit.secret_key')));
             $apiInstance = new \Xendit\Invoice\InvoiceApi();
             $res = $apiInstance->getInvoiceById($invoice->xendit_invoice_id);
 

@@ -49,6 +49,7 @@ Route::middleware(['auth.custom'])->group(function () {
 
         // Manage PPPoE Accounts
         Route::get('/pppoe-accounts', [\App\Http\Controllers\PppoeAccountController::class, 'index'])->name('pppoe_accounts.index');
+        Route::post('/pppoe-accounts/sync-radius', [\App\Http\Controllers\PppoeAccountController::class, 'syncRadius'])->name('pppoe_accounts.sync_radius');
         Route::post('/pppoe-accounts', [\App\Http\Controllers\PppoeAccountController::class, 'store'])->name('pppoe_accounts.store');
         Route::put('/pppoe-accounts/{pppoe}', [\App\Http\Controllers\PppoeAccountController::class, 'update'])->name('pppoe_accounts.update');
         Route::delete('/pppoe-accounts/{pppoe}', [\App\Http\Controllers\PppoeAccountController::class, 'destroy'])->name('pppoe_accounts.destroy');
@@ -77,6 +78,11 @@ Route::middleware(['auth.custom'])->group(function () {
         // Data Migration / Import
         Route::get('/migration', [\App\Http\Controllers\MigrationController::class, 'index'])->name('migration.index');
         Route::post('/migration/import', [\App\Http\Controllers\MigrationController::class, 'import'])->name('migration.import');
+
+        // System Settings (MikroTik, OLT, RADIUS, Xendit)
+        Route::get('/settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [\App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
+        Route::post('/settings/test-connection', [\App\Http\Controllers\SettingController::class, 'testConnection'])->name('settings.test_connection');
     });
 
     // Keuangan Teknisi

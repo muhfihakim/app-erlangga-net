@@ -21,10 +21,10 @@ class PppoeTest extends Command
 
         $this->info("Testing RAW connection...");
         $client = new \ZillEAli\MikrotikLaravel\Connections\RouterosClient(
-            env('MIKROTIK_HOST'),
-            env('MIKROTIK_PORT', 8728),
-            env('MIKROTIK_USER'),
-            env('MIKROTIK_PASS')
+            \App\Models\Setting::get('mikrotik_host', config('mikrotik.host')),
+            (int) \App\Models\Setting::get('mikrotik_port', config('mikrotik.port', 8728)),
+            \App\Models\Setting::get('mikrotik_user', config('mikrotik.username')),
+            \App\Models\Setting::get('mikrotik_pass', config('mikrotik.password', ''))
         );
         $client->connect();
         $raw = $client->send(['/ppp/active/print']);
