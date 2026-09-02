@@ -146,6 +146,18 @@
                         <option value="postpaid" {{ $filterTipe === 'postpaid' ? 'selected' : '' }}>Postpaid</option>
                     </select>
                 </div>
+                <div style="flex: 1; min-width: 160px;">
+                    <label class="form-label-custom">Router / NAS</label>
+                    <select name="router" class="form-input-custom" id="filter-router">
+                        <option value="">Semua Router</option>
+                        <option value="All" {{ $filterRouter === 'All' ? 'selected' : '' }}>All (Semua Router)</option>
+                        @foreach ($routers as $r)
+                            <option value="{{ $r->shortname }}" {{ $filterRouter === $r->shortname ? 'selected' : '' }}>
+                                {{ $r->shortname }} ({{ $r->nasname }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
                 <div style="flex: 1.5; min-width: 220px;">
                     <label class="form-label-custom">Live Search</label>
                     <div class="search-wrap !max-w-full">
@@ -241,9 +253,14 @@
                         </div>
                         <div class="form-grid-2">
                             <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">Router</label>
-                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
+                                <label class="form-label text-slate-800 font-bold">Router / NAS</label>
+                                <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
                                     id="edit_router" name="router">
+                                    <option value="All">Semua Router (ALL)</option>
+                                    @foreach ($routers as $r)
+                                        <option value="{{ $r->shortname }}">{{ $r->shortname }} ({{ $r->nasname }})</option>
+                                    @endforeach
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label class="form-label text-slate-800 font-bold">IP Address</label>
@@ -337,6 +354,7 @@
                             d.status_invoice = $('#filter-status').val();
                             d.paket_id = $('#filter-paket').val();
                             d.tipe_pembayaran = $('#filter-tipe').val();
+                            d.router = $('#filter-router').val();
                         }
                     },
                     columns: [{
@@ -413,7 +431,7 @@
                 });
 
                 // Filter on select change
-                $('#filter-status, #filter-paket, #filter-tipe').on('change', function() {
+                $('#filter-status, #filter-paket, #filter-tipe, #filter-router').on('change', function() {
                     table.draw();
                 });
 
@@ -429,7 +447,7 @@
                 document.getElementById('edit_username').value = username;
                 document.getElementById('edit_password').value = password;
                 document.getElementById('edit_paket_id').value = paket_id;
-                document.getElementById('edit_router').value = router;
+                document.getElementById('edit_router').value = (router || 'All');
                 document.getElementById('edit_ip_address').value = ip_address;
                 document.getElementById('edit_tipe_pembayaran').value = tipe;
                 document.getElementById('edit_tanggal_aktif').value = tgl;

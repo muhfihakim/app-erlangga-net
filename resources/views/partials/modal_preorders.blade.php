@@ -504,9 +504,15 @@
                         </div>
                         <div class="form-grid-2">
                             <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">Router (Spesifik/All)</label>
-                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
-                                    name="router" placeholder="Contoh: all">
+                                <label class="form-label text-slate-800 font-bold">Router / NAS</label>
+                                <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" name="router">
+                                    <option value="All">Semua Router (ALL)</option>
+                                    @if(isset($routers))
+                                        @foreach ($routers as $r)
+                                            <option value="{{ $r->shortname }}">{{ $r->shortname }} ({{ $r->nasname }})</option>
+                                        @endforeach
+                                    @endif
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label class="form-label text-slate-800 font-bold">IP Address</label>

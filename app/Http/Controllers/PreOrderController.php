@@ -118,11 +118,18 @@ class PreOrderController extends Controller
 
             $pakets = \App\Models\Paket::orderBy('harga', 'asc')->get();
 
+            try {
+                $routers = \App\Models\Nas::orderBy('shortname')->get();
+            } catch (\Throwable $e) {
+                $routers = collect();
+            }
+
             return view('preorders.index', compact(
                 'preOrders',
                 'teknisiUsers',
                 'salesUsers',
                 'pakets',
+                'routers',
                 'totalThisMonth',
                 'totalThisWeek',
                 'totalPending',

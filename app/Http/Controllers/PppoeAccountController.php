@@ -11,6 +11,7 @@ class PppoeAccountController extends Controller
         $filterPaket = $request->input('paket_id', '');
         $filterStatus = $request->input('status_invoice', '');
         $filterTipe = $request->input('tipe_pembayaran', '');
+        $filterRouter = $request->input('router', '');
 
         if ($request->ajax()) {
             $query = \App\Models\Pppoe::with(['preOrder', 'paket'])
@@ -27,6 +28,16 @@ class PppoeAccountController extends Controller
 
             if (!empty($filterTipe)) {
                 $query->where('pppoes.tipe_pembayaran', $filterTipe);
+            }
+
+            if (!empty($filterRouter)) {
+                if ($filterRouter === 'All') {
+                    $query->where(function($q) {
+                        $q->where('pppoes.router', 'All')->orWhereNull('pppoes.router')->orWhere('pppoes.router', '');
+                    });
+                } else {
+                    $query->where('pppoes.router', $filterRouter);
+                }
             }
 
             return \Yajra\DataTables\Facades\DataTables::eloquent($query)
@@ -66,11 +77,13 @@ class PppoeAccountController extends Controller
                     return '<div style="text-align: center;"><span class="badge" style="background:#fef2f2; color:#be123c; border:1px solid #fecdd3; font-size:11px; padding:3px 8px; border-radius:6px; font-weight:700;"><i class="fa-solid fa-clock mr-1"></i> BELUM BAYAR</span></div>';
                 })
                 ->addColumn('opsi', function ($pppoe) {
-                    $tgl = $pppoe->tanggal_aktif ? $pppoe->tanggal_aktif->format('Y-m-d') : '';
+                    $tgl = $pppoe->tanggal_aktif ? (is_string($pppoe->tanggal_aktif) ? \Carbon\Carbon::parse($pppoe->tanggal_aktif)->format('Y-m-d') : $pppoe->tanggal_aktif->format('Y-m-d')) : '';
                     $gen = $pppoe->generate_invoice ? '1' : '0';
-                    $btnEdit = '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" onclick="openEditModal(' . $pppoe->id . ', \'' . addslashes($pppoe->username) . '\', \'' . addslashes($pppoe->password) . '\', \'' . $pppoe->paket_id . '\', \'' . addslashes($pppoe->router ?? '') . '\', \'' . addslashes($pppoe->ip_address ?? '') . '\', \'' . addslashes($pppoe->tipe_pembayaran ?? 'prepaid') . '\', \'' . $tgl . '\', \'' . addslashes($pppoe->periode_billing ?? 'fixed') . '\', \'' . ($pppoe->pajak ?? 0) . '\', \'' . ($pppoe->diskon ?? 0) . '\', \'' . addslashes($pppoe->status_invoice ?? 'belum_bayar') . '\', \'' . $gen . '\')" title="Edit PPPoE"><i class="fa-solid fa-pen-to-square text-amber-500"></i></button>';
+                    $invoiceRoute = route('invoices.show', $pppoe->id);
+                    $btnInvoice = '<a href="' . $invoiceRoute . '" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Kelola Tagihan & Xendit"><i class="fa-solid fa-file-invoice-dollar text-emerald-500"></i></a>';
+                    $btnEdit = '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" onclick="openEditModal(' . $pppoe->id . ', \'' . addslashes($pppoe->username) . '\', \'' . addslashes($pppoe->password) . '\', \'' . $pppoe->paket_id . '\', \'' . addslashes($pppoe->router ?? 'All') . '\', \'' . addslashes($pppoe->ip_address ?? '') . '\', \'' . addslashes($pppoe->tipe_pembayaran ?? 'prepaid') . '\', \'' . $tgl . '\', \'' . addslashes($pppoe->periode_billing ?? 'fixed') . '\', \'' . ($pppoe->pajak ?? 0) . '\', \'' . ($pppoe->diskon ?? 0) . '\', \'' . addslashes($pppoe->status_invoice ?? 'belum_bayar') . '\', \'' . $gen . '\')" title="Edit PPPoE"><i class="fa-solid fa-pen-to-square text-amber-500"></i></button>';
                     $btnDelete = '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" onclick="confirmGlobalDelete(\'' . route('pppoe_accounts.destroy', $pppoe->id) . '\', \'PPPoE ' . addslashes($pppoe->username) . '\')" title="Hapus"><i class="fa-solid fa-trash text-rose-500"></i></button>';
-                    return '<div class="flex items-center justify-center gap-1">' . $btnEdit . $btnDelete . '</div>';
+                    return '<div class="flex items-center justify-center gap-1">' . $btnInvoice . $btnEdit . $btnDelete . '</div>';
                 })
                 ->filter(function ($query) use ($request) {
                     if ($search = $request->input('search.value')) {
@@ -99,14 +112,22 @@ class PppoeAccountController extends Controller
 
         $pakets = \App\Models\Paket::orderBy('harga', 'asc')->get();
 
+        try {
+            $routers = \App\Models\Nas::orderBy('shortname')->get();
+        } catch (\Throwable $e) {
+            $routers = collect();
+        }
+
         return view('pppoe.index', compact(
             'totalPppoeCount',
             'totalPaidCount',
             'totalUnpaidCount',
             'pakets',
+            'routers',
             'filterPaket',
             'filterStatus',
-            'filterTipe'
+            'filterTipe',
+            'filterRouter'
         ));
     }
 
