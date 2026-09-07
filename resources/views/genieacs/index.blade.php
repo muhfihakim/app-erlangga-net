@@ -1,6 +1,7 @@
 <x-layouts.app>
     @section('Css')
         <style>
+            /* Table formatting matching /customers/active-list */
             #genieacs-table thead th,
             #genieacs-table tbody td {
                 text-transform: uppercase !important;
@@ -8,12 +9,59 @@
                 font-size: 12px;
             }
 
+            .dataTables_wrapper {
+                position: relative;
+                padding: 0;
+            }
+
+            .dataTables_filter {
+                display: none;
+            }
+
+            .dataTables_processing {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(255, 255, 255, 0.96);
+                border: 1px solid #e2e8f0;
+                border-radius: 14px;
+                padding: 16px 28px;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+                z-index: 50;
+            }
+
+            .dataTables_info {
+                font-size: 12px;
+                font-weight: 600;
+                color: #64748b;
+                padding: 1.25rem 1.5rem;
+                float: left;
+            }
+
             .dataTables_paginate {
                 display: flex;
                 justify-content: flex-end;
+                align-items: center;
                 padding: 1.25rem 1.5rem;
                 gap: 4px;
-                border-top: 1px solid #f1f5f9;
+                float: right;
+            }
+
+            .dataTables_wrapper::after {
+                content: "";
+                display: table;
+                clear: both;
+            }
+
+            @media (max-width: 640px) {
+                .dataTables_info,
+                .dataTables_paginate {
+                    float: none;
+                    justify-content: center;
+                    text-align: center;
+                    padding: 0.75rem 1rem;
+                }
             }
 
             .paginate_button {
@@ -30,6 +78,7 @@
                 justify-content: center;
                 cursor: pointer;
                 text-decoration: none;
+                transition: all 0.15s ease;
             }
 
             .paginate_button:hover:not(.disabled):not(.current) {
@@ -53,6 +102,7 @@
         </style>
     @endsection
 
+    <!-- Page Header -->
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
             <h1 style="font-size:22px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
@@ -67,9 +117,9 @@
                 class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-10 flex items-center gap-2">
                 <i class="fa-solid fa-sliders"></i> Pengaturan GenieACS
             </a>
-            <button onclick="window.location.reload()"
+            <button type="button" id="btn-refresh-data"
                 class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-10 flex items-center gap-2">
-                <i class="fa-solid fa-rotate"></i> Refresh Data
+                <i class="fa-solid fa-arrows-rotate" id="refresh-icon"></i> Refresh Data
             </button>
         </div>
     </div>
@@ -81,7 +131,7 @@
                 <i class="fa-solid fa-satellite-dish"></i>
             </div>
             <div>
-                <div class="stat-val">{{ number_format($totalCount, 0, ',', '.') }}</div>
+                <div class="stat-val" id="stat-total-val">{{ number_format($totalCount, 0, ',', '.') }}</div>
                 <div class="stat-lbl">Total ONT Terdaftar</div>
             </div>
         </div>
@@ -91,7 +141,7 @@
                 <i class="fa-solid fa-circle-check"></i>
             </div>
             <div>
-                <div class="stat-val">{{ number_format($onlineCount, 0, ',', '.') }}</div>
+                <div class="stat-val" id="stat-online-val">{{ number_format($onlineCount, 0, ',', '.') }}</div>
                 <div class="stat-lbl">Status Online (Aktif)</div>
             </div>
         </div>
@@ -101,7 +151,7 @@
                 <i class="fa-solid fa-clock"></i>
             </div>
             <div>
-                <div class="stat-val">{{ number_format($offlineCount, 0, ',', '.') }}</div>
+                <div class="stat-val" id="stat-offline-val">{{ number_format($offlineCount, 0, ',', '.') }}</div>
                 <div class="stat-lbl">Status Offline / Standby</div>
             </div>
         </div>
@@ -109,14 +159,14 @@
 
     <!-- Table Toolbar / Live Search & Filter -->
     <div class="table-toolbar">
-        <form method="GET" action="{{ route('genieacs.index') }}" class="w-full" id="filterForm">
+        <form class="w-full" id="filterForm" onsubmit="return false;">
             <div class="filter-group">
                 <div style="flex: 1; min-width: 170px;">
                     <label class="form-label-custom">Status Koneksi</label>
                     <select name="status" class="form-input-custom" id="filter-status">
-                        <option value="all" {{ $statusFilter === 'all' ? 'selected' : '' }}>Semua Status</option>
-                        <option value="online" {{ $statusFilter === 'online' ? 'selected' : '' }}>Online Saja</option>
-                        <option value="offline" {{ $statusFilter === 'offline' ? 'selected' : '' }}>Offline Saja</option>
+                        <option value="all">Semua Status</option>
+                        <option value="online">Online Saja</option>
+                        <option value="offline">Offline Saja</option>
                     </select>
                 </div>
                 <div style="flex: 2; min-width: 250px;">
@@ -124,18 +174,15 @@
                     <div class="search-wrap !max-w-full">
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
                         <input type="search" name="search" class="search-input custom-search" id="custom-search"
-                            value="{{ $search }}"
                             placeholder="Cari serial number, username PPPoE, SSID, IP..." autocomplete="off" />
                     </div>
                 </div>
-                <button type="submit" class="btn-primary-admin !h-10 !px-6 flex items-center gap-2">
+                <button type="button" id="btn-filter" class="btn-primary-admin !h-10 !px-6 flex items-center gap-2">
                     <i class="fa-solid fa-filter"></i> Filter
                 </button>
-                @if ($search || $statusFilter !== 'all')
-                    <a href="{{ route('genieacs.index') }}" class="btn-cancel !h-10 !px-4 flex items-center gap-1.5" title="Reset Filter">
-                        <i class="fa-solid fa-xmark"></i> Reset
-                    </a>
-                @endif
+                <button type="button" id="btn-reset-filter" class="btn-cancel !h-10 !px-4 flex items-center gap-1.5" title="Reset Filter">
+                    <i class="fa-solid fa-xmark"></i> Reset
+                </button>
             </div>
         </form>
     </div>
@@ -146,203 +193,22 @@
             <table id="genieacs-table" class="admin-table w-full">
                 <thead>
                     <tr>
-                        <th style="text-align: center; width: 80px;">Status</th>
+                        <th style="text-align: center; width: 90px;">Status</th>
                         <th>Perangkat (ONT)</th>
                         <th>Pelanggan (PPPoE)</th>
                         <th>Alamat IP</th>
                         <th>Nama Wi-Fi (SSID)</th>
-                        <th style="text-align: center;">Redaman RX</th>
-                        <th style="text-align: center;">Suhu ONT</th>
-                        <th>Inform Terakhir</th>
+                        <th style="text-align: center; width: 120px;">Redaman RX</th>
+                        <th style="text-align: center; width: 110px;">Suhu ONT</th>
+                        <th style="width: 130px;">Inform Terakhir</th>
                         <th style="text-align: center; width: 120px;">Opsi</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @forelse ($devices as $d)
-                        <tr>
-                            <!-- Status -->
-                            <td style="text-align: center;">
-                                @if (!empty($d['is_online']))
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700">
-                                        <span class="relative flex h-2 w-2">
-                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
-                                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                                        </span>
-                                        ONLINE
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-500">
-                                        OFFLINE
-                                    </span>
-                                @endif
-                            </td>
-
-                            <!-- Perangkat ONT -->
-                            <td>
-                                <div class="font-bold text-slate-900 font-mono text-xs">{{ $d['serial_number'] }}</div>
-                                <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
-                                    <span class="font-semibold text-sky-600">{{ $d['manufacturer'] }}</span>
-                                    <span>&bull;</span>
-                                    <span>{{ $d['model'] }}</span>
-                                    <span class="badge !text-[9px] !py-0 !px-1.5 bg-slate-100 text-slate-600 font-mono">{{ $d['pon_mode'] }}</span>
-                                </div>
-                            </td>
-
-                            <!-- Pelanggan PPPoE -->
-                            <td>
-                                @if (!empty($d['pppoe_username']) && $d['pppoe_username'] !== '-')
-                                    <div class="font-semibold text-slate-800 flex items-center gap-1.5">
-                                        <i class="fa-solid fa-user text-xs text-slate-400"></i>
-                                        <span>{{ $d['pppoe_username'] }}</span>
-                                    </div>
-                                @else
-                                    <span class="text-slate-400 italic text-xs">-</span>
-                                @endif
-                            </td>
-
-                            <!-- IP Address -->
-                            <td class="font-mono text-xs text-slate-600">
-                                {{ $d['ip_address'] ?? '-' }}
-                            </td>
-
-                            <!-- SSID Wi-Fi -->
-                            <td>
-                                @if (!empty($d['ssid']) && $d['ssid'] !== '-')
-                                    <div class="font-semibold text-slate-800 flex items-center gap-1.5">
-                                        <i class="fa-solid fa-wifi text-xs text-sky-500"></i>
-                                        <span>{{ $d['ssid'] }}</span>
-                                    </div>
-                                @else
-                                    <span class="text-slate-400 italic text-xs">-</span>
-                                @endif
-                            </td>
-
-                            <!-- Redaman Optik RX Power -->
-                            <td style="text-align: center;">
-                                @if (!empty($d['rx_power']))
-                                    @php
-                                        $cleanRx = trim(str_ireplace('dBm', '', $d['rx_power']));
-                                        $numVal = floatval($cleanRx);
-                                        $isWarning = $numVal < -27 || $numVal > -10;
-                                    @endphp
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-mono font-bold {{ $isWarning ? 'bg-amber-50 text-amber-600 border border-amber-200' : 'bg-emerald-50 text-emerald-600 border border-emerald-200' }}">
-                                        <i class="fa-solid fa-wave-square text-[10px]"></i>
-                                        <span>{{ $cleanRx }} dBm</span>
-                                    </span>
-                                @else
-                                    <span class="text-slate-400 text-xs">-</span>
-                                @endif
-                            </td>
-
-                            <!-- Suhu ONT -->
-                            <td style="text-align: center;">
-                                @if (!empty($d['temperature']))
-                                    @php
-                                        $tempVal = floatval(str_replace(['°C', ' '], '', $d['temperature']));
-                                        $isHot = $tempVal > 65;
-                                    @endphp
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono font-bold {{ $isHot ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-slate-100 text-slate-700' }}">
-                                        <i class="fa-solid fa-temperature-half text-[11px] {{ $isHot ? 'text-rose-500' : 'text-slate-400' }}"></i>
-                                        {{ $d['temperature'] }}
-                                    </span>
-                                @else
-                                    <span class="text-slate-400 text-xs">-</span>
-                                @endif
-                            </td>
-
-                            <!-- Last Inform -->
-                            <td class="font-mono text-[11px] text-slate-500">
-                                {{ $d['last_inform'] }}
-                            </td>
-
-                            <!-- Action Buttons -->
-                            <td style="text-align: center;">
-                                <div class="flex items-center justify-center gap-1.5">
-                                    <a href="{{ route('genieacs.show', $d['id']) }}"
-                                        class="btn-sm-action !p-2 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-600 hover:text-white transition-colors"
-                                        title="Detail & Kelola ONT">
-                                        <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
-                                    </a>
-                                    <button type="button"
-                                        class="btn-quick-wifi btn-sm-action !p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-colors"
-                                        data-device-id="{{ $d['id'] }}"
-                                        data-serial="{{ $d['serial_number'] }}"
-                                        data-ssid="{{ $d['ssid'] !== '-' ? $d['ssid'] : '' }}"
-                                        title="Ubah Nama & Password Wi-Fi">
-                                        <i class="fa-solid fa-key text-xs"></i>
-                                    </button>
-                                    <button type="button"
-                                        class="btn-quick-reboot btn-sm-action !p-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-colors"
-                                        data-device-id="{{ $d['id'] }}"
-                                        data-serial="{{ $d['serial_number'] }}"
-                                        title="Reboot ONT">
-                                        <i class="fa-solid fa-power-off text-xs"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="9" class="dataTables_empty">
-                                Tidak ada data perangkat ONT ditemukan
-                            </td>
-                        </tr>
-                    @endforelse
+                <tbody style="border-top: none;">
+                    <!-- Data dimuat secara asinkron (AJAX Server-Side) -->
                 </tbody>
             </table>
         </div>
-
-        <!-- Seragamkan Pagination (DataTables Style) -->
-        @if ($devices->hasPages())
-            <div class="flex items-center justify-between p-4 border-t border-slate-100 flex-wrap gap-3">
-                <span class="text-xs text-slate-500 font-semibold">
-                    Menampilkan {{ $devices->firstItem() ?? 0 }} - {{ $devices->lastItem() ?? 0 }} dari {{ number_format($devices->total(), 0, ',', '.') }} ONT
-                </span>
-                <div class="dataTables_paginate !p-0 !border-0">
-                    {{-- Previous Page Link --}}
-                    @if ($devices->onFirstPage())
-                        <span class="paginate_button disabled"><i class="fa-solid fa-chevron-left"></i></span>
-                    @else
-                        <a href="{{ $devices->previousPageUrl() }}" class="paginate_button"><i class="fa-solid fa-chevron-left"></i></a>
-                    @endif
-
-                    {{-- Pagination Elements --}}
-                    @php
-                        $start = max(1, $devices->currentPage() - 2);
-                        $end = min($devices->lastPage(), $devices->currentPage() + 2);
-                    @endphp
-
-                    @if($start > 1)
-                        <a href="{{ $devices->url(1) }}" class="paginate_button">1</a>
-                        @if($start > 2)
-                            <span class="paginate_button disabled">...</span>
-                        @endif
-                    @endif
-
-                    @for ($i = $start; $i <= $end; $i++)
-                        @if ($i == $devices->currentPage())
-                            <span class="paginate_button current">{{ $i }}</span>
-                        @else
-                            <a href="{{ $devices->url($i) }}" class="paginate_button">{{ $i }}</a>
-                        @endif
-                    @endfor
-
-                    @if($end < $devices->lastPage())
-                        @if($end < $devices->lastPage() - 1)
-                            <span class="paginate_button disabled">...</span>
-                        @endif
-                        <a href="{{ $devices->url($devices->lastPage()) }}" class="paginate_button">{{ $devices->lastPage() }}</a>
-                    @endif
-
-                    {{-- Next Page Link --}}
-                    @if ($devices->hasMorePages())
-                        <a href="{{ $devices->nextPageUrl() }}" class="paginate_button"><i class="fa-solid fa-chevron-right"></i></a>
-                    @else
-                        <span class="paginate_button disabled"><i class="fa-solid fa-chevron-right"></i></span>
-                    @endif
-                </div>
-            </div>
-        @endif
     </div>
 
     <!-- Modal: Ubah Wi-Fi -->
@@ -429,38 +295,196 @@
     </div>
 
     @section('Scripts')
+        <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
         <script>
+            window._forceRefresh = false;
             let currentRebootDeviceId = null;
 
-            // Delegated click listener to open Wi-Fi Modal
-            $(document).on('click', '.btn-quick-wifi', function(e) {
-                e.preventDefault();
-                const deviceId = $(this).data('device-id');
-                const serial = $(this).data('serial');
-                const ssid = $(this).data('ssid') || '';
+            $(document).ready(function() {
+                // Inisialisasi DataTables Server Side
+                const genieTable = $('#genieacs-table').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: '{{ route('genieacs.index') }}',
+                        data: function(d) {
+                            d.status = $('#filter-status').val();
+                            d.refresh = window._forceRefresh ? 1 : 0;
+                            window._forceRefresh = false;
+                        }
+                    },
+                    columns: [
+                        { data: 'status', name: 'status', orderable: false, searchable: false, className: 'text-center align-middle' },
+                        { data: 'device', name: 'device', orderable: false, searchable: true, className: 'align-middle' },
+                        { data: 'pppoe', name: 'pppoe', orderable: false, searchable: true, className: 'align-middle' },
+                        { data: 'ip', name: 'ip', orderable: false, searchable: true, className: 'align-middle' },
+                        { data: 'wifi', name: 'wifi', orderable: false, searchable: true, className: 'align-middle' },
+                        { data: 'rx_power', name: 'rx_power', orderable: false, searchable: false, className: 'text-center align-middle' },
+                        { data: 'temperature', name: 'temperature', orderable: false, searchable: false, className: 'text-center align-middle' },
+                        { data: 'last_inform', name: 'last_inform', orderable: false, searchable: false, className: 'align-middle' },
+                        { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center align-middle' }
+                    ],
+                    dom: 'tpir',
+                    pageLength: 25,
+                    lengthChange: false,
+                    info: true,
+                    ordering: false,
+                    responsive: true,
+                    language: {
+                        processing: '<div class="flex items-center justify-center gap-2.5 text-primary font-bold"><i class="fa-solid fa-circle-notch fa-spin text-2xl"></i> <span class="text-sm font-semibold text-slate-700">Memuat data ONT...</span></div>',
+                        info: "Menampilkan _START_ - _END_ dari _TOTAL_ ONT",
+                        infoEmpty: "Menampilkan 0 dari 0 ONT",
+                        zeroRecords: "Tidak ada data ONT yang sesuai dengan filter/pencarian",
+                        emptyTable: "Belum ada data ONT di GenieACS",
+                        paginate: {
+                            first: '<i class="fa-solid fa-angles-left"></i>',
+                            last: '<i class="fa-solid fa-angles-right"></i>',
+                            previous: '<i class="fa-solid fa-chevron-left"></i>',
+                            next: '<i class="fa-solid fa-chevron-right"></i>'
+                        }
+                    }
+                });
 
-                $('#quick_wifi_device_id').val(deviceId);
-                $('#quick_wifi_serial').text(serial);
-                $('#quick_wifi_ssid').val(ssid);
-                $('#quick_wifi_password').val('');
+                // Sinkronisasi angka kartu statistik dari response AJAX
+                genieTable.on('xhr', function(e, settings, json) {
+                    if (json && json.stats) {
+                        $('#stat-total-val').text(json.stats.total);
+                        $('#stat-online-val').text(json.stats.online);
+                        $('#stat-offline-val').text(json.stats.offline);
+                    }
+                });
 
-                openCustomModal('quickWifiModal');
-            });
+                // Live Search dengan Debounce (350ms)
+                let searchTimer;
+                $('#custom-search').on('keyup input', function() {
+                    clearTimeout(searchTimer);
+                    const val = this.value;
+                    searchTimer = setTimeout(function() {
+                        genieTable.search(val).draw();
+                    }, 350);
+                });
 
-            // Delegated click listener to open Reboot Modal
-            $(document).on('click', '.btn-quick-reboot', function(e) {
-                e.preventDefault();
-                currentRebootDeviceId = $(this).data('device-id');
-                const serial = $(this).data('serial');
-                $('#reboot-serial-span').text(serial);
+                // Filter status koneksi
+                $('#filter-status').on('change', function() {
+                    genieTable.draw();
+                });
 
-                openCustomModal('rebootModal');
+                // Tombol Filter
+                $('#btn-filter').on('click', function() {
+                    genieTable.search($('#custom-search').val()).draw();
+                });
+
+                // Tombol Reset Filter
+                $('#btn-reset-filter').on('click', function() {
+                    $('#filter-status').val('all');
+                    $('#custom-search').val('');
+                    genieTable.search('').draw();
+                });
+
+                // Tombol Refresh Data (Hanya refresh tabel via AJAX)
+                $('#btn-refresh-data').on('click', function() {
+                    window._forceRefresh = true;
+                    const $icon = $('#refresh-icon');
+                    $icon.addClass('fa-spin');
+                    genieTable.ajax.reload(function() {
+                        $icon.removeClass('fa-spin');
+                        showToast('Data ONT berhasil disegarkan dari GenieACS!', 'success');
+                    }, false);
+                });
+
+                // Delegated listener untuk Modal Ubah Wi-Fi
+                $(document).on('click', '.btn-quick-wifi', function(e) {
+                    e.preventDefault();
+                    const deviceId = $(this).data('device-id');
+                    const serial = $(this).data('serial');
+                    const ssid = $(this).data('ssid') || '';
+
+                    $('#quick_wifi_device_id').val(deviceId);
+                    $('#quick_wifi_serial').text(serial);
+                    $('#quick_wifi_ssid').val(ssid);
+                    $('#quick_wifi_password').val('');
+
+                    openCustomModal('quickWifiModal');
+                });
+
+                // Delegated listener untuk Modal Reboot
+                $(document).on('click', '.btn-quick-reboot', function(e) {
+                    e.preventDefault();
+                    currentRebootDeviceId = $(this).data('device-id');
+                    const serial = $(this).data('serial');
+                    $('#reboot-serial-span').text(serial);
+
+                    openCustomModal('rebootModal');
+                });
+
+                // Submit Form Ubah Wi-Fi via AJAX
+                $('#quickWifiForm').on('submit', function(e) {
+                    e.preventDefault();
+                    const deviceId = $('#quick_wifi_device_id').val();
+                    const ssid = $('#quick_wifi_ssid').val();
+                    const password = $('#quick_wifi_password').val();
+                    const btn = $('#btn-submit-quick-wifi');
+                    const origHtml = btn.html();
+
+                    btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengirim ke ONT...');
+
+                    $.ajax({
+                        url: `/genieacs/${encodeURIComponent(deviceId)}/wifi`,
+                        type: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        contentType: 'application/json',
+                        data: JSON.stringify({ ssid, password }),
+                        success: function(res) {
+                            btn.prop('disabled', false).html(origHtml);
+                            closeCustomModal('quickWifiModal');
+                            showToast(res.message || 'SSID & Password Wi-Fi berhasil diperbarui!', 'success');
+                            genieTable.ajax.reload(null, false);
+                        },
+                        error: function(xhr) {
+                            btn.prop('disabled', false).html(origHtml);
+                            const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Gagal mengubah Wi-Fi.';
+                            showToast(msg, 'error');
+                        }
+                    });
+                });
+
+                // Eksekusi Reboot ONT via AJAX
+                $('#btn-submit-reboot').on('click', function() {
+                    if (!currentRebootDeviceId) return;
+
+                    const btn = $(this);
+                    const origHtml = btn.html();
+                    btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengirim...');
+
+                    $.ajax({
+                        url: `/genieacs/${encodeURIComponent(currentRebootDeviceId)}/reboot`,
+                        type: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        contentType: 'application/json',
+                        success: function(res) {
+                            btn.prop('disabled', false).html(origHtml);
+                            closeCustomModal('rebootModal');
+                            showToast(res.message || 'Perintah Reboot berhasil dikirim ke ONT!', 'success');
+                            genieTable.ajax.reload(null, false);
+                        },
+                        error: function(xhr) {
+                            btn.prop('disabled', false).html(origHtml);
+                            const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Gagal mengirim perintah reboot.';
+                            showToast(msg, 'error');
+                        }
+                    });
+                });
             });
 
             // Toggle Password Visibility
             function togglePasswordVisibility(fieldId, btn) {
                 const field = document.getElementById(fieldId);
                 const icon = btn.querySelector('i');
+                if (!field || !icon) return;
                 if (field.type === 'password') {
                     field.type = 'text';
                     icon.classList.remove('fa-eye');
@@ -471,94 +495,6 @@
                     icon.classList.add('fa-eye');
                 }
             }
-
-            // Submit Wi-Fi Form
-            function submitQuickWifi(e) {
-                e.preventDefault();
-                const deviceId = document.getElementById('quick_wifi_device_id').value;
-                const ssid = document.getElementById('quick_wifi_ssid').value;
-                const password = document.getElementById('quick_wifi_password').value;
-                const btn = document.getElementById('btn-submit-quick-wifi');
-                const origText = btn.innerHTML;
-
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengirim ke ONT...';
-
-                fetch(`/genieacs/${encodeURIComponent(deviceId)}/wifi`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({ ssid, password })
-                })
-                .then(res => res.json().then(data => ({ status: res.status, body: data })))
-                .then(res => {
-                    btn.disabled = false;
-                    btn.innerHTML = origText;
-                    if (res.status === 200 && res.body.success) {
-                        showToast(res.body.message, 'success');
-                        closeCustomModal('quickWifiModal');
-                        setTimeout(() => window.location.reload(), 1500);
-                    } else {
-                        showToast(res.body.message || 'Gagal mengubah Wi-Fi.', 'error');
-                    }
-                })
-                .catch(err => {
-                    btn.disabled = false;
-                    btn.innerHTML = origText;
-                    showToast('Network error saat mengirim ke GenieACS.', 'error');
-                });
-            }
-
-            // Execute Reboot
-            function executeReboot() {
-                if (!currentRebootDeviceId) return;
-
-                const btn = document.getElementById('btn-submit-reboot');
-                const origText = btn.innerHTML;
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengirim...';
-
-                fetch(`/genieacs/${encodeURIComponent(currentRebootDeviceId)}/reboot`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
-                })
-                .then(res => res.json().then(data => ({ status: res.status, body: data })))
-                .then(res => {
-                    btn.disabled = false;
-                    btn.innerHTML = origText;
-                    if (res.status === 200 && res.body.success) {
-                        showToast(res.body.message, 'success');
-                        closeCustomModal('rebootModal');
-                    } else {
-                        showToast(res.body.message || 'Gagal mengirim perintah reboot.', 'error');
-                    }
-                })
-                .catch(err => {
-                    btn.disabled = false;
-                    btn.innerHTML = origText;
-                    showToast('Network error saat menghubungi GenieACS.', 'error');
-                });
-            }
-
-            // Live Search with Debounce
-            let searchTimer;
-            $('#custom-search').on('keyup input', function() {
-                clearTimeout(searchTimer);
-                searchTimer = setTimeout(function() {
-                    $('#filterForm').submit();
-                }, 600);
-            });
-
-            $('#filter-status').on('change', function() {
-                $('#filterForm').submit();
-            });
         </script>
     @endsection
 </x-layouts.app>

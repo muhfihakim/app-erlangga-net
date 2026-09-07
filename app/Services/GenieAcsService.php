@@ -115,9 +115,23 @@ class GenieAcsService
     }
 
     /**
-     * Get list of devices with projection
+     * Get all devices with 30s caching
      */
-    public function getDevices(?string $search = null): array
+    public function getAllDevices(bool $forceRefresh = false): array
+    {
+        if ($forceRefresh) {
+            Cache::forget('genieacs_all_devices');
+        }
+
+        return Cache::remember('genieacs_all_devices', 30, function () {
+            return $this->fetchDevicesFromApi();
+        });
+    }
+
+    /**
+     * Fetch all raw devices from GenieACS and format rows
+     */
+    public function fetchDevicesFromApi(): array
     {
         $token = $this->getToken();
         if (!$token) {
@@ -169,24 +183,7 @@ class GenieAcsService
 
             $devices = [];
             foreach ($rawDevices as $dev) {
-                $parsed = $this->formatDeviceRow($dev);
-
-                // Filter search if query provided
-                if ($search) {
-                    $s = strtolower($search);
-                    $matches = str_contains(strtolower($parsed['serial_number']), $s)
-                        || str_contains(strtolower($parsed['pppoe_username']), $s)
-                        || str_contains(strtolower($parsed['ssid']), $s)
-                        || str_contains(strtolower($parsed['ip_address']), $s)
-                        || str_contains(strtolower($parsed['model']), $s)
-                        || str_contains(strtolower($parsed['manufacturer']), $s);
-
-                    if (!$matches) {
-                        continue;
-                    }
-                }
-
-                $devices[] = $parsed;
+                $devices[] = $this->formatDeviceRow($dev);
             }
 
             // Sort by is_online (descending) and last_inform (descending)
@@ -199,10 +196,33 @@ class GenieAcsService
 
             return $devices;
         } catch (\Throwable $e) {
-            Log::error("GenieAcsService::getDevices error: " . $e->getMessage());
+            Log::error("GenieAcsService::fetchDevicesFromApi error: " . $e->getMessage());
             return [];
         }
     }
+
+    /**
+     * Get list of devices with projection and optional search filter
+     */
+    public function getDevices(?string $search = null, bool $forceRefresh = false): array
+    {
+        $devices = $this->getAllDevices($forceRefresh);
+
+        if ($search) {
+            $s = strtolower($search);
+            return array_values(array_filter($devices, function ($parsed) use ($s) {
+                return str_contains(strtolower($parsed['serial_number'] ?? ''), $s)
+                    || str_contains(strtolower($parsed['pppoe_username'] ?? ''), $s)
+                    || str_contains(strtolower($parsed['ssid'] ?? ''), $s)
+                    || str_contains(strtolower($parsed['ip_address'] ?? ''), $s)
+                    || str_contains(strtolower($parsed['model'] ?? ''), $s)
+                    || str_contains(strtolower($parsed['manufacturer'] ?? ''), $s);
+            }));
+        }
+
+        return $devices;
+    }
+
 
     /**
      * Get single device details
@@ -319,6 +339,7 @@ class GenieAcsService
             }
 
             if ($response->successful() || $response->status() === 200 || $response->status() === 202) {
+                Cache::forget('genieacs_all_devices');
                 return [
                     'success' => true,
                     'message' => 'Perintah berhasil dikirim ke ONT via TR-069!',
@@ -382,10 +403,12 @@ class GenieAcsService
 
         $isOnline = false;
         $lastInformStr = '-';
+        $lastInformHuman = '-';
         if ($lastInformTs) {
             // ts could be in milliseconds
             $ts = $lastInformTs > 10000000000 ? intval($lastInformTs / 1000) : intval($lastInformTs);
             $lastInformStr = date('d M Y H:i:s', $ts);
+            $lastInformHuman = \Carbon\Carbon::createFromTimestamp($ts)->diffForHumans();
             // Considered online if inform occurred within last 10 minutes
             $isOnline = (time() - $ts) < 600;
         }
@@ -402,6 +425,7 @@ class GenieAcsService
             'temperature' => $temp ? ($temp . ' °C') : null,
             'pon_mode' => $ponMode,
             'last_inform' => $lastInformStr,
+            'last_inform_human' => $lastInformHuman,
             'last_inform_timestamp' => $lastInformTs,
             'is_online' => $isOnline,
         ];
