@@ -95,6 +95,11 @@
                                 <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
                                     <i class="fa-regular fa-envelope mr-1"></i> {{ $user->email }}
                                 </div>
+                                @if($user->no_whatsapp)
+                                    <div style="font-size: 11px; color: #16a34a; margin-top: 1px; font-weight: 600;">
+                                        <i class="fa-brands fa-whatsapp mr-1"></i> {{ $user->no_whatsapp }}
+                                    </div>
+                                @endif
                             </td>
                             <td style="text-align: center;">
                                 <div style="font-weight: 600; color: #475569; font-size: 12px;">NIK: {{ $user->nik ?? '-' }}</div>
@@ -127,6 +132,7 @@
                                         data-user-id="{{ $user->id }}"
                                         data-user-nama="{{ $user->nama_lengkap }}"
                                         data-user-nik="{{ $user->nik }}" 
+                                        data-user-wa="{{ $user->no_whatsapp }}"
                                         data-user-alamat="{{ $user->alamat }}"
                                         data-user-jk="{{ $user->jenis_kelamin }}"
                                         data-user-tgl="{{ $user->tanggal_lahir ? \Carbon\Carbon::parse($user->tanggal_lahir)->format('Y-m-d') : '' }}"
@@ -191,6 +197,7 @@
                             $form.attr('action', `/accounts/${$btn.data('user-id')}`);
                             $('#edit_nama_lengkap').val($btn.data('user-nama'));
                             $('#edit_email').val($btn.data('user-email'));
+                            $('#edit_no_whatsapp').val($btn.data('user-wa'));
                             $('#edit_nik').val($btn.data('user-nik'));
                             $('#edit_alamat').val($btn.data('user-alamat'));
                             $('#edit_jenis_kelamin').val($btn.data('user-jk'));

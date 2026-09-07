@@ -36,6 +36,11 @@ class SettingController extends Controller
                 'webhook_token' => Setting::get('xendit_webhook_token', env('XENDIT_WEBHOOK_TOKEN', '')),
                 'webhook_url' => url('/api/webhooks/xendit'),
             ],
+            'whatsapp' => [
+                'api_url' => Setting::get('whatsapp_api_url', env('WHATSAPP_API_URL', 'https://api.co.id/api/v1/send-message')),
+                'api_key' => Setting::get('whatsapp_api_key', env('WHATSAPP_API_KEY', '')),
+                'sender' => Setting::get('whatsapp_sender', env('WHATSAPP_SENDER', '')),
+            ],
         ];
 
         return view('settings.index', compact('settings'));
@@ -125,6 +130,16 @@ class SettingController extends Controller
                 'services.xendit.secret_key' => $request->xendit_secret_key ?? '',
                 'services.xendit.webhook_token' => $request->xendit_webhook_token ?? '',
             ]);
+        } elseif ($tab === 'whatsapp') {
+            $request->validate([
+                'whatsapp_api_url' => 'required|string',
+                'whatsapp_api_key' => 'nullable|string',
+                'whatsapp_sender' => 'nullable|string',
+            ]);
+
+            Setting::set('whatsapp_api_url', $request->whatsapp_api_url, 'whatsapp');
+            Setting::set('whatsapp_api_key', $request->whatsapp_api_key ?? '', 'whatsapp');
+            Setting::set('whatsapp_sender', $request->whatsapp_sender ?? '', 'whatsapp');
         }
 
         return redirect()->route('settings.index', ['tab' => $tab])->with('success', 'Pengaturan ' . strtoupper($tab) . ' berhasil disimpan ke Database!');
@@ -225,6 +240,28 @@ class SettingController extends Controller
                     'success' => true,
                     'message' => "API Key Xendit Valid! Saldo Kas: Rp {$amount} [{$elapsed}ms]",
                 ]);
+            }
+
+            if ($type === 'whatsapp') {
+                $target = $request->input('target') 
+                    ?: auth()->user()->no_whatsapp 
+                    ?: Setting::get('company_phone') 
+                    ?: '081234567890';
+
+                $msg = "🔔 *Tes Notifikasi WhatsApp Gateway (api.co.id)*\n\nIntegrasi API WhatsApp Erlangga Net berhasil terhubung dengan sukses pada " . date('d/m/Y H:i:s') . " WIB.";
+                $result = \App\Services\WhatsAppService::sendMessage($target, $msg);
+
+                $elapsed = round((microtime(true) - $startTime) * 1000, 2);
+
+                if ($result['success']) {
+                    $simMsg = ($result['simulated'] ?? false) ? ' (Mode Simulasi - API Key kosong)' : '';
+                    return response()->json([
+                        'success' => true,
+                        'message' => "Pengujian WhatsApp API Berhasil{$simMsg}! Pesan diproses untuk {$target} [{$elapsed}ms]",
+                    ]);
+                } else {
+                    throw new \Exception($result['message'] ?? 'Gagal mengirim pesan WhatsApp.');
+                }
             }
 
             throw new \Exception("Tipe pengujian tidak dikenal.");

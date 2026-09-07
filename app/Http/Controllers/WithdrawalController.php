@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BankAccount;
 use App\Models\Setting;
 use App\Models\Withdrawal;
+use App\Services\WhatsAppService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -32,7 +33,6 @@ class WithdrawalController extends Controller
             ->orderBy('id', 'desc')
             ->paginate(15);
 
-        $totalCompleted = Withdrawal::where('status', 'COMPLETED')->sum('amount');
         $totalPending = Withdrawal::where('status', 'PENDING')->sum('amount');
 
         return view('withdrawals.index', compact(
@@ -40,13 +40,12 @@ class WithdrawalController extends Controller
             'banks',
             'bankAccounts',
             'withdrawals',
-            'totalCompleted',
             'totalPending'
         ));
     }
 
     /**
-     * Kirim kode OTP untuk verifikasi penarikan dana
+     * Kirim kode OTP untuk verifikasi penarikan dana via WhatsApp
      */
     public function sendOtp(Request $request)
     {
@@ -65,11 +64,14 @@ class WithdrawalController extends Controller
         $otp = (string) random_int(100000, 999999);
         $cacheKey = 'withdrawal_otp_' . $user->id;
 
+        $bankName = $this->getBankNameByCode($request->bank_code);
+
         // Simpan OTP di cache selama 5 menit (300 detik)
         Cache::put($cacheKey, [
             'otp' => $otp,
             'amount' => $request->amount,
             'bank_code' => $request->bank_code,
+            'bank_name' => $bankName,
             'account_number' => $request->account_number,
             'account_holder_name' => $request->account_holder_name,
             'description' => $request->description ?? 'Penarikan Saldo Xendit',
@@ -78,14 +80,34 @@ class WithdrawalController extends Controller
 
         Log::info("Super Admin Withdrawal OTP generated for user #{$user->id}: {$otp}");
 
-        // Format info pengiriman
-        $targetEmail = $user->email;
-        $maskedEmail = $this->maskEmail($targetEmail);
+        // Tentukan nomor WhatsApp penerima OTP (diambil dari informasi rekening bank)
+        $targetPhone = $request->no_whatsapp;
+        if (empty($targetPhone)) {
+            $bankAcc = BankAccount::where('account_number', trim($request->account_number))->first();
+            if ($bankAcc && !empty($bankAcc->no_whatsapp)) {
+                $targetPhone = $bankAcc->no_whatsapp;
+            }
+        }
+        if (empty($targetPhone)) {
+            $targetPhone = $user->no_whatsapp ?: '081234567890';
+        }
+
+        $maskedPhone = WhatsAppService::maskPhone($targetPhone);
+
+        // Kirim OTP via WhatsApp
+        $waResult = WhatsAppService::sendWithdrawalOtp($targetPhone, $otp, [
+            'amount' => $request->amount,
+            'bank_code' => $request->bank_code,
+            'bank_name' => $bankName,
+            'account_number' => $request->account_number,
+            'account_holder_name' => $request->account_holder_name,
+        ]);
 
         return response()->json([
             'success' => true,
-            'message' => "Kode OTP 6-digit berhasil dikirimkan ke {$maskedEmail}.",
-            'recipient' => $maskedEmail,
+            'message' => "Kode OTP 6-digit berhasil dikirimkan ke WhatsApp Anda ({$maskedPhone}).",
+            'recipient' => $maskedPhone,
+            'wa_status' => $waResult,
             'debug_otp' => config('app.debug') ? $otp : null, // Hanya muncul saat debug mode aktif
             'expires_in' => 300,
         ]);

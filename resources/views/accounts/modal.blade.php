@@ -23,6 +23,10 @@
                          <input type="email" class="form-input" name="email" placeholder="email@example.com" required autocomplete="off">
                      </div>
                      <div class="form-group">
+                         <label class="form-label !text-slate-800 !font-bold">Nomor WhatsApp</label>
+                         <input type="text" class="form-input" name="no_whatsapp" placeholder="081234567890" autocomplete="off">
+                     </div>
+                     <div class="form-group">
                          <label class="form-label !text-slate-800 !font-bold">Password <span class="text-rose-500">*</span></label>
                          <input type="password" class="form-input" name="password" placeholder="Minimal 8 karakter" required autocomplete="off">
                      </div>
@@ -42,7 +46,7 @@
                          <label class="form-label !text-slate-800 !font-bold">Tanggal Lahir</label>
                          <input type="date" class="form-input" name="tanggal_lahir" autocomplete="off">
                      </div>
-                     <div class="form-group md:col-span-2">
+                     <div class="form-group">
                          <label class="form-label !text-slate-800 !font-bold">Jabatan <span class="text-rose-500">*</span></label>
                          <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" name="jabatan" required>
                              <option value="">Pilih Jabatan</option>
@@ -97,6 +101,10 @@
                          <input type="email" class="form-input" id="edit_email" name="email" required autocomplete="off">
                      </div>
                      <div class="form-group">
+                         <label class="form-label !text-slate-800 !font-bold">Nomor WhatsApp</label>
+                         <input type="text" class="form-input" id="edit_no_whatsapp" name="no_whatsapp" placeholder="081234567890" autocomplete="off">
+                     </div>
+                     <div class="form-group">
                          <label class="form-label !text-slate-800 !font-bold">Ganti Password (Opsional)</label>
                          <input type="password" class="form-input" name="password" placeholder="Kosongkan jika tidak ingin ganti" autocomplete="off">
                      </div>
@@ -116,7 +124,7 @@
                          <label class="form-label !text-slate-800 !font-bold">Tanggal Lahir</label>
                          <input type="date" class="form-input" id="edit_tanggal_lahir" name="tanggal_lahir" autocomplete="off">
                      </div>
-                     <div class="form-group md:col-span-2">
+                     <div class="form-group">
                          <label class="form-label !text-slate-800 !font-bold">Jabatan <span class="text-rose-500">*</span></label>
                          <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" id="edit_jabatan" name="jabatan" required>
                              <option value="Super Admin">Super Admin</option>

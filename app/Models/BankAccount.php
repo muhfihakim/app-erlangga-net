@@ -15,6 +15,7 @@ class BankAccount extends Model
         'bank_name',
         'account_number',
         'account_holder_name',
+        'no_whatsapp',
         'is_default',
         'notes',
     ];

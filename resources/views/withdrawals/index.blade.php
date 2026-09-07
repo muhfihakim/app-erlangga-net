@@ -16,7 +16,7 @@
     </div>
 
     <!-- Summary Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
         <!-- Saldo Xendit -->
         <div class="table-card p-6 bg-gradient-to-br from-slate-900 to-slate-800 text-white relative overflow-hidden shadow-xl">
             <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
@@ -32,20 +32,6 @@
             <p class="text-[11px] text-slate-400 mt-2 flex items-center gap-1.5">
                 <i class="fa-solid fa-circle-check text-emerald-500"></i> Saldo CASH yang siap ditarik kapan saja
             </p>
-        </div>
-
-        <!-- Total Selesai -->
-        <div class="table-card p-6 bg-white border border-slate-200 shadow-sm">
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-xs uppercase tracking-wider text-slate-500 font-bold">Total Telah Dicairkan</span>
-                <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-bold">
-                    <i class="fa-solid fa-circle-check"></i>
-                </div>
-            </div>
-            <div class="text-2xl sm:text-3xl font-black text-slate-800 font-mono">
-                Rp {{ number_format($totalCompleted, 0, ',', '.') }}
-            </div>
-            <p class="text-[11px] text-slate-400 mt-2">Akumulasi pencairan berhasil</p>
         </div>
 
         <!-- Total Pending -->
@@ -95,12 +81,13 @@
                                             data-bank-name="{{ $acc->bank_name }}"
                                             data-account-number="{{ $acc->account_number }}"
                                             data-account-name="{{ $acc->account_holder_name }}"
+                                            data-no-whatsapp="{{ $acc->no_whatsapp }}"
                                             {{ $acc->is_default ? 'selected' : '' }}>
-                                        {{ $acc->bank_name }} - {{ $acc->account_number }} (a.n {{ $acc->account_holder_name }}) {{ $acc->is_default ? '[REKENING UTAMA]' : '' }}
+                                        {{ $acc->bank_name }} - {{ $acc->account_number }} (a.n {{ $acc->account_holder_name }}) {{ $acc->no_whatsapp ? '[WA: ' . $acc->no_whatsapp . ']' : '' }} {{ $acc->is_default ? '[REKENING UTAMA]' : '' }}
                                     </option>
                                 @endforeach
                             </select>
-                            <small class="text-slate-400 text-[10px] block mt-1">Pilih rekening untuk mengisi data bank tujuan secara otomatis.</small>
+                            <small class="text-slate-400 text-[10px] block mt-1">Pilih rekening untuk mengisi data bank dan nomor WhatsApp penerima OTP secara otomatis.</small>
                         </div>
 
                         <!-- Bank Tujuan -->
@@ -126,6 +113,16 @@
                                 <label class="form-label font-bold text-slate-700">Nama Pemilik Rekening <span class="text-rose-500">*</span></label>
                                 <input type="text" id="wd_account_holder_name" class="form-input uppercase font-semibold" placeholder="MUHAMMAD FIHAKIM" required>
                             </div>
+                        </div>
+
+                        <!-- Nomor WhatsApp Penerima OTP -->
+                        <div class="form-group mb-4">
+                            <label class="form-label font-bold text-slate-700 flex items-center justify-between">
+                                <span>Nomor WhatsApp Penerima OTP <span class="text-rose-500">*</span></span>
+                                <span class="text-[10px] text-emerald-600 font-semibold"><i class="fa-brands fa-whatsapp"></i> OTP dikirim ke sini</span>
+                            </label>
+                            <input type="text" id="wd_no_whatsapp" class="form-input font-mono font-bold text-slate-800" placeholder="081234567890" required>
+                            <small class="text-slate-400 text-[10px] block mt-1">Nomor WhatsApp yang akan menerima 6 digit kode OTP verifikasi penarikan saldo.</small>
                         </div>
 
                         <!-- Nominal Penarikan -->
@@ -159,8 +156,8 @@
                 </div>
 
                 <div class="mt-6 pt-4 border-t border-slate-100 text-[11px] text-slate-400 flex items-center gap-2">
-                    <i class="fa-solid fa-shield-halved text-emerald-600"></i>
-                    <span>Setiap transaksi dilindungi verifikasi OTP 6 digit demi keamanan kas.</span>
+                    <i class="fa-brands fa-whatsapp text-emerald-600 text-sm"></i>
+                    <span>Setiap transaksi dilindungi verifikasi OTP 6 digit via WhatsApp demi keamanan kas.</span>
                 </div>
             </div>
         </div>
@@ -201,6 +198,11 @@
                                             </div>
                                             <p class="font-mono font-bold text-slate-700 text-xs mt-1">{{ $acc->account_number }}</p>
                                             <p class="text-[11px] text-slate-500 uppercase font-semibold">a.n {{ $acc->account_holder_name }}</p>
+                                            @if($acc->no_whatsapp)
+                                                <p class="text-[11px] text-emerald-600 font-semibold mt-0.5 flex items-center gap-1">
+                                                    <i class="fa-brands fa-whatsapp"></i> {{ $acc->no_whatsapp }}
+                                                </p>
+                                            @endif
                                             @if($acc->notes)
                                                 <p class="text-[10px] text-slate-400 mt-1 italic">{{ $acc->notes }}</p>
                                             @endif
@@ -342,61 +344,65 @@
     </div>
 
     <!-- Modal Tambah Rekening Bank -->
-    <div id="modalAddBank" class="modal-overlay hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="modal-box bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative animate-scale-up">
-            <button type="button" onclick="closeAddBankModal()" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center transition-all">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-
-            <div class="flex items-center gap-3 border-b border-slate-100 pb-3 mb-5">
-                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg font-bold">
-                    <i class="fa-solid fa-plus"></i>
-                </div>
-                <div>
-                    <h3 class="text-base font-bold text-slate-800">Tambah Rekening Bank</h3>
-                    <p class="text-xs text-slate-400">Simpan informasi rekening untuk penarikan cepat</p>
-                </div>
-            </div>
-
+    <div class="modal-overlay" id="modalAddBank">
+        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
             <form action="{{ route('bank_accounts.store') }}" method="POST">
                 @csrf
                 <input type="hidden" name="bank_name" id="add_bank_name">
 
-                <div class="form-group mb-4">
-                    <label class="form-label font-bold text-slate-700">Bank Tujuan <span class="text-rose-500">*</span></label>
-                    <select name="bank_code" id="add_bank_code" class="form-input bg-white" required onchange="setBankName(this, 'add_bank_name')">
-                        <option value="" disabled selected>-- Pilih Bank / E-Wallet --</option>
-                        @foreach($banks as $bank)
-                            <option value="{{ $bank['code'] }}" data-name="{{ $bank['name'] }}">{{ $bank['name'] }} ({{ $bank['code'] }})</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="form-group mb-4">
-                    <label class="form-label font-bold text-slate-700">Nomor Rekening <span class="text-rose-500">*</span></label>
-                    <input type="text" name="account_number" class="form-input font-mono font-bold" placeholder="Nomor rekening" required>
-                </div>
-
-                <div class="form-group mb-4">
-                    <label class="form-label font-bold text-slate-700">Nama Pemilik Rekening <span class="text-rose-500">*</span></label>
-                    <input type="text" name="account_holder_name" class="form-input uppercase font-semibold" placeholder="Nama sesuai buku tabungan" required>
-                </div>
-
-                <div class="form-group mb-4">
-                    <label class="form-label font-bold text-slate-700">Catatan / Label (Opsional)</label>
-                    <input type="text" name="notes" class="form-input text-xs" placeholder="misal: Rekening Utama BCA Bisnis">
-                </div>
-
-                <div class="form-group mb-6 flex items-center gap-2">
-                    <input type="checkbox" name="is_default" id="add_is_default" value="1" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300">
-                    <label for="add_is_default" class="text-xs font-semibold text-slate-700 cursor-pointer">Jadikan Rekening Utama (Default)</label>
-                </div>
-
-                <div class="flex gap-3">
-                    <button type="button" onclick="closeAddBankModal()" class="w-1/3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-all">
-                        Batal
+                <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                    <div class="modal-title">
+                        <i class="fa-solid fa-plus-circle text-indigo-600"></i>
+                        <span class="text-slate-900 font-bold text-[17px]">Tambah Rekening Bank</span>
+                    </div>
+                    <button type="button" class="modal-close" onclick="closeAddBankModal()">
+                        <i class="fa-solid fa-xmark"></i>
                     </button>
-                    <button type="submit" class="w-2/3 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-indigo-600/20">
+                </div>
+
+                <div class="modal-body p-6 space-y-4 bg-white">
+                    <div class="form-group">
+                        <label class="form-label !text-slate-800 !font-bold">Bank Tujuan <span class="text-rose-500">*</span></label>
+                        <select name="bank_code" id="add_bank_code" class="form-input-custom w-full bg-white text-slate-900 border-slate-300" required onchange="setBankName(this, 'add_bank_name')">
+                            <option value="" disabled selected>-- Pilih Bank / E-Wallet --</option>
+                            @foreach($banks as $bank)
+                                <option value="{{ $bank['code'] }}" data-name="{{ $bank['name'] }}">{{ $bank['name'] }} ({{ $bank['code'] }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label !text-slate-800 !font-bold">Nomor Rekening <span class="text-rose-500">*</span></label>
+                        <input type="text" name="account_number" class="form-input font-mono font-bold" placeholder="Nomor rekening" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label !text-slate-800 !font-bold">Nama Pemilik Rekening <span class="text-rose-500">*</span></label>
+                        <input type="text" name="account_holder_name" class="form-input uppercase font-semibold" placeholder="Nama sesuai buku tabungan" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label !text-slate-800 !font-bold">Nomor WhatsApp Penerima OTP <span class="text-rose-500">*</span></label>
+                        <input type="text" name="no_whatsapp" class="form-input font-mono font-bold" placeholder="081234567890" required>
+                        <small class="text-slate-400 text-[11px]">Kode OTP verifikasi penarikan ke rekening ini akan dikirimkan ke nomor ini.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label !text-slate-800 !font-bold">Catatan / Label (Opsional)</label>
+                        <input type="text" name="notes" class="form-input text-xs" placeholder="misal: Rekening Utama BCA">
+                    </div>
+
+                    <div class="form-group flex items-center gap-2 pt-1">
+                        <input type="checkbox" name="is_default" id="add_is_default" value="1" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300">
+                        <label for="add_is_default" class="text-xs font-semibold text-slate-700 cursor-pointer">Jadikan Rekening Utama (Default)</label>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2" onclick="closeAddBankModal()">
+                        <i class="fa-solid fa-xmark"></i> Batal
+                    </button>
+                    <button type="submit" class="btn-save !flex !items-center !justify-center gap-2 !bg-indigo-600 hover:!bg-indigo-700">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan Rekening
                     </button>
                 </div>
@@ -405,62 +411,66 @@
     </div>
 
     <!-- Modal Edit Rekening Bank -->
-    <div id="modalEditBank" class="modal-overlay hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="modal-box bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative animate-scale-up">
-            <button type="button" onclick="closeEditBankModal()" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center transition-all">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-
-            <div class="flex items-center gap-3 border-b border-slate-100 pb-3 mb-5">
-                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg font-bold">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                </div>
-                <div>
-                    <h3 class="text-base font-bold text-slate-800">Edit Rekening Bank</h3>
-                    <p class="text-xs text-slate-400">Perbarui informasi rekening tersimpan</p>
-                </div>
-            </div>
-
+    <div class="modal-overlay" id="modalEditBank">
+        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
             <form id="formEditBank" method="POST">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="bank_name" id="edit_bank_name">
 
-                <div class="form-group mb-4">
-                    <label class="form-label font-bold text-slate-700">Bank Tujuan <span class="text-rose-500">*</span></label>
-                    <select name="bank_code" id="edit_bank_code" class="form-input bg-white" required onchange="setBankName(this, 'edit_bank_name')">
-                        <option value="" disabled>-- Pilih Bank / E-Wallet --</option>
-                        @foreach($banks as $bank)
-                            <option value="{{ $bank['code'] }}" data-name="{{ $bank['name'] }}">{{ $bank['name'] }} ({{ $bank['code'] }})</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="form-group mb-4">
-                    <label class="form-label font-bold text-slate-700">Nomor Rekening <span class="text-rose-500">*</span></label>
-                    <input type="text" name="account_number" id="edit_account_number" class="form-input font-mono font-bold" required>
-                </div>
-
-                <div class="form-group mb-4">
-                    <label class="form-label font-bold text-slate-700">Nama Pemilik Rekening <span class="text-rose-500">*</span></label>
-                    <input type="text" name="account_holder_name" id="edit_account_holder_name" class="form-input uppercase font-semibold" required>
-                </div>
-
-                <div class="form-group mb-4">
-                    <label class="form-label font-bold text-slate-700">Catatan / Label (Opsional)</label>
-                    <input type="text" name="notes" id="edit_notes" class="form-input text-xs">
-                </div>
-
-                <div class="form-group mb-6 flex items-center gap-2">
-                    <input type="checkbox" name="is_default" id="edit_is_default" value="1" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300">
-                    <label for="edit_is_default" class="text-xs font-semibold text-slate-700 cursor-pointer">Jadikan Rekening Utama (Default)</label>
-                </div>
-
-                <div class="flex gap-3">
-                    <button type="button" onclick="closeEditBankModal()" class="w-1/3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-all">
-                        Batal
+                <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                    <div class="modal-title">
+                        <i class="fa-solid fa-pen-to-square text-amber-500"></i>
+                        <span class="text-slate-900 font-bold text-[17px]">Edit Rekening Bank</span>
+                    </div>
+                    <button type="button" class="modal-close" onclick="closeEditBankModal()">
+                        <i class="fa-solid fa-xmark"></i>
                     </button>
-                    <button type="submit" class="w-2/3 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-amber-500/20">
+                </div>
+
+                <div class="modal-body p-6 space-y-4 bg-white">
+                    <div class="form-group">
+                        <label class="form-label !text-slate-800 !font-bold">Bank Tujuan <span class="text-rose-500">*</span></label>
+                        <select name="bank_code" id="edit_bank_code" class="form-input-custom w-full bg-white text-slate-900 border-slate-300" required onchange="setBankName(this, 'edit_bank_name')">
+                            <option value="" disabled>-- Pilih Bank / E-Wallet --</option>
+                            @foreach($banks as $bank)
+                                <option value="{{ $bank['code'] }}" data-name="{{ $bank['name'] }}">{{ $bank['name'] }} ({{ $bank['code'] }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label !text-slate-800 !font-bold">Nomor Rekening <span class="text-rose-500">*</span></label>
+                        <input type="text" name="account_number" id="edit_account_number" class="form-input font-mono font-bold" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label !text-slate-800 !font-bold">Nama Pemilik Rekening <span class="text-rose-500">*</span></label>
+                        <input type="text" name="account_holder_name" id="edit_account_holder_name" class="form-input uppercase font-semibold" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label !text-slate-800 !font-bold">Nomor WhatsApp Penerima OTP <span class="text-rose-500">*</span></label>
+                        <input type="text" name="no_whatsapp" id="edit_no_whatsapp" class="form-input font-mono font-bold" placeholder="081234567890" required>
+                        <small class="text-slate-400 text-[11px]">Kode OTP verifikasi penarikan ke rekening ini akan dikirimkan ke nomor ini.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label !text-slate-800 !font-bold">Catatan / Label (Opsional)</label>
+                        <input type="text" name="notes" id="edit_notes" class="form-input text-xs">
+                    </div>
+
+                    <div class="form-group flex items-center gap-2 pt-1">
+                        <input type="checkbox" name="is_default" id="edit_is_default" value="1" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300">
+                        <label for="edit_is_default" class="text-xs font-semibold text-slate-700 cursor-pointer">Jadikan Rekening Utama (Default)</label>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2" onclick="closeEditBankModal()">
+                        <i class="fa-solid fa-xmark"></i> Batal
+                    </button>
+                    <button type="submit" class="btn-save !flex !items-center !justify-center gap-2 !bg-amber-500 hover:!bg-amber-600">
                         <i class="fa-solid fa-check"></i> Simpan Perubahan
                     </button>
                 </div>
@@ -469,61 +479,68 @@
     </div>
 
     <!-- OTP Verification Modal -->
-    <div id="otpModal" class="modal-overlay hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="modal-box bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative animate-scale-up">
-            <button type="button" onclick="closeOtpModal()" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center transition-all">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-
-            <div class="text-center mb-6">
-                <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-3 text-2xl shadow-inner">
-                    <i class="fa-solid fa-shield-keyhole"></i>
+    <div class="modal-overlay" id="otpModal">
+        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+                <div class="modal-title">
+                    <i class="fa-solid fa-shield-halved text-emerald-600"></i>
+                    <span class="text-slate-900 font-bold text-[17px]">Verifikasi Kode OTP</span>
                 </div>
-                <h3 class="text-lg font-black text-slate-800">Verifikasi Kode OTP</h3>
-                <p class="text-xs text-slate-500 mt-1" id="otpRecipientInfo">
-                    Masukkan 6-digit kode OTP yang telah dikirimkan ke email Anda.
-                </p>
-            </div>
-
-            <!-- Detail Transaksi Singkat -->
-            <div class="bg-slate-50 rounded-2xl p-4 mb-5 border border-slate-200/80 text-xs space-y-1.5">
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Bank Tujuan:</span>
-                    <span class="font-bold text-slate-800" id="otp_preview_bank">-</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Nomor Rekening:</span>
-                    <span class="font-bold text-slate-800 font-mono" id="otp_preview_account">-</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-500">Nama Penerima:</span>
-                    <span class="font-bold text-slate-800" id="otp_preview_name">-</span>
-                </div>
-                <div class="flex justify-between border-t border-slate-200 pt-2 mt-2">
-                    <span class="text-slate-700 font-bold">Nominal Penarikan:</span>
-                    <span class="font-black text-emerald-600 text-sm font-mono" id="otp_preview_amount">-</span>
-                </div>
-            </div>
-
-            <!-- OTP Input -->
-            <div class="mb-5">
-                <label class="form-label font-bold text-slate-700 text-center block mb-2">Kode OTP (6 Digit)</label>
-                <input type="text" id="inputOtp" maxlength="6" class="form-input text-center font-mono text-2xl font-black tracking-widest text-slate-800 py-3 bg-slate-50 focus:bg-white" placeholder="••••••" autofocus>
-            </div>
-
-            <div class="flex items-center justify-between text-xs text-slate-500 mb-6">
-                <span>Kadaluarsa dalam: <strong id="otpCountdown" class="text-rose-600 font-mono">05:00</strong></span>
-                <button type="button" id="btnResendOtp" onclick="resendOtp()" class="text-indigo-600 hover:text-indigo-800 font-bold">
-                    Kirim Ulang OTP
+                <button type="button" class="modal-close" onclick="closeOtpModal()">
+                    <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <div class="flex gap-3">
-                <button type="button" onclick="closeOtpModal()" class="w-1/3 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-all">
-                    Batal
+            <div class="modal-body p-6 space-y-4 bg-white">
+                <div class="text-center">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-2 text-2xl shadow-inner">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </div>
+                    <p class="text-xs text-slate-500" id="otpRecipientInfo">
+                        Masukkan 6-digit kode OTP yang telah dikirimkan ke WhatsApp Anda.
+                    </p>
+                </div>
+
+                <!-- Detail Transaksi Singkat -->
+                <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 text-xs space-y-1.5">
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Bank Tujuan:</span>
+                        <span class="font-bold text-slate-800" id="otp_preview_bank">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Nomor Rekening:</span>
+                        <span class="font-bold text-slate-800 font-mono" id="otp_preview_account">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Nama Penerima:</span>
+                        <span class="font-bold text-slate-800" id="otp_preview_name">-</span>
+                    </div>
+                    <div class="flex justify-between border-t border-slate-200 pt-2 mt-2">
+                        <span class="text-slate-700 font-bold">Nominal Penarikan:</span>
+                        <span class="font-black text-emerald-600 text-sm font-mono" id="otp_preview_amount">-</span>
+                    </div>
+                </div>
+
+                <!-- OTP Input -->
+                <div>
+                    <label class="form-label !text-slate-800 !font-bold text-center block mb-2">Kode OTP (6 Digit)</label>
+                    <input type="text" id="inputOtp" maxlength="6" class="form-input text-center font-mono text-2xl font-black tracking-widest text-slate-800 py-2.5 bg-slate-50 focus:bg-white" placeholder="••••••" autofocus>
+                </div>
+
+                <div class="flex items-center justify-between text-xs text-slate-500">
+                    <span>Kadaluarsa: <strong id="otpCountdown" class="text-rose-600 font-mono">05:00</strong></span>
+                    <button type="button" id="btnResendOtp" onclick="resendOtp()" class="text-indigo-600 hover:text-indigo-800 font-bold">
+                        Kirim Ulang OTP
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2" onclick="closeOtpModal()">
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
-                <button type="button" id="btnConfirmWithdrawal" onclick="executeWithdrawal()" class="w-2/3 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-600/30">
-                    <i class="fa-solid fa-check"></i> <span>Konfirmasi & Tarik</span>
+                <button type="button" id="btnConfirmWithdrawal" onclick="executeWithdrawal()" class="btn-save !flex !items-center !justify-center gap-2 !bg-emerald-600 hover:!bg-emerald-700">
+                    <i class="fa-solid fa-check"></i> Konfirmasi & Tarik
                 </button>
             </div>
         </div>
@@ -554,18 +571,20 @@
                 const bankCode = selectedOption.getAttribute('data-bank-code');
                 const accountNumber = selectedOption.getAttribute('data-account-number');
                 const accountName = selectedOption.getAttribute('data-account-name');
+                const noWhatsapp = selectedOption.getAttribute('data-no-whatsapp');
 
                 if (bankCode) document.getElementById('wd_bank_code').value = bankCode;
                 if (accountNumber) document.getElementById('wd_account_number').value = accountNumber;
                 if (accountName) document.getElementById('wd_account_holder_name').value = accountName;
+                if (noWhatsapp) document.getElementById('wd_no_whatsapp').value = noWhatsapp;
             }
 
             function openAddBankModal() {
-                document.getElementById('modalAddBank').classList.remove('hidden');
+                openCustomModal('modalAddBank');
             }
 
             function closeAddBankModal() {
-                document.getElementById('modalAddBank').classList.add('hidden');
+                closeCustomModal('modalAddBank');
             }
 
             function openEditBankModal(acc) {
@@ -576,20 +595,22 @@
                 document.getElementById('edit_bank_name').value = acc.bank_name;
                 document.getElementById('edit_account_number').value = acc.account_number;
                 document.getElementById('edit_account_holder_name').value = acc.account_holder_name;
+                document.getElementById('edit_no_whatsapp').value = acc.no_whatsapp || '';
                 document.getElementById('edit_notes').value = acc.notes || '';
-                document.getElementById('edit_is_default').checked = acc.is_default;
+                document.getElementById('edit_is_default').checked = acc.is_default == 1;
 
-                document.getElementById('modalEditBank').classList.remove('hidden');
+                openCustomModal('modalEditBank');
             }
 
             function closeEditBankModal() {
-                document.getElementById('modalEditBank').classList.add('hidden');
+                closeCustomModal('modalEditBank');
             }
 
             function initiateWithdrawal() {
                 const bankCode = document.getElementById('wd_bank_code').value;
                 const accountNumber = document.getElementById('wd_account_number').value.trim();
                 const accountHolderName = document.getElementById('wd_account_holder_name').value.trim();
+                const noWhatsapp = document.getElementById('wd_no_whatsapp').value.trim();
                 const amount = parseFloat(document.getElementById('wd_amount').value);
                 const description = document.getElementById('wd_description').value.trim();
 
@@ -605,6 +626,10 @@
                     showToast('Silakan masukkan nama pemilik rekening.', 'error');
                     return;
                 }
+                if (!noWhatsapp) {
+                    showToast('Silakan masukkan nomor WhatsApp penerima OTP.', 'error');
+                    return;
+                }
                 if (!amount || amount < 10000) {
                     showToast('Minimal penarikan saldo adalah Rp 10.000.', 'error');
                     return;
@@ -614,6 +639,7 @@
                     bank_code: bankCode,
                     account_number: accountNumber,
                     account_holder_name: accountHolderName,
+                    no_whatsapp: noWhatsapp,
                     amount: amount,
                     description: description,
                     _token: '{{ csrf_token() }}'
@@ -732,12 +758,15 @@
             }
 
             function openOtpModal() {
-                document.getElementById('otpModal').classList.remove('hidden');
-                document.getElementById('inputOtp').focus();
+                openCustomModal('otpModal');
+                setTimeout(() => {
+                    const input = document.getElementById('inputOtp');
+                    if (input) input.focus();
+                }, 150);
             }
 
             function closeOtpModal() {
-                document.getElementById('otpModal').classList.add('hidden');
+                closeCustomModal('otpModal');
                 if (countdownTimer) clearInterval(countdownTimer);
             }
 

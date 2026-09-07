@@ -19,9 +19,10 @@ class BankAccountController extends Controller
 
         $validated = $request->validate([
             'bank_code' => 'required|string|max:50',
-            'bank_name' => 'required|string|max:100',
+            'bank_name' => 'nullable|string|max:100',
             'account_number' => 'required|string|max:50',
             'account_holder_name' => 'required|string|max:150',
+            'no_whatsapp' => 'nullable|string|max:50',
             'is_default' => 'nullable|boolean',
             'notes' => 'nullable|string|max:255',
         ]);
@@ -41,9 +42,10 @@ class BankAccountController extends Controller
         $bankAccount = BankAccount::create([
             'user_id' => $user->id,
             'bank_code' => strtoupper($validated['bank_code']),
-            'bank_name' => $validated['bank_name'],
+            'bank_name' => $validated['bank_name'] ?: strtoupper($validated['bank_code']),
             'account_number' => trim($validated['account_number']),
             'account_holder_name' => strtoupper(trim($validated['account_holder_name'])),
+            'no_whatsapp' => $validated['no_whatsapp'] ? trim($validated['no_whatsapp']) : null,
             'is_default' => $isDefault,
             'notes' => $validated['notes'] ?? null,
         ]);
@@ -71,9 +73,10 @@ class BankAccountController extends Controller
 
         $validated = $request->validate([
             'bank_code' => 'required|string|max:50',
-            'bank_name' => 'required|string|max:100',
+            'bank_name' => 'nullable|string|max:100',
             'account_number' => 'required|string|max:50',
             'account_holder_name' => 'required|string|max:150',
+            'no_whatsapp' => 'nullable|string|max:50',
             'is_default' => 'nullable|boolean',
             'notes' => 'nullable|string|max:255',
         ]);
@@ -86,9 +89,10 @@ class BankAccountController extends Controller
 
         $bankAccount->update([
             'bank_code' => strtoupper($validated['bank_code']),
-            'bank_name' => $validated['bank_name'],
+            'bank_name' => $validated['bank_name'] ?: strtoupper($validated['bank_code']),
             'account_number' => trim($validated['account_number']),
             'account_holder_name' => strtoupper(trim($validated['account_holder_name'])),
+            'no_whatsapp' => $validated['no_whatsapp'] ? trim($validated['no_whatsapp']) : null,
             'is_default' => $isDefault,
             'notes' => $validated['notes'] ?? null,
         ]);
