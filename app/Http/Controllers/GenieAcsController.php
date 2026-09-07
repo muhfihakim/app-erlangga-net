@@ -170,7 +170,7 @@ class GenieAcsController extends Controller
                 ? 'bg-amber-50 text-amber-600 border border-amber-200' 
                 : 'bg-emerald-50 text-emerald-600 border border-emerald-200';
             $rxHtml = '
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-mono font-bold ' . $rxClass . '">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-mono font-bold whitespace-nowrap ' . $rxClass . '">
                     <i class="fa-solid fa-wave-square text-[10px]"></i>
                     <span>' . htmlspecialchars($cleanRx, ENT_QUOTES, 'UTF-8') . ' dBm</span>
                 </span>';
@@ -186,9 +186,9 @@ class GenieAcsController extends Controller
                 ? 'bg-rose-50 text-rose-600 border border-rose-200' 
                 : 'bg-slate-50 text-slate-600 border border-slate-200';
             $tempHtml = '
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono font-bold ' . $tempClass . '">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-mono font-bold whitespace-nowrap ' . $tempClass . '">
                     <i class="fa-solid fa-temperature-half text-[10px]"></i>
-                    ' . htmlspecialchars($d['temperature'], ENT_QUOTES, 'UTF-8') . '
+                    <span>' . htmlspecialchars($d['temperature'], ENT_QUOTES, 'UTF-8') . '</span>
                 </span>';
         } else {
             $tempHtml = '<span class="text-slate-400 text-xs">-</span>';

@@ -9,8 +9,24 @@
                 font-size: 12px;
             }
 
+            /* Prevent RX and Temp columns from wrapping onto 2 lines */
+            #genieacs-table th.col-rx,
+            #genieacs-table td.col-rx {
+                width: 145px !important;
+                min-width: 145px !important;
+                white-space: nowrap !important;
+            }
+
+            #genieacs-table th.col-temp,
+            #genieacs-table td.col-temp {
+                width: 130px !important;
+                min-width: 130px !important;
+                white-space: nowrap !important;
+            }
+
             .dataTables_wrapper {
                 position: relative;
+                min-height: 200px;
                 padding: 0;
             }
 
@@ -18,17 +34,21 @@
                 display: none;
             }
 
-            .dataTables_processing {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: rgba(255, 255, 255, 0.96);
-                border: 1px solid #e2e8f0;
-                border-radius: 14px;
-                padding: 16px 28px;
-                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-                z-index: 50;
+            .dataTables_wrapper .dataTables_processing {
+                position: absolute !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                background: rgba(255, 255, 255, 0.95) !important;
+                padding: 15px 25px !important;
+                border-radius: 12px !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+                z-index: 50 !important;
+                margin: 0 !important;
+                border: 1px solid #e2e8f0 !important;
+                width: auto !important;
+                height: auto !important;
+                text-align: center;
             }
 
             .dataTables_info {
@@ -46,6 +66,7 @@
                 padding: 1.25rem 1.5rem;
                 gap: 4px;
                 float: right;
+                border-top: 1px solid #f1f5f9;
             }
 
             .dataTables_wrapper::after {
@@ -98,6 +119,47 @@
                 opacity: 0.35;
                 cursor: not-allowed;
                 pointer-events: none;
+            }
+
+            /* Indeterminate animated loading bar at the top of the table */
+            .table-loading-bar {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: #e0f2fe;
+                overflow: hidden;
+                z-index: 60;
+                border-top-left-radius: 14px;
+                border-top-right-radius: 14px;
+            }
+
+            .table-loading-bar::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: 40%;
+                background: linear-gradient(90deg, #38bdf8, #0ea5e9, #0284c7);
+                border-radius: 3px;
+                animation: tableLoadingSlide 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            }
+
+            @keyframes tableLoadingSlide {
+                0% {
+                    left: -40%;
+                    width: 30%;
+                }
+                50% {
+                    left: 30%;
+                    width: 50%;
+                }
+                100% {
+                    left: 100%;
+                    width: 30%;
+                }
             }
         </style>
     @endsection
@@ -172,9 +234,10 @@
                 <div style="flex: 2; min-width: 250px;">
                     <label class="form-label-custom">Live Search</label>
                     <div class="search-wrap !max-w-full">
-                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <i class="fa-solid fa-magnifying-glass search-icon" id="search-icon-indicator"></i>
                         <input type="search" name="search" class="search-input custom-search" id="custom-search"
-                            placeholder="Cari serial number, username PPPoE, SSID, IP..." autocomplete="off" />
+                            placeholder="Cari serial number, username PPPoE, SSID, IP..." autocomplete="off"
+                            onkeydown="return event.key != 'Enter';" />
                     </div>
                 </div>
                 <button type="button" id="btn-filter" class="btn-primary-admin !h-10 !px-6 flex items-center gap-2">
@@ -188,20 +251,21 @@
     </div>
 
     <!-- Table Card -->
-    <div class="table-card">
+    <div class="table-card relative">
+        <div id="table-loading-bar" class="table-loading-bar hidden"></div>
         <div class="table-responsive">
             <table id="genieacs-table" class="admin-table w-full">
                 <thead>
                     <tr>
-                        <th style="text-align: center; width: 90px;">Status</th>
-                        <th>Perangkat (ONT)</th>
-                        <th>Pelanggan (PPPoE)</th>
-                        <th>Alamat IP</th>
-                        <th>Nama Wi-Fi (SSID)</th>
-                        <th style="text-align: center; width: 120px;">Redaman RX</th>
-                        <th style="text-align: center; width: 110px;">Suhu ONT</th>
-                        <th style="width: 130px;">Inform Terakhir</th>
-                        <th style="text-align: center; width: 120px;">Opsi</th>
+                        <th style="text-align: center; width: 90px; min-width: 90px; white-space: nowrap;">Status</th>
+                        <th style="min-width: 170px; white-space: nowrap;">Perangkat (ONT)</th>
+                        <th style="min-width: 150px; white-space: nowrap;">Pelanggan (PPPoE)</th>
+                        <th style="min-width: 130px; white-space: nowrap;">Alamat IP</th>
+                        <th style="min-width: 140px; white-space: nowrap;">Nama Wi-Fi (SSID)</th>
+                        <th class="col-rx" style="text-align: center; width: 145px; min-width: 145px; white-space: nowrap !important;">Redaman RX</th>
+                        <th class="col-temp" style="text-align: center; width: 130px; min-width: 130px; white-space: nowrap !important;">Suhu ONT</th>
+                        <th style="width: 140px; min-width: 140px; white-space: nowrap;">Inform Terakhir</th>
+                        <th style="text-align: center; width: 120px; min-width: 120px; white-space: nowrap;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody style="border-top: none;">
@@ -314,15 +378,15 @@
                         }
                     },
                     columns: [
-                        { data: 'status', name: 'status', orderable: false, searchable: false, className: 'text-center align-middle' },
+                        { data: 'status', name: 'status', orderable: false, searchable: false, className: 'text-center align-middle whitespace-nowrap' },
                         { data: 'device', name: 'device', orderable: false, searchable: true, className: 'align-middle' },
                         { data: 'pppoe', name: 'pppoe', orderable: false, searchable: true, className: 'align-middle' },
-                        { data: 'ip', name: 'ip', orderable: false, searchable: true, className: 'align-middle' },
+                        { data: 'ip', name: 'ip', orderable: false, searchable: true, className: 'align-middle font-mono' },
                         { data: 'wifi', name: 'wifi', orderable: false, searchable: true, className: 'align-middle' },
-                        { data: 'rx_power', name: 'rx_power', orderable: false, searchable: false, className: 'text-center align-middle' },
-                        { data: 'temperature', name: 'temperature', orderable: false, searchable: false, className: 'text-center align-middle' },
-                        { data: 'last_inform', name: 'last_inform', orderable: false, searchable: false, className: 'align-middle' },
-                        { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center align-middle' }
+                        { data: 'rx_power', name: 'rx_power', orderable: false, searchable: false, className: 'text-center align-middle col-rx whitespace-nowrap', width: '145px' },
+                        { data: 'temperature', name: 'temperature', orderable: false, searchable: false, className: 'text-center align-middle col-temp whitespace-nowrap', width: '130px' },
+                        { data: 'last_inform', name: 'last_inform', orderable: false, searchable: false, className: 'align-middle whitespace-nowrap' },
+                        { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center align-middle whitespace-nowrap' }
                     ],
                     dom: 'tpir',
                     pageLength: 25,
@@ -331,17 +395,26 @@
                     ordering: false,
                     responsive: true,
                     language: {
-                        processing: '<div class="flex items-center justify-center gap-2.5 text-primary font-bold"><i class="fa-solid fa-circle-notch fa-spin text-2xl"></i> <span class="text-sm font-semibold text-slate-700">Memuat data ONT...</span></div>',
+                        processing: "<i class='fa-solid fa-circle-notch fa-spin text-sky-500 text-2xl'></i>",
                         info: "Menampilkan _START_ - _END_ dari _TOTAL_ ONT",
                         infoEmpty: "Menampilkan 0 dari 0 ONT",
                         zeroRecords: "Tidak ada data ONT yang sesuai dengan filter/pencarian",
                         emptyTable: "Belum ada data ONT di GenieACS",
                         paginate: {
-                            first: '<i class="fa-solid fa-angles-left"></i>',
-                            last: '<i class="fa-solid fa-angles-right"></i>',
                             previous: '<i class="fa-solid fa-chevron-left"></i>',
                             next: '<i class="fa-solid fa-chevron-right"></i>'
                         }
+                    }
+                });
+
+                // Indikator loading bar & live search saat DataTables memuat data
+                genieTable.on('processing.dt', function(e, settings, processing) {
+                    if (processing) {
+                        $('#table-loading-bar').removeClass('hidden');
+                        $('#search-icon-indicator').removeClass('fa-magnifying-glass').addClass('fa-circle-notch fa-spin text-sky-500');
+                    } else {
+                        $('#table-loading-bar').addClass('hidden');
+                        $('#search-icon-indicator').removeClass('fa-circle-notch fa-spin text-sky-500').addClass('fa-magnifying-glass');
                     }
                 });
 
