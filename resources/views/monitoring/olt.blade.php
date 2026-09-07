@@ -143,7 +143,8 @@
                 <!-- Input Panel -->
                 <div class="lg:col-span-4 h-full">
                     <div class="olt-card h-full overflow-y-auto custom-scrollbar">
-                        <div class="flex items-center gap-3 mb-6 sticky top-0 bg-white z-10 pb-2 border-b border-slate-100">
+                        <div
+                            class="flex items-center gap-3 mb-6 sticky top-0 bg-white z-10 pb-2 border-b border-slate-100">
                             <div
                                 class="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center shrink-0">
                                 <i class="fa-solid fa-gears"></i>
@@ -178,7 +179,8 @@
                                 </div>
                                 <div>
                                     <label class="form-label">ONU ID</label>
-                                    <input type="number" id="onu_id" class="form-input" placeholder="55" value="1">
+                                    <input type="number" id="onu_id" class="form-input" placeholder="55"
+                                        value="1">
                                 </div>
                             </div>
 
@@ -207,7 +209,7 @@
                                     value="24000007801">
                             </div>
 
-                            <div class="grid grid-cols-1 gap-4">
+                            <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="form-label">PPPoE Username</label>
                                     <input type="text" id="pppoe_user" class="form-input"
@@ -216,6 +218,18 @@
                                 <div>
                                     <label class="form-label">PPPoE Password</label>
                                     <input type="text" id="pppoe_pass" class="form-input" placeholder="password">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="form-label">Nama WiFi (SSID)</label>
+                                    <input type="text" id="wifi_ssid" class="form-input"
+                                        placeholder="NAMA WIFI (SSID)">
+                                </div>
+                                <div>
+                                    <label class="form-label">Password WiFi</label>
+                                    <input type="text" id="wifi_pass" class="form-input" placeholder="PASSWORD WIFI">
                                 </div>
                             </div>
 
@@ -239,7 +253,8 @@
                                 </div>
                                 <div>
                                     <h6 class="text-sm font-black text-slate-800 leading-tight">Generated Script</h6>
-                                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Siap digunakan
+                                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Siap
+                                        digunakan
                                         di Terminal/Putty</p>
                                 </div>
                             </div>
@@ -267,13 +282,16 @@
                                     <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
                                     <div class="w-3 h-3 rounded-full bg-green-500"></div>
                                 </div>
-                                <span class="text-[10px] text-slate-300 font-mono font-bold tracking-wider ml-2">OLT Terminal Output</span>
+                                <span class="text-[10px] text-slate-300 font-mono font-bold tracking-wider ml-2">OLT
+                                    Terminal Output</span>
                             </div>
                             <div class="flex items-center gap-3">
-                                <button id="btn_connect_terminal" class="bg-emerald-500 hover:bg-emerald-400 text-slate-900 px-3 py-1 rounded-lg text-[10px] font-black shadow-sm transition-colors flex items-center gap-1">
+                                <button id="btn_connect_terminal"
+                                    class="bg-emerald-500 hover:bg-emerald-400 text-slate-900 px-3 py-1 rounded-lg text-[10px] font-black shadow-sm transition-colors flex items-center gap-1">
                                     <i class="fa-solid fa-plug"></i> HUBUNGKAN
                                 </button>
-                                <button id="btn_clear_terminal" class="text-slate-400 hover:text-white transition-colors" title="Clear Terminal">
+                                <button id="btn_clear_terminal"
+                                    class="text-slate-400 hover:text-white transition-colors" title="Clear Terminal">
                                     <i class="fa-solid fa-eraser text-xs"></i>
                                 </button>
                             </div>
@@ -534,6 +552,8 @@
                 const custId = $('#cust_id').val() || '24000007801';
                 const user = $('#pppoe_user').val() || 'USER@erlangga.net';
                 const pass = $('#pppoe_pass').val() || 'PASSWORD';
+                const ssid = $('#wifi_ssid').val() || 'NAMA_WIFI';
+                const wifiPass = $('#wifi_pass').val() || 'KATA_SANDI_WIFI';
 
                 let script = '';
 
@@ -557,6 +577,11 @@ service PPPoE gemport 1 cos 0 vlan ${vlan}
 wan-ip 1 mode pppoe username ${user} password ${pass} vlan-profile Hotspot host 1
 wan-ip 1 ping-response enable traceroute-response enable
 security-mgmt 1 state enable mode forward protocol web
+!
+pon-onu-mng gpon-onu_${port}:${id}
+  ssid ctrl wifi_0/1 name ${ssid}
+  ssid auth wpa wifi_0/1 wpa-wpa2-psk key ${wifiPass}
+  exit
 !
 end
 write
@@ -590,6 +615,11 @@ service Hotspot1 gemport 2 cos 0 vlan ${vlan}
 wan-ip 1 mode pppoe username ${user} password ${pass} vlan-profile Hotspot1 host 1
 wan-ip 1 ping-response enable traceroute-response enable
 security-mgmt 1 state enable mode forward protocol web
+!
+pon-onu-mng gpon-onu_${port}:${id}
+  ssid ctrl wifi_0/1 name ${ssid}
+  ssid auth wpa wifi_0/1 wpa-wpa2-psk key ${wifiPass}
+  exit
 !
 end
 write
@@ -936,7 +966,9 @@ show gpon onu state gpon-olt_${port}`;
                     $.ajax({
                         url: '/api/olt/connect',
                         type: 'POST',
-                        data: { _token: '{{ csrf_token() }}' },
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
                         success: function(res) {
                             if (res.success && res.banner) {
                                 $textarea.val($textarea.val() + res.banner);
@@ -955,8 +987,8 @@ show gpon onu state gpon-olt_${port}`;
                 });
 
                 const zteCommands = [
-                    "show", "config", "interface", "gpon-olt", "gpon-onu", "pon-onu-mng", 
-                    "service-port", "wan-ip", "security-mgmt", "exit", "write", "end", 
+                    "show", "config", "interface", "gpon-olt", "gpon-onu", "pon-onu-mng",
+                    "service-port", "wan-ip", "security-mgmt", "exit", "write", "end",
                     "show gpon onu state", "show gpon onu baseinfo", "show pon power olt-rx"
                 ];
 
@@ -965,21 +997,25 @@ show gpon onu state gpon-olt_${port}`;
                     const val = $(this).val();
                     const start = this.selectionStart;
                     const end = this.selectionEnd;
-                    
+
                     // Prevent editing past the prompt
                     const lastPromptIndex = Math.max(
-                        val.lastIndexOf('Username:'), 
-                        val.lastIndexOf('Password:'), 
+                        val.lastIndexOf('Username:'),
+                        val.lastIndexOf('Password:'),
                         val.lastIndexOf('ZXAN#')
                     );
-                    
+
                     let protectedLength = 0;
-                    if (val.lastIndexOf('ZXAN#') === lastPromptIndex && lastPromptIndex !== -1) protectedLength = lastPromptIndex + 5;
-                    else if (val.lastIndexOf('Username:') === lastPromptIndex && lastPromptIndex !== -1) protectedLength = lastPromptIndex + 9;
-                    else if (val.lastIndexOf('Password:') === lastPromptIndex && lastPromptIndex !== -1) protectedLength = lastPromptIndex + 9;
+                    if (val.lastIndexOf('ZXAN#') === lastPromptIndex && lastPromptIndex !== -1)
+                        protectedLength = lastPromptIndex + 5;
+                    else if (val.lastIndexOf('Username:') === lastPromptIndex && lastPromptIndex !== -1)
+                        protectedLength = lastPromptIndex + 9;
+                    else if (val.lastIndexOf('Password:') === lastPromptIndex && lastPromptIndex !== -1)
+                        protectedLength = lastPromptIndex + 9;
 
                     if (start < protectedLength) {
-                        if (!e.ctrlKey && !e.metaKey && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'ArrowUp' && e.key !== 'ArrowDown' && e.key !== 'c') {
+                        if (!e.ctrlKey && !e.metaKey && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e
+                            .key !== 'ArrowUp' && e.key !== 'ArrowDown' && e.key !== 'c') {
                             e.preventDefault();
                             this.selectionStart = this.selectionEnd = val.length;
                         }
@@ -992,12 +1028,12 @@ show gpon onu state gpon-olt_${port}`;
                         const val = $(this).val();
                         const start = this.selectionStart;
                         const end = this.selectionEnd;
-                        
+
                         const textBeforeCursor = val.substring(0, start);
                         const lines = textBeforeCursor.split('\n');
                         let lastLine = lines[lines.length - 1];
                         lastLine = lastLine.replace(/^ZXAN#/, '').trimStart();
-                        
+
                         if (lastLine.length > 0) {
                             const matches = zteCommands.filter(c => c.startsWith(lastLine));
                             if (matches.length === 1) {
@@ -1020,7 +1056,7 @@ show gpon onu state gpon-olt_${port}`;
                         const val = $(this).val();
                         const start = this.selectionStart;
                         const end = this.selectionEnd;
-                        
+
                         let scriptToRun = '';
                         if (start !== end) {
                             scriptToRun = val.substring(start, end);
@@ -1029,9 +1065,9 @@ show gpon onu state gpon-olt_${port}`;
                             scriptToRun = lines[lines.length - 1];
                             // Remove prompt strings from the line
                             scriptToRun = scriptToRun.replace(/^Username:/, '')
-                                                     .replace(/^Password:/, '')
-                                                     .replace(/^ZXAN#/, '')
-                                                     .trim();
+                                .replace(/^Password:/, '')
+                                .replace(/^ZXAN#/, '')
+                                .trim();
                         }
 
                         if (termState === 'username') {
@@ -1057,18 +1093,21 @@ show gpon onu state gpon-olt_${port}`;
                                     password: termPassword
                                 },
                                 success: function(res) {
-                                    let currentVal = $textarea.val().replace('\n> Verifying...', '');
+                                    let currentVal = $textarea.val().replace('\n> Verifying...',
+                                    '');
                                     if (res.success) {
                                         $textarea.val(currentVal + '\n\nZXAN#');
                                         termState = 'connected';
                                     } else {
-                                        $textarea.val(currentVal + '\n' + res.error + '\nUsername:');
+                                        $textarea.val(currentVal + '\n' + res.error +
+                                        '\nUsername:');
                                         termState = 'username';
                                     }
                                     $textarea.scrollTop($textarea[0].scrollHeight);
                                 },
                                 error: function() {
-                                    let currentVal = $textarea.val().replace('\n> Verifying...', '');
+                                    let currentVal = $textarea.val().replace('\n> Verifying...',
+                                    '');
                                     $textarea.val(currentVal + '\nConnection Error\nUsername:');
                                     termState = 'username';
                                     $textarea.scrollTop($textarea[0].scrollHeight);
