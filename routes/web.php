@@ -230,8 +230,11 @@ Route::middleware(['auth.custom'])->group(function () {
     // PTT Async Audio Upload
     // Route::post('/api/ptt/upload', [\App\Http\Controllers\PttController::class, 'upload'])->name('ptt.upload');
 
-    // Migrasi & Pemulihan Data Radboox
+    // Backup, Migrasi & Pemulihan Data
     Route::get('/migration', [\App\Http\Controllers\MigrationController::class, 'index'])->name('migration.index');
+    Route::get('/migration/backup/{type}', [\App\Http\Controllers\MigrationController::class, 'backup'])->name('migration.backup');
+    Route::get('/migration/backup/download/{id}', [\App\Http\Controllers\MigrationController::class, 'downloadBackup'])->name('migration.backup.download');
+    Route::delete('/migration/backup/{id}', [\App\Http\Controllers\MigrationController::class, 'deleteBackup'])->name('migration.backup.delete');
     Route::post('/migration/import', [\App\Http\Controllers\MigrationController::class, 'import'])->name('migration.import');
     Route::post('/migration/reset', [\App\Http\Controllers\MigrationController::class, 'reset'])->name('migration.reset');
 });
