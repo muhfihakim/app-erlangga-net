@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BankAccount;
 use App\Models\Setting;
 use App\Models\Withdrawal;
 use Carbon\Carbon;
@@ -25,6 +26,7 @@ class WithdrawalController extends Controller
 
         $balance = $this->getXenditBalance();
         $banks = $this->getAvailableBanks();
+        $bankAccounts = BankAccount::orderBy('is_default', 'desc')->orderBy('bank_name', 'asc')->get();
         
         $withdrawals = Withdrawal::with('user')
             ->orderBy('id', 'desc')
@@ -36,6 +38,7 @@ class WithdrawalController extends Controller
         return view('withdrawals.index', compact(
             'balance',
             'banks',
+            'bankAccounts',
             'withdrawals',
             'totalCompleted',
             'totalPending'

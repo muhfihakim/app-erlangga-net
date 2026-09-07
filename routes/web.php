@@ -88,6 +88,12 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::post('/withdrawals/request', [\App\Http\Controllers\WithdrawalController::class, 'withdraw'])->name('withdrawals.withdraw');
         Route::get('/withdrawals/{withdrawal}/sync', [\App\Http\Controllers\WithdrawalController::class, 'syncStatus'])->name('withdrawals.sync');
 
+        // Super Admin - Saved Bank Accounts Management
+        Route::post('/bank-accounts', [\App\Http\Controllers\BankAccountController::class, 'store'])->name('bank_accounts.store');
+        Route::put('/bank-accounts/{bankAccount}', [\App\Http\Controllers\BankAccountController::class, 'update'])->name('bank_accounts.update');
+        Route::delete('/bank-accounts/{bankAccount}', [\App\Http\Controllers\BankAccountController::class, 'destroy'])->name('bank_accounts.destroy');
+        Route::post('/bank-accounts/{bankAccount}/set-default', [\App\Http\Controllers\BankAccountController::class, 'setDefault'])->name('bank_accounts.set_default');
+
         // Data Migration / Import
         Route::get('/migration', [\App\Http\Controllers\MigrationController::class, 'index'])->name('migration.index');
         Route::post('/migration/import', [\App\Http\Controllers\MigrationController::class, 'import'])->name('migration.import');
