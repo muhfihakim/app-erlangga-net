@@ -120,47 +120,6 @@
                 cursor: not-allowed;
                 pointer-events: none;
             }
-
-            /* Indeterminate animated loading bar at the top of the table */
-            .table-loading-bar {
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 3px;
-                background: #e0f2fe;
-                overflow: hidden;
-                z-index: 60;
-                border-top-left-radius: 14px;
-                border-top-right-radius: 14px;
-            }
-
-            .table-loading-bar::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                bottom: 0;
-                width: 40%;
-                background: linear-gradient(90deg, #38bdf8, #0ea5e9, #0284c7);
-                border-radius: 3px;
-                animation: tableLoadingSlide 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-            }
-
-            @keyframes tableLoadingSlide {
-                0% {
-                    left: -40%;
-                    width: 30%;
-                }
-                50% {
-                    left: 30%;
-                    width: 50%;
-                }
-                100% {
-                    left: 100%;
-                    width: 30%;
-                }
-            }
         </style>
     @endsection
 
@@ -234,7 +193,7 @@
                 <div style="flex: 2; min-width: 250px;">
                     <label class="form-label-custom">Live Search</label>
                     <div class="search-wrap !max-w-full">
-                        <i class="fa-solid fa-magnifying-glass search-icon" id="search-icon-indicator"></i>
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
                         <input type="search" name="search" class="search-input custom-search" id="custom-search"
                             placeholder="Cari serial number, username PPPoE, SSID, IP..." autocomplete="off"
                             onkeydown="return event.key != 'Enter';" />
@@ -251,8 +210,7 @@
     </div>
 
     <!-- Table Card -->
-    <div class="table-card relative">
-        <div id="table-loading-bar" class="table-loading-bar hidden"></div>
+    <div class="table-card">
         <div class="table-responsive">
             <table id="genieacs-table" class="admin-table w-full">
                 <thead>
@@ -402,17 +360,6 @@
                             previous: '<i class="fa-solid fa-chevron-left"></i>',
                             next: '<i class="fa-solid fa-chevron-right"></i>'
                         }
-                    }
-                });
-
-                // Indikator loading bar & live search saat DataTables memuat data
-                genieTable.on('processing.dt', function(e, settings, processing) {
-                    if (processing) {
-                        $('#table-loading-bar').removeClass('hidden');
-                        $('#search-icon-indicator').removeClass('fa-magnifying-glass').addClass('fa-circle-notch fa-spin text-sky-500');
-                    } else {
-                        $('#table-loading-bar').addClass('hidden');
-                        $('#search-icon-indicator').removeClass('fa-circle-notch fa-spin text-sky-500').addClass('fa-magnifying-glass');
                     }
                 });
 
