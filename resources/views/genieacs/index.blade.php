@@ -1,11 +1,65 @@
 <x-layouts.app>
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+    @section('Css')
+        <style>
+            #genieacs-table thead th,
+            #genieacs-table tbody td {
+                text-transform: uppercase !important;
+                font-weight: 600;
+                font-size: 12px;
+            }
+
+            .dataTables_paginate {
+                display: flex;
+                justify-content: flex-end;
+                padding: 1.25rem 1.5rem;
+                gap: 4px;
+                border-top: 1px solid #f1f5f9;
+            }
+
+            .paginate_button {
+                width: 34px;
+                height: 34px;
+                border-radius: 8px;
+                border: 1.5px solid #e2e8f0;
+                background: #fff;
+                color: #64748b !important;
+                font-size: 13px;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                text-decoration: none;
+            }
+
+            .paginate_button:hover:not(.disabled):not(.current) {
+                border-color: #0ea5e9;
+                color: #0ea5e9 !important;
+                background: #f0f9ff;
+            }
+
+            .paginate_button.current,
+            .paginate_button.active {
+                background: #0ea5e9 !important;
+                border-color: #0ea5e9 !important;
+                color: #fff !important;
+            }
+
+            .paginate_button.disabled {
+                opacity: 0.35;
+                cursor: not-allowed;
+                pointer-events: none;
+            }
+        </style>
+    @endsection
+
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
             <h1 style="font-size:22px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
-                <i class="fa-solid fa-satellite-dish text-rose-600"></i> Manajemen ONT (GenieACS TR-069)
+                Manajemen ONT (GenieACS TR-069)
             </h1>
-            <p style="font-size:13px;color:#64748b;margin:4px 0 0;">
-                Monitoring parameter ONT/CPE, status online, suhu, redaman optik, dan kontrol Wi-Fi jarak jauh via TR-069.
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">
+                Monitoring status ONT, suhu, redaman optik, serta kontrol nama dan kata sandi Wi-Fi pelanggan via TR-069.
             </p>
         </div>
         <div class="flex items-center gap-2">
@@ -20,56 +74,62 @@
         </div>
     </div>
 
-    <!-- Stats Cards -->
+    <!-- Stats Cards Grid -->
     <div class="stats-grid mb-6">
         <div class="stat-card">
-            <div class="stat-icon" style="background:#e0f2fe;color:#0284c7;">
+            <div class="stat-icon" style="background:#e0e7ff;color:#4338ca;">
                 <i class="fa-solid fa-satellite-dish"></i>
             </div>
             <div>
                 <div class="stat-val">{{ number_format($totalCount, 0, ',', '.') }}</div>
                 <div class="stat-lbl">Total ONT Terdaftar</div>
-                <div class="text-[11px] text-slate-400 mt-1">Perangkat di Server GenieACS</div>
             </div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon" style="background:#ecfdf5;color:#059669;">
-                <i class="fa-solid fa-wifi"></i>
+            <div class="stat-icon" style="background:#dcfce7;color:#15803d;">
+                <i class="fa-solid fa-circle-check"></i>
             </div>
             <div>
-                <div class="stat-val text-emerald-600">{{ number_format($onlineCount, 0, ',', '.') }}</div>
-                <div class="stat-lbl">ONT Online (Aktif)</div>
-                <div class="text-[11px] text-emerald-500 font-semibold mt-1">
-                    <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse mr-1"></span> Inform < 10 Menit
-                </div>
+                <div class="stat-val">{{ number_format($onlineCount, 0, ',', '.') }}</div>
+                <div class="stat-lbl">Status Online (Aktif)</div>
             </div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-icon" style="background:#f1f5f9;color:#64748b;">
-                <i class="fa-solid fa-power-off"></i>
+            <div class="stat-icon" style="background:#fee2e2;color:#be123c;">
+                <i class="fa-solid fa-clock"></i>
             </div>
             <div>
-                <div class="stat-val text-slate-600">{{ number_format($offlineCount, 0, ',', '.') }}</div>
-                <div class="stat-lbl">ONT Offline / Standby</div>
-                <div class="text-[11px] text-slate-400 mt-1">Tidak ada inform > 10 Menit</div>
+                <div class="stat-val">{{ number_format($offlineCount, 0, ',', '.') }}</div>
+                <div class="stat-lbl">Status Offline / Standby</div>
             </div>
         </div>
     </div>
 
-    <!-- Filter & Search Card -->
-    <div class="table-card p-4 mb-6">
-        <form method="GET" action="{{ route('genieacs.index') }}" class="flex flex-wrap items-center justify-between gap-4">
-            <div class="flex items-center gap-2 flex-1 min-w-[280px]">
-                <div class="relative flex-1">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                    <input type="text" name="search" value="{{ $search }}"
-                        placeholder="Cari Serial Number, Username PPPoE, SSID, IP Address, atau Model ONT..."
-                        class="form-input !pl-10 !h-10 text-sm w-full">
+    <!-- Table Toolbar / Live Search & Filter -->
+    <div class="table-toolbar">
+        <form method="GET" action="{{ route('genieacs.index') }}" class="w-full" id="filterForm">
+            <div class="filter-group">
+                <div style="flex: 1; min-width: 170px;">
+                    <label class="form-label-custom">Status Koneksi</label>
+                    <select name="status" class="form-input-custom" id="filter-status">
+                        <option value="all" {{ $statusFilter === 'all' ? 'selected' : '' }}>Semua Status</option>
+                        <option value="online" {{ $statusFilter === 'online' ? 'selected' : '' }}>Online Saja</option>
+                        <option value="offline" {{ $statusFilter === 'offline' ? 'selected' : '' }}>Offline Saja</option>
+                    </select>
                 </div>
-                <button type="submit" class="btn-primary-admin !h-10 !px-5 flex items-center gap-2">
-                    <i class="fa-solid fa-search"></i> Cari
+                <div style="flex: 2; min-width: 250px;">
+                    <label class="form-label-custom">Live Search</label>
+                    <div class="search-wrap !max-w-full">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="search" name="search" class="search-input custom-search" id="custom-search"
+                            value="{{ $search }}"
+                            placeholder="Cari serial number, username PPPoE, SSID, IP..." autocomplete="off" />
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary-admin !h-10 !px-6 flex items-center gap-2">
+                    <i class="fa-solid fa-filter"></i> Filter
                 </button>
                 @if ($search || $statusFilter !== 'all')
                     <a href="{{ route('genieacs.index') }}" class="btn-cancel !h-10 !px-4 flex items-center gap-1.5" title="Reset Filter">
@@ -77,96 +137,73 @@
                     </a>
                 @endif
             </div>
-
-            <!-- Status Filter Buttons -->
-            <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
-                <a href="{{ route('genieacs.index', ['search' => $search, 'status' => 'all']) }}"
-                    class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all {{ $statusFilter === 'all' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-800' }}">
-                    Semua ({{ $totalCount }})
-                </a>
-                <a href="{{ route('genieacs.index', ['search' => $search, 'status' => 'online']) }}"
-                    class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all {{ $statusFilter === 'online' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-500 hover:text-emerald-700' }}">
-                    Online ({{ $onlineCount }})
-                </a>
-                <a href="{{ route('genieacs.index', ['search' => $search, 'status' => 'offline']) }}"
-                    class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all {{ $statusFilter === 'offline' ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800' }}">
-                    Offline ({{ $offlineCount }})
-                </a>
-            </div>
         </form>
     </div>
 
     <!-- Table Card -->
-    <div class="table-card overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse" style="font-size: 13px;">
+    <div class="table-card">
+        <div class="table-responsive">
+            <table id="genieacs-table" class="admin-table w-full">
                 <thead>
-                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[11px] tracking-wider">
-                        <th class="py-3.5 px-4 text-center" style="width: 70px;">Status</th>
-                        <th class="py-3.5 px-4">Perangkat (ONT)</th>
-                        <th class="py-3.5 px-4">Pelanggan (PPPoE)</th>
-                        <th class="py-3.5 px-4">Alamat IP</th>
-                        <th class="py-3.5 px-4">Nama Wi-Fi (SSID)</th>
-                        <th class="py-3.5 px-4 text-center">Redaman RX</th>
-                        <th class="py-3.5 px-4 text-center">Suhu ONT</th>
-                        <th class="py-3.5 px-4">Inform Terakhir</th>
-                        <th class="py-3.5 px-4 text-center" style="width: 140px;">Aksi</th>
+                    <tr>
+                        <th style="text-align: center; width: 80px;">Status</th>
+                        <th>Perangkat (ONT)</th>
+                        <th>Pelanggan (PPPoE)</th>
+                        <th>Alamat IP</th>
+                        <th>Nama Wi-Fi (SSID)</th>
+                        <th style="text-align: center;">Redaman RX</th>
+                        <th style="text-align: center;">Suhu ONT</th>
+                        <th>Inform Terakhir</th>
+                        <th style="text-align: center; width: 120px;">Opsi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+                <tbody>
                     @forelse ($devices as $d)
-                        <tr class="hover:bg-slate-50/80 transition-colors">
+                        <tr>
                             <!-- Status -->
-                            <td class="py-3 px-4 text-center">
+                            <td style="text-align: center;">
                                 @if (!empty($d['is_online']))
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700">
-                                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                                        Online
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        ONLINE
                                     </span>
                                 @else
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-500">
-                                        Offline
+                                        OFFLINE
                                     </span>
                                 @endif
                             </td>
 
                             <!-- Perangkat ONT -->
-                            <td class="py-3 px-4">
-                                <div class="flex items-center gap-2.5">
-                                    <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 text-sm flex-shrink-0">
-                                        <i class="fa-solid fa-server"></i>
-                                    </div>
-                                    <div>
-                                        <div class="font-bold text-slate-900 font-mono text-xs">{{ $d['serial_number'] }}</div>
-                                        <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
-                                            <span class="font-semibold text-sky-600">{{ $d['manufacturer'] }}</span>
-                                            <span>&bull;</span>
-                                            <span>{{ $d['model'] }}</span>
-                                            <span class="badge !text-[9px] !py-0 !px-1.5 bg-slate-100 text-slate-600 font-mono">{{ $d['pon_mode'] }}</span>
-                                        </div>
-                                    </div>
+                            <td>
+                                <div class="font-bold text-slate-900 font-mono text-xs">{{ $d['serial_number'] }}</div>
+                                <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+                                    <span class="font-semibold text-sky-600">{{ $d['manufacturer'] }}</span>
+                                    <span>&bull;</span>
+                                    <span>{{ $d['model'] }}</span>
+                                    <span class="badge !text-[9px] !py-0 !px-1.5 bg-slate-100 text-slate-600 font-mono">{{ $d['pon_mode'] }}</span>
                                 </div>
                             </td>
 
                             <!-- Pelanggan PPPoE -->
-                            <td class="py-3 px-4">
+                            <td>
                                 @if (!empty($d['pppoe_username']) && $d['pppoe_username'] !== '-')
                                     <div class="font-semibold text-slate-800 flex items-center gap-1.5">
                                         <i class="fa-solid fa-user text-xs text-slate-400"></i>
                                         <span>{{ $d['pppoe_username'] }}</span>
                                     </div>
                                 @else
-                                    <span class="text-slate-400 italic text-xs">Belum terhubung PPPoE</span>
+                                    <span class="text-slate-400 italic text-xs">-</span>
                                 @endif
                             </td>
 
                             <!-- IP Address -->
-                            <td class="py-3 px-4 font-mono text-xs text-slate-600">
+                            <td class="font-mono text-xs text-slate-600">
                                 {{ $d['ip_address'] ?? '-' }}
                             </td>
 
                             <!-- SSID Wi-Fi -->
-                            <td class="py-3 px-4">
+                            <td>
                                 @if (!empty($d['ssid']) && $d['ssid'] !== '-')
                                     <div class="font-semibold text-slate-800 flex items-center gap-1.5">
                                         <i class="fa-solid fa-wifi text-xs text-sky-500"></i>
@@ -178,14 +215,13 @@
                             </td>
 
                             <!-- Redaman Optik RX Power -->
-                            <td class="py-3 px-4 text-center">
+                            <td style="text-align: center;">
                                 @if (!empty($d['rx_power']))
                                     @php
                                         $numVal = floatval(str_replace(['dBm', ' '], '', $d['rx_power']));
                                         $isWarning = $numVal < -27 || $numVal > -10;
                                     @endphp
                                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono font-bold {{ $isWarning ? 'bg-amber-50 text-amber-600 border border-amber-200' : 'bg-emerald-50 text-emerald-600 border border-emerald-200' }}">
-                                        <i class="fa-solid fa-wave-square text-[10px]"></i>
                                         {{ $d['rx_power'] }}
                                     </span>
                                 @else
@@ -194,7 +230,7 @@
                             </td>
 
                             <!-- Suhu ONT -->
-                            <td class="py-3 px-4 text-center">
+                            <td style="text-align: center;">
                                 @if (!empty($d['temperature']))
                                     @php
                                         $tempVal = floatval(str_replace(['°C', ' '], '', $d['temperature']));
@@ -210,27 +246,30 @@
                             </td>
 
                             <!-- Last Inform -->
-                            <td class="py-3 px-4 text-xs text-slate-500">
-                                <div class="font-mono text-[11px]">{{ $d['last_inform'] }}</div>
+                            <td class="font-mono text-[11px] text-slate-500">
+                                {{ $d['last_inform'] }}
                             </td>
 
                             <!-- Action Buttons -->
-                            <td class="py-3 px-4 text-center">
-                                <div class="flex items-center justify-center gap-1">
+                            <td style="text-align: center;">
+                                <div class="flex items-center justify-center gap-1.5">
                                     <a href="{{ route('genieacs.show', $d['id']) }}"
-                                        class="p-1.5 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-600 hover:text-white transition-colors"
+                                        class="btn-sm-action !p-2 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-600 hover:text-white transition-colors"
                                         title="Detail & Kelola ONT">
                                         <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
                                     </a>
                                     <button type="button"
-                                        onclick="openQuickWifiModal('{{ $d['id'] }}', '{{ addslashes($d['ssid'] !== '-' ? $d['ssid'] : '') }}')"
-                                        class="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-colors"
+                                        class="btn-quick-wifi btn-sm-action !p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-colors"
+                                        data-device-id="{{ $d['id'] }}"
+                                        data-serial="{{ $d['serial_number'] }}"
+                                        data-ssid="{{ $d['ssid'] !== '-' ? $d['ssid'] : '' }}"
                                         title="Ubah Nama & Password Wi-Fi">
                                         <i class="fa-solid fa-key text-xs"></i>
                                     </button>
                                     <button type="button"
-                                        onclick="openRebootModal('{{ $d['id'] }}', '{{ $d['serial_number'] }}')"
-                                        class="p-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-colors"
+                                        class="btn-quick-reboot btn-sm-action !p-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-colors"
+                                        data-device-id="{{ $d['id'] }}"
+                                        data-serial="{{ $d['serial_number'] }}"
                                         title="Reboot ONT">
                                         <i class="fa-solid fa-power-off text-xs"></i>
                                     </button>
@@ -239,10 +278,8 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="py-12 text-center text-slate-400">
-                                <i class="fa-solid fa-satellite-dish text-4xl mb-3 text-slate-300"></i>
-                                <p class="text-sm font-semibold text-slate-600">Tidak ada perangkat ONT ditemukan</p>
-                                <p class="text-xs text-slate-400 mt-1">Coba ubah kata kunci pencarian atau periksa integrasi server GenieACS.</p>
+                            <td colspan="9" class="dataTables_empty">
+                                Tidak ada data perangkat ONT ditemukan
                             </td>
                         </tr>
                     @endforelse
@@ -250,20 +287,61 @@
             </table>
         </div>
 
+        <!-- Seragamkan Pagination (DataTables Style) -->
         @if ($devices->hasPages())
-            <div class="p-4 border-t border-slate-100 flex items-center justify-between">
-                <span class="text-xs text-slate-500">
-                    Menampilkan {{ $devices->firstItem() ?? 0 }} - {{ $devices->lastItem() ?? 0 }} dari {{ $devices->total() }} ONT
+            <div class="flex items-center justify-between p-4 border-t border-slate-100 flex-wrap gap-3">
+                <span class="text-xs text-slate-500 font-semibold">
+                    Menampilkan {{ $devices->firstItem() ?? 0 }} - {{ $devices->lastItem() ?? 0 }} dari {{ number_format($devices->total(), 0, ',', '.') }} ONT
                 </span>
-                <div>
-                    {{ $devices->appends(request()->query())->links() }}
+                <div class="dataTables_paginate !p-0 !border-0">
+                    {{-- Previous Page Link --}}
+                    @if ($devices->onFirstPage())
+                        <span class="paginate_button disabled"><i class="fa-solid fa-chevron-left"></i></span>
+                    @else
+                        <a href="{{ $devices->previousPageUrl() }}" class="paginate_button"><i class="fa-solid fa-chevron-left"></i></a>
+                    @endif
+
+                    {{-- Pagination Elements --}}
+                    @php
+                        $start = max(1, $devices->currentPage() - 2);
+                        $end = min($devices->lastPage(), $devices->currentPage() + 2);
+                    @endphp
+
+                    @if($start > 1)
+                        <a href="{{ $devices->url(1) }}" class="paginate_button">1</a>
+                        @if($start > 2)
+                            <span class="paginate_button disabled">...</span>
+                        @endif
+                    @endif
+
+                    @for ($i = $start; $i <= $end; $i++)
+                        @if ($i == $devices->currentPage())
+                            <span class="paginate_button current">{{ $i }}</span>
+                        @else
+                            <a href="{{ $devices->url($i) }}" class="paginate_button">{{ $i }}</a>
+                        @endif
+                    @endfor
+
+                    @if($end < $devices->lastPage())
+                        @if($end < $devices->lastPage() - 1)
+                            <span class="paginate_button disabled">...</span>
+                        @endif
+                        <a href="{{ $devices->url($devices->lastPage()) }}" class="paginate_button">{{ $devices->lastPage() }}</a>
+                    @endif
+
+                    {{-- Next Page Link --}}
+                    @if ($devices->hasMorePages())
+                        <a href="{{ $devices->nextPageUrl() }}" class="paginate_button"><i class="fa-solid fa-chevron-right"></i></a>
+                    @else
+                        <span class="paginate_button disabled"><i class="fa-solid fa-chevron-right"></i></span>
+                    @endif
                 </div>
             </div>
         @endif
     </div>
 
-    <!-- Quick Modal: Ubah Wi-Fi -->
-    <div class="modal-overlay hidden" id="quickWifiModal">
+    <!-- Modal: Ubah Wi-Fi -->
+    <div class="modal-overlay" id="quickWifiModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
             <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
                 <div class="modal-title flex items-center gap-2">
@@ -280,7 +358,7 @@
                 <div class="modal-body p-6 space-y-4">
                     <div class="bg-sky-50 border border-sky-100 rounded-xl p-3 text-xs text-sky-800">
                         <i class="fa-solid fa-circle-info mr-1 text-sky-600"></i>
-                        Perubahan nama SSID dan password akan dikirim langsung ke ONT melalui protokol TR-069.
+                        Perubahan SSID dan password akan dikirim langsung ke ONT <strong id="quick_wifi_serial" class="font-mono text-slate-800"></strong> via TR-069.
                     </div>
 
                     <div class="form-group !mb-0">
@@ -315,8 +393,8 @@
         </div>
     </div>
 
-    <!-- Quick Modal: Reboot ONT -->
-    <div class="modal-overlay hidden" id="rebootModal">
+    <!-- Modal: Reboot ONT -->
+    <div class="modal-overlay" id="rebootModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
             <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
                 <div class="modal-title flex items-center gap-2">
@@ -349,31 +427,32 @@
         <script>
             let currentRebootDeviceId = null;
 
-            function openQuickWifiModal(deviceId, currentSsid) {
-                document.getElementById('quick_wifi_device_id').value = deviceId;
-                document.getElementById('quick_wifi_ssid').value = currentSsid || '';
-                document.getElementById('quick_wifi_password').value = '';
-                
-                const modal = document.getElementById('quickWifiModal');
-                modal.classList.remove('hidden');
-                modal.style.display = 'flex';
-            }
+            // Delegated click listener to open Wi-Fi Modal
+            $(document).on('click', '.btn-quick-wifi', function(e) {
+                e.preventDefault();
+                const deviceId = $(this).data('device-id');
+                const serial = $(this).data('serial');
+                const ssid = $(this).data('ssid') || '';
 
-            function openRebootModal(deviceId, serial) {
-                currentRebootDeviceId = deviceId;
-                document.getElementById('reboot-serial-span').innerText = serial;
-                
-                const modal = document.getElementById('rebootModal');
-                modal.classList.remove('hidden');
-                modal.style.display = 'flex';
-            }
+                $('#quick_wifi_device_id').val(deviceId);
+                $('#quick_wifi_serial').text(serial);
+                $('#quick_wifi_ssid').val(ssid);
+                $('#quick_wifi_password').val('');
 
-            function closeCustomModal(modalId) {
-                const modal = document.getElementById(modalId);
-                modal.classList.add('hidden');
-                modal.style.display = 'none';
-            }
+                openCustomModal('quickWifiModal');
+            });
 
+            // Delegated click listener to open Reboot Modal
+            $(document).on('click', '.btn-quick-reboot', function(e) {
+                e.preventDefault();
+                currentRebootDeviceId = $(this).data('device-id');
+                const serial = $(this).data('serial');
+                $('#reboot-serial-span').text(serial);
+
+                openCustomModal('rebootModal');
+            });
+
+            // Toggle Password Visibility
             function togglePasswordVisibility(fieldId, btn) {
                 const field = document.getElementById(fieldId);
                 const icon = btn.querySelector('i');
@@ -388,6 +467,7 @@
                 }
             }
 
+            // Submit Wi-Fi Form
             function submitQuickWifi(e) {
                 e.preventDefault();
                 const deviceId = document.getElementById('quick_wifi_device_id').value;
@@ -427,6 +507,7 @@
                 });
             }
 
+            // Execute Reboot
             function executeReboot() {
                 if (!currentRebootDeviceId) return;
 
@@ -460,6 +541,19 @@
                     showToast('Network error saat menghubungi GenieACS.', 'error');
                 });
             }
+
+            // Live Search with Debounce
+            let searchTimer;
+            $('#custom-search').on('keyup input', function() {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(function() {
+                    $('#filterForm').submit();
+                }, 600);
+            });
+
+            $('#filter-status').on('change', function() {
+                $('#filterForm').submit();
+            });
         </script>
     @endsection
 </x-layouts.app>
