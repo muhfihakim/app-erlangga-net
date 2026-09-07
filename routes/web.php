@@ -79,6 +79,9 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::post('/invoices/{invoice}/pay-manual', [\App\Http\Controllers\InvoiceController::class, 'payManual'])->name('invoices.pay_manual');
         Route::post('/invoices/{invoice}/pay-xendit', [\App\Http\Controllers\InvoiceController::class, 'payXendit'])->name('invoices.pay_xendit');
         Route::post('/invoices/{invoice}/sync-xendit', [\App\Http\Controllers\InvoiceController::class, 'syncXendit'])->name('invoices.sync_xendit');
+        // Transactions
+        Route::get('/transactions', [\App\Http\Controllers\TransactionController::class, 'index'])->name('transactions.index');
+
         // Super Admin - Xendit XenPlatform Disbursements / Withdrawal
         Route::get('/withdrawals', [\App\Http\Controllers\WithdrawalController::class, 'index'])->name('withdrawals.index');
         Route::post('/withdrawals/send-otp', [\App\Http\Controllers\WithdrawalController::class, 'sendOtp'])->name('withdrawals.send_otp');
