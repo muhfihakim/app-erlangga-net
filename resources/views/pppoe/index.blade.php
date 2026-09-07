@@ -73,11 +73,11 @@
         </div>
         <div class="flex items-center gap-2">
             <form action="{{ route('pppoe_accounts.sync_radius') }}" method="POST"
-                onsubmit="return confirm('Mulai sinkronisasi data dari server FreeRADIUS / daloRADIUS?');">
+                onsubmit="return confirm('Mulai sinkronisasi data dari server RADIUS?');">
                 @csrf
                 <button type="submit"
                     class="btn-primary-admin !bg-indigo-600 hover:!bg-indigo-700 !h-10 flex items-center gap-2">
-                    <i class="fa-solid fa-rotate"></i> Sync FreeRADIUS
+                    <i class="fa-solid fa-rotate"></i> Sync RADIUS
                 </button>
             </form>
         </div>

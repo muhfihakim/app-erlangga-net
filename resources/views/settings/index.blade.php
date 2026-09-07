@@ -6,7 +6,7 @@
                 Pengaturan Sistem & Integrasi Server
             </h1>
             <p style="font-size:13px;color:#64748b;margin:4px 0 0;">
-                Kelola konfigurasi parameter MikroTik, OLT, database FreeRADIUS, dan Xendit yang tersimpan aman di
+                Kelola konfigurasi parameter MikroTik, OLT, database RADIUS, dan Xendit yang tersimpan aman di
                 Database.
             </p>
         </div>
@@ -27,7 +27,7 @@
         </button>
         <button type="button" class="modal-tab {{ $activeTab === 'radius' ? 'active' : '' }} !rounded-xl !py-2.5 !px-5"
             data-tab="tab-radius">
-            <i class="fa-solid fa-database mr-2 text-emerald-500"></i> FreeRADIUS Server
+            <i class="fa-solid fa-database mr-2 text-emerald-500"></i> Server RADIUS
         </button>
         <button type="button" class="modal-tab {{ $activeTab === 'xendit' ? 'active' : '' }} !rounded-xl !py-2.5 !px-5"
             data-tab="tab-xendit">
@@ -139,7 +139,7 @@
                         <i class="fa-solid fa-terminal text-indigo-600"></i> Generator & Panduan Script Terminal MikroTik
                     </h2>
                     <p class="text-xs text-slate-500 mt-1">
-                        Script konfigurasi RouterOS untuk mengaktifkan API, FreeRADIUS, Incoming CoA (Auto-Kick), dan Auto-Redirect Portal Isolir.
+                        Script konfigurasi RouterOS untuk mengaktifkan API, Server RADIUS, Incoming CoA (Auto-Kick), dan Auto-Redirect Portal Isolir (app.erlangga.net/isolir).
                     </p>
                 </div>
                 <div class="flex items-center gap-2">
@@ -149,51 +149,13 @@
                 </div>
             </div>
 
-            <!-- Realtime Parameter Inputs -->
-            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-6">
-                <div class="flex items-center gap-2 mb-3">
-                    <i class="fa-solid fa-sliders text-indigo-600 text-sm"></i>
-                    <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Kustomisasi Parameter Script Realtime</span>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div>
-                        <label class="form-label !text-xs font-bold text-slate-600">IP Server Web / Domain Portal</label>
-                        <input type="text" id="gen_web_ip" class="form-input !text-xs bg-white" 
-                               value="{{ request()->server('SERVER_ADDR', request()->getHost()) }}" 
-                               placeholder="103.xxx.xxx.xxx" oninput="updateMikrotikScripts()">
-                        <small class="text-slate-400 text-[10px]">Tujuan redirect pelanggan isolir (port 80)</small>
-                    </div>
-                    <div>
-                        <label class="form-label !text-xs font-bold text-slate-600">IP Server FreeRADIUS</label>
-                        <input type="text" id="gen_radius_ip" class="form-input !text-xs bg-white" 
-                               value="{{ $settings['radius']['host'] ?: '127.0.0.1' }}" 
-                               placeholder="127.0.0.1" oninput="updateMikrotikScripts()">
-                        <small class="text-slate-400 text-[10px]">Alamat IP FreeRADIUS Server</small>
-                    </div>
-                    <div>
-                        <label class="form-label !text-xs font-bold text-slate-600">RADIUS Secret Key</label>
-                        <input type="text" id="gen_radius_secret" class="form-input !text-xs bg-white font-mono" 
-                               value="radboox123" 
-                               placeholder="Secret RADIUS" oninput="updateMikrotikScripts()">
-                        <small class="text-slate-400 text-[10px]">Secret key di /etc/freeradius/clients.conf</small>
-                    </div>
-                    <div>
-                        <label class="form-label !text-xs font-bold text-slate-600">IP Pool Isolir</label>
-                        <input type="text" id="gen_isolir_pool" class="form-input !text-xs bg-white font-mono" 
-                               value="10.254.0.2-10.254.0.254" 
-                               placeholder="10.254.0.2-10.254.0.254" oninput="updateMikrotikScripts()">
-                        <small class="text-slate-400 text-[10px]">Rentang IP klien saat status terisolir</small>
-                    </div>
-                </div>
-            </div>
-
             <!-- Script Tabs Navigation -->
             <div class="flex gap-2 mb-4 flex-wrap">
                 <button type="button" class="script-tab-btn active px-4 py-2 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-sm" data-target="script-section-isolir">
                     <i class="fa-solid fa-triangle-exclamation mr-1.5 text-amber-300"></i> 1. Isolir & NAT Redirect
                 </button>
                 <button type="button" class="script-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200" data-target="script-section-radius">
-                    <i class="fa-solid fa-database mr-1.5 text-emerald-500"></i> 2. FreeRADIUS & CoA (Auto-Kick)
+                    <i class="fa-solid fa-database mr-1.5 text-emerald-500"></i> 2. Server RADIUS & CoA (Auto-Kick)
                 </button>
                 <button type="button" class="script-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200" data-target="script-section-api">
                     <i class="fa-solid fa-plug mr-1.5 text-sky-500"></i> 3. API Service & User
@@ -222,7 +184,7 @@
                 </div>
             </div>
 
-            <!-- Script 2: FreeRADIUS & CoA -->
+            <!-- Script 2: Server RADIUS & CoA -->
             <div class="script-panel hidden" id="script-section-radius">
                 <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 shadow-inner">
                     <div class="flex items-center justify-between mb-3 border-b border-slate-800/80 pb-2.5">
@@ -366,15 +328,15 @@
         </div>
     </div>
 
-    <!-- Tab 3: FreeRADIUS -->
+    <!-- Tab 3: RADIUS -->
     <div class="tab-panel {{ $activeTab === 'radius' ? 'active' : '' }}" id="tab-radius">
         <div class="table-card p-6">
             <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
                 <div>
                     <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-database text-emerald-600"></i> Database Server FreeRADIUS / daloRADIUS
+                        <i class="fa-solid fa-database text-emerald-600"></i> Database Server RADIUS
                     </h2>
-                    <p class="text-xs text-slate-500 mt-1">Koneksi database MySQL server FreeRADIUS untuk autentikasi
+                    <p class="text-xs text-slate-500 mt-1">Koneksi database MySQL server RADIUS untuk autentikasi
                         user PPPoE (radcheck, radreply, userinfo).</p>
                 </div>
                 <span class="badge" style="background:#dcfce7;color:#15803d;font-weight:700;">Koneksi DB
@@ -387,7 +349,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                     <div class="form-group !mb-0">
-                        <label class="form-label font-bold text-slate-700">Host / IP Database FreeRADIUS <span
+                        <label class="form-label font-bold text-slate-700">Host / IP Database RADIUS <span
                                 class="text-rose-500">*</span></label>
                         <input type="text" name="db_radius_host" id="db_radius_host" class="form-input"
                             value="{{ old('db_radius_host', $settings['radius']['host']) }}"
@@ -441,7 +403,7 @@
                     </button>
                     <button type="submit"
                         class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 flex items-center gap-2 !px-6">
-                        <i class="fa-solid fa-floppy-disk"></i> Simpan Konfigurasi FreeRADIUS
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan Konfigurasi RADIUS
                     </button>
                 </div>
             </form>
@@ -654,19 +616,19 @@
 
             // Dynamic MikroTik Script Generator
             function updateMikrotikScripts() {
-                const webIp = document.getElementById('gen_web_ip')?.value.trim() || '{{ request()->server('SERVER_ADDR', request()->getHost()) }}';
-                const radiusIp = document.getElementById('gen_radius_ip')?.value.trim() || '127.0.0.1';
-                const radiusSecret = document.getElementById('gen_radius_secret')?.value.trim() || 'radboox123';
-                const isolirPool = document.getElementById('gen_isolir_pool')?.value.trim() || '10.254.0.2-10.254.0.254';
-                const apiPort = document.getElementById('mikrotik_port')?.value.trim() || '8728';
-                const apiUser = document.getElementById('mikrotik_user')?.value.trim() || 'admin';
+                const webDomain = 'app.erlangga.net';
+                const radiusHost = '{{ $settings['radius']['host'] ?: config('database.connections.radius.host', '127.0.0.1') }}';
+                const radiusSecret = '{{ \App\Models\Setting::get('radius_secret', 'secret123') }}';
+                const isolirPool = '10.254.0.2-10.254.0.254';
+                const apiPort = document.getElementById('mikrotik_port')?.value.trim() || '{{ $settings['mikrotik']['port'] }}';
+                const apiUser = document.getElementById('mikrotik_user')?.value.trim() || '{{ $settings['mikrotik']['user'] }}';
                 const apiPass = document.getElementById('mikrotik_pass')?.value.trim() || 'password_anda';
 
                 // 1. Script Isolir & NAT Redirect
                 const scriptIsolir = `# ================================================================
 # 1. BUAT IP POOL KHUSUS ISOLIR
 # ================================================================
-/ip pool add name=pool-isolir ranges=${isolirPool}
+/ip pool add name=pool-isolir ranges=\${isolirPool}
 
 # ================================================================
 # 2. DAFTAR WHITELIST (XENDIT PAYMENT, DNS & DOMAIN BILLING)
@@ -675,17 +637,15 @@
 add list=WHITELIST-ISOLIR address=api.xendit.co comment="Xendit API"
 add list=WHITELIST-ISOLIR address=checkout.xendit.co comment="Xendit Checkout Gateway"
 add list=WHITELIST-ISOLIR address=xendit.co comment="Xendit Main Portal"
-add list=WHITELIST-ISOLIR address=isolir.erlangga.net comment="Domain Portal Isolir Pelanggan"
-add list=WHITELIST-ISOLIR address=app.erlangga.net comment="Domain Aplikasi Billing"
-add list=WHITELIST-ISOLIR address=${webIp} comment="IP Server Web Billing"
+add list=WHITELIST-ISOLIR address=\${webDomain} comment="Domain Aplikasi & Portal Isolir (\${webDomain}/isolir)"
 
 # ================================================================
 # 3. FIREWALL NAT: REDIRECT PORT 80 KE PORTAL ISOLIR
 # ================================================================
 /ip firewall nat
-add chain=dstnat action=dst-nat to-addresses=${webIp} to-ports=80 protocol=tcp \\
+add chain=dstnat action=dst-nat to-addresses=\${webDomain} to-ports=80 protocol=tcp \\
     dst-port=80 src-address-list=ISOLIR dst-address-list=!WHITELIST-ISOLIR \\
-    comment="REDIRECT PELANGGAN ISOLIR KE PORTAL TAGIHAN"
+    comment="REDIRECT PELANGGAN ISOLIR KE http://\${webDomain}/isolir"
 
 # ================================================================
 # 4. FIREWALL FILTER: IZINKAN DNS & XENDIT, BLOK INTERNET LAIN
@@ -696,12 +656,12 @@ add chain=forward action=accept protocol=tcp dst-port=53 src-address-list=ISOLIR
 add chain=forward action=accept src-address-list=ISOLIR dst-address-list=WHITELIST-ISOLIR comment="ALLOW XENDIT & ISOLIR PORTAL"
 add chain=forward action=drop src-address-list=ISOLIR comment="BLOCK SEMUA INTERNET PELANGGAN ISOLIR"`;
 
-                // 2. Script FreeRADIUS & CoA
+                // 2. Script Server RADIUS & CoA
                 const scriptRadius = `# ================================================================
-# 1. TAMBAHKAN FREERADIUS SERVER CLIENT
+# 1. TAMBAHKAN SERVER RADIUS CLIENT
 # ================================================================
-/radius add service=ppp address=${radiusIp} secret="${radiusSecret}" \\
-    authentication-port=1812 accounting-port=1813 timeout=3s comment="FreeRADIUS Server Billing"
+/radius add service=ppp address=\${radiusHost} secret="\${radiusSecret}" \\
+    authentication-port=1812 accounting-port=1813 timeout=3s comment="Server RADIUS Billing"
 
 # ================================================================
 # 2. AKTIFKAN RADIUS PADA PPPOE SERVER (AAA)
@@ -717,7 +677,7 @@ add chain=forward action=drop src-address-list=ISOLIR comment="BLOCK SEMUA INTER
                 const scriptApi = `# ================================================================
 # 1. AKTIFKAN SERVICE API ROUTEROS
 # ================================================================
-/ip service set api port=${apiPort} disabled=no
+/ip service set api port=\${apiPort} disabled=no
 
 # ================================================================
 # 2. BUAT USER GROUP KHUSUS APLIKASI
@@ -727,7 +687,7 @@ add chain=forward action=drop src-address-list=ISOLIR comment="BLOCK SEMUA INTER
 # ================================================================
 # 3. BUAT USER API UNTUK APLIKASI LARAVEL
 # ================================================================
-/user add name=${apiUser} group=laravel-group password="${apiPass}" comment="User API Laravel Erlangga"`;
+/user add name=\${apiUser} group=laravel-group password="\${apiPass}" comment="User API Laravel Erlangga"`;
 
                 // 4. Script All-in-One Full
                 const scriptAll = `# ================================================================
@@ -736,13 +696,13 @@ add chain=forward action=drop src-address-list=ISOLIR comment="BLOCK SEMUA INTER
 # ================================================================
 
 # --- [1/3] SERVICE API & USER ---
-${scriptApi}
+\${scriptApi}
 
-# --- [2/3] FREERADIUS & INCOMING COA (AUTO-KICK) ---
-${scriptRadius}
+# --- [2/3] SERVER RADIUS & INCOMING COA (AUTO-KICK) ---
+\${scriptRadius}
 
-# --- [3/3] ISOLIR POOL, WHITELIST & REDIRECT NAT ---
-${scriptIsolir}`;
+# --- [3/3] ISOLIR POOL, WHITELIST & REDIRECT NAT (\${webDomain}/isolir) ---
+\${scriptIsolir}`;
 
                 const codeIsolir = document.getElementById('code-script-isolir');
                 const codeRadius = document.getElementById('code-script-radius');
@@ -790,7 +750,7 @@ ${scriptIsolir}`;
                 } else if (type === 'xendit') {
                     payload.secret_key = document.getElementById('xendit_secret_key').value;
                 } else if (type === 'whatsapp') {
-                    const testPhone = prompt('Masukkan nomor WhatsApp tujuan untuk tes pengiriman pesan:', '{{ auth()->user()->no_whatsapp ?? Setting::get('company_phone', '081234567890') }}');
+                    const testPhone = prompt('Masukkan nomor WhatsApp tujuan untuk tes pengiriman pesan:', '{{ auth()->user()->no_whatsapp ?? \App\Models\Setting::get('company_phone', '081234567890') }}');
                     if (!testPhone) {
                         btnText.innerHTML = originalBtnText;
                         return;

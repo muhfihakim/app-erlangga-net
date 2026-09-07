@@ -118,7 +118,7 @@
 
                 <p class="text-xs text-slate-600 mb-4 leading-relaxed">
                     Gunakan form ini jika Anda hanya ingin memasukkan data <strong>Akun PPPoE, Username, Password, IP
-                        Address, Nama Pelanggan, No WA, dan Alamat</strong> dari file export Excel Radboox (tanpa faktur
+                        Address, Nama Pelanggan, No WA, dan Alamat</strong> dari file export Excel (tanpa faktur
                     dan riwayat transaksi).
                 </p>
 
@@ -134,7 +134,7 @@
                             accept=".xlsx, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, text/csv"
                             required class="form-input-custom w-full !p-2 text-xs bg-slate-50">
                         <span class="text-[11px] text-slate-400 mt-1 block">Contoh: <code
-                                class="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">radboox_export_8_31_2026.xlsx</code></span>
+                                class="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">users_ppp_export.xlsx</code></span>
                     </div>
 
                     <div class="mb-5 p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
@@ -142,8 +142,7 @@
                             <input type="checkbox" name="sync_radius" checked
                                 class="w-4 h-4 mt-0.5 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500">
                             <div>
-                                <span class="text-xs font-bold text-slate-800">Sinkronkan ke FreeRADIUS /
-                                    daloRADIUS</span>
+                                <span class="text-xs font-bold text-slate-800">Sinkronkan ke Database RADIUS</span>
                                 <p class="text-[11px] text-slate-500">Memasukkan username, password, IP, profil ke tabel
                                     radcheck, radreply, radusergroup, dan userinfo.</p>
                             </div>
@@ -158,7 +157,7 @@
             </div>
         </div>
 
-        <!-- Form 2: Full Backup Radboox (Paket + PPPoE + Faktur + Transaksi) -->
+        <!-- Form 2: Full Backup Sistem (Paket + PPPoE + Faktur + Transaksi) -->
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
             <div>
                 <div class="flex items-center gap-3 mb-3">
@@ -167,15 +166,14 @@
                         <i class="fa-solid fa-cloud-arrow-up"></i>
                     </div>
                     <div>
-                        <h2 class="text-base font-bold text-slate-800">2. Import Full Backup Radboox</h2>
+                        <h2 class="text-base font-bold text-slate-800">2. Import Full Backup Sistem</h2>
                         <p class="text-xs text-slate-500">File Backup Lengkap (.csv)</p>
                     </div>
                 </div>
 
                 <p class="text-xs text-slate-600 mb-4 leading-relaxed">
                     Gunakan form ini untuk memulihkan <strong>seluruh data sistem</strong> sekaligus: Paket Layanan,
-                    Akun PPPoE, seluruh Faktur / Invoice, dan Riwayat Transaksi Pembayaran dari file backup lengkap CSV
-                    Radboox.
+                    Akun PPPoE, seluruh Faktur / Invoice, dan Riwayat Transaksi Pembayaran dari file backup lengkap CSV.
                 </p>
 
                 <form action="{{ route('migration.import') }}" method="POST" enctype="multipart/form-data"
@@ -189,7 +187,7 @@
                         <input type="file" name="full_backup_file" id="full_backup_file_input"
                             accept=".csv, text/csv" required class="form-input-custom w-full !p-2 text-xs bg-slate-50">
                         <span class="text-[11px] text-slate-400 mt-1 block">Contoh: <code
-                                class="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">radboox_backup_8_31_2026.csv</code></span>
+                                class="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">backup_data_lengkap.csv</code></span>
                     </div>
 
                     <div class="mb-5 p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
@@ -197,7 +195,7 @@
                             <input type="checkbox" name="sync_radius" checked
                                 class="w-4 h-4 mt-0.5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                             <div>
-                                <span class="text-xs font-bold text-slate-800">Sinkronkan ke FreeRADIUS</span>
+                                <span class="text-xs font-bold text-slate-800">Sinkronkan ke Database RADIUS</span>
                             </div>
                         </label>
                         <label class="flex items-start gap-2.5 cursor-pointer">
@@ -357,7 +355,7 @@
                     $('#btnExecuteImport').attr('class', 'btn-save !bg-emerald-600 !flex !items-center !justify-center gap-2');
 
                     $('#loadingTitle').text('Sedang Mengimpor Akun PPPoE...');
-                    $('#loadingSubtitle').text('Sistem sedang membaca file Excel dan menyinkronkan data PPPoE ke FreeRADIUS.');
+                    $('#loadingSubtitle').text('Sistem sedang membaca file Excel dan menyinkronkan data PPPoE ke Database RADIUS.');
 
                     openCustomModal('confirmImportModal');
                 } else {
