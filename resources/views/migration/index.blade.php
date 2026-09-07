@@ -296,15 +296,13 @@
                             <i class="fa-solid fa-file-excel"></i>
                         </div>
                         <div>
-                            <h2 class="text-base font-bold text-slate-800">1. Import Akun PPPoE Saja</h2>
-                            <p class="text-xs text-slate-500">File Excel (.xlsx) / CSV Users PPP</p>
+                            <h2 class="text-base font-bold text-slate-800">1. Pulihkan / Import Pelanggan & PPPoE</h2>
+                            <p class="text-xs text-slate-500">File Backup CSV Pelanggan / Excel (.xlsx)</p>
                         </div>
                     </div>
 
                     <p class="text-xs text-slate-600 mb-4 leading-relaxed">
-                        Gunakan form ini jika Anda hanya ingin memasukkan data <strong>Akun PPPoE, Username, Password, IP
-                            Address, Nama Pelanggan, No WA, dan Alamat</strong> dari file export Excel (tanpa faktur
-                        dan riwayat transaksi).
+                        Gunakan form ini untuk memulihkan data <strong>Pelanggan, PPPoE, Username, Password, IP Address, Alamat, NIK, dan Koordinat</strong> dari file cadangan <code class="bg-emerald-50 text-emerald-700 px-1 py-0.5 rounded font-mono">backup_pelanggan_pppoe_*.csv</code>, file Excel <code class="bg-slate-100 text-slate-700 px-1 py-0.5 rounded font-mono">users_ppp_export.xlsx</code>, maupun file export sebelumnya.
                     </p>
 
                     <form action="{{ route('migration.import') }}" method="POST" enctype="multipart/form-data"
@@ -313,13 +311,12 @@
                         <input type="hidden" name="import_type" value="pppoe_only">
 
                         <div class="mb-4">
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Pilih File Excel / CSV (.xlsx /
-                                .csv):</label>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Pilih File Backup CSV / Excel (.csv / .xlsx):</label>
                             <input type="file" name="pppoe_file" id="pppoe_file_input"
                                 accept=".xlsx, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, text/csv"
                                 required class="form-input-custom w-full !p-2 text-xs bg-slate-50">
                             <span class="text-[11px] text-slate-400 mt-1 block">Contoh: <code
-                                    class="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">users_ppp_export.xlsx</code></span>
+                                    class="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">backup_pelanggan_pppoe.csv</code> atau <code class="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">users_ppp_export.xlsx</code></span>
                         </div>
 
                         <div class="mb-5 p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
@@ -336,7 +333,7 @@
 
                         <button type="button" onclick="triggerImportModal('pppoe')"
                             class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !w-full !justify-center !py-3 !text-xs flex items-center gap-2 shadow-md">
-                            <i class="fa-solid fa-file-excel"></i> Import Akun PPPoE
+                            <i class="fa-solid fa-file-excel"></i> Pulihkan / Import Akun PPPoE
                         </button>
                     </form>
                 </div>
@@ -351,14 +348,14 @@
                             <i class="fa-solid fa-cloud-arrow-up"></i>
                         </div>
                         <div>
-                            <h2 class="text-base font-bold text-slate-800">2. Import Full Backup Sistem</h2>
+                            <h2 class="text-base font-bold text-slate-800">2. Pulihkan / Import Full Backup Sistem</h2>
                             <p class="text-xs text-slate-500">File Backup Lengkap (.csv)</p>
                         </div>
                     </div>
 
                     <p class="text-xs text-slate-600 mb-4 leading-relaxed">
-                        Gunakan form ini untuk memulihkan <strong>seluruh data sistem</strong> sekaligus: Paket Layanan,
-                        Akun PPPoE, seluruh Faktur / Invoice, dan Riwayat Transaksi Pembayaran dari file backup lengkap CSV.
+                        Gunakan form ini untuk memulihkan <strong>seluruh data sistem</strong> sekaligus: Paket Layanan, Akun Sistem (Users),
+                        Akun PPPoE & Pelanggan, Faktur Invoice, dan Transaksi dari file <code class="bg-indigo-50 text-indigo-700 px-1 py-0.5 rounded font-mono">backup_seluruh_data_*.csv</code> maupun file backup sistem sebelumnya.
                     </p>
 
                     <form action="{{ route('migration.import') }}" method="POST" enctype="multipart/form-data"
@@ -372,7 +369,7 @@
                             <input type="file" name="full_backup_file" id="full_backup_file_input"
                                 accept=".csv, text/csv" required class="form-input-custom w-full !p-2 text-xs bg-slate-50">
                             <span class="text-[11px] text-slate-400 mt-1 block">Contoh: <code
-                                    class="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">backup_data_lengkap.csv</code></span>
+                                    class="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">backup_seluruh_data.csv</code></span>
                         </div>
 
                         <div class="mb-5 p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">

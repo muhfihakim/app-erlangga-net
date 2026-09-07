@@ -11,6 +11,7 @@ use App\Models\Radcheck;
 use App\Models\Radreply;
 use App\Models\Radusergroup;
 use App\Models\Transaction;
+use App\Models\User;
 use App\Models\Userinfo;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -594,9 +595,33 @@ class RadbooxImportService
     }
 
     /**
-     * High-performance import from CSV backup.
+     * High-performance import from CSV backup with auto-detection for
+     * New System Master CSV, New Pelanggan & PPPoE CSV, or Legacy Radboox CSV.
      */
     public function importCsv(string $filePath, array $options = [], ?callable $progressCallback = null): array
+    {
+        $sampleFp = fopen($filePath, 'r');
+        if (!$sampleFp) {
+            throw new \Exception("Gagal membuka file backup: $filePath");
+        }
+        $sample = fread($sampleFp, 4096);
+        fclose($sampleFp);
+
+        if (str_contains($sample, '### TABEL:')) {
+            return $this->importSystemMasterCsv($filePath, $options, $progressCallback);
+        }
+
+        if (str_contains($sample, 'Username PPPoE') || str_contains($sample, 'ID Pelanggan')) {
+            return $this->importSystemCustomersCsv($filePath, $options, $progressCallback);
+        }
+
+        return $this->importRadbooxCsv($filePath, $options, $progressCallback);
+    }
+
+    /**
+     * Legacy Radboox CSV import parser.
+     */
+    public function importRadbooxCsv(string $filePath, array $options = [], ?callable $progressCallback = null): array
     {
         $syncRadius = $options['sync_radius'] ?? true;
         $importInvoices = $options['import_invoices'] ?? true;
@@ -1246,4 +1271,901 @@ class RadbooxImportService
 
         return 1;
     }
+
+    /**
+     * Import / Restore from System Customers & PPPoE CSV.
+     */
+    public function importSystemCustomersCsv(string $filePath, array $options = [], ?callable $progressCallback = null): array
+    {
+        $startTime = microtime(true);
+        $syncRadius = $options['sync_radius'] ?? true;
+
+        $fp = fopen($filePath, 'r');
+        if (!$fp) {
+            throw new \Exception("Gagal membuka file backup: $filePath");
+        }
+
+        // Skip UTF-8 BOM if present
+        $bom = fread($fp, 3);
+        if ($bom !== "\xEF\xBB\xBF") {
+            rewind($fp);
+        }
+
+        $headerRow = fgetcsv($fp, 0, ',', '"', "\\");
+        if (!$headerRow) {
+            fclose($fp);
+            throw new \Exception("File CSV kosong atau format tidak sesuai.");
+        }
+
+        $headerMap = [];
+        foreach ($headerRow as $idx => $name) {
+            $headerMap[strtolower(trim($name))] = $idx;
+        }
+
+        $colIdPelanggan = $headerMap['id pelanggan'] ?? 0;
+        $colNama = $headerMap['nama lengkap'] ?? 1;
+        $colWa = $headerMap['no whatsapp'] ?? 2;
+        $colEmail = $headerMap['email'] ?? 3;
+        $colNik = $headerMap['nik'] ?? 4;
+        $colAlamat = $headerMap['alamat lengkap'] ?? 5;
+        $colTikor = $headerMap['titik koordinat'] ?? 6;
+        $colUsername = $headerMap['username pppoe'] ?? 7;
+        $colPassword = $headerMap['password pppoe'] ?? 8;
+        $colIp = $headerMap['ip address'] ?? 9;
+        $colPaket = $headerMap['nama paket'] ?? 10;
+        $colRouter = $headerMap['router nas'] ?? 12;
+        $colPembayaran = $headerMap['tipe pembayaran'] ?? 13;
+        $colStatusInv = $headerMap['status invoice'] ?? 14;
+        $colSn = $headerMap['serial number perangkat (sn)'] ?? 15;
+        $colModem = $headerMap['jenis modem'] ?? 16;
+        $colStatus = $headerMap['status pelanggan'] ?? 19;
+        $colTgl = $headerMap['tanggal registrasi'] ?? 20;
+
+        $results = [
+            'pakets_synced' => 0,
+            'pppoe_created' => 0,
+            'pppoe_updated' => 0,
+            'preorders_created' => 0,
+            'customers_created' => 0,
+            'customers_linked' => 0,
+            'invoices_imported' => 0,
+            'transactions_imported' => 0,
+            'radius_synced' => 0,
+            'errors' => [],
+            'time_elapsed' => 0,
+        ];
+
+        $paketMap = $this->ensureDefaultPakets();
+        $results['pakets_synced'] = count($paketMap);
+
+        // Preload memory caches
+        $customersByUsername = [];
+        $customersByIdPelanggan = [];
+        $customersByName = [];
+        $customersByPhone = [];
+        $customersByPreOrderId = [];
+
+        foreach (Customer::withTrashed()->get() as $c) {
+            if ($c->trashed()) $c->restore();
+            if ($c->pppoe_username) $customersByUsername[strtolower(trim($c->pppoe_username))] = $c;
+            if ($c->id_pelanggan) $customersByIdPelanggan[trim($c->id_pelanggan)] = $c;
+            if ($c->nama_lengkap) $customersByName[$this->cleanStr($c->nama_lengkap)] = $c;
+            if ($c->no_whatsapp) {
+                $p = $this->cleanPhone($c->no_whatsapp);
+                if ($p) $customersByPhone[$p] = $c;
+            }
+            if ($c->pre_order_id) $customersByPreOrderId[$c->pre_order_id] = $c;
+        }
+
+        $preOrdersById = [];
+        $preOrdersByName = [];
+        $preOrdersByPhone = [];
+        $preOrdersByNik = [];
+
+        foreach (PreOrder::all() as $po) {
+            $preOrdersById[$po->id] = $po;
+            if ($po->nama_lengkap) $preOrdersByName[$this->cleanStr($po->nama_lengkap)] = $po;
+            if ($po->no_whatsapp) {
+                $p = $this->cleanPhone($po->no_whatsapp);
+                if ($p) $preOrdersByPhone[$p] = $po;
+            }
+            if ($po->no_identitas) $preOrdersByNik[trim($po->no_identitas)] = $po;
+        }
+
+        $pppoesByUsername = [];
+        $pppoesByPreOrderId = [];
+        foreach (Pppoe::all() as $p) {
+            $pppoesByUsername[strtolower(trim($p->username))] = $p;
+            if ($p->pre_order_id) $pppoesByPreOrderId[$p->pre_order_id] = $p;
+        }
+
+        $radiusAvailable = false;
+        if ($syncRadius) {
+            try {
+                Radcheck::count();
+                $radiusAvailable = true;
+            } catch (\Throwable $e) {
+                $results['errors'][] = "Radius connection unavailable: " . $e->getMessage();
+            }
+        }
+
+        $radcheckBatch = [];
+        $radreplyBatch = [];
+        $radusergroupBatch = [];
+        $userinfoBatch = [];
+
+        DB::connection()->disableQueryLog();
+        DB::beginTransaction();
+
+        try {
+            while (($row = fgetcsv($fp, 0, ',', '"', "\\")) !== false) {
+                if (empty($row) || (count($row) === 1 && trim($row[0]) === '')) continue;
+
+                $username = trim($row[$colUsername] ?? '');
+                $name = trim($row[$colNama] ?? '');
+                $idPelanggan = trim($row[$colIdPelanggan] ?? '');
+
+                if ((!$username || $username === '-') && (!$name || $name === '-')) {
+                    continue;
+                }
+
+                $userKey = strtolower($username !== '-' ? $username : '');
+                $password = trim($row[$colPassword] ?? '123');
+                if (!$password || $password === '-') $password = '123';
+                $ip = trim($row[$colIp] ?? '');
+                if ($ip === '-') $ip = null;
+                $phone = trim($row[$colWa] ?? '');
+                if ($phone === '-') $phone = '';
+                $email = trim($row[$colEmail] ?? '');
+                if ($email === '-') $email = '';
+                $nik = trim($row[$colNik] ?? '');
+                if ($nik === '-') $nik = null;
+                $address = trim($row[$colAlamat] ?? '');
+                if ($address === '-') $address = '';
+                $tikor = trim($row[$colTikor] ?? '');
+                if ($tikor === '-') $tikor = null;
+                $paketName = trim($row[$colPaket] ?? '');
+                $paketId = $this->resolvePaketId($paketName, $paketMap);
+                $router = trim($row[$colRouter] ?? 'All');
+                if (!$router || $router === '-') $router = 'All';
+                $pembayaran = trim($row[$colPembayaran] ?? 'Cash');
+                if (!$pembayaran || $pembayaran === '-') $pembayaran = 'Cash';
+                $statusInvoice = trim($row[$colStatusInv] ?? 'belum_bayar');
+                if (!$statusInvoice || $statusInvoice === '-') $statusInvoice = 'belum_bayar';
+                $snPerangkat = trim($row[$colSn] ?? '');
+                if ($snPerangkat === '-') $snPerangkat = null;
+                $jenisModem = trim($row[$colModem] ?? '');
+                if ($jenisModem === '-') $jenisModem = null;
+                $tglRaw = trim($row[$colTgl] ?? '');
+                $createdAt = (!empty($tglRaw) && $tglRaw !== '-') ? Carbon::parse($tglRaw) : now();
+
+                $cleanName = $this->cleanStr($name);
+                $cleanPhone = $phone ? $this->cleanPhone($phone) : '';
+
+                // Matching
+                $existingCustomer = null;
+                if ($idPelanggan && $idPelanggan !== '-' && isset($customersByIdPelanggan[$idPelanggan])) {
+                    $existingCustomer = $customersByIdPelanggan[$idPelanggan];
+                }
+                if (!$existingCustomer && $userKey && isset($customersByUsername[$userKey])) {
+                    $existingCustomer = $customersByUsername[$userKey];
+                }
+                if (!$existingCustomer && $cleanPhone && isset($customersByPhone[$cleanPhone])) {
+                    $existingCustomer = $customersByPhone[$cleanPhone];
+                }
+                if (!$existingCustomer && $cleanName && isset($customersByName[$cleanName])) {
+                    $existingCustomer = $customersByName[$cleanName];
+                }
+
+                $existingPreOrder = null;
+                if ($existingCustomer && $existingCustomer->pre_order_id && isset($preOrdersById[$existingCustomer->pre_order_id])) {
+                    $existingPreOrder = $preOrdersById[$existingCustomer->pre_order_id];
+                }
+                if (!$existingPreOrder && $nik && isset($preOrdersByNik[$nik])) {
+                    $existingPreOrder = $preOrdersByNik[$nik];
+                }
+                if (!$existingPreOrder && $cleanPhone && isset($preOrdersByPhone[$cleanPhone])) {
+                    $existingPreOrder = $preOrdersByPhone[$cleanPhone];
+                }
+                if (!$existingPreOrder && $cleanName && isset($preOrdersByName[$cleanName])) {
+                    $existingPreOrder = $preOrdersByName[$cleanName];
+                }
+
+                if ($existingPreOrder) {
+                    $preOrderId = $existingPreOrder->id;
+                    $existingPreOrder->update([
+                        'paket_id' => $paketId ?: $existingPreOrder->paket_id,
+                        'no_identitas' => $nik ?: $existingPreOrder->no_identitas,
+                        'titik_koordinat' => $tikor ?: $existingPreOrder->titik_koordinat,
+                        'alamat_lengkap' => $address ?: $existingPreOrder->alamat_lengkap,
+                        'no_whatsapp' => $phone ?: $existingPreOrder->no_whatsapp,
+                        'alamat_email' => $email ?: $existingPreOrder->alamat_email,
+                    ]);
+                } else {
+                    $preOrder = PreOrder::create([
+                        'id_sales' => 1,
+                        'nama_sales' => 'Administrator',
+                        'nama_lengkap' => $name ?: ($username ?: 'Pelanggan'),
+                        'no_identitas' => $nik,
+                        'no_whatsapp' => $phone ?: '081234567890',
+                        'alamat_email' => $email ?: (($username ?: 'cust') . '@erlangga.net'),
+                        'alamat_lengkap' => $address ?: 'Alamat belum diisi',
+                        'titik_koordinat' => $tikor,
+                        'paket_id' => $paketId,
+                        'created_at' => $createdAt,
+                        'updated_at' => $createdAt,
+                    ]);
+                    $preOrderId = $preOrder->id;
+                    $preOrdersById[$preOrderId] = $preOrder;
+                    if ($nik) $preOrdersByNik[$nik] = $preOrder;
+                    if ($cleanName) $preOrdersByName[$cleanName] = $preOrder;
+                    if ($cleanPhone) $preOrdersByPhone[$cleanPhone] = $preOrder;
+                    $results['preorders_created']++;
+                }
+
+                if (!$existingCustomer && isset($customersByPreOrderId[$preOrderId])) {
+                    $existingCustomer = $customersByPreOrderId[$preOrderId];
+                }
+
+                $validPembayaran = in_array(ucfirst(strtolower($pembayaran)), ['Cash', 'Aplikasi']) ? ucfirst(strtolower($pembayaran)) : 'Cash';
+
+                if ($existingCustomer) {
+                    $updateData = [
+                        'paket_id' => $paketId ?: $existingCustomer->paket_id,
+                        'pppoe_username' => $username !== '-' ? $username : $existingCustomer->pppoe_username,
+                        'pppoe_password' => $password !== '-' ? $password : $existingCustomer->pppoe_password,
+                        'sn_perangkat' => $snPerangkat ?: $existingCustomer->sn_perangkat,
+                        'jenis_modem' => $jenisModem ?: $existingCustomer->jenis_modem,
+                        'pembayaran' => $validPembayaran ?: $existingCustomer->pembayaran,
+                    ];
+                    if ($idPelanggan && $idPelanggan !== '-' && $existingCustomer->id_pelanggan !== $idPelanggan) {
+                        if (!isset($customersByIdPelanggan[$idPelanggan])) {
+                            $updateData['id_pelanggan'] = $idPelanggan;
+                            $customersByIdPelanggan[$idPelanggan] = $existingCustomer;
+                        }
+                    }
+                    $existingCustomer->update($updateData);
+                    if ($userKey) $customersByUsername[$userKey] = $existingCustomer;
+                    $customersByPreOrderId[$preOrderId] = $existingCustomer;
+                    $results['customers_linked']++;
+                } else {
+                    $assignedIdPelanggan = ($idPelanggan && $idPelanggan !== '-' && !isset($customersByIdPelanggan[$idPelanggan])) ? $idPelanggan : null;
+                    $cust = Customer::create([
+                        'pre_order_id' => $preOrderId,
+                        'id_sales' => 1,
+                        'id_teknisi' => 3,
+                        'pembayaran' => $validPembayaran,
+                        'nama_lengkap' => $name ?: ($username ?: 'Pelanggan'),
+                        'alamat_lengkap' => $address ?: 'Alamat belum diisi',
+                        'no_whatsapp' => $phone ?: '',
+                        'id_pelanggan' => $assignedIdPelanggan,
+                        'pppoe_username' => $username !== '-' ? $username : null,
+                        'pppoe_password' => $password !== '-' ? $password : '123',
+                        'sn_perangkat' => $snPerangkat,
+                        'jenis_modem' => $jenisModem,
+                        'paket_id' => $paketId,
+                        'created_at' => $createdAt,
+                        'updated_at' => $createdAt,
+                    ]);
+                    if ($assignedIdPelanggan) $customersByIdPelanggan[$assignedIdPelanggan] = $cust;
+                    if ($userKey) $customersByUsername[$userKey] = $cust;
+                    $customersByPreOrderId[$preOrderId] = $cust;
+                    if ($cleanName) $customersByName[$cleanName] = $cust;
+                    if ($cleanPhone) $customersByPhone[$cleanPhone] = $cust;
+                    $results['customers_created']++;
+                }
+
+                // PPPoE Record
+                if ($username && $username !== '-') {
+                    $pppoeData = [
+                        'pre_order_id' => $preOrderId,
+                        'paket_id' => $paketId,
+                        'username' => $username,
+                        'password' => $password,
+                        'ip_address' => $ip,
+                        'router' => $router,
+                        'tipe_pembayaran' => strtolower($pembayaran) === 'postpaid' ? 'postpaid' : 'prepaid',
+                        'status_invoice' => $statusInvoice,
+                        'tanggal_aktif' => $createdAt,
+                        'created_at' => $createdAt,
+                        'updated_at' => $createdAt,
+                    ];
+
+                    $pppoe = $pppoesByUsername[$userKey] ?? ($pppoesByPreOrderId[$preOrderId] ?? null);
+                    if (!$pppoe) {
+                        $pppoe = Pppoe::create($pppoeData);
+                        $pppoesByUsername[$userKey] = $pppoe;
+                        $pppoesByPreOrderId[$preOrderId] = $pppoe;
+                        $results['pppoe_created']++;
+                    } else {
+                        $pppoe->update($pppoeData);
+                        $pppoesByUsername[$userKey] = $pppoe;
+                        $pppoesByPreOrderId[$preOrderId] = $pppoe;
+                        $results['pppoe_updated']++;
+                    }
+
+                    if ($radiusAvailable) {
+                        $radcheckBatch[] = [
+                            'username' => $username,
+                            'attribute' => 'Cleartext-Password',
+                            'op' => ':=',
+                            'value' => $password,
+                        ];
+                        if ($ip) {
+                            $radreplyBatch[] = [
+                                'username' => $username,
+                                'attribute' => 'Framed-IP-Address',
+                                'op' => ':=',
+                                'value' => $ip,
+                            ];
+                        }
+                        $radusergroupBatch[] = [
+                            'username' => $username,
+                            'groupname' => $paketName ?: 'default',
+                            'priority' => 1,
+                        ];
+                        $userinfoBatch[] = [
+                            'username' => $username,
+                            'firstname' => $name ?: $username,
+                            'lastname' => '',
+                            'email' => $email ?: ($username . '@erlangga.net'),
+                            'address' => $address ?: '',
+                            'mobilephone' => $phone ?: '',
+                            'creationdate' => $createdAt->format('Y-m-d H:i:s'),
+                            'updatedate' => now()->format('Y-m-d H:i:s'),
+                            'creationby' => 'system_restore',
+                            'updateby' => 'system_restore',
+                        ];
+                    }
+                }
+            }
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            fclose($fp);
+            throw $e;
+        }
+
+        fclose($fp);
+
+        // Bulk upsert to RADIUS
+        if ($radiusAvailable && !empty($radcheckBatch)) {
+            try {
+                foreach (array_chunk($radcheckBatch, 500) as $chunk) {
+                    Radcheck::upsert($chunk, ['username', 'attribute'], ['op', 'value']);
+                }
+                foreach (array_chunk($radreplyBatch, 500) as $chunk) {
+                    Radreply::upsert($chunk, ['username', 'attribute'], ['op', 'value']);
+                }
+                foreach (array_chunk($radusergroupBatch, 500) as $chunk) {
+                    Radusergroup::upsert($chunk, ['username'], ['groupname', 'priority']);
+                }
+                foreach (array_chunk($userinfoBatch, 500) as $chunk) {
+                    Userinfo::upsert($chunk, ['username'], ['firstname', 'email', 'address', 'mobilephone', 'updatedate']);
+                }
+                $results['radius_synced'] = count($radcheckBatch);
+            } catch (\Throwable $e) {
+                Log::warning("Radius sync error in restore: " . $e->getMessage());
+            }
+        }
+
+        $results['time_elapsed'] = round(microtime(true) - $startTime, 2);
+        return $results;
+    }
+
+    /**
+     * Import / Restore from System Full Master CSV Backup.
+     */
+    public function importSystemMasterCsv(string $filePath, array $options = [], ?callable $progressCallback = null): array
+    {
+        $startTime = microtime(true);
+        $syncRadius = $options['sync_radius'] ?? true;
+        $importInvoices = $options['import_invoices'] ?? true;
+        $importTransactions = $options['import_transactions'] ?? true;
+
+        $fp = fopen($filePath, 'r');
+        if (!$fp) {
+            throw new \Exception("Gagal membuka file backup: $filePath");
+        }
+
+        $bom = fread($fp, 3);
+        if ($bom !== "\xEF\xBB\xBF") {
+            rewind($fp);
+        }
+
+        $results = [
+            'pakets_synced' => 0,
+            'users_synced' => 0,
+            'pppoe_created' => 0,
+            'pppoe_updated' => 0,
+            'preorders_created' => 0,
+            'customers_created' => 0,
+            'customers_linked' => 0,
+            'invoices_imported' => 0,
+            'transactions_imported' => 0,
+            'radius_synced' => 0,
+            'errors' => [],
+            'time_elapsed' => 0,
+        ];
+
+        $paketMap = $this->ensureDefaultPakets();
+
+        // Memory caches for customers & pppoe
+        $customersById = [];
+        $customersByUsername = [];
+        $customersByIdPelanggan = [];
+        $customersByName = [];
+        $customersByPhone = [];
+        $customersByPreOrderId = [];
+
+        foreach (Customer::withTrashed()->get() as $c) {
+            if ($c->trashed()) $c->restore();
+            $customersById[$c->id] = $c;
+            if ($c->pppoe_username) $customersByUsername[strtolower(trim($c->pppoe_username))] = $c;
+            if ($c->id_pelanggan) $customersByIdPelanggan[trim($c->id_pelanggan)] = $c;
+            if ($c->nama_lengkap) $customersByName[$this->cleanStr($c->nama_lengkap)] = $c;
+            if ($c->no_whatsapp) {
+                $p = $this->cleanPhone($c->no_whatsapp);
+                if ($p) $customersByPhone[$p] = $c;
+            }
+            if ($c->pre_order_id) $customersByPreOrderId[$c->pre_order_id] = $c;
+        }
+
+        $preOrdersById = [];
+        $preOrdersByName = [];
+        $preOrdersByPhone = [];
+        $preOrdersByNik = [];
+
+        foreach (PreOrder::all() as $po) {
+            $preOrdersById[$po->id] = $po;
+            if ($po->nama_lengkap) $preOrdersByName[$this->cleanStr($po->nama_lengkap)] = $po;
+            if ($po->no_whatsapp) {
+                $p = $this->cleanPhone($po->no_whatsapp);
+                if ($p) $preOrdersByPhone[$p] = $po;
+            }
+            if ($po->no_identitas) $preOrdersByNik[trim($po->no_identitas)] = $po;
+        }
+
+        $pppoesByUsername = [];
+        $pppoesByPreOrderId = [];
+        foreach (Pppoe::all() as $p) {
+            $pppoesByUsername[strtolower(trim($p->username))] = $p;
+            if ($p->pre_order_id) $pppoesByPreOrderId[$p->pre_order_id] = $p;
+        }
+
+        $radiusAvailable = false;
+        if ($syncRadius) {
+            try {
+                Radcheck::count();
+                $radiusAvailable = true;
+            } catch (\Throwable $e) {
+                $results['errors'][] = "Radius connection unavailable: " . $e->getMessage();
+            }
+        }
+
+        $radcheckBatch = [];
+        $radreplyBatch = [];
+        $radusergroupBatch = [];
+        $userinfoBatch = [];
+
+        $currentSection = null;
+        $sectionHeaders = [];
+
+        DB::connection()->disableQueryLog();
+        DB::beginTransaction();
+
+        try {
+            while (($row = fgetcsv($fp, 0, ',', '"', "\\")) !== false) {
+                if (empty($row) || (count($row) === 1 && trim((string)($row[0] ?? '')) === '')) {
+                    continue;
+                }
+
+                $firstCell = trim((string)($row[0] ?? ''));
+                if (str_starts_with($firstCell, '### TABEL:')) {
+                    if (str_contains($firstCell, 'PAKET_LAYANAN')) {
+                        $currentSection = 'pakets';
+                    } elseif (str_contains($firstCell, 'AKUN_SISTEM')) {
+                        $currentSection = 'users';
+                    } elseif (str_contains($firstCell, 'PELANGGAN_DAN_PPPOE')) {
+                        $currentSection = 'customers';
+                    } elseif (str_contains($firstCell, 'FAKTUR_INVOICE')) {
+                        $currentSection = 'invoices';
+                    } elseif (str_contains($firstCell, 'LOG_TRANSAKSI')) {
+                        $currentSection = 'transactions';
+                    } else {
+                        $currentSection = null;
+                    }
+                    $sectionHeaders[$currentSection] = null;
+                    continue;
+                }
+
+                if (!$currentSection) {
+                    continue;
+                }
+
+                // Section header row
+                if (!isset($sectionHeaders[$currentSection]) || $sectionHeaders[$currentSection] === null) {
+                    $map = [];
+                    foreach ($row as $idx => $name) {
+                        $map[strtolower(trim((string)$name))] = $idx;
+                    }
+                    $sectionHeaders[$currentSection] = $map;
+                    continue;
+                }
+
+                $h = $sectionHeaders[$currentSection];
+
+                // 1. Process Pakets
+                if ($currentSection === 'pakets') {
+                    $pName = trim($row[$h['nama paket'] ?? 1] ?? '');
+                    if (!$pName) continue;
+                    $price = (float) ($row[$h['harga'] ?? 3] ?? 0);
+                    $speed = trim($row[$h['kecepatan'] ?? 2] ?? '');
+                    $profil = trim($row[$h['profil mikrotik'] ?? 4] ?? '');
+
+                    $paket = Paket::where('nama_paket', $pName)->first();
+                    if (!$paket) {
+                        $paket = Paket::create([
+                            'nama_paket' => $pName,
+                            'harga' => $price,
+                            'kecepatan' => $speed !== '-' ? $speed : null,
+                            'rate_limit' => $speed !== '-' ? $speed : '10M/10M',
+                            'profil_mikrotik' => $profil !== '-' ? $profil : null,
+                        ]);
+                    } else {
+                        $paket->update([
+                            'harga' => $price ?: $paket->harga,
+                            'kecepatan' => ($speed !== '-' && $speed) ? $speed : $paket->kecepatan,
+                            'profil_mikrotik' => ($profil !== '-' && $profil) ? $profil : $paket->profil_mikrotik,
+                        ]);
+                    }
+                    $paketMap[strtolower($pName)] = $paket->id;
+                    $results['pakets_synced']++;
+                }
+
+                // 2. Process Users
+                elseif ($currentSection === 'users') {
+                    $uEmail = trim($row[$h['email'] ?? 2] ?? '');
+                    $uFullName = trim($row[$h['nama lengkap'] ?? 1] ?? '');
+                    if (!$uEmail && !$uFullName) continue;
+
+                    $uPhone = trim($row[$h['no whatsapp'] ?? 3] ?? '');
+                    $uRole = trim($row[$h['jabatan'] ?? 4] ?? 'User');
+                    $uNik = trim($row[$h['nik'] ?? 5] ?? '');
+
+                    $existingUser = null;
+                    if ($uEmail && $uEmail !== '-') {
+                        $existingUser = User::withTrashed()->where('email', $uEmail)->first();
+                    }
+                    if (!$existingUser && $uFullName && $uFullName !== '-') {
+                        $existingUser = User::withTrashed()->where('nama_lengkap', $uFullName)->first();
+                    }
+
+                    if (!$existingUser) {
+                        User::create([
+                            'email' => ($uEmail && $uEmail !== '-') ? $uEmail : (strtolower(str_replace(' ', '', $uFullName)) . '@erlangga.net'),
+                            'nama_lengkap' => $uFullName,
+                            'password' => bcrypt('password123'),
+                            'no_whatsapp' => ($uPhone && $uPhone !== '-') ? $uPhone : null,
+                            'jabatan' => ($uRole && $uRole !== '-') ? $uRole : 'User',
+                            'nik' => ($uNik && $uNik !== '-') ? $uNik : null,
+                            'is_active' => true,
+                        ]);
+                        $results['users_synced']++;
+                    }
+                }
+
+                // 3. Process Customers & PPPoE
+                elseif ($currentSection === 'customers') {
+                    $idPelanggan = trim($row[$h['id pelanggan'] ?? 0] ?? '');
+                    $name = trim($row[$h['nama lengkap'] ?? 1] ?? '');
+                    $phone = trim($row[$h['no whatsapp'] ?? 2] ?? '');
+                    $address = trim($row[$h['alamat'] ?? 3] ?? '');
+                    $tikor = trim($row[$h['koordinat'] ?? 4] ?? '');
+                    $username = trim($row[$h['username pppoe'] ?? 5] ?? '');
+                    $password = trim($row[$h['password pppoe'] ?? 6] ?? '123');
+                    $ip = trim($row[$h['ip address'] ?? 7] ?? '');
+                    $paketName = trim($row[$h['paket'] ?? 8] ?? '');
+                    $router = trim($row[$h['router'] ?? 10] ?? 'All');
+                    $pembayaran = trim($row[$h['tipe pembayaran'] ?? 11] ?? 'Cash');
+                    $statusInvoice = trim($row[$h['status invoice'] ?? 12] ?? 'belum_bayar');
+                    $snPerangkat = trim($row[$h['sn perangkat'] ?? 13] ?? '');
+                    $tglRaw = trim($row[$h['tanggal registrasi'] ?? 17] ?? '');
+
+                    if ((!$username || $username === '-') && (!$name || $name === '-')) {
+                        continue;
+                    }
+
+                    $userKey = strtolower($username !== '-' ? $username : '');
+                    if ($password === '-') $password = '123';
+                    if ($ip === '-') $ip = null;
+                    if ($phone === '-') $phone = '';
+                    if ($address === '-') $address = '';
+                    if ($tikor === '-') $tikor = null;
+                    $paketId = $this->resolvePaketId($paketName, $paketMap);
+                    if ($router === '-') $router = 'All';
+                    if ($pembayaran === '-') $pembayaran = 'Cash';
+                    if ($statusInvoice === '-') $statusInvoice = 'belum_bayar';
+                    if ($snPerangkat === '-') $snPerangkat = null;
+                    $createdAt = (!empty($tglRaw) && $tglRaw !== '-') ? Carbon::parse($tglRaw) : now();
+
+                    $cleanName = $this->cleanStr($name);
+                    $cleanPhone = $phone ? $this->cleanPhone($phone) : '';
+
+                    // Matching
+                    $existingCustomer = null;
+                    if ($idPelanggan && $idPelanggan !== '-' && isset($customersByIdPelanggan[$idPelanggan])) {
+                        $existingCustomer = $customersByIdPelanggan[$idPelanggan];
+                    }
+                    if (!$existingCustomer && $userKey && isset($customersByUsername[$userKey])) {
+                        $existingCustomer = $customersByUsername[$userKey];
+                    }
+                    if (!$existingCustomer && $cleanPhone && isset($customersByPhone[$cleanPhone])) {
+                        $existingCustomer = $customersByPhone[$cleanPhone];
+                    }
+                    if (!$existingCustomer && $cleanName && isset($customersByName[$cleanName])) {
+                        $existingCustomer = $customersByName[$cleanName];
+                    }
+
+                    $existingPreOrder = null;
+                    if ($existingCustomer && $existingCustomer->pre_order_id && isset($preOrdersById[$existingCustomer->pre_order_id])) {
+                        $existingPreOrder = $preOrdersById[$existingCustomer->pre_order_id];
+                    }
+                    if (!$existingPreOrder && $cleanPhone && isset($preOrdersByPhone[$cleanPhone])) {
+                        $existingPreOrder = $preOrdersByPhone[$cleanPhone];
+                    }
+                    if (!$existingPreOrder && $cleanName && isset($preOrdersByName[$cleanName])) {
+                        $existingPreOrder = $preOrdersByName[$cleanName];
+                    }
+
+                    if ($existingPreOrder) {
+                        $preOrderId = $existingPreOrder->id;
+                        $existingPreOrder->update([
+                            'paket_id' => $paketId ?: $existingPreOrder->paket_id,
+                            'titik_koordinat' => $tikor ?: $existingPreOrder->titik_koordinat,
+                            'alamat_lengkap' => $address ?: $existingPreOrder->alamat_lengkap,
+                            'no_whatsapp' => $phone ?: $existingPreOrder->no_whatsapp,
+                        ]);
+                    } else {
+                        $preOrder = PreOrder::create([
+                            'id_sales' => 1,
+                            'nama_sales' => 'Administrator',
+                            'nama_lengkap' => $name ?: ($username ?: 'Pelanggan'),
+                            'no_whatsapp' => $phone ?: '081234567890',
+                            'alamat_email' => ($username ?: 'cust') . '@erlangga.net',
+                            'alamat_lengkap' => $address ?: 'Alamat belum diisi',
+                            'titik_koordinat' => $tikor,
+                            'paket_id' => $paketId,
+                            'created_at' => $createdAt,
+                            'updated_at' => $createdAt,
+                        ]);
+                        $preOrderId = $preOrder->id;
+                        $preOrdersById[$preOrderId] = $preOrder;
+                        if ($cleanName) $preOrdersByName[$cleanName] = $preOrder;
+                        if ($cleanPhone) $preOrdersByPhone[$cleanPhone] = $preOrder;
+                        $results['preorders_created']++;
+                    }
+
+                    if (!$existingCustomer && isset($customersByPreOrderId[$preOrderId])) {
+                        $existingCustomer = $customersByPreOrderId[$preOrderId];
+                    }
+
+                    $validPembayaran = in_array(ucfirst(strtolower($pembayaran)), ['Cash', 'Aplikasi']) ? ucfirst(strtolower($pembayaran)) : 'Cash';
+
+                    if ($existingCustomer) {
+                        $updateData = [
+                            'paket_id' => $paketId ?: $existingCustomer->paket_id,
+                            'pppoe_username' => $username !== '-' ? $username : $existingCustomer->pppoe_username,
+                            'pppoe_password' => $password !== '-' ? $password : $existingCustomer->pppoe_password,
+                            'sn_perangkat' => $snPerangkat ?: $existingCustomer->sn_perangkat,
+                            'pembayaran' => $validPembayaran ?: $existingCustomer->pembayaran,
+                        ];
+                        if ($idPelanggan && $idPelanggan !== '-' && $existingCustomer->id_pelanggan !== $idPelanggan) {
+                            if (!isset($customersByIdPelanggan[$idPelanggan])) {
+                                $updateData['id_pelanggan'] = $idPelanggan;
+                                $customersByIdPelanggan[$idPelanggan] = $existingCustomer;
+                            }
+                        }
+                        $existingCustomer->update($updateData);
+                        if ($userKey) $customersByUsername[$userKey] = $existingCustomer;
+                        $customersByPreOrderId[$preOrderId] = $existingCustomer;
+                        $results['customers_linked']++;
+                    } else {
+                        $assignedIdPelanggan = ($idPelanggan && $idPelanggan !== '-' && !isset($customersByIdPelanggan[$idPelanggan])) ? $idPelanggan : null;
+                        $cust = Customer::create([
+                            'pre_order_id' => $preOrderId,
+                            'id_sales' => 1,
+                            'id_teknisi' => 3,
+                            'pembayaran' => $validPembayaran,
+                            'nama_lengkap' => $name ?: ($username ?: 'Pelanggan'),
+                            'alamat_lengkap' => $address ?: 'Alamat belum diisi',
+                            'no_whatsapp' => $phone ?: '',
+                            'id_pelanggan' => $assignedIdPelanggan,
+                            'pppoe_username' => $username !== '-' ? $username : null,
+                            'pppoe_password' => $password !== '-' ? $password : '123',
+                            'sn_perangkat' => $snPerangkat,
+                            'paket_id' => $paketId,
+                            'created_at' => $createdAt,
+                            'updated_at' => $createdAt,
+                        ]);
+                        if ($assignedIdPelanggan) $customersByIdPelanggan[$assignedIdPelanggan] = $cust;
+                        if ($userKey) $customersByUsername[$userKey] = $cust;
+                        $customersByPreOrderId[$preOrderId] = $cust;
+                        if ($cleanName) $customersByName[$cleanName] = $cust;
+                        if ($cleanPhone) $customersByPhone[$cleanPhone] = $cust;
+                        $results['customers_created']++;
+                    }
+
+                    if ($username && $username !== '-') {
+                        $pppoeData = [
+                            'pre_order_id' => $preOrderId,
+                            'paket_id' => $paketId,
+                            'username' => $username,
+                            'password' => $password,
+                            'ip_address' => $ip,
+                            'router' => $router,
+                            'tipe_pembayaran' => strtolower($pembayaran) === 'postpaid' ? 'postpaid' : 'prepaid',
+                            'status_invoice' => $statusInvoice,
+                            'tanggal_aktif' => $createdAt,
+                            'created_at' => $createdAt,
+                            'updated_at' => $createdAt,
+                        ];
+
+                        $pppoe = $pppoesByUsername[$userKey] ?? ($pppoesByPreOrderId[$preOrderId] ?? null);
+                        if (!$pppoe) {
+                            $pppoe = Pppoe::create($pppoeData);
+                            $pppoesByUsername[$userKey] = $pppoe;
+                            $pppoesByPreOrderId[$preOrderId] = $pppoe;
+                            $results['pppoe_created']++;
+                        } else {
+                            $pppoe->update($pppoeData);
+                            $pppoesByUsername[$userKey] = $pppoe;
+                            $pppoesByPreOrderId[$preOrderId] = $pppoe;
+                            $results['pppoe_updated']++;
+                        }
+
+                        if ($radiusAvailable) {
+                            $radcheckBatch[] = [
+                                'username' => $username,
+                                'attribute' => 'Cleartext-Password',
+                                'op' => ':=',
+                                'value' => $password,
+                            ];
+                            if ($ip) {
+                                $radreplyBatch[] = [
+                                    'username' => $username,
+                                    'attribute' => 'Framed-IP-Address',
+                                    'op' => ':=',
+                                    'value' => $ip,
+                                ];
+                            }
+                            $radusergroupBatch[] = [
+                                'username' => $username,
+                                'groupname' => $paketName ?: 'default',
+                                'priority' => 1,
+                            ];
+                            $userinfoBatch[] = [
+                                'username' => $username,
+                                'firstname' => $name ?: $username,
+                                'lastname' => '',
+                                'email' => $username . '@erlangga.net',
+                                'address' => $address ?: '',
+                                'mobilephone' => $phone ?: '',
+                                'creationdate' => $createdAt->format('Y-m-d H:i:s'),
+                                'updatedate' => now()->format('Y-m-d H:i:s'),
+                                'creationby' => 'master_restore',
+                                'updateby' => 'master_restore',
+                            ];
+                        }
+                    }
+                }
+
+                // 4. Process Invoices
+                elseif ($currentSection === 'invoices' && $importInvoices) {
+                    $invNum = trim($row[$h['nomor invoice'] ?? 1] ?? '');
+                    if (!$invNum || $invNum === '-') continue;
+
+                    $uName = strtolower(trim($row[$h['username pppoe'] ?? 2] ?? ''));
+                    $pppoe = $pppoesByUsername[$uName] ?? null;
+                    if (!$pppoe) continue;
+
+                    $total = (float) ($row[$h['total tagihan'] ?? 5] ?? 0);
+                    $discount = (float) ($row[$h['diskon'] ?? 6] ?? 0);
+                    $tax = (float) ($row[$h['pajak'] ?? 7] ?? 0);
+                    $status = trim($row[$h['status tagihan'] ?? 8] ?? 'unpaid');
+                    if ($status === '-') $status = 'unpaid';
+                    $dueDate = trim($row[$h['jatuh tempo'] ?? 4] ?? '');
+                    $createdAtRaw = trim($row[$h['tanggal dibuat'] ?? 10] ?? '');
+                    $createdAt = (!empty($createdAtRaw) && $createdAtRaw !== '-') ? Carbon::parse($createdAtRaw) : now();
+
+                    $invoice = Invoice::where('invoice_number', $invNum)->first();
+                    $invData = [
+                        'pppoe_id' => $pppoe->id,
+                        'invoice_number' => $invNum,
+                        'amount' => $total,
+                        'tax' => $tax,
+                        'discount' => $discount,
+                        'total' => $total,
+                        'status' => $status,
+                        'due_date' => (!empty($dueDate) && $dueDate !== '-') ? $dueDate : null,
+                        'created_at' => $createdAt,
+                        'updated_at' => $createdAt,
+                    ];
+
+                    if (!$invoice) {
+                        Invoice::create($invData);
+                    } else {
+                        $invoice->update($invData);
+                    }
+                    $results['invoices_imported']++;
+                }
+
+                // 5. Process Transactions
+                elseif ($currentSection === 'transactions' && $importTransactions) {
+                    $invNum = trim($row[$h['id invoice'] ?? ($h['nomor invoice'] ?? 2)] ?? '');
+                    $xenditId = trim($row[$h['kode transaksi'] ?? 1] ?? '');
+                    if ($xenditId === '-') $xenditId = null;
+
+                    $invoice = Invoice::where('invoice_number', $invNum)->first();
+                    if (!$invoice) continue;
+
+                    $nominal = (float) ($row[$h['nominal'] ?? 4] ?? 0);
+                    $method = trim($row[$h['tipe'] ?? 6] ?? 'cash');
+                    if ($method === '-') $method = 'cash';
+                    $status = trim($row[$h['status'] ?? 7] ?? 'success');
+                    if ($status === '-' || $status === 'sukses') $status = 'success';
+                    $payDateRaw = trim($row[$h['tanggal bayar'] ?? 8] ?? '');
+                    $payDate = (!empty($payDateRaw) && $payDateRaw !== '-') ? Carbon::parse($payDateRaw) : null;
+                    $createdAtRaw = trim($row[$h['tanggal dibuat'] ?? 9] ?? '');
+                    $createdAt = (!empty($createdAtRaw) && $createdAtRaw !== '-') ? Carbon::parse($createdAtRaw) : now();
+
+                    Transaction::create([
+                        'invoice_id' => $invoice->id,
+                        'xendit_payment_id' => $xenditId,
+                        'payment_method' => $method,
+                        'amount_paid' => $nominal ?: $invoice->total,
+                        'payment_date' => $payDate,
+                        'status' => $status,
+                        'created_at' => $createdAt,
+                        'updated_at' => $createdAt,
+                    ]);
+                    $results['transactions_imported']++;
+                }
+            }
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            fclose($fp);
+            throw $e;
+        }
+
+        fclose($fp);
+
+        // Bulk upsert to RADIUS
+        if ($radiusAvailable && !empty($radcheckBatch)) {
+            try {
+                foreach (array_chunk($radcheckBatch, 500) as $chunk) {
+                    Radcheck::upsert($chunk, ['username', 'attribute'], ['op', 'value']);
+                }
+                foreach (array_chunk($radreplyBatch, 500) as $chunk) {
+                    Radreply::upsert($chunk, ['username', 'attribute'], ['op', 'value']);
+                }
+                foreach (array_chunk($radusergroupBatch, 500) as $chunk) {
+                    Radusergroup::upsert($chunk, ['username'], ['groupname', 'priority']);
+                }
+                foreach (array_chunk($userinfoBatch, 500) as $chunk) {
+                    Userinfo::upsert($chunk, ['username'], ['firstname', 'email', 'address', 'mobilephone', 'updatedate']);
+                }
+                $results['radius_synced'] = count($radcheckBatch);
+            } catch (\Throwable $e) {
+                Log::warning("Radius sync error in master restore: " . $e->getMessage());
+            }
+        }
+
+        $results['time_elapsed'] = round(microtime(true) - $startTime, 2);
+        return $results;
+    }
 }
+

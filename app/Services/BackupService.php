@@ -89,19 +89,19 @@ class BackupService
 
             $rows[] = [
                 $c->id_pelanggan ?? '-',
-                $c->nama_lengkap ?? ($po->nama_pemohon ?? '-'),
-                $c->no_whatsapp ?? ($po->nomor_telepon ?? '-'),
-                $po->email ?? '-',
-                $po->nik ?? '-',
-                $c->alamat_lengkap ?? ($po->alamat_pemasangan ?? '-'),
-                $po->titik_koordinat ?? '-',
+                $c->nama_lengkap ?? ($po ? $po->nama_lengkap : '-'),
+                $c->no_whatsapp ?? ($po ? $po->no_whatsapp : '-'),
+                $po ? ($po->alamat_email ?? '-') : '-',
+                $po ? ($po->no_identitas ?? '-') : '-',
+                $c->alamat_lengkap ?? ($po ? $po->alamat_lengkap : '-'),
+                $po ? ($po->titik_koordinat ?? '-') : '-',
                 $pppoeUsername ?: '-',
                 $pppoe ? $pppoe->password : ($c->pppoe_password ?? '-'),
                 $pppoe ? $pppoe->ip_address : '-',
                 $pppoe && $pppoe->paket ? $pppoe->paket->nama_paket : '-',
                 $pppoe && $pppoe->paket ? (string) $pppoe->paket->harga : '-',
                 $pppoe ? $pppoe->router : 'All',
-                $pppoe ? $pppoe->tipe_pembayaran : ($c->pembayaran ?? 'prepaid'),
+                $c->pembayaran ?? 'Cash',
                 $pppoe ? $pppoe->status_invoice : 'belum_bayar',
                 $c->sn_perangkat ?? '-',
                 $c->jenis_modem ?? '-',
@@ -180,7 +180,7 @@ class BackupService
         foreach ($users as $u) {
             $rows[] = [
                 $u->id,
-                $u->name,
+                explode('@', $u->email)[0],
                 $u->nama_lengkap ?? '-',
                 $u->email,
                 $u->no_whatsapp ?? '-',
@@ -234,16 +234,16 @@ class BackupService
 
             $rows[] = [
                 $t->id,
-                $t->id_transaksi ?? '-',
-                $inv ? ($inv->nomor_invoice ?? '-') : '-',
-                $pppoe ? $pppoe->username : ($inv ? ($inv->username ?? '-') : '-'),
-                $t->nama_pelanggan ?? '-',
-                (string) ($t->nominal ?? 0),
-                (string) ($t->biaya_admin ?? 0),
-                $t->tipe_pembayaran ?? 'cash',
-                $t->status ?? 'sukses',
-                $t->tanggal_bayar ? Carbon::parse($t->tanggal_bayar)->format('Y-m-d H:i:s') : '-',
-                $t->keterangan ?? '-',
+                $t->xendit_payment_id ?? '-',
+                $inv ? ($inv->invoice_number ?? '-') : '-',
+                $pppoe ? $pppoe->username : '-',
+                $pppoe && $pppoe->customer ? ($pppoe->customer->nama_lengkap ?? '-') : '-',
+                (string) ($t->amount_paid ?? 0),
+                '0',
+                $t->payment_method ?? 'cash',
+                $t->status ?? 'success',
+                $t->payment_date ? Carbon::parse($t->payment_date)->format('Y-m-d H:i:s') : '-',
+                '-',
                 $t->created_at ? $t->created_at->format('Y-m-d H:i:s') : '-',
             ];
         }
@@ -346,7 +346,7 @@ class BackupService
         foreach ($users as $u) {
             fputcsv($fp, [
                 $u->id,
-                $u->name,
+                explode('@', $u->email)[0],
                 $u->nama_lengkap ?? '-',
                 $u->email,
                 $u->no_whatsapp ?? '-',
@@ -376,17 +376,17 @@ class BackupService
 
             fputcsv($fp, [
                 $c->id_pelanggan ?? '-',
-                $c->nama_lengkap ?? ($po->nama_pemohon ?? '-'),
-                $c->no_whatsapp ?? ($po->nomor_telepon ?? '-'),
-                $c->alamat_lengkap ?? ($po->alamat_pemasangan ?? '-'),
-                $po->titik_koordinat ?? '-',
+                $c->nama_lengkap ?? ($po ? $po->nama_lengkap : '-'),
+                $c->no_whatsapp ?? ($po ? $po->no_whatsapp : '-'),
+                $c->alamat_lengkap ?? ($po ? $po->alamat_lengkap : '-'),
+                $po ? ($po->titik_koordinat ?? '-') : '-',
                 $un ?: '-',
                 $pp ? $pp->password : ($c->pppoe_password ?? '-'),
                 $pp ? $pp->ip_address : '-',
                 $pp && $pp->paket ? $pp->paket->nama_paket : '-',
                 $pp && $pp->paket ? $pp->paket->harga : '-',
                 $pp ? $pp->router : 'All',
-                $pp ? $pp->tipe_pembayaran : ($c->pembayaran ?? 'prepaid'),
+                $c->pembayaran ?? 'Cash',
                 $pp ? $pp->status_invoice : 'belum_bayar',
                 $c->sn_perangkat ?? '-',
                 $c->teknisiUtama ? $c->teknisiUtama->nama_lengkap : '-',
@@ -431,15 +431,15 @@ class BackupService
         foreach ($invoices as $inv) {
             fputcsv($fp, [
                 $inv->id,
-                $inv->nomor_invoice ?? '-',
-                $inv->pppoe ? $inv->pppoe->username : ($inv->username ?? '-'),
-                $inv->periode ?? '-',
-                $inv->tanggal_jatuh_tempo ?? '-',
-                $inv->total_tagihan ?? 0,
-                $inv->diskon ?? 0,
-                $inv->pajak ?? 0,
-                $inv->status_tagihan ?? 'belum_bayar',
-                $inv->tanggal_bayar ?? '-',
+                $inv->invoice_number ?? '-',
+                $inv->pppoe ? $inv->pppoe->username : '-',
+                $inv->due_date ? Carbon::parse($inv->due_date)->format('Y-m') : '-',
+                $inv->due_date ?? '-',
+                $inv->total ?? ($inv->amount ?? 0),
+                $inv->discount ?? 0,
+                $inv->tax ?? 0,
+                $inv->status ?? 'unpaid',
+                $inv->status === 'paid' ? ($inv->updated_at ? $inv->updated_at->format('Y-m-d H:i:s') : '-') : '-',
                 $inv->created_at ? $inv->created_at->format('Y-m-d H:i:s') : '-',
             ], ',', '"', "\\");
             $totalRows++;
@@ -450,18 +450,20 @@ class BackupService
         fputcsv($fp, ['### TABEL: LOG_TRANSAKSI ###'], ',', '"', "\\");
         $tHeaders = ['ID Transaksi', 'Kode Transaksi', 'ID Invoice', 'Pelanggan', 'Nominal', 'Biaya Admin', 'Tipe', 'Status', 'Tanggal Bayar', 'Tanggal Dibuat'];
         fputcsv($fp, $tHeaders, ',', '"', "\\");
-        $transactions = Transaction::all();
+        $transactions = Transaction::with(['invoice', 'invoice.pppoe'])->get();
         foreach ($transactions as $t) {
+            $inv = $t->invoice;
+            $pppoe = $inv ? $inv->pppoe : null;
             fputcsv($fp, [
                 $t->id,
-                $t->id_transaksi ?? '-',
-                $t->invoice_id ?? '-',
-                $t->nama_pelanggan ?? '-',
-                $t->nominal ?? 0,
-                $t->biaya_admin ?? 0,
-                $t->tipe_pembayaran ?? 'cash',
-                $t->status ?? 'sukses',
-                $t->tanggal_bayar ? Carbon::parse($t->tanggal_bayar)->format('Y-m-d H:i:s') : '-',
+                $t->xendit_payment_id ?? '-',
+                $inv ? ($inv->invoice_number ?? '-') : '-',
+                $pppoe && $pppoe->customer ? ($pppoe->customer->nama_lengkap ?? '-') : '-',
+                $t->amount_paid ?? 0,
+                0,
+                $t->payment_method ?? 'cash',
+                $t->status ?? 'success',
+                $t->payment_date ? Carbon::parse($t->payment_date)->format('Y-m-d H:i:s') : '-',
                 $t->created_at ? $t->created_at->format('Y-m-d H:i:s') : '-',
             ], ',', '"', "\\");
             $totalRows++;
