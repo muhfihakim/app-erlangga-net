@@ -50,14 +50,13 @@
 
     <!-- Header Bar -->
     <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50">
-        <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div class="max-w-4xl mx-auto px-4 py-3 sm:py-3.5 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                    <i class="fa-solid fa-wifi text-white text-lg"></i>
-                </div>
-                <div>
-                    <h1 class="text-base font-black tracking-wider text-white leading-none uppercase">{{ $companyName }}</h1>
-                    <p class="text-[11px] text-slate-400 font-medium tracking-tight mt-1">Customer Care & Billing Information</p>
+                <img src="{{ asset('dist/assets/img/logo.png') }}" alt="{{ $companyName }} Logo"
+                    class="h-10 sm:h-12 w-auto object-contain drop-shadow-md">
+                <div class="hidden sm:block">
+                    <h1 class="text-sm font-black tracking-wider text-white leading-none uppercase">{{ $companyName }}</h1>
+                    <p class="text-[10px] text-slate-400 font-medium tracking-tight mt-0.5">Customer Care & Billing Information</p>
                 </div>
             </div>
             
@@ -80,11 +79,6 @@
 
             <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 text-2xl sm:text-3xl mb-5 shadow-inner pulse-badge">
                 <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
-            
-            <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-300 text-[11px] font-bold tracking-wider uppercase mb-3">
-                <span class="w-2 h-2 rounded-full bg-rose-400 animate-ping"></span>
-                Status Layanan: Terisolir
             </div>
 
             <h2 class="text-xl sm:text-3xl font-black text-white tracking-tight uppercase max-w-2xl mx-auto">
