@@ -37,6 +37,10 @@
             data-tab="tab-whatsapp">
             <i class="fa-brands fa-whatsapp mr-2 text-emerald-500"></i> WhatsApp API (api.co.id)
         </button>
+        <button type="button" class="modal-tab {{ $activeTab === 'genieacs' ? 'active' : '' }} !rounded-xl !py-2.5 !px-5"
+            data-tab="tab-genieacs">
+            <i class="fa-solid fa-satellite-dish mr-2 text-rose-500"></i> GenieACS (TR-069)
+        </button>
     </div>
 
     <!-- Tab 1: MikroTik -->
@@ -553,6 +557,77 @@
                     </button>
                 </div>
             </form>
+    <!-- Tab 6: GenieACS (TR-069) -->
+    <div class="tab-panel {{ $activeTab === 'genieacs' ? 'active' : '' }}" id="tab-genieacs">
+        <div class="table-card p-6">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+                <div>
+                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-satellite-dish text-rose-600"></i> Integrasi Server GenieACS (TR-069 / CWMP)
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">Digunakan untuk remote manajemen ONT/CPE pelanggan: ganti SSID & Password Wi-Fi, monitoring perangkat terhubung, redaman optik, dan suhu perangkat.</p>
+                </div>
+                <span class="badge" style="background:#ffe4e6;color:#e11d48;font-weight:700;">Port Default: 3000 (UI API) / 7557 (NBI)</span>
+            </div>
+
+            <form action="{{ route('settings.update') }}" method="POST" id="form-genieacs">
+                @csrf
+                <input type="hidden" name="tab" value="genieacs">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                    <div class="form-group !mb-0">
+                        <label class="form-label font-bold text-slate-700">GenieACS Server URL / IP <span class="text-rose-500">*</span></label>
+                        <input type="text" name="genieacs_url" id="genieacs_url" class="form-input font-mono text-xs"
+                            value="{{ old('genieacs_url', $settings['genieacs']['url']) }}"
+                            placeholder="http://203.2.151.130:3000" required>
+                        <small class="text-slate-400 text-[11px]">URL server GenieACS UI atau NBI (contoh: <code>http://203.2.151.130:3000</code>).</small>
+                    </div>
+
+                    <div class="form-group !mb-0">
+                        <label class="form-label font-bold text-slate-700">Timeout Koneksi (detik)</label>
+                        <input type="number" name="genieacs_timeout" id="genieacs_timeout" class="form-input"
+                            value="{{ old('genieacs_timeout', $settings['genieacs']['timeout']) }}" placeholder="10">
+                        <small class="text-slate-400 text-[11px]">Batas waktu timeout HTTP request ke server GenieACS.</small>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                    <div class="form-group !mb-0">
+                        <label class="form-label font-bold text-slate-700">Username GenieACS <span class="text-rose-500">*</span></label>
+                        <input type="text" name="genieacs_username" id="genieacs_username" class="form-input font-mono"
+                            value="{{ old('genieacs_username', $settings['genieacs']['username']) }}"
+                            placeholder="admin" required>
+                        <small class="text-slate-400 text-[11px]">Username akun administrator GenieACS.</small>
+                    </div>
+
+                    <div class="form-group !mb-0">
+                        <label class="form-label font-bold text-slate-700">Password GenieACS</label>
+                        <div class="relative">
+                            <input type="password" name="genieacs_password" id="genieacs_password"
+                                class="form-input !pr-10 font-mono"
+                                value="{{ old('genieacs_password', $settings['genieacs']['password']) }}"
+                                placeholder="Password GenieACS">
+                            <button type="button"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                onclick="togglePasswordVisibility('genieacs_password', this)">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                        <small class="text-slate-400 text-[11px]">Password akun administrator GenieACS.</small>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                    <button type="button" onclick="testConnectionAjax('genieacs')"
+                        class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-satellite-dish"></i> <span id="btn-test-genieacs-text">Uji Koneksi GenieACS</span>
+                    </button>
+                    <button type="submit"
+                        class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 flex items-center gap-2 !px-6">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan Konfigurasi GenieACS
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -756,6 +831,10 @@ add chain=forward action=drop src-address-list=ISOLIR comment="BLOCK SEMUA INTER
                         return;
                     }
                     payload.target = testPhone;
+                } else if (type === 'genieacs') {
+                    payload.url = document.getElementById('genieacs_url').value;
+                    payload.username = document.getElementById('genieacs_username').value;
+                    payload.password = document.getElementById('genieacs_password').value;
                 }
 
                 fetch('{{ route('settings.test_connection') }}', {

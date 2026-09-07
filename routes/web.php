@@ -60,6 +60,15 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::post('/pppoe-accounts', [\App\Http\Controllers\PppoeAccountController::class, 'store'])->name('pppoe_accounts.store');
         Route::put('/pppoe-accounts/{pppoe}', [\App\Http\Controllers\PppoeAccountController::class, 'update'])->name('pppoe_accounts.update');
         Route::delete('/pppoe-accounts/{pppoe}', [\App\Http\Controllers\PppoeAccountController::class, 'destroy'])->name('pppoe_accounts.destroy');
+
+        // GenieACS / TR-069 ONT Management
+        Route::prefix('genieacs')->name('genieacs.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\GenieAcsController::class, 'index'])->name('index');
+            Route::get('/{id}', [\App\Http\Controllers\GenieAcsController::class, 'show'])->name('show');
+            Route::post('/{id}/wifi', [\App\Http\Controllers\GenieAcsController::class, 'updateWifi'])->name('update_wifi');
+            Route::post('/{id}/reboot', [\App\Http\Controllers\GenieAcsController::class, 'reboot'])->name('reboot');
+            Route::post('/{id}/refresh', [\App\Http\Controllers\GenieAcsController::class, 'refresh'])->name('refresh');
+        });
         
         // Manage Paket
         Route::get('/pakets', [\App\Http\Controllers\PaketController::class, 'index'])->name('pakets.index');

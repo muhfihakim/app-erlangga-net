@@ -41,6 +41,12 @@ class SettingController extends Controller
                 'api_key' => Setting::get('whatsapp_api_key', env('WHATSAPP_API_KEY', '')),
                 'sender' => Setting::get('whatsapp_sender', env('WHATSAPP_SENDER', '')),
             ],
+            'genieacs' => [
+                'url' => Setting::get('genieacs_url', env('GENIEACS_URL', 'http://203.2.151.130:3000')),
+                'username' => Setting::get('genieacs_username', env('GENIEACS_USERNAME', 'admin')),
+                'password' => Setting::get('genieacs_password', env('GENIEACS_PASSWORD', 'admin')),
+                'timeout' => Setting::get('genieacs_timeout', env('GENIEACS_TIMEOUT', 10)),
+            ],
         ];
 
         return view('settings.index', compact('settings'));
@@ -140,6 +146,18 @@ class SettingController extends Controller
             Setting::set('whatsapp_api_url', $request->whatsapp_api_url, 'whatsapp');
             Setting::set('whatsapp_api_key', $request->whatsapp_api_key ?? '', 'whatsapp');
             Setting::set('whatsapp_sender', $request->whatsapp_sender ?? '', 'whatsapp');
+        } elseif ($tab === 'genieacs') {
+            $request->validate([
+                'genieacs_url' => 'required|string',
+                'genieacs_username' => 'required|string',
+                'genieacs_password' => 'nullable|string',
+                'genieacs_timeout' => 'nullable|numeric',
+            ]);
+
+            Setting::set('genieacs_url', $request->genieacs_url, 'genieacs');
+            Setting::set('genieacs_username', $request->genieacs_username, 'genieacs');
+            Setting::set('genieacs_password', $request->genieacs_password ?? '', 'genieacs');
+            Setting::set('genieacs_timeout', $request->genieacs_timeout ?? 10, 'genieacs');
         }
 
         return redirect()->route('settings.index', ['tab' => $tab])->with('success', 'Pengaturan ' . strtoupper($tab) . ' berhasil disimpan ke Database!');
@@ -261,6 +279,16 @@ class SettingController extends Controller
                     ]);
                 } else {
                     throw new \Exception($result['message'] ?? 'Gagal mengirim pesan WhatsApp.');
+                }
+            }
+
+            if ($type === 'genieacs') {
+                $acs = app(\App\Services\GenieAcsService::class);
+                $res = $acs->testConnection();
+                if ($res['success']) {
+                    return response()->json($res);
+                } else {
+                    throw new \Exception($res['message']);
                 }
             }
 

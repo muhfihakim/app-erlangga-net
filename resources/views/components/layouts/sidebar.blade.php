@@ -36,6 +36,10 @@
                 <i class="fa-solid fa-users-gear"></i>
                 <span>Manajemen PPPoE</span>
             </a>
+            <a class="sidebar-link {{ Request::is('genieacs*') ? 'active' : '' }}" href="{{ route('genieacs.index') }}">
+                <i class="fa-solid fa-satellite-dish"></i>
+                <span>Manajemen ONT (ACS)</span>
+            </a>
         @endif
         @if (auth()->user()->isAdmin())
             <a class="sidebar-link {{ Request::is('monitoring') ? 'active' : '' }}"

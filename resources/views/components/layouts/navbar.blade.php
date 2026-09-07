@@ -33,6 +33,16 @@
                 <span>Infrastruktur</span>
                 <span class="sep">/</span>
                 <span class="current">PPPoE Aktif</span>
+            @elseif(request()->routeIs('genieacs.*') || request()->is('genieacs*'))
+                <span>Infrastruktur</span>
+                <span class="sep">/</span>
+                @if (request()->routeIs('genieacs.show'))
+                    <a href="{{ route('genieacs.index') }}" class="hover:text-slate-900 transition-colors">Manajemen ONT (ACS)</a>
+                    <span class="sep">/</span>
+                    <span class="current">Detail ONT</span>
+                @else
+                    <span class="current">Manajemen ONT (ACS)</span>
+                @endif
             @elseif(request()->routeIs('monitoring.*') || request()->is('monitoring*'))
                 <span>Infrastruktur</span>
                 <span class="sep">/</span>
