@@ -123,5 +123,46 @@ class XenditWebhookController extends Controller
 
         return response()->json(['message' => 'Success', 'status' => $status]);
     }
+
+    /**
+     * Webhook Callback untuk Xendit Disbursement (Pencairan Dana Super Admin)
+     */
+    public function handleDisbursement(Request $request)
+    {
+        $xenditXCallbackToken = Setting::get('xendit_webhook_token', config('services.xendit.webhook_token'));
+        $reqHeaders = $request->header('x-callback-token');
+
+        if ($reqHeaders !== $xenditXCallbackToken) {
+            Log::warning('Xendit Disbursement Webhook: Invalid callback token attempt', [
+                'ip' => $request->ip()
+            ]);
+            return response()->json(['message' => 'Invalid token'], 403);
+        }
+
+        $data = $request->all();
+        $externalId = $data['external_id'] ?? null;
+        $xenditId = $data['id'] ?? null;
+        $status = strtoupper($data['status'] ?? '');
+
+        Log::info("Xendit Disbursement Webhook Received: {$externalId} | Status: {$status}");
+
+        $withdrawal = null;
+        if ($externalId) {
+            $withdrawal = \App\Models\Withdrawal::where('reference_id', $externalId)->first();
+        }
+        if (!$withdrawal && $xenditId) {
+            $withdrawal = \App\Models\Withdrawal::where('xendit_disbursement_id', $xenditId)->first();
+        }
+
+        if ($withdrawal) {
+            $withdrawal->update([
+                'status' => in_array($status, ['COMPLETED', 'SUCCESS']) ? 'COMPLETED' : ($status === 'FAILED' ? 'FAILED' : 'PENDING'),
+                'failure_code' => $data['failure_code'] ?? $withdrawal->failure_code,
+            ]);
+            Log::info("Withdrawal {$withdrawal->reference_id} status updated to {$withdrawal->status} via Webhook.");
+        }
+
+        return response()->json(['message' => 'Disbursement webhook processed successfully']);
+    }
 }
 

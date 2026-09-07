@@ -117,3 +117,4 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::post('/webhooks/xendit', [\App\Http\Controllers\XenditWebhookController::class, 'handleInvoice']);
+Route::post('/webhooks/xendit/disbursements', [\App\Http\Controllers\XenditWebhookController::class, 'handleDisbursement']);

@@ -26,7 +26,7 @@ class AccountController extends Controller
         
         // --- STATISTIK ---
         $totalUsers = User::count();
-        $totalAdmin = User::whereIn('jabatan', ['Administrator', 'Web Developer'])->count();
+        $totalAdmin = User::whereIn('jabatan', ['Super Admin', 'Administrator', 'Web Developer'])->count();
         $totalSales = User::where('jabatan', 'Sales')->count();
         $totalTeknisi = User::where('jabatan', 'Teknisi')->count();
 
@@ -54,7 +54,7 @@ class AccountController extends Controller
             'alamat' => 'nullable|string',
             'jenis_kelamin' => 'nullable|string|max:255',
             'tanggal_lahir' => 'nullable|date',
-            'jabatan' => 'required|in:Administrator,Sales,Teknisi,Web Developer',
+            'jabatan' => 'required|in:Super Admin,Administrator,Sales,Teknisi,Web Developer',
         ]);
 
         User::create([
@@ -92,7 +92,7 @@ class AccountController extends Controller
             'alamat' => 'nullable|string',
             'jenis_kelamin' => 'nullable|string|max:255',
             'tanggal_lahir' => 'nullable|date',
-            'jabatan' => 'required|in:Administrator,Sales,Teknisi,Web Developer',
+            'jabatan' => 'required|in:Super Admin,Administrator,Sales,Teknisi,Web Developer',
         ]);
 
         $dataToUpdate = $validatedData;

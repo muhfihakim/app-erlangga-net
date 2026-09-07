@@ -58,8 +58,18 @@ class User extends Authenticatable
         ];
     }
 
+    public function isSuperAdmin(): bool
+    {
+        return $this->jabatan === 'Super Admin';
+    }
+
     public function isAdmin(): bool
     {
-        return in_array($this->jabatan, ['Administrator', 'Web Developer']);
+        return in_array($this->jabatan, ['Super Admin', 'Administrator', 'Web Developer']);
+    }
+
+    public function withdrawals()
+    {
+        return $this->hasMany(Withdrawal::class);
     }
 }

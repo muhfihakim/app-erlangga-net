@@ -110,6 +110,13 @@
                 <i class="fa-solid fa-hand-holding-dollar"></i>
                 <span>Kasbon Teknisi</span>
             </a>
+            @if (auth()->user()->isSuperAdmin())
+                <a class="sidebar-link {{ Request::is('withdrawals*') ? 'active' : '' }}"
+                    href="{{ route('withdrawals.index') }}" style="color: #059669; font-weight: 700;">
+                    <i class="fa-solid fa-building-columns" style="color: #10b981;"></i>
+                    <span>Tarik Saldo Xendit</span>
+                </a>
+            @endif
 
             <div class="sidebar-section-label" style="margin-top:.5rem;">Laporan</div>
             <a class="sidebar-link {{ Request::is('laporan/aktivasi') ? 'active' : '' }}"
