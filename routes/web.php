@@ -18,6 +18,13 @@ use App\Http\Controllers\PppoeAccountController;
 use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\OltController;
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\IsolirController;
+
+// Public Customer Isolation Portal (Self-Service Bill & Xendit Checkout)
+Route::get('/isolir', [IsolirController::class, 'index'])->name('isolir.index');
+Route::post('/isolir/search', [IsolirController::class, 'search'])->name('isolir.search');
+Route::post('/isolir/{invoice}/pay', [IsolirController::class, 'payXendit'])->name('isolir.pay');
+Route::get('/isolir/{invoice}/status', [IsolirController::class, 'checkStatus'])->name('isolir.status');
 
 Route::get('/', function () {
     return redirect('/login');
