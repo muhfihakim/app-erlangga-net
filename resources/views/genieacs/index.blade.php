@@ -163,8 +163,11 @@
                             <!-- Status -->
                             <td style="text-align: center;">
                                 @if (!empty($d['is_online']))
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700">
-                                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700">
+                                        <span class="relative flex h-2 w-2">
+                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+                                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                        </span>
                                         ONLINE
                                     </span>
                                 @else
@@ -218,11 +221,13 @@
                             <td style="text-align: center;">
                                 @if (!empty($d['rx_power']))
                                     @php
-                                        $numVal = floatval(str_replace(['dBm', ' '], '', $d['rx_power']));
+                                        $cleanRx = trim(str_ireplace('dBm', '', $d['rx_power']));
+                                        $numVal = floatval($cleanRx);
                                         $isWarning = $numVal < -27 || $numVal > -10;
                                     @endphp
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono font-bold {{ $isWarning ? 'bg-amber-50 text-amber-600 border border-amber-200' : 'bg-emerald-50 text-emerald-600 border border-emerald-200' }}">
-                                        {{ $d['rx_power'] }}
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-mono font-bold {{ $isWarning ? 'bg-amber-50 text-amber-600 border border-amber-200' : 'bg-emerald-50 text-emerald-600 border border-emerald-200' }}">
+                                        <i class="fa-solid fa-wave-square text-[10px]"></i>
+                                        <span>{{ $cleanRx }} dBm</span>
                                     </span>
                                 @else
                                     <span class="text-slate-400 text-xs">-</span>
