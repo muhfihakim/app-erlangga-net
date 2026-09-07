@@ -193,8 +193,8 @@
                     <span>Aktivitas Log</span>
                 </a>
                 <a class="mobile-grid-item {{ Request::is('migration*') ? 'active' : '' }}" href="{{ route('migration.index') }}">
-                    <i class="fa-solid fa-file-import"></i>
-                    <span>Pulihkan Data</span>
+                    <i class="fa-solid fa-database"></i>
+                    <span>Backup / Restore</span>
                 </a>
             </div>
 

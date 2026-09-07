@@ -156,7 +156,7 @@
             @elseif(request()->routeIs('migration.*') || request()->is('migration*'))
                 <span>Manajemen</span>
                 <span class="sep">/</span>
-                <span class="current">Pulihkan &amp; Migrasi Data</span>
+                <span class="current">Backup / Restore</span>
 
             {{-- Pengaturan --}}
             @elseif(request()->routeIs('settings.*') || request()->is('settings*'))

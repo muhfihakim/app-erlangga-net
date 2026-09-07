@@ -172,8 +172,8 @@
             </a>
             <a class="sidebar-link {{ Request::is('migration*') ? 'active' : '' }}"
                 href="{{ route('migration.index') }}">
-                <i class="fa-solid fa-file-import"></i>
-                <span>Pulihkan / Migrasi Data</span>
+                <i class="fa-solid fa-database"></i>
+                <span>Backup / Restore</span>
             </a>
         @endif
 
