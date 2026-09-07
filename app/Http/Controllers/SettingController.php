@@ -37,7 +37,7 @@ class SettingController extends Controller
                 'webhook_url' => url('/api/webhooks/xendit'),
             ],
             'whatsapp' => [
-                'api_url' => Setting::get('whatsapp_api_url', env('WHATSAPP_API_URL', 'https://api.co.id/api/v1/send-message')),
+                'api_url' => Setting::get('whatsapp_api_url', env('WHATSAPP_API_URL', '')),
                 'api_key' => Setting::get('whatsapp_api_key', env('WHATSAPP_API_KEY', '')),
                 'sender' => Setting::get('whatsapp_sender', env('WHATSAPP_SENDER', '')),
             ],
@@ -266,7 +266,7 @@ class SettingController extends Controller
                     ?: Setting::get('company_phone') 
                     ?: '081234567890';
 
-                $msg = "🔔 *Tes Notifikasi WhatsApp Gateway (api.co.id)*\n\nIntegrasi API WhatsApp Erlangga Net berhasil terhubung dengan sukses pada " . date('d/m/Y H:i:s') . " WIB.";
+                $msg = "🔔 *Tes Notifikasi WhatsApp Gateway*\n\nIntegrasi API WhatsApp Erlangga Net berhasil terhubung dengan sukses pada " . date('d/m/Y H:i:s') . " WIB.";
                 $result = \App\Services\WhatsAppService::sendMessage($target, $msg);
 
                 $elapsed = round((microtime(true) - $startTime) * 1000, 2);

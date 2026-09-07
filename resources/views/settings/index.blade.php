@@ -35,7 +35,7 @@
         </button>
         <button type="button" class="modal-tab {{ $activeTab === 'whatsapp' ? 'active' : '' }} !rounded-xl !py-2.5 !px-5"
             data-tab="tab-whatsapp">
-            <i class="fa-brands fa-whatsapp mr-2 text-emerald-500"></i> WhatsApp API (api.co.id)
+            <i class="fa-brands fa-whatsapp mr-2 text-emerald-500"></i> WhatsApp Gateway
         </button>
         <button type="button" class="modal-tab {{ $activeTab === 'genieacs' ? 'active' : '' }} !rounded-xl !py-2.5 !px-5"
             data-tab="tab-genieacs">
@@ -497,17 +497,17 @@
         </div>
     </div>
 
-    <!-- Tab 5: WhatsApp Gateway (api.co.id) -->
+    <!-- Tab 5: WhatsApp Gateway -->
     <div class="tab-panel {{ $activeTab === 'whatsapp' ? 'active' : '' }}" id="tab-whatsapp">
         <div class="table-card p-6">
             <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
                 <div>
                     <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-brands fa-whatsapp text-emerald-600"></i> Integrasi WhatsApp Gateway & OTP (api.co.id)
+                        <i class="fa-brands fa-whatsapp text-emerald-600"></i> Integrasi WhatsApp Gateway & OTP
                     </h2>
                     <p class="text-xs text-slate-500 mt-1">Digunakan untuk pengiriman notifikasi transaksi, tagihan, dan kode OTP verifikasi penarikan saldo Super Admin.</p>
                 </div>
-                <span class="badge" style="background:#ecfdf5;color:#059669;font-weight:700;">api.co.id / Custom Gateway</span>
+                <span class="badge" style="background:#ecfdf5;color:#059669;font-weight:700;">WhatsApp Gateway</span>
             </div>
 
             <form action="{{ route('settings.update') }}" method="POST" id="form-whatsapp">
@@ -518,8 +518,8 @@
                     <label class="form-label font-bold text-slate-700">WhatsApp API Endpoint URL <span class="text-rose-500">*</span></label>
                     <input type="text" name="whatsapp_api_url" id="whatsapp_api_url" class="form-input font-mono text-xs"
                         value="{{ old('whatsapp_api_url', $settings['whatsapp']['api_url']) }}"
-                        placeholder="https://api.co.id/api/v1/send-message" required>
-                    <small class="text-slate-400 text-[11px]">Endpoint URL provider WhatsApp API (Default: <code>https://api.co.id/api/v1/send-message</code>).</small>
+                        placeholder="https://your-domain.com/api/v1/send-message" required>
+                    <small class="text-slate-400 text-[11px]">Endpoint URL provider gateway WhatsApp API.</small>
                 </div>
 
                 <div class="form-group mb-5">
@@ -528,14 +528,14 @@
                         <input type="password" name="whatsapp_api_key" id="whatsapp_api_key"
                             class="form-input !pr-10 font-mono"
                             value="{{ old('whatsapp_api_key', $settings['whatsapp']['api_key']) }}"
-                            placeholder="API Key atau Bearer Token dari akun api.co.id Anda">
+                            placeholder="API Key atau Bearer Token Authorization">
                         <button type="button"
                             class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                             onclick="togglePasswordVisibility('whatsapp_api_key', this)">
                             <i class="fa-solid fa-eye"></i>
                         </button>
                     </div>
-                    <small class="text-slate-400 text-[11px]">Dapatkan dari Dashboard api.co.id -> Menu API Keys / Token. Jika dikosongkan, sistem berjalan dalam mode simulasi.</small>
+                    <small class="text-slate-400 text-[11px]">API Key atau Token gateway WhatsApp. Jika dikosongkan, sistem berjalan dalam mode simulasi.</small>
                 </div>
 
                 <div class="form-group mb-6">
@@ -543,7 +543,7 @@
                     <input type="text" name="whatsapp_sender" id="whatsapp_sender" class="form-input font-mono"
                         value="{{ old('whatsapp_sender', $settings['whatsapp']['sender']) }}"
                         placeholder="misal: 6281234567890">
-                    <small class="text-slate-400 text-[11px]">Nomor pengirim atau ID perangkat yang terdaftar di api.co.id. Digunakan untuk seluruh notifikasi penagihan pelanggan, kwitansi invoice, dan OTP penarikan.</small>
+                    <small class="text-slate-400 text-[11px]">Nomor pengirim atau ID perangkat gateway WhatsApp. Digunakan untuk notifikasi penagihan pelanggan, kwitansi invoice, dan OTP penarikan.</small>
                 </div>
 
                 <div class="flex items-center justify-between pt-4 border-t border-slate-100">

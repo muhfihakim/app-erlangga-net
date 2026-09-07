@@ -47,7 +47,7 @@ class WhatsAppService
     }
 
     /**
-     * Kirim pesan WhatsApp melalui API provider (api.co.id / custom gateway)
+     * Kirim pesan WhatsApp melalui API provider gateway
      */
     public static function sendMessage(string $phone, string $message, array $options = []): array
     {
@@ -61,7 +61,7 @@ class WhatsAppService
         }
 
         // Ambil konfigurasi dari database Setting (fallback ke env)
-        $apiUrl = Setting::get('whatsapp_api_url', env('WHATSAPP_API_URL', 'https://api.co.id/api/v1/send-message'));
+        $apiUrl = Setting::get('whatsapp_api_url', env('WHATSAPP_API_URL', ''));
         $apiKey = Setting::get('whatsapp_api_key', env('WHATSAPP_API_KEY', ''));
         $sender = Setting::get('whatsapp_sender', env('WHATSAPP_SENDER', ''));
 
@@ -71,13 +71,13 @@ class WhatsAppService
             return [
                 'success' => true,
                 'simulated' => true,
-                'message' => 'Pesan OTP diproses (Mode Simulasi / API Key belum diisi di Pengaturan Sistem).',
+                'message' => 'Pesan diproses (Mode Simulasi / API Key belum diisi di Pengaturan Sistem).',
                 'target' => $targetPhone,
             ];
         }
 
         try {
-            // Payload standar yang kompatibel dengan api.co.id dan webhook gateway WhatsApp
+            // Payload standar yang kompatibel dengan berbagai webhook gateway WhatsApp
             $payload = [
                 'phone' => $targetPhone,
                 'to' => $targetPhone,
