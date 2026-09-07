@@ -5,68 +5,156 @@
             <i class="fa-solid fa-bars"></i>
         </button>
         <div class="topbar-breadcrumb">
-            <i class="fa-solid fa-house text-xs"></i>
+            <a href="{{ route('dashboards.index') }}" class="text-slate-400 hover:text-sky-600 transition-colors flex items-center" title="Dashboard">
+                <i class="fa-solid fa-house text-xs"></i>
+            </a>
             <span class="sep">/</span>
-            @if (request()->routeIs('dashboards.index'))
-                <span class="current">Dashboard</span>
-            @elseif(request()->routeIs('olt.index') ||
-                    request()->routeIs('odp.index') ||
-                    request()->routeIs('pppoe.index') ||
-                    request()->routeIs('monitoring.index'))
+            
+            {{-- Dashboard --}}
+            @if (request()->routeIs('dashboards.*') || request()->is('dashboard'))
+                <span>Dashboard</span>
+                <span class="sep">/</span>
+                <span class="current">Overview</span>
+
+            {{-- Infrastruktur --}}
+            @elseif(request()->routeIs('olt.*') || request()->is('olt*'))
                 <span>Infrastruktur</span>
                 <span class="sep">/</span>
-                @if (request()->routeIs('olt.index'))
-                    <span class="current">Manajemen OLT</span>
-                @elseif(request()->routeIs('odp.index'))
-                    <span class="current">Manajemen ODP</span>
-                @elseif(request()->routeIs('pppoe.index'))
-                    <span class="current">PPPoE Aktif</span>
-                @elseif(request()->routeIs('monitoring.index'))
-                    <span class="current">Monitoring</span>
-                @endif
-            @elseif(request()->routeIs('pre_orders.index') ||
-                    request()->routeIs('customers.active_list') ||
-                    request()->routeIs('customers.index') ||
-                    request()->routeIs('maintenances.index') ||
-                    request()->routeIs('dismantles.index'))
+                <span class="current">Manajemen OLT</span>
+            @elseif(request()->routeIs('odp.*') || request()->is('odp*'))
+                <span>Infrastruktur</span>
+                <span class="sep">/</span>
+                <span class="current">Manajemen ODP</span>
+            @elseif(request()->routeIs('pppoe_accounts.*') || request()->is('pppoe-accounts*'))
+                <span>Infrastruktur</span>
+                <span class="sep">/</span>
+                <span class="current">Manajemen PPPoE</span>
+            @elseif(request()->routeIs('pppoe.*') || request()->is('pppoe*'))
+                <span>Infrastruktur</span>
+                <span class="sep">/</span>
+                <span class="current">PPPoE Aktif</span>
+            @elseif(request()->routeIs('monitoring.*') || request()->is('monitoring*'))
+                <span>Infrastruktur</span>
+                <span class="sep">/</span>
+                <span class="current">Monitoring</span>
+
+            {{-- Pelanggan --}}
+            @elseif(request()->routeIs('pre_orders.*') || request()->is('pre-orders*'))
                 <span>Pelanggan</span>
                 <span class="sep">/</span>
-                @if (request()->routeIs('pre_orders.index'))
-                    <span class="current">Pre-Order</span>
-                @elseif(request()->routeIs('customers.active_list') || request()->routeIs('customers.index'))
-                    <span class="current">Pelanggan</span>
-                @elseif(request()->routeIs('maintenances.index'))
-                    <span class="current">Pemeliharaan</span>
-                @elseif(request()->routeIs('dismantles.index'))
-                    <span class="current">Pencabutan</span>
-                @endif
-            @elseif(request()->routeIs('accounts.index') || request()->routeIs('activitylog.index'))
-                <span>Manajemen</span>
+                <span class="current">Pre-Order</span>
+            @elseif(request()->routeIs('customers.*') || request()->is('customers*'))
+                <span>Pelanggan</span>
                 <span class="sep">/</span>
-                @if (request()->routeIs('accounts.index'))
-                    <span class="current">Akun</span>
-                @elseif(request()->routeIs('activitylog.index'))
-                    <span class="current">Aktivitas Log</span>
-                @endif
-            @elseif(request()->routeIs('activitylog.aktivasi') ||
-                    request()->routeIs('activitylog.maintenance') ||
-                    request()->routeIs('activitylog.dismantle') ||
-                    request()->routeIs('activitylog.preorder'))
-                <span>Laporan</span>
+                <span class="current">Data Pelanggan</span>
+            @elseif(request()->routeIs('maintenances.*') || request()->is('maintenances*'))
+                <span>Pelanggan</span>
                 <span class="sep">/</span>
-                @if (request()->routeIs('activitylog.aktivasi'))
-                    <span class="current">Lap. Aktivasi</span>
-                @elseif (request()->routeIs('activitylog.maintenance'))
-                    <span class="current">Lap. Maintenance</span>
-                @elseif (request()->routeIs('activitylog.dismantle'))
-                    <span class="current">Lap. Dismantle</span>
-                @elseif (request()->routeIs('activitylog.preorder'))
-                    <span class="current">Lap. Pre-Order</span>
-                @endif
-            @elseif(request()->routeIs('finance.index'))
+                <span class="current">Pemeliharaan</span>
+            @elseif(request()->routeIs('dismantles.*') || request()->is('dismantles*'))
+                <span>Pelanggan</span>
+                <span class="sep">/</span>
+                <span class="current">Pencabutan</span>
+            @elseif(request()->routeIs('supporting.*') || request()->is('supporting*'))
+                <span>Pelanggan</span>
+                <span class="sep">/</span>
+                <span class="current">Perbantuan</span>
+
+            {{-- Gudang --}}
+            @elseif(request()->routeIs('assets.transactions*'))
+                <span>Gudang</span>
+                <span class="sep">/</span>
+                <a href="{{ route('assets.index') }}" class="hover:text-slate-900 transition-colors">Pengelolaan Aset</a>
+                <span class="sep">/</span>
+                <span class="current">Log Transaksi</span>
+            @elseif(request()->routeIs('assets.*') || request()->is('assets*'))
+                <span>Gudang</span>
+                <span class="sep">/</span>
+                <span class="current">Pengelolaan Aset</span>
+
+            {{-- Keuangan --}}
+            @elseif(request()->routeIs('invoices.show', 'invoices.print'))
+                <span>Keuangan</span>
+                <span class="sep">/</span>
+                <a href="{{ route('invoices.index') }}" class="hover:text-slate-900 transition-colors">Invoice Pelanggan</a>
+                <span class="sep">/</span>
+                <span class="current">Detail Tagihan</span>
+            @elseif(request()->routeIs('invoices.*') || request()->is('invoices*'))
+                <span>Keuangan</span>
+                <span class="sep">/</span>
+                <span class="current">Invoice Pelanggan</span>
+            @elseif(request()->routeIs('transactions.*') || request()->is('transactions*'))
+                <span>Keuangan</span>
+                <span class="sep">/</span>
+                <span class="current">Log Transaksi</span>
+            @elseif(request()->routeIs('finance.*') || request()->is('keuangan/teknisi*'))
                 <span>Keuangan</span>
                 <span class="sep">/</span>
                 <span class="current">Pendapatan Teknisi</span>
+            @elseif(request()->routeIs('kasbons.*') || request()->is('keuangan/kasbon*'))
+                <span>Keuangan</span>
+                <span class="sep">/</span>
+                <span class="current">Kasbon Teknisi</span>
+            @elseif(request()->routeIs('withdrawals.*') || request()->is('withdrawals*'))
+                <span>Keuangan</span>
+                <span class="sep">/</span>
+                <span class="current">Tarik Saldo Xendit</span>
+
+            {{-- Laporan --}}
+            @elseif(request()->routeIs('activitylog.aktivasi_sales*') || request()->is('laporan/aktivasi-sales*'))
+                <span>Laporan</span>
+                <span class="sep">/</span>
+                <span class="current">Lap. Aktivasi Sales</span>
+            @elseif(request()->routeIs('activitylog.aktivasi*') || request()->is('laporan/aktivasi*'))
+                <span>Laporan</span>
+                <span class="sep">/</span>
+                <span class="current">Lap. Aktivasi</span>
+            @elseif(request()->routeIs('activitylog.maintenance*') || request()->is('laporan/maintenance*'))
+                <span>Laporan</span>
+                <span class="sep">/</span>
+                <span class="current">Lap. Pemeliharaan</span>
+            @elseif(request()->routeIs('activitylog.dismantle*') || request()->is('laporan/dismantle*'))
+                <span>Laporan</span>
+                <span class="sep">/</span>
+                <span class="current">Lap. Pencabutan</span>
+            @elseif(request()->routeIs('activitylog.preorder*') || request()->is('laporan/preorder*'))
+                <span>Laporan</span>
+                <span class="sep">/</span>
+                <span class="current">Lap. Pre-Order</span>
+
+            {{-- Manajemen --}}
+            @elseif(request()->routeIs('pakets.*', 'paket.*') || request()->is('pakets*') || request()->is('paket*'))
+                <span>Manajemen</span>
+                <span class="sep">/</span>
+                <span class="current">Paket Layanan</span>
+            @elseif(request()->routeIs('nas.*') || request()->is('nas*'))
+                <span>Manajemen</span>
+                <span class="sep">/</span>
+                <span class="current">Router (NAS)</span>
+            @elseif(request()->routeIs('accounts.tracking') || request()->is('tracking*'))
+                <span>Manajemen</span>
+                <span class="sep">/</span>
+                <span class="current">Pelacakan Akun</span>
+            @elseif(request()->routeIs('accounts.*', 'admin.users.2fa.*') || request()->is('accounts*'))
+                <span>Manajemen</span>
+                <span class="sep">/</span>
+                <span class="current">Akun Pengguna</span>
+            @elseif(request()->routeIs('activitylog.index*') || request()->is('activity-log*'))
+                <span>Manajemen</span>
+                <span class="sep">/</span>
+                <span class="current">Aktivitas Log</span>
+            @elseif(request()->routeIs('migration.*') || request()->is('migration*'))
+                <span>Manajemen</span>
+                <span class="sep">/</span>
+                <span class="current">Pulihkan &amp; Migrasi Data</span>
+
+            {{-- Pengaturan --}}
+            @elseif(request()->routeIs('settings.*') || request()->is('settings*'))
+                <span>Pengaturan</span>
+                <span class="sep">/</span>
+                <span class="current">Pengaturan Sistem</span>
+
+            {{-- Fallback --}}
             @else
                 <span class="current">Sistem</span>
             @endif
