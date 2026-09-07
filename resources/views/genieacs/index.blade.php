@@ -264,7 +264,6 @@
                         <th style="min-width: 140px; white-space: nowrap;">Nama Wi-Fi (SSID)</th>
                         <th class="col-rx" style="text-align: center; width: 145px; min-width: 145px; white-space: nowrap !important;">Redaman RX</th>
                         <th class="col-temp" style="text-align: center; width: 130px; min-width: 130px; white-space: nowrap !important;">Suhu ONT</th>
-                        <th style="width: 140px; min-width: 140px; white-space: nowrap;">Inform Terakhir</th>
                         <th style="text-align: center; width: 120px; min-width: 120px; white-space: nowrap;">Opsi</th>
                     </tr>
                 </thead>
@@ -385,7 +384,6 @@
                         { data: 'wifi', name: 'wifi', orderable: false, searchable: true, className: 'align-middle' },
                         { data: 'rx_power', name: 'rx_power', orderable: false, searchable: false, className: 'text-center align-middle col-rx whitespace-nowrap', width: '145px' },
                         { data: 'temperature', name: 'temperature', orderable: false, searchable: false, className: 'text-center align-middle col-temp whitespace-nowrap', width: '130px' },
-                        { data: 'last_inform', name: 'last_inform', orderable: false, searchable: false, className: 'align-middle whitespace-nowrap' },
                         { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center align-middle whitespace-nowrap' }
                     ],
                     dom: 'tpir',
