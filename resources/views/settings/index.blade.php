@@ -557,6 +557,9 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
     <!-- Tab 6: GenieACS (TR-069) -->
     <div class="tab-panel {{ $activeTab === 'genieacs' ? 'active' : '' }}" id="tab-genieacs">
         <div class="table-card p-6">

@@ -23,6 +23,18 @@ class GenieAcsService
     }
 
     /**
+     * Override configuration dynamically
+     */
+    public function setConfig(string $url, string $username, string $password, int $timeout = 10): self
+    {
+        $this->url = rtrim($url, '/');
+        $this->username = $username;
+        $this->password = $password;
+        $this->timeout = $timeout;
+        return $this;
+    }
+
+    /**
      * Get JWT token for GenieACS UI API
      */
     public function getToken(bool $forceRefresh = false): ?string

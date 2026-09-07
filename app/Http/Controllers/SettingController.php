@@ -284,6 +284,13 @@ class SettingController extends Controller
 
             if ($type === 'genieacs') {
                 $acs = app(\App\Services\GenieAcsService::class);
+                if ($request->filled('url')) {
+                    $acs->setConfig(
+                        $request->input('url'),
+                        $request->input('username', 'admin'),
+                        $request->input('password', 'admin')
+                    );
+                }
                 $res = $acs->testConnection();
                 if ($res['success']) {
                     return response()->json($res);
