@@ -189,8 +189,7 @@
                         <input type="file" name="full_backup_file" id="full_backup_file_input"
                             accept=".csv, text/csv" required class="form-input-custom w-full !p-2 text-xs bg-slate-50">
                         <span class="text-[11px] text-slate-400 mt-1 block">Contoh: <code
-                                class="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">radboox_backup_8_31_2026
-                                (1).csv</code></span>
+                                class="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">radboox_backup_8_31_2026.csv</code></span>
                     </div>
 
                     <div class="mb-5 p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
@@ -354,7 +353,7 @@
                         fileName + '</span>?');
                     $('#confirm-import-filename').attr('class',
                         'mt-3 text-xs font-semibold text-emerald-700 font-mono bg-white py-2 px-3 rounded-xl border border-emerald-200 inline-block max-w-full truncate shadow-sm'
-                        ).text(fileName);
+                    ).text(fileName);
                     $('#btnExecuteImport').attr('class', 'btn-save !bg-emerald-600 !flex !items-center !justify-center gap-2');
 
                     $('#loadingTitle').text('Sedang Mengimpor Akun PPPoE...');
@@ -382,7 +381,7 @@
                         fileName + '</span>?');
                     $('#confirm-import-filename').attr('class',
                         'mt-3 text-xs font-semibold text-indigo-700 font-mono bg-white py-2 px-3 rounded-xl border border-indigo-200 inline-block max-w-full truncate shadow-sm'
-                        ).text(fileName);
+                    ).text(fileName);
                     $('#btnExecuteImport').attr('class', 'btn-save !bg-indigo-600 !flex !items-center !justify-center gap-2');
 
                     $('#loadingTitle').text('Sedang Memproses Full Backup...');

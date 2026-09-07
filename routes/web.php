@@ -200,7 +200,7 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('supporting-export', [SupportingActivityController::class, 'export'])->name('supporting.export');
 
     // PTT Async Audio Upload
-    Route::post('/api/ptt/upload', [\App\Http\Controllers\PttController::class, 'upload'])->name('ptt.upload');
+    // Route::post('/api/ptt/upload', [\App\Http\Controllers\PttController::class, 'upload'])->name('ptt.upload');
 
     // Migrasi & Pemulihan Data Radboox
     Route::get('/migration', [\App\Http\Controllers\MigrationController::class, 'index'])->name('migration.index');
