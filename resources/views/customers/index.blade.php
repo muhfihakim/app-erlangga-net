@@ -348,22 +348,40 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-4">
                                 <div class="form-group">
-                                    <label class="form-label text-slate-800 font-bold uppercase text-[11px]">ID
-                                        Pelanggan (Billing) <span class="text-rose-500">*</span></label>
-                                    <input type="text" class="form-input" name="id_pelanggan" id="id_pelanggan"
-                                        placeholder="Contoh: 123456" required>
+                                    <div class="flex items-center justify-between mb-1">
+                                        <label class="form-label text-slate-800 font-bold uppercase text-[11px] m-0">ID
+                                            Pelanggan (Billing) <span class="text-rose-500">*</span></label>
+                                        <span class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-bold border border-emerald-200">
+                                            <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Auto-Generated
+                                        </span>
+                                    </div>
+                                    <input type="text" class="form-input font-mono font-bold text-slate-900" name="id_pelanggan" id="id_pelanggan"
+                                        value="{{ $nextIdPelanggan }}" placeholder="Contoh: {{ $nextIdPelanggan }}" required>
+                                    <small class="text-[11px] text-slate-400">Otomatis melanjutkan nomor ID terakhir.</small>
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Akun PPPoE
-                                        (Username) <span class="text-rose-500">*</span></label>
-                                    <input type="text" class="form-input" name="pppoe_username"
-                                        id="pppoe_username" placeholder="pppoe@erlangga.net" required>
+                                    <div class="flex items-center justify-between mb-1">
+                                        <label class="form-label text-slate-800 font-bold uppercase text-[11px] m-0">Akun
+                                            PPPoE (Username) <span class="text-rose-500">*</span></label>
+                                        <span class="text-[10px] text-sky-600 bg-sky-50 px-2 py-0.5 rounded font-bold border border-sky-200">
+                                            <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Auto-Generated
+                                        </span>
+                                    </div>
+                                    <input type="text" class="form-input font-mono font-bold text-slate-900" name="pppoe_username"
+                                        id="pppoe_username" placeholder="Nama@erlangga.net" required>
+                                    <small class="text-[11px] text-slate-400">Otomatis dari nama pelanggan (dapat diedit).</small>
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Sandi
-                                        PPPoE <span class="text-rose-500">*</span></label>
-                                    <input type="text" class="form-input" name="pppoe_password"
-                                        id="pppoe_password" placeholder="Sandi standar/custom" required>
+                                    <div class="flex items-center justify-between mb-1">
+                                        <label class="form-label text-slate-800 font-bold uppercase text-[11px] m-0">Sandi
+                                            PPPoE <span class="text-rose-500">*</span></label>
+                                        <span class="text-[10px] text-slate-600 bg-slate-100 px-2 py-0.5 rounded font-bold">
+                                            Default: 123
+                                        </span>
+                                    </div>
+                                    <input type="text" class="form-input font-mono font-bold text-slate-900" name="pppoe_password"
+                                        id="pppoe_password" value="123" placeholder="123" required>
+                                    <small class="text-[11px] text-slate-400">Password dial router & password login mobile app.</small>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Metode
@@ -659,10 +677,32 @@
 
             function openActivationModal(triggerEl) {
                 const $btn = $(triggerEl);
+                const poNama = String($btn.data('po-nama') || '').trim();
+
                 $('#modal_pre_order_id').val($btn.data('po-id'));
                 $('#modal_id_sales').val($btn.data('po-sales-id'));
-                $('#po_nama_lengkap').val($btn.data('po-nama'));
+                $('#po_nama_lengkap').val(poNama);
                 $('#po_paket').val($btn.data('po-paket'));
+
+                // 1. Auto-fill ID Pelanggan
+                $('#id_pelanggan').val('{{ $nextIdPelanggan }}');
+
+                // 2. Auto-generate Akun PPPoE dari nama pelanggan
+                if (poNama) {
+                    const words = poNama.split(/\s+/);
+                    let base = words[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+                    if (base.length > 0) {
+                        base = base.charAt(0).toUpperCase() + base.slice(1);
+                    }
+                    if (words.length > 1 && words[1]) {
+                        base += words[1].toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 3);
+                    }
+                    $('#pppoe_username').val(base + '@erlangga.net');
+                }
+
+                // 3. Auto-fill Sandi PPPoE default '123'
+                $('#pppoe_password').val('123');
+
                 openCustomModal('activationModal');
             }
 

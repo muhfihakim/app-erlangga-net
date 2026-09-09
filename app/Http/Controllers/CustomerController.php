@@ -51,6 +51,8 @@ class CustomerController extends Controller
 
         $totalPending = $baseQuery->count();
 
+        $nextIdPelanggan = Customer::generateNextIdPelanggan();
+
         // --- FILTER KHUSUS TEKNISI ---
         if ($user->jabatan === 'Teknisi') {
             // Tugas Umum (Bisa diambil siapa saja)
@@ -63,7 +65,8 @@ class CustomerController extends Controller
                 'teknisiUsers',
                 'totalThisMonth',
                 'totalThisWeek',
-                'totalPending'
+                'totalPending',
+                'nextIdPelanggan'
             ));
         } else {
             // Administrator View: Menampilkan semua PO yang menunggu aktivasi
@@ -74,7 +77,8 @@ class CustomerController extends Controller
                 'teknisiUsers',
                 'totalThisMonth',
                 'totalThisWeek',
-                'totalPending'
+                'totalPending',
+                'nextIdPelanggan'
             ));
         }
     }
@@ -413,6 +417,18 @@ class CustomerController extends Controller
         $fotoTerpasangPath = null;
         $fotoSpeedtestPath = null;
 
+        $po = PreOrder::findOrFail($request->pre_order_id);
+
+        if (empty($request->id_pelanggan)) {
+            $request->merge(['id_pelanggan' => Customer::generateNextIdPelanggan()]);
+        }
+        if (empty($request->pppoe_username)) {
+            $request->merge(['pppoe_username' => Customer::generateSuggestedPppoeUsername($po->nama_lengkap)]);
+        }
+        if (empty($request->pppoe_password)) {
+            $request->merge(['pppoe_password' => '123']);
+        }
+
         try {
             $validatedData = $request->validate([
                 'pre_order_id' => 'required|exists:pre_orders,id',
@@ -430,8 +446,6 @@ class CustomerController extends Controller
                 'foto_terpasang' => 'required|image|max:20480',
                 'foto_speedtest' => 'required|image|max:20480',
             ]);
-
-            $po = PreOrder::findOrFail($request->pre_order_id);
 
             $partnerNames = "";
             if ($request->has('partner_ids') && !empty($request->partner_ids)) {

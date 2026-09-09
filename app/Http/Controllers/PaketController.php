@@ -38,37 +38,41 @@ class PaketController extends Controller
         $paket = Paket::create($validated);
 
         if (!empty($paket->rate_limit)) {
-            \App\Models\Radgroupreply::create([
-                'groupname' => $paket->nama_paket,
-                'attribute' => 'Mikrotik-Rate-Limit',
-                'op' => ':=',
-                'value' => $paket->rate_limit,
-            ]);
-            
-            \App\Models\Radgroupreply::create([
-                'groupname' => $paket->nama_paket,
-                'attribute' => 'Mikrotik-Group',
-                'op' => ':=',
-                'value' => $paket->nama_paket,
-            ]);
-            
-            // Dummy untuk memunculkan profile di daloradius
-            \App\Models\Radgroupcheck::create([
-                'groupname' => $paket->nama_paket,
-                'attribute' => 'Auth-Type',
-                'op' => ':=',
-                'value' => 'Accept',
-            ]);
+            try {
+                \App\Models\Radgroupreply::create([
+                    'groupname' => $paket->nama_paket,
+                    'attribute' => 'Mikrotik-Rate-Limit',
+                    'op' => ':=',
+                    'value' => $paket->rate_limit,
+                ]);
+                
+                \App\Models\Radgroupreply::create([
+                    'groupname' => $paket->nama_paket,
+                    'attribute' => 'Mikrotik-Group',
+                    'op' => ':=',
+                    'value' => $paket->nama_paket,
+                ]);
+                
+                // Dummy untuk memunculkan profile di daloradius
+                \App\Models\Radgroupcheck::create([
+                    'groupname' => $paket->nama_paket,
+                    'attribute' => 'Auth-Type',
+                    'op' => ':=',
+                    'value' => 'Accept',
+                ]);
+            } catch (\Throwable $e) {
+                \Log::warning('FreeRADIUS group creation warning: ' . $e->getMessage());
+            }
 
             // Auto-create PPP Profile in Mikrotik via API (Graceful fallback)
             try {
                 $this->mikrotikService->createOrUpdatePppProfile($paket->nama_paket, '192.168.100.1');
             } catch (\Throwable $e) {
-                \Log::warning('MikroTik PPP Profile creation failed (FreeRADIUS still synced): ' . $e->getMessage());
+                \Log::warning('MikroTik PPP Profile creation failed: ' . $e->getMessage());
             }
         }
 
-        return redirect()->route('pakets.index')->with('success', 'Paket berhasil ditambahkan & tersinkronisasi ke Radius.');
+        return redirect()->route('pakets.index')->with('success', 'Paket berhasil ditambahkan.');
     }
 
     public function update(Request $request, Paket $paket)
@@ -89,44 +93,46 @@ class PaketController extends Controller
         $paket->update($validated);
 
         // Update Radius
-        if ($oldName !== $paket->nama_paket) {
-            \App\Models\Radgroupreply::where('groupname', $oldName)->update(['groupname' => $paket->nama_paket]);
-            \App\Models\Radgroupcheck::where('groupname', $oldName)->update(['groupname' => $paket->nama_paket]);
-            // update usergroup too to keep them attached to the renamed profile
-            \App\Models\Radusergroup::where('groupname', $oldName)->update(['groupname' => $paket->nama_paket]);
-            
-            // Remove old profile from Mikrotik
-            try {
-                $this->mikrotikService->removePppProfile($oldName);
-            } catch (\Throwable $e) {}
-        }
+        try {
+            if ($oldName !== $paket->nama_paket) {
+                \App\Models\Radgroupreply::where('groupname', $oldName)->update(['groupname' => $paket->nama_paket]);
+                \App\Models\Radgroupcheck::where('groupname', $oldName)->update(['groupname' => $paket->nama_paket]);
+                \App\Models\Radusergroup::where('groupname', $oldName)->update(['groupname' => $paket->nama_paket]);
+                
+                try {
+                    $this->mikrotikService->removePppProfile($oldName);
+                } catch (\Throwable $e) {}
+            }
 
-        \App\Models\Radgroupreply::where('groupname', $paket->nama_paket)
-            ->whereIn('attribute', ['Mikrotik-Rate-Limit', 'Mikrotik-Group'])
-            ->delete();
-        \App\Models\Radgroupcheck::where('groupname', $paket->nama_paket)
-            ->where('attribute', 'Auth-Type')
-            ->delete();
+            \App\Models\Radgroupreply::where('groupname', $paket->nama_paket)
+                ->whereIn('attribute', ['Mikrotik-Rate-Limit', 'Mikrotik-Group'])
+                ->delete();
+            \App\Models\Radgroupcheck::where('groupname', $paket->nama_paket)
+                ->where('attribute', 'Auth-Type')
+                ->delete();
 
-        if (!empty($paket->rate_limit)) {
-            \App\Models\Radgroupreply::create([
-                'groupname' => $paket->nama_paket,
-                'attribute' => 'Mikrotik-Rate-Limit',
-                'op' => ':=',
-                'value' => $paket->rate_limit,
-            ]);
-            \App\Models\Radgroupreply::create([
-                'groupname' => $paket->nama_paket,
-                'attribute' => 'Mikrotik-Group',
-                'op' => ':=',
-                'value' => $paket->nama_paket,
-            ]);
-            \App\Models\Radgroupcheck::create([
-                'groupname' => $paket->nama_paket,
-                'attribute' => 'Auth-Type',
-                'op' => ':=',
-                'value' => 'Accept',
-            ]);
+            if (!empty($paket->rate_limit)) {
+                \App\Models\Radgroupreply::create([
+                    'groupname' => $paket->nama_paket,
+                    'attribute' => 'Mikrotik-Rate-Limit',
+                    'op' => ':=',
+                    'value' => $paket->rate_limit,
+                ]);
+                \App\Models\Radgroupreply::create([
+                    'groupname' => $paket->nama_paket,
+                    'attribute' => 'Mikrotik-Group',
+                    'op' => ':=',
+                    'value' => $paket->nama_paket,
+                ]);
+                \App\Models\Radgroupcheck::create([
+                    'groupname' => $paket->nama_paket,
+                    'attribute' => 'Auth-Type',
+                    'op' => ':=',
+                    'value' => 'Accept',
+                ]);
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('FreeRADIUS update warning on Paket update: ' . $e->getMessage());
         }
 
         // Auto-sync all unpaid invoices of PPPoE accounts on this package

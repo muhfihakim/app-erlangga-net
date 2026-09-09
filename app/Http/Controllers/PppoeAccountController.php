@@ -164,41 +164,47 @@ class PppoeAccountController extends Controller
         $pppoe = \App\Models\Pppoe::create($validated);
 
         // Sync ke Radius (radcheck & radreply)
-        \App\Models\Radcheck::create([
-            'username' => $pppoe->username,
-            'attribute' => 'Cleartext-Password',
-            'op' => ':=',
-            'value' => $pppoe->password,
-        ]);
-
-        if (!empty($pppoe->ip_address)) {
-            \App\Models\Radreply::create([
+        $radiusSynced = true;
+        try {
+            \App\Models\Radcheck::create([
                 'username' => $pppoe->username,
-                'attribute' => 'Framed-IP-Address',
+                'attribute' => 'Cleartext-Password',
                 'op' => ':=',
-                'value' => $pppoe->ip_address,
+                'value' => $pppoe->password,
             ]);
+
+            if (!empty($pppoe->ip_address)) {
+                \App\Models\Radreply::create([
+                    'username' => $pppoe->username,
+                    'attribute' => 'Framed-IP-Address',
+                    'op' => ':=',
+                    'value' => $pppoe->ip_address,
+                ]);
+            }
+
+            // 2. Insert ke daloRADIUS tables
+            \App\Models\Radusergroup::create([
+                'username' => $pppoe->username,
+                'groupname' => $pppoe->paket->nama_paket ?? 'default',
+                'priority' => 1,
+            ]);
+
+            \App\Models\Userinfo::create([
+                'username' => $pppoe->username,
+                'firstname' => $pppoe->preOrder->nama_lengkap ?? 'Pelanggan',
+                'lastname' => '',
+                'email' => $pppoe->preOrder->alamat_email ?? '',
+                'address' => $pppoe->preOrder->alamat_lengkap ?? ($pppoe->preOrder->alamat ?? ''),
+                'mobilephone' => $pppoe->preOrder->no_whatsapp ?? '',
+                'creationdate' => date('Y-m-d H:i:s'),
+                'updatedate' => date('Y-m-d H:i:s'),
+                'creationby' => 'administrator',
+                'updateby' => 'administrator',
+            ]);
+        } catch (\Throwable $e) {
+            $radiusSynced = false;
+            \Illuminate\Support\Facades\Log::warning("Radius sync error on PPPoE store ({$pppoe->username}): " . $e->getMessage());
         }
-
-        // 2. Insert ke daloRADIUS tables
-        \App\Models\Radusergroup::create([
-            'username' => $pppoe->username,
-            'groupname' => $pppoe->paket->nama_paket ?? 'default',
-            'priority' => 1,
-        ]);
-
-        \App\Models\Userinfo::create([
-            'username' => $pppoe->username,
-            'firstname' => $pppoe->preOrder->nama_lengkap ?? 'Pelanggan',
-            'lastname' => '',
-            'email' => $pppoe->preOrder->alamat_email ?? '',
-            'address' => $pppoe->preOrder->alamat ?? '',
-            'mobilephone' => $pppoe->preOrder->no_whatsapp ?? '',
-            'creationdate' => date('Y-m-d H:i:s'),
-            'updatedate' => date('Y-m-d H:i:s'),
-            'creationby' => 'administrator',
-            'updateby' => 'administrator',
-        ]);
 
         if ($pppoe->generate_invoice) {
             $paket = \App\Models\Paket::find($pppoe->paket_id);
@@ -218,9 +224,9 @@ class PppoeAccountController extends Controller
                     'tax' => $tax,
                     'discount' => $discount,
                     'total' => $total,
+                    'due_date' => $dueDate->format('Y-m-d'),
                     'status' => $status,
                     'payment_method' => $isPaid ? 'cash' : null,
-                    'due_date' => $dueDate
                 ]);
 
                 if ($isPaid) {
@@ -235,7 +241,11 @@ class PppoeAccountController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', 'PPPoE berhasil dibuat & Tersinkronisasi dengan Radius.');
+        $successMessage = $radiusSynced 
+            ? 'PPPoE berhasil dibuat & Tersinkronisasi dengan Radius.' 
+            : 'PPPoE berhasil disimpan. (Catatan: Database FreeRADIUS belum terhubung/dikonfigurasi).';
+
+        return redirect()->back()->with('success', $successMessage);
     }
 
     public function update(Request $request, \App\Models\Pppoe $pppoe)
