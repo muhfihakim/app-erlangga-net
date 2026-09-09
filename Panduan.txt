@@ -1,0 +1,183 @@
+================================================================================
+           PANDUAN LENGKAP SETUP MIKROTIK, SERVER & SISTEM APLIKASI
+                             ERLANGGA.NET (BBSNET)
+================================================================================
+
+Dokumen ini berisi panduan teknis lengkap langkah demi langkah untuk:
+1. Konfigurasi MikroTik RouterOS (API, FreeRADIUS, IP Pool, Profile, Firewall Isolir).
+2. Konfigurasi FreeRADIUS Database.
+3. Konfigurasi Server / Hosting / VPS (PHP Extensions, Cron Job Otomatisasi).
+4. Konfigurasi Pengaturan di Menu Web (/settings).
+5. Alur & Cara Kerja Sistem (Auto-Billing, Auto-Isolir, Portal Pembayaran, WA OTP).
+
+--------------------------------------------------------------------------------
+1. KONFIGURASI MIKROTIK (ROUTEROS)
+--------------------------------------------------------------------------------
+
+Jalankan perintah berikut di Terminal MikroTik (WinBox -> New Terminal):
+
+A. Aktifkan Service API & Buat User API
+---------------------------------------
+/ip service set api disabled=no port=8728
+/user add name=app_erlangga password=GANTI_DENGAN_PASSWORD_ANDA group=full comment="API User App Erlangga Net"
+
+B. Buat IP Pool & Profile Isolir (Segmen 172.30.x.x)
+---------------------------------------------------
+/ip pool add name=pool-isolir ranges=172.30.0.2-172.30.255.254
+/ppp profile add name=profile-isolir \
+    local-address=172.30.0.1 \
+    remote-address=pool-isolir \
+    rate-limit=128k/128k \
+    dns-server=8.8.8.8,1.1.1.1 \
+    comment="Profile Isolir Pelanggan Menunggak"
+
+C. Integrasi FreeRADIUS Client di MikroTik (Jika menggunakan FreeRADIUS)
+------------------------------------------------------------------------
+/radius add service=ppp address=IP_SERVER_RADIUS secret=SECRET_RADIUS_ANDA timeout=3000ms comment="Radius Server App"
+/ppp aaa set use-radius=yes interim-update=1m
+
+D. Firewall Filter & NAT (Redirect Pelanggan Isolir ke Portal Web)
+-----------------------------------------------------------------
+* Catatan: Ganti 'IP_SERVER_HOSTING' dengan alamat IP Public VPS/Hosting tempat web aplikasi berjalan.
+
+# 1. Izinkan akses DNS untuk IP Isolir
+/ip firewall filter add chain=forward src-address=172.30.0.0/16 protocol=udp dst-port=53 action=accept comment="Allow DNS Isolir"
+
+# 2. Izinkan akses hanya ke IP Server Web Portal / Payment Gateway
+/ip firewall filter add chain=forward src-address=172.30.0.0/16 dst-address=IP_SERVER_HOSTING action=accept comment="Allow Web Portal Isolir"
+
+# 3. Redirect trafik browsing HTTP port 80 ke IP Server Web Portal
+/ip firewall nat add chain=dstnat src-address=172.30.0.0/16 protocol=tcp dst-port=80 action=dst-nat to-addresses=IP_SERVER_HOSTING to-ports=80 comment="Redirect HTTP to Portal Isolir"
+
+# 4. Blokir seluruh akses internet lainnya untuk pelanggan isolir
+/ip firewall filter add chain=forward src-address=172.30.0.0/16 action=drop comment="Drop Internet Isolir"
+
+--------------------------------------------------------------------------------
+2. KONFIGURASI FREERADIUS DATABASE
+--------------------------------------------------------------------------------
+
+Jika menggunakan FreeRADIUS berbasis MySQL / MariaDB:
+
+A. Tabel Group Reply ('radgroupreply')
+--------------------------------------
+Pastikan terdapat group 'ISOLIR' pada database FreeRADIUS:
+- GroupName: ISOLIR
+- Attribute: Framed-Pool
+- Op: :=
+- Value: pool-isolir
+
+(Atau menggunakan atribut Mikrotik-Group):
+- GroupName: ISOLIR
+- Attribute: Mikrotik-Group
+- Op: :=
+- Value: profile-isolir
+
+B. Tabel User Group ('radusergroup')
+------------------------------------
+Ketika pelanggan jatuh tempo, sistem secara otomatis mengubah groupname pengguna pada tabel radusergroup menjadi 'ISOLIR'. Ketika tagihan lunas, sistem mengembalikannya ke nama paket semula.
+
+--------------------------------------------------------------------------------
+3. KONFIGURASI SERVER / HOSTING (CPANEL / VPS / UBUNTU)
+--------------------------------------------------------------------------------
+
+A. Kebutuhan PHP & Ekstensi (PHP 8.2+)
+--------------------------------------
+Pastikan ekstensi PHP berikut terinstall dan aktif:
+- php-sockets   (WAJIB untuk komunikasi socket API MikroTik)
+- php-curl      (Untuk HTTP API WhatsApp api.co.id & Xendit)
+- php-pdo
+- php-mysql     (Database MySQL aplikasi & FreeRADIUS)
+- php-mbstring
+- php-xml
+- php-zip
+- php-bcmath
+- php-gd
+
+B. Konfigurasi Cron Job Otomatisasi (WAJIB DIAKTIFKAN)
+-----------------------------------------------------
+Tambahkan perintah ini pada Cron Jobs cPanel atau 'crontab -e' di VPS (setiap 1 menit):
+
+* * * * * cd /home/username/public_html && php artisan schedule:run >> /dev/null 2>&1
+
+* Catatan: Sesuaikan '/home/username/public_html' dengan direktori root aplikasi di hosting Anda.
+
+Tugas otomatis yang dijalankan oleh Laravel Scheduler:
+1. Command 'billing:process' dieksekusi setiap malam pukul 00:01 WIB:
+   - Menerbitkan faktur bulanan baru (H-7 sebelum masa aktif habis atau awal bulan).
+   - Memeriksa tagihan yang melewati tanggal jatuh tempo (overdue).
+   - Mengubah status FreeRADIUS ke group 'ISOLIR'.
+   - Memutus sesi PPPoE aktif di MikroTik (kick session) agar router pelanggan dial ulang dan mendapatkan IP 172.30.x.x.
+
+C. Konfigurasi Web Server (Nginx / Apache)
+------------------------------------------
+- Document Root wajib mengarah ke folder '/public'.
+- Aktifkan SSL / HTTPS (Let's Encrypt / SSL cPanel) agar Webhook Xendit dan WhatsApp API berjalan aman.
+
+--------------------------------------------------------------------------------
+4. PENGATURAN DI MENU WEB APLIKASI (/settings)
+--------------------------------------------------------------------------------
+
+Login sebagai Super Admin / Administrator, lalu buka menu Pengaturan (/settings):
+
+A. Tab MikroTik
+---------------
+- Host / IP MikroTik : Masukkan IP Public atau VPN IP MikroTik
+- Port API           : 8728
+- Username API       : app_erlangga
+- Password API       : (Password yang dibuat pada langkah 1A)
+- Interface WAN      : ether1 (atau interface utama untuk monitoring bandwidth)
+
+B. Tab FreeRADIUS
+-----------------
+- Host Database      : IP / localhost server FreeRADIUS
+- Port               : 3306
+- Database Name      : radius
+- Username           : radius_user
+- Password           : radius_pass
+
+C. Tab WhatsApp API (api.co.id)
+-------------------------------
+- Endpoint URL       : URL endpoint resmi dari provider api.co.id
+- API Key            : API Key akun api.co.id Anda
+- Sender / Device ID : Device ID pengirim pesan
+* Gunakan tombol "Tes Koneksi WhatsApp" untuk memverifikasi.
+
+D. Tab Payment Gateway (Xendit)
+-------------------------------
+- Secret API Key     : xnd_development_... / xnd_production_...
+- Webhook Token      : Token verifikasi webhook dari dashboard Xendit
+
+E. Webhook URL di Dashboard Xendit
+----------------------------------
+Buka dashboard Xendit (https://dashboard.xendit.co) -> Settings -> Callbacks:
+- Invoices Callback URL : https://domain-anda.com/webhook/xendit
+- Aktifkan event "Invoice Paid / Expired".
+
+--------------------------------------------------------------------------------
+5. ALUR KERJA SISTEM (WORKFLOW)
+--------------------------------------------------------------------------------
+
+1. Penerbitan Tagihan Otomatis:
+   - Tiap malam pukul 00:01 WIB, cron job memeriksa pelanggan yang mendekati jatuh tempo.
+   - Tagihan (Invoice) terbit dengan status 'unpaid'.
+   - Pesan WhatsApp notifikasi tagihan dikirim ke nomor pelanggan via api.co.id.
+
+2. Auto-Isolir Tagihan Terlambat:
+   - Jika melewati jatuh tempo dan belum dibayar, cron job mengubah grup FreeRADIUS pelanggan menjadi 'ISOLIR' dan me-reset koneksi PPPoE.
+   - Router pelanggan dial ulang dan menerima IP 172.30.x.x.
+   - Pada browser pelanggan, semua trafik diarahkan ke portal isolir web (https://domain-anda.com/isolir).
+   - Di menu Data Pelanggan (/customers/active) dan Monitoring PPPoE (/monitoring/pppoe), pelanggan ditandai dengan badge merah "ISOLIR".
+
+3. Pembayaran & Auto-Buka Isolir:
+   - Pelanggan membayar via portal isolir atau link Xendit (QRIS, VA Bank, E-Wallet).
+   - Xendit mengirim webhook ke server aplikasi.
+   - Invoice berubah menjadi 'paid', FreeRADIUS grup dikembalikan ke paket semula, koneksi PPPoE di-kick agar pelanggan langsung mendapatkan IP normal & internet kembali aktif seketika.
+   - WhatsApp notifikasi pembayaran berhasil otomatis dikirim ke pelanggan.
+
+4. Penarikan Saldo Xendit (Super Admin):
+   - Super Admin membuka menu Penarikan Saldo (/withdrawals).
+   - Pilih rekening bank tujuan (nomor WhatsApp penerima OTP otomatis terisi sesuai info bank).
+   - Klik "Minta Kode OTP via WhatsApp".
+   - Masukkan 6 digit kode OTP yang diterima di WhatsApp untuk konfirmasi pencairan dana real-time via Xendit XenPlatform Disbursement.
+
+================================================================================

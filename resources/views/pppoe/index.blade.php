@@ -66,7 +66,7 @@
         style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
             <h1 style="font-size:22px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
-                Manage PPPoE
+                Manajemen PPPoE
             </h1>
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola data akun PPPoE pelanggan, IP Address, router,
                 dan status billing.</p>
@@ -150,9 +150,11 @@
                     <label class="form-label-custom">Router / NAS</label>
                     <select name="router" class="form-input-custom" id="filter-router">
                         <option value="">Semua Router</option>
-                        <option value="All" {{ $filterRouter === 'All' ? 'selected' : '' }}>All (Semua Router)</option>
+                        <option value="All" {{ $filterRouter === 'All' ? 'selected' : '' }}>All (Semua Router)
+                        </option>
                         @foreach ($routers as $r)
-                            <option value="{{ $r->shortname }}" {{ $filterRouter === $r->shortname ? 'selected' : '' }}>
+                            <option value="{{ $r->shortname }}"
+                                {{ $filterRouter === $r->shortname ? 'selected' : '' }}>
                                 {{ $r->shortname }} ({{ $r->nasname }})
                             </option>
                         @endforeach
@@ -258,7 +260,8 @@
                                     id="edit_router" name="router">
                                     <option value="All">Semua Router (ALL)</option>
                                     @foreach ($routers as $r)
-                                        <option value="{{ $r->shortname }}">{{ $r->shortname }} ({{ $r->nasname }})</option>
+                                        <option value="{{ $r->shortname }}">{{ $r->shortname }}
+                                            ({{ $r->nasname }})</option>
                                     @endforeach
                                 </select>
                             </div>
