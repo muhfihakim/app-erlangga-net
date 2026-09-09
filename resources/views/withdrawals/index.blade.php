@@ -60,7 +60,6 @@
                         <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
                             <i class="fa-solid fa-money-bill-transfer text-emerald-600"></i> Form Penarikan Dana
                         </h2>
-                        <span class="badge" style="background:#e0f2fe;color:#0369a1;font-weight:700;">Instan</span>
                     </div>
 
                     <form id="formWithdrawal" onsubmit="event.preventDefault(); initiateWithdrawal();">
@@ -309,8 +308,8 @@
     </div>
 
     <!-- Riwayat Penarikan Dana -->
-    <div class="table-card p-6 bg-white border border-slate-200 shadow-sm">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+    <div class="table-card bg-white border border-slate-200 shadow-sm">
+        <div class="p-5 border-b border-slate-100 flex items-center justify-between">
             <div>
                 <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
                     <i class="fa-solid fa-clock-rotate-left text-slate-700"></i> Riwayat Penarikan Dana
@@ -318,50 +317,56 @@
                 <p class="text-xs text-slate-400 mt-0.5">Daftar seluruh transaksi pencairan saldo Xendit oleh Super
                     Admin</p>
             </div>
+            <div class="text-xs font-bold text-slate-500 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg">
+                Total: {{ $withdrawals->total() }} Transaksi
+            </div>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-xs text-left">
-                <thead class="bg-slate-50 text-slate-600 uppercase font-bold border-b border-slate-200">
+        <div class="table-responsive">
+            <table class="admin-table w-full text-xs">
+                <thead>
                     <tr>
-                        <th class="py-3 px-4">Tanggal & Waktu</th>
-                        <th class="py-3 px-4">No. Referensi / ID Xendit</th>
-                        <th class="py-3 px-4">Bank Tujuan</th>
-                        <th class="py-3 px-4">Rekening & Nama Penerima</th>
-                        <th class="py-3 px-4 text-right">Jumlah (Rp)</th>
-                        <th class="py-3 px-4 text-center">Status</th>
-                        <th class="py-3 px-4 text-center">Aksi</th>
+                        <th style="text-align: center; width: 50px;">#</th>
+                        <th>Tanggal & Waktu</th>
+                        <th>No. Referensi / ID Xendit</th>
+                        <th>Bank Tujuan</th>
+                        <th>Rekening & Nama Penerima</th>
+                        <th style="text-align: right;">Jumlah (Rp)</th>
+                        <th style="text-align: center;">Status</th>
+                        <th style="text-align: center; width: 110px;">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 text-slate-700 font-medium">
+                <tbody>
                     @forelse($withdrawals as $wd)
-                        <tr class="hover:bg-slate-50/80 transition-colors">
-                            <td class="py-3.5 px-4 whitespace-nowrap">
+                        <tr>
+                            <td style="text-align: center; color: #94a3b8; font-weight: 700;">
+                                {{ ($withdrawals->currentPage() - 1) * $withdrawals->perPage() + $loop->iteration }}
+                            </td>
+                            <td class="whitespace-nowrap">
                                 <span
                                     class="font-bold text-slate-800 block">{{ $wd->created_at->format('d/m/Y') }}</span>
                                 <span class="text-[11px] text-slate-400">{{ $wd->created_at->format('H:i:s') }}
                                     WIB</span>
                             </td>
-                            <td class="py-3.5 px-4 font-mono text-[11px]">
+                            <td class="font-mono text-[11px]">
                                 <span class="font-bold text-indigo-600 block">{{ $wd->reference_id }}</span>
                                 <span class="text-slate-400">{{ $wd->xendit_disbursement_id ?: '-' }}</span>
                             </td>
-                            <td class="py-3.5 px-4">
+                            <td>
                                 <span class="font-bold text-slate-800">{{ $wd->bank_name ?: $wd->bank_code }}</span>
                                 <span
                                     class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-mono ml-1 font-bold">{{ $wd->bank_code }}</span>
                             </td>
-                            <td class="py-3.5 px-4">
+                            <td>
                                 <span
                                     class="font-mono font-bold text-slate-900 block">{{ $wd->account_number }}</span>
                                 <span
                                     class="text-[11px] text-slate-500 uppercase">{{ $wd->account_holder_name }}</span>
                             </td>
-                            <td
-                                class="py-3.5 px-4 text-right font-mono font-bold text-slate-900 text-sm whitespace-nowrap">
+                            <td class="text-right font-mono font-bold text-slate-900 text-sm whitespace-nowrap">
                                 Rp {{ number_format($wd->amount, 0, ',', '.') }}
                             </td>
-                            <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                            <td class="text-center whitespace-nowrap">
                                 @if ($wd->status === 'COMPLETED')
                                     <span
                                         class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
@@ -380,7 +385,7 @@
                                     </span>
                                 @endif
                             </td>
-                            <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                            <td class="text-center whitespace-nowrap">
                                 @if ($wd->xendit_disbursement_id && $wd->status === 'PENDING')
                                     <button type="button" onclick="syncWithdrawalStatus({{ $wd->id }})"
                                         class="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 text-xs font-bold transition-all">
@@ -393,7 +398,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="py-8 text-center text-slate-400">
+                            <td colspan="8" class="py-8 text-center text-slate-400">
                                 <i class="fa-solid fa-receipt text-2xl mb-2 text-slate-300"></i>
                                 <p>Belum ada riwayat penarikan dana.</p>
                             </td>
@@ -404,8 +409,14 @@
         </div>
 
         @if ($withdrawals->hasPages())
-            <div class="mt-4 border-t border-slate-100 pt-3">
-                {{ $withdrawals->links() }}
+            {{ $withdrawals->links() }}
+        @elseif($withdrawals->total() > 0)
+            <div class="flex items-center justify-between p-4 md:p-5 border-t border-slate-100">
+                <p class="text-xs text-slate-500 font-medium m-0">
+                    Menampilkan <span class="font-bold text-slate-800">{{ $withdrawals->firstItem() }}</span> sampai
+                    <span class="font-bold text-slate-800">{{ $withdrawals->lastItem() }}</span> dari <span
+                        class="font-bold text-slate-800">{{ $withdrawals->total() }}</span> data
+                </p>
             </div>
         @endif
     </div>

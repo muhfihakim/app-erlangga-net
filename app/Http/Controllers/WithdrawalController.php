@@ -31,7 +31,7 @@ class WithdrawalController extends Controller
         
         $withdrawals = Withdrawal::with('user')
             ->orderBy('id', 'desc')
-            ->paginate(15);
+            ->paginate(5);
 
         $totalPending = Withdrawal::where('status', 'PENDING')->sum('amount');
 
