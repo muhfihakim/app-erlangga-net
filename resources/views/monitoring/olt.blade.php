@@ -233,38 +233,6 @@
                                 </div>
                             </div>
 
-                            <!-- Konfigurasi TR-069 ACS (GenieACS) -->
-                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-3">
-                                <div class="flex items-center justify-between">
-                                    <label class="text-[11px] font-black text-slate-700 uppercase tracking-wider flex items-center gap-2 cursor-pointer select-none">
-                                        <input type="checkbox" id="tr069_enable" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300" checked>
-                                        <span>Konfigurasi TR-069 ACS</span>
-                                    </label>
-                                    <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 uppercase tracking-wide">
-                                        GenieACS
-                                    </span>
-                                </div>
-                                <div id="tr069_container" class="space-y-3 transition-opacity">
-                                    <div>
-                                        <label class="form-label !text-[10px] !text-slate-500">TR-069 ACS URL</label>
-                                        <input type="text" id="tr069_url" class="form-input font-mono !text-xs !h-9"
-                                            placeholder="http://192.168.21.201:7547" value="http://192.168.21.201:7547">
-                                    </div>
-                                    <div class="grid grid-cols-2 gap-3">
-                                        <div>
-                                            <label class="form-label !text-[10px] !text-slate-500">ACS Username</label>
-                                            <input type="text" id="tr069_user" class="form-input !text-xs !h-9"
-                                                placeholder="admin" value="admin">
-                                        </div>
-                                        <div>
-                                            <label class="form-label !text-[10px] !text-slate-500">ACS Password</label>
-                                            <input type="text" id="tr069_pass" class="form-input !text-xs !h-9"
-                                                placeholder="admin" value="admin">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
                             <div>
                                 <label class="form-label">Description</label>
                                 <input type="text" id="onu_desc" class="form-input" value="2$$2$$">
@@ -338,7 +306,7 @@
     @endif
 
     <!-- Dashboard Panel -->
-    <div id="panel-dashboard" class="tab-content {{ auth()->user()->jabatan !== 'Administrator' ? 'active' : '' }}">
+    <div id="panel-dashboard" class="tab-content {{ !auth()->user()->isAdmin() ? 'active' : '' }}">
         <!-- Stats cards -->
         <div class="stats-grid">
             <div class="stat-card">
@@ -586,14 +554,6 @@
                 const pass = $('#pppoe_pass').val() || 'PASSWORD';
                 const ssid = $('#wifi_ssid').val() || 'NAMA_WIFI';
                 const wifiPass = $('#wifi_pass').val() || 'KATA_SANDI_WIFI';
-                const tr069Enable = $('#tr069_enable').is(':checked');
-                const tr069Url = $('#tr069_url').val() || 'http://192.168.21.201:7547';
-                const tr069User = $('#tr069_user').val() || 'admin';
-                const tr069Pass = $('#tr069_pass').val() || 'admin';
-
-                const tr069Line = tr069Enable
-                    ? `\n  tr069-mg 1 acs ${tr069Url} validate basic username ${tr069User} password ${tr069Pass} state unlock`
-                    : '';
 
                 let script = '';
 
@@ -620,7 +580,8 @@ security-mgmt 1 state enable mode forward protocol web
 !
 pon-onu-mng gpon-onu_${port}:${id}
   ssid ctrl wifi_0/1 name ${ssid}
-  ssid auth wpa wifi_0/1 wpa-wpa2-psk key ${wifiPass}${tr069Line}
+  ssid auth wpa wifi_0/1 wpa-wpa2-psk key ${wifiPass}
+  tr069-mg 1 acs http://192.168.21.201:7547 validate basic username admin password admin state unlock
   exit
 !
 end
@@ -658,7 +619,8 @@ security-mgmt 1 state enable mode forward protocol web
 !
 pon-onu-mng gpon-onu_${port}:${id}
   ssid ctrl wifi_0/1 name ${ssid}
-  ssid auth wpa wifi_0/1 wpa-wpa2-psk key ${wifiPass}${tr069Line}
+  ssid auth wpa wifi_0/1 wpa-wpa2-psk key ${wifiPass}
+  tr069-mg 1 acs http://192.168.21.201:7547 validate basic username admin password admin state unlock
   exit
 !
 end
@@ -759,16 +721,6 @@ show gpon onu state gpon-olt_${port}`;
 
             $(document).ready(function() {
                 $('input, select').on('input change', generateScript);
-
-                $('#tr069_enable').on('change', function() {
-                    if ($(this).is(':checked')) {
-                        $('#tr069_container').removeClass('opacity-40 pointer-events-none');
-                    } else {
-                        $('#tr069_container').addClass('opacity-40 pointer-events-none');
-                    }
-                    generateScript();
-                });
-
                 generateScript(); // Initial call
 
                 // Handle Quick Check Unconfigured in Generator
