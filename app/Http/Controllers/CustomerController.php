@@ -189,6 +189,16 @@ class CustomerController extends Controller
                         </button>
                     ';
 
+                    $btnAcs = '';
+                    if (!$customer->trashed()) {
+                        $btnAcs = '
+                            <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Status Modem & Wi-Fi (ACS)"
+                                onclick="openCustomerAcsModal(' . $customer->id . ', \'' . htmlspecialchars(addslashes($customer->nama_lengkap), ENT_QUOTES) . '\', \'' . htmlspecialchars($customer->id_pelanggan ?? '', ENT_QUOTES) . '\')">
+                                <i class="fa-solid fa-satellite-dish text-sky-500"></i>
+                            </button>
+                        ';
+                    }
+
                     $btnMap = '';
                     if (!$customer->trashed() && $customer->preOrder && $customer->preOrder->titik_koordinat) {
                         $btnMap = '
@@ -218,7 +228,7 @@ class CustomerController extends Controller
                         }
                     }
 
-                    return '<div style="display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;">' . $btnDetail . $btnMap . $btnAdmin . '</div>';
+                    return '<div style="display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;">' . $btnDetail . $btnAcs . $btnMap . $btnAdmin . '</div>';
                 })
                 ->rawColumns(['nama_lengkap_formatted', 'wa_formatted', 'teknisi_formatted', 'tgl_formatted', 'action'])
                 ->make(true);
@@ -620,5 +630,62 @@ class CustomerController extends Controller
         ]);
 
         return redirect()->back()->with('success', "Pelanggan berhasil dinonaktifkan.");
+    }
+
+    /**
+     * Ambil status live ACS (GenieACS TR-069) untuk pelanggan tertentu
+     */
+    public function acsStatus(Customer $customer)
+    {
+        /** @var \App\Services\GenieAcsService $acsService */
+        $acsService = app(\App\Services\GenieAcsService::class);
+        $device = $acsService->findDeviceForCustomer($customer);
+
+        if (!$device) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Perangkat ONT belum terdaftar di ACS atau belum terhubung.',
+                'customer' => [
+                    'id' => $customer->id,
+                    'nama_lengkap' => $customer->nama_lengkap,
+                    'id_pelanggan' => $customer->id_pelanggan,
+                    'sn_perangkat' => $customer->sn_perangkat,
+                    'pppoe_username' => $customer->pppoe_username,
+                    'jenis_modem' => $customer->jenis_modem,
+                ],
+            ]);
+        }
+
+        $hosts = $device['hosts'] ?? [];
+        $activeHosts = array_values(array_filter($hosts, fn($h) => !empty($h['active'])));
+
+        return response()->json([
+            'success' => true,
+            'customer' => [
+                'id' => $customer->id,
+                'nama_lengkap' => $customer->nama_lengkap,
+                'id_pelanggan' => $customer->id_pelanggan,
+                'sn_perangkat' => $customer->sn_perangkat,
+                'pppoe_username' => $customer->pppoe_username,
+            ],
+            'device' => [
+                'id' => $device['id'],
+                'serial_number' => $device['serial_number'] ?? $customer->sn_perangkat,
+                'model' => $device['model'] ?? '-',
+                'manufacturer' => $device['manufacturer'] ?? '-',
+                'is_online' => (bool) ($device['is_online'] ?? false),
+                'rx_power' => $device['rx_power'] ?? null,
+                'temperature' => $device['temperature'] ?? null,
+                'pon_mode' => $device['pon_mode'] ?? 'GPON/EPON',
+                'last_inform' => $device['last_inform'] ?? '-',
+                'ip_address' => $device['ip_address'] ?? '-',
+                'vlan' => $device['vlan'] ?? null,
+                'genieacs_url' => route('genieacs.show', $device['id']),
+            ],
+            'wlan1' => $device['wlan1'] ?? null,
+            'wlan5' => $device['wlan5'] ?? null,
+            'hosts' => $hosts,
+            'total_connected' => count($activeHosts),
+        ]);
     }
 }

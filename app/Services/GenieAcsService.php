@@ -237,6 +237,41 @@ class GenieAcsService
 
 
     /**
+     * Find single device detail belonging to a specific Customer
+     */
+    public function findDeviceForCustomer(\App\Models\Customer $customer, bool $forceRefresh = false): ?array
+    {
+        $sn = trim($customer->sn_perangkat ?? '');
+        $pppoeUsername = trim($customer->pppoe_username ?? '');
+
+        if (empty($sn) && empty($pppoeUsername)) {
+            return null;
+        }
+
+        $allDevices = $this->getAllDevices($forceRefresh);
+
+        // 1. Prioritas cari berdasarkan SN Perangkat
+        if (!empty($sn)) {
+            foreach ($allDevices as $dev) {
+                if (!empty($dev['serial_number']) && (strcasecmp($dev['serial_number'], $sn) === 0 || str_contains(strtolower($dev['id']), strtolower($sn)))) {
+                    return $this->getDevice($dev['id']);
+                }
+            }
+        }
+
+        // 2. Fallback cari berdasarkan Akun PPPoE
+        if (!empty($pppoeUsername)) {
+            foreach ($allDevices as $dev) {
+                if (!empty($dev['pppoe_username']) && strcasecmp($dev['pppoe_username'], $pppoeUsername) === 0) {
+                    return $this->getDevice($dev['id']);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Get single device details
      */
     public function getDevice(string $deviceId): ?array

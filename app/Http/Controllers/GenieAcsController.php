@@ -254,15 +254,8 @@ class GenieAcsController extends Controller
             return redirect()->route('genieacs.index')->with('error', 'Data ONT tidak ditemukan di GenieACS atau koneksi terputus.');
         }
 
-        // Link with local customer data if matching pppoe username
-        $customer = null;
-        if (!empty($device['pppoe_username']) && $device['pppoe_username'] !== '-') {
-            $customer = Customer::where('pppoe_username', $device['pppoe_username'])->first();
-        }
-
         return view('genieacs.show', [
             'device' => $device,
-            'customer' => $customer,
         ]);
     }
 

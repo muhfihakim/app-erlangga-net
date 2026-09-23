@@ -38,6 +38,10 @@ Dokumentasi ini ditujukan untuk tim pengembang Mobile App (Flutter / React Nativ
 | | | `POST` | `/payments/invoices/{id}/check-status` | Protected | Cek & sinkronisasi real-time status pembayaran |
 | **3** | **Akun & Penggunaan** | `GET` | `/account/info` | Protected | Detail lengkap profil pelanggan, paket langganan & modem ONT |
 | | | `GET` | `/account/usage` | Protected | Status koneksi real-time, uptime, dan kuota/traffic bulanan |
+| **4** | **Kontrol Perangkat (ACS)** | `GET` | `/device/wifi` | Protected | Informasi SSID, Sandi Wi-Fi, dan status ONT via TR-069 |
+| | | `GET` | `/device/hosts` | Protected | Daftar perangkat yang sedang terhubung ke Wi-Fi / LAN |
+| | | `POST` | `/device/wifi` | Protected | Ubah Nama (SSID) dan Password Wi-Fi via TR-069 |
+| | | `POST` | `/device/reboot` | Protected | Restart / Reboot perangkat ONT jarak jauh via TR-069 |
 
 ---
 
@@ -401,7 +405,159 @@ Menampilkan data pemakaian traffic internet (FreeRADIUS / MikroTik), status kone
 
 ---
 
-## 4️⃣ Format Response Standar Error
+## 4️⃣ Modul Kontrol Perangkat & Wi-Fi (ACS / TR-069)
+
+### 4.1 Informasi Wi-Fi & Status ONT
+Mengambil konfigurasi Wi-Fi (SSID, Sandi), sinyal optik (RX Power), suhu, dan status online modem secara langsung dari ONT via GenieACS.
+
+- **Method**: `GET`
+- **Endpoint**: `/device/wifi`
+- **Header**: `Authorization: Bearer <token>`
+- **Response `200 OK`**:
+  ```json
+  {
+    "success": true,
+    "data": {
+      "device": {
+        "device_id": "202BC1-F609-ZTEG12345678",
+        "serial_number": "ZTEG12345678",
+        "model": "F609",
+        "manufacturer": "ZTE",
+        "is_online": true,
+        "rx_power": "-21.4 dBm",
+        "temperature": "45.0 °C",
+        "pon_mode": "GPON",
+        "last_inform": "09 Sep 2026 14:20:00"
+      },
+      "wlan_2_4g": {
+        "ssid": "ERLANGGA_NET_NURUL",
+        "password": "wifi_password123",
+        "channel": "Auto",
+        "status": "Up",
+        "enable": true
+      },
+      "wlan_5g": null
+    }
+  }
+  ```
+
+---
+
+### 4.2 Daftar Perangkat Terhubung (Connected Devices)
+Melihat daftar gadget/perangkat (HP, Laptop, Smart TV, dll.) yang sedang terhubung ke router Wi-Fi atau port LAN ONT pelanggan.
+
+- **Method**: `GET`
+- **Endpoint**: `/device/hosts`
+- **Header**: `Authorization: Bearer <token>`
+- **Response `200 OK`**:
+  ```json
+  {
+    "success": true,
+    "data": {
+      "total_connected": 3,
+      "total_recorded": 5,
+      "hosts": [
+        {
+          "index": "1",
+          "hostname": "iPhone-15-Pro",
+          "ip": "192.168.1.10",
+          "mac": "AA:BB:CC:11:22:33",
+          "interface": "Wi-Fi",
+          "active": true
+        },
+        {
+          "index": "2",
+          "hostname": "Samsung-Smart-TV",
+          "ip": "192.168.1.15",
+          "mac": "AA:BB:CC:44:55:66",
+          "interface": "Wi-Fi",
+          "active": true
+        },
+        {
+          "index": "3",
+          "hostname": "PC-Workstation",
+          "ip": "192.168.1.20",
+          "mac": "AA:BB:CC:77:88:99",
+          "interface": "Ethernet",
+          "active": true
+        }
+      ]
+    }
+  }
+  ```
+
+---
+
+### 4.3 Mengganti Nama (SSID) & Sandi Wi-Fi
+Mengirimkan tugas `setParameterValues` TR-069 ke modem ONT pelanggan untuk mengubah nama Wi-Fi atau kata sandi secara instan.
+
+- **Method**: `POST`
+- **Endpoint**: `/device/wifi`
+- **Header**: `Authorization: Bearer <token>`
+- **Request Body (JSON)**:
+  ```json
+  {
+    "ssid": "ERLANGGA_WIFI_BARU",
+    "password": "password_baru123",
+    "wlan_index": 1
+  }
+  ```
+  *(Catatan: `wlan_index` bernilai `1` untuk frekuensi 2.4GHz dan `5` untuk 5GHz. Default: `1`).*
+
+- **Response `200 OK`**:
+  ```json
+  {
+    "success": true,
+    "message": "Perubahan nama dan sandi Wi-Fi berhasil dikirim ke perangkat ONT!",
+    "data": {
+      "ssid": "ERLANGGA_WIFI_BARU",
+      "wlan_index": 1
+    }
+  }
+  ```
+
+---
+
+### 4.4 Reboot / Restart Perangkat ONT
+Mengirimkan perintah `reboot` TR-069 ke modem ONT pelanggan jika internet lambat atau ingin melakukan restart mandiri dari aplikasi.
+
+- **Method**: `POST`
+- **Endpoint**: `/device/reboot`
+- **Header**: `Authorization: Bearer <token>`
+- **Response `200 OK`**:
+  ```json
+  {
+    "success": true,
+    "message": "Perintah reboot berhasil dikirim. Perangkat ONT akan restart dalam beberapa detik."
+  }
+  ```
+
+---
+
+## 5️⃣ Mekanisme Penghubungan (Link) ACS & Pelanggan
+
+Sistem **secara otomatis menghubungkan (auto-link)** akun pelanggan dengan perangkat modem ONT di GenieACS melalui 2 lapisan identitas unik:
+
+```mermaid
+flowchart LR
+    Customer["Akun Pelanggan (Login Mobile)"]
+    ACS["GenieACS (TR-069 Engine)"]
+    ONT["Perangkat Modem ONT"]
+
+    Customer -->|"1. Cocokkan Serial Number (sn_perangkat)"| ACS
+    Customer -.->|"2. Fallback: Cocokkan PPPoE (pppoe_username)"| ACS
+    ACS <-->|"TR-069 Protocol"| ONT
+```
+
+1. **Prioritas 1: Serial Number ONT (`sn_perangkat`)**
+   - Dicocokkan dengan parameter TR-069 `DeviceID.SerialNumber` / `DeviceID.ID`.
+2. **Prioritas 2: Akun Dial PPPoE (`pppoe_username`)**
+   - Jika SN belum terisi atau berbeda, sistem secara cerdas mencocokkan `Customer.pppoe_username` dengan parameter WAN PPP Dialer ONT (`VirtualParameters.pppoeUsername` atau `WANPPPConnection.Username`).
+3. **Hasil**: Pelanggan yang login **hanya bisa mengakses dan mengontrol modem milik mereka sendiri**, tanpa perlu konfigurasi ID manual di aplikasi.
+
+---
+
+## 6️⃣ Format Response Standar Error
 
 ### 401 Unauthorized (Token Kadaluarsa / Belum Login)
 ```json
@@ -415,17 +571,17 @@ Menampilkan data pemakaian traffic internet (FreeRADIUS / MikroTik), status kone
 {
   "message": "The given data was invalid.",
   "errors": {
-    "id_pelanggan": [
-      "ID Pelanggan wajib diisi."
+    "ssid": [
+      "The ssid field is required."
     ]
   }
 }
 ```
 
-### 404 Not Found (Data Tidak Ditemukan)
+### 404 Not Found (Modem / Data Tidak Ditemukan)
 ```json
 {
   "success": false,
-  "message": "Faktur tagihan tidak ditemukan."
+  "message": "Perangkat ONT belum terdaftar di ACS atau belum terhubung."
 }
 ```

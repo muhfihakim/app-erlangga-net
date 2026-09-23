@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\AccountController;
+use App\Http\Controllers\Api\DeviceController;
 use App\Http\Controllers\XenditWebhookController;
 
 /*
@@ -13,6 +14,7 @@ use App\Http\Controllers\XenditWebhookController;
 | 1. Login (Autentikasi ID Pelanggan & Password PPPoE)
 | 2. Status Pembayaran & Melakukan Pembayaran (Payment Gateway Xendit)
 | 3. Informasi Akun & Penggunaan (Traffic & Real-time Connection)
+| 4. Kontrol Perangkat & Wi-Fi (GenieACS TR-069)
 |--------------------------------------------------------------------------
 */
 
@@ -32,13 +34,21 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/invoices', [PaymentController::class, 'invoices']);                 // Daftar seluruh faktur / riwayat bayar
         Route::get('/invoices/{id}', [PaymentController::class, 'show']);                // Detail faktur tertentu
         Route::post('/pay', [PaymentController::class, 'pay']);                          // Melakukan pembayaran (Xendit URL)
-        Route::post('/invoices/{id}/check-status', [PaymentController::class, 'checkStatus']); // Cek/sinkronisasi status real-time
+        Route::match(['GET', 'POST'], '/invoices/{id}/check-status', [PaymentController::class, 'checkStatus']); // Cek/sinkronisasi status real-time
     });
 
     // --- 3. Informasi Akun & Penggunaan ---
     Route::prefix('account')->group(function () {
         Route::get('/info', [AccountController::class, 'info']);                         // Informasi Akun & Paket Langganan
         Route::get('/usage', [AccountController::class, 'usage']);                       // Informasi Penggunaan (Traffic Kuota & Uptime)
+    });
+
+    // --- 4. Kontrol Perangkat & Wi-Fi (GenieACS TR-069) ---
+    Route::prefix('device')->group(function () {
+        Route::get('/wifi', [DeviceController::class, 'wifi']);                          // Info Wi-Fi (SSID, Password, Status ONT)
+        Route::get('/hosts', [DeviceController::class, 'hosts']);                        // Daftar Perangkat Terhubung (Connected Devices)
+        Route::post('/wifi', [DeviceController::class, 'updateWifi']);                   // Ganti Nama & Sandi Wi-Fi
+        Route::post('/reboot', [DeviceController::class, 'reboot']);                     // Reboot Perangkat ONT
     });
 });
 

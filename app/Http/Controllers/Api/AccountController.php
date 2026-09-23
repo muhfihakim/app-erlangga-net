@@ -51,15 +51,15 @@ class AccountController extends Controller
                     'pppoe_username' => $customer->pppoe_username,
                     'jenis_modem'    => $customer->jenis_modem,
                     'sn_perangkat'   => $customer->sn_perangkat,
-                    'ip_address'     => $pppoe->ip_address ?? null,
-                    'router'         => $pppoe->router ?? 'MikroTik Gateway',
+                    'ip_address'     => $pppoe?->ip_address ?? null,
+                    'router'         => $pppoe?->router ?? 'MikroTik Gateway',
                 ],
                 'layanan' => [
                     'status_layanan' => $statusLayanan,
-                    'status_invoice' => $pppoe->status_invoice ?? 'belum_bayar',
-                    'tanggal_aktif'  => $pppoe && $pppoe->tanggal_aktif ? $pppoe->tanggal_aktif->format('Y-m-d') : null,
-                    'tipe_pembayaran'=> $pppoe->tipe_pembayaran ?? 'prepaid',
-                    'periode_billing'=> $pppoe->periode_billing ?? 'fixed',
+                    'status_invoice' => $pppoe?->status_invoice ?? 'terbayar',
+                    'tanggal_aktif'  => ($pppoe && $pppoe->tanggal_aktif) ? ($pppoe->tanggal_aktif instanceof \DateTimeInterface ? $pppoe->tanggal_aktif->format('Y-m-d') : substr((string)$pppoe->tanggal_aktif, 0, 10)) : ($customer->created_at ? $customer->created_at->format('Y-m-d') : null),
+                    'tipe_pembayaran'=> $pppoe?->tipe_pembayaran ?? 'prepaid',
+                    'periode_billing'=> $pppoe?->periode_billing ?? 'fixed',
                 ]
             ]
         ]);

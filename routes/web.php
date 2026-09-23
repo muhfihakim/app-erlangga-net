@@ -187,6 +187,7 @@ Route::middleware(['auth.custom'])->group(function () {
 
     // Rute untuk Modul Pelanggan Aktif (Akses untuk Sales & Admin)
     Route::get('customers/active-list', [CustomerController::class, 'activeList'])->name('customers.active_list');
+    Route::get('customers/{customer}/acs-status', [CustomerController::class, 'acsStatus'])->name('customers.acs_status');
     Route::get('customers/isolir/export', [CustomerController::class, 'exportIsolir'])->name('customers.export_isolir');
     Route::post('/customers/{id}/restore', [CustomerController::class, 'restore'])->name('customers.restore');
 

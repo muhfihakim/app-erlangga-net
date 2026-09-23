@@ -102,8 +102,8 @@ class AuthController extends Controller
                 ] : null,
                 'layanan' => [
                     'pppoe_username'       => $customer->pppoe_username,
-                    'status_invoice'       => $pppoe->status_invoice ?? 'belum_bayar',
-                    'tanggal_aktif'        => $pppoe->tanggal_aktif ? $pppoe->tanggal_aktif->format('Y-m-d') : null,
+                    'status_invoice'       => $pppoe?->status_invoice ?? 'terbayar',
+                    'tanggal_aktif'        => ($pppoe && $pppoe->tanggal_aktif) ? ($pppoe->tanggal_aktif instanceof \DateTimeInterface ? $pppoe->tanggal_aktif->format('Y-m-d') : substr((string)$pppoe->tanggal_aktif, 0, 10)) : ($customer->created_at ? $customer->created_at->format('Y-m-d') : null),
                     'unpaid_invoices_count'=> $unpaidInvoicesCount,
                     'has_unpaid_bill'      => $unpaidInvoicesCount > 0,
                 ]
@@ -140,8 +140,8 @@ class AuthController extends Controller
                     'total_harga' => (float) $customer->paket->total_harga,
                 ] : null,
                 'pppoe_username' => $customer->pppoe_username,
-                'status_layanan' => ($pppoe && $pppoe->status_invoice === 'terbayar') ? 'Aktif' : 'Menunggu Pembayaran',
-                'tanggal_aktif'  => $pppoe && $pppoe->tanggal_aktif ? $pppoe->tanggal_aktif->format('Y-m-d') : null,
+                'status_layanan' => ($pppoe && $pppoe->status_invoice === 'terbayar') ? 'Aktif' : 'Aktif',
+                'tanggal_aktif'  => ($pppoe && $pppoe->tanggal_aktif) ? ($pppoe->tanggal_aktif instanceof \DateTimeInterface ? $pppoe->tanggal_aktif->format('Y-m-d') : substr((string)$pppoe->tanggal_aktif, 0, 10)) : ($customer->created_at ? $customer->created_at->format('Y-m-d') : null),
             ]
         ]);
     }

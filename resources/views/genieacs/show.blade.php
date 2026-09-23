@@ -159,54 +159,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Card: Informasi Pelanggan Terkait -->
-            <div class="table-card p-6">
-                <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-user-check text-emerald-500"></i> Data Pelanggan Terkait
-                </h3>
-
-                @if ($customer)
-                    <div class="space-y-3 text-xs">
-                        <div class="flex justify-between py-2 border-b border-slate-100">
-                            <span class="text-slate-400">Nama Pelanggan</span>
-                            <span class="font-bold text-slate-800 text-sm">{{ $customer->nama_lengkap }}</span>
-                        </div>
-                        <div class="flex justify-between py-2 border-b border-slate-100">
-                            <span class="text-slate-400">ID Pelanggan</span>
-                            <span class="font-mono font-bold text-slate-700">{{ $customer->id_pelanggan }}</span>
-                        </div>
-                        <div class="flex justify-between py-2 border-b border-slate-100">
-                            <span class="text-slate-400">WhatsApp / Telepon</span>
-                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $customer->nomor_telepon) }}" target="_blank"
-                                class="text-emerald-600 font-bold hover:underline flex items-center gap-1">
-                                <i class="fa-brands fa-whatsapp"></i> {{ $customer->nomor_telepon }}
-                            </a>
-                        </div>
-                        <div class="flex justify-between py-2 border-b border-slate-100">
-                            <span class="text-slate-400">Paket Layanan</span>
-                            <span class="badge bg-sky-50 text-sky-700 font-bold">{{ $customer->paket_layanan ?? 'Paket Internet' }}</span>
-                        </div>
-                        <div class="flex justify-between py-2 border-b border-slate-100">
-                            <span class="text-slate-400">Alamat</span>
-                            <span class="text-slate-700 text-right max-w-[200px]">{{ $customer->alamat ?? '-' }}</span>
-                        </div>
-                        <div class="pt-2">
-                            <a href="{{ route('customers.index', ['search' => $customer->id_pelanggan]) }}"
-                                class="btn-primary-admin !bg-slate-100 !text-slate-700 hover:!bg-slate-200 !w-full justify-center !text-xs">
-                                <i class="fa-solid fa-address-card mr-1"></i> Buka Profil Lengkap Pelanggan
-                            </a>
-                        </div>
-                    </div>
-                @else
-                    <div class="text-center py-6 text-slate-400">
-                        <i class="fa-solid fa-user-slash text-3xl mb-2 text-slate-300"></i>
-                        <p class="text-xs font-semibold text-slate-600">Username PPPoE tidak ditemukan di Database Pelanggan</p>
-                        <p class="text-[11px] text-slate-400 mt-1">Username saat ini: <code>{{ $device['pppoe_username'] }}</code></p>
-                    </div>
-                @endif
-            </div>
-
         </div>
 
         <!-- Right Column: Wi-Fi Management & Connected Devices (7 Cols) -->

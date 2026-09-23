@@ -643,6 +643,13 @@
                                             class="edit-only form-input-custom mt-1 !text-sm !font-bold">
                                     @endif
                                 </div>
+                                <div class="view-only pt-2 border-t border-slate-100">
+                                    <span class="text-[11px] font-bold text-slate-400 block uppercase mb-1.5">Kontrol ONT & Wi-Fi (ACS)</span>
+                                    <button type="button" class="btn-primary-admin !h-9 !px-4 !text-xs !bg-sky-600 hover:!bg-sky-700 !text-white flex items-center gap-2 shadow-sm !w-full justify-center"
+                                        onclick="openAcsModalFromDetail()">
+                                        <i class="fa-solid fa-satellite-dish"></i> Status Live Modem & Wi-Fi
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -748,6 +755,212 @@
             @if ($is_admin)
                 </form>
             @endif
+        </div>
+    </div>
+
+    <!-- Modal Detail ACS Live (GenieACS TR-069) -->
+    <div class="modal-overlay !items-center" id="customerAcsModal">
+        <div class="modal-box max-w-3xl bg-white border border-slate-300 shadow-2xl overflow-hidden rounded-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white p-5 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-lg shadow-sm border border-sky-100">
+                        <i class="fa-solid fa-satellite-dish"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Status Modem & Wi-Fi (ACS TR-069)</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">
+                            Pelanggan: <span id="acs_modal_nama" class="font-bold text-slate-800">-</span>
+                            (<span id="acs_modal_id_pelanggan" class="font-mono text-sky-600 font-bold">-</span>)
+                        </p>
+                    </div>
+                </div>
+                <button type="button" class="modal-close text-slate-400 hover:text-slate-600 p-2" onclick="closeCustomModal('customerAcsModal')">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="modal-body p-6 max-h-[75vh] overflow-y-auto space-y-6">
+                <!-- Loading State -->
+                <div id="acs_loading_state" class="py-12 text-center space-y-3">
+                    <i class="fa-solid fa-circle-notch fa-spin text-4xl text-sky-500"></i>
+                    <p class="text-sm font-bold text-slate-700 m-0">Membaca Data Live dari GenieACS & Modem ONT...</p>
+                    <p class="text-xs text-slate-400 m-0">Mengambil status sinyal optik, konfigurasi Wi-Fi, dan perangkat terhubung.</p>
+                </div>
+
+                <!-- Error State -->
+                <div id="acs_error_state" class="hidden py-8 px-6 bg-amber-50/60 border border-amber-200 rounded-2xl text-center space-y-3">
+                    <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-xl">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <h4 class="text-sm font-bold text-slate-800 m-0" id="acs_error_title">Perangkat ONT Belum Terhubung di ACS</h4>
+                    <p class="text-xs text-slate-600 max-w-md mx-auto m-0" id="acs_error_msg">
+                        Perangkat ONT pelanggan ini belum terdaftar atau sedang offline di GenieACS.
+                    </p>
+                    <div class="bg-white p-3 rounded-xl border border-amber-200/70 inline-block text-left text-xs font-mono text-slate-600 space-y-1">
+                        <div>SN Perangkat : <span id="acs_err_sn" class="font-bold text-slate-800">-</span></div>
+                        <div>Username PPPoE : <span id="acs_err_pppoe" class="font-bold text-slate-800">-</span></div>
+                    </div>
+                    <p class="text-[11px] text-slate-400 italic m-0 pt-2">
+                        *Pastikan modem ONT menyala dan parameter TR-069 pada modem sudah mengarah ke server GenieACS.
+                    </p>
+                </div>
+
+                <!-- Content State -->
+                <div id="acs_content_state" class="hidden space-y-6">
+                    <!-- Top 4 Cards Grid -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <!-- Status ONT -->
+                        <div class="p-3.5 rounded-xl border bg-slate-50 border-slate-200/80">
+                            <div class="text-[10px] font-bold text-slate-400 uppercase">Status ONT</div>
+                            <div class="mt-1" id="acs_status_badge">
+                                <!-- Badge Online/Offline -->
+                            </div>
+                            <div class="text-[10px] text-slate-500 mt-1.5 truncate" id="acs_last_inform">-</div>
+                        </div>
+
+                        <!-- Redaman Optik (RX Power) -->
+                        <div class="p-3.5 rounded-xl border" id="acs_rx_card">
+                            <div class="flex items-center justify-between text-[10px] font-bold text-slate-500 uppercase">
+                                <span>Redaman RX</span>
+                                <i class="fa-solid fa-wave-square"></i>
+                            </div>
+                            <div class="text-lg font-black font-mono mt-1" id="acs_rx_power">-</div>
+                            <div class="text-[10px] font-semibold mt-1" id="acs_rx_quality">-</div>
+                        </div>
+
+                        <!-- Suhu ONT -->
+                        <div class="p-3.5 rounded-xl border" id="acs_temp_card">
+                            <div class="flex items-center justify-between text-[10px] font-bold text-slate-500 uppercase">
+                                <span>Suhu ONT</span>
+                                <i class="fa-solid fa-temperature-half"></i>
+                            </div>
+                            <div class="text-lg font-black font-mono mt-1" id="acs_temperature">-</div>
+                            <div class="text-[10px] font-semibold mt-1" id="acs_temp_quality">-</div>
+                        </div>
+
+                        <!-- Spesifikasi Modem -->
+                        <div class="p-3.5 rounded-xl border bg-slate-50 border-slate-200/80">
+                            <div class="text-[10px] font-bold text-slate-400 uppercase">Perangkat & IP</div>
+                            <div class="text-xs font-bold text-slate-800 mt-1 truncate" id="acs_model_vendor">-</div>
+                            <div class="text-[10px] font-mono text-slate-600 mt-0.5 truncate" id="acs_ip_wan">-</div>
+                        </div>
+                    </div>
+
+                    <!-- Wi-Fi Information Card -->
+                    <div class="border border-sky-200 bg-sky-50/40 rounded-2xl p-5 space-y-4">
+                        <div class="flex items-center justify-between border-b border-sky-100 pb-3">
+                            <div class="flex items-center gap-2 text-sm font-bold text-slate-900">
+                                <i class="fa-solid fa-wifi text-sky-600"></i>
+                                <span>Konfigurasi Wi-Fi Pelanggan</span>
+                            </div>
+                            <span class="badge bg-sky-100 text-sky-700 text-[10px] font-bold border border-sky-200">TR-069 Live</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Wi-Fi 2.4 GHz -->
+                            <div class="bg-white p-4 rounded-xl border border-sky-100 shadow-sm space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-signal text-sky-500 text-[11px]"></i> Frekuensi 2.4 GHz
+                                    </span>
+                                    <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200" id="acs_wlan1_status">Aktif</span>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Nama Wi-Fi (SSID)</span>
+                                    <div class="text-sm font-mono font-black text-slate-900 mt-0.5 select-all" id="acs_wlan1_ssid">-</div>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Kata Sandi Wi-Fi</span>
+                                    <div class="flex items-center justify-between bg-slate-50 p-2 rounded-lg border border-slate-200 mt-0.5">
+                                        <span class="text-sm font-mono font-black text-slate-800 tracking-wider" id="acs_wlan1_pass">••••••••</span>
+                                        <div class="flex items-center gap-1">
+                                            <button type="button" class="topbar-icon-btn !w-7 !h-7 !rounded-lg text-slate-500 hover:text-slate-700" onclick="toggleAcsPassword('acs_wlan1_pass')" title="Lihat Sandi">
+                                                <i class="fa-solid fa-eye text-xs"></i>
+                                            </button>
+                                            <button type="button" class="topbar-icon-btn !w-7 !h-7 !rounded-lg text-sky-600 hover:text-sky-700" onclick="copyTextFromElement('acs_wlan1_pass', this)" title="Salin Sandi">
+                                                <i class="fa-solid fa-copy text-xs"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Wi-Fi 5 GHz (Dual Band) -->
+                            <div class="bg-white p-4 rounded-xl border border-sky-100 shadow-sm space-y-3" id="acs_wlan5_container">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-bolt text-indigo-500 text-[11px]"></i> Frekuensi 5 GHz (Dual-Band)
+                                    </span>
+                                    <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200" id="acs_wlan5_status">Aktif</span>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Nama Wi-Fi (SSID)</span>
+                                    <div class="text-sm font-mono font-black text-slate-900 mt-0.5 select-all" id="acs_wlan5_ssid">-</div>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Kata Sandi Wi-Fi</span>
+                                    <div class="flex items-center justify-between bg-slate-50 p-2 rounded-lg border border-slate-200 mt-0.5">
+                                        <span class="text-sm font-mono font-black text-slate-800 tracking-wider" id="acs_wlan5_pass">••••••••</span>
+                                        <div class="flex items-center gap-1">
+                                            <button type="button" class="topbar-icon-btn !w-7 !h-7 !rounded-lg text-slate-500 hover:text-slate-700" onclick="toggleAcsPassword('acs_wlan5_pass')" title="Lihat Sandi">
+                                                <i class="fa-solid fa-eye text-xs"></i>
+                                            </button>
+                                            <button type="button" class="topbar-icon-btn !w-7 !h-7 !rounded-lg text-sky-600 hover:text-sky-700" onclick="copyTextFromElement('acs_wlan5_pass', this)" title="Salin Sandi">
+                                                <i class="fa-solid fa-copy text-xs"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Connected Devices (Hosts) Card -->
+                    <div class="border border-slate-200 rounded-2xl p-5 bg-white space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <div class="flex items-center gap-2 text-sm font-bold text-slate-900">
+                                <i class="fa-solid fa-laptop-code text-indigo-600"></i>
+                                <span>Perangkat Terhubung (Connected Devices)</span>
+                            </div>
+                            <span class="badge bg-indigo-50 text-indigo-700 text-[11px] font-bold border border-indigo-200" id="acs_hosts_badge">0 Perangkat Terhubung</span>
+                        </div>
+
+                        <div class="table-responsive max-h-56 overflow-y-auto">
+                            <table class="w-full text-xs">
+                                <thead>
+                                    <tr class="border-b border-slate-200 text-slate-400 uppercase font-bold text-[10px]">
+                                        <th class="py-2 text-left">Nama Perangkat / Host</th>
+                                        <th class="py-2 text-left">Alamat IP</th>
+                                        <th class="py-2 text-left">MAC Address</th>
+                                        <th class="py-2 text-center">Tipe</th>
+                                        <th class="py-2 text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="acs_hosts_table_body" class="divide-y divide-slate-100 font-medium text-slate-700">
+                                    <!-- Filled by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 p-4 flex items-center justify-between gap-3">
+                <div>
+                    <a id="acs_btn_open_genieacs" href="#" target="_blank"
+                        class="btn-primary-admin !bg-slate-800 hover:!bg-slate-900 !text-white text-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Kelola di Menu GenieACS
+                    </a>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" class="btn-cancel text-xs flex items-center gap-1.5" onclick="refreshCurrentAcsModal()">
+                        <i class="fa-solid fa-arrows-rotate"></i> Muat Ulang
+                    </button>
+                    <button type="button" class="btn-cancel text-xs" onclick="closeCustomModal('customerAcsModal')">
+                        Tutup
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1138,6 +1351,201 @@
                     }
                 }
             });
+
+            // --- GenieACS Real-Time Modal Functions ---
+            let currentAcsCustomer = { id: null, nama: '', idPelanggan: '' };
+            let rawWifiPasswords = { acs_wlan1_pass: '', acs_wlan5_pass: '' };
+
+            function openAcsModalFromDetail() {
+                if (!currentCustomerTrigger) return;
+                const $btn = $(currentCustomerTrigger);
+                openCustomerAcsModal($btn.data('id'), $btn.data('nama-lengkap'), $btn.data('customer-id'));
+            }
+
+            function openCustomerAcsModal(id, nama, idPelanggan) {
+                currentAcsCustomer = { id: id, nama: nama, idPelanggan: idPelanggan };
+                $('#acs_modal_nama').text(nama || '-');
+                $('#acs_modal_id_pelanggan').text(idPelanggan || '-');
+
+                $('#acs_loading_state').show();
+                $('#acs_error_state').hide();
+                $('#acs_content_state').hide();
+                $('#acs_btn_open_genieacs').hide();
+
+                openCustomModal('customerAcsModal');
+                fetchAcsData(id);
+            }
+
+            function refreshCurrentAcsModal() {
+                if (currentAcsCustomer.id) {
+                    $('#acs_loading_state').show();
+                    $('#acs_error_state').hide();
+                    $('#acs_content_state').hide();
+                    fetchAcsData(currentAcsCustomer.id);
+                }
+            }
+
+            function fetchAcsData(customerId) {
+                $.ajax({
+                    url: '/customers/' + customerId + '/acs-status',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(res) {
+                        $('#acs_loading_state').hide();
+                        if (res.success && res.device) {
+                            renderAcsContent(res);
+                        } else {
+                            renderAcsError(res);
+                        }
+                    },
+                    error: function(xhr) {
+                        $('#acs_loading_state').hide();
+                        $('#acs_error_state').show();
+                        $('#acs_content_state').hide();
+                        $('#acs_error_title').text('Gagal Terhubung ke Server ACS');
+                        $('#acs_error_msg').text('Server ACS tidak dapat dihubungi saat ini. Pastikan GenieACS aktif.');
+                        $('#acs_err_sn').text('-');
+                        $('#acs_err_pppoe').text('-');
+                    }
+                });
+            }
+
+            function renderAcsError(res) {
+                $('#acs_error_state').show();
+                $('#acs_content_state').hide();
+                $('#acs_btn_open_genieacs').hide();
+                $('#acs_error_title').text(res.message || 'Perangkat ONT Belum Terhubung di ACS');
+                $('#acs_error_msg').text('Perangkat ONT pelanggan ini belum terdaftar atau sedang offline di GenieACS.');
+                const c = res.customer || {};
+                $('#acs_err_sn').text(c.sn_perangkat || 'Tidak ada');
+                $('#acs_err_pppoe').text(c.pppoe_username || 'Tidak ada');
+            }
+
+            function renderAcsContent(res) {
+                const d = res.device;
+                $('#acs_content_state').show();
+                $('#acs_error_state').hide();
+
+                // Button Link to GenieACS
+                if (d.genieacs_url) {
+                    $('#acs_btn_open_genieacs').attr('href', d.genieacs_url).show();
+                }
+
+                // 1. Status
+                if (d.is_online) {
+                    $('#acs_status_badge').html('<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700"><span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span>ONLINE</span>');
+                } else {
+                    $('#acs_status_badge').html('<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-200 text-slate-600">OFFLINE</span>');
+                }
+                $('#acs_last_inform').text('Inform: ' + (d.last_inform || '-'));
+
+                // 2. Redaman RX
+                const rxStr = d.rx_power ? (d.rx_power + ' dBm') : '-';
+                const rxVal = parseFloat(String(d.rx_power || '0').replace(/[^0-9.-]/g, '')) || 0;
+                $('#acs_rx_power').text(rxStr);
+                const $rxCard = $('#acs_rx_card');
+                $rxCard.removeClass('bg-emerald-50 border-emerald-200 text-emerald-700 bg-amber-50 border-amber-200 text-amber-700 bg-rose-50 border-rose-200 text-rose-700 bg-slate-50 border-slate-200 text-slate-700');
+                if (d.rx_power) {
+                    if (rxVal < -27) {
+                        $rxCard.addClass('bg-rose-50 border-rose-200 text-rose-700');
+                        $('#acs_rx_quality').text('Redaman Kritis (< -27 dBm)').attr('class', 'text-[10px] font-bold text-rose-600');
+                    } else if (rxVal < -24) {
+                        $rxCard.addClass('bg-amber-50 border-amber-200 text-amber-700');
+                        $('#acs_rx_quality').text('Waspada (< -24 dBm)').attr('class', 'text-[10px] font-bold text-amber-600');
+                    } else {
+                        $rxCard.addClass('bg-emerald-50 border-emerald-200 text-emerald-700');
+                        $('#acs_rx_quality').text('Sinyal Bagus / Normal').attr('class', 'text-[10px] font-bold text-emerald-600');
+                    }
+                } else {
+                    $rxCard.addClass('bg-slate-50 border-slate-200 text-slate-700');
+                    $('#acs_rx_quality').text('Tidak ada data').attr('class', 'text-[10px] font-semibold text-slate-400');
+                }
+
+                // 3. Suhu
+                const tempStr = d.temperature ? (d.temperature + ' °C') : '-';
+                const tempVal = parseFloat(String(d.temperature || '0').replace(/[^0-9.-]/g, '')) || 0;
+                $('#acs_temperature').text(tempStr);
+                const $tempCard = $('#acs_temp_card');
+                $tempCard.removeClass('bg-rose-50 border-rose-200 text-rose-700 bg-slate-50 border-slate-200 text-slate-700');
+                if (tempVal > 65) {
+                    $tempCard.addClass('bg-rose-50 border-rose-200 text-rose-700');
+                    $('#acs_temp_quality').text('Suhu Panas (> 65°C)').attr('class', 'text-[10px] font-bold text-rose-600');
+                } else {
+                    $tempCard.addClass('bg-slate-50 border-slate-200 text-slate-700');
+                    $('#acs_temp_quality').text('Suhu Normal (< 60°C)').attr('class', 'text-[10px] font-semibold text-slate-500');
+                }
+
+                // 4. Model & IP
+                $('#acs_model_vendor').text((d.manufacturer || '') + ' ' + (d.model || '-'));
+                $('#acs_ip_wan').text('IP: ' + (d.ip_address || '-'));
+
+                // 5. Wi-Fi 2.4 GHz
+                const w1 = res.wlan1 || {};
+                $('#acs_wlan1_ssid').text(w1.ssid || 'Belum diatur');
+                rawWifiPasswords['acs_wlan1_pass'] = w1.password || '';
+                $('#acs_wlan1_pass').text(w1.password ? '••••••••' : '(Tanpa Password)');
+                $('#acs_wlan1_status').text(w1.status || 'Aktif');
+
+                // 6. Wi-Fi 5 GHz
+                const w5 = res.wlan5;
+                if (w5 && w5.ssid) {
+                    $('#acs_wlan5_container').show();
+                    $('#acs_wlan5_ssid').text(w5.ssid);
+                    rawWifiPasswords['acs_wlan5_pass'] = w5.password || '';
+                    $('#acs_wlan5_pass').text(w5.password ? '••••••••' : '(Tanpa Password)');
+                    $('#acs_wlan5_status').text(w5.status || 'Aktif');
+                } else {
+                    $('#acs_wlan5_container').hide();
+                }
+
+                // 7. Connected Hosts
+                const hosts = res.hosts || [];
+                const activeCount = res.total_connected || 0;
+                $('#acs_hosts_badge').text(activeCount + ' Perangkat Terhubung');
+
+                let html = '';
+                if (hosts.length === 0) {
+                    html = '<tr><td colspan="5" class="text-center py-6 text-slate-400">Tidak ada perangkat yang terdeteksi terhubung saat ini.</td></tr>';
+                } else {
+                    hosts.forEach(function(h) {
+                        const isAct = h.active;
+                        const badgeStatus = isAct
+                            ? '<span class="badge bg-emerald-50 text-emerald-700 font-bold text-[10px] px-2 py-0.5 rounded">Aktif</span>'
+                            : '<span class="badge bg-slate-100 text-slate-400 text-[10px] px-2 py-0.5 rounded">Offline</span>';
+                        html += `<tr>
+                            <td class="py-2.5 font-bold text-slate-800">${h.hostname || 'Tanpa Nama'}</td>
+                            <td class="py-2.5 font-mono text-slate-600">${h.ip || '-'}</td>
+                            <td class="py-2.5 font-mono text-slate-500">${h.mac || '-'}</td>
+                            <td class="py-2.5 text-center"><span class="badge bg-sky-50 text-sky-700 text-[10px] font-bold">${h.interface || 'Wi-Fi'}</span></td>
+                            <td class="py-2.5 text-center">${badgeStatus}</td>
+                        </tr>`;
+                    });
+                }
+                $('#acs_hosts_table_body').html(html);
+            }
+
+            function toggleAcsPassword(elemId) {
+                const realPass = rawWifiPasswords[elemId];
+                if (!realPass) return;
+                const $el = $('#' + elemId);
+                if ($el.text() === '••••••••') {
+                    $el.text(realPass);
+                } else {
+                    $el.text('••••••••');
+                }
+            }
+
+            function copyTextFromElement(elemId, btnEl) {
+                const realPass = rawWifiPasswords[elemId];
+                if (!realPass) return;
+                navigator.clipboard.writeText(realPass).then(function() {
+                    const $i = $(btnEl).find('i');
+                    $i.removeClass('fa-copy').addClass('fa-check text-emerald-600');
+                    setTimeout(function() {
+                        $i.removeClass('fa-check text-emerald-600').addClass('fa-copy');
+                    }, 2000);
+                });
+            }
         </script>
     @endsection
 </x-layouts.app>
