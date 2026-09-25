@@ -108,17 +108,117 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
                     <div class="form-group !mb-0">
-                        <label class="form-label font-bold text-slate-700">Default Interface Traffic</label>
-                        <input type="text" name="mikrotik_interface" class="form-input"
+                        <label class="form-label font-bold text-slate-700">Default Interface PPPoE / Traffic</label>
+                        <input type="text" name="mikrotik_interface" id="mikrotik_interface" class="form-input"
                             value="{{ old('mikrotik_interface', $settings['mikrotik']['interface']) }}"
-                            placeholder="ether1">
-                        <small class="text-slate-400 text-[11px]">Nama interface utama untuk monitoring bandwidth di
-                            dashboard.</small>
+                            placeholder="ether2">
+                        <small class="text-slate-400 text-[11px]">Interface tempat PPPoE Server berjalan dan monitoring traffic.</small>
                     </div>
                     <div class="form-group !mb-0">
-                        <label class="form-label font-bold text-slate-700">Timeout Koneksi (detik)</label>
-                        <input type="number" name="mikrotik_timeout" class="form-input"
+                        <label class="form-label font-bold text-slate-700">Timeout Koneksi API (detik)</label>
+                        <input type="number" name="mikrotik_timeout" id="mikrotik_timeout" class="form-input"
                             value="{{ old('mikrotik_timeout', $settings['mikrotik']['timeout']) }}" placeholder="10">
+                    </div>
+                </div>
+
+                <!-- Section: Server RADIUS Client (NAS) -->
+                <div class="border-t border-slate-100 pt-5 mt-5 mb-5">
+                    <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-1">
+                        <i class="fa-solid fa-server text-emerald-600"></i> Server RADIUS Client (NAS di MikroTik)
+                    </h3>
+                    <p class="text-xs text-slate-400 mb-4">Pengaturan IP dan Shared Secret FreeRADIUS yang akan dikonfigurasikan di MikroTik Server.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="form-group !mb-0">
+                            <label class="form-label font-bold text-slate-700">IP Server FreeRADIUS <span class="text-rose-500">*</span></label>
+                            <input type="text" name="radius_server_ip" id="radius_server_ip" class="form-input font-mono"
+                                value="{{ old('radius_server_ip', $settings['mikrotik']['radius_server_ip']) }}"
+                                placeholder="192.168.21.202" required>
+                            <small class="text-slate-400 text-[11px]">IP Server FreeRADIUS tempat MikroTik meminta autentikasi (port 1812/1813).</small>
+                        </div>
+                        <div class="form-group !mb-0">
+                            <label class="form-label font-bold text-slate-700">Secret RADIUS <span class="text-rose-500">*</span></label>
+                            <div class="relative">
+                                <input type="password" name="radius_secret" id="radius_secret" class="form-input !pr-10 font-mono"
+                                    value="{{ old('radius_secret', $settings['mikrotik']['radius_secret']) }}"
+                                    placeholder="testing123" required>
+                                <button type="button"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                    onclick="togglePasswordVisibility('radius_secret', this)">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                            <small class="text-slate-400 text-[11px]">Shared secret yang sama dengan konfigurasi clients.conf atau tabel nas.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Konfigurasi IP Pool & Gateway PNP -->
+                <div class="border-t border-slate-100 pt-5 mt-5 mb-5">
+                    <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-1">
+                        <i class="fa-solid fa-network-wired text-indigo-600"></i> Konfigurasi IP Pool & Profile (Normal & Isolir)
+                    </h3>
+                    <p class="text-xs text-slate-400 mb-4">Pengaturan segmen IP pool otomatis (Plug & Play) untuk pelanggan aktif normal dan pelanggan menunggak (isolir).</p>
+                    
+                    <!-- Row 1: Pool Normal -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-4">
+                        <div class="form-group !mb-0">
+                            <label class="form-label font-bold text-slate-700">Nama Pool Normal</label>
+                            <input type="text" name="pool_normal_name" id="pool_normal_name" class="form-input font-mono"
+                                value="{{ old('pool_normal_name', $settings['mikrotik']['pool_normal_name']) }}"
+                                placeholder="pool-normal">
+                        </div>
+                        <div class="form-group !mb-0">
+                            <label class="form-label font-bold text-slate-700">Rentang IP Pool Normal</label>
+                            <input type="text" name="pool_normal_range" id="pool_normal_range" class="form-input font-mono"
+                                value="{{ old('pool_normal_range', $settings['mikrotik']['pool_normal_range']) }}"
+                                placeholder="10.10.0.2-10.10.15.254">
+                        </div>
+                        <div class="form-group !mb-0">
+                            <label class="form-label font-bold text-slate-700">Local IP / Gateway Normal</label>
+                            <input type="text" name="pool_normal_gateway" id="pool_normal_gateway" class="form-input font-mono"
+                                value="{{ old('pool_normal_gateway', $settings['mikrotik']['pool_normal_gateway']) }}"
+                                placeholder="10.10.0.1">
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Pool Isolir -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-4">
+                        <div class="form-group !mb-0">
+                            <label class="form-label font-bold text-slate-700">Nama Pool Isolir</label>
+                            <input type="text" name="pool_isolir_name" id="pool_isolir_name" class="form-input font-mono"
+                                value="{{ old('pool_isolir_name', $settings['mikrotik']['pool_isolir_name']) }}"
+                                placeholder="pool-isolir">
+                        </div>
+                        <div class="form-group !mb-0">
+                            <label class="form-label font-bold text-slate-700">Rentang IP Pool Isolir</label>
+                            <input type="text" name="pool_isolir_range" id="pool_isolir_range" class="form-input font-mono"
+                                value="{{ old('pool_isolir_range', $settings['mikrotik']['pool_isolir_range']) }}"
+                                placeholder="172.30.0.2-172.30.255.254">
+                        </div>
+                        <div class="form-group !mb-0">
+                            <label class="form-label font-bold text-slate-700">Local IP / Gateway Isolir</label>
+                            <input type="text" name="pool_isolir_gateway" id="pool_isolir_gateway" class="form-input font-mono"
+                                value="{{ old('pool_isolir_gateway', $settings['mikrotik']['pool_isolir_gateway']) }}"
+                                placeholder="172.30.0.1">
+                        </div>
+                    </div>
+
+                    <!-- Row 3: DNS & Web Portal Isolir -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="form-group !mb-0">
+                            <label class="form-label font-bold text-slate-700">DNS Servers PPPoE</label>
+                            <input type="text" name="mikrotik_dns_servers" id="mikrotik_dns_servers" class="form-input font-mono"
+                                value="{{ old('mikrotik_dns_servers', $settings['mikrotik']['dns_servers']) }}"
+                                placeholder="8.8.8.8,1.1.1.1">
+                            <small class="text-slate-400 text-[11px]">Daftar server DNS yang diberikan ke client router.</small>
+                        </div>
+                        <div class="form-group !mb-0">
+                            <label class="form-label font-bold text-slate-700">IP / Domain Server Portal Isolir</label>
+                            <input type="text" name="web_portal_ip" id="web_portal_ip" class="form-input font-mono"
+                                value="{{ old('web_portal_ip', $settings['mikrotik']['web_portal_ip']) }}"
+                                placeholder="192.168.21.202 atau app.erlangga.net">
+                            <small class="text-slate-400 text-[11px]">Tujuan redirect port 80 untuk pelanggan yang menunggak.</small>
+                        </div>
                     </div>
                 </div>
 
@@ -143,7 +243,7 @@
                         <i class="fa-solid fa-terminal text-indigo-600"></i> Generator & Panduan Script Terminal MikroTik
                     </h2>
                     <p class="text-xs text-slate-500 mt-1">
-                        Script konfigurasi RouterOS untuk mengaktifkan API, Server RADIUS, Incoming CoA (Auto-Kick), dan Auto-Redirect Portal Isolir (app.erlangga.net/isolir).
+                        Script PNP (Plug & Play) RouterOS sesuai dengan database di atas. Cukup salin dan jalankan langsung di New Terminal WinBox.
                     </p>
                 </div>
                 <div class="flex items-center gap-2">
@@ -155,36 +255,39 @@
 
             <!-- Script Tabs Navigation -->
             <div class="flex gap-2 mb-4 flex-wrap">
-                <button type="button" class="script-tab-btn active px-4 py-2 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-sm" data-target="script-section-isolir">
-                    <i class="fa-solid fa-triangle-exclamation mr-1.5 text-amber-300"></i> 1. Isolir & NAT Redirect
+                <button type="button" class="script-tab-btn active px-4 py-2 rounded-xl text-xs font-bold transition-all bg-indigo-600 text-white shadow-sm" data-target="script-section-pool">
+                    <i class="fa-solid fa-network-wired mr-1.5 text-sky-300"></i> 1. IP Pool, Profile & PPPoE Server
                 </button>
                 <button type="button" class="script-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200" data-target="script-section-radius">
                     <i class="fa-solid fa-database mr-1.5 text-emerald-500"></i> 2. Server RADIUS & CoA (Auto-Kick)
                 </button>
                 <button type="button" class="script-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200" data-target="script-section-api">
-                    <i class="fa-solid fa-plug mr-1.5 text-sky-500"></i> 3. API Service & User
+                    <i class="fa-solid fa-plug mr-1.5 text-amber-500"></i> 3. API Service & User
+                </button>
+                <button type="button" class="script-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200" data-target="script-section-isolir">
+                    <i class="fa-solid fa-triangle-exclamation mr-1.5 text-rose-500"></i> 4. Firewall Filter & NAT Isolir
                 </button>
                 <button type="button" class="script-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200" data-target="script-section-all">
-                    <i class="fa-solid fa-scroll mr-1.5 text-indigo-500"></i> 4. Script Lengkap (All-in-One)
+                    <i class="fa-solid fa-scroll mr-1.5 text-indigo-500"></i> 5. Script Lengkap (All-in-One PNP)
                 </button>
             </div>
 
-            <!-- Script 1: Isolir & NAT Redirect -->
-            <div class="script-panel active" id="script-section-isolir">
+            <!-- Script 1: IP Pool, Profile & PPPoE Server -->
+            <div class="script-panel active" id="script-section-pool">
                 <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 shadow-inner">
                     <div class="flex items-center justify-between mb-3 border-b border-slate-800/80 pb-2.5">
                         <div class="flex items-center gap-2">
                             <span class="w-3 h-3 rounded-full bg-rose-500"></span>
                             <span class="w-3 h-3 rounded-full bg-amber-500"></span>
                             <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
-                            <span class="text-slate-400 text-xs font-mono ml-2">mikrotik-terminal ~ isolir-nat.rsc</span>
+                            <span class="text-slate-400 text-xs font-mono ml-2">mikrotik-terminal ~ pool-pppoe.rsc</span>
                         </div>
-                        <button type="button" onclick="copyScriptToClipboard('code-script-isolir')" 
+                        <button type="button" onclick="copyScriptToClipboard('code-script-pool')" 
                                 class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow">
                             <i class="fa-solid fa-copy"></i> Salin Script
                         </button>
                     </div>
-                    <pre class="overflow-x-auto text-emerald-400 font-mono text-xs leading-relaxed max-h-96 selection:bg-rose-500 selection:text-white"><code id="code-script-isolir"></code></pre>
+                    <pre class="overflow-x-auto text-emerald-400 font-mono text-xs leading-relaxed max-h-96 selection:bg-rose-500 selection:text-white"><code id="code-script-pool"></code></pre>
                 </div>
             </div>
 
@@ -226,7 +329,26 @@
                 </div>
             </div>
 
-            <!-- Script 4: All-in-One Full Script -->
+            <!-- Script 4: Firewall Filter & NAT Isolir -->
+            <div class="script-panel hidden" id="script-section-isolir">
+                <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 shadow-inner">
+                    <div class="flex items-center justify-between mb-3 border-b border-slate-800/80 pb-2.5">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                            <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                            <span class="text-slate-400 text-xs font-mono ml-2">mikrotik-terminal ~ firewall-isolir.rsc</span>
+                        </div>
+                        <button type="button" onclick="copyScriptToClipboard('code-script-isolir')" 
+                                class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow">
+                            <i class="fa-solid fa-copy"></i> Salin Script
+                        </button>
+                    </div>
+                    <pre class="overflow-x-auto text-emerald-400 font-mono text-xs leading-relaxed max-h-96 selection:bg-rose-500 selection:text-white"><code id="code-script-isolir"></code></pre>
+                </div>
+            </div>
+
+            <!-- Script 5: All-in-One Full Script PNP -->
             <div class="script-panel hidden" id="script-section-all">
                 <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 shadow-inner">
                     <div class="flex items-center justify-between mb-3 border-b border-slate-800/80 pb-2.5">
@@ -234,11 +356,11 @@
                             <span class="w-3 h-3 rounded-full bg-rose-500"></span>
                             <span class="w-3 h-3 rounded-full bg-amber-500"></span>
                             <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
-                            <span class="text-slate-400 text-xs font-mono ml-2">mikrotik-terminal ~ full-setup-all.rsc</span>
+                            <span class="text-slate-400 text-xs font-mono ml-2">mikrotik-terminal ~ full-setup-pnp.rsc</span>
                         </div>
                         <button type="button" onclick="copyScriptToClipboard('code-script-all')" 
                                 class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow">
-                            <i class="fa-solid fa-copy"></i> Salin Semua Script
+                            <i class="fa-solid fa-copy"></i> Salin Semua Script PNP
                         </button>
                     </div>
                     <pre class="overflow-x-auto text-emerald-400 font-mono text-xs leading-relaxed max-h-96 selection:bg-rose-500 selection:text-white"><code id="code-script-all"></code></pre>
@@ -251,10 +373,10 @@
                     <i class="fa-solid fa-circle-info text-blue-600"></i> Langkah Menjalankan Script di MikroTik
                 </div>
                 <ol class="list-decimal list-inside space-y-1 text-slate-600 pl-1 leading-relaxed">
-                    <li>Buka aplikasi <strong>Winbox</strong> dan login ke router MikroTik utama Anda.</li>
+                    <li>Buka aplikasi <strong>Winbox</strong> dan login ke router MikroTik CHR Server Anda.</li>
                     <li>Buka menu <strong>New Terminal</strong> di sisi kiri Winbox.</li>
-                    <li>Salin script dari generator di atas, lalu <strong>Paste (Klik Kanan -> Paste)</strong> ke terminal MikroTik dan tekan <strong>Enter</strong>.</li>
-                    <li>Pastikan aturan sudah muncul di menu <strong>IP -> Firewall -> NAT & Filter Rules</strong>, dan menu <strong>Radius</strong>.</li>
+                    <li>Pilih tab <strong>"5. Script Lengkap (All-in-One PNP)"</strong> di atas, klik tombol <strong>Salin Semua Script PNP</strong>.</li>
+                    <li><strong>Paste (Klik Kanan -> Paste)</strong> ke terminal MikroTik dan tekan <strong>Enter</strong>. Seluruh konfigurasi otomatis aktif seketika!</li>
                 </ol>
             </div>
         </div>
@@ -694,108 +816,142 @@
 
             // Dynamic MikroTik Script Generator
             function updateMikrotikScripts() {
-                const webDomain = 'app.erlangga.net';
-                const radiusHost = '{{ $settings['radius']['host'] ?: config('database.connections.radius.host', '127.0.0.1') }}';
-                const radiusSecret = '{{ \App\Models\Setting::get('radius_secret', 'secret123') }}';
-                const isolirPool = '10.254.0.2-10.254.0.254';
-                const apiPort = document.getElementById('mikrotik_port')?.value.trim() || '{{ $settings['mikrotik']['port'] }}';
-                const apiUser = document.getElementById('mikrotik_user')?.value.trim() || '{{ $settings['mikrotik']['user'] }}';
-                const apiPass = document.getElementById('mikrotik_pass')?.value.trim() || 'password_anda';
+                // Form field values with robust fallbacks
+                const apiPort = document.getElementById('mikrotik_port')?.value.trim() || '8728';
+                const apiUser = document.getElementById('mikrotik_user')?.value.trim() || 'app_erlangga';
+                const apiPass = document.getElementById('mikrotik_pass')?.value.trim() || 'PasswordApi123';
+                const iface = document.getElementById('mikrotik_interface')?.value.trim() || 'ether2';
 
-                // 1. Script Isolir & NAT Redirect
-                const scriptIsolir = `# ================================================================
-# 1. BUAT IP POOL KHUSUS ISOLIR
+                const radiusServerIp = document.getElementById('radius_server_ip')?.value.trim() || '192.168.21.202';
+                const radiusSecret = document.getElementById('radius_secret')?.value.trim() || 'testing123';
+
+                const poolNormalName = document.getElementById('pool_normal_name')?.value.trim() || 'pool-normal';
+                const poolNormalRange = document.getElementById('pool_normal_range')?.value.trim() || '10.10.0.2-10.10.15.254';
+                const poolNormalGateway = document.getElementById('pool_normal_gateway')?.value.trim() || '10.10.0.1';
+
+                const poolIsolirName = document.getElementById('pool_isolir_name')?.value.trim() || 'pool-isolir';
+                const poolIsolirRange = document.getElementById('pool_isolir_range')?.value.trim() || '172.30.0.2-172.30.255.254';
+                const poolIsolirGateway = document.getElementById('pool_isolir_gateway')?.value.trim() || '172.30.0.1';
+
+                const dnsServers = document.getElementById('mikrotik_dns_servers')?.value.trim() || '8.8.8.8,1.1.1.1';
+                const webPortalIp = document.getElementById('web_portal_ip')?.value.trim() || window.location.hostname || '192.168.21.202';
+
+                // Determine Isolir Subnet from gateway or range
+                let isolirSubnet = '172.30.0.0/16';
+                if (poolIsolirGateway) {
+                    const parts = poolIsolirGateway.split('.');
+                    if (parts.length === 4) {
+                        if (parts[0] === '172') {
+                            isolirSubnet = `${parts[0]}.${parts[1]}.0.0/16`;
+                        } else if (parts[0] === '10') {
+                            isolirSubnet = `${parts[0]}.${parts[1]}.${parts[2]}.0/24`;
+                        } else {
+                            isolirSubnet = `${parts[0]}.${parts[1]}.${parts[2]}.0/24`;
+                        }
+                    }
+                }
+
+                // 1. Script IP Pool, Profile & PPPoE Server
+                const scriptPool = `# ================================================================
+# 1. BUAT IP POOL NORMAL & ISOLIR
 # ================================================================
-/ip pool add name=pool-isolir ranges=\${isolirPool}
+/ip pool add name=${poolNormalName} ranges=${poolNormalRange}
+/ip pool add name=${poolIsolirName} ranges=${poolIsolirRange}
 
 # ================================================================
-# 2. DAFTAR WHITELIST (XENDIT PAYMENT, DNS & DOMAIN BILLING)
+# 2. BUAT PPP PROFILE (DEFAULT NORMAL & ISOLIR)
 # ================================================================
-/ip firewall address-list
-add list=WHITELIST-ISOLIR address=api.xendit.co comment="Xendit API"
-add list=WHITELIST-ISOLIR address=checkout.xendit.co comment="Xendit Checkout Gateway"
-add list=WHITELIST-ISOLIR address=xendit.co comment="Xendit Main Portal"
-add list=WHITELIST-ISOLIR address=\${webDomain} comment="Domain Aplikasi & Portal Isolir (\${webDomain}/isolir)"
+/ppp profile add name=default local-address=${poolNormalGateway} remote-address=${poolNormalName} dns-server=${dnsServers} comment="Profile Pelanggan Normal"
+/ppp profile add name=profile-isolir local-address=${poolIsolirGateway} remote-address=${poolIsolirName} rate-limit=128k/128k comment="Profile Pelanggan Isolir"
 
 # ================================================================
-# 3. FIREWALL NAT: REDIRECT PORT 80 KE PORTAL ISOLIR
+# 3. AKTIFKAN PPPOE SERVER PADA INTERFACE (${iface})
+# (one-session-per-host=no agar ribuan akun dapat didial bersamaan)
 # ================================================================
-/ip firewall nat
-add chain=dstnat action=dst-nat to-addresses=\${webDomain} to-ports=80 protocol=tcp \\
-    dst-port=80 src-address-list=ISOLIR dst-address-list=!WHITELIST-ISOLIR \\
-    comment="REDIRECT PELANGGAN ISOLIR KE http://\${webDomain}/isolir"
+/interface pppoe-server server add service-name=pppoe-server interface=${iface} one-session-per-host=no max-sessions=3000 default-profile=default disabled=no`;
 
-# ================================================================
-# 4. FIREWALL FILTER: IZINKAN DNS & XENDIT, BLOK INTERNET LAIN
-# ================================================================
-/ip firewall filter
-add chain=forward action=accept protocol=udp dst-port=53 src-address-list=ISOLIR comment="ALLOW DNS UDP ISOLIR"
-add chain=forward action=accept protocol=tcp dst-port=53 src-address-list=ISOLIR comment="ALLOW DNS TCP ISOLIR"
-add chain=forward action=accept src-address-list=ISOLIR dst-address-list=WHITELIST-ISOLIR comment="ALLOW XENDIT & ISOLIR PORTAL"
-add chain=forward action=drop src-address-list=ISOLIR comment="BLOCK SEMUA INTERNET PELANGGAN ISOLIR"`;
-
-                // 2. Script Server RADIUS & CoA
+                // 2. Script Server RADIUS & CoA (Auto-Kick)
                 const scriptRadius = `# ================================================================
-# 1. TAMBAHKAN SERVER RADIUS CLIENT
+# 1. TAMBAHKAN SERVER RADIUS CLIENT (FREERADIUS)
 # ================================================================
-/radius add service=ppp address=\${radiusHost} secret="\${radiusSecret}" \\
-    authentication-port=1812 accounting-port=1813 timeout=3s comment="Server RADIUS Billing"
+/radius add service=ppp address=${radiusServerIp} secret="${radiusSecret}" \\
+    authentication-port=1812 accounting-port=1813 timeout=3000ms comment="FreeRADIUS Server App"
 
 # ================================================================
 # 2. AKTIFKAN RADIUS PADA PPPOE SERVER (AAA)
 # ================================================================
-/ppp aaa set use-radius=yes accounting=yes interim-update=5m
+/ppp aaa set use-radius=yes accounting=yes interim-update=1m
 
 # ================================================================
-# 3. AKTIFKAN RADIUS INCOMING (CoA) UNTUK AUTO-KICK SESI
+# 3. AKTIFKAN RADIUS INCOMING (CoA / Disconnect Requests)
 # ================================================================
 /radius incoming set accept=yes port=3799`;
 
                 // 3. Script API Service & User
                 const scriptApi = `# ================================================================
-# 1. AKTIFKAN SERVICE API ROUTEROS
+# 1. AKTIFKAN SERVICE API ROUTEROS (PORT ${apiPort})
 # ================================================================
-/ip service set api port=\${apiPort} disabled=no
+/ip service set api port=${apiPort} disabled=no
 
 # ================================================================
-# 2. BUAT USER GROUP KHUSUS APLIKASI
+# 2. BUAT USER API UNTUK APLIKASI LARAVEL
 # ================================================================
-/user group add name=laravel-group policy=api,read,write,test,password comment="Group API Laravel"
+/user add name=${apiUser} password="${apiPass}" group=full comment="API User App Erlangga Net"`;
+
+                // 4. Script Firewall Filter & NAT Isolir
+                const scriptIsolir = `# ================================================================
+# 1. FIREWALL FILTER: IZINKAN DNS ISOLIR
+# ================================================================
+/ip firewall filter add chain=forward src-address=${isolirSubnet} protocol=udp dst-port=53 action=accept comment="Allow DNS UDP Isolir"
+/ip firewall filter add chain=forward src-address=${isolirSubnet} protocol=tcp dst-port=53 action=accept comment="Allow DNS TCP Isolir"
 
 # ================================================================
-# 3. BUAT USER API UNTUK APLIKASI LARAVEL
+# 2. FIREWALL FILTER: BLOKIR SELURUH INTERNET LAIN PELANGGAN ISOLIR
 # ================================================================
-/user add name=\${apiUser} group=laravel-group password="\${apiPass}" comment="User API Laravel Erlangga"`;
+/ip firewall filter add chain=forward src-address=${isolirSubnet} action=drop comment="Drop Internet Isolir"
 
-                // 4. Script All-in-One Full
+# ================================================================
+# 3. FIREWALL NAT: REDIRECT PORT 80 KE WEB PORTAL ISOLIR
+# ================================================================
+/ip firewall nat add chain=dstnat src-address=${isolirSubnet} protocol=tcp dst-port=80 action=dst-nat to-addresses=${webPortalIp} to-ports=80 comment="Redirect ke Web Isolir"`;
+
+                // 5. Script All-in-One Full Plug & Play
                 const scriptAll = `# ================================================================
-# SCRIPT LENGKAP KONFIGURASI MIKROTIK ROUTEROS (ALL-IN-ONE)
-# ERLANGGA NET ISP BILLING & ISOLIR SYSTEM
+# SCRIPT LENGKAP ROUTEROS (ALL-IN-ONE PLUG & PLAY)
+# SISTEM BILLING & AUTO-ISOLIR ERLANGGA NET
 # ================================================================
 
-# --- [1/3] SERVICE API & USER ---
-\${scriptApi}
+# --- [1/4] IP POOL, PROFILE & PPPOE SERVER ---
+\${scriptPool}
 
-# --- [2/3] SERVER RADIUS & INCOMING COA (AUTO-KICK) ---
+# --- [2/4] SERVER RADIUS CLIENT & COA ---
 \${scriptRadius}
 
-# --- [3/3] ISOLIR POOL, WHITELIST & REDIRECT NAT (\${webDomain}/isolir) ---
+# --- [3/4] SERVICE API ROUTEROS & USER ---
+\${scriptApi}
+
+# --- [4/4] FIREWALL FILTER & NAT ISOLIR ---
 \${scriptIsolir}`;
 
-                const codeIsolir = document.getElementById('code-script-isolir');
+                const codePool = document.getElementById('code-script-pool');
                 const codeRadius = document.getElementById('code-script-radius');
                 const codeApi = document.getElementById('code-script-api');
+                const codeIsolir = document.getElementById('code-script-isolir');
                 const codeAll = document.getElementById('code-script-all');
 
-                if (codeIsolir) codeIsolir.textContent = scriptIsolir;
+                if (codePool) codePool.textContent = scriptPool;
                 if (codeRadius) codeRadius.textContent = scriptRadius;
                 if (codeApi) codeApi.textContent = scriptApi;
+                if (codeIsolir) codeIsolir.textContent = scriptIsolir;
                 if (codeAll) codeAll.textContent = scriptAll;
             }
 
-            // Inisialisasi script pada page load
+            // Inisialisasi script pada page load & event listener live update
             $(document).ready(function() {
                 updateMikrotikScripts();
+                $('#form-mikrotik input').on('input change', function() {
+                    updateMikrotikScripts();
+                });
             });
 
             // AJAX test connection with Toast

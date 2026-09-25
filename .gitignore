@@ -31,4 +31,4 @@ auth.json
 .worktrees/
 /backup/
 *.xlsx
-
+*.rsc

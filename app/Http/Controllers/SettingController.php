@@ -9,6 +9,12 @@ class SettingController extends Controller
 {
     public function index()
     {
+        $nasSecret = null;
+        try {
+            $nasRecord = \Illuminate\Support\Facades\DB::connection('radius')->table('nas')->first();
+            $nasSecret = $nasRecord?->secret;
+        } catch (\Throwable $e) {}
+
         $settings = [
             'mikrotik' => [
                 'host' => Setting::get('mikrotik_host', env('MIKROTIK_HOST', '192.168.10.1')),
@@ -17,6 +23,17 @@ class SettingController extends Controller
                 'pass' => Setting::get('mikrotik_pass', env('MIKROTIK_PASS', '')),
                 'interface' => Setting::get('mikrotik_interface', env('MIKROTIK_INTERFACE', 'ether1')),
                 'timeout' => Setting::get('mikrotik_timeout', env('MIKROTIK_TIMEOUT', 10)),
+                // IP Pool & RADIUS Client for PNP MikroTik Script
+                'radius_server_ip' => Setting::get('radius_server_ip', Setting::get('db_radius_host', '192.168.21.202')),
+                'radius_secret' => Setting::get('radius_secret', $nasSecret ?? 'testing123'),
+                'pool_normal_name' => Setting::get('pool_normal_name', 'pool-normal'),
+                'pool_normal_range' => Setting::get('pool_normal_range', '10.10.0.2-10.10.15.254'),
+                'pool_normal_gateway' => Setting::get('pool_normal_gateway', '10.10.0.1'),
+                'pool_isolir_name' => Setting::get('pool_isolir_name', 'pool-isolir'),
+                'pool_isolir_range' => Setting::get('pool_isolir_range', '172.30.0.2-172.30.255.254'),
+                'pool_isolir_gateway' => Setting::get('pool_isolir_gateway', '172.30.0.1'),
+                'dns_servers' => Setting::get('mikrotik_dns_servers', '8.8.8.8,1.1.1.1'),
+                'web_portal_ip' => Setting::get('web_portal_ip', request()->getHost()),
             ],
             'olt' => [
                 'host' => Setting::get('olt_host', env('OLT_HOST', '10.10.10.2')),
@@ -64,6 +81,16 @@ class SettingController extends Controller
                 'mikrotik_pass' => 'nullable|string',
                 'mikrotik_interface' => 'nullable|string',
                 'mikrotik_timeout' => 'nullable|numeric',
+                'radius_server_ip' => 'nullable|string',
+                'radius_secret' => 'nullable|string',
+                'pool_normal_name' => 'nullable|string',
+                'pool_normal_range' => 'nullable|string',
+                'pool_normal_gateway' => 'nullable|string',
+                'pool_isolir_name' => 'nullable|string',
+                'pool_isolir_range' => 'nullable|string',
+                'pool_isolir_gateway' => 'nullable|string',
+                'mikrotik_dns_servers' => 'nullable|string',
+                'web_portal_ip' => 'nullable|string',
             ]);
 
             Setting::set('mikrotik_host', $request->mikrotik_host, 'mikrotik');
@@ -72,6 +99,18 @@ class SettingController extends Controller
             Setting::set('mikrotik_pass', $request->mikrotik_pass ?? '', 'mikrotik');
             Setting::set('mikrotik_interface', $request->mikrotik_interface ?? 'ether1', 'mikrotik');
             Setting::set('mikrotik_timeout', $request->mikrotik_timeout ?? 10, 'mikrotik');
+
+            // Save IP Pool & RADIUS settings
+            Setting::set('radius_server_ip', $request->radius_server_ip ?? '192.168.21.202', 'mikrotik');
+            Setting::set('radius_secret', $request->radius_secret ?? 'testing123', 'mikrotik');
+            Setting::set('pool_normal_name', $request->pool_normal_name ?? 'pool-normal', 'mikrotik');
+            Setting::set('pool_normal_range', $request->pool_normal_range ?? '10.10.0.2-10.10.15.254', 'mikrotik');
+            Setting::set('pool_normal_gateway', $request->pool_normal_gateway ?? '10.10.0.1', 'mikrotik');
+            Setting::set('pool_isolir_name', $request->pool_isolir_name ?? 'pool-isolir', 'mikrotik');
+            Setting::set('pool_isolir_range', $request->pool_isolir_range ?? '172.30.0.2-172.30.255.254', 'mikrotik');
+            Setting::set('pool_isolir_gateway', $request->pool_isolir_gateway ?? '172.30.0.1', 'mikrotik');
+            Setting::set('mikrotik_dns_servers', $request->mikrotik_dns_servers ?? '8.8.8.8,1.1.1.1', 'mikrotik');
+            Setting::set('web_portal_ip', $request->web_portal_ip ?? request()->getHost(), 'mikrotik');
 
             // Apply immediately to runtime config
             config([
