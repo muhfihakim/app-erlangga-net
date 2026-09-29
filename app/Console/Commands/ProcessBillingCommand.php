@@ -6,6 +6,7 @@ use App\Models\Invoice;
 use App\Models\Pppoe;
 use App\Models\Radusergroup;
 use App\Services\MikroTikService;
+use App\Services\IsolirService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +17,7 @@ class ProcessBillingCommand extends Command
     protected $signature = 'billing:process {--force : Paksa generate invoice tanpa cek tanggal H-7}';
     protected $description = 'Otomatisasi pembuatan faktur bulanan & isolir akun FreeRADIUS yang lewat jatuh tempo';
 
-    public function handle(MikroTikService $mikrotikService): int
+    public function handle(MikroTikService $mikrotikService, IsolirService $isolirService): int
     {
         $this->info("=========================================");
         $this->info("  MEMULAI PROSES BILLING & AUTO-ISOLIR  ");
@@ -117,22 +118,13 @@ class ProcessBillingCommand extends Command
             }
 
             try {
-                // 1. Update FreeRADIUS radusergroup to ISOLIR
-                try {
-                    Radusergroup::where('username', $pppoe->username)->update(['groupname' => 'ISOLIR']);
-                } catch (\Throwable $e) {
-                    Log::warning("Gagal update FreeRADIUS group ISOLIR untuk {$pppoe->username}: " . $e->getMessage());
-                }
-
-                // 2. Update status_invoice di DB Laravel
-                $pppoe->update(['status_invoice' => 'belum_bayar']);
-
-                // 3. Kick active session on MikroTik agar langsung dialihkan ke profile isolir
-                $kicked = $mikrotikService->kickPppoeUser($pppoe->username);
+                $reason = "Auto-Isolir: Tagihan jatuh tempo ({$inv->due_date})";
+                $result = $isolirService->isolate($pppoe->username, $reason);
 
                 $isolatedUsers[] = $pppoe->username;
                 $isolatedCount++;
 
+                $kicked = $result['kicked'] ?? false;
                 $this->warn("  [!] AKUN DIISOLIR: {$pppoe->username} (Jatuh tempo: {$inv->due_date})" . ($kicked ? " [MikroTik Session Disconnected]" : ""));
             } catch (\Throwable $e) {
                 $this->error("  [-] Gagal mengisolir {$pppoe->username}: " . $e->getMessage());
