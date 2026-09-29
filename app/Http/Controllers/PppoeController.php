@@ -3,23 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\Nas;
+use App\Models\Setting;
+use App\Services\MikroTikService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 class PppoeController extends Controller
 {
-    public function index()
+    public function index(Request $request, MikroTikService $mikrotikService)
     {
-        // Use cached data from persistent monitor if available
-        $response = Cache::get('mikrotik_pppoe_active');
+        $force = $request->boolean('refresh');
+        
+        // Baca data langsung atau dari cache
+        $response = $force ? null : Cache::get('mikrotik_pppoe_active');
+        
+        if (!$response || !isset($response['success']) || !$response['success']) {
+            $response = $mikrotikService->getPppoeActive();
+            if ($response && isset($response['success']) && $response['success']) {
+                Cache::put('mikrotik_pppoe_active', $response, 25);
+            }
+        }
         
         $pppoeActive = [];
         if ($response && isset($response['success']) && $response['success']) {
             $pppoeActive = $response['data'];
             
             // Ambil semua customer untuk mapping sales
-            $customers = \App\Models\Customer::with('sales')->whereNotNull('pppoe_username')->get()->keyBy('pppoe_username');
+            $customers = Customer::with('sales')->whereNotNull('pppoe_username')->get()->keyBy('pppoe_username');
 
             foreach ($pppoeActive as $key => $item) {
                 $name = $item['name'] ?? '';
@@ -29,16 +41,27 @@ class PppoeController extends Controller
             }
         }
 
-        return view('monitoring.pppoe', compact('pppoeActive'));
+        $routerHost = $mikrotikService->getHost();
+        $nas = Nas::where('nasname', $routerHost)->first() ?? Nas::first();
+        $routerName = $nas?->shortname ?? 'Router MikroTik';
+
+        return view('monitoring.pppoe', compact('pppoeActive', 'routerHost', 'routerName'));
     }
 
     /**
      * Server-side DataTables endpoint.
      */
-    public function data(Request $request): JsonResponse
+    public function data(Request $request, MikroTikService $mikrotikService): JsonResponse
     {
-        // Use cached data from persistent monitor if available
-        $response = Cache::get('mikrotik_pppoe_active');
+        $force = $request->boolean('refresh');
+        $response = $force ? null : Cache::get('mikrotik_pppoe_active');
+
+        if (!$response || !isset($response['success']) || !$response['success']) {
+            $response = $mikrotikService->getPppoeActive();
+            if ($response && isset($response['success']) && $response['success']) {
+                Cache::put('mikrotik_pppoe_active', $response, 25);
+            }
+        }
 
         if (!$response || !isset($response['success']) || !$response['success']) {
             return response()->json([
@@ -46,7 +69,7 @@ class PppoeController extends Controller
                 'recordsTotal' => 0,
                 'recordsFiltered' => 0,
                 'data' => [],
-                'error' => 'Data tidak tersedia di cache (Monitor mungkin belum berjalan)'
+                'error' => 'Gagal membaca data dari router: ' . ($response['error'] ?? 'Koneksi gagal')
             ]);
         }
 
@@ -65,7 +88,7 @@ class PppoeController extends Controller
         }
         
         // Simple search
-        $search = $request->search['value'];
+        $search = $request->search['value'] ?? null;
         if ($search) {
             $data = array_filter($data, function($item) use ($search) {
                 return str_contains(strtolower($item['name'] ?? ''), strtolower($search)) || 
@@ -95,14 +118,19 @@ class PppoeController extends Controller
         ]);
     }
 
-    public function active(): JsonResponse
+    public function active(MikroTikService $mikrotikService): JsonResponse
     {
-        // Fallback for full list if still used elsewhere
         $data = Cache::get('mikrotik_pppoe_active');
+        if (!$data || !isset($data['success']) || !$data['success']) {
+            $data = $mikrotikService->getPppoeActive();
+            if ($data && isset($data['success']) && $data['success']) {
+                Cache::put('mikrotik_pppoe_active', $data, 25);
+            }
+        }
         if (!$data) {
             return response()->json([
                 'success' => false,
-                'error' => 'Data tidak tersedia'
+                'error' => 'Data tidak tersedia dari router'
             ]);
         }
         return response()->json($data);

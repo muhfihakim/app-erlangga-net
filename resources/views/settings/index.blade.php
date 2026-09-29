@@ -845,30 +845,42 @@
                             isolirSubnet = `${parts[0]}.${parts[1]}.0.0/16`;
                         } else if (parts[0] === '10') {
                             isolirSubnet = `${parts[0]}.${parts[1]}.${parts[2]}.0/24`;
-                        } else {
-                            isolirSubnet = `${parts[0]}.${parts[1]}.${parts[2]}.0/24`;
                         }
                     }
                 }
 
+                const serverPakets = @json($pakets ?? []);
+                let paketPoolsScript = '';
+                let paketProfilesScript = '';
+                if (serverPakets && serverPakets.length > 0) {
+                    serverPakets.forEach(p => {
+                        if (p.ip_pool && p.pool_range) {
+                            paketPoolsScript += `/ip pool add name=${p.ip_pool} ranges=${p.pool_range}\n`;
+                        }
+                        const pLocal = p.local_address || poolNormalGateway;
+                        const pRemote = p.ip_pool || poolNormalName;
+                        const pRate = p.rate_limit ? ` rate-limit="${p.rate_limit}"` : '';
+                        paketProfilesScript += `/ppp profile add name="${p.nama_paket}" local-address=${pLocal} remote-address=${pRemote}${pRate} dns-server=${dnsServers} comment="Paket: ${p.nama_paket}"\n`;
+                    });
+                }
+
                 // 1. Script IP Pool, Profile & PPPoE Server
                 const scriptPool = `# ================================================================
-# 1. BUAT IP POOL NORMAL & ISOLIR
+# 1. BUAT IP POOL (NORMAL, ISOLIR & PER-PAKET)
 # ================================================================
 /ip pool add name=${poolNormalName} ranges=${poolNormalRange}
 /ip pool add name=${poolIsolirName} ranges=${poolIsolirRange}
-
+${paketPoolsScript}
 # ================================================================
-# 2. BUAT PPP PROFILE (DEFAULT NORMAL & ISOLIR)
+# 2. BUAT PPP PROFILE (DEFAULT, ISOLIR & PER-PAKET)
 # ================================================================
 /ppp profile add name=default local-address=${poolNormalGateway} remote-address=${poolNormalName} dns-server=${dnsServers} comment="Profile Pelanggan Normal"
 /ppp profile add name=profile-isolir local-address=${poolIsolirGateway} remote-address=${poolIsolirName} rate-limit=128k/128k comment="Profile Pelanggan Isolir"
-
+${paketProfilesScript}
 # ================================================================
 # 3. AKTIFKAN PPPOE SERVER PADA INTERFACE (${iface})
-# (one-session-per-host=no agar ribuan akun dapat didial bersamaan)
 # ================================================================
-/interface pppoe-server server add service-name=pppoe-server interface=${iface} one-session-per-host=no max-sessions=3000 default-profile=default disabled=no`;
+/interface pppoe-server server add service-name=pppoe-server interface=${iface} one-session-per-host=no max-sessions=3000 authentication=pap,chap keepalive-timeout=60 default-profile=default disabled=no`;
 
                 // 2. Script Server RADIUS & CoA (Auto-Kick)
                 const scriptRadius = `# ================================================================

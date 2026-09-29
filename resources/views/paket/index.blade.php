@@ -53,15 +53,29 @@
             <h1 style="font-size:22px;font-weight:900;margin:0;">Manajemen Paket Layanan</h1>
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola data paket layanan yang tersedia.</p>
         </div>
-        <div style="display:flex; gap:10px;">
-            <form action="{{ route('paket.sync') }}" method="POST" style="margin:0;">
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <!-- Tombol Sync / Kirim ke MikroTik -->
+            <form action="{{ route('pakets.sync_to_mikrotik') }}" method="POST" style="margin:0;">
                 @csrf
-                <button type="submit" class="btn-primary-admin !flex !items-center !justify-center gap-2" style="background-color: #10b981; border-color: #10b981;"
-                    onclick="return confirm('Tarik semua Profile dari MikroTik dan masukkan ke database lokal?')">
-                    <i class="fa-solid fa-rotate"></i> Sync Mikrotik
+                <button type="submit" class="btn-primary-admin !flex !items-center !justify-center gap-2 !px-4" 
+                    style="background-color: #4f46e5; border-color: #4f46e5;"
+                    onclick="return confirm('Kirim dan sinkronkan seluruh paket layanan dari database ke MikroTik (PPP Profile, IP Pool & FreeRADIUS)?')">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Sync ke MikroTik
                 </button>
             </form>
-            <button type="button" class="btn-primary-admin !flex !items-center !justify-center gap-2"
+
+            <!-- Tombol Tarik Profile dari MikroTik -->
+            <form action="{{ route('paket.sync') }}" method="POST" style="margin:0;">
+                @csrf
+                <button type="submit" class="btn-primary-admin !flex !items-center !justify-center gap-2 !px-4" 
+                    style="background-color: #059669; border-color: #059669;"
+                    onclick="return confirm('Tarik semua Profile dari MikroTik dan masukkan ke database lokal?')">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> Tarik dari MikroTik
+                </button>
+            </form>
+
+            <!-- Tombol Tambah Paket Baru -->
+            <button type="button" class="btn-primary-admin !flex !items-center !justify-center gap-2 !px-4"
                 onclick="openPaketModal()">
                 <i class="fa-solid fa-plus-square"></i> Tambah Paket
             </button>
@@ -88,6 +102,7 @@
                         <th style="text-align: right;">Diskon (Rp)</th>
                         <th style="text-align: right;">Total Tagihan</th>
                         <th style="text-align: center;">Limitasi (Radius)</th>
+                        <th style="text-align: left;">IP Pool & Gateway</th>
                         <th style="text-align: center;">Pengguna</th>
                         <th style="text-align: center; width: 100px;">Opsi</th>
                     </tr>
@@ -112,6 +127,29 @@
                             <td style="text-align: center; color: #475569; font-weight: 700;">
                                 {{ $paket->rate_limit ?? '-' }}
                             </td>
+                            <td style="text-align: left;">
+                                @if($paket->ip_pool || $paket->local_address)
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        @if($paket->ip_pool)
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold font-mono bg-indigo-50 text-indigo-700 border border-indigo-200" title="IP Pool">
+                                                <i class="fa-solid fa-server text-[9px]"></i> {{ $paket->ip_pool }}
+                                            </span>
+                                        @endif
+                                        @if($paket->local_address)
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-slate-600 bg-slate-100 border border-slate-200" title="Local Gateway">
+                                                <i class="fa-solid fa-network-wired text-[9px] text-slate-400"></i> {{ $paket->local_address }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                    @if($paket->pool_range)
+                                        <div class="text-[10px] font-mono text-slate-400 mt-0.5 truncate max-w-[200px]" title="Range: {{ $paket->pool_range }}">
+                                            {{ $paket->pool_range }}
+                                        </div>
+                                    @endif
+                                @else
+                                    <span class="text-slate-400 text-xs">-</span>
+                                @endif
+                            </td>
                             <td style="text-align: center;">
                                 <span class="badge" style="background:#f1f5f9;color:#64748b;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid #e2e8f0;">
                                     <i class="fa-solid fa-users mr-1"></i> {{ number_format($paket->customers_count) }}
@@ -120,7 +158,7 @@
                             <td style="text-align: center;">
                                 <div class="flex items-center justify-center gap-2">
                                     <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
-                                        onclick="editPaketModal({{ $paket->id }}, '{{ $paket->nama_paket }}', '{{ $paket->harga }}', '{{ $paket->pajak ?? 0 }}', '{{ $paket->diskon ?? 0 }}', '{{ $paket->rate_limit }}', '{{ $paket->keterangan }}')"
+                                        onclick="editPaketModal({{ $paket->id }}, @js($paket->nama_paket), @js($paket->harga), @js($paket->pajak ?? 0), @js($paket->diskon ?? 0), @js($paket->rate_limit), @js($paket->keterangan), @js($paket->local_address), @js($paket->ip_pool), @js($paket->pool_range))"
                                         title="Edit Paket"><i class="fa-solid fa-pen-to-square text-amber-500"></i></button>
                                     <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
                                         onclick="confirmGlobalDelete('{{ route('pakets.destroy', $paket->id) }}', 'Paket {{ $paket->nama_paket }}')"
@@ -198,6 +236,37 @@
                         <span class="text-[11px] text-slate-500 mt-1 block">Format: [Upload]/[Download], contoh: <code>5M/10M</code> atau <code>10M/20M</code></span>
                     </div>
 
+                    <!-- Alokasi IP Pool & Gateway MikroTik -->
+                    <div class="p-4 rounded-xl border border-indigo-200 bg-indigo-50/60 space-y-3.5">
+                        <div class="flex items-center gap-2 text-indigo-900 font-bold text-xs uppercase tracking-wider">
+                            <i class="fa-solid fa-network-wired text-indigo-600"></i>
+                            <span>Pengaturan IP Pool & Gateway MikroTik / FreeRADIUS</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-800 font-bold text-xs">Local Address (Gateway)</label>
+                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300 font-mono text-xs" 
+                                    id="local_address" name="local_address" placeholder="Contoh: 182.10.0.1">
+                                <span class="text-[10px] text-slate-500 mt-1 block">IP Gateway lokal PPPoE untuk paket ini (contoh: <code>182.10.0.1</code>)</span>
+                            </div>
+
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-800 font-bold text-xs">Nama IP Pool</label>
+                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300 font-mono text-xs" 
+                                    id="ip_pool" name="ip_pool" placeholder="Contoh: pool-10m">
+                                <span class="text-[10px] text-slate-500 mt-1 block">Nama pool di MikroTik & RADIUS (contoh: <code>pool-10m</code>)</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group !mb-0">
+                            <label class="form-label text-slate-800 font-bold text-xs">Rentang IP Pool (Pool Range)</label>
+                            <input type="text" class="form-input bg-white text-slate-900 border-slate-300 font-mono text-xs" 
+                                id="pool_range" name="pool_range" placeholder="Contoh: 182.10.0.2-182.10.255.254">
+                            <span class="text-[10px] text-slate-500 mt-1 block">Rentang IP pool pelanggan (contoh: <code>182.10.0.2-182.10.255.254</code>)</span>
+                        </div>
+                    </div>
+
                     <div class="form-group !mb-0">
                         <label class="form-label text-slate-800 font-bold">Keterangan Tambahan</label>
                         <textarea class="form-textarea bg-white text-slate-900 border-slate-300" id="keterangan" name="keterangan"
@@ -265,6 +334,9 @@
                 $('#pajak').val('');
                 $('#diskon').val('');
                 $('#rate_limit').val('');
+                $('#local_address').val('');
+                $('#ip_pool').val('');
+                $('#pool_range').val('');
                 $('#keterangan').val('');
                 calculatePaketTotal();
 
@@ -273,7 +345,7 @@
                 document.body.style.overflow = 'hidden';
             }
 
-            function editPaketModal(id, nama, harga, pajak, diskon, rate_limit, ket) {
+            function editPaketModal(id, nama, harga, pajak, diskon, rate_limit, ket, local_address, ip_pool, pool_range) {
                 $('#modalPaketTitle').text('Edit Paket Layanan');
                 $('#formPaket').attr('action', `/pakets/${id}`);
                 $('#paketMethod').val('PUT');
@@ -283,6 +355,9 @@
                 $('#pajak').val(pajak || 0);
                 $('#diskon').val(diskon || 0);
                 $('#rate_limit').val(rate_limit);
+                $('#local_address').val(local_address || '');
+                $('#ip_pool').val(ip_pool || '');
+                $('#pool_range').val(pool_range || '');
                 $('#keterangan').val(ket);
                 calculatePaketTotal();
 

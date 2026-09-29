@@ -66,7 +66,8 @@ class SettingController extends Controller
             ],
         ];
 
-        return view('settings.index', compact('settings'));
+        $pakets = \App\Models\Paket::all();
+        return view('settings.index', compact('settings', 'pakets'));
     }
 
     public function update(Request $request)

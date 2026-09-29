@@ -8,20 +8,41 @@ use Illuminate\Support\Facades\Config;
 class MikroTikService
 {
     private ?\ZillEAli\MikrotikLaravel\Connections\RouterosClient $client = null;
+    protected string $interface;
 
     public function __construct()
     {
-        $this->interface = Config::get('mikrotik.interface', 'ether1');
+        $this->interface = \App\Models\Setting::get('mikrotik_interface', Config::get('mikrotik.interface', 'ether1'));
+    }
+
+    public function getHost(): string
+    {
+        $host = \App\Models\Setting::get('mikrotik_host');
+        if (empty($host)) {
+            $nas = \App\Models\Nas::first();
+            $host = $nas?->nasname ?? Config::get('mikrotik.host', '192.168.10.1');
+        }
+        return $host;
+    }
+
+    public function getInterface(): string
+    {
+        return $this->interface;
     }
 
     protected function getClient(): \ZillEAli\MikrotikLaravel\Connections\RouterosClient
     {
         if (!$this->client || !$this->client->isConnected()) {
+            $host = $this->getHost();
+            $port = (int) \App\Models\Setting::get('mikrotik_port', Config::get('mikrotik.port', 8728));
+            $user = \App\Models\Setting::get('mikrotik_user', Config::get('mikrotik.username', 'admin'));
+            $pass = \App\Models\Setting::get('mikrotik_pass', Config::get('mikrotik.password', ''));
+
             $this->client = new \ZillEAli\MikrotikLaravel\Connections\RouterosClient(
-                \App\Models\Setting::get('mikrotik_host', config('mikrotik.host')),
-                (int) \App\Models\Setting::get('mikrotik_port', config('mikrotik.port', 8728)),
-                \App\Models\Setting::get('mikrotik_user', config('mikrotik.username')),
-                \App\Models\Setting::get('mikrotik_pass', config('mikrotik.password', ''))
+                $host,
+                $port,
+                $user,
+                $pass
             );
             $this->client->connect();
         }
@@ -187,11 +208,19 @@ class MikroTikService
     /**
      * Helper to run raw query and bypass vendor package !re bug
      */
-    public function runRawQuery(string $command): array
+    public function runRawQuery(string $command, array $params = []): array
     {
         try {
             $client = $this->getClient();
-            $raw = $client->send([$command]);
+            $query = [$command];
+            foreach ($params as $key => $val) {
+                if (str_starts_with($key, '?') || str_starts_with($key, '=')) {
+                    $query[] = "{$key}={$val}";
+                } else {
+                    $query[] = "={$key}={$val}";
+                }
+            }
+            $raw = $client->send($query);
             return $this->parseRawResponse($raw);
         } catch (\Exception $e) {
             $this->client = null; // force reconnect next time
@@ -207,6 +236,7 @@ class MikroTikService
      */
     public function getStatus(): array
     {
+        $host = $this->getHost();
         try {
             $client = $this->getClient();
             $client->send([
@@ -216,14 +246,14 @@ class MikroTikService
             return [
                 'online' => true,
                 'interface' => $this->interface,
-                'host' => Config::get('mikrotik.host'),
+                'host' => $host,
             ];
         } catch (Exception $e) {
             $this->client = null;
             return [
                 'online' => false,
                 'interface' => $this->interface,
-                'host' => Config::get('mikrotik.host'),
+                'host' => $host,
             ];
         }
     }
@@ -305,7 +335,40 @@ class MikroTikService
         }
     }
 
-    public function createOrUpdatePppProfile(string $name, string $localAddress = '192.168.100.1'): bool
+    public function createOrUpdateIpPool(string $name, string $ranges): bool
+    {
+        try {
+            $client = $this->getClient();
+            $pools = $this->runRawQuery('/ip/pool/print');
+            $id = null;
+            foreach ($pools as $pool) {
+                if (isset($pool['name']) && $pool['name'] === $name) {
+                    $id = $pool['.id'] ?? null;
+                    break;
+                }
+            }
+
+            if ($id) {
+                $client->send([
+                    '/ip/pool/set',
+                    '=.id=' . $id,
+                    '=ranges=' . $ranges
+                ]);
+            } else {
+                $client->send([
+                    '/ip/pool/add',
+                    '=name=' . $name,
+                    '=ranges=' . $ranges
+                ]);
+            }
+            return true;
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("createOrUpdateIpPool Error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function createOrUpdatePppProfile(string $name, $paramsOrLocalAddress = '192.168.100.1'): bool
     {
         try {
             $client = $this->getClient();
@@ -318,19 +381,24 @@ class MikroTikService
                 }
             }
 
+            $params = is_array($paramsOrLocalAddress) ? $paramsOrLocalAddress : ['local-address' => $paramsOrLocalAddress];
+
+            $cmd = [];
             if ($id) {
-                $client->send([
-                    '/ppp/profile/set',
-                    '=.id=' . $id,
-                    '=local-address=' . $localAddress
-                ]);
+                $cmd[] = '/ppp/profile/set';
+                $cmd[] = '=.id=' . $id;
             } else {
-                $client->send([
-                    '/ppp/profile/add',
-                    '=name=' . $name,
-                    '=local-address=' . $localAddress
-                ]);
+                $cmd[] = '/ppp/profile/add';
+                $cmd[] = '=name=' . $name;
             }
+
+            foreach ($params as $key => $val) {
+                if ($val !== null && $val !== '') {
+                    $cmd[] = '=' . $key . '=' . $val;
+                }
+            }
+
+            $client->send($cmd);
             return true;
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error("createOrUpdatePppProfile Error: " . $e->getMessage());

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Nas;
+use App\Models\Setting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
@@ -24,20 +26,33 @@ class MonitoringController extends Controller
                 }
             }
         }
+
+        $defaultInterface = Setting::get('mikrotik_interface', config('mikrotik.interface', 'ether2'));
+        $routerHost = $service->getHost();
+        $nas = Nas::where('nasname', $routerHost)->first() ?? Nas::first();
+        $routerName = $nas?->shortname ?? 'MikroTik Router';
         
-        return view('monitoring.index', compact('interfaces'));
+        return view('monitoring.index', compact('interfaces', 'defaultInterface', 'routerHost', 'routerName'));
     }
 
-    public function traffic(Request $request): JsonResponse
+    public function traffic(Request $request, MikroTikService $service): JsonResponse
     {
-        // Use cached data from persistent monitor
+        // Ambil dari cache, jika kosong baca langsung dari router
         $data = Cache::get('mikrotik_traffic_data_all');
+
+        if (!$data || !isset($data['success']) || !$data['success']) {
+            $data = $service->getAllInterfacesTraffic();
+            if ($data && isset($data['success']) && $data['success']) {
+                Cache::put('mikrotik_traffic_data_all', $data, 3);
+            }
+        }
+
         $interface = $request->query('interface');
 
         if (!$data || !isset($data['success']) || !$data['success']) {
             return response()->json([
                 'online' => false,
-                'error' => 'Data tidak tersedia di cache'
+                'error' => $data['error'] ?? 'Data tidak tersedia dari router'
             ]);
         }
 
@@ -63,19 +78,19 @@ class MonitoringController extends Controller
         ]);
     }
 
-    public function status(): JsonResponse
+    public function status(MikroTikService $service): JsonResponse
     {
-        // Use cached data from persistent monitor
+        // Ambil dari cache, jika kosong baca langsung dari router
         $data = Cache::get('mikrotik_status_data');
 
-        if (!$data) {
-            return response()->json([
-                'online' => false,
-                'error' => 'Data tidak tersedia di cache'
-            ]);
+        if (!$data || !isset($data['online'])) {
+            $data = $service->getStatus();
+            if ($data && isset($data['online'])) {
+                Cache::put('mikrotik_status_data', $data, 5);
+            }
         }
 
-        return response()->json($data);
+        return response()->json($data ?? ['online' => false, 'error' => 'Gagal membaca status router']);
     }
 
     public function pppoeLogs(MikroTikService $service): JsonResponse

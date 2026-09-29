@@ -29,13 +29,13 @@
         <div>
             <h1 style="font-size:22px;font-weight:900;margin:0;">PPPoE Aktif</h1>
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Monitoring pengguna PPPoE yang sedang aktif secara
-                real-time.</p>
+                real-time langsung dari router.</p>
         </div>
         <div style="display:flex; gap:10px;">
-            <button type="button" onclick="location.reload()"
+            <a href="{{ route('pppoe.index', ['refresh' => 1]) }}"
                 class="btn-primary-admin !flex !items-center !justify-center gap-2">
-                <i class="fa-solid fa-sync" id="refresh-icon"></i> Refresh Data
-            </button>
+                <i class="fa-solid fa-arrows-rotate" id="refresh-icon"></i> Refresh Data Live
+            </a>
         </div>
     </div>
 
@@ -46,10 +46,16 @@
             <input type="search" class="search-input" id="custom-search"
                 placeholder="Cari nama, sales, atau IP address..." autocomplete="off" />
         </div>
-        <div style="display:flex;gap:8px;">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            @if(!empty($routerHost))
+                <div style="font-size: 11px; font-weight: 700; color: #475569; background: #f1f5f9; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0; display:flex; align-items:center; gap:6px;">
+                    <i class="fa-solid fa-server text-indigo-600"></i>
+                    <span>{{ $routerName ?? 'Router' }} ({{ $routerHost }})</span>
+                </div>
+            @endif
             <div
                 style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                Total Aktif: <span class="text-primary">{{ count($pppoeActive) }}</span>
+                Total Aktif: <span class="text-primary font-bold">{{ count($pppoeActive) }}</span>
             </div>
         </div>
     </div>
@@ -73,6 +79,7 @@
                     @foreach ($pppoeActive as $item)
                         @php
                             $cid = btoa_safe($item['name'] ?? 'unknown');
+                            $isIsolir = !empty($item['is_isolir']);
                         @endphp
                         <tr>
                             <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}
@@ -80,7 +87,7 @@
                             <td>
                                 <div style="font-weight: 700; color: #0f172a;">
                                     {{ $item['name'] ?? '-' }}
-                                    @if ($item['is_isolir'])
+                                    @if ($isIsolir)
                                         <span
                                             style="background:#fef2f2; color:#dc2626; padding:2px 6px; border-radius:4px; font-size:9px; font-weight:800; margin-left:4px;">ISOLIR</span>
                                     @endif
@@ -92,7 +99,7 @@
                                 {{ format_uptime_hms($item['uptime'] ?? '') }}
                             </td>
                             <td
-                                style="text-align: center; font-family: monospace; font-weight: 700; color: {{ $item['is_isolir'] ? '#dc2626' : '#0ea5e9' }};">
+                                style="text-align: center; font-family: monospace; font-weight: 700; color: {{ $isIsolir ? '#dc2626' : '#0ea5e9' }};">
                                 {{ $item['address'] ?? '-' }}
                             </td>
                             <td style="text-align: center; color: #64748b; font-size: 11px;">

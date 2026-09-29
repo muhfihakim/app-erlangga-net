@@ -110,11 +110,19 @@
     <!-- Info card -->
     <div class="info-card">
         <div class="info-item">
+            <div class="lbl">Router / NAS</div>
+            <div class="val font-mono text-xs font-bold text-slate-800 flex items-center gap-1.5" title="{{ $routerHost ?? '' }}">
+                <i class="fa-solid fa-server text-indigo-600"></i>
+                <span>{{ $routerName ?? 'Router' }}</span>
+                <span class="text-[11px] text-slate-500 font-normal">({{ $routerHost ?? 'N/A' }})</span>
+            </div>
+        </div>
+        <div class="info-item">
             <div class="lbl">Interface</div>
             <div class="val">
                 <select id="interface-select" onchange="changeInterface()" style="padding: 4px 8px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 14px; font-weight: 700; color: #0f172a; outline: none; width: 100%; cursor: pointer;">
                     @foreach($interfaces as $iface)
-                        <option value="{{ $iface }}" {{ $iface == config('mikrotik.interface') ? 'selected' : '' }}>{{ $iface }}</option>
+                        <option value="{{ $iface }}" {{ $iface == ($defaultInterface ?? 'ether2') ? 'selected' : '' }}>{{ $iface }}</option>
                     @endforeach
                 </select>
             </div>

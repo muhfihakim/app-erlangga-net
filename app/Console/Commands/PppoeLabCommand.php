@@ -177,9 +177,10 @@ class PppoeLabCommand extends Command
             $user = addslashes($p->username);
             $pass = addslashes($p->password ?: '123');
 
+            // allow=pap,chap avoids ms-chapv2 mutual auth failure with FreeRADIUS
             // add-default-route=no is essential to avoid conflicting 1600+ default routes
             // use-peer-dns=no is essential to avoid overwriting router dns
-            $lines[] = "add name=\"{$name}\" interface=\"{$interface}\" user=\"{$user}\" password=\"{$pass}\" add-default-route=no use-peer-dns=no disabled=no comment=\"simulasi-lab\"";
+            $lines[] = "add name=\"{$name}\" interface=\"{$interface}\" user=\"{$user}\" password=\"{$pass}\" allow=pap,chap add-default-route=no use-peer-dns=no disabled=no comment=\"simulasi-lab\"";
             $counter++;
         }
 

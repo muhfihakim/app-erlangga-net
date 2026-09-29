@@ -12,6 +12,9 @@ class Paket extends Model
         'pajak',
         'diskon',
         'rate_limit',
+        'local_address',
+        'ip_pool',
+        'pool_range',
         'keterangan',
     ];
 
