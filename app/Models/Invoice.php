@@ -77,6 +77,9 @@ class Invoice extends Model
 
             $pppoe->update([
                 'status_invoice' => 'terbayar',
+                'is_isolir' => false,
+                'isolir_reason' => null,
+                'isolir_at' => null,
                 'tanggal_aktif' => $newAktif,
             ]);
 

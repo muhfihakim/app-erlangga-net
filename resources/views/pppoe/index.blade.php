@@ -84,7 +84,7 @@
     </div>
 
     <!-- Stats Cards Grid -->
-    <div class="stats-grid mb-6">
+    <div class="stats-grid mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="stat-card">
             <div class="stat-icon" style="background:#e0e7ff;color:#4338ca;">
                 <i class="fa-solid fa-users-gear"></i>
@@ -112,6 +112,15 @@
                 <div class="stat-lbl">Status Belum Bayar</div>
             </div>
         </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fef2f2;color:#b91c1c;border:1px solid #fecdd3;">
+                <i class="fa-solid fa-ban"></i>
+            </div>
+            <div>
+                <div class="stat-val text-rose-600">{{ number_format($totalIsolirCount ?? 0, 0, ',', '.') }}</div>
+                <div class="stat-lbl">Status Terisolir</div>
+            </div>
+        </div>
     </div>
 
     <!-- Table Toolbar -->
@@ -119,12 +128,12 @@
         <form method="GET" action="{{ route('pppoe_accounts.index') }}" class="w-full" id="filterForm">
             <div class="filter-group">
                 <div style="flex: 1; min-width: 160px;">
-                    <label class="form-label-custom">Status Invoice</label>
+                    <label class="form-label-custom">Status Akun</label>
                     <select name="status_invoice" class="form-input-custom" id="filter-status">
                         <option value="">Semua Status</option>
                         <option value="terbayar" {{ $filterStatus === 'terbayar' ? 'selected' : '' }}>Terbayar</option>
-                        <option value="belum_bayar" {{ $filterStatus === 'belum_bayar' ? 'selected' : '' }}>Belum Bayar
-                        </option>
+                        <option value="belum_bayar" {{ $filterStatus === 'belum_bayar' ? 'selected' : '' }}>Belum Bayar</option>
+                        <option value="isolir" {{ $filterStatus === 'isolir' ? 'selected' : '' }}>Terisolir</option>
                     </select>
                 </div>
                 <div style="flex: 1; min-width: 180px;">
@@ -342,6 +351,93 @@
         </div>
     </div>
 
+    <!-- Modal Isolir PPPoE -->
+    <div class="modal-overlay !items-center" id="isolirPppoeModal">
+        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="modal-header border-b border-slate-200 bg-rose-50/50 p-5 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-ban"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Isolir Akun PPPoE</h3>
+                        <p class="text-xs text-slate-500 m-0">Putus akses & alihkan ke profil isolir</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close text-slate-400 hover:text-slate-600" onclick="closeCustomModal('isolirPppoeModal')">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form id="isolirPppoeForm" method="POST" action="">
+                @csrf
+                <div class="p-6 space-y-4">
+                    <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 space-y-1">
+                        <div class="font-bold flex items-center gap-1.5 text-amber-900">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Perhatian:
+                        </div>
+                        <p class="m-0 leading-relaxed">
+                            Akun <strong id="isolirPppoeUsername" class="font-mono text-rose-700"></strong> akan dialihkan ke group FreeRADIUS <strong>ISOLIR</strong> (kecepatan 128k/128k, IP 172.30.x.x) dan sesi aktif di MikroTik akan di-kick agar dial ulang secara otomatis.
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="form-label text-slate-800 font-bold block mb-1 text-xs">Alasan Isolir</label>
+                        <textarea name="reason" id="isolirPppoeReason" class="form-input-custom w-full text-xs" rows="3" placeholder="Contoh: Menunggak tagihan bulan ini / Pelanggaran penggunaan" required>Isolir manual oleh Admin</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 p-4 flex justify-end gap-2">
+                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('isolirPppoeModal')">
+                        Batal
+                    </button>
+                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-9 !px-5 text-xs font-semibold flex items-center gap-2">
+                        <i class="fa-solid fa-ban"></i> Isolir Sekarang
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Buka Isolir PPPoE -->
+    <div class="modal-overlay !items-center" id="bukaIsolirPppoeModal">
+        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="modal-header border-b border-slate-200 bg-emerald-50/50 p-5 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-unlock-keyhole"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Buka Isolir PPPoE</h3>
+                        <p class="text-xs text-slate-500 m-0">Kembalikan kecepatan dan akses normal</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close text-slate-400 hover:text-slate-600" onclick="closeCustomModal('bukaIsolirPppoeModal')">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form id="bukaIsolirPppoeForm" method="POST" action="">
+                @csrf
+                <div class="p-6 space-y-4">
+                    <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 space-y-1">
+                        <div class="font-bold flex items-center gap-1.5 text-emerald-900">
+                            <i class="fa-solid fa-circle-check"></i> Konfirmasi Pembukaan:
+                        </div>
+                        <p class="m-0 leading-relaxed">
+                            Akun <strong id="bukaIsolirPppoeUsername" class="font-mono text-emerald-800"></strong> akan dikembalikan ke profil paket aslinya di FreeRADIUS dan sesi aktif di MikroTik akan di-kick agar dial ulang dengan kecepatan normal.
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 p-4 flex justify-end gap-2">
+                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('bukaIsolirPppoeModal')">
+                        Batal
+                    </button>
+                    <button type="submit" class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-9 !px-5 text-xs font-semibold flex items-center gap-2">
+                        <i class="fa-solid fa-unlock-keyhole"></i> Buka Isolir Sekarang
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     @section('Scripts')
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
         <script>
@@ -474,6 +570,23 @@
                 $modalBox.find('.tab-panel').removeClass('active');
                 $('#' + tabId).addClass('active');
             });
+
+            function openIsolirPppoeModal(url, username) {
+                document.getElementById('isolirPppoeForm').action = url;
+                document.getElementById('isolirPppoeUsername').innerText = username;
+                document.getElementById('isolirPppoeReason').value = 'Isolir manual oleh Admin';
+                const modal = document.getElementById('isolirPppoeModal');
+                modal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function openBukaIsolirPppoeModal(url, username) {
+                document.getElementById('bukaIsolirPppoeForm').action = url;
+                document.getElementById('bukaIsolirPppoeUsername').innerText = username;
+                const modal = document.getElementById('bukaIsolirPppoeModal');
+                modal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }
         </script>
     @endsection
 </x-layouts.app>

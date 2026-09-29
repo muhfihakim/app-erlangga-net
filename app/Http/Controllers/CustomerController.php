@@ -109,26 +109,42 @@ class CustomerController extends Controller
 
         // --- DATATABLES SERVER SIDE ---
         if ($request->ajax()) {
+            $pppoeMap = \App\Models\Pppoe::whereNotNull('username')
+                ->get(['id', 'username', 'is_isolir', 'isolir_reason', 'isolir_at'])
+                ->keyBy('username');
+
             return \Yajra\DataTables\Facades\DataTables::of($query)
                 ->addColumn('is_online', function ($customer) use ($activeUsernames) {
                     return in_array($customer->pppoe_username, $activeUsernames);
                 })
+                ->addColumn('is_isolir', function ($customer) use ($pppoeMap) {
+                    $p = $customer->pppoe_username ? $pppoeMap->get($customer->pppoe_username) : null;
+                    return $p ? (bool)$p->is_isolir : false;
+                })
                 ->addColumn('titik_koordinat', function ($customer) {
                     return $customer->preOrder ? $customer->preOrder->titik_koordinat : null;
                 })
-                ->addColumn('nama_lengkap_formatted', function($customer) use ($activeUsernames) {
+                ->addColumn('nama_lengkap_formatted', function($customer) use ($activeUsernames, $pppoeMap) {
                     $isOnline = in_array($customer->pppoe_username, $activeUsernames);
                     $badgeOnline = $isOnline 
                         ? '<span class="badge" style="background: #dcfce7; color: #15803d; font-size: 8px; padding: 2px 6px; border-radius: 4px; font-weight: 800;">ONLINE</span>'
                         : '<span class="badge" style="background: #f1f5f9; color: #64748b; font-size: 8px; padding: 2px 6px; border-radius: 4px; font-weight: 800;">OFFLINE</span>';
+                    
+                    $p = $customer->pppoe_username ? $pppoeMap->get($customer->pppoe_username) : null;
+                    $isIsolir = $p ? (bool)$p->is_isolir : false;
+                    $badgeIsolir = $isIsolir 
+                        ? '<span class="badge" title="' . htmlspecialchars($p->isolir_reason ?? 'Terisolir', ENT_QUOTES) . '" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; font-size: 8px; padding: 2px 6px; border-radius: 4px; font-weight: 800;"><i class="fa-solid fa-ban mr-0.5"></i> ISOLIR</span>' 
+                        : '';
+
                     $badgeTrashed = $customer->trashed() 
                         ? '<span class="badge badge-archived" style="font-size: 9px; margin-top: 2px;">NON-AKTIF</span>' 
                         : '';
                     $pppoe = $customer->pppoe_username ?? '-';
                     return '
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;">
                             <div style="font-weight: 700; color: #0f172a;">' . htmlspecialchars($customer->nama_lengkap, ENT_QUOTES) . '</div>
                             ' . $badgeOnline . '
+                            ' . $badgeIsolir . '
                         </div>
                         ' . $badgeTrashed . '
                         <div style="font-size: 10px; color: #94a3b8; font-weight: 600; margin-top: 2px;">
@@ -155,8 +171,13 @@ class CustomerController extends Controller
                 ->addColumn('tgl_formatted', function($customer) {
                     return \Carbon\Carbon::parse($customer->created_at)->format('d-m-Y');
                 })
-                ->addColumn('action', function($customer) {
+                ->addColumn('action', function($customer) use ($pppoeMap) {
                     $isAdmin = auth()->user()->isAdmin();
+                    $p = $customer->pppoe_username ? $pppoeMap->get($customer->pppoe_username) : null;
+                    $isIsolir = $p ? (bool)$p->is_isolir : false;
+                    $isolirReason = $p ? ($p->isolir_reason ?? '') : '';
+                    $isolirAt = $p && $p->isolir_at ? \Carbon\Carbon::parse($p->isolir_at)->format('d-m-Y H:i') : '';
+
                     $btnDetail = '
                         <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Detail"
                             onclick="openCustomerDetailModal(this)"
@@ -165,6 +186,11 @@ class CustomerController extends Controller
                             data-nama-lengkap="' . htmlspecialchars($customer->nama_lengkap, ENT_QUOTES) . '"
                             data-pppoe-user="' . htmlspecialchars($customer->pppoe_username, ENT_QUOTES) . '"
                             data-pppoe-pass="' . htmlspecialchars($customer->pppoe_password, ENT_QUOTES) . '"
+                            data-is-isolir="' . ($isIsolir ? '1' : '0') . '"
+                            data-isolir-reason="' . htmlspecialchars($isolirReason, ENT_QUOTES) . '"
+                            data-isolir-at="' . htmlspecialchars($isolirAt, ENT_QUOTES) . '"
+                            data-isolir-url="' . route('customers.isolir', $customer->id) . '"
+                            data-buka-isolir-url="' . route('customers.buka_isolir', $customer->id) . '"
                             data-jenis-modem="' . htmlspecialchars($customer->jenis_modem, ENT_QUOTES) . '"
                             data-sn-perangkat="' . htmlspecialchars($customer->sn_perangkat, ENT_QUOTES) . '"
                             data-pembayaran="' . htmlspecialchars($customer->pembayaran, ENT_QUOTES) . '"
@@ -209,6 +235,25 @@ class CustomerController extends Controller
                         ';
                     }
 
+                    $btnIsolir = '';
+                    if ($isAdmin && !$customer->trashed() && !empty($customer->pppoe_username)) {
+                        if ($isIsolir) {
+                            $btnIsolir = '
+                                <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Buka Isolir Pelanggan"
+                                    onclick="openBukaIsolirCustomerModal(\'' . route('customers.buka_isolir', $customer->id) . '\', \'' . htmlspecialchars(addslashes($customer->nama_lengkap), ENT_QUOTES) . '\', \'' . htmlspecialchars(addslashes($customer->pppoe_username), ENT_QUOTES) . '\')">
+                                    <i class="fa-solid fa-lock-open text-emerald-600"></i>
+                                </button>
+                            ';
+                        } else {
+                            $btnIsolir = '
+                                <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Isolir Pelanggan"
+                                    onclick="openIsolirCustomerModal(\'' . route('customers.isolir', $customer->id) . '\', \'' . htmlspecialchars(addslashes($customer->nama_lengkap), ENT_QUOTES) . '\', \'' . htmlspecialchars(addslashes($customer->pppoe_username), ENT_QUOTES) . '\')">
+                                    <i class="fa-solid fa-ban text-amber-500"></i>
+                                </button>
+                            ';
+                        }
+                    }
+
                     $btnAdmin = '';
                     if ($isAdmin) {
                         if ($customer->trashed()) {
@@ -228,7 +273,7 @@ class CustomerController extends Controller
                         }
                     }
 
-                    return '<div style="display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;">' . $btnDetail . $btnAcs . $btnMap . $btnAdmin . '</div>';
+                    return '<div style="display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;">' . $btnDetail . $btnAcs . $btnMap . $btnIsolir . $btnAdmin . '</div>';
                 })
                 ->rawColumns(['nama_lengkap_formatted', 'wa_formatted', 'teknisi_formatted', 'tgl_formatted', 'action'])
                 ->make(true);
@@ -262,25 +307,30 @@ class CustomerController extends Controller
 
         $totalArchived = (clone $statsQuery)->onlyTrashed()->count();
 
-        // --- DATA PELANGGAN ISOLIR ---
+        // --- DATA PELANGGAN ISOLIR (DARI DATABASE + SESI MIKROTIK) ---
         $pelangganIsolir = collect();
         if ($user->jabatan === 'Sales' || $user->isAdmin()) {
+            $dbIsolirUsernames = \App\Models\Pppoe::where('is_isolir', true)->pluck('username')->toArray();
+
+            $mikrotikIsolirUsernames = [];
             if ($pppoeData && isset($pppoeData['success']) && $pppoeData['success']) {
-                $isolirUsernames = collect($pppoeData['data'])
+                $mikrotikIsolirUsernames = collect($pppoeData['data'])
                     ->filter(fn($item) => str_starts_with($item['address'] ?? '', '172.30.'))
                     ->pluck('name')
                     ->toArray();
+            }
 
-                if (!empty($isolirUsernames)) {
-                    $isolirQuery = Customer::with('preOrder')
-                        ->whereIn('pppoe_username', $isolirUsernames);
-                        
-                    if ($user->jabatan === 'Sales') {
-                        $isolirQuery->where('id_sales', $user->id);
-                    }
+            $allIsolirUsernames = array_unique(array_merge($dbIsolirUsernames, $mikrotikIsolirUsernames));
+
+            if (!empty($allIsolirUsernames)) {
+                $isolirQuery = Customer::with('preOrder')
+                    ->whereIn('pppoe_username', $allIsolirUsernames);
                     
-                    $pelangganIsolir = $isolirQuery->get();
+                if ($user->jabatan === 'Sales') {
+                    $isolirQuery->where('id_sales', $user->id);
                 }
+                
+                $pelangganIsolir = $isolirQuery->get();
             }
         }
 
@@ -687,5 +737,54 @@ class CustomerController extends Controller
             'hosts' => $hosts,
             'total_connected' => count($activeHosts),
         ]);
+    }
+
+    public function isolir(Request $request, Customer $customer, \App\Services\IsolirService $isolirService)
+    {
+        $request->validate([
+            'reason' => 'nullable|string|max:255',
+        ]);
+
+        if (empty($customer->pppoe_username)) {
+            $msg = 'Pelanggan ini belum memiliki akun PPPoE yang terhubung.';
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => $msg], 422);
+            }
+            return redirect()->back()->with('error', $msg);
+        }
+
+        $reason = $request->input('reason', 'Isolir manual oleh Admin');
+        $result = $isolirService->isolate($customer->pppoe_username, $reason);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json($result, $result['success'] ? 200 : 400);
+        }
+
+        if ($result['success']) {
+            return redirect()->back()->with('success', $result['message']);
+        }
+        return redirect()->back()->with('error', $result['message']);
+    }
+
+    public function bukaIsolir(Request $request, Customer $customer, \App\Services\IsolirService $isolirService)
+    {
+        if (empty($customer->pppoe_username)) {
+            $msg = 'Pelanggan ini belum memiliki akun PPPoE yang terhubung.';
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => $msg], 422);
+            }
+            return redirect()->back()->with('error', $msg);
+        }
+
+        $result = $isolirService->unIsolate($customer->pppoe_username);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json($result, $result['success'] ? 200 : 400);
+        }
+
+        if ($result['success']) {
+            return redirect()->back()->with('success', $result['message']);
+        }
+        return redirect()->back()->with('error', $result['message']);
     }
 }

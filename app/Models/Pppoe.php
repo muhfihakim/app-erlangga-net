@@ -20,11 +20,16 @@ class Pppoe extends Model
         'diskon',
         'status_invoice',
         'generate_invoice',
+        'is_isolir',
+        'isolir_reason',
+        'isolir_at',
     ];
 
     protected $casts = [
         'tanggal_aktif' => 'date',
         'generate_invoice' => 'boolean',
+        'is_isolir' => 'boolean',
+        'isolir_at' => 'datetime',
     ];
 
     public function preOrder()

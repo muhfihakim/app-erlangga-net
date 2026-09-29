@@ -23,7 +23,11 @@ class PppoeAccountController extends Controller
             }
 
             if (!empty($filterStatus)) {
-                $query->where('pppoes.status_invoice', $filterStatus);
+                if ($filterStatus === 'isolir') {
+                    $query->where('pppoes.is_isolir', true);
+                } else {
+                    $query->where('pppoes.status_invoice', $filterStatus);
+                }
             }
 
             if (!empty($filterTipe)) {
@@ -71,19 +75,30 @@ class PppoeAccountController extends Controller
                     return '<div style="text-align: center;"><span class="badge" style="background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; font-size:11px; padding:2px 7px; border-radius:6px; font-weight:700;">POSTPAID</span></div>';
                 })
                 ->addColumn('status_invoice_badge', function ($pppoe) {
+                    if ($pppoe->is_isolir) {
+                        return '<div style="text-align: center;"><span class="badge" style="background:#fee2e2; color:#be123c; border:1px solid #fecdd3; font-size:11px; padding:3px 8px; border-radius:6px; font-weight:800;" title="' . htmlspecialchars($pppoe->isolir_reason ?? 'Isolir manual', ENT_QUOTES) . '"><i class="fa-solid fa-ban mr-1"></i> TERISOLIR</span></div>';
+                    }
                     if ($pppoe->status_invoice === 'terbayar') {
                         return '<div style="text-align: center;"><span class="badge badge-published" style="font-size:11px; padding:3px 8px;"><i class="fa-solid fa-check mr-1"></i> TERBAYAR</span></div>';
                     }
-                    return '<div style="text-align: center;"><span class="badge" style="background:#fef2f2; color:#be123c; border:1px solid #fecdd3; font-size:11px; padding:3px 8px; border-radius:6px; font-weight:700;"><i class="fa-solid fa-clock mr-1"></i> BELUM BAYAR</span></div>';
+                    return '<div style="text-align: center;"><span class="badge" style="background:#fffbeb; color:#b45309; border:1px solid #fde68a; font-size:11px; padding:3px 8px; border-radius:6px; font-weight:700;"><i class="fa-solid fa-clock mr-1"></i> BELUM BAYAR</span></div>';
                 })
                 ->addColumn('opsi', function ($pppoe) {
                     $tgl = $pppoe->tanggal_aktif ? (is_string($pppoe->tanggal_aktif) ? \Carbon\Carbon::parse($pppoe->tanggal_aktif)->format('Y-m-d') : $pppoe->tanggal_aktif->format('Y-m-d')) : '';
                     $gen = $pppoe->generate_invoice ? '1' : '0';
                     $invoiceRoute = route('invoices.show', $pppoe->id);
                     $btnInvoice = '<a href="' . $invoiceRoute . '" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Kelola Tagihan & Xendit"><i class="fa-solid fa-file-invoice-dollar text-emerald-500"></i></a>';
+                    
+                    $btnIsolir = '';
+                    if ($pppoe->is_isolir) {
+                        $btnIsolir = '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" onclick="openBukaIsolirPppoeModal(\'' . route('pppoe_accounts.buka_isolir', $pppoe->id) . '\', \'' . addslashes($pppoe->username) . '\')" title="Buka Isolir / Aktifkan Kembali"><i class="fa-solid fa-unlock-keyhole text-emerald-600"></i></button>';
+                    } else {
+                        $btnIsolir = '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" onclick="openIsolirPppoeModal(\'' . route('pppoe_accounts.isolir', $pppoe->id) . '\', \'' . addslashes($pppoe->username) . '\')" title="Isolir Akun PPPoE"><i class="fa-solid fa-ban text-rose-500"></i></button>';
+                    }
+
                     $btnEdit = '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" onclick="openEditModal(' . $pppoe->id . ', \'' . addslashes($pppoe->username) . '\', \'' . addslashes($pppoe->password) . '\', \'' . $pppoe->paket_id . '\', \'' . addslashes($pppoe->router ?? 'All') . '\', \'' . addslashes($pppoe->ip_address ?? '') . '\', \'' . addslashes($pppoe->tipe_pembayaran ?? 'prepaid') . '\', \'' . $tgl . '\', \'' . addslashes($pppoe->periode_billing ?? 'fixed') . '\', \'' . ($pppoe->pajak ?? 0) . '\', \'' . ($pppoe->diskon ?? 0) . '\', \'' . addslashes($pppoe->status_invoice ?? 'belum_bayar') . '\', \'' . $gen . '\')" title="Edit PPPoE"><i class="fa-solid fa-pen-to-square text-amber-500"></i></button>';
                     $btnDelete = '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" onclick="confirmGlobalDelete(\'' . route('pppoe_accounts.destroy', $pppoe->id) . '\', \'PPPoE ' . addslashes($pppoe->username) . '\')" title="Hapus"><i class="fa-solid fa-trash text-rose-500"></i></button>';
-                    return '<div class="flex items-center justify-center gap-1">' . $btnInvoice . $btnEdit . $btnDelete . '</div>';
+                    return '<div class="flex items-center justify-center gap-1">' . $btnInvoice . $btnIsolir . $btnEdit . $btnDelete . '</div>';
                 })
                 ->filter(function ($query) use ($request) {
                     if ($search = $request->input('search.value')) {
@@ -107,8 +122,9 @@ class PppoeAccountController extends Controller
 
         // Stats calculation for the top cards
         $totalPppoeCount = \App\Models\Pppoe::count();
-        $totalPaidCount = \App\Models\Pppoe::where('status_invoice', 'terbayar')->count();
+        $totalPaidCount = \App\Models\Pppoe::where('status_invoice', 'terbayar')->where('is_isolir', false)->count();
         $totalUnpaidCount = \App\Models\Pppoe::where('status_invoice', '!=', 'terbayar')->orWhereNull('status_invoice')->count();
+        $totalIsolirCount = \App\Models\Pppoe::where('is_isolir', true)->count();
 
         $pakets = \App\Models\Paket::orderBy('harga', 'asc')->get();
 
@@ -122,6 +138,7 @@ class PppoeAccountController extends Controller
             'totalPppoeCount',
             'totalPaidCount',
             'totalUnpaidCount',
+            'totalIsolirCount',
             'pakets',
             'routers',
             'filterPaket',
@@ -369,5 +386,38 @@ class PppoeAccountController extends Controller
 
         $pppoe->delete();
         return redirect()->back()->with('success', 'Akun PPPoE berhasil dihapus dari Sistem dan Radius.');
+    }
+
+    public function isolir(Request $request, \App\Models\Pppoe $pppoe, \App\Services\IsolirService $isolirService)
+    {
+        $request->validate([
+            'reason' => 'nullable|string|max:255',
+        ]);
+
+        $reason = $request->input('reason', 'Isolir manual oleh Admin');
+        $result = $isolirService->isolate($pppoe->username, $reason);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json($result, $result['success'] ? 200 : 400);
+        }
+
+        if ($result['success']) {
+            return redirect()->back()->with('success', $result['message']);
+        }
+        return redirect()->back()->with('error', $result['message']);
+    }
+
+    public function bukaIsolir(Request $request, \App\Models\Pppoe $pppoe, \App\Services\IsolirService $isolirService)
+    {
+        $result = $isolirService->unIsolate($pppoe->username);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json($result, $result['success'] ? 200 : 400);
+        }
+
+        if ($result['success']) {
+            return redirect()->back()->with('success', $result['message']);
+        }
+        return redirect()->back()->with('error', $result['message']);
     }
 }

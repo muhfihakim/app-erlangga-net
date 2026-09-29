@@ -591,6 +591,22 @@
                                         @endif
                                     </div>
                                 </div>
+                                <hr class="border-sky-200">
+                                <div class="view-only space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[10px] font-black text-sky-500 uppercase">Status PPPoE</span>
+                                        <div id="detail_isolir_badge"></div>
+                                    </div>
+                                    <div id="detail_isolir_info" class="hidden text-[11px] p-2.5 rounded-xl bg-rose-100/70 border border-rose-200 text-rose-800 space-y-1">
+                                        <div><strong>Alasan:</strong> <span id="detail_isolir_reason"></span></div>
+                                        <div class="text-[10px] text-rose-600"><strong>Tanggal:</strong> <span id="detail_isolir_at"></span></div>
+                                    </div>
+                                    @if ($is_admin)
+                                        <div class="pt-1">
+                                            <button type="button" id="btnDetailIsolirAction" class="w-full text-xs font-bold py-2 px-3 rounded-xl flex items-center justify-center gap-2 transition shadow-sm"></button>
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                         <div class="space-y-6">
@@ -964,6 +980,93 @@
         </div>
     </div>
 
+    <!-- Modal Isolir Customer -->
+    <div class="modal-overlay !items-center" id="isolirCustomerModal">
+        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="modal-header border-b border-slate-200 bg-rose-50/50 p-5 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-ban"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Isolir Layanan Pelanggan</h3>
+                        <p class="text-xs text-slate-500 m-0">Alihkan paket ke profil isolir FreeRADIUS & MikroTik</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close text-slate-400 hover:text-slate-600" onclick="closeCustomModal('isolirCustomerModal')">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form id="isolirCustomerForm" method="POST" action="">
+                @csrf
+                <div class="p-6 space-y-4">
+                    <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 space-y-1">
+                        <div class="font-bold flex items-center gap-1.5 text-amber-900">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Konfirmasi Isolir:
+                        </div>
+                        <p class="m-0 leading-relaxed">
+                            Pelanggan <strong id="isolirCustomerName" class="text-slate-900 font-bold"></strong> (PPPoE: <code id="isolirCustomerUsername" class="font-mono text-rose-700 font-bold"></code>) akan dipindahkan ke group <strong>ISOLIR</strong> (kecepatan 128k/128k, IP 172.30.x.x) dan koneksi aktifnya akan diputus otomatis agar langsung dial ulang dengan limit isolir.
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="form-label text-slate-800 font-bold block mb-1 text-xs">Alasan Isolir</label>
+                        <textarea name="reason" id="isolirCustomerReason" class="form-input-custom w-full text-xs" rows="3" placeholder="Contoh: Menunggak pembayaran tagihan / Gangguan keamanan" required>Isolir manual oleh Admin</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 p-4 flex justify-end gap-2">
+                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('isolirCustomerModal')">
+                        Batal
+                    </button>
+                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-9 !px-5 text-xs font-semibold flex items-center gap-2">
+                        <i class="fa-solid fa-ban"></i> Isolir Sekarang
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Buka Isolir Customer -->
+    <div class="modal-overlay !items-center" id="bukaIsolirCustomerModal">
+        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="modal-header border-b border-slate-200 bg-emerald-50/50 p-5 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-unlock-keyhole"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Buka Isolir Pelanggan</h3>
+                        <p class="text-xs text-slate-500 m-0">Kembalikan kecepatan dan akses internet normal</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close text-slate-400 hover:text-slate-600" onclick="closeCustomModal('bukaIsolirCustomerModal')">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form id="bukaIsolirCustomerForm" method="POST" action="">
+                @csrf
+                <div class="p-6 space-y-4">
+                    <div class="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 space-y-1">
+                        <div class="font-bold flex items-center gap-1.5 text-emerald-900">
+                            <i class="fa-solid fa-circle-check"></i> Konfirmasi Pembukaan:
+                        </div>
+                        <p class="m-0 leading-relaxed">
+                            Layanan internet untuk <strong id="bukaIsolirCustomerName" class="text-slate-900 font-bold"></strong> (PPPoE: <code id="bukaIsolirCustomerUsername" class="font-mono text-emerald-800 font-bold"></code>) akan dipulihkan ke paket aslinya dan sesi PPPoE di-kick agar langsung mendapatkan kecepatan penuh.
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 p-4 flex justify-end gap-2">
+                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('bukaIsolirCustomerModal')">
+                        Batal
+                    </button>
+                    <button type="submit" class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-9 !px-5 text-xs font-semibold flex items-center gap-2">
+                        <i class="fa-solid fa-unlock-keyhole"></i> Buka Isolir Sekarang
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     @section('Scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
@@ -1118,12 +1221,70 @@
                 setValOrText('detail_keterangan_view', $btn.data('keterangan'));
                 setValOrText('detail_keterangan_input', $btn.data('keterangan'));
 
+                // Handle Isolir status in Detail Modal
+                const isIsolir = String($btn.data('is-isolir')) === '1';
+                const isolirReason = $btn.data('isolir-reason') || '';
+                const isolirAt = $btn.data('isolir-at') || '';
+                const pppoeUser = $btn.data('pppoe-user') || '';
+                const customerName = $btn.data('nama-lengkap') || '';
+                const isolirUrl = $btn.data('isolir-url') || '';
+                const bukaIsolirUrl = $btn.data('buka-isolir-url') || '';
+
+                if (isIsolir) {
+                    $('#detail_isolir_badge').html('<span class="badge" style="background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;font-size:10px;font-weight:800;padding:2px 8px;border-radius:6px;"><i class="fa-solid fa-ban mr-1"></i> TERISOLIR</span>');
+                    $('#detail_isolir_reason').text(isolirReason || 'Isolir manual oleh Admin');
+                    $('#detail_isolir_at').text(isolirAt || '-');
+                    $('#detail_isolir_info').removeClass('hidden');
+
+                    $('#btnDetailIsolirAction')
+                        .removeClass('!bg-amber-500 hover:!bg-amber-600')
+                        .addClass('!bg-emerald-600 hover:!bg-emerald-700 text-white')
+                        .html('<i class="fa-solid fa-lock-open mr-1"></i> Buka Isolir Pelanggan Ini')
+                        .off('click')
+                        .on('click', function() {
+                            openBukaIsolirCustomerModal(bukaIsolirUrl, customerName, pppoeUser);
+                        })
+                        .show();
+                } else {
+                    $('#detail_isolir_badge').html('<span class="badge" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;font-size:10px;font-weight:800;padding:2px 8px;border-radius:6px;"><i class="fa-solid fa-circle-check mr-1"></i> NORMAL / AKTIF</span>');
+                    $('#detail_isolir_info').addClass('hidden');
+
+                    if (pppoeUser) {
+                        $('#btnDetailIsolirAction')
+                            .removeClass('!bg-emerald-600 hover:!bg-emerald-700')
+                            .addClass('!bg-amber-500 hover:!bg-amber-600 text-white')
+                            .html('<i class="fa-solid fa-ban mr-1"></i> Isolir Pelanggan Ini')
+                            .off('click')
+                            .on('click', function() {
+                                openIsolirCustomerModal(isolirUrl, customerName, pppoeUser);
+                            })
+                            .show();
+                    } else {
+                        $('#btnDetailIsolirAction').hide();
+                    }
+                }
+
                 $('#customerDetailModal .modal-tab').removeClass('active');
                 $('#customerDetailModal .tab-panel').removeClass('active');
                 $('#customerDetailModal .modal-tab[data-tab="tab-biodata"]').addClass('active');
                 $('#tab-biodata').addClass('active');
 
                 openCustomModal('customerDetailModal');
+            }
+
+            function openIsolirCustomerModal(url, name, username) {
+                document.getElementById('isolirCustomerForm').action = url;
+                document.getElementById('isolirCustomerName').innerText = name;
+                document.getElementById('isolirCustomerUsername').innerText = username;
+                document.getElementById('isolirCustomerReason').value = 'Isolir manual oleh Admin';
+                openCustomModal('isolirCustomerModal');
+            }
+
+            function openBukaIsolirCustomerModal(url, name, username) {
+                document.getElementById('bukaIsolirCustomerForm').action = url;
+                document.getElementById('bukaIsolirCustomerName').innerText = name;
+                document.getElementById('bukaIsolirCustomerUsername').innerText = username;
+                openCustomModal('bukaIsolirCustomerModal');
             }
 
             $(document).ready(function() {

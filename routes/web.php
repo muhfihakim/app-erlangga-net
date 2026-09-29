@@ -60,6 +60,8 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::post('/pppoe-accounts', [\App\Http\Controllers\PppoeAccountController::class, 'store'])->name('pppoe_accounts.store');
         Route::put('/pppoe-accounts/{pppoe}', [\App\Http\Controllers\PppoeAccountController::class, 'update'])->name('pppoe_accounts.update');
         Route::delete('/pppoe-accounts/{pppoe}', [\App\Http\Controllers\PppoeAccountController::class, 'destroy'])->name('pppoe_accounts.destroy');
+        Route::post('/pppoe-accounts/{pppoe}/isolir', [\App\Http\Controllers\PppoeAccountController::class, 'isolir'])->name('pppoe_accounts.isolir');
+        Route::post('/pppoe-accounts/{pppoe}/buka-isolir', [\App\Http\Controllers\PppoeAccountController::class, 'bukaIsolir'])->name('pppoe_accounts.buka_isolir');
 
         // GenieACS / TR-069 ONT Management
         Route::prefix('genieacs')->name('genieacs.')->group(function () {
@@ -191,6 +193,8 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('customers/{customer}/acs-status', [CustomerController::class, 'acsStatus'])->name('customers.acs_status');
     Route::get('customers/isolir/export', [CustomerController::class, 'exportIsolir'])->name('customers.export_isolir');
     Route::post('/customers/{id}/restore', [CustomerController::class, 'restore'])->name('customers.restore');
+    Route::post('/customers/{customer}/isolir', [CustomerController::class, 'isolir'])->name('customers.isolir');
+    Route::post('/customers/{customer}/buka-isolir', [CustomerController::class, 'bukaIsolir'])->name('customers.buka_isolir');
 
     // PPPoE APIs (Accessible by Admin and Teknisi)
     Route::prefix('api')->group(function () {
