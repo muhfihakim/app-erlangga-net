@@ -321,6 +321,5 @@
     @yield('Scripts')
     @stack('scripts')
     @include('partials.location_scripts')
-    {{-- @include('partials.ptt-widget') --}}
 </body>
 </html>
