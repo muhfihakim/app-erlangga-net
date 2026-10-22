@@ -74,24 +74,14 @@ class Invoice extends Model
 
             $pppoe->update([
                 'status_invoice' => 'terbayar',
-                'is_isolir' => false,
-                'isolir_reason' => null,
-                'isolir_at' => null,
                 'tanggal_aktif' => $newAktif,
             ]);
 
-            if ($pppoe->paket && $pppoe->paket->nama_paket) {
-                try {
-                    Radusergroup::where('username', $pppoe->username)
-                        ->update(['groupname' => $pppoe->paket->nama_paket]);
-                } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::warning("Gagal restore FreeRADIUS group untuk {$pppoe->username}: " . $e->getMessage());
-                }
-            }
-
+            // Buka isolir di FreeRADIUS & MikroTik dan pulihkan Framed-IP-Address statis
             try {
-                app(\App\Services\MikroTikService::class)->kickPppoeUser($pppoe->username);
+                app(\App\Services\IsolirService::class)->unIsolate($pppoe->username);
             } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning("Gagal unIsolate di Invoice ({$pppoe->username}): " . $e->getMessage());
             }
         }
 

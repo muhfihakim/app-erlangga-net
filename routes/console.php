@@ -9,10 +9,11 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // Shortcut command khusus untuk cek & eksekusi isolir tagihan jatuh tempo
-Artisan::command('billing:isolir {--dry-run : Simulasi pengecekan isolir tanpa mengubah database}', function () {
+Artisan::command('billing:isolir {--dry-run : Simulasi pengecekan isolir tanpa mengubah database} {--kick : Paksa disconnect MikroTik seluruh akun terisolir}', function () {
     $this->call('billing:process', [
         '--only-isolir' => true,
         '--dry-run' => (bool) $this->option('dry-run'),
+        '--kick' => (bool) $this->option('kick'),
     ]);
 })->purpose('Cek tagihan jatuh tempo dan eksekusi isolir FreeRADIUS');
 

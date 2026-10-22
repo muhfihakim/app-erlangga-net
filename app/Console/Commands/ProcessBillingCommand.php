@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Invoice;
 use App\Models\Pppoe;
+use App\Models\Radreply;
 use App\Models\Radusergroup;
 use App\Services\MikroTikService;
 use App\Services\IsolirService;
@@ -18,6 +19,7 @@ class ProcessBillingCommand extends Command
                             {--force : Paksa generate invoice tanpa cek tanggal H-7}
                             {--only-isolir : Hanya periksa dan eksekusi isolir tagihan jatuh tempo}
                             {--only-billing : Hanya buat faktur baru tanpa eksekusi isolir}
+                            {--kick : Paksa putus sesi MikroTik seluruh akun terisolir agar IP segera berganti ke pool isolir}
                             {--dry-run : Simulasi / preview tanpa mengubah database atau memutus koneksi pelanggan}';
     protected $description = 'Otomatisasi pembuatan faktur bulanan & isolir akun FreeRADIUS yang lewat jatuh tempo';
 
@@ -31,6 +33,7 @@ class ProcessBillingCommand extends Command
         $isForce = (bool) $this->option('force');
         $onlyIsolir = (bool) $this->option('only-isolir');
         $onlyBilling = (bool) $this->option('only-billing');
+        $forceKick = (bool) $this->option('kick');
         $isDryRun = (bool) $this->option('dry-run');
 
         if ($isDryRun) {
@@ -45,6 +48,11 @@ class ProcessBillingCommand extends Command
             $this->error("Koneksi ke database FreeRADIUS gagal: " . $e->getMessage());
             $this->warn("Pastikan DB_RADIUS_* sudah terkonfigurasi dengan benar di file .env server.");
             return Command::FAILURE;
+        }
+
+        // Pastikan attribute radgroupreply untuk ISOLIR lengkap
+        if (!$isDryRun) {
+            $isolirService->ensureIsolirGroupReply();
         }
 
         $generatedCount = 0;
@@ -145,10 +153,17 @@ class ProcessBillingCommand extends Command
                 if ($pppoe->is_isolir) {
                     $alreadyIsolatedCount++;
                     if (!$isDryRun) {
-                        // Pastikan profil di FreeRADIUS tetap ISOLIR tanpa perlu kick router berulang kali
-                        $isolirService->isolate($pppoe->username, $reason, false);
+                        // Jika ada flag --kick atau user masih memiliki Framed-IP-Address di radreply, paksa kick agar re-dial ke pool isolir
+                        $hasStaticInRadius = Radreply::where('username', $pppoe->username)
+                            ->where('attribute', 'Framed-IP-Address')
+                            ->exists();
+                        $shouldKick = $forceKick || $hasStaticInRadius;
+                        $result = $isolirService->isolate($pppoe->username, $reason, $shouldKick);
+                        $kicked = $result['kicked'] ?? false;
+                        $this->line("  [-] SUDAH TERISOLIR: {$pppoe->username} (Jatuh tempo: {$inv->due_date})" . ($kicked ? " [MikroTik Session Reconnected -> Pool Isolir]" : ""));
+                    } else {
+                        $this->line("  [-] SUDAH TERISOLIR: {$pppoe->username} (Jatuh tempo: {$inv->due_date})");
                     }
-                    $this->line("  [-] SUDAH TERISOLIR: {$pppoe->username} (Jatuh tempo: {$inv->due_date})");
                 } else {
                     $newlyIsolatedCount++;
                     if ($isDryRun) {
@@ -157,7 +172,7 @@ class ProcessBillingCommand extends Command
                         try {
                             $result = $isolirService->isolate($pppoe->username, $reason, true);
                             $kicked = $result['kicked'] ?? false;
-                            $this->warn("  [!] AKUN DIISOLIR: {$pppoe->username} (Jatuh tempo: {$inv->due_date})" . ($kicked ? " [MikroTik Session Disconnected]" : ""));
+                            $this->warn("  [!] AKUN DIISOLIR: {$pppoe->username} (Jatuh tempo: {$inv->due_date})" . ($kicked ? " [MikroTik Session Disconnected -> Pool Isolir]" : ""));
                         } catch (\Throwable $e) {
                             $this->error("  [-] Gagal mengisolir {$pppoe->username}: " . $e->getMessage());
                             Log::error("Auto-isolir error ({$pppoe->username}): " . $e->getMessage());
