@@ -7,7 +7,6 @@
         "dev": "vite"
     },
     "devDependencies": {
-        "@capacitor/assets": "^3.0.5",
         "@tailwindcss/vite": "^4.0.0",
         "axios": "^1.11.0",
         "concurrently": "^9.0.1",
@@ -16,11 +15,6 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
-        "@capacitor-community/background-geolocation": "^1.2.26",
-        "@capacitor/android": "^8.4.1",
-        "@capacitor/cli": "^8.4.1",
-        "@capacitor/core": "^8.4.1",
-        "@capawesome-team/capacitor-android-foreground-service": "^8.1.0",
         "laravel-echo": "^2.3.7",
         "pusher-js": "^8.5.0"
     }

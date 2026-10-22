@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">app-erlangga</string>
-    <string name="title_activity_main">app-erlangga</string>
-    <string name="package_name">io.erlangga.app</string>
-    <string name="custom_url_scheme">io.erlangga.app</string>
-    <string name="capacitor_background_geolocation_notification_icon">drawable/ic_notification</string>
-</resources>

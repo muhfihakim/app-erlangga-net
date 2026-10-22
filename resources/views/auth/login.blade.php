@@ -774,7 +774,7 @@
                 showToast('{{ session('success') }}', 'success');
             @endif
 
-            // ── Auto-Login via LocalStorage (Capacitor WebView) ──
+            // ── Auto-Login via LocalStorage (Remember Token) ──
             const appToken = localStorage.getItem('app_token');
             if (appToken) {
                 $('#btn-submit').addClass('loading');
