@@ -55,7 +55,6 @@ class ActivityLogController extends Controller
                 ->make(true);
         }
 
-        // --- STATISTIK ---
         $totalLogs = ActivityLog::count();
         $logsToday = ActivityLog::whereDate('logged_at', Carbon::today())->count();
         $logsPreOrder = ActivityLog::where('activity_type', 'LIKE', '%preorder%')->count();

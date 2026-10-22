@@ -352,7 +352,7 @@
                                         <label class="form-label text-slate-800 font-bold uppercase text-[11px] m-0">ID
                                             Pelanggan (Billing) <span class="text-rose-500">*</span></label>
                                         <span class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-bold border border-emerald-200">
-                                            <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Auto-Generated
+                                            <i class="fa-solid fa-arrows-rotate mr-1"></i> Otomatis
                                         </span>
                                     </div>
                                     <input type="text" class="form-input font-mono font-bold text-slate-900" name="id_pelanggan" id="id_pelanggan"
@@ -364,7 +364,7 @@
                                         <label class="form-label text-slate-800 font-bold uppercase text-[11px] m-0">Akun
                                             PPPoE (Username) <span class="text-rose-500">*</span></label>
                                         <span class="text-[10px] text-sky-600 bg-sky-50 px-2 py-0.5 rounded font-bold border border-sky-200">
-                                            <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Auto-Generated
+                                            <i class="fa-solid fa-arrows-rotate mr-1"></i> Otomatis
                                         </span>
                                     </div>
                                     <input type="text" class="form-input font-mono font-bold text-slate-900" name="pppoe_username"

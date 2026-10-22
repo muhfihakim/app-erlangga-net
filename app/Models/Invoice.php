@@ -59,15 +59,12 @@ class Invoice extends Model
         $pppoe = $this->pppoe;
 
         if ($pppoe) {
-            // 1. Extend active date based on periode_billing
             $currentAktif = $pppoe->tanggal_aktif ? \Carbon\Carbon::parse($pppoe->tanggal_aktif) : now();
             $periode = strtolower($pppoe->periode_billing ?? 'fixed');
 
             if ($periode === 'renewal') {
-                // Mode RENEWAL: Masa aktif dihitung +1 bulan maju dari tanggal saat bayar (hari ini)
                 $newAktif = $currentAktif->isPast() ? now()->addMonth() : $currentAktif->copy()->addMonth();
             } else {
-                // Mode FIXED: Tanggal siklus bulanan tetap (misal tgl 9, selalu jatuh di tgl 9 bulan berikutnya)
                 $newAktif = $currentAktif->copy()->addMonth();
                 if ($newAktif->isPast()) {
                     $day = $currentAktif->day;
@@ -83,7 +80,6 @@ class Invoice extends Model
                 'tanggal_aktif' => $newAktif,
             ]);
 
-            // 2. Restore FreeRADIUS radusergroup to package name (un-isolir)
             if ($pppoe->paket && $pppoe->paket->nama_paket) {
                 try {
                     Radusergroup::where('username', $pppoe->username)
@@ -93,11 +89,9 @@ class Invoice extends Model
                 }
             }
 
-            // 3. Kick active PPPoE session on MikroTik so speed immediately normalizes
             try {
                 app(\App\Services\MikroTikService::class)->kickPppoeUser($pppoe->username);
             } catch (\Throwable $e) {
-                // Ignore if router is not reachable
             }
         }
 

@@ -29,7 +29,6 @@ class IsolirService
     {
         $reason = $reason ?: 'Isolir manual oleh Admin';
 
-        // 1. Update FreeRADIUS radusergroup to ISOLIR
         try {
             Radusergroup::updateOrCreate(
                 ['username' => $username],
@@ -39,7 +38,6 @@ class IsolirService
             Log::warning("IsolirService: Gagal update Radusergroup ke ISOLIR ({$username}): " . $e->getMessage());
         }
 
-        // 2. Update status di tabel pppoes
         $pppoe = Pppoe::where('username', $username)->first();
         if ($pppoe) {
             $pppoe->update([
@@ -49,7 +47,6 @@ class IsolirService
             ]);
         }
 
-        // 3. Kick active PPPoE session di MikroTik agar dial ulang dan masuk ke profile-isolir (172.30.x.x)
         $kicked = false;
         try {
             $kicked = $this->mikrotikService->kickPppoeUser($username);
@@ -57,7 +54,6 @@ class IsolirService
             Log::warning("IsolirService: Gagal kick session MikroTik ({$username}): " . $e->getMessage());
         }
 
-        // 4. Invalidate cache PPPoE active
         Cache::forget('mikrotik_pppoe_active');
 
         Log::info("IsolirService: Akun PPPoE {$username} berhasil diisolir. Alasan: {$reason}. Sesi terputus: " . ($kicked ? 'Ya' : 'Tidak'));
@@ -77,7 +73,6 @@ class IsolirService
      */
     public function unIsolate(string $username): array
     {
-        // 1. Cari groupname target (nama paket pelanggan)
         $pppoe = Pppoe::with('paket')->where('username', $username)->first();
         $targetGroup = $pppoe?->paket?->nama_paket;
 
@@ -91,7 +86,6 @@ class IsolirService
             $targetGroup = $firstPaket?->nama_paket ?? 'default';
         }
 
-        // 2. Restore FreeRADIUS radusergroup ke paket pelanggan
         try {
             Radusergroup::updateOrCreate(
                 ['username' => $username],
@@ -101,7 +95,6 @@ class IsolirService
             Log::warning("IsolirService: Gagal restore Radusergroup ({$username}): " . $e->getMessage());
         }
 
-        // 3. Update status di tabel pppoes
         if ($pppoe) {
             $pppoe->update([
                 'is_isolir' => false,
@@ -110,7 +103,6 @@ class IsolirService
             ]);
         }
 
-        // 4. Kick active PPPoE session di MikroTik agar dial ulang dan masuk ke profil paket normal
         $kicked = false;
         try {
             $kicked = $this->mikrotikService->kickPppoeUser($username);
@@ -118,7 +110,6 @@ class IsolirService
             Log::warning("IsolirService: Gagal kick session MikroTik ({$username}): " . $e->getMessage());
         }
 
-        // 5. Invalidate cache PPPoE active
         Cache::forget('mikrotik_pppoe_active');
 
         Log::info("IsolirService: Isolir akun {$username} dibuka kembali. Paket: {$targetGroup}. Sesi terputus: " . ($kicked ? 'Ya' : 'Tidak'));

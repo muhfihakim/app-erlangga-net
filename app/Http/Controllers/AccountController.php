@@ -174,11 +174,8 @@ class AccountController extends Controller
         }
 
         $nama = $user->nama_lengkap;
-
-        // Hapus akun
         $user->delete();
 
-        // Catat log
         ActivityLog::create([
             'user_id' => auth()->id(),
             'activity_type' => 'user_delete',

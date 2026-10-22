@@ -122,7 +122,7 @@
             <div class="flex bg-white rounded-xl border border-slate-200 p-1 shadow-sm h-[46px]">
                 @if (auth()->user()->isAdmin())
                     <button class="tab-btn active" data-target="panel-generator">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> Generator
+                        <i class="fa-solid fa-terminal"></i> Generator Skrip
                     </button>
                     <button class="tab-btn" data-target="panel-dashboard" id="btn-tab-dashboard">
                         <i class="fa-solid fa-chart-pie"></i> Dashboard OLT
@@ -268,7 +268,7 @@
 
                         <div class="relative flex-1 min-h-0">
                             <textarea id="script_output" readonly
-                                class="w-full h-full p-4 bg-slate-50 text-slate-800 font-mono text-[11px] leading-relaxed rounded-xl border-2 border-slate-200 outline-none resize-none shadow-inner custom-scrollbar"></textarea>
+                                class="w-full h-full p-4 bg-slate-50 text-slate-800 font-mono text-[11px] leading-relaxed rounded-xl border-2 border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none shadow-inner custom-scrollbar"></textarea>
                         </div>
                     </div>
 
@@ -277,13 +277,8 @@
                         style="flex: 1; min-height: 250px;">
                         <div class="bg-slate-800 px-4 py-2 flex items-center justify-between shrink-0">
                             <div class="flex items-center gap-2">
-                                <div class="flex gap-1.5">
-                                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                                </div>
-                                <span class="text-[10px] text-slate-300 font-mono font-bold tracking-wider ml-2">OLT
-                                    Terminal Output</span>
+                                <i class="fa-solid fa-terminal text-emerald-400 text-xs"></i>
+                                <span class="text-[10px] text-slate-300 font-mono font-bold tracking-wider ml-1">OLT Terminal Output</span>
                             </div>
                             <div class="flex items-center gap-3">
                                 <button id="btn_connect_terminal"
@@ -297,7 +292,7 @@
                             </div>
                         </div>
                         <textarea id="terminal_output"
-                            class="w-full h-full p-4 bg-transparent text-[#00ff00] font-mono text-[11px] leading-relaxed outline-none resize-none custom-scrollbar"
+                            class="w-full h-full p-4 bg-transparent text-[#00ff00] font-mono text-[11px] leading-relaxed outline-none focus:ring-1 focus:ring-emerald-500/50 resize-none custom-scrollbar"
                             placeholder="Ketik perintah/paste skrip di sini, lalu tekan Enter..."></textarea>
                     </div>
                 </div>

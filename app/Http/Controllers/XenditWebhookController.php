@@ -30,7 +30,7 @@ class XenditWebhookController extends Controller
 
         Log::info("Xendit Webhook Received: {$externalId} | Status: {$status} | Amount: " . ($data['paid_amount'] ?? ($data['amount'] ?? 0)));
 
-        // 1. Cari faktur berdasarkan nomor invoice atau Xendit Invoice ID
+        // Lookup invoice by number or Xendit ID
         $invoice = null;
         if ($externalId) {
             $invoice = Invoice::where('invoice_number', $externalId)->first();
@@ -39,7 +39,7 @@ class XenditWebhookController extends Controller
             $invoice = Invoice::where('xendit_invoice_id', $xenditId)->first();
         }
 
-        // 2. AUTO-RECOVERY: Jika faktur belum tercatat di database, buatkan otomatis on-the-fly
+        // Recovery fallback for unrecorded invoice IDs
         if (!$invoice && $externalId) {
             try {
                 $pppoe = null;
@@ -100,7 +100,6 @@ class XenditWebhookController extends Controller
             return response()->json(['message' => 'Invoice not found'], 404);
         }
 
-        // 3. Proses Pembayaran Lunas (Anti-Crash & Resilient)
         if ($status === 'PAID' || $status === 'SETTLED') {
             try {
                 $channel = !empty($data['payment_channel']) ? strtoupper($data['payment_channel']) : (!empty($data['payment_method']) ? strtoupper($data['payment_method']) : 'ONLINE');

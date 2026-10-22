@@ -277,10 +277,8 @@
                 <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 shadow-inner">
                     <div class="flex items-center justify-between mb-3 border-b border-slate-800/80 pb-2.5">
                         <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-rose-500"></span>
-                            <span class="w-3 h-3 rounded-full bg-amber-500"></span>
-                            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
-                            <span class="text-slate-400 text-xs font-mono ml-2">mikrotik-terminal ~ pool-pppoe.rsc</span>
+                            <i class="fa-solid fa-terminal text-emerald-400 text-xs"></i>
+                            <span class="text-slate-400 text-xs font-mono ml-1">mikrotik-terminal ~ pool-pppoe.rsc</span>
                         </div>
                         <button type="button" onclick="copyScriptToClipboard('code-script-pool')" 
                                 class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow">
@@ -296,10 +294,8 @@
                 <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 shadow-inner">
                     <div class="flex items-center justify-between mb-3 border-b border-slate-800/80 pb-2.5">
                         <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-rose-500"></span>
-                            <span class="w-3 h-3 rounded-full bg-amber-500"></span>
-                            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
-                            <span class="text-slate-400 text-xs font-mono ml-2">mikrotik-terminal ~ radius-coa.rsc</span>
+                            <i class="fa-solid fa-terminal text-emerald-400 text-xs"></i>
+                            <span class="text-slate-400 text-xs font-mono ml-1">mikrotik-terminal ~ radius-coa.rsc</span>
                         </div>
                         <button type="button" onclick="copyScriptToClipboard('code-script-radius')" 
                                 class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow">
@@ -315,10 +311,8 @@
                 <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 shadow-inner">
                     <div class="flex items-center justify-between mb-3 border-b border-slate-800/80 pb-2.5">
                         <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-rose-500"></span>
-                            <span class="w-3 h-3 rounded-full bg-amber-500"></span>
-                            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
-                            <span class="text-slate-400 text-xs font-mono ml-2">mikrotik-terminal ~ api-setup.rsc</span>
+                            <i class="fa-solid fa-terminal text-emerald-400 text-xs"></i>
+                            <span class="text-slate-400 text-xs font-mono ml-1">mikrotik-terminal ~ api-setup.rsc</span>
                         </div>
                         <button type="button" onclick="copyScriptToClipboard('code-script-api')" 
                                 class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow">
@@ -334,10 +328,8 @@
                 <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 shadow-inner">
                     <div class="flex items-center justify-between mb-3 border-b border-slate-800/80 pb-2.5">
                         <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-rose-500"></span>
-                            <span class="w-3 h-3 rounded-full bg-amber-500"></span>
-                            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
-                            <span class="text-slate-400 text-xs font-mono ml-2">mikrotik-terminal ~ firewall-isolir.rsc</span>
+                            <i class="fa-solid fa-terminal text-emerald-400 text-xs"></i>
+                            <span class="text-slate-400 text-xs font-mono ml-1">mikrotik-terminal ~ firewall-isolir.rsc</span>
                         </div>
                         <button type="button" onclick="copyScriptToClipboard('code-script-isolir')" 
                                 class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow">
@@ -353,10 +345,8 @@
                 <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 shadow-inner">
                     <div class="flex items-center justify-between mb-3 border-b border-slate-800/80 pb-2.5">
                         <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-rose-500"></span>
-                            <span class="w-3 h-3 rounded-full bg-amber-500"></span>
-                            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
-                            <span class="text-slate-400 text-xs font-mono ml-2">mikrotik-terminal ~ full-setup-pnp.rsc</span>
+                            <i class="fa-solid fa-terminal text-emerald-400 text-xs"></i>
+                            <span class="text-slate-400 text-xs font-mono ml-1">mikrotik-terminal ~ full-setup-pnp.rsc</span>
                         </div>
                         <button type="button" onclick="copyScriptToClipboard('code-script-all')" 
                                 class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow">

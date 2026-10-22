@@ -106,9 +106,13 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::delete('/bank-accounts/{bankAccount}', [\App\Http\Controllers\BankAccountController::class, 'destroy'])->name('bank_accounts.destroy');
         Route::post('/bank-accounts/{bankAccount}/set-default', [\App\Http\Controllers\BankAccountController::class, 'setDefault'])->name('bank_accounts.set_default');
 
-        // Data Migration / Import
+        // Data Migration / Import & Backup
         Route::get('/migration', [\App\Http\Controllers\MigrationController::class, 'index'])->name('migration.index');
+        Route::get('/migration/backup/{type}', [\App\Http\Controllers\MigrationController::class, 'backup'])->name('migration.backup');
+        Route::get('/migration/backup/download/{id}', [\App\Http\Controllers\MigrationController::class, 'downloadBackup'])->name('migration.backup.download');
+        Route::delete('/migration/backup/{id}', [\App\Http\Controllers\MigrationController::class, 'deleteBackup'])->name('migration.backup.delete');
         Route::post('/migration/import', [\App\Http\Controllers\MigrationController::class, 'import'])->name('migration.import');
+        Route::post('/migration/reset', [\App\Http\Controllers\MigrationController::class, 'reset'])->name('migration.reset');
 
         // System Settings (MikroTik, OLT, RADIUS, Xendit)
         Route::get('/settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
@@ -232,15 +236,4 @@ Route::middleware(['auth.custom'])->group(function () {
     
     Route::resource('supporting', SupportingActivityController::class);
     Route::get('supporting-export', [SupportingActivityController::class, 'export'])->name('supporting.export');
-
-    // PTT Async Audio Upload
-    // Route::post('/api/ptt/upload', [\App\Http\Controllers\PttController::class, 'upload'])->name('ptt.upload');
-
-    // Backup, Migrasi & Pemulihan Data
-    Route::get('/migration', [\App\Http\Controllers\MigrationController::class, 'index'])->name('migration.index');
-    Route::get('/migration/backup/{type}', [\App\Http\Controllers\MigrationController::class, 'backup'])->name('migration.backup');
-    Route::get('/migration/backup/download/{id}', [\App\Http\Controllers\MigrationController::class, 'downloadBackup'])->name('migration.backup.download');
-    Route::delete('/migration/backup/{id}', [\App\Http\Controllers\MigrationController::class, 'deleteBackup'])->name('migration.backup.delete');
-    Route::post('/migration/import', [\App\Http\Controllers\MigrationController::class, 'import'])->name('migration.import');
-    Route::post('/migration/reset', [\App\Http\Controllers\MigrationController::class, 'reset'])->name('migration.reset');
 });

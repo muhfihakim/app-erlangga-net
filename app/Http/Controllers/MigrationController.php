@@ -180,6 +180,10 @@ class MigrationController extends Controller
 
     public function reset(Request $request)
     {
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'Akses ditolak. Hanya Administrator yang diizinkan mereset database.');
+        }
+
         try {
             $results = $this->importService->resetData([
                 'clear_radius' => true,

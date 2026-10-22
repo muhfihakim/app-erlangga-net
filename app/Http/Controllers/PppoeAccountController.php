@@ -316,13 +316,10 @@ class PppoeAccountController extends Controller
             }
         }
 
-        // Update Radius
         try {
-            // 1. Hapus record radius lama berdasarkan username lama
             \App\Models\Radcheck::where('username', $oldUsername)->delete();
             \App\Models\Radreply::where('username', $oldUsername)->delete();
 
-            // 2. Insert record baru
             \App\Models\Radcheck::create([
                 'username' => $pppoe->username,
                 'attribute' => 'Cleartext-Password',
@@ -334,12 +331,11 @@ class PppoeAccountController extends Controller
                 \App\Models\Radreply::create([
                     'username' => $pppoe->username,
                     'attribute' => 'Framed-IP-Address',
-                    'op' => '=',
+                    'op' => ':=',
                     'value' => $pppoe->ip_address,
                 ]);
             }
 
-            // Hapus & Update daloRADIUS tables
             \App\Models\Radusergroup::where('username', $oldUsername)->delete();
             \App\Models\Userinfo::where('username', $oldUsername)->delete();
 
@@ -374,7 +370,6 @@ class PppoeAccountController extends Controller
     {
         $username = $pppoe->username;
         
-        // Hapus dari Radius
         try {
             \App\Models\Radcheck::where('username', $username)->delete();
             \App\Models\Radreply::where('username', $username)->delete();

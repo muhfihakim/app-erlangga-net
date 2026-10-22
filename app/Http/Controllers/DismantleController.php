@@ -6,7 +6,11 @@ use App\Models\Dismantle;
 use App\Models\Customer;
 use App\Models\User;
 use App\Models\ActivityLog;
+use App\Models\Pppoe;
+use App\Models\Radcheck;
+use App\Services\MikroTikService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
@@ -172,16 +176,38 @@ class DismantleController extends Controller
 
         $c = Customer::findOrFail($id);
         $nama = $c->nama_lengkap;
+        $username = $c->pppoe_username;
+
+        // Nonaktifkan akun PPPoE
+        $pppoe = Pppoe::where('username', $username)
+            ->orWhere('pre_order_id', $c->pre_order_id)
+            ->first();
+
+        if ($pppoe) {
+            $pppoe->update([
+                'is_isolir' => true,
+                'isolir_reason' => 'Dismantle Selesai (Perangkat Dicabut)',
+                'isolir_at' => now(),
+            ]);
+        }
+
+        // Hapus kredensial dari FreeRADIUS dan kick sesi dari MikroTik
+        try {
+            Radcheck::where('username', $username)->delete();
+            app(MikroTikService::class)->kickPppoeUser($username);
+        } catch (\Throwable $e) {
+            Log::warning("Radius disconnect error on Dismantle deleteCustomer ({$username}): " . $e->getMessage());
+        }
 
         ActivityLog::create([
             'user_id' => auth()->id(),
             'activity_type' => 'hapus_pelanggan_dismantle',
-            'description' => "Menghapus pelanggan $nama dari daftar aktif melalui proses dismantle",
+            'description' => "Menghapus pelanggan $nama dari daftar aktif melalui proses dismantle (PPPoE & Radius diputus)",
             'logged_at' => now(),
         ]);
 
         $c->delete();
 
-        return redirect()->back()->with('success', "Pelanggan $nama telah dinonaktifkan (Soft Delete). Data laporan tetap aman.");
+        return redirect()->back()->with('success', "Pelanggan $nama telah dinonaktifkan (Soft Delete) dan koneksi internet berhasil diputus.");
     }
 }

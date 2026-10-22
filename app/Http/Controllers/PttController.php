@@ -15,15 +15,10 @@ class PttController extends Controller
         ]);
 
         $file = $request->file('audio');
-        
-        // Simpan file ke S3
-        // path folder ptt
         $path = $file->store('ptt', 's3');
         $url = Storage::disk('s3')->url($path);
 
         $user = auth()->user();
-
-        // Broadcast event ke user lain
         broadcast(new PttAudioSent($url, $user->id, $user->nama_lengkap ?? 'Teknisi'))->toOthers();
 
         return response()->json([

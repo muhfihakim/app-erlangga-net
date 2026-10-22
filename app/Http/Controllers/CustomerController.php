@@ -7,8 +7,18 @@ use App\Models\PreOrder;
 use App\Models\Customer;
 use App\Models\ActivityLog;
 use App\Models\User;
+use App\Models\Pppoe;
+use App\Models\Paket;
+use App\Models\Invoice;
+use App\Models\Transaction;
+use App\Models\Radcheck;
+use App\Models\Radusergroup;
+use App\Models\Radreply;
+use App\Models\Userinfo;
+use App\Services\MikroTikService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
@@ -30,11 +40,8 @@ class CustomerController extends Controller
 
         // Daftar teknisi untuk dropdown Partner
         $teknisiUsers = User::where('jabatan', 'Teknisi')->get();
-
-        // --- QUERY DASAR: PO yang BENAR-BENAR BELUM pernah diaktivasi ---
         $baseQuery = PreOrder::whereNotIn('id', $activatedPOIds);
 
-        // --- STATISTIK ---
         $thisMonth = Carbon::now()->month;
         $thisYear = Carbon::now()->year;
         
@@ -50,10 +57,8 @@ class CustomerController extends Controller
             ])->count();
 
         $totalPending = $baseQuery->count();
-
         $nextIdPelanggan = Customer::generateNextIdPelanggan();
 
-        // --- FILTER KHUSUS TEKNISI ---
         if ($user->jabatan === 'Teknisi') {
             // Tugas Umum (Bisa diambil siapa saja)
             $generalTasks = $baseQuery->clone()
@@ -102,6 +107,14 @@ class CustomerController extends Controller
 
         // --- MAPPING STATUS ONLINE/OFFLINE ---
         $pppoeData = \Illuminate\Support\Facades\Cache::get('mikrotik_pppoe_active');
+        if (!$pppoeData || !isset($pppoeData['success']) || !$pppoeData['success']) {
+            try {
+                $pppoeData = app(\App\Services\MikroTikService::class)->getPppoeActive();
+                if ($pppoeData && isset($pppoeData['success']) && $pppoeData['success']) {
+                    \Illuminate\Support\Facades\Cache::put('mikrotik_pppoe_active', $pppoeData, 25);
+                }
+            } catch (\Throwable $e) {}
+        }
         $activeUsernames = [];
         if ($pppoeData && isset($pppoeData['success']) && $pppoeData['success']) {
             $activeUsernames = collect($pppoeData['data'])->pluck('name')->toArray();
@@ -518,7 +531,7 @@ class CustomerController extends Controller
             $fotoTerpasangPath = $request->file('foto_terpasang')->store('customers/foto_terpasang');
             $fotoSpeedtestPath = $request->file('foto_speedtest')->store('customers/foto_speedtest');
 
-            Customer::create([
+            $customer = Customer::create([
                 'pre_order_id' => $po->id,
                 'id_sales' => $po->id_sales,
                 'id_teknisi' => $validatedData['id_teknisi'],
@@ -539,6 +552,94 @@ class CustomerController extends Controller
                 'foto_terpasang' => $fotoTerpasangPath,
                 'foto_speedtest' => $fotoSpeedtestPath,
             ]);
+
+            // Sinkronkan ke Akun PPPoE & FreeRADIUS
+            $isPaid = ($validatedData['pembayaran'] === 'Cash');
+            $pppoe = Pppoe::updateOrCreate(
+                ['username' => $validatedData['pppoe_username']],
+                [
+                    'pre_order_id' => $po->id,
+                    'password' => $validatedData['pppoe_password'],
+                    'paket_id' => $po->paket_id,
+                    'tipe_pembayaran' => 'prepaid',
+                    'tanggal_aktif' => now(),
+                    'periode_billing' => '1',
+                    'pajak' => $po->paket->pajak ?? 0,
+                    'diskon' => $po->paket->diskon ?? 0,
+                    'status_invoice' => $isPaid ? 'terbayar' : 'belum_bayar',
+                    'generate_invoice' => true,
+                    'is_isolir' => false,
+                ]
+            );
+
+            // FreeRADIUS sync
+            try {
+                Radcheck::updateOrCreate(
+                    ['username' => $pppoe->username, 'attribute' => 'Cleartext-Password'],
+                    ['op' => ':=', 'value' => $pppoe->password]
+                );
+
+                $paket = $po->paket ?? Paket::find($po->paket_id);
+                if ($paket) {
+                    Radusergroup::updateOrCreate(
+                        ['username' => $pppoe->username],
+                        ['groupname' => $paket->nama_paket, 'priority' => 1]
+                    );
+                }
+
+                Userinfo::updateOrCreate(
+                    ['username' => $pppoe->username],
+                    [
+                        'firstname' => $po->nama_lengkap ?? 'Pelanggan',
+                        'lastname' => '',
+                        'email' => $po->alamat_email ?? '',
+                        'address' => $po->alamat_lengkap ?? '',
+                        'mobilephone' => $po->no_whatsapp ?? '',
+                        'creationdate' => date('Y-m-d H:i:s'),
+                        'updatedate' => date('Y-m-d H:i:s'),
+                        'creationby' => auth()->user()->nama_lengkap ?? 'system',
+                        'updateby' => auth()->user()->nama_lengkap ?? 'system',
+                    ]
+                );
+            } catch (\Throwable $e) {
+                Log::warning("Radius sync error on Customer Activation ({$pppoe->username}): " . $e->getMessage());
+            }
+
+            // Generate First Invoice & Transaction jika lunas
+            try {
+                $paket = $po->paket ?? Paket::find($po->paket_id);
+                if ($paket) {
+                    $amount = (float) $paket->harga;
+                    $tax = (float) ($paket->pajak ?? 0);
+                    $discount = (float) ($paket->diskon ?? 0);
+                    $total = max(0, $amount + $tax - $discount);
+                    $dueDate = Carbon::now()->addDays(7);
+
+                    $invoice = Invoice::create([
+                        'pppoe_id' => $pppoe->id,
+                        'invoice_number' => 'INV-' . date('Ymd') . '-' . str_pad($pppoe->id, 4, '0', STR_PAD_LEFT) . '-' . rand(100, 999),
+                        'amount' => $amount,
+                        'tax' => $tax,
+                        'discount' => $discount,
+                        'total' => $total,
+                        'due_date' => $dueDate->format('Y-m-d'),
+                        'status' => $isPaid ? 'paid' : 'unpaid',
+                        'payment_method' => $isPaid ? 'cash' : null,
+                    ]);
+
+                    if ($isPaid) {
+                        Transaction::create([
+                            'invoice_id' => $invoice->id,
+                            'payment_method' => 'cash',
+                            'amount_paid' => $total,
+                            'payment_date' => now(),
+                            'status' => 'success',
+                        ]);
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning("Invoice generation error on Customer Activation: " . $e->getMessage());
+            }
 
             ActivityLog::create([
                 'user_id' => auth()->id(),
@@ -640,7 +741,67 @@ class CustomerController extends Controller
             $updateData['foto_speedtest'] = $request->file('foto_speedtest')->store('customers/foto_speedtest');
         }
 
+        $oldUsername = $customer->pppoe_username;
         $customer->update($updateData);
+
+        // Sinkronkan ke Pppoe model & FreeRADIUS
+        $pppoe = Pppoe::where('username', $oldUsername)
+            ->orWhere('pre_order_id', $customer->pre_order_id)
+            ->first();
+
+        if ($pppoe) {
+            $pppoe->update([
+                'username' => $customer->pppoe_username,
+                'password' => $customer->pppoe_password,
+                'paket_id' => $customer->paket_id,
+            ]);
+        } else {
+            $pppoe = Pppoe::create([
+                'pre_order_id' => $customer->pre_order_id,
+                'username' => $customer->pppoe_username,
+                'password' => $customer->pppoe_password,
+                'paket_id' => $customer->paket_id,
+                'tanggal_aktif' => $customer->created_at ?? now(),
+                'tipe_pembayaran' => 'prepaid',
+                'generate_invoice' => true,
+            ]);
+        }
+
+        try {
+            if ($oldUsername && $oldUsername !== $customer->pppoe_username) {
+                Radcheck::where('username', $oldUsername)->delete();
+                Radusergroup::where('username', $oldUsername)->delete();
+                Radreply::where('username', $oldUsername)->delete();
+                Userinfo::where('username', $oldUsername)->delete();
+            }
+
+            Radcheck::updateOrCreate(
+                ['username' => $customer->pppoe_username, 'attribute' => 'Cleartext-Password'],
+                ['op' => ':=', 'value' => $customer->pppoe_password]
+            );
+
+            $paket = Paket::find($customer->paket_id);
+            if ($paket) {
+                Radusergroup::updateOrCreate(
+                    ['username' => $customer->pppoe_username],
+                    ['groupname' => $paket->nama_paket, 'priority' => 1]
+                );
+            }
+
+            Userinfo::updateOrCreate(
+                ['username' => $customer->pppoe_username],
+                [
+                    'firstname' => $customer->nama_lengkap,
+                    'lastname' => '',
+                    'email' => $customer->alamat_email ?? ($customer->preOrder->alamat_email ?? ''),
+                    'address' => $customer->alamat_lengkap ?? '',
+                    'mobilephone' => $customer->no_whatsapp ?? '',
+                    'updatedate' => date('Y-m-d H:i:s'),
+                ]
+            );
+        } catch (\Throwable $e) {
+            Log::warning("Radius sync error on Customer update ({$customer->pppoe_username}): " . $e->getMessage());
+        }
 
         ActivityLog::create([
             'user_id' => auth()->id(),
@@ -657,6 +818,38 @@ class CustomerController extends Controller
         $customer = Customer::onlyTrashed()->findOrFail($id);
         $customer->restore(); 
 
+        $username = $customer->pppoe_username;
+        $pppoe = Pppoe::where('username', $username)
+            ->orWhere('pre_order_id', $customer->pre_order_id)
+            ->first();
+
+        if ($pppoe) {
+            $pppoe->update([
+                'is_isolir' => false,
+                'isolir_reason' => null,
+                'isolir_at' => null,
+            ]);
+        }
+
+        // Restore kredensial FreeRADIUS
+        try {
+            if ($customer->pppoe_password) {
+                Radcheck::updateOrCreate(
+                    ['username' => $username, 'attribute' => 'Cleartext-Password'],
+                    ['op' => ':=', 'value' => $customer->pppoe_password]
+                );
+            }
+            $paket = $customer->paket ?? Paket::find($customer->paket_id);
+            if ($paket) {
+                Radusergroup::updateOrCreate(
+                    ['username' => $username],
+                    ['groupname' => $paket->nama_paket, 'priority' => 1]
+                );
+            }
+        } catch (\Throwable $e) {
+            Log::warning("Radius restore error on Customer restore ({$username}): " . $e->getMessage());
+        }
+
         ActivityLog::create([
             'user_id' => auth()->id(),
             'activity_type' => 'customer_restore',
@@ -664,12 +857,35 @@ class CustomerController extends Controller
             'logged_at' => now(),
         ]);
 
-        return redirect()->back()->with('success', "Pelanggan berhasil diaktifkan kembali.");
+        return redirect()->back()->with('success', "Pelanggan berhasil diaktifkan kembali dan kredensial FreeRADIUS dipulihkan.");
     }
 
     public function destroy($id)
     {
         $customer = Customer::findOrFail($id);
+        $username = $customer->pppoe_username;
+
+        // Nonaktifkan akun PPPoE
+        $pppoe = Pppoe::where('username', $username)
+            ->orWhere('pre_order_id', $customer->pre_order_id)
+            ->first();
+
+        if ($pppoe) {
+            $pppoe->update([
+                'is_isolir' => true,
+                'isolir_reason' => 'Pelanggan Dinonaktifkan (Dihapus)',
+                'isolir_at' => now(),
+            ]);
+        }
+
+        // Hapus kredensial login dari FreeRADIUS & kick dari router
+        try {
+            Radcheck::where('username', $username)->delete();
+            app(MikroTikService::class)->kickPppoeUser($username);
+        } catch (\Throwable $e) {
+            Log::warning("Radius disconnect error on Customer delete ({$username}): " . $e->getMessage());
+        }
+
         $customer->delete(); 
 
         ActivityLog::create([
@@ -679,7 +895,7 @@ class CustomerController extends Controller
             'logged_at' => now(),
         ]);
 
-        return redirect()->back()->with('success', "Pelanggan berhasil dinonaktifkan.");
+        return redirect()->back()->with('success', "Pelanggan berhasil dinonaktifkan, akun PPPoE dan FreeRADIUS dinonaktifkan.");
     }
 
     /**

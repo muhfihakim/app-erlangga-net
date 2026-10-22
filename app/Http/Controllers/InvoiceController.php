@@ -192,8 +192,14 @@ class InvoiceController extends Controller
         
         $count = 0;
         foreach ($pppoes as $pppoe) {
-            // Generate unique invoice number: INV-YYYYMMDD-PPPOEID
-            $invoiceNumber = 'INV-' . date('Ymd') . '-' . str_pad($pppoe->id, 4, '0', STR_PAD_LEFT);
+            // Lewati akun yang sudah didismantle atau dihapus
+            $reason = strtolower($pppoe->isolir_reason ?? '');
+            if ($pppoe->is_isolir && (str_contains($reason, 'dihapus') || str_contains($reason, 'dismantle'))) {
+                continue;
+            }
+
+            // Generate unique invoice number: INV-YYYYMMDD-PPPOEID-XXX
+            $invoiceNumber = 'INV-' . date('Ymd') . '-' . str_pad($pppoe->id, 4, '0', STR_PAD_LEFT) . '-' . rand(100, 999);
             
             // Check if already generated for this month
             $exists = Invoice::where('pppoe_id', $pppoe->id)

@@ -805,7 +805,7 @@
 
                 <!-- Error State -->
                 <div id="acs_error_state" class="hidden py-8 px-6 bg-amber-50/60 border border-amber-200 rounded-2xl text-center space-y-3">
-                    <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-xl">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-xl">
                         <i class="fa-solid fa-triangle-exclamation"></i>
                     </div>
                     <h4 class="text-sm font-bold text-slate-800 m-0" id="acs_error_title">Perangkat ONT Belum Terhubung di ACS</h4>
@@ -1594,9 +1594,9 @@
 
                 // 1. Status
                 if (d.is_online) {
-                    $('#acs_status_badge').html('<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700"><span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span>ONLINE</span>');
+                    $('#acs_status_badge').html('<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-bold bg-emerald-100 text-emerald-700"><span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span>ONLINE</span>');
                 } else {
-                    $('#acs_status_badge').html('<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-200 text-slate-600">OFFLINE</span>');
+                    $('#acs_status_badge').html('<span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-slate-200 text-slate-600">OFFLINE</span>');
                 }
                 $('#acs_last_inform').text('Inform: ' + (d.last_inform || '-'));
 

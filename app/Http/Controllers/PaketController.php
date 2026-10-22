@@ -247,6 +247,13 @@ class PaketController extends Controller
 
     public function destroy(Paket $paket)
     {
+        $customerCount = \App\Models\Customer::where('paket_id', $paket->id)->count();
+        $pppoeCount = \App\Models\Pppoe::where('paket_id', $paket->id)->count();
+
+        if ($customerCount > 0 || $pppoeCount > 0) {
+            return redirect()->route('pakets.index')->with('error', "Paket '{$paket->nama_paket}' tidak dapat dihapus karena masih digunakan oleh {$customerCount} Pelanggan dan {$pppoeCount} Akun PPPoE aktif.");
+        }
+
         $oldName = $paket->nama_paket;
         
         \App\Models\Radgroupreply::where('groupname', $oldName)->delete();

@@ -16,7 +16,7 @@ class GenieAcsService
 
     public function __construct()
     {
-        $this->url = rtrim(Setting::get('genieacs_url', env('GENIEACS_URL', 'http://203.2.151.130:3000')), '/');
+        $this->url = rtrim(Setting::get('genieacs_url', env('GENIEACS_URL', 'http://127.0.0.1:3000')), '/');
         $this->username = Setting::get('genieacs_username', env('GENIEACS_USERNAME', 'admin'));
         $this->password = Setting::get('genieacs_password', env('GENIEACS_PASSWORD', 'admin'));
         $this->timeout = (int) Setting::get('genieacs_timeout', 10);

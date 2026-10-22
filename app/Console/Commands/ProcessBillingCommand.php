@@ -28,9 +28,7 @@ class ProcessBillingCommand extends Command
         $generatedCount = 0;
         $isolatedCount = 0;
 
-        // -------------------------------------------------------------
-        // BAGIAN 1: AUTO-GENERATE FAKTUR BULANAN
-        // -------------------------------------------------------------
+        // Generate monthly invoices
         $this->info("\n[1/2] Memeriksa akun untuk penerbitan faktur...");
 
         $pppoeAccounts = Pppoe::with('paket', 'invoices')->get();
@@ -99,9 +97,7 @@ class ProcessBillingCommand extends Command
 
         $this->info("Total Faktur Diterbitkan: {$generatedCount}");
 
-        // -------------------------------------------------------------
-        // BAGIAN 2: AUTO-ISOLIR OVERDUE INVOICES
-        // -------------------------------------------------------------
+        // Process overdue isolir
         $this->info("\n[2/2] Memeriksa faktur jatuh tempo untuk Auto-Isolir...");
 
         $overdueInvoices = Invoice::with('pppoe.paket')

@@ -59,7 +59,7 @@ class SettingController extends Controller
                 'sender' => Setting::get('whatsapp_sender', env('WHATSAPP_SENDER', '')),
             ],
             'genieacs' => [
-                'url' => Setting::get('genieacs_url', env('GENIEACS_URL', 'http://203.2.151.130:3000')),
+                'url' => Setting::get('genieacs_url', env('GENIEACS_URL', 'http://127.0.0.1:3000')),
                 'username' => Setting::get('genieacs_username', env('GENIEACS_USERNAME', 'admin')),
                 'password' => Setting::get('genieacs_password', env('GENIEACS_PASSWORD', 'admin')),
                 'timeout' => Setting::get('genieacs_timeout', env('GENIEACS_TIMEOUT', 10)),

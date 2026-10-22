@@ -65,13 +65,13 @@ class WhatsAppService
         $apiKey = Setting::get('whatsapp_api_key', env('WHATSAPP_API_KEY', ''));
         $sender = Setting::get('whatsapp_sender', env('WHATSAPP_SENDER', ''));
 
-        // Jika API Key belum dikonfigurasi, jalankan mode simulasi & catat di Log
-        if (empty($apiKey)) {
-            Log::info("WhatsAppService [SIMULATION MODE - No API Key] Target: {$targetPhone} | Message:\n{$message}");
+        // Jika API Key atau API URL belum dikonfigurasi, jalankan mode simulasi & catat di Log
+        if (empty($apiKey) || empty($apiUrl)) {
+            Log::info("WhatsAppService [SIMULATION MODE - Incomplete Settings] Target: {$targetPhone} | Message:\n{$message}");
             return [
                 'success' => true,
                 'simulated' => true,
-                'message' => 'Pesan diproses (Mode Simulasi / API Key belum diisi di Pengaturan Sistem).',
+                'message' => 'Pesan diproses (Mode Simulasi / API URL atau API Key belum diisi di Pengaturan Sistem).',
                 'target' => $targetPhone,
             ];
         }
