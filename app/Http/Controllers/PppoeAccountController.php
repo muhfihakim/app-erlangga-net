@@ -390,7 +390,7 @@ class PppoeAccountController extends Controller
         ]);
 
         $reason = $request->input('reason', 'Isolir manual oleh Admin');
-        $result = $isolirService->isolate($pppoe->username, $reason);
+        $result = $isolirService->isolate($pppoe->username, $reason, true);
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json($result, $result['success'] ? 200 : 400);

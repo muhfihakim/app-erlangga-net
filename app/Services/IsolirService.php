@@ -23,11 +23,15 @@ class IsolirService
      *
      * @param string $username Username PPPoE
      * @param string|null $reason Alasan pengisolasian
+     * @param bool $forceKick Paksa putus sesi MikroTik meski sudah berstatus isolir
      * @return array{success: bool, message: string, kicked: bool}
      */
-    public function isolate(string $username, ?string $reason = null): array
+    public function isolate(string $username, ?string $reason = null, bool $forceKick = false): array
     {
         $reason = $reason ?: 'Isolir manual oleh Admin';
+
+        $pppoe = Pppoe::where('username', $username)->first();
+        $wasAlreadyIsolated = $pppoe && $pppoe->is_isolir;
 
         try {
             Radusergroup::updateOrCreate(
@@ -38,20 +42,21 @@ class IsolirService
             Log::warning("IsolirService: Gagal update Radusergroup ke ISOLIR ({$username}): " . $e->getMessage());
         }
 
-        $pppoe = Pppoe::where('username', $username)->first();
         if ($pppoe) {
             $pppoe->update([
                 'is_isolir' => true,
                 'isolir_reason' => $reason,
-                'isolir_at' => now(),
+                'isolir_at' => $pppoe->isolir_at ?? now(),
             ]);
         }
 
         $kicked = false;
-        try {
-            $kicked = $this->mikrotikService->kickPppoeUser($username);
-        } catch (\Throwable $e) {
-            Log::warning("IsolirService: Gagal kick session MikroTik ({$username}): " . $e->getMessage());
+        if (!$wasAlreadyIsolated || $forceKick) {
+            try {
+                $kicked = $this->mikrotikService->kickPppoeUser($username);
+            } catch (\Throwable $e) {
+                Log::warning("IsolirService: Gagal kick session MikroTik ({$username}): " . $e->getMessage());
+            }
         }
 
         Cache::forget('mikrotik_pppoe_active');

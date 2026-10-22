@@ -970,7 +970,7 @@ class CustomerController extends Controller
         }
 
         $reason = $request->input('reason', 'Isolir manual oleh Admin');
-        $result = $isolirService->isolate($customer->pppoe_username, $reason);
+        $result = $isolirService->isolate($customer->pppoe_username, $reason, true);
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json($result, $result['success'] ? 200 : 400);
