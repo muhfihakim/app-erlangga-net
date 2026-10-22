@@ -203,38 +203,36 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('/customers/{customer}/isolir', [CustomerController::class, 'isolir'])->name('customers.isolir');
     Route::post('/customers/{customer}/buka-isolir', [CustomerController::class, 'bukaIsolir'])->name('customers.buka_isolir');
 
-    // PPPoE APIs (Accessible by Admin and Teknisi)
+    // Internal Web AJAX APIs (Protected by Web Session Auth)
     Route::prefix('api')->group(function () {
-        Route::get('/pppoe/active', [PppoeController::class, 'active']);
-        Route::get('/pppoe/data', [PppoeController::class, 'data'])->name('pppoe.data');
-        Route::get('/pppoe/realtime-traffic', [PppoeController::class, 'traffic'])->name('pppoe.traffic');
-    });
+        // PPPoE Monitoring & Data (Admin & Teknisi)
+        Route::prefix('pppoe')->group(function () {
+            Route::get('/active', [PppoeController::class, 'active']);
+            Route::get('/data', [PppoeController::class, 'data'])->name('pppoe.data');
+            Route::get('/realtime-traffic', [PppoeController::class, 'traffic'])->name('pppoe.traffic');
+            Route::post('/remote-tunnel', [PppoeController::class, 'remoteTunnel'])->name('pppoe.remote_tunnel');
+        });
 
-    // MikroTik & Admin APIs (Administrator only)
-    Route::prefix('api')->middleware(['admin'])->group(function () {
-        Route::get('/mikrotik/traffic', [MonitoringController::class, 'traffic']);
-        Route::get('/mikrotik/status', [MonitoringController::class, 'status']);
-        Route::get('/mikrotik/pppoe-logs', [MonitoringController::class, 'pppoeLogs']);
-        
-        // OLT Telnet API Routes (Admin only: Generator)
-        Route::post('/olt/check-next-id', [OltController::class, 'checkNextOnuId']);
-        Route::post('/olt/connect', [OltController::class, 'connectTerminal']);
-        Route::post('/olt/verify-login', [OltController::class, 'verifyLogin']);
-        Route::post('/olt/execute', [OltController::class, 'executeScript']);
-    });
+        // OLT Telemetry & Monitoring (Admin & Teknisi)
+        Route::prefix('olt')->group(function () {
+            Route::get('/dashboard-data', [OltController::class, 'getDashboardData']);
+            Route::get('/onu-details', [OltController::class, 'getOnuDetails']);
+        });
 
-    // OLT Monitoring APIs (Accessible by Admin & Teknisi)
-    Route::prefix('api/olt')->group(function () {
-        Route::get('/dashboard-data', [OltController::class, 'getDashboardData']);
-        Route::get('/onu-details', [OltController::class, 'getOnuDetails']);
-    });
+        // MikroTik & OLT Config Actions (Administrator only)
+        Route::middleware(['admin'])->group(function () {
+            Route::get('/mikrotik/traffic', [MonitoringController::class, 'traffic']);
+            Route::get('/mikrotik/status', [MonitoringController::class, 'status']);
+            Route::get('/mikrotik/pppoe-logs', [MonitoringController::class, 'pppoeLogs']);
 
-    // PPPoE Remote Tunnel (Accessible by Admin & Teknisi)
-    Route::post('/api/pppoe/remote-tunnel', [PppoeController::class, 'remoteTunnel'])->name('pppoe.remote_tunnel');
+            Route::post('/olt/check-next-id', [OltController::class, 'checkNextOnuId']);
+            Route::post('/olt/connect', [OltController::class, 'connectTerminal']);
+            Route::post('/olt/verify-login', [OltController::class, 'verifyLogin']);
+            Route::post('/olt/execute', [OltController::class, 'executeScript']);
+        });
+    });
 
     Route::post('/paket/sync-mikrotik', [App\Http\Controllers\PaketController::class, 'syncFromMikrotik'])->name('paket.sync');
-    Route::resource('paket', \App\Http\Controllers\PaketController::class)->except(['create', 'edit', 'show']);
-    
     Route::resource('customers', CustomerController::class)->except(['create', 'edit', 'show']);
     
     Route::resource('supporting', SupportingActivityController::class);
