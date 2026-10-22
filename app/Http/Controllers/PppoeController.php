@@ -14,52 +14,41 @@ class PppoeController extends Controller
 {
     public function index(Request $request, MikroTikService $mikrotikService)
     {
-        $force = $request->boolean('refresh');
-        
-        // Baca data langsung atau dari cache
-        $response = $force ? null : Cache::get('mikrotik_pppoe_active');
-        
-        if (!$response || !isset($response['success']) || !$response['success']) {
-            $response = $mikrotikService->getPppoeActive();
-            if ($response && isset($response['success']) && $response['success']) {
-                Cache::put('mikrotik_pppoe_active', $response, 25);
-            }
-        }
-        
-        $pppoeActive = [];
-        if ($response && isset($response['success']) && $response['success']) {
-            $pppoeActive = $response['data'];
-            
-            // Ambil semua customer untuk mapping sales
-            $customers = Customer::with('sales')->whereNotNull('pppoe_username')->get()->keyBy('pppoe_username');
-
-            foreach ($pppoeActive as $key => $item) {
-                $name = $item['name'] ?? '';
-                $address = $item['address'] ?? '';
-                $pppoeActive[$key]['is_isolir'] = str_starts_with($address, '172.30.');
-                $pppoeActive[$key]['sales_name'] = isset($customers[$name]) && $customers[$name]->sales ? $customers[$name]->sales->nama_lengkap : '-';
-            }
-        }
-
         $routerHost = $mikrotikService->getHost();
         $nas = Nas::where('nasname', $routerHost)->first() ?? Nas::first();
         $routerName = $nas?->shortname ?? 'Router MikroTik';
 
-        return view('monitoring.pppoe', compact('pppoeActive', 'routerHost', 'routerName'));
+        // Ambil data dari cache jika sudah ada untuk stats awal
+        $cached = Cache::get('mikrotik_pppoe_active');
+        $totalActive = isset($cached['data']) ? count($cached['data']) : 0;
+        $totalIsolir = 0;
+        if (!empty($cached['data'])) {
+            foreach ($cached['data'] as $item) {
+                if (str_starts_with($item['address'] ?? '', '172.30.')) {
+                    $totalIsolir++;
+                }
+            }
+        }
+        $totalNormal = max(0, $totalActive - $totalIsolir);
+
+        return view('monitoring.pppoe', compact('routerHost', 'routerName', 'totalActive', 'totalNormal', 'totalIsolir'));
     }
 
     /**
-     * Server-side DataTables endpoint.
+     * Server-side DataTables endpoint dengan live search & pagination cepat.
      */
     public function data(Request $request, MikroTikService $mikrotikService): JsonResponse
     {
         $force = $request->boolean('refresh');
-        $response = $force ? null : Cache::get('mikrotik_pppoe_active');
+        if ($force) {
+            Cache::forget('mikrotik_pppoe_active');
+        }
 
+        $response = Cache::get('mikrotik_pppoe_active');
         if (!$response || !isset($response['success']) || !$response['success']) {
             $response = $mikrotikService->getPppoeActive();
             if ($response && isset($response['success']) && $response['success']) {
-                Cache::put('mikrotik_pppoe_active', $response, 25);
+                Cache::put('mikrotik_pppoe_active', $response, 30);
             }
         }
 
@@ -68,53 +57,160 @@ class PppoeController extends Controller
                 'draw' => intval($request->draw),
                 'recordsTotal' => 0,
                 'recordsFiltered' => 0,
+                'totalActive' => 0,
+                'totalNormal' => 0,
+                'totalIsolir' => 0,
                 'data' => [],
-                'error' => 'Gagal membaca data dari router: ' . ($response['error'] ?? 'Koneksi gagal')
+                'error' => 'Gagal membaca data dari router: ' . ($response['error'] ?? 'Koneksi router gagal')
             ]);
         }
 
-        $data = $response['data'];
-        
-        // Ambil semua customer yang memiliki pppoe_username dan sales
-        $customers = Customer::with('sales')->whereNotNull('pppoe_username')->get()->keyBy('pppoe_username');
+        $rawData = $response['data'] ?? [];
+        $totalRecords = count($rawData);
 
-        // Mapping status isolir dan sales
-        foreach ($data as $key => $item) {
+        // Ambil mapping sales (di-cache 60 detik agar hemat query database)
+        $customers = Cache::remember('customers_sales_map', 60, function () {
+            return Customer::with('sales')->whereNotNull('pppoe_username')->get()->keyBy('pppoe_username');
+        });
+
+        // Hitung total status global
+        $totalIsolir = 0;
+        $processedData = [];
+
+        foreach ($rawData as $item) {
             $name = $item['name'] ?? '';
             $address = $item['address'] ?? '';
-            
-            $data[$key]['is_isolir'] = str_starts_with($address, '172.30.');
-            $data[$key]['sales_name'] = isset($customers[$name]) && $customers[$name]->sales ? $customers[$name]->sales->nama_lengkap : '-';
+            $isIsolir = str_starts_with($address, '172.30.');
+            if ($isIsolir) {
+                $totalIsolir++;
+            }
+
+            $salesName = isset($customers[$name]) && $customers[$name]->sales ? $customers[$name]->sales->nama_lengkap : '-';
+
+            $item['is_isolir'] = $isIsolir;
+            $item['sales_name'] = $salesName;
+            $processedData[] = $item;
         }
-        
-        // Simple search
-        $search = $request->search['value'] ?? null;
-        if ($search) {
-            $data = array_filter($data, function($item) use ($search) {
-                return str_contains(strtolower($item['name'] ?? ''), strtolower($search)) || 
-                       str_contains(strtolower($item['address'] ?? ''), strtolower($search)) ||
-                       str_contains(strtolower($item['sales_name'] ?? ''), strtolower($search));
+
+        $totalNormal = max(0, $totalRecords - $totalIsolir);
+
+        // 1. Filter Status (Semua, Normal, Isolir)
+        $filterStatus = $request->input('status');
+        if ($filterStatus === 'isolir') {
+            $processedData = array_filter($processedData, fn($item) => $item['is_isolir']);
+        } elseif ($filterStatus === 'normal') {
+            $processedData = array_filter($processedData, fn($item) => !$item['is_isolir']);
+        }
+
+        // 2. Live Search Server-Side
+        $search = strtolower(trim($request->input('search.value', '')));
+        if ($search !== '') {
+            $processedData = array_filter($processedData, function ($item) use ($search) {
+                return str_contains(strtolower($item['name'] ?? ''), $search) ||
+                    str_contains(strtolower($item['address'] ?? ''), $search) ||
+                    str_contains(strtolower($item['sales_name'] ?? ''), $search) ||
+                    str_contains(strtolower($item['caller-id'] ?? ''), $search);
             });
         }
 
-        $totalRecords = count($response['data']);
-        $filteredRecords = count($data);
+        $filteredRecords = count($processedData);
 
-        // Sort (simple sort by name for now)
-        usort($data, fn($a, $b) => strcmp($a['name'] ?? '', $b['name'] ?? ''));
+        // 3. Sorting Dinamis
+        $orderColIndex = $request->input('order.0.column');
+        $orderDir = strtolower($request->input('order.0.dir', 'asc'));
 
-        // Pagination
-        $start = intval($request->start);
+        $columnMap = [
+            1 => 'name',
+            2 => 'sales_name',
+            3 => 'uptime',
+            4 => 'address',
+            5 => 'caller-id',
+        ];
+
+        if (isset($columnMap[$orderColIndex])) {
+            $sortKey = $columnMap[$orderColIndex];
+            usort($processedData, function ($a, $b) use ($sortKey, $orderDir) {
+                $valA = $a[$sortKey] ?? '';
+                $valB = $b[$sortKey] ?? '';
+                $cmp = strcmp((string) $valA, (string) $valB);
+                return $orderDir === 'desc' ? -$cmp : $cmp;
+            });
+        } else {
+            // Default sort by name ascending
+            usort($processedData, fn($a, $b) => strcmp($a['name'] ?? '', $b['name'] ?? ''));
+        }
+
+        // 4. Server-side Pagination
+        $start = max(0, intval($request->start));
         $length = intval($request->length);
         if ($length > 0) {
-            $data = array_slice($data, $start, $length);
+            $slicedData = array_slice($processedData, $start, $length);
+        } else {
+            $slicedData = array_slice($processedData, 0, 10);
+        }
+
+        // 5. Format Output Baris DataTables
+        $rows = [];
+        foreach ($slicedData as $index => $item) {
+            $name = $item['name'] ?? '-';
+            $address = $item['address'] ?? '-';
+            $isIsolir = !empty($item['is_isolir']);
+            $salesName = $item['sales_name'] ?? '-';
+            $uptime = $item['uptime'] ?? '';
+            $uptimeHms = function_exists('format_uptime_hms') ? format_uptime_hms($uptime) : $uptime;
+            $callerId = $item['caller-id'] ?? '-';
+            $service = $item['service'] ?? 'pppoe';
+            $bytesIn = $item['bytes-in'] ?? 0;
+            $bytesOut = $item['bytes-out'] ?? 0;
+
+            $statusBadge = $isIsolir
+                ? '<span style="background:#fee2e2; color:#be123c; border:1px solid #fecdd3; font-size:10px; padding:2px 6px; border-radius:6px; font-weight:800; margin-left:6px;"><i class="fa-solid fa-ban mr-1"></i>ISOLIR</span>'
+                : '<span style="background:#dcfce7; color:#15803d; border:1px solid #bbf7d0; font-size:10px; padding:2px 6px; border-radius:6px; font-weight:800; margin-left:6px;"><i class="fa-solid fa-circle-check mr-1"></i>AKTIF</span>';
+
+            $userHtml = '<div style="font-weight: 700; color: #0f172a; display:inline-flex; align-items:center;">' .
+                htmlspecialchars($name, ENT_QUOTES) . $statusBadge . '</div>';
+
+            $salesHtml = '<span style="font-weight: 600; color: #475569; font-size: 11px;">' . htmlspecialchars($salesName, ENT_QUOTES) . '</span>';
+
+            $uptimeHtml = '<span style="font-family: monospace; font-size: 11px; color: #64748b; font-weight: 600;">' . htmlspecialchars($uptimeHms, ENT_QUOTES) . '</span>';
+
+            $addressHtml = '<span style="font-family: monospace; font-weight: 700; color: ' . ($isIsolir ? '#e11d48' : '#0284c7') . '; font-size: 12px;">' . htmlspecialchars($address, ENT_QUOTES) . '</span>';
+
+            $callerHtml = '<span style="color: #64748b; font-size: 11px; font-family: monospace;">' . htmlspecialchars($callerId, ENT_QUOTES) . '</span>';
+
+            $detailPayload = htmlspecialchars(json_encode([
+                'name' => $name,
+                'sales' => $salesName,
+                'address' => $address,
+                'uptime' => $uptime,
+                'caller' => $callerId,
+                'service' => $service,
+                'bytes_in' => $bytesIn,
+                'bytes_out' => $bytesOut,
+                'is_isolir' => $isIsolir,
+            ]), ENT_QUOTES);
+
+            $opsiHtml = '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Detail Koneksi & Remote ONT" onclick=\'showDetail(' . $detailPayload . ')\'><i class="fa-solid fa-eye text-primary"></i></button>';
+
+            $rows[] = [
+                'DT_RowIndex' => $start + $index + 1,
+                'user_html' => $userHtml,
+                'sales_html' => $salesHtml,
+                'uptime_html' => $uptimeHtml,
+                'address_html' => $addressHtml,
+                'caller_html' => $callerHtml,
+                'opsi' => $opsiHtml,
+            ];
         }
 
         return response()->json([
             'draw' => intval($request->draw),
             'recordsTotal' => $totalRecords,
             'recordsFiltered' => $filteredRecords,
-            'data' => array_values($data),
+            'totalActive' => $totalRecords,
+            'totalNormal' => $totalNormal,
+            'totalIsolir' => $totalIsolir,
+            'data' => $rows,
         ]);
     }
 

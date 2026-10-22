@@ -1,41 +1,123 @@
 <x-layouts.app>
     @section('Css')
         <style>
-            /* Table styling matching /pre-orders to prevent overflow */
             #pppoe-table thead th,
             #pppoe-table tbody td {
                 text-transform: uppercase !important;
                 font-weight: 600;
-            }
-
-            #pppoe-table tbody td {
                 font-size: 12px;
             }
 
-            .badge-pppoe {
-                background: #e0f2fe;
-                color: #0369a1;
-                padding: 4px 8px;
-                border-radius: 6px;
-                font-size: 10px;
-                font-weight: 800;
+            .dataTables_wrapper {
+                position: relative;
+                min-height: 200px;
+                padding: 0;
+            }
+
+            .dataTables_wrapper .dataTables_processing {
+                position: absolute !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                background: rgba(255, 255, 255, 0.95) !important;
+                padding: 15px 25px !important;
+                border-radius: 12px !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+                z-index: 50 !important;
+                margin: 0 !important;
+                border: 1px solid #e2e8f0 !important;
+                width: auto !important;
+                height: auto !important;
+                text-align: center;
+            }
+
+            .dataTables_paginate {
+                display: flex;
+                justify-content: flex-end;
+                padding: 1.25rem 1.5rem;
+                gap: 4px;
+                border-top: 1px solid #f1f5f9;
+            }
+
+            .paginate_button {
+                width: 34px;
+                height: 34px;
+                border-radius: 8px;
+                border: 1.5px solid #e2e8f0;
+                background: #fff;
+                color: #64748b !important;
+                font-size: 13px;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+            }
+
+            .paginate_button.current {
+                background: #0ea5e9 !important;
+                border-color: #0ea5e9 !important;
+                color: #fff !important;
             }
         </style>
     @endsection
 
-    <!-- Page header -->
-    <div
-        style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+    <!-- Page Header -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
-            <h1 style="font-size:22px;font-weight:900;margin:0;">PPPoE Aktif</h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Monitoring pengguna PPPoE yang sedang aktif secara
-                real-time langsung dari router.</p>
+            <h1 style="font-size:22px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
+                PPPoE Aktif (Realtime)
+            </h1>
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">
+                Monitoring pengguna PPPoE yang sedang terhubung secara live langsung dari router MikroTik.
+            </p>
         </div>
-        <div style="display:flex; gap:10px;">
-            <a href="{{ route('pppoe.index', ['refresh' => 1]) }}"
-                class="btn-primary-admin !flex !items-center !justify-center gap-2">
-                <i class="fa-solid fa-arrows-rotate" id="refresh-icon"></i> Refresh Data Live
-            </a>
+        <div class="flex items-center gap-2">
+            <button type="button" id="btn-refresh-live"
+                class="btn-primary-admin !h-10 flex items-center gap-2">
+                <i class="fa-solid fa-arrows-rotate" id="refresh-icon"></i>
+                <span>Refresh Data Live</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Cards Grid -->
+    <div class="stats-grid mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#e0f2fe;color:#0284c7;">
+                <i class="fa-solid fa-network-wired"></i>
+            </div>
+            <div>
+                <div class="stat-val" id="stat-total-active">{{ number_format($totalActive, 0, ',', '.') }}</div>
+                <div class="stat-lbl">Total Sesi Aktif</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#dcfce7;color:#15803d;">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div>
+                <div class="stat-val" id="stat-total-normal">{{ number_format($totalNormal, 0, ',', '.') }}</div>
+                <div class="stat-lbl">Layanan Aktif (Normal)</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fee2e2;color:#be123c;">
+                <i class="fa-solid fa-ban"></i>
+            </div>
+            <div>
+                <div class="stat-val" id="stat-total-isolir">{{ number_format($totalIsolir, 0, ',', '.') }}</div>
+                <div class="stat-lbl">Pelanggan Terisolir</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#ede9fe;color:#6d28d9;">
+                <i class="fa-solid fa-server"></i>
+            </div>
+            <div>
+                <div class="stat-val truncate" style="font-size:15px;" title="{{ $routerName }}">{{ $routerName }}</div>
+                <div class="stat-lbl font-mono text-[11px]">{{ $routerHost }}</div>
+            </div>
         </div>
     </div>
 
@@ -44,74 +126,43 @@
         <div class="search-wrap">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
             <input type="search" class="search-input" id="custom-search"
-                placeholder="Cari nama, sales, atau IP address..." autocomplete="off" />
+                placeholder="Live Search user, sales, IP, atau MAC..." autocomplete="off" />
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            @if(!empty($routerHost))
-                <div style="font-size: 11px; font-weight: 700; color: #475569; background: #f1f5f9; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0; display:flex; align-items:center; gap:6px;">
-                    <i class="fa-solid fa-server text-indigo-600"></i>
-                    <span>{{ $routerName ?? 'Router' }} ({{ $routerHost }})</span>
-                </div>
-            @endif
-            <div
-                style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                Total Aktif: <span class="text-primary font-bold">{{ count($pppoeActive) }}</span>
-            </div>
+            <!-- Filter Status -->
+            <select id="filter-status" class="form-input-custom !h-10 !text-xs !bg-white !border-slate-300">
+                <option value="">Semua Status</option>
+                <option value="normal">Normal (Aktif)</option>
+                <option value="isolir">Terisolir (172.30.x.x)</option>
+            </select>
+
+            <!-- Per Page Length -->
+            <select id="filter-length" class="form-input-custom !h-10 !text-xs !bg-white !border-slate-300">
+                <option value="10">10 Baris</option>
+                <option value="25">25 Baris</option>
+                <option value="50">50 Baris</option>
+                <option value="100">100 Baris</option>
+            </select>
         </div>
     </div>
 
     <!-- Table Card -->
     <div class="table-card">
         <div class="table-responsive">
-            <table id="pppoe-table" class="admin-table">
+            <table id="pppoe-table" class="admin-table w-full">
                 <thead>
                     <tr>
                         <th style="text-align: center; width: 50px;">#</th>
-                        <th style="width: 200px;">User PPPoE</th>
+                        <th style="width: 220px;">User PPPoE</th>
                         <th style="width: 150px;">Sales</th>
                         <th style="text-align: center; width: 120px;">Uptime</th>
                         <th style="text-align: center; width: 150px;">Remote Address</th>
-                        <th style="text-align: center; width: 180px;">Caller ID</th>
-                        <th style="text-align: center; width: 80px;">Opsi</th>
+                        <th style="text-align: center; width: 170px;">Caller ID (MAC)</th>
+                        <th style="text-align: center; width: 70px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($pppoeActive as $item)
-                        @php
-                            $cid = btoa_safe($item['name'] ?? 'unknown');
-                            $isIsolir = !empty($item['is_isolir']);
-                        @endphp
-                        <tr>
-                            <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}
-                            </td>
-                            <td>
-                                <div style="font-weight: 700; color: #0f172a;">
-                                    {{ $item['name'] ?? '-' }}
-                                    @if ($isIsolir)
-                                        <span
-                                            style="background:#fef2f2; color:#dc2626; padding:2px 6px; border-radius:4px; font-size:9px; font-weight:800; margin-left:4px;">ISOLIR</span>
-                                    @endif
-                                </div>
-                            </td>
-                            <td style="font-weight: 600; color: #475569; font-size: 11px;">
-                                {{ $item['sales_name'] ?? '-' }}</td>
-                            <td style="text-align: center; font-family: monospace; color: #64748b;">
-                                {{ format_uptime_hms($item['uptime'] ?? '') }}
-                            </td>
-                            <td
-                                style="text-align: center; font-family: monospace; font-weight: 700; color: {{ $isIsolir ? '#dc2626' : '#0ea5e9' }};">
-                                {{ $item['address'] ?? '-' }}
-                            </td>
-                            <td style="text-align: center; color: #64748b; font-size: 11px;">
-                                {{ $item['caller-id'] ?? '-' }}</td>
-                            <td style="text-align: center;">
-                                <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Detail"
-                                    onclick="showDetail('{{ $item['name'] ?? '' }}', '{{ $item['sales_name'] ?? '' }}', '{{ $item['address'] ?? '' }}', '{{ $item['uptime'] ?? '' }}', '{{ $item['caller-id'] ?? '' }}', '{{ $item['service'] ?? '' }}', '{{ $item['bytes-in'] ?? 0 }}', '{{ $item['bytes-out'] ?? 0 }}')">
-                                    <i class="fa-solid fa-eye text-primary"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    @endforeach
+                    <!-- Populated dynamically via server-side DataTables -->
                 </tbody>
             </table>
         </div>
@@ -143,25 +194,92 @@
     @section('Scripts')
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
         <script>
+            let forceRefresh = false;
+            let pppoeTable = null;
+
             $(document).ready(function() {
-                const pppoeTable = $('#pppoe-table').DataTable({
-                    "pageLength": 10,
-                    "lengthChange": false,
-                    "ordering": true,
-                    "info": false,
-                    "responsive": true,
-                    "dom": 'tpir',
-                    "language": {
-                        "zeroRecords": "Data PPPoE tidak ditemukan",
-                        "paginate": {
-                            "previous": '<i class="fa-solid fa-chevron-left"></i>',
-                            "next": '<i class="fa-solid fa-chevron-right"></i>'
+                pppoeTable = $('#pppoe-table').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: '{{ route('pppoe.data') }}',
+                        data: function(d) {
+                            d.status = $('#filter-status').val();
+                            if (forceRefresh) {
+                                d.refresh = 1;
+                            }
+                        },
+                        dataSrc: function(json) {
+                            forceRefresh = false;
+                            if (json.totalActive !== undefined) {
+                                $('#stat-total-active').text(new Intl.NumberFormat('id-ID').format(json.totalActive));
+                                $('#stat-total-normal').text(new Intl.NumberFormat('id-ID').format(json.totalNormal));
+                                $('#stat-total-isolir').text(new Intl.NumberFormat('id-ID').format(json.totalIsolir));
+                            }
+                            return json.data || [];
+                        }
+                    },
+                    columns: [
+                        { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center' },
+                        { data: 'user_html', name: 'name' },
+                        { data: 'sales_html', name: 'sales_name' },
+                        { data: 'uptime_html', name: 'uptime', className: 'text-center' },
+                        { data: 'address_html', name: 'address', className: 'text-center' },
+                        { data: 'caller_html', name: 'caller_id', className: 'text-center' },
+                        { data: 'opsi', name: 'opsi', orderable: false, searchable: false, className: 'text-center' }
+                    ],
+                    pageLength: 10,
+                    lengthChange: false,
+                    ordering: true,
+                    order: [[1, 'asc']],
+                    info: false,
+                    responsive: true,
+                    dom: 'tpir',
+                    language: {
+                        processing: "<i class='fa-solid fa-circle-notch fa-spin text-sky-500 text-2xl'></i>",
+                        zeroRecords: "Data PPPoE tidak ditemukan",
+                        paginate: {
+                            previous: '<i class="fa-solid fa-chevron-left"></i>',
+                            next: '<i class="fa-solid fa-chevron-right"></i>'
                         }
                     }
                 });
 
-                $('#custom-search').on('keyup', function() {
-                    pppoeTable.search(this.value).draw();
+                // Debounced Live Search
+                let searchTimeout;
+                $('#custom-search').on('keyup input', function() {
+                    const val = this.value;
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(function() {
+                        pppoeTable.search(val).draw();
+                    }, 300);
+                });
+
+                // Filter Status Change
+                $('#filter-status').on('change', function() {
+                    pppoeTable.draw();
+                });
+
+                // Per Page Length Change
+                $('#filter-length').on('change', function() {
+                    pppoeTable.page.len(parseInt(this.value)).draw();
+                });
+
+                // Live Refresh Button
+                $('#btn-refresh-live').on('click', function() {
+                    const $btn = $(this);
+                    const $icon = $('#refresh-icon');
+                    $icon.addClass('fa-spin');
+                    $btn.prop('disabled', true).css('opacity', '0.7');
+                    forceRefresh = true;
+
+                    pppoeTable.ajax.reload(function() {
+                        $icon.removeClass('fa-spin');
+                        $btn.prop('disabled', false).css('opacity', '1');
+                        if (typeof showToast === 'function') {
+                            showToast('Data PPPoE aktif berhasil diperbarui langsung dari router.', 'success');
+                        }
+                    });
                 });
             });
 
@@ -175,11 +293,7 @@
 
             function formatUptimeToHMS(u) {
                 if (!u) return '00:00:00';
-                let w = 0,
-                    d = 0,
-                    h = 0,
-                    m = 0,
-                    s = 0;
+                let w = 0, d = 0, h = 0, m = 0, s = 0;
                 const mw = u.match(/(\d+)w/),
                     md = u.match(/(\d+)d/),
                     mh = u.match(/(\d+)h/),
@@ -194,15 +308,28 @@
                 return String(totalH).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
             }
 
-            function showDetail(name, sales, addr, uptime, caller, svc, bin, bout) {
+            function showDetail(item) {
+                if (typeof item === 'string') {
+                    try { item = JSON.parse(item); } catch (e) {}
+                }
+                const name = item.name || '-';
+                const sales = item.sales || '-';
+                const addr = item.address || '-';
+                const uptime = item.uptime || '';
+                const caller = item.caller || '-';
+                const bin = item.bytes_in || 0;
+                const bout = item.bytes_out || 0;
+                const isIsolir = item.is_isolir || false;
+
                 $('#modal-content').html(`
                     <div class="space-y-4">
-                        <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">User Name</span><span class="text-sm font-bold text-slate-900">${name}</span></div>
+                        <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">User PPPoE</span><span class="text-sm font-bold text-slate-900">${name}</span></div>
+                        <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Status</span><span class="text-xs font-bold ${isIsolir ? 'text-rose-600' : 'text-emerald-600'}">${isIsolir ? 'TERISOLIR (172.30.x.x)' : 'AKTIF NORMAL'}</span></div>
                         <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Sales</span><span class="text-sm font-bold text-slate-900">${sales}</span></div>
-                        <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Remote Address</span><span class="text-sm font-bold text-primary font-mono">${addr}</span></div>
-                        <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Uptime</span><span class="text-sm font-bold text-slate-700">${formatUptimeToHMS(uptime)}</span></div>
-                        <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Total Upload (TX)</span><span class="text-sm font-bold text-orange-600">${formatBytes(bin)}</span></div>
-                        <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Total Download (RX)</span><span class="text-sm font-bold text-sky-600">${formatBytes(bout)}</span></div>
+                        <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Remote Address</span><span class="text-sm font-bold ${isIsolir ? 'text-rose-600' : 'text-primary'} font-mono">${addr}</span></div>
+                        <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Uptime</span><span class="text-sm font-bold text-slate-700 font-mono">${formatUptimeToHMS(uptime)}</span></div>
+                        <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Total Upload (TX)</span><span class="text-sm font-bold text-orange-600 font-mono">${formatBytes(bin)}</span></div>
+                        <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Total Download (RX)</span><span class="text-sm font-bold text-sky-600 font-mono">${formatBytes(bout)}</span></div>
                         <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Caller ID (MAC)</span><span class="text-sm font-bold text-slate-700 font-mono">${caller || '-'}</span></div>
                         
                         <div class="mt-6">
@@ -270,7 +397,6 @@
                         if (res.success) {
                             showToast(res.message, 'success');
                             if (newTab) {
-                                // Ubah UI untuk indikator selesai dan mulai hitung mundur 4 detik untuk propagasi DNS Cloudflare
                                 newTab.document.getElementById('status-text').innerHTML = 'Tunnel aktif! Mengarahkan lalu lintas dalam <span id="countdown" class="font-bold text-sky-600 text-base">4</span> detik untuk memastikan kestabilan jalur...';
                                 let count = 4;
                                 const interval = setInterval(() => {
