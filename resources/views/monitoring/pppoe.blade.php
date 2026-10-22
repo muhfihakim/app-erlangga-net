@@ -128,21 +128,25 @@
             <input type="search" class="search-input" id="custom-search"
                 placeholder="Live Search user, sales, IP, atau MAC..." autocomplete="off" />
         </div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:nowrap;">
             <!-- Filter Status -->
-            <select id="filter-status" class="form-input-custom !h-10 !text-xs !bg-white !border-slate-300">
-                <option value="">Semua Status</option>
-                <option value="normal">Normal (Aktif)</option>
-                <option value="isolir">Terisolir (172.30.x.x)</option>
-            </select>
+            <div style="min-width: 160px; max-width: 190px;">
+                <select id="filter-status" class="form-input-custom !h-10 !text-xs !bg-white !border-slate-300 !w-full cursor-pointer">
+                    <option value="">Semua Status</option>
+                    <option value="normal">Normal (Aktif)</option>
+                    <option value="isolir">Terisolir (172.30.x.x)</option>
+                </select>
+            </div>
 
             <!-- Per Page Length -->
-            <select id="filter-length" class="form-input-custom !h-10 !text-xs !bg-white !border-slate-300">
-                <option value="10">10 Baris</option>
-                <option value="25">25 Baris</option>
-                <option value="50">50 Baris</option>
-                <option value="100">100 Baris</option>
-            </select>
+            <div style="min-width: 110px; max-width: 130px;">
+                <select id="filter-length" class="form-input-custom !h-10 !text-xs !bg-white !border-slate-300 !w-full cursor-pointer">
+                    <option value="10">10 Baris</option>
+                    <option value="25">25 Baris</option>
+                    <option value="50">50 Baris</option>
+                    <option value="100">100 Baris</option>
+                </select>
+            </div>
         </div>
     </div>
 
