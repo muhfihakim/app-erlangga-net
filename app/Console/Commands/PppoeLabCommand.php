@@ -17,7 +17,7 @@ class PppoeLabCommand extends Command
      * @var string
      */
     protected $signature = 'pppoe:lab 
-                            {action : sync (sinkronkan ke FreeRADIUS) | export (buat file script dial MikroTik) | check (cek kesiapan lab)}
+                            {action : check/status (cek kesiapan lab) | sync (sinkronkan ke FreeRADIUS) | export (buat file script dial MikroTik)}
                             {--interface=ether2 : Nama interface tester pada MikroTik Client}
                             {--output=dial_all.rsc : Nama file output script MikroTik}';
 
@@ -34,13 +34,14 @@ class PppoeLabCommand extends Command
 
         switch ($action) {
             case 'check':
+            case 'status':
                 return $this->handleCheck();
             case 'sync':
                 return $this->handleSync();
             case 'export':
                 return $this->handleExport();
             default:
-                $this->error("Aksi tidak valid! Gunakan: check, sync, atau export.");
+                $this->error("Aksi tidak valid! Gunakan: check (atau status), sync, atau export.");
                 return 1;
         }
     }
