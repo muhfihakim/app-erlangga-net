@@ -26,7 +26,10 @@ Route::post('/isolir/search', [IsolirController::class, 'search'])->name('isolir
 Route::post('/isolir/{invoice}/pay', [IsolirController::class, 'payXendit'])->name('isolir.pay');
 Route::get('/isolir/{invoice}/status', [IsolirController::class, 'checkStatus'])->name('isolir.status');
 
-Route::get('/', function () {
+Route::get('/', function (\Illuminate\Http\Request $request) {
+    if (str_starts_with($request->getHost(), 'isolir.') || $request->getHost() === 'isolir.erlangga.net') {
+        return app(IsolirController::class)->index($request);
+    }
     return redirect('/login');
 });
 
