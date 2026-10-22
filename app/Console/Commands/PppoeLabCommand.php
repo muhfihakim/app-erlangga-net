@@ -46,9 +46,39 @@ class PppoeLabCommand extends Command
         }
     }
 
+    protected function checkRadiusConnection(): bool
+    {
+        try {
+            \Illuminate\Support\Facades\DB::connection('radius')->getPdo();
+            return true;
+        } catch (\Throwable $e) {
+            $config = config('database.connections.radius');
+            $this->error("Gagal terhubung ke database FreeRADIUS!");
+            $this->line("Host     : " . ($config['host'] ?? '-'));
+            $this->line("Port     : " . ($config['port'] ?? '-'));
+            $this->line("Database : " . ($config['database'] ?? '-'));
+            $this->line("Username : " . ($config['username'] ?? '-'));
+            $this->line("Error    : " . $e->getMessage());
+            $this->newLine();
+            $this->warn("Pastikan kredensial database FreeRADIUS sudah diisi di file .env:");
+            $this->line("  DB_RADIUS_HOST=" . ($config['host'] ?: '127.0.0.1'));
+            $this->line("  DB_RADIUS_PORT=" . ($config['port'] ?: '3306'));
+            $this->line("  DB_RADIUS_DATABASE=" . ($config['database'] ?: 'radius'));
+            $this->line("  DB_RADIUS_USERNAME=" . ($config['username'] ?: 'radius'));
+            $this->line("  DB_RADIUS_PASSWORD=password_database_anda");
+            $this->newLine();
+            $this->comment("Atau bisa dikonfigurasi melalui panel web menu Settings -> Database Radius.");
+            return false;
+        }
+    }
+
     protected function handleCheck(): int
     {
         $this->info("=== PENGECEKAN KESIAPAN LAB PPPOE ===");
+
+        if (!$this->checkRadiusConnection()) {
+            return 1;
+        }
         
         $totalPppoe = Pppoe::count();
         $totalRadcheck = Radcheck::count();
@@ -78,6 +108,10 @@ class PppoeLabCommand extends Command
 
     protected function handleSync(): int
     {
+        if (!$this->checkRadiusConnection()) {
+            return 1;
+        }
+
         $this->info("1. Memeriksa group 'ISOLIR' pada radgroupreply FreeRADIUS...");
         
         $isolirProfile = Radgroupreply::where('groupname', 'ISOLIR')
