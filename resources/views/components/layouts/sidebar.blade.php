@@ -15,13 +15,13 @@
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
     <!-- Logo -->
-    <div class="sidebar-logo" style="display: flex; justify-content: center; align-items: center; padding: 0.75rem 0rem;">
+    <div class="sidebar-logo" style="display: flex; justify-content: center; align-items: center; padding: 1rem 0rem;">
         <img src="{{ asset('dist/assets/img/logo.png') }}" alt="Erlangga Net Logo"
             style="height: 58px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));">
     </div>
 
     <!-- Navigation -->
-    <nav style="padding-top: 0.5rem; padding-bottom: 1rem; flex: 1;">
+    <nav style="padding-top: 0.85rem; padding-bottom: 1.5rem; flex: 1;">
         <!-- 1. DASHBOARD (Overview) -->
         <a class="sidebar-link {{ Request::is('dashboard') ? 'active' : '' }}" href="{{ route('dashboards.index') }}">
             <i class="fa-solid fa-gauge"></i>

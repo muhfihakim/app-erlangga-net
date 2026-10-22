@@ -83,18 +83,18 @@
         color: #475569;
     }
     .sidebar-link {
-        display: flex; align-items: center; gap: 10px;
-        padding: .6rem 1.5rem;
-        color: #94a3b8; font-size: 13.5px; font-weight: 500;
-        border-radius: 0; cursor: pointer;
+        display: flex; align-items: center; gap: 12px;
+        padding: .7rem 1.25rem;
+        color: #94a3b8; font-size: 13.5px; font-weight: 600;
+        border-radius: 10px; cursor: pointer;
         text-decoration: none; transition: all .2s ease;
-        position: relative;
+        margin: 4px 12px;
+        width: calc(100% - 24px);
     }
     .sidebar-link i { width: 18px; text-align: center; font-size: 14px; }
     .sidebar-link:hover { background: #1e293b; color: #f8fafc; }
     .sidebar-link.active {
         background: #1e3a5f; color: #38bdf8;
-        border-right: 3px solid #0ea5e9;
     }
     .sidebar-link.active i { color: #0ea5e9; }
     .sidebar-badge {
@@ -104,23 +104,24 @@
 
     /* ── Sidebar Accordion Group ── */
     .sidebar-group {
-        margin-bottom: 2px;
+        margin-bottom: 6px;
     }
     .sidebar-group-btn {
-        width: 100%;
+        width: calc(100% - 24px);
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: .6rem 1.5rem;
+        padding: .7rem 1.25rem;
         color: #94a3b8;
         font-size: 13.5px;
-        font-weight: 500;
+        font-weight: 600;
         background: transparent;
         border: none;
         cursor: pointer;
         text-decoration: none;
         transition: all .2s ease;
-        position: relative;
+        border-radius: 10px;
+        margin: 4px 12px;
     }
     .sidebar-group-btn:hover {
         background: #1e293b;
@@ -128,6 +129,7 @@
     }
     .sidebar-group-btn.active {
         color: #38bdf8;
+        background: rgba(14, 165, 233, 0.08);
     }
     .sidebar-group-btn.active i:first-child {
         color: #0ea5e9;
@@ -146,9 +148,11 @@
         max-height: 0;
         overflow: hidden;
         transition: max-height .3s cubic-bezier(0.4, 0, 0.2, 1);
-        background: rgba(15, 23, 42, 0.6);
         border-left: 2px solid #1e293b;
-        margin-left: 1.5rem;
+        margin-left: 2rem;
+        margin-top: 3px;
+        margin-bottom: 3px;
+        padding: 3px 0;
     }
     .sidebar-group-content.open {
         max-height: 500px;
@@ -157,14 +161,15 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        padding: .45rem 1rem .45rem 1rem;
+        padding: .55rem 1rem;
         color: #94a3b8;
         font-size: 12.5px;
         font-weight: 500;
         text-decoration: none;
         transition: all .15s ease;
-        border-radius: 6px;
-        margin: 2px 6px;
+        border-radius: 8px;
+        margin: 4px 8px;
+        width: calc(100% - 16px);
     }
     .sidebar-sublink:hover {
         background: #1e293b;
