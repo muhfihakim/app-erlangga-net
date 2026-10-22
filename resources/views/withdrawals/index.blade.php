@@ -590,7 +590,7 @@
     </div>
 
     <!-- OTP Verification Modal -->
-    <div class="modal-overlay" id="otpModal">
+    <div class="modal-overlay modal-centered" id="otpModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
             <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
                 <div class="modal-title">

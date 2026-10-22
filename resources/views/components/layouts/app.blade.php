@@ -31,9 +31,9 @@
     <x-layouts.mobile-nav />
 
     <!-- Global Delete Confirmation Modal -->
-    <div class="modal-overlay" id="globalDeleteModal">
+    <div class="modal-overlay modal-centered" id="globalDeleteModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
-            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white">
                 <div class="modal-title">
                     <i class="fa-solid fa-trash text-rose-600"></i>
                     <span class="text-slate-900 font-bold text-[17px]">Hapus Data?</span>
@@ -42,7 +42,7 @@
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="modal-body p-8 bg-white">
+            <div class="modal-body p-6 bg-white">
                 <div class="bg-rose-50 p-4 rounded-2xl border border-rose-100 text-center">
                     <i class="fa-solid fa-triangle-exclamation text-rose-600 text-3xl mb-3"></i>
                     <p class="text-sm font-bold text-slate-800 leading-relaxed">
@@ -50,7 +50,7 @@
                     </p>
                 </div>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+            <div class="modal-footer border-t border-slate-200 bg-slate-50">
                 <form id="globalDeleteForm" method="POST" class="w-full flex justify-center gap-3">
                     @csrf
                     @method('DELETE')
@@ -115,7 +115,10 @@
             const modal = document.getElementById(modalId);
             if (modal) {
                 modal.classList.remove('open');
-                document.body.style.overflow = '';
+                // Only restore body scrolling if no other modals are still open
+                if (!document.querySelector('.modal-overlay.open')) {
+                    document.body.style.overflow = '';
+                }
             }
         }
 
@@ -183,9 +186,20 @@
                 localStorage.setItem('app_token', '{{ session('api_token') }}');
             @endif
             
-            // Handle clicking outside to close
-            $('.modal-overlay').on('click', function(e) {
+            // Global Modal Backdrop Click Delegation
+            $(document).on('click', '.modal-overlay', function(e) {
                 if (e.target === this) closeCustomModal(this.id);
+            });
+
+            // Global Modal Escape Key Listener
+            $(document).on('keydown', function(e) {
+                if (e.key === 'Escape' || e.keyCode === 27) {
+                    const openModals = document.querySelectorAll('.modal-overlay.open');
+                    if (openModals.length > 0) {
+                        const topModal = openModals[openModals.length - 1];
+                        closeCustomModal(topModal.id);
+                    }
+                }
             });
 
             // Global Form Validation Interceptor (Smart Client-Side Validation)

@@ -300,7 +300,7 @@
             <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
                 <div class="modal-title"><i class="fa-solid fa-circle-info text-primary"></i> <span
                         class="text-slate-900 font-bold">Detail Tugas Maintenance</span></div>
-                <button class="modal-close" onclick="closeCustomModal('maintenanceDetailModal')"><i
+                <button type="button" class="modal-close" onclick="closeCustomModal('maintenanceDetailModal')"><i
                         class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="modal-body p-8 bg-white space-y-6">
@@ -357,7 +357,7 @@
             <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
                 <div class="modal-title"><i class="fa-solid fa-file-circle-check text-emerald-500"></i> <span
                         class="text-slate-900 font-bold">Hasil Perbaikan Maintenance</span></div>
-                <button class="modal-close" onclick="closeCustomModal('maintenanceResultModal')"><i
+                <button type="button" class="modal-close" onclick="closeCustomModal('maintenanceResultModal')"><i
                         class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="modal-body p-0 bg-white">

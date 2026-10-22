@@ -525,7 +525,7 @@
     </div>
 
     <!-- Confirm Delete Backup Modal -->
-    <div class="modal-overlay" id="deleteBackupModal">
+    <div class="modal-overlay modal-centered" id="deleteBackupModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
             <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
                 <div class="modal-title">
@@ -569,7 +569,7 @@
     </div>
 
     <!-- Confirm Import Modal (Same UI Style as Global Delete) -->
-    <div class="modal-overlay" id="confirmImportModal">
+    <div class="modal-overlay modal-centered" id="confirmImportModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
             <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
                 <div class="modal-title">
@@ -612,7 +612,7 @@
     </div>
 
     <!-- Confirm Reset Modal (Same UI Style as Global Delete) -->
-    <div class="modal-overlay" id="resetModal">
+    <div class="modal-overlay modal-centered" id="resetModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
             <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
                 <div class="modal-title">
@@ -651,7 +651,7 @@
     </div>
 
     <!-- Modal Loading Progress -->
-    <div class="modal-overlay" id="loadingModal">
+    <div class="modal-overlay modal-centered" id="loadingModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl p-8 text-center rounded-3xl">
             <div
                 class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4 animate-bounce">

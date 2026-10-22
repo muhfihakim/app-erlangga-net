@@ -286,7 +286,7 @@
     </div>
 
     <!-- Modal: Reboot ONT -->
-    <div class="modal-overlay" id="rebootModal">
+    <div class="modal-overlay modal-centered" id="rebootModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
             <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
                 <div class="modal-title flex items-center gap-2">

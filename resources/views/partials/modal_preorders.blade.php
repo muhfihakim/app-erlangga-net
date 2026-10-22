@@ -7,7 +7,7 @@
                     <i class="fa-solid fa-user-plus text-primary"></i>
                     <span class="text-slate-900 font-bold">Tambah Pre-Order Baru</span>
                 </div>
-                <button class="modal-close" onclick="closeCustomModal('addPreOrderModal')">
+                <button type="button" class="modal-close" onclick="closeCustomModal('addPreOrderModal')">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
@@ -132,7 +132,7 @@
                 <i class="fa-solid fa-pen-to-square text-amber-500"></i>
                 <span class="text-slate-900 font-bold">Edit Data Pre-Order</span>
             </div>
-            <button class="modal-close" onclick="closeCustomModal('editModal')">
+            <button type="button" class="modal-close" onclick="closeCustomModal('editModal')">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
@@ -244,7 +244,7 @@
                 <i class="fa-solid fa-circle-info text-primary"></i>
                 <span class="text-slate-900 font-bold">Detail Informasi Pelanggan</span>
             </div>
-            <button class="modal-close" onclick="closeCustomModal('detailModal')">
+            <button type="button" class="modal-close" onclick="closeCustomModal('detailModal')">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
@@ -380,7 +380,7 @@
     <div class="modal-box max-w-5xl bg-white border border-slate-300 shadow-2xl">
         <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
             <div class="modal-title text-slate-900 font-bold">Lokasi Pemasangan</div>
-            <button class="modal-close" onclick="closeCustomModal('mapModal')"><i
+            <button type="button" class="modal-close" onclick="closeCustomModal('mapModal')"><i
                     class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="modal-body !p-0 overflow-hidden bg-white">
@@ -400,7 +400,7 @@
 </div>
 
 {{-- Modal Unspek --}}
-<div class="modal-overlay" id="unspekModal">
+<div class="modal-overlay modal-centered" id="unspekModal">
     <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
         <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
             <div class="modal-title">

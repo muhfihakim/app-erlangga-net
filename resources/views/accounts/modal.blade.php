@@ -153,7 +153,7 @@
  </div>
 
  {{-- Modal Hapus --}}
- <div class="modal-overlay" id="deleteModal">
+ <div class="modal-overlay modal-centered" id="deleteModal">
      <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
          <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
              <div class="modal-title">
@@ -184,7 +184,7 @@
  </div>
 
  {{-- Modal QR Code 2FA --}}
- <div class="modal-overlay" id="qrModal">
+ <div class="modal-overlay modal-centered" id="qrModal">
      <div class="modal-box max-w-sm bg-white border border-slate-300 shadow-2xl text-center">
          <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
              <div class="modal-title">
@@ -207,7 +207,7 @@
  </div>
 
  {{-- Modal Reset 2FA --}}
- <div class="modal-overlay" id="reset2FAModal">
+ <div class="modal-overlay modal-centered" id="reset2FAModal">
      <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl text-center">
          <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
              <div class="modal-title">
@@ -237,7 +237,7 @@
  </div>
 
  {{-- Modal Toggle Status --}}
- <div class="modal-overlay" id="toggleStatusModal">
+ <div class="modal-overlay modal-centered" id="toggleStatusModal">
      <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
          <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
              <div class="modal-title">

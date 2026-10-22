@@ -366,7 +366,7 @@
             display: none !important;
         }
     </style>
-    <div class="modal-overlay !items-center" id="customerDetailModal">
+    <div class="modal-overlay" id="customerDetailModal">
         <div class="modal-box max-w-4xl bg-white border border-slate-300 shadow-2xl">
             @if ($is_admin)
                 <form id="detailFormInline" action="" method="POST" enctype="multipart/form-data">
@@ -775,7 +775,7 @@
     </div>
 
     <!-- Modal Detail ACS Live (GenieACS TR-069) -->
-    <div class="modal-overlay !items-center" id="customerAcsModal">
+    <div class="modal-overlay" id="customerAcsModal">
         <div class="modal-box max-w-3xl bg-white border border-slate-300 shadow-2xl overflow-hidden rounded-2xl">
             <div class="modal-header border-b border-slate-200 bg-white p-5 flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -790,8 +790,8 @@
                         </p>
                     </div>
                 </div>
-                <button type="button" class="modal-close text-slate-400 hover:text-slate-600 p-2" onclick="closeCustomModal('customerAcsModal')">
-                    <i class="fa-solid fa-xmark text-lg"></i>
+                <button type="button" class="modal-close" onclick="closeCustomModal('customerAcsModal')">
+                    <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
@@ -981,7 +981,7 @@
     </div>
 
     <!-- Modal Isolir Customer -->
-    <div class="modal-overlay !items-center" id="isolirCustomerModal">
+    <div class="modal-overlay modal-centered" id="isolirCustomerModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
             <div class="modal-header border-b border-slate-200 bg-rose-50/50 p-5 flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -993,8 +993,8 @@
                         <p class="text-xs text-slate-500 m-0">Alihkan paket ke profil isolir FreeRADIUS & MikroTik</p>
                     </div>
                 </div>
-                <button type="button" class="btn-close text-slate-400 hover:text-slate-600" onclick="closeCustomModal('isolirCustomerModal')">
-                    <i class="fa-solid fa-xmark text-lg"></i>
+                <button type="button" class="modal-close" onclick="closeCustomModal('isolirCustomerModal')">
+                    <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <form id="isolirCustomerForm" method="POST" action="">
@@ -1027,7 +1027,7 @@
     </div>
 
     <!-- Modal Buka Isolir Customer -->
-    <div class="modal-overlay !items-center" id="bukaIsolirCustomerModal">
+    <div class="modal-overlay modal-centered" id="bukaIsolirCustomerModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
             <div class="modal-header border-b border-slate-200 bg-emerald-50/50 p-5 flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -1039,8 +1039,8 @@
                         <p class="text-xs text-slate-500 m-0">Kembalikan kecepatan dan akses internet normal</p>
                     </div>
                 </div>
-                <button type="button" class="btn-close text-slate-400 hover:text-slate-600" onclick="closeCustomModal('bukaIsolirCustomerModal')">
-                    <i class="fa-solid fa-xmark text-lg"></i>
+                <button type="button" class="modal-close" onclick="closeCustomModal('bukaIsolirCustomerModal')">
+                    <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <form id="bukaIsolirCustomerForm" method="POST" action="">

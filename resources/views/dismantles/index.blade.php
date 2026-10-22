@@ -342,7 +342,7 @@
             <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
                 <div class="modal-title"><i class="fa-solid fa-circle-info text-primary"></i> <span
                         class="text-slate-900 font-bold">Info Lengkap Dismantle</span></div>
-                <button class="modal-close" onclick="closeCustomModal('detailDismantleModal')"><i
+                <button type="button" class="modal-close" onclick="closeCustomModal('detailDismantleModal')"><i
                         class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="modal-body p-6 space-y-6">

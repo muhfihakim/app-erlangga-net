@@ -270,7 +270,7 @@
                     <i class="fa-solid fa-circle-info text-primary"></i>
                     <span class="text-slate-900 font-bold">Detail Perbantuan</span>
                 </div>
-                <button class="modal-close" onclick="closeCustomModal('detailModal')">
+                <button type="button" class="modal-close" onclick="closeCustomModal('detailModal')">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>

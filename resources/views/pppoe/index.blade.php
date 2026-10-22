@@ -352,7 +352,7 @@
     </div>
 
     <!-- Modal Isolir PPPoE -->
-    <div class="modal-overlay !items-center" id="isolirPppoeModal">
+    <div class="modal-overlay modal-centered" id="isolirPppoeModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
             <div class="modal-header border-b border-slate-200 bg-rose-50/50 p-5 flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -364,8 +364,8 @@
                         <p class="text-xs text-slate-500 m-0">Putus akses & alihkan ke profil isolir</p>
                     </div>
                 </div>
-                <button type="button" class="btn-close text-slate-400 hover:text-slate-600" onclick="closeCustomModal('isolirPppoeModal')">
-                    <i class="fa-solid fa-xmark text-lg"></i>
+                <button type="button" class="modal-close" onclick="closeCustomModal('isolirPppoeModal')">
+                    <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <form id="isolirPppoeForm" method="POST" action="">
@@ -398,7 +398,7 @@
     </div>
 
     <!-- Modal Buka Isolir PPPoE -->
-    <div class="modal-overlay !items-center" id="bukaIsolirPppoeModal">
+    <div class="modal-overlay modal-centered" id="bukaIsolirPppoeModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
             <div class="modal-header border-b border-slate-200 bg-emerald-50/50 p-5 flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -410,8 +410,8 @@
                         <p class="text-xs text-slate-500 m-0">Kembalikan kecepatan dan akses normal</p>
                     </div>
                 </div>
-                <button type="button" class="btn-close text-slate-400 hover:text-slate-600" onclick="closeCustomModal('bukaIsolirPppoeModal')">
-                    <i class="fa-solid fa-xmark text-lg"></i>
+                <button type="button" class="modal-close" onclick="closeCustomModal('bukaIsolirPppoeModal')">
+                    <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <form id="bukaIsolirPppoeForm" method="POST" action="">

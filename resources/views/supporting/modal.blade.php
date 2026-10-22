@@ -5,7 +5,7 @@
                 <i class="fa-solid fa-handshake-angle text-primary"></i>
                 <span class="text-slate-900 font-bold" id="modalTitle">Tambah Perbantuan</span>
             </div>
-            <button class="modal-close" onclick="closeCustomModal('supportingModal')">
+            <button type="button" class="modal-close" onclick="closeCustomModal('supportingModal')">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>

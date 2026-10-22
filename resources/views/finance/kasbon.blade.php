@@ -204,7 +204,7 @@
             </div>
             <form action="{{ route('kasbons.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <div class="modal-body bg-slate-50">
+                <div class="modal-body bg-white p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div class="form-group md:col-span-2">
                             <label class="form-label-custom">Teknisi <span class="text-red-500">*</span></label>
@@ -236,7 +236,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-t border-slate-200 bg-white rounded-b-2xl">
+                <div class="modal-footer border-t border-slate-200 bg-slate-50">
                     <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
                         onclick="closeCustomModal('kasbonModal')">
                         <i class="fa-solid fa-xmark"></i> Batal
