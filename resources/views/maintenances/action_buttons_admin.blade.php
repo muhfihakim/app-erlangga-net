@@ -1,5 +1,5 @@
-<div class="flex items-center justify-center gap-2">
-    <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+<div class="flex items-center justify-center gap-1.5">
+    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Detail Kendala"
         onclick="openMaintenanceDetailModal(this)"
         data-nama="{{ $m->customer->nama_lengkap ?? 'N/A' }}"
         data-id-pel="{{ $m->customer->id_pelanggan ?? '-' }}"
@@ -9,10 +9,10 @@
         data-alamat="{{ $m->customer->alamat_lengkap ?? '-' }}"
         data-kendala="{{ $m->keterangan_kendala }}"
         data-foto="{{ $m->foto_kendala_awal ? Storage::url($m->foto_kendala_awal) : '' }}">
-        <i class="fa-solid fa-circle-info text-primary"></i>
+        <i class="fa-solid fa-circle-info text-slate-500"></i>
     </button>
     @if ($m->status === 'Selesai')
-        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Hasil Pemeliharaan"
             onclick="openMaintenanceResultModal(this)"
             data-nama="{{ $m->customer->nama_lengkap ?? 'N/A' }}"
             data-eksekutor="{{ $m->teknisiEksekutor->nama_lengkap ?? 'N/A' }}"
@@ -25,11 +25,11 @@
             data-foto-after="{{ Storage::url($m->foto_setelah_perbaikan) }}"
             data-foto-speed="{{ Storage::url($m->foto_speedtest) }}"
             data-foto-selfie="{{ Storage::url($m->foto_selfie_teknisi) }}">
-            <i class="fa-solid fa-file-circle-check text-emerald-500"></i>
+            <i class="fa-solid fa-file-circle-check text-emerald-600"></i>
         </button>
     @endif
-    <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50" title="Hapus Tugas"
         onclick="confirmGlobalDelete('{{ route('maintenances.destroy', $m->id) }}', '{{ $m->customer->nama_lengkap ?? 'N/A' }}')">
-        <i class="fa-solid fa-trash text-rose-600"></i>
+        <i class="fa-solid fa-trash text-slate-400 hover:text-rose-500"></i>
     </button>
 </div>
