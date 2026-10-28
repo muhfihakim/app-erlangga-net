@@ -1,31 +1,32 @@
 {{-- Modal Tambah Pre-Order --}}
 @if (auth()->user()->jabatan === 'Sales' || auth()->user()->isAdmin())
     <div class="modal-overlay" id="addPreOrderModal">
-        <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+        <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
+            <!-- Header -->
             <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-100 shrink-0">
+                    <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center text-sm border border-slate-200 shrink-0">
                         <i class="fa-solid fa-user-plus"></i>
                     </div>
                     <div>
-                        <h3 class="text-base font-bold text-slate-800 leading-tight">Tambah Pre-Order Baru</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Registrasi calon pelanggan baru untuk survei dan pemasangan.</p>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Tambah Pre-Order Baru</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Registrasi calon pelanggan baru untuk survei dan pemasangan.</p>
                     </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('addPreOrderModal')">
-                    &times;
+                    <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <div class="modal-tabs bg-slate-50 border-b border-slate-200 px-6 pt-2 flex gap-2">
-                <button type="button" class="modal-tab active !rounded-t-lg !border-b-0 !px-4 !py-2 text-xs font-semibold text-slate-600 transition-all hover:text-slate-800" data-tab="add-tab-biodata">
-                    <i class="fa-solid fa-user mr-1.5 text-slate-400"></i> Biodata
+            <div class="modal-tabs bg-white border-b border-slate-200 px-6">
+                <button type="button" class="modal-tab active" data-tab="add-tab-biodata">
+                    <i class="fa-regular fa-user text-xs"></i> Biodata
                 </button>
-                <button type="button" class="modal-tab !rounded-t-lg !border-b-0 !px-4 !py-2 text-xs font-semibold text-slate-600 transition-all hover:text-slate-800" data-tab="add-tab-paket">
-                    <i class="fa-solid fa-box-archive mr-1.5 text-slate-400"></i> Paket & Lokasi
+                <button type="button" class="modal-tab" data-tab="add-tab-paket">
+                    <i class="fa-regular fa-folder-open text-xs"></i> Paket & Lokasi
                 </button>
-                <button type="button" class="modal-tab !rounded-t-lg !border-b-0 !px-4 !py-2 text-xs font-semibold text-slate-600 transition-all hover:text-slate-800" data-tab="add-tab-media">
-                    <i class="fa-solid fa-camera mr-1.5 text-slate-400"></i> Foto / Media
+                <button type="button" class="modal-tab" data-tab="add-tab-media">
+                    <i class="fa-regular fa-image text-xs"></i> Foto / Media
                 </button>
             </div>
 
