@@ -31,37 +31,42 @@
     <x-layouts.mobile-nav />
 
     <!-- Global Delete Confirmation Modal -->
-    <div class="modal-overlay modal-centered" id="globalDeleteModal">
-        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
-            <div class="modal-header border-b border-slate-200 bg-white">
-                <div class="modal-title">
-                    <i class="fa-solid fa-trash text-rose-600"></i>
-                    <span class="text-slate-900 font-bold text-[17px]">Hapus Data?</span>
+    <div class="modal-overlay" id="globalDeleteModal">
+        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-sm border border-rose-100 shrink-0">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Hapus Data</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Konfirmasi penghapusan data sistem.</p>
+                    </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('globalDeleteModal')">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="modal-body p-6 bg-white">
-                <div class="bg-rose-50 p-4 rounded-2xl border border-rose-100 text-center">
-                    <i class="fa-solid fa-triangle-exclamation text-rose-600 text-3xl mb-3"></i>
-                    <p class="text-sm font-bold text-slate-800 leading-relaxed">
-                        Apakah Anda yakin ingin menghapus data <span class="text-rose-600" id="global-delete-name"></span>? Tindakan ini tidak dapat dibatalkan.
+            <div class="modal-body p-5 bg-white">
+                <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 space-y-1">
+                    <div class="font-bold flex items-center gap-1.5 text-rose-900">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Peringatan:
+                    </div>
+                    <p class="m-0 leading-relaxed text-slate-700">
+                        Apakah Anda yakin ingin menghapus data <strong class="text-rose-700 font-bold" id="global-delete-name"></strong>? Tindakan ini tidak dapat dibatalkan.
                     </p>
                 </div>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50">
-                <form id="globalDeleteForm" method="POST" class="w-full flex justify-center gap-3">
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2">
+                <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" 
+                    onclick="closeCustomModal('globalDeleteModal')">
+                    Batal
+                </button>
+                <form id="globalDeleteForm" method="POST" class="m-0">
                     @csrf
                     @method('DELETE')
-                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2" 
-                        style="padding: 10px 24px;"
-                        onclick="closeCustomModal('globalDeleteModal')">
-                        <i class="fa-solid fa-xmark"></i> Batal
-                    </button>
-                    <button type="submit" class="btn-save !bg-rose-600 !flex !items-center !justify-center gap-2"
-                        style="padding: 10px 24px;">
-                        <i class="fa-solid fa-trash-can"></i> Ya, Hapus!
+                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-9 !px-5 text-xs font-semibold">
+                        Ya, Hapus
                     </button>
                 </form>
             </div>

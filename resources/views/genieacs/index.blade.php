@@ -286,30 +286,38 @@
     </div>
 
     <!-- Modal: Reboot ONT -->
-    <div class="modal-overlay modal-centered" id="rebootModal">
-        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
-            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                <div class="modal-title flex items-center gap-2">
-                    <i class="fa-solid fa-power-off text-rose-600"></i>
-                    <span class="text-slate-900 font-bold text-base">Reboot ONT Pelanggan</span>
+    <div class="modal-overlay" id="rebootModal">
+        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-sm border border-rose-100 shrink-0">
+                        <i class="fa-solid fa-power-off"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Reboot ONT Pelanggan</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Kirim sinyal restart modem via GenieACS.</p>
+                    </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('rebootModal')">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="modal-body p-6 text-center">
-                <div class="w-14 h-14 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-3">
-                    <i class="fa-solid fa-rotate-right"></i>
+            <div class="modal-body p-5 bg-white">
+                <div class="bg-rose-50 p-4 rounded-xl border border-rose-200 text-center">
+                    <p class="text-xs font-bold text-slate-800 leading-relaxed mb-1">
+                        Restart Perangkat ONT <span class="font-mono text-rose-700 font-bold" id="reboot-serial-span"></span>?
+                    </p>
+                    <p class="text-[11px] text-slate-500 m-0 leading-relaxed">
+                        Koneksi internet pelanggan akan terputus sementara selama 1-2 menit hingga proses restart selesai.
+                    </p>
                 </div>
-                <h3 class="text-sm font-bold text-slate-800 mb-1">Restart Perangkat ONT?</h3>
-                <p class="text-xs text-slate-500 leading-relaxed">
-                    Perintah reboot akan dikirim ke ONT <span class="font-mono font-bold text-slate-800" id="reboot-serial-span"></span>. Koneksi internet pelanggan akan terputus sementara selama 1-2 menit.
-                </p>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl p-4 flex justify-end gap-2">
-                <button type="button" class="btn-cancel" onclick="closeCustomModal('rebootModal')">Batal</button>
-                <button type="button" onclick="executeReboot()" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 flex items-center gap-2" id="btn-submit-reboot">
-                    <i class="fa-solid fa-power-off"></i> Ya, Reboot Sekarang
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2">
+                <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('rebootModal')">
+                    Batal
+                </button>
+                <button type="button" onclick="executeReboot()" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-9 !px-5 text-xs font-semibold" id="btn-submit-reboot">
+                    Ya, Reboot
                 </button>
             </div>
         </div>

@@ -525,125 +525,125 @@
     </div>
 
     <!-- Confirm Delete Backup Modal -->
-    <div class="modal-overlay modal-centered" id="deleteBackupModal">
-        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
-            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                <div class="modal-title">
-                    <i class="fa-solid fa-trash text-rose-600"></i>
-                    <span class="text-slate-900 font-bold text-[17px]">Hapus File Backup?</span>
+    <div class="modal-overlay" id="deleteBackupModal">
+        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-sm border border-rose-100 shrink-0">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Hapus File Backup</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Konfirmasi penghapusan file arsip backup.</p>
+                    </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('deleteBackupModal')">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="modal-body p-8 bg-white">
-                <div class="bg-rose-50 p-4 rounded-2xl border border-rose-100 text-center">
-                    <i class="fa-solid fa-triangle-exclamation text-rose-600 text-3xl mb-3"></i>
-                    <p class="text-sm font-bold text-slate-800 leading-relaxed">
+            <div class="modal-body p-5 bg-white">
+                <div class="bg-rose-50 p-4 rounded-xl border border-rose-200 text-center">
+                    <p class="text-xs font-bold text-slate-800 leading-relaxed mb-2">
                         Apakah Anda yakin ingin menghapus arsip file backup ini dari server?
                     </p>
-                    <div class="mt-3 text-xs font-semibold text-rose-700 font-mono bg-white py-2 px-3 rounded-xl border border-rose-200 inline-block max-w-full truncate shadow-sm"
+                    <div class="text-xs font-semibold text-rose-700 font-mono bg-white py-1.5 px-3 rounded-lg border border-rose-200 inline-block max-w-full truncate shadow-sm mb-2"
                         id="deleteBackupFilename">
                         -
                     </div>
-                    <p class="text-[11px] text-slate-500 mt-3">
+                    <p class="text-[11px] text-slate-500 m-0">
                         File .CSV yang tersimpan di server akan dihapus secara permanen beserta catatan riwayatnya.
                     </p>
                 </div>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <form id="formDeleteBackup" action="" method="POST" class="w-full flex justify-center gap-3">
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2">
+                <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('deleteBackupModal')">
+                    Batal
+                </button>
+                <form id="formDeleteBackup" action="" method="POST" class="m-0">
                     @csrf
                     @method('DELETE')
-                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
-                        style="padding: 10px 24px;" onclick="closeCustomModal('deleteBackupModal')">
-                        <i class="fa-solid fa-xmark"></i> Batal
-                    </button>
-                    <button type="submit" class="btn-save !bg-rose-600 !flex !items-center !justify-center gap-2"
-                        style="padding: 10px 24px;">
-                        <i class="fa-solid fa-trash-can"></i> Ya, Hapus Arsip!
+                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-9 !px-5 text-xs font-semibold">
+                        Ya, Hapus Arsip
                     </button>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Confirm Import Modal (Same UI Style as Global Delete) -->
-    <div class="modal-overlay modal-centered" id="confirmImportModal">
-        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
-            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                <div class="modal-title">
-                    <i class="fa-solid fa-file-import text-indigo-600" id="confirm-import-icon"></i>
-                    <span class="text-slate-900 font-bold text-[17px]" id="confirm-import-title">Konfirmasi Import
-                        Data</span>
+    <!-- Confirm Import Modal -->
+    <div class="modal-overlay" id="confirmImportModal">
+        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm border border-indigo-100 shrink-0">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0" id="confirm-import-title">Konfirmasi Import Data</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Migrasi & impor database dari CSV.</p>
+                    </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('confirmImportModal')">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="modal-body p-8 bg-white">
-                <div class="bg-indigo-50/70 p-4 rounded-2xl border border-indigo-100 text-center"
+            <div class="modal-body p-5 bg-white">
+                <div class="bg-indigo-50/70 p-4 rounded-xl border border-indigo-100 text-center"
                     id="confirm-import-box">
-                    <i class="fa-solid fa-cloud-arrow-up text-indigo-600 text-3xl mb-3"
-                        id="confirm-import-body-icon"></i>
-                    <p class="text-sm font-bold text-slate-800 leading-relaxed" id="confirm-import-msg">
+                    <p class="text-xs font-bold text-slate-800 leading-relaxed mb-2" id="confirm-import-msg">
                         Apakah Anda yakin ingin mengimpor data dari file ini?
                     </p>
-                    <div class="mt-3 text-xs font-semibold text-indigo-700 font-mono bg-white py-2 px-3 rounded-xl border border-indigo-200 inline-block max-w-full truncate shadow-sm"
+                    <div class="text-xs font-semibold text-indigo-700 font-mono bg-white py-1.5 px-3 rounded-lg border border-indigo-200 inline-block max-w-full truncate shadow-sm"
                         id="confirm-import-filename">
                         -
                     </div>
                 </div>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <div class="w-full flex justify-center gap-3">
-                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
-                        style="padding: 10px 24px;" onclick="closeCustomModal('confirmImportModal')">
-                        <i class="fa-solid fa-xmark"></i> Batal
-                    </button>
-                    <button type="button" id="btnExecuteImport"
-                        class="btn-save !bg-indigo-600 !flex !items-center !justify-center gap-2"
-                        style="padding: 10px 24px;" onclick="proceedImport()">
-                        <i class="fa-solid fa-play"></i> Ya, Mulai Import!
-                    </button>
-                </div>
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2">
+                <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('confirmImportModal')">
+                    Batal
+                </button>
+                <button type="button" id="btnExecuteImport"
+                    class="btn-primary-admin !bg-indigo-600 hover:!bg-indigo-700 !text-white !h-9 !px-5 text-xs font-semibold" onclick="proceedImport()">
+                    Ya, Mulai Import
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Confirm Reset Modal (Same UI Style as Global Delete) -->
-    <div class="modal-overlay modal-centered" id="resetModal">
-        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
-            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                <div class="modal-title">
-                    <i class="fa-solid fa-trash text-rose-600"></i>
-                    <span class="text-slate-900 font-bold text-[17px]">Kosongkan Data?</span>
+    <!-- Confirm Reset Modal -->
+    <div class="modal-overlay" id="resetModal">
+        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-sm border border-rose-100 shrink-0">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Kosongkan Data</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Pembersihan tabel data & reset paket.</p>
+                    </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('resetModal')">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="modal-body p-8 bg-white">
-                <div class="bg-rose-50 p-4 rounded-2xl border border-rose-100 text-center">
-                    <i class="fa-solid fa-triangle-exclamation text-rose-600 text-3xl mb-3"></i>
-                    <p class="text-sm font-bold text-slate-800 leading-relaxed">
-                        Tindakan ini akan mengosongkan seluruh tabel <span class="text-rose-600">PPPoE, Faktur Invoice,
-                            Transaksi Pembayaran, dan Paket duplikat lama</span> serta membuat kembali 4 Paket Resmi
-                        yang bersih.
+            <div class="modal-body p-5 bg-white">
+                <div class="bg-rose-50 p-4 rounded-xl border border-rose-200 text-center">
+                    <p class="text-xs font-semibold text-slate-800 leading-relaxed m-0">
+                        Tindakan ini akan mengosongkan seluruh tabel <strong class="text-rose-600 font-bold">PPPoE, Faktur Invoice,
+                            Transaksi Pembayaran, dan Paket duplikat lama</strong> serta membuat kembali 4 Paket Resmi yang bersih.
                     </p>
                 </div>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <form action="{{ route('migration.reset') }}" method="POST"
-                    class="w-full flex justify-center gap-3">
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2">
+                <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('resetModal')">
+                    Batal
+                </button>
+                <form action="{{ route('migration.reset') }}" method="POST" class="m-0">
                     @csrf
-                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
-                        style="padding: 10px 24px;" onclick="closeCustomModal('resetModal')">
-                        <i class="fa-solid fa-xmark"></i> Batal
-                    </button>
-                    <button type="submit" class="btn-save !bg-rose-600 !flex !items-center !justify-center gap-2"
-                        style="padding: 10px 24px;">
-                        <i class="fa-solid fa-trash-can"></i> Ya, Kosongkan Data!
+                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-9 !px-5 text-xs font-semibold">
+                        Ya, Kosongkan Data
                     </button>
                 </form>
             </div>

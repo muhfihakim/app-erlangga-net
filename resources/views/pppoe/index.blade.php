@@ -352,16 +352,16 @@
     </div>
 
     <!-- Modal Isolir PPPoE -->
-    <div class="modal-overlay modal-centered" id="isolirPppoeModal">
+    <div class="modal-overlay" id="isolirPppoeModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
-            <div class="modal-header border-b border-slate-200 bg-rose-50/50 p-5 flex items-center justify-between">
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-lg">
+                    <div class="w-9 h-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-sm border border-rose-100 shrink-0">
                         <i class="fa-solid fa-ban"></i>
                     </div>
                     <div>
                         <h3 class="text-base font-bold text-slate-900 m-0">Isolir Akun PPPoE</h3>
-                        <p class="text-xs text-slate-500 m-0">Putus akses & alihkan ke profil isolir</p>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Putus akses & alihkan ke profil isolir.</p>
                     </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('isolirPppoeModal')">
@@ -370,27 +370,27 @@
             </div>
             <form id="isolirPppoeForm" method="POST" action="">
                 @csrf
-                <div class="p-6 space-y-4">
-                    <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 space-y-1">
+                <div class="p-5 space-y-3.5">
+                    <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 space-y-1">
                         <div class="font-bold flex items-center gap-1.5 text-amber-900">
                             <i class="fa-solid fa-triangle-exclamation"></i> Perhatian:
                         </div>
                         <p class="m-0 leading-relaxed">
-                            Akun <strong id="isolirPppoeUsername" class="font-mono text-rose-700"></strong> akan dialihkan ke group FreeRADIUS <strong>ISOLIR</strong> (kecepatan 128k/128k, IP 172.30.x.x) dan sesi aktif di MikroTik akan di-kick agar dial ulang secara otomatis.
+                            Akun <strong id="isolirPppoeUsername" class="font-mono text-rose-700 font-bold"></strong> akan dialihkan ke group FreeRADIUS <strong>ISOLIR</strong> (kecepatan 128k/128k, IP 172.30.x.x) dan sesi aktif di MikroTik akan di-kick agar dial ulang secara otomatis.
                         </p>
                     </div>
 
                     <div>
-                        <label class="form-label text-slate-800 font-bold block mb-1 text-xs">Alasan Isolir</label>
-                        <textarea name="reason" id="isolirPppoeReason" class="form-input-custom w-full text-xs" rows="3" placeholder="Contoh: Menunggak tagihan bulan ini / Pelanggaran penggunaan" required>Isolir manual oleh Admin</textarea>
+                        <label class="form-label text-slate-700 font-medium block mb-1 text-xs">Alasan Isolir</label>
+                        <textarea name="reason" id="isolirPppoeReason" class="form-textarea !font-normal w-full text-xs text-slate-800 border-slate-300" rows="3" placeholder="Contoh: Menunggak tagihan bulan ini / Pelanggaran penggunaan" required>Isolir manual oleh Admin</textarea>
                     </div>
                 </div>
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 p-4 flex justify-end gap-2">
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2">
                     <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('isolirPppoeModal')">
                         Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-9 !px-5 text-xs font-semibold flex items-center gap-2">
-                        <i class="fa-solid fa-ban"></i> Isolir Sekarang
+                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-9 !px-5 text-xs font-semibold">
+                        Isolir Sekarang
                     </button>
                 </div>
             </form>
@@ -398,16 +398,16 @@
     </div>
 
     <!-- Modal Buka Isolir PPPoE -->
-    <div class="modal-overlay modal-centered" id="bukaIsolirPppoeModal">
+    <div class="modal-overlay" id="bukaIsolirPppoeModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
-            <div class="modal-header border-b border-slate-200 bg-emerald-50/50 p-5 flex items-center justify-between">
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg">
+                    <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm border border-emerald-100 shrink-0">
                         <i class="fa-solid fa-unlock-keyhole"></i>
                     </div>
                     <div>
                         <h3 class="text-base font-bold text-slate-900 m-0">Buka Isolir PPPoE</h3>
-                        <p class="text-xs text-slate-500 m-0">Kembalikan kecepatan dan akses normal</p>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Kembalikan kecepatan dan akses normal.</p>
                     </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('bukaIsolirPppoeModal')">
@@ -416,22 +416,22 @@
             </div>
             <form id="bukaIsolirPppoeForm" method="POST" action="">
                 @csrf
-                <div class="p-6 space-y-4">
-                    <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 space-y-1">
+                <div class="p-5 space-y-3.5">
+                    <div class="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 space-y-1">
                         <div class="font-bold flex items-center gap-1.5 text-emerald-900">
                             <i class="fa-solid fa-circle-check"></i> Konfirmasi Pembukaan:
                         </div>
                         <p class="m-0 leading-relaxed">
-                            Akun <strong id="bukaIsolirPppoeUsername" class="font-mono text-emerald-800"></strong> akan dikembalikan ke profil paket aslinya di FreeRADIUS dan sesi aktif di MikroTik akan di-kick agar dial ulang dengan kecepatan normal.
+                            Akun <strong id="bukaIsolirPppoeUsername" class="font-mono text-emerald-800 font-bold"></strong> akan dikembalikan ke profil paket aslinya di FreeRADIUS dan sesi aktif di MikroTik akan di-kick agar dial ulang dengan kecepatan normal.
                         </p>
                     </div>
                 </div>
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 p-4 flex justify-end gap-2">
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2">
                     <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('bukaIsolirPppoeModal')">
                         Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-9 !px-5 text-xs font-semibold flex items-center gap-2">
-                        <i class="fa-solid fa-unlock-keyhole"></i> Buka Isolir Sekarang
+                    <button type="submit" class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-9 !px-5 text-xs font-semibold">
+                        Buka Isolir Sekarang
                     </button>
                 </div>
             </form>

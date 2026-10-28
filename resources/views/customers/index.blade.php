@@ -545,12 +545,17 @@
     </div>
 
     {{-- Modal Unspek --}}
-    <div class="modal-overlay modal-centered" id="unspekModal">
-        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
-            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                <div class="modal-title">
-                    <i class="fa-solid fa-ban text-amber-500"></i>
-                    <span class="text-slate-900 font-bold text-[17px]">Unspek / Tangguhkan PO</span>
+    <div class="modal-overlay" id="unspekModal">
+        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-sm border border-amber-100 shrink-0">
+                        <i class="fa-solid fa-ban"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Unspek / Tangguhkan PO</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Penangguhan pemasangan pre-order.</p>
+                    </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('unspekModal')">
                     <i class="fa-solid fa-xmark"></i>
@@ -558,27 +563,26 @@
             </div>
             <form id="unspekForm" method="POST">
                 @csrf
-                <div class="modal-body p-6 space-y-4 bg-white">
-                    <div class="bg-amber-50 p-4 rounded-xl border border-amber-100 mb-4">
-                        <span class="text-[10px] font-black text-amber-500 block uppercase">Pelanggan</span>
-                        <p id="unspek_po_name" class="text-base font-black text-amber-700 m-0"></p>
+                <div class="modal-body p-5 space-y-3.5 bg-white">
+                    <div class="bg-amber-50 p-3.5 rounded-xl border border-amber-200">
+                        <span class="text-[10px] font-bold text-amber-600 block uppercase">Pelanggan</span>
+                        <p id="unspek_po_name" class="text-sm font-bold text-amber-900 m-0"></p>
                     </div>
                     <div class="form-group !mb-0">
-                        <label class="form-label !text-slate-800 !font-bold">
-                            <i class="fa-solid fa-comment-dots text-slate-400 mr-1"></i> Alasan Unspek / Penangguhan
-                            <span class="text-rose-500">*</span>
+                        <label class="form-label text-slate-700 font-medium block mb-1 text-xs">
+                            Alasan Unspek / Penangguhan <span class="text-rose-500">*</span>
                         </label>
-                        <textarea name="keterangan_unspek" class="form-textarea" required rows="3"
+                        <textarea name="keterangan_unspek" class="form-textarea !font-normal text-xs text-slate-800" required rows="3"
                             placeholder="Contoh: Tiang penuh, Jarak terlalu jauh, Pelanggan membatalkan..."></textarea>
                     </div>
                 </div>
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2">
+                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
                         onclick="closeCustomModal('unspekModal')">
-                        <i class="fa-solid fa-xmark"></i> Batal
+                        Batal
                     </button>
-                    <button type="submit" class="btn-save !flex !items-center !justify-center gap-2 !bg-amber-500">
-                        <i class="fa-solid fa-paper-plane"></i> Simpan Unspek
+                    <button type="submit" class="btn-primary-admin !bg-amber-600 hover:!bg-amber-700 !text-white !h-9 !px-5 text-xs font-semibold">
+                        Simpan Unspek
                     </button>
                 </div>
             </form>

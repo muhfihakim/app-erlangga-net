@@ -590,31 +590,32 @@
     </div>
 
     <!-- OTP Verification Modal -->
-    <div class="modal-overlay modal-centered" id="otpModal">
-        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
-            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                <div class="modal-title">
-                    <i class="fa-solid fa-shield-halved text-emerald-600"></i>
-                    <span class="text-slate-900 font-bold text-[17px]">Verifikasi Kode OTP</span>
+    <div class="modal-overlay" id="otpModal">
+        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm border border-emerald-100 shrink-0">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Verifikasi Kode OTP</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Konfirmasi penarikan saldo Xendit.</p>
+                    </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeOtpModal()">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <div class="modal-body p-6 space-y-4 bg-white">
+            <div class="modal-body p-5 space-y-3.5 bg-white">
                 <div class="text-center">
-                    <div
-                        class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-2 text-2xl shadow-inner">
-                        <i class="fa-brands fa-whatsapp"></i>
-                    </div>
-                    <p class="text-xs text-slate-500" id="otpRecipientInfo">
+                    <p class="text-xs text-slate-500 m-0" id="otpRecipientInfo">
                         Masukkan 6-digit kode OTP yang telah dikirimkan ke WhatsApp Anda.
                     </p>
                 </div>
 
                 <!-- Detail Transaksi Singkat -->
-                <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 text-xs space-y-1.5">
+                <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200 text-xs space-y-1.5">
                     <div class="flex justify-between">
                         <span class="text-slate-500">Bank Tujuan:</span>
                         <span class="font-bold text-slate-800" id="otp_preview_bank">-</span>
@@ -635,30 +636,29 @@
 
                 <!-- OTP Input -->
                 <div>
-                    <label class="form-label !text-slate-800 !font-bold text-center block mb-2">Kode OTP (6
-                        Digit)</label>
+                    <label class="form-label text-slate-700 font-medium text-center block mb-1 text-xs">Kode OTP (6 Digit)</label>
                     <input type="text" id="inputOtp" maxlength="6"
-                        class="form-input text-center font-mono text-2xl font-black tracking-widest text-slate-800 py-2.5 bg-slate-50 focus:bg-white"
+                        class="form-input text-center font-mono text-2xl font-black tracking-widest text-slate-800 py-2 bg-slate-50 focus:bg-white"
                         placeholder="••••••" autofocus>
                 </div>
 
                 <div class="flex items-center justify-between text-xs text-slate-500">
                     <span>Kadaluarsa: <strong id="otpCountdown" class="text-rose-600 font-mono">05:00</strong></span>
                     <button type="button" id="btnResendOtp" onclick="resendOtp()"
-                        class="text-indigo-600 hover:text-indigo-800 font-bold">
+                        class="text-indigo-600 hover:text-indigo-800 font-semibold text-xs">
                         Kirim Ulang OTP
                     </button>
                 </div>
             </div>
 
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2">
+                <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
                     onclick="closeOtpModal()">
-                    <i class="fa-solid fa-xmark"></i> Batal
+                    Batal
                 </button>
                 <button type="button" id="btnConfirmWithdrawal" onclick="executeWithdrawal()"
-                    class="btn-save !flex !items-center !justify-center gap-2 !bg-emerald-600 hover:!bg-emerald-700">
-                    <i class="fa-solid fa-check"></i> Konfirmasi & Tarik
+                    class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-9 !px-5 text-xs font-semibold">
+                    Konfirmasi Penarikan
                 </button>
             </div>
         </div>

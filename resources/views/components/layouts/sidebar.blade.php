@@ -97,7 +97,7 @@
                 @if ($isAdmin || $isTeknisi)
                     <a class="sidebar-sublink {{ Request::is('maintenances*') ? 'active' : '' }}" href="{{ route('maintenances.index') }}">
                         <i class="fa-solid fa-circle-dot"></i>
-                        <span>Tiket Maintenance</span>
+                        <span>Tiket Pemeliharaan</span>
                     </a>
                 @endif
             </div>

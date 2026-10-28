@@ -914,7 +914,7 @@
     </div>
 
     <!-- Modal Isolir Customer -->
-    <div class="modal-overlay modal-centered" id="isolirCustomerModal">
+    <div class="modal-overlay" id="isolirCustomerModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
             <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -932,7 +932,7 @@
             </div>
             <form id="isolirCustomerForm" method="POST" action="">
                 @csrf
-                <div class="p-6 space-y-4">
+                <div class="p-5 space-y-3.5">
                     <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 space-y-1">
                         <div class="font-bold flex items-center gap-1.5 text-amber-900">
                             <i class="fa-solid fa-triangle-exclamation"></i> Konfirmasi Isolir:
@@ -960,7 +960,7 @@
     </div>
 
     <!-- Modal Buka Isolir Customer -->
-    <div class="modal-overlay modal-centered" id="bukaIsolirCustomerModal">
+    <div class="modal-overlay" id="bukaIsolirCustomerModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
             <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -978,7 +978,7 @@
             </div>
             <form id="bukaIsolirCustomerForm" method="POST" action="">
                 @csrf
-                <div class="p-6 space-y-4">
+                <div class="p-5 space-y-3.5">
                     <div class="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 space-y-1">
                         <div class="font-bold flex items-center gap-1.5 text-emerald-900">
                             <i class="fa-solid fa-circle-check"></i> Konfirmasi Pembukaan:
@@ -1002,7 +1002,7 @@
 
     @if ($is_admin)
         <!-- Modal Non-aktifkan Pelanggan (Pencabutan / Arsip) -->
-        <div class="modal-overlay modal-centered" id="deactivateCustomerModal">
+        <div class="modal-overlay" id="deactivateCustomerModal">
             <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
                 <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                     <div class="flex items-center gap-3">
@@ -1021,7 +1021,7 @@
                 <form id="deactivateCustomerForm" method="POST" action="">
                     @csrf
                     @method('DELETE')
-                    <div class="p-6 space-y-4">
+                    <div class="p-5 space-y-3.5">
                         <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 space-y-1">
                             <div class="font-bold flex items-center gap-1.5 text-amber-900">
                                 <i class="fa-solid fa-triangle-exclamation"></i> Konfirmasi Penonaktifan:
@@ -1055,7 +1055,7 @@
         </div>
 
         <!-- Modal Aktifkan Kembali Pelanggan (Restore) -->
-        <div class="modal-overlay modal-centered" id="restoreCustomerModal">
+        <div class="modal-overlay" id="restoreCustomerModal">
             <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
                 <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                     <div class="flex items-center gap-3">
@@ -1073,7 +1073,7 @@
                 </div>
                 <form id="restoreCustomerForm" method="POST" action="">
                     @csrf
-                    <div class="p-6 space-y-4">
+                    <div class="p-5 space-y-3.5">
                         <div class="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 space-y-1">
                             <div class="font-bold flex items-center gap-1.5 text-emerald-900">
                                 <i class="fa-solid fa-circle-check"></i> Konfirmasi Pemulihan:
@@ -1099,7 +1099,7 @@
         </div>
 
         <!-- Modal Hapus Permanen Pelanggan (Force Delete) -->
-        <div class="modal-overlay modal-centered" id="forceDeleteCustomerModal">
+        <div class="modal-overlay" id="forceDeleteCustomerModal">
             <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
                 <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                     <div class="flex items-center gap-3">
@@ -1118,7 +1118,7 @@
                 <form id="forceDeleteCustomerForm" method="POST" action="">
                     @csrf
                     @method('DELETE')
-                    <div class="p-6 space-y-4">
+                    <div class="p-5 space-y-3.5">
                         <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 space-y-1">
                             <div class="font-bold flex items-center gap-1.5 text-rose-900">
                                 <i class="fa-solid fa-trash-can"></i> Peringatan Penghapusan Permanen:
