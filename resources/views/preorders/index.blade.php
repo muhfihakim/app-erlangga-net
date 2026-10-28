@@ -82,7 +82,7 @@
                         </option>
                         <option value="aktif" {{ $filterStatus === 'aktif' ? 'selected' : '' }}>Berlangganan (Aktif)
                         </option>
-                        <option value="berhenti" {{ $filterStatus === 'berhenti' ? 'selected' : '' }}>Berhenti (Dismantle)
+                        <option value="berhenti" {{ $filterStatus === 'berhenti' ? 'selected' : '' }}>Berhenti / Non-Aktif
                         </option>
                         <option value="unspek" {{ $filterStatus === 'unspek' ? 'selected' : '' }}>Ditangguhkan (Unspek)
                         </option>

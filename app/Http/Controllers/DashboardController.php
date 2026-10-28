@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use App\Models\PreOrder;
 use App\Models\User;
 use App\Models\Maintenance;
-use App\Models\Dismantle;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
@@ -84,7 +83,6 @@ class DashboardController extends Controller
 
         // 5. Inisialisasi Variabel Chart
         $mChartLabels = []; $mChartValues = []; $mDonutLabels = []; $mDonutValues = [];
-        $dChartLabels = []; $dChartValues = []; $dDonutLabels = []; $dDonutValues = [];
         $aChartLabels = []; $aChartValues = []; $aDonutLabels = []; $aDonutValues = [];
         $sChartLabels = []; $sChartActivated = []; $sChartPending = [];
 
@@ -159,14 +157,12 @@ class DashboardController extends Controller
                 $sChartPending[] = $sp['pending'];
             }
 
-            // Maintenance & Dismantle Trends
+            // Maintenance Trends
             $daysInMonth = Carbon::now()->daysInMonth;
             for ($i = 1; $i <= $daysInMonth; $i++) {
                 $date = Carbon::now()->day($i);
                 $mChartLabels[] = $date->translatedFormat('d M');
                 $mChartValues[] = Maintenance::whereDate('created_at', $date->toDateString())->count();
-                $dChartLabels[] = $date->translatedFormat('d M');
-                $dChartValues[] = Dismantle::whereDate('created_at', $date->toDateString())->count();
             }
 
             // Maintenance Top Teknisi
@@ -184,22 +180,6 @@ class DashboardController extends Controller
                 ->take(5);
             $mDonutLabels = $mTop->pluck('name')->toArray();
             $mDonutValues = $mTop->pluck('count')->toArray();
-
-            // Dismantle Top Teknisi
-            $dTop = Dismantle::where('status', 'Selesai')
-                ->whereMonth('completed_at', $thisMonth)
-                ->whereYear('completed_at', $thisYear)
-                ->with('teknisiEksekutor')
-                ->get()
-                ->groupBy('id_teknisi_eksekutor')
-                ->map(fn($g) => [
-                    'name' => $g->first()->teknisiEksekutor->nama_lengkap ?? 'Unknown',
-                    'count' => $g->count()
-                ])
-                ->sortByDesc('count')
-                ->take(5);
-            $dDonutLabels = $dTop->pluck('name')->toArray();
-            $dDonutValues = $dTop->pluck('count')->toArray();
         }
 
         // 7. Inisialisasi Variabel Teknisi
@@ -334,11 +314,7 @@ class DashboardController extends Controller
             'mChartLabels',
             'mChartValues',
             'mDonutLabels',
-            'mDonutValues',
-            'dChartLabels',
-            'dChartValues',
-            'dDonutLabels',
-            'dDonutValues'
+            'mDonutValues'
         ));
     }
 }

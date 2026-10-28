@@ -219,11 +219,23 @@
         </div>
     </div>
 
-    <div class="table-toolbar">
-        <div class="search-wrap">
-            <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            <input type="search" class="search-input custom-search" id="custom-search"
-                placeholder="Cari ID, Nama, atau Paket..." autocomplete="off" />
+    <div class="table-toolbar" style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 280px; flex-wrap: wrap;">
+            <div class="search-wrap" style="flex: 1; min-width: 220px;">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="search" class="search-input custom-search" id="custom-search"
+                    placeholder="Cari ID, Nama, atau Paket..." autocomplete="off" />
+            </div>
+            <div style="min-width: 170px;">
+                <select id="filter-status" class="form-input-custom !h-10 !text-xs !bg-white" style="border-radius: 10px;">
+                    <option value="">Semua Status</option>
+                    <option value="aktif">Aktif (Berlangganan)</option>
+                    <option value="online">Online</option>
+                    <option value="offline">Offline</option>
+                    <option value="isolir">Terisolir</option>
+                    <option value="non_aktif">Non-Aktif (Arsip)</option>
+                </select>
+            </div>
         </div>
         <div style="display:flex;gap:8px;">
             <div
@@ -988,6 +1000,150 @@
         </div>
     </div>
 
+    @if ($is_admin)
+        <!-- Modal Non-aktifkan Pelanggan (Pencabutan / Arsip) -->
+        <div class="modal-overlay modal-centered" id="deactivateCustomerModal">
+            <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+                <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-sm border border-amber-100 shrink-0">
+                            <i class="fa-solid fa-user-slash"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900 m-0">Non-aktifkan Pelanggan</h3>
+                            <p class="text-xs text-slate-500 m-0 mt-0.5">Pencabutan layanan & arsipkan data pelanggan.</p>
+                        </div>
+                    </div>
+                    <button type="button" class="modal-close" onclick="closeCustomModal('deactivateCustomerModal')">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <form id="deactivateCustomerForm" method="POST" action="">
+                    @csrf
+                    @method('DELETE')
+                    <div class="p-6 space-y-4">
+                        <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 space-y-1">
+                            <div class="font-bold flex items-center gap-1.5 text-amber-900">
+                                <i class="fa-solid fa-triangle-exclamation"></i> Konfirmasi Penonaktifan:
+                            </div>
+                            <p class="m-0 leading-relaxed">
+                                Apakah Anda yakin ingin menonaktifkan pelanggan <strong id="deactivateCustomerName" class="text-slate-900 font-bold"></strong>?
+                            </p>
+                        </div>
+                        <div class="text-xs text-slate-600 space-y-1.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                            <div class="font-semibold text-slate-800 mb-1">Keterangan arsip & jaringan:</div>
+                            <div class="flex items-start gap-2">
+                                <i class="fa-solid fa-circle-check text-emerald-600 mt-0.5"></i>
+                                <span>Data pelanggan <strong>tetap tersimpan di arsip</strong> dan dapat diaktifkan kembali sewaktu-waktu.</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <i class="fa-solid fa-circle-xmark text-rose-500 mt-0.5"></i>
+                                <span>Kredensial login FreeRADIUS dinonaktifkan dan sesi router di-kick otomatis.</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between gap-2">
+                        <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('deactivateCustomerModal')">
+                            Batal
+                        </button>
+                        <button type="submit" class="btn-primary-admin !bg-amber-600 hover:!bg-amber-700 !text-white !h-9 !px-5 text-xs font-semibold">
+                            Non-aktifkan (Arsipkan)
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Aktifkan Kembali Pelanggan (Restore) -->
+        <div class="modal-overlay modal-centered" id="restoreCustomerModal">
+            <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+                <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm border border-emerald-100 shrink-0">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900 m-0">Aktifkan Kembali Pelanggan</h3>
+                            <p class="text-xs text-slate-500 m-0 mt-0.5">Pulihkan pelanggan dari arsip ke status aktif.</p>
+                        </div>
+                    </div>
+                    <button type="button" class="modal-close" onclick="closeCustomModal('restoreCustomerModal')">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <form id="restoreCustomerForm" method="POST" action="">
+                    @csrf
+                    <div class="p-6 space-y-4">
+                        <div class="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 space-y-1">
+                            <div class="font-bold flex items-center gap-1.5 text-emerald-900">
+                                <i class="fa-solid fa-circle-check"></i> Konfirmasi Pemulihan:
+                            </div>
+                            <p class="m-0 leading-relaxed">
+                                Aktifkan kembali langganan untuk <strong id="restoreCustomerName" class="text-slate-900 font-bold"></strong>?
+                            </p>
+                        </div>
+                        <p class="text-xs text-slate-600 m-0 leading-relaxed">
+                            Akun PPPoE dan kredensial FreeRADIUS akan otomatis dipulihkan ke paket aslinya agar modem dapat terhubung kembali.
+                        </p>
+                    </div>
+                    <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between gap-2">
+                        <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('restoreCustomerModal')">
+                            Batal
+                        </button>
+                        <button type="submit" class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-9 !px-5 text-xs font-semibold">
+                            Aktifkan Kembali
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Hapus Permanen Pelanggan (Force Delete) -->
+        <div class="modal-overlay modal-centered" id="forceDeleteCustomerModal">
+            <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+                <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-sm border border-rose-100 shrink-0">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900 m-0">Hapus Permanen Pelanggan</h3>
+                            <p class="text-xs text-rose-600 font-semibold m-0 mt-0.5">Tindakan ini tidak dapat dibatalkan!</p>
+                        </div>
+                    </div>
+                    <button type="button" class="modal-close" onclick="closeCustomModal('forceDeleteCustomerModal')">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <form id="forceDeleteCustomerForm" method="POST" action="">
+                    @csrf
+                    @method('DELETE')
+                    <div class="p-6 space-y-4">
+                        <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 space-y-1">
+                            <div class="font-bold flex items-center gap-1.5 text-rose-900">
+                                <i class="fa-solid fa-trash-can"></i> Peringatan Penghapusan Permanen:
+                            </div>
+                            <p class="m-0 leading-relaxed">
+                                Data pelanggan <strong id="forceDeleteCustomerName" class="text-slate-900 font-bold"></strong> beserta akun PPPoE dan file dokumentasi akan <strong>dihapus selamanya dari database</strong>.
+                            </p>
+                        </div>
+                        <p class="text-xs text-slate-500 m-0">
+                            Gunakan fitur ini hanya jika data benar-benar tidak diperlukan lagi atau terjadi duplikasi data.
+                        </p>
+                    </div>
+                    <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between gap-2">
+                        <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('forceDeleteCustomerModal')">
+                            Batal
+                        </button>
+                        <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-9 !px-5 text-xs font-semibold">
+                            Ya, Hapus Permanen
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+
     @section('Scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
@@ -1208,6 +1364,36 @@
                 openCustomModal('bukaIsolirCustomerModal');
             }
 
+            function openDeactivateCustomerModal(url, name, username) {
+                const form = document.getElementById('deactivateCustomerForm');
+                const nameEl = document.getElementById('deactivateCustomerName');
+                if (form && nameEl) {
+                    form.action = url;
+                    nameEl.innerText = name;
+                    openCustomModal('deactivateCustomerModal');
+                }
+            }
+
+            function openRestoreCustomerModal(url, name) {
+                const form = document.getElementById('restoreCustomerForm');
+                const nameEl = document.getElementById('restoreCustomerName');
+                if (form && nameEl) {
+                    form.action = url;
+                    nameEl.innerText = name;
+                    openCustomModal('restoreCustomerModal');
+                }
+            }
+
+            function openForceDeleteCustomerModal(url, name) {
+                const form = document.getElementById('forceDeleteCustomerForm');
+                const nameEl = document.getElementById('forceDeleteCustomerName');
+                if (form && nameEl) {
+                    form.action = url;
+                    nameEl.innerText = name;
+                    openCustomModal('forceDeleteCustomerModal');
+                }
+            }
+
             $(document).ready(function() {
                 // DataTables Isolir (Hanya jika tabel ada di DOM / Non-Admin)
                 if ($('#isolir-table').length) {
@@ -1233,7 +1419,12 @@
                     processing: true,
                     serverSide: true,
                     autoWidth: false,
-                    ajax: '{{ route('customers.active_list') }}',
+                    ajax: {
+                        url: '{{ route('customers.active_list') }}',
+                        data: function(d) {
+                            d.status_filter = $('#filter-status').val();
+                        }
+                    },
                     columns: [
                         {
                             data: null,
@@ -1304,9 +1495,13 @@
                     }
                 });
 
-                // Custom Search
+                // Custom Search & Filter
                 $('#custom-search').on('keyup', function() {
                     table.search(this.value).draw();
+                });
+
+                $('#filter-status').on('change', function() {
+                    table.ajax.reload();
                 });
 
                 // Tab switching

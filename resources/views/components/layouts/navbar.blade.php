@@ -61,14 +61,6 @@
                 <span>Pelanggan</span>
                 <span class="sep">/</span>
                 <span class="current">Pemeliharaan</span>
-            @elseif(request()->routeIs('dismantles.*') || request()->is('dismantles*'))
-                <span>Pelanggan</span>
-                <span class="sep">/</span>
-                <span class="current">Pencabutan</span>
-            @elseif(request()->routeIs('supporting.*') || request()->is('supporting*'))
-                <span>Pelanggan</span>
-                <span class="sep">/</span>
-                <span class="current">Perbantuan</span>
 
             {{-- Gudang --}}
             @elseif(request()->routeIs('assets.transactions*'))
@@ -123,10 +115,6 @@
                 <span>Laporan</span>
                 <span class="sep">/</span>
                 <span class="current">Lap. Pemeliharaan</span>
-            @elseif(request()->routeIs('activitylog.dismantle*') || request()->is('laporan/dismantle*'))
-                <span>Laporan</span>
-                <span class="sep">/</span>
-                <span class="current">Lap. Pencabutan</span>
             @elseif(request()->routeIs('activitylog.preorder*') || request()->is('laporan/preorder*'))
                 <span>Laporan</span>
                 <span class="sep">/</span>

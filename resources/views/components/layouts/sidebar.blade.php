@@ -6,7 +6,7 @@
     $isSuperAdmin = $user && method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin();
 
     $isNetActive = Request::is('pppoe*') || Request::is('olt*') || Request::is('odp*') || Request::is('genieacs*') || Request::is('monitoring*');
-    $isCustActive = Request::is('pre-orders*') || Request::is('customers*') || Request::is('maintenances*') || Request::is('dismantles*') || Request::is('supporting*');
+    $isCustActive = Request::is('pre-orders*') || Request::is('customers*') || Request::is('maintenances*');
     $isFinActive = Request::is('invoices*') || Request::is('transactions*') || Request::is('keuangan*') || Request::is('kasbons*') || Request::is('withdrawals*');
     $isReportActive = Request::is('laporan*');
     $isSysActive = Request::is('pakets*') || Request::is('nas*') || Request::is('accounts*') || Request::is('tracking*') || Request::is('activity-log*') || Request::is('migration*') || Request::is('settings*');
@@ -100,16 +100,6 @@
                         <span>Tiket Maintenance</span>
                     </a>
                 @endif
-                <a class="sidebar-sublink {{ Request::is('dismantles*') ? 'active' : '' }}" href="{{ route('dismantles.index') }}">
-                    <i class="fa-solid fa-circle-dot"></i>
-                    <span>Pencabutan (Dismantle)</span>
-                </a>
-                @if (!$isSales)
-                    <a class="sidebar-sublink {{ Request::is('supporting*') ? 'active' : '' }}" href="{{ route('supporting.index') }}">
-                        <i class="fa-solid fa-circle-dot"></i>
-                        <span>Supporting Teknisi</span>
-                    </a>
-                @endif
             </div>
         </div>
 
@@ -182,10 +172,6 @@
                     <a class="sidebar-sublink {{ Request::is('laporan/maintenance') ? 'active' : '' }}" href="{{ route('activitylog.maintenance') }}">
                         <i class="fa-solid fa-circle-dot"></i>
                         <span>Lap. Pemeliharaan</span>
-                    </a>
-                    <a class="sidebar-sublink {{ Request::is('laporan/dismantle') ? 'active' : '' }}" href="{{ route('activitylog.dismantle') }}">
-                        <i class="fa-solid fa-circle-dot"></i>
-                        <span>Lap. Pencabutan</span>
                     </a>
                 </div>
             </div>

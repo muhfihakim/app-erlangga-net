@@ -107,18 +107,6 @@
                     <span>Pemeliharaan</span>
                 </a>
             @endif
-            @if (auth()->check() && (auth()->user()->isAdmin() || auth()->user()->jabatan === 'Teknisi' || auth()->user()->jabatan === 'Sales'))
-                <a class="mobile-grid-item {{ Request::is('dismantles') ? 'active' : '' }}" href="{{ route('dismantles.index') }}">
-                    <i class="fa-solid fa-user-xmark"></i>
-                    <span>Pencabutan</span>
-                </a>
-            @endif
-            @if (auth()->check() && auth()->user()->jabatan !== 'Sales')
-                <a class="mobile-grid-item {{ Request::is('supporting*') ? 'active' : '' }}" href="{{ route('supporting.index') }}">
-                    <i class="fa-solid fa-handshake-angle"></i>
-                    <span>Perbantuan</span>
-                </a>
-            @endif
         </div>
 
         @if (auth()->check() && auth()->user()->isAdmin())
@@ -163,10 +151,6 @@
                 <a class="mobile-grid-item {{ Request::is('laporan/maintenance') ? 'active' : '' }}" href="{{ route('activitylog.maintenance') }}">
                     <i class="fa-solid fa-file-medical"></i>
                     <span>Lap. Pemeliharaan</span>
-                </a>
-                <a class="mobile-grid-item {{ Request::is('laporan/dismantle') ? 'active' : '' }}" href="{{ route('activitylog.dismantle') }}">
-                    <i class="fa-solid fa-file-excel"></i>
-                    <span>Lap. Pencabutan</span>
                 </a>
             </div>
 

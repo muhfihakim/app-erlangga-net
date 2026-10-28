@@ -165,21 +165,11 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/laporan/maintenance', [ActivityLogController::class, 'laporanMaintenance'])->name('activitylog.maintenance');
     Route::get('/laporan/maintenance/export', [ActivityLogController::class, 'exportMaintenance'])->name('activitylog.maintenance.export');
 
-    Route::get('/laporan/dismantle', [ActivityLogController::class, 'laporanDismantle'])->name('activitylog.dismantle');
-    Route::get('/laporan/dismantle/export', [ActivityLogController::class, 'exportDismantle'])->name('activitylog.dismantle.export');
-
     Route::get('/maintenances', [MaintenanceController::class, 'index'])->name('maintenances.index');
     Route::get('/maintenances/customer/{id}', [MaintenanceController::class, 'getCustomerData']);
     Route::post('/maintenances', [MaintenanceController::class, 'store'])->name('maintenances.store');
     Route::post('/maintenances/{id}/complete', [MaintenanceController::class, 'complete'])->name('maintenances.complete');
     Route::delete('/maintenances/{id}', [MaintenanceController::class, 'destroy'])->name('maintenances.destroy');
-
-    Route::get('/dismantles', [DismantleController::class, 'index'])->name('dismantles.index');
-    Route::get('/dismantles/customer/{id}', [DismantleController::class, 'getCustomerData']);
-    Route::post('/dismantles', [DismantleController::class, 'store'])->name('dismantles.store');
-    Route::post('/dismantles/{id}/complete', [DismantleController::class, 'complete'])->name('dismantles.complete');
-    Route::delete('/dismantles/{id}', [DismantleController::class, 'destroy'])->name('dismantles.destroy');
-    Route::delete('/dismantles/customer/{id}', [DismantleController::class, 'deleteCustomer']);
 
     Route::post('/location/update', [LocationController::class, 'update'])->name('location.update');
     Route::get('/tracking', [LocationController::class, 'showTrackingMap'])->name('accounts.tracking');
@@ -200,6 +190,7 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('customers/{customer}/acs-status', [CustomerController::class, 'acsStatus'])->name('customers.acs_status');
     Route::get('customers/isolir/export', [CustomerController::class, 'exportIsolir'])->name('customers.export_isolir');
     Route::post('/customers/{id}/restore', [CustomerController::class, 'restore'])->name('customers.restore');
+    Route::delete('/customers/{id}/force-delete', [CustomerController::class, 'forceDelete'])->name('customers.force_delete');
     Route::post('/customers/{customer}/isolir', [CustomerController::class, 'isolir'])->name('customers.isolir');
     Route::post('/customers/{customer}/buka-isolir', [CustomerController::class, 'bukaIsolir'])->name('customers.buka_isolir');
 
@@ -234,7 +225,4 @@ Route::middleware(['auth.custom'])->group(function () {
 
     Route::post('/paket/sync-mikrotik', [App\Http\Controllers\PaketController::class, 'syncFromMikrotik'])->name('paket.sync');
     Route::resource('customers', CustomerController::class)->except(['create', 'edit', 'show']);
-    
-    Route::resource('supporting', SupportingActivityController::class);
-    Route::get('supporting-export', [SupportingActivityController::class, 'export'])->name('supporting.export');
 });

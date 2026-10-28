@@ -145,6 +145,23 @@ class CustomerController extends Controller
                 $query->where('customers.id_sales', $user->id);
             }
 
+            // Filter status jika dipilih
+            if ($request->filled('status_filter')) {
+                $statusFilter = $request->status_filter;
+                if ($statusFilter === 'aktif') {
+                    $query->whereNull('customers.deleted_at');
+                } elseif ($statusFilter === 'non_aktif') {
+                    $query->onlyTrashed();
+                } elseif ($statusFilter === 'isolir') {
+                    $isolirUsernames = \App\Models\Pppoe::where('is_isolir', 1)->pluck('username')->toArray();
+                    $query->whereNull('customers.deleted_at')->whereIn('customers.pppoe_username', $isolirUsernames);
+                } elseif ($statusFilter === 'online') {
+                    $query->whereNull('customers.deleted_at')->whereIn('customers.pppoe_username', $activeUsernames);
+                } elseif ($statusFilter === 'offline') {
+                    $query->whereNull('customers.deleted_at')->whereNotIn('customers.pppoe_username', $activeUsernames);
+                }
+            }
+
             // Only fetch active isolir records (lightweight!)
             $isolirMap = \App\Models\Pppoe::where('is_isolir', 1)
                 ->get(['username', 'isolir_reason', 'isolir_at'])
@@ -202,7 +219,7 @@ class CustomerController extends Controller
 
                     // Subtle neutral status badge (similar to /pre-orders)
                     if ($customer->trashed()) {
-                        $badgeStatus = '<span class="badge badge-archived text-[10px] font-semibold py-0.5 px-2">Non-Aktif</span>';
+                        $badgeStatus = '<span class="badge text-[10px] font-semibold py-0.5 px-2 bg-slate-100 text-slate-500 border border-slate-200">Non-Aktif</span>';
                     } elseif ($isIsolir) {
                         $badgeStatus = '<span class="badge text-[10px] font-semibold py-0.5 px-2 bg-rose-50 text-rose-700 border border-rose-200">Isolir</span>';
                     } elseif ($isOnline) {
@@ -295,17 +312,23 @@ class CustomerController extends Controller
                     $btnAdmin = '';
                     if ($isAdmin) {
                         if ($customer->trashed()) {
+                            // Pelanggan Non-Aktif (Arsip): Opsi Aktifkan Kembali atau Hapus Permanen
                             $btnAdmin = '
-                                <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Aktifkan"
-                                    onclick="confirmGlobalDelete(\'' . route('customers.restore', $customer->id) . '\', \'' . htmlspecialchars($customer->nama_lengkap, ENT_QUOTES) . ' (Restore)\')">
-                                    <i class="fa-solid fa-rotate-left text-slate-500"></i>
+                                <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-emerald-300 hover:!bg-emerald-50" title="Aktifkan Kembali"
+                                    onclick="openRestoreCustomerModal(\'' . route('customers.restore', $customer->id) . '\', \'' . htmlspecialchars(addslashes($customer->nama_lengkap), ENT_QUOTES) . '\')">
+                                    <i class="fa-solid fa-rotate-left text-emerald-600"></i>
+                                </button>
+                                <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50" title="Hapus Permanen"
+                                    onclick="openForceDeleteCustomerModal(\'' . route('customers.force_delete', $customer->id) . '\', \'' . htmlspecialchars(addslashes($customer->nama_lengkap), ENT_QUOTES) . '\')">
+                                    <i class="fa-solid fa-trash-can text-rose-600"></i>
                                 </button>
                             ';
                         } else {
+                            // Pelanggan Aktif: Opsi Non-aktifkan / Pencabutan (Arsip)
                             $btnAdmin = '
-                                <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50" title="Non-aktifkan"
-                                    onclick="confirmGlobalDelete(\'' . route('customers.destroy', $customer->id) . '\', \'' . htmlspecialchars($customer->nama_lengkap, ENT_QUOTES) . '\')">
-                                    <i class="fa-solid fa-trash text-slate-400 hover:text-rose-500"></i>
+                                <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-amber-300 hover:!bg-amber-50" title="Non-aktifkan (Pencabutan / Arsip)"
+                                    onclick="openDeactivateCustomerModal(\'' . route('customers.destroy', $customer->id) . '\', \'' . htmlspecialchars(addslashes($customer->nama_lengkap), ENT_QUOTES) . '\', \'' . htmlspecialchars(addslashes($customer->pppoe_username ?? ''), ENT_QUOTES) . '\')">
+                                    <i class="fa-solid fa-user-slash text-slate-400 hover:text-amber-600"></i>
                                 </button>
                             ';
                         }
@@ -896,15 +919,17 @@ class CustomerController extends Controller
         if ($pppoe) {
             $pppoe->update([
                 'is_isolir' => true,
-                'isolir_reason' => 'Pelanggan Dinonaktifkan (Dihapus)',
+                'isolir_reason' => 'Pelanggan Dinonaktifkan (Arsip)',
                 'isolir_at' => now(),
             ]);
         }
 
         // Hapus kredensial login dari FreeRADIUS & kick dari router
         try {
-            Radcheck::where('username', $username)->delete();
-            app(MikroTikService::class)->kickPppoeUser($username);
+            if ($username) {
+                Radcheck::where('username', $username)->delete();
+                app(MikroTikService::class)->kickPppoeUser($username);
+            }
         } catch (\Throwable $e) {
             Log::warning("Radius disconnect error on Customer delete ({$username}): " . $e->getMessage());
         }
@@ -918,7 +943,55 @@ class CustomerController extends Controller
             'logged_at' => now(),
         ]);
 
-        return redirect()->back()->with('success', "Pelanggan berhasil dinonaktifkan, akun PPPoE dan FreeRADIUS dinonaktifkan.");
+        return redirect()->back()->with('success', "Pelanggan {$customer->nama_lengkap} berhasil dinonaktifkan (arsip) dan koneksi internet diputus.");
+    }
+
+    public function forceDelete($id)
+    {
+        $customer = Customer::withTrashed()->findOrFail($id);
+        $username = $customer->pppoe_username;
+        $nama = $customer->nama_lengkap;
+
+        // Hapus akun PPPoE
+        if ($username) {
+            Pppoe::where('username', $username)->delete();
+        }
+        if ($customer->pre_order_id) {
+            Pppoe::where('pre_order_id', $customer->pre_order_id)->delete();
+        }
+
+        // Hapus kredensial FreeRADIUS & kick session
+        try {
+            if ($username) {
+                Radcheck::where('username', $username)->delete();
+                Radusergroup::where('username', $username)->delete();
+                app(MikroTikService::class)->kickPppoeUser($username);
+            }
+        } catch (\Throwable $e) {
+            Log::warning("Radius cleanup error on Customer forceDelete ({$username}): " . $e->getMessage());
+        }
+
+        // Hapus file dokumentasi jika ada di storage
+        if ($customer->foto_petugas && Storage::exists($customer->foto_petugas)) {
+            Storage::delete($customer->foto_petugas);
+        }
+        if ($customer->foto_terpasang && Storage::exists($customer->foto_terpasang)) {
+            Storage::delete($customer->foto_terpasang);
+        }
+        if ($customer->foto_speedtest && Storage::exists($customer->foto_speedtest)) {
+            Storage::delete($customer->foto_speedtest);
+        }
+
+        $customer->forceDelete();
+
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'activity_type' => 'customer_force_delete',
+            'description' => "Menghapus data pelanggan secara permanen: " . $nama,
+            'logged_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', "Data pelanggan {$nama} berhasil dihapus permanen.");
     }
 
     /**
