@@ -1,26 +1,31 @@
 {{-- Modal Tambah Pre-Order --}}
 @if (auth()->user()->jabatan === 'Sales' || auth()->user()->isAdmin())
     <div class="modal-overlay" id="addPreOrderModal">
-        <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
-            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                <div class="modal-title">
-                    <i class="fa-solid fa-user-plus text-primary"></i>
-                    <span class="text-slate-900 font-bold">Tambah Pre-Order Baru</span>
+        <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-100 shrink-0">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800 leading-tight">Tambah Pre-Order Baru</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Registrasi calon pelanggan baru untuk survei dan pemasangan.</p>
+                    </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('addPreOrderModal')">
-                    <i class="fa-solid fa-xmark"></i>
+                    &times;
                 </button>
             </div>
 
-            <div class="modal-tabs bg-white border-b border-slate-200">
-                <button class="modal-tab active" data-tab="add-tab-biodata">
-                    <i class="fa-solid fa-user"></i> Biodata
+            <div class="modal-tabs bg-slate-50 border-b border-slate-200 px-6 pt-2 flex gap-2">
+                <button type="button" class="modal-tab active !rounded-t-lg !border-b-0 !px-4 !py-2 text-xs font-semibold text-slate-600 transition-all hover:text-slate-800" data-tab="add-tab-biodata">
+                    <i class="fa-solid fa-user mr-1.5 text-slate-400"></i> Biodata
                 </button>
-                <button class="modal-tab" data-tab="add-tab-paket">
-                    <i class="fa-solid fa-box-archive"></i> Paket & Lokasi
+                <button type="button" class="modal-tab !rounded-t-lg !border-b-0 !px-4 !py-2 text-xs font-semibold text-slate-600 transition-all hover:text-slate-800" data-tab="add-tab-paket">
+                    <i class="fa-solid fa-box-archive mr-1.5 text-slate-400"></i> Paket & Lokasi
                 </button>
-                <button class="modal-tab" data-tab="add-tab-media">
-                    <i class="fa-solid fa-camera"></i> Foto / Media
+                <button type="button" class="modal-tab !rounded-t-lg !border-b-0 !px-4 !py-2 text-xs font-semibold text-slate-600 transition-all hover:text-slate-800" data-tab="add-tab-media">
+                    <i class="fa-solid fa-camera mr-1.5 text-slate-400"></i> Foto / Media
                 </button>
             </div>
 
@@ -29,41 +34,41 @@
                 <input type="hidden" name="id_sales" value="{{ auth()->user()->id }}">
                 <input type="hidden" name="nama_sales" value="{{ auth()->user()->nama_lengkap }}">
 
-                <div class="modal-body bg-white">
+                <div class="modal-body bg-white p-6 max-h-[70vh] overflow-y-auto">
                     <!-- Tab Biodata -->
                     <div class="tab-panel active" id="add-tab-biodata">
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Nama Lengkap <span
+                        <div class="form-group mb-3.5">
+                            <label class="form-label text-slate-700 font-medium text-xs">Nama Lengkap <span
                                     class="text-rose-500">*</span></label>
-                            <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
+                            <input type="text" class="form-input !font-normal bg-white text-slate-800 border-slate-300"
                                 name="nama_lengkap" placeholder="Nama lengkap calon pelanggan" required>
                         </div>
-                        <div class="form-grid-2">
-                            <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">No. Identitas (NIK)</label>
-                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
+                        <div class="form-grid-2 mb-3.5">
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-700 font-medium text-xs">No. Identitas (NIK)</label>
+                                <input type="text" class="form-input !font-normal bg-white text-slate-800 border-slate-300"
                                     name="no_identitas" placeholder="3201..." required>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">No. WhatsApp <span
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-700 font-medium text-xs">No. WhatsApp <span
                                         class="text-rose-500">*</span></label>
-                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
+                                <input type="text" class="form-input !font-normal bg-white text-slate-800 border-slate-300"
                                     name="no_whatsapp" placeholder="0812..." required>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Alamat Email</label>
-                            <input type="email" class="form-input bg-white text-slate-900 border-slate-300"
+                        <div class="form-group mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs">Alamat Email</label>
+                            <input type="email" class="form-input !font-normal bg-white text-slate-800 border-slate-300"
                                 name="alamat_email" placeholder="nama@email.com">
                         </div>
                     </div>
 
                     <!-- Tab Paket & Lokasi -->
                     <div class="tab-panel" id="add-tab-paket">
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Pilih Paket Internet <span
+                        <div class="form-group mb-3.5">
+                            <label class="form-label text-slate-700 font-medium text-xs">Pilih Paket Internet <span
                                     class="text-rose-500">*</span></label>
-                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
+                            <select class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300"
                                 name="paket_id" required>
                                 <option value="">-- Pilih Paket --</option>
                                 @foreach ($pakets as $paket)
@@ -72,23 +77,23 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Alamat Lengkap Pemasangan <span
+                        <div class="form-group mb-3.5">
+                            <label class="form-label text-slate-700 font-medium text-xs">Alamat Lengkap Pemasangan <span
                                     class="text-rose-500">*</span></label>
-                            <textarea class="form-textarea bg-white text-slate-900 border-slate-300" name="alamat_lengkap"
-                                placeholder="Jl. Raya No. 123..." required></textarea>
+                            <textarea class="form-textarea !font-normal bg-white text-slate-800 border-slate-300" name="alamat_lengkap"
+                                rows="3" placeholder="Jl. Raya No. 123..." required></textarea>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Titik Koordinat</label>
+                        <div class="form-group mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs">Titik Koordinat</label>
                             <div class="flex gap-2">
                                 <input type="text"
-                                    class="form-input {{ auth()->user()->isAdmin() ? 'bg-white' : 'bg-slate-50' }} text-slate-900 border-slate-300"
+                                    class="form-input !font-normal {{ auth()->user()->isAdmin() ? 'bg-white' : 'bg-slate-50' }} text-slate-800 border-slate-300 font-mono text-xs"
                                     id="titik_koordinat" name="titik_koordinat"
                                     placeholder="{{ auth()->user()->isAdmin() ? 'Ketik manual / klik ikon...' : 'Koordinat...' }}"
                                     {{ auth()->user()->isAdmin() ? '' : 'readonly' }}>
                                 <button type="button"
-                                    class="btn-primary-admin !shadow-none !flex !items-center !justify-center"
-                                    id="get-location-btn">
+                                    class="btn-primary-admin !h-10 !px-3 !shadow-none !flex !items-center !justify-center"
+                                    id="get-location-btn" title="Ambil Lokasi Saat Ini">
                                     <i class="fa-solid fa-location-crosshairs"></i>
                                 </button>
                             </div>
@@ -97,26 +102,26 @@
 
                     <!-- Tab Media -->
                     <div class="tab-panel" id="add-tab-media">
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Foto KTP</label>
-                            <input type="file" class="form-input bg-white text-slate-900 border-slate-300"
+                        <div class="form-group mb-3.5">
+                            <label class="form-label text-slate-700 font-medium text-xs">Foto KTP</label>
+                            <input type="file" class="form-input !font-normal bg-white text-slate-700 border-slate-300 text-xs"
                                 name="foto_ktp" accept="image/*">
                         </div>
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Foto Rumah / Lokasi</label>
-                            <input type="file" class="form-input bg-white text-slate-900 border-slate-300"
+                        <div class="form-group mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs">Foto Rumah / Lokasi</label>
+                            <input type="file" class="form-input !font-normal bg-white text-slate-700 border-slate-300 text-xs"
                                 name="foto_rumah" accept="image/*">
                         </div>
                     </div>
                 </div>
 
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
+                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
                         onclick="closeCustomModal('addPreOrderModal')">
-                        <i class="fa-solid fa-xmark"></i> Batal
+                        Batal
                     </button>
-                    <button type="submit" class="btn-save !flex !items-center !justify-center gap-2">
-                        <i class="fa-solid fa-floppy-disk"></i> Simpan Data
+                    <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
+                        Simpan
                     </button>
                 </div>
             </form>

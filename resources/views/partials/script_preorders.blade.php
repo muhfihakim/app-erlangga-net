@@ -128,6 +128,10 @@
                 }
             }
 
+            if (modalId === 'addPreOrderModal') {
+                $(`#${modalId} .modal-tab`).first().trigger('click');
+            }
+
             modal.classList.add('open');
             document.body.style.overflow = 'hidden';
         }
