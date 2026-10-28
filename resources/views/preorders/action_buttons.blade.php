@@ -12,18 +12,14 @@
         data-paket="{{ $po->paket ? $po->paket->nama_paket : '-' }}"
         data-paket-harga="{{ $po->paket ? 'Rp ' . number_format($po->paket->harga, 0, ',', '.') : '' }}"
         data-koordinat="{{ $po->titik_koordinat ?: '' }}"
-        data-status="{{ $po->is_unsubscribed ? 'Berhenti' : ($po->is_active ? 'Aktif' : ($po->is_unspek ? ($po->is_unspek_approved ? 'Unspek' : 'Unspek (Pending)') : 'Pending')) }}"
-        data-status-badge="{{ $po->is_unsubscribed ? 'badge-archived' : ($po->is_active ? 'badge-published' : 'badge-draft') }}"
+        data-status="{{ $po->is_unspek ? ($po->is_unspek_approved ? 'Unspek' : 'Unspek (Pending)') : 'Menunggu Aktivasi' }}"
+        data-status-badge="{{ $po->is_unspek ? ($po->is_unspek_approved ? 'badge-archived' : 'badge-warning') : 'badge-draft' }}"
         data-foto-ktp="{{ $po->foto_ktp ? Storage::url($po->foto_ktp) : '' }}"
         data-foto-rumah="{{ $po->foto_rumah ? Storage::url($po->foto_rumah) : '' }}"
         title="Detail Informasi Pelanggan">
         <i class="fa-solid fa-circle-info text-slate-500"></i>
     </button>
-    @if ($po->is_unsubscribed)
-        <span class="badge badge-archived text-[10px] font-bold">BERHENTI</span>
-    @elseif ($po->is_active)
-        <span class="badge badge-published text-[10px] font-bold">AKTIF</span>
-    @elseif ($po->is_unspek)
+    @if ($po->is_unspek)
         @if ($po->is_unspek_approved)
             <span class="badge text-[10px] font-bold" style="background:#fef2f2;color:#be123c;border:1px solid #fecaca;">UNSPEK</span>
             @if (Auth::user()->isAdmin() || (auth()->user()->jabatan === 'Sales' && $po->id_sales == auth()->id()))

@@ -50,15 +50,7 @@
             </div>
             <div>
                 <div class="stat-val">{{ $totalThisMonth }}</div>
-                <div class="stat-lbl">Bulan Ini</div>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#fef3c7;color:#d97706;"><i class="fa-solid fa-calendar-week"></i>
-            </div>
-            <div>
-                <div class="stat-val">{{ $totalThisWeek }}</div>
-                <div class="stat-lbl">Minggu Ini</div>
+                <div class="stat-lbl">PO Bulan Ini</div>
             </div>
         </div>
         <div class="stat-card">
@@ -66,7 +58,15 @@
             </div>
             <div>
                 <div class="stat-val">{{ $totalPending }}</div>
-                <div class="stat-lbl">Belum Aktivasi</div>
+                <div class="stat-lbl">Menunggu Aktivasi</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fef2f2;color:#be123c;"><i class="fa-solid fa-ban"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $totalUnspek }}</div>
+                <div class="stat-lbl">Ditangguhkan (Unspek)</div>
             </div>
         </div>
     </div>
@@ -77,15 +77,9 @@
                 <div style="flex: 1; min-width: 180px;">
                     <label class="form-label-custom">Status</label>
                     <select name="status" class="form-input-custom">
-                        <option value="">Semua Status</option>
-                        <option value="pending" {{ $filterStatus === 'pending' ? 'selected' : '' }}>Menunggu Aktivasi
-                        </option>
-                        <option value="aktif" {{ $filterStatus === 'aktif' ? 'selected' : '' }}>Berlangganan (Aktif)
-                        </option>
-                        <option value="berhenti" {{ $filterStatus === 'berhenti' ? 'selected' : '' }}>Berhenti / Non-Aktif
-                        </option>
-                        <option value="unspek" {{ $filterStatus === 'unspek' ? 'selected' : '' }}>Ditangguhkan (Unspek)
-                        </option>
+                        <option value="">Semua Status PO</option>
+                        <option value="pending" {{ $filterStatus === 'pending' ? 'selected' : '' }}>Menunggu Aktivasi (Pending)</option>
+                        <option value="unspek" {{ $filterStatus === 'unspek' ? 'selected' : '' }}>Ditangguhkan (Unspek)</option>
                     </select>
                 </div>
                 @if (Auth::user()->isAdmin())

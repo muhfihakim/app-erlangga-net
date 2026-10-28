@@ -18,55 +18,40 @@ class PreOrderController extends Controller
         if (auth()->check()) {
             $user = auth()->user();
             
-            $filterStatus = $request->input('status', ''); // '', 'pending', 'aktif', 'berhenti', 'unspek'
+            $filterStatus = $request->input('status', ''); // '', 'pending', 'unspek'
             $filterSales = $request->input('id_sales', '');
 
-            // 1. Ambil data mentah dari tabel Customer (Termasuk yang di-softdelete)
-            $customerRecords = \App\Models\Customer::withTrashed()->get(['pre_order_id', 'deleted_at']);
+            // 1. Ambil ID PreOrder yang sudah terpasang (menjadi pelanggan di tabel customers, baik aktif maupun non-aktif/soft-deleted)
+            $installedPOIds = \App\Models\Customer::withTrashed()
+                ->whereNotNull('pre_order_id')
+                ->pluck('pre_order_id')
+                ->toArray();
 
-            // Pisahkan ID berdasarkan statusnya
-            $activePOIds = $customerRecords->whereNull('deleted_at')->pluck('pre_order_id')->toArray();
-            $unsubscribedPOIds = $customerRecords->whereNotNull('deleted_at')->pluck('pre_order_id')->toArray();
-
-            // 2. Query PreOrder
-            $query = PreOrder::with('pppoe');
+            // 2. Query PreOrder yang murni PO (belum terpasang)
+            $query = PreOrder::whereNotIn('id', $installedPOIds)
+                ->with(['pppoe', 'paket', 'sales']);
 
             if ($user->isAdmin()) {
                 if ($filterSales) {
                     $query->where('id_sales', $filterSales);
                 }
-            }
- elseif ($user->jabatan === 'Teknisi') {
-                // Teknisi bisa melihat semua PO yang belum aktif
+            } elseif ($user->jabatan === 'Teknisi') {
+                // Teknisi bisa melihat semua PO yang belum terpasang
             } else {
                 $query->where('id_sales', $user->id);
             }
 
             // Apply Status Filters
             if ($filterStatus === 'pending') {
-                $query->whereNotIn('id', array_merge($activePOIds, $unsubscribedPOIds))
-                      ->where('is_unspek', false);
-            } elseif ($filterStatus === 'aktif') {
-                $query->whereIn('id', $activePOIds);
-            } elseif ($filterStatus === 'berhenti') {
-                $query->whereIn('id', $unsubscribedPOIds);
+                $query->where('is_unspek', false);
             } elseif ($filterStatus === 'unspek') {
                 $query->where('is_unspek', true);
             }
 
-            // 3. Sorting & Execution
-            // Urutan: Pending (bukan aktif/berhenti/unspek) paling atas, lalu terbaru
-            $preOrders = $query->get()->map(function ($po) use ($activePOIds, $unsubscribedPOIds) {
-                $po->is_active = in_array($po->id, $activePOIds); 
-                $po->is_unsubscribed = in_array($po->id, $unsubscribedPOIds);
-                
-                // Bobot untuk sorting: 0 = Pending, 1 = Lainnya
-                $po->sort_weight = ($po->is_active || $po->is_unsubscribed || $po->is_unspek) ? 1 : 0;
-                return $po;
-            })->sortBy([
-                ['sort_weight', 'asc'],
-                ['id', 'desc']
-            ]);
+            // 3. Sorting: Menunggu aktivasi (is_unspek = 0) paling atas, lalu ID terbaru
+            $preOrders = $query->orderBy('is_unspek', 'asc')
+                ->orderBy('id', 'desc')
+                ->get();
 
             $teknisiUsers = User::where('jabatan', 'Teknisi')->orderBy('nama_lengkap')->get();
             $salesUsers = User::where('jabatan', 'Sales')->orderBy('nama_lengkap')->get();
@@ -80,7 +65,7 @@ class PreOrderController extends Controller
                         return '<div class="text-center font-mono text-xs text-slate-500">' . \Carbon\Carbon::parse($po->created_at)->format('d/m/Y') . '</div>';
                     })
                     ->addColumn('sales', function($po) {
-                        return '<div class="text-left text-xs font-medium text-slate-700 whitespace-nowrap"><i class="fa-regular fa-user text-[11px] text-slate-400 mr-1.5"></i>' . htmlspecialchars($po->nama_sales ?: '-') . '</div>';
+                        return '<div class="text-left text-xs font-medium text-slate-700 whitespace-nowrap"><i class="fa-regular fa-user text-[11px] text-slate-400 mr-1.5"></i>' . htmlspecialchars($po->nama_sales ?: ($po->sales ? $po->sales->nama_lengkap : '-')) . '</div>';
                     })
                     ->addColumn('nama_lengkap', function($po) {
                         $html = '<div class="text-left font-bold text-slate-900 text-[13px] leading-snug">' . htmlspecialchars($po->nama_lengkap) . '</div>';
@@ -103,7 +88,7 @@ class PreOrderController extends Controller
             $thisMonth = Carbon::now()->month;
             $thisYear = Carbon::now()->year;
 
-            $statsQuery = PreOrder::query();
+            $statsQuery = PreOrder::whereNotIn('id', $installedPOIds);
             if ($user->jabatan === 'Sales') {
                 $statsQuery->where('id_sales', $user->id);
             }
@@ -117,8 +102,8 @@ class PreOrderController extends Controller
                 Carbon::now()->endOfWeek()
             ])->count();
 
-            $allMyPOs = $statsQuery->get();
-            $totalPending = $allMyPOs->filter(fn($po) => !in_array($po->id, $activePOIds) && !in_array($po->id, $unsubscribedPOIds))->count();
+            $totalPending = (clone $statsQuery)->where('is_unspek', false)->count();
+            $totalUnspek = (clone $statsQuery)->where('is_unspek', true)->count();
 
             $pakets = \App\Models\Paket::orderBy('harga', 'asc')->get();
 
@@ -137,6 +122,7 @@ class PreOrderController extends Controller
                 'totalThisMonth',
                 'totalThisWeek',
                 'totalPending',
+                'totalUnspek',
                 'filterStatus',
                 'filterSales'
             ));
