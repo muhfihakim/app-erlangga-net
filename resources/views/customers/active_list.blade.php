@@ -46,17 +46,17 @@
 
             /* Map Customizations */
             #customer-map {
-                height: 400px;
+                height: 250px;
                 width: 100%;
-                border-radius: 16px;
+                border-radius: 14px;
                 border: 1px solid #e2e8f0;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
                 z-index: 1;
             }
 
             .map-container {
                 position: relative;
-                margin-bottom: 2rem;
+                margin-bottom: 1.25rem;
             }
 
             .map-legend {
@@ -240,12 +240,12 @@
                 <thead>
                     <tr>
                         <th style="text-align: center; width: 45px;">#</th>
-                        <th style="text-align: center; width: 130px;">ID Pelanggan</th>
+                        <th style="text-align: center; width: 105px;">ID Pelanggan</th>
                         <th style="text-align: left; min-width: 240px;">Nama Pelanggan</th>
-                        <th style="text-align: center; width: 140px;">No. WA</th>
-                        <th style="text-align: center; width: 150px;">Teknisi</th>
-                        <th style="text-align: center; width: 110px;">Tgl Aktivasi</th>
-                        <th style="text-align: center; width: 150px;">Opsi</th>
+                        <th style="text-align: center; width: 130px;">Paket</th>
+                        <th style="text-align: left; width: 140px;">Teknisi</th>
+                        <th style="text-align: center; width: 95px;">Tgl Aktivasi</th>
+                        <th style="text-align: center; width: 180px;">Status / Opsi</th>
                     </tr>
                 </thead>
                 <tbody style="border-top: none;">
@@ -275,7 +275,6 @@
                             style="font-size:12px; padding:6px 12px; border-radius:8px; border:1px solid #e2e8f0;">
                             <option value="">-- Semua Sales --</option>
                             @php
-                                // Unique sales from the isolir list
                                 $salesList = $pelangganIsolir->pluck('sales')->filter()->unique('id');
                             @endphp
                             @foreach ($salesList as $s)
@@ -283,46 +282,47 @@
                             @endforeach
                         </select>
                     @endif
-                    <button type="submit" class="btn btn-primary"
-                        style="font-size:12px; padding:6px 16px; border-radius:8px; background:#dc2626; border-color:#dc2626; font-weight:700; cursor:pointer; color:#ffffff;">
-                        <i class="fa-solid fa-file-pdf"></i> Export PDF
+                    <button type="submit" class="btn-primary-admin !h-8 !px-4 !text-xs !bg-slate-800 hover:!bg-slate-900 !text-white flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-pdf text-[11px]"></i> Export PDF
                     </button>
                 </form>
             </div>
 
-            <div class="table-card mb-8 border border-red-200 shadow-sm shadow-red-100">
+            <div class="table-card mb-8 border border-slate-200 shadow-sm">
                 <div class="table-responsive">
                     <table id="isolir-table" class="admin-table">
-                        <thead style="background:#fef2f2;">
+                        <thead>
                             <tr>
-                                <th style="text-align: center; width: 50px; color:#991b1b;">#</th>
-                                <th style="color:#991b1b;">Nama Pelanggan</th>
-                                <th style="text-align: center; color:#991b1b;">Username PPPoE</th>
-                                <th style="text-align: center; color:#991b1b;">Sales</th>
-                                <th style="text-align: center; color:#991b1b;">No. WA</th>
-                                <th style="text-align: center; color:#991b1b;">Paket</th>
+                                <th style="text-align: center; width: 45px;">#</th>
+                                <th style="text-align: left; min-width: 220px;">Nama Pelanggan</th>
+                                <th style="text-align: center; width: 140px;">Username PPPoE</th>
+                                <th style="text-align: left; width: 140px;">Sales</th>
+                                <th style="text-align: center; width: 130px;">Paket</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($pelangganIsolir as $isolir)
                                 <tr>
-                                    <td style="text-align: center; color: #94a3b8; font-weight: 700;">
+                                    <td style="text-align: center; color: #94a3b8; font-weight: 600; font-size: 12px;">
                                         {{ $loop->iteration }}</td>
-                                    <td style="font-weight: 700; color: #0f172a;">{{ $isolir->nama_lengkap }}</td>
-                                    <td
-                                        style="text-align: center; font-family:monospace; color:#0ea5e9; font-weight:700;">
-                                        {{ $isolir->pppoe_username }}</td>
-                                    <td style="text-align: center; font-weight: 600;">
-                                        {{ $isolir->sales->nama_lengkap ?? '-' }}</td>
-                                    <td style="text-align: center;">
-                                        <a href="https://wa.me/{{ $isolir->no_whatsapp }}" target="_blank"
-                                            style="color: #10b981; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-                                            <i class="fa-brands fa-whatsapp"></i> {{ $isolir->no_whatsapp }}
-                                        </a>
+                                    <td>
+                                        <div class="text-left font-bold text-slate-900 text-[13px] leading-snug">{{ $isolir->nama_lengkap }}</div>
+                                        @if ($isolir->no_whatsapp)
+                                            <div class="text-left text-[11px] font-mono text-slate-400 mt-0.5">
+                                                <a href="https://wa.me/{{ $isolir->no_whatsapp }}" target="_blank" class="text-slate-500 hover:text-emerald-600 inline-flex items-center gap-1">
+                                                    <i class="fa-brands fa-whatsapp text-emerald-600 text-[11px]"></i> {{ $isolir->no_whatsapp }}
+                                                </a>
+                                            </div>
+                                        @endif
+                                    </td>
+                                    <td style="text-align: center; font-family: monospace; color: #334155; font-size: 12px; font-weight: 600;">
+                                        {{ $isolir->pppoe_username }}
+                                    </td>
+                                    <td style="text-align: left; font-size: 12px; font-medium; color: #334155;">
+                                        <i class="fa-regular fa-user text-[11px] text-slate-400 mr-1.5"></i>{{ $isolir->sales->nama_lengkap ?? '-' }}
                                     </td>
                                     <td style="text-align: center;">
-                                        <span class="badge"
-                                            style="background:#fef2f2; color:#dc2626; padding:4px 8px; border-radius:6px; font-size:10px; font-weight:800;">
+                                        <span class="badge" style="background: #f8fafc; color: #334155; border: 1px solid #e2e8f0; font-weight: 600;">
                                             {{ $isolir->paket ? $isolir->paket->nama_paket : '-' }}
                                         </span>
                                     </td>
@@ -1232,23 +1232,21 @@
                     serverSide: true,
                     autoWidth: false,
                     ajax: '{{ route('customers.active_list') }}',
-                    columns: [{
+                    columns: [
+                        {
                             data: null,
                             name: 'id',
                             searchable: false,
                             orderable: false,
                             className: 'text-center align-middle',
                             render: function(data, type, row, meta) {
-                                return `<div style="color: #94a3b8; font-weight: 700;">${meta.row + meta.settings._iDisplayStart + 1}</div>`;
+                                return `<div style="color: #94a3b8; font-weight: 600; font-size: 12px;">${meta.row + meta.settings._iDisplayStart + 1}</div>`;
                             }
                         },
                         {
-                            data: 'id_pelanggan',
+                            data: 'id_formatted',
                             name: 'id_pelanggan',
-                            className: 'text-center align-middle',
-                            render: function(data) {
-                                return `<div style="font-weight: 800; color: #0ea5e9;">${data}</div>`;
-                            }
+                            className: 'text-center align-middle'
                         },
                         {
                             data: 'nama_lengkap_formatted',
@@ -1258,10 +1256,10 @@
                             className: 'text-left align-middle'
                         },
                         {
-                            data: 'wa_formatted',
-                            name: 'no_whatsapp',
+                            data: 'paket_formatted',
+                            name: 'paket_id',
                             orderable: false,
-                            searchable: true,
+                            searchable: false,
                             className: 'text-center align-middle'
                         },
                         {
@@ -1269,18 +1267,18 @@
                             name: 'teknisiUtama.nama_lengkap',
                             orderable: false,
                             searchable: true,
-                            className: 'text-center align-middle'
+                            className: 'text-left align-middle'
                         },
                         {
                             data: 'tgl_formatted',
                             name: 'created_at',
                             orderable: true,
                             searchable: false,
-                            className: 'text-center align-middle text-slate-500 font-semibold text-xs'
+                            className: 'text-center align-middle'
                         },
                         {
-                            data: 'action',
-                            name: 'action',
+                            data: 'status_opsi',
+                            name: 'status_opsi',
                             orderable: false,
                             searchable: false,
                             className: 'text-center align-middle'
@@ -1293,15 +1291,13 @@
                     ordering: false,
                     responsive: true,
                     language: {
-                        processing: "<i class='fa-solid fa-circle-notch fa-spin text-primary text-2xl'></i>",
+                        processing: "<i class='fa-solid fa-circle-notch fa-spin text-sky-500 text-2xl'></i>",
                         infoEmpty: "Data tidak ditemukan",
                         emptyTable: "Belum ada data pelanggan",
                         zeroRecords: "Pencarian tidak menemukan hasil",
                         paginate: {
-                            first: "<i class='fa-solid fa-angles-left'></i>",
-                            last: "<i class='fa-solid fa-angles-right'></i>",
-                            next: "<i class='fa-solid fa-angle-right'></i>",
-                            previous: "<i class='fa-solid fa-angle-left'></i>"
+                            previous: '<i class="fa-solid fa-chevron-left"></i>',
+                            next: '<i class="fa-solid fa-chevron-right"></i>'
                         }
                     }
                 });

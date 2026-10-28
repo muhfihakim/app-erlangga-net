@@ -96,129 +96,151 @@ class CustomerController extends Controller
 
         $user = auth()->user();
 
-        // Menggunakan withTrashed() agar pelanggan yang sudah di-dismantle tetap muncul dengan badge non-aktif
-        $query = Customer::withTrashed()->with(['teknisiUtama', 'sales', 'preOrder']);
-
-        if ($user->jabatan === 'Sales') {
-            $query->where('id_sales', $user->id);
-        }
-
-        $query->orderBy('id', 'desc');
-
-        // --- MAPPING STATUS ONLINE/OFFLINE ---
+        // --- 1. MAPPING STATUS ONLINE/OFFLINE (CACHED 60s) ---
         $pppoeData = \Illuminate\Support\Facades\Cache::get('mikrotik_pppoe_active');
         if (!$pppoeData || !isset($pppoeData['success']) || !$pppoeData['success']) {
             try {
                 $pppoeData = app(\App\Services\MikroTikService::class)->getPppoeActive();
                 if ($pppoeData && isset($pppoeData['success']) && $pppoeData['success']) {
-                    \Illuminate\Support\Facades\Cache::put('mikrotik_pppoe_active', $pppoeData, 25);
+                    \Illuminate\Support\Facades\Cache::put('mikrotik_pppoe_active', $pppoeData, 60);
                 }
             } catch (\Throwable $e) {}
         }
-        $activeUsernames = [];
-        if ($pppoeData && isset($pppoeData['success']) && $pppoeData['success']) {
-            $activeUsernames = collect($pppoeData['data'])->pluck('name')->toArray();
-        }
+        $activeUsernames = ($pppoeData && isset($pppoeData['success']) && $pppoeData['success'])
+            ? collect($pppoeData['data'])->pluck('name')->toArray()
+            : [];
 
-        // --- DATATABLES SERVER SIDE ---
+        // --- 2. DATATABLES SERVER SIDE (LIGHTWEIGHT & FAST) ---
         if ($request->ajax()) {
-            $pppoeMap = \App\Models\Pppoe::whereNotNull('username')
-                ->get(['id', 'username', 'is_isolir', 'isolir_reason', 'isolir_at'])
+            $query = Customer::withTrashed()
+                ->select([
+                    'customers.id',
+                    'customers.id_pelanggan',
+                    'customers.nama_lengkap',
+                    'customers.no_whatsapp',
+                    'customers.pppoe_username',
+                    'customers.pppoe_password',
+                    'customers.jenis_modem',
+                    'customers.sn_perangkat',
+                    'customers.pembayaran',
+                    'customers.keterangan',
+                    'customers.foto_petugas',
+                    'customers.foto_terpasang',
+                    'customers.foto_speedtest',
+                    'customers.teknisi_utama',
+                    'customers.id_sales',
+                    'customers.paket_id',
+                    'customers.created_at',
+                    'customers.deleted_at'
+                ])
+                ->with([
+                    'teknisiUtama:id,nama_lengkap',
+                    'sales:id,nama_lengkap',
+                    'paket:id,nama_paket,harga',
+                    'preOrder:id,no_identitas,alamat_email,titik_koordinat,alamat_lengkap,created_at'
+                ]);
+
+            if ($user->jabatan === 'Sales') {
+                $query->where('customers.id_sales', $user->id);
+            }
+
+            // Only fetch active isolir records (lightweight!)
+            $isolirMap = \App\Models\Pppoe::where('is_isolir', 1)
+                ->get(['username', 'isolir_reason', 'isolir_at'])
                 ->keyBy('username');
 
             return \Yajra\DataTables\Facades\DataTables::of($query)
-                ->addColumn('is_online', function ($customer) use ($activeUsernames) {
-                    return in_array($customer->pppoe_username, $activeUsernames);
+                ->filter(function ($query) use ($request) {
+                    if ($search = $request->input('search.value')) {
+                        $query->where(function ($q) use ($search) {
+                            $q->where('customers.id_pelanggan', 'like', "%{$search}%")
+                              ->orWhere('customers.nama_lengkap', 'like', "%{$search}%")
+                              ->orWhere('customers.pppoe_username', 'like', "%{$search}%")
+                              ->orWhere('customers.no_whatsapp', 'like', "%{$search}%")
+                              ->orWhereHas('paket', function ($pq) use ($search) {
+                                  $pq->where('nama_paket', 'like', "%{$search}%");
+                              })
+                              ->orWhereHas('teknisiUtama', function ($tq) use ($search) {
+                                  $tq->where('nama_lengkap', 'like', "%{$search}%");
+                              });
+                        });
+                    }
                 })
-                ->addColumn('is_isolir', function ($customer) use ($pppoeMap) {
-                    $p = $customer->pppoe_username ? $pppoeMap->get($customer->pppoe_username) : null;
-                    return $p ? (bool)$p->is_isolir : false;
+                ->addColumn('id_formatted', function($customer) {
+                    return '<div class="text-center font-mono text-xs font-semibold text-slate-700">' . htmlspecialchars($customer->id_pelanggan ?: '-') . '</div>';
                 })
-                ->addColumn('titik_koordinat', function ($customer) {
-                    return $customer->preOrder ? $customer->preOrder->titik_koordinat : null;
+                ->addColumn('nama_lengkap_formatted', function($customer) {
+                    $html = '<div class="text-left font-bold text-slate-900 text-[13px] leading-snug">' . htmlspecialchars($customer->nama_lengkap) . '</div>';
+                    $subInfo = [];
+                    if ($customer->no_whatsapp) {
+                        $subInfo[] = '<a href="https://wa.me/' . htmlspecialchars($customer->no_whatsapp, ENT_QUOTES) . '" target="_blank" class="text-slate-500 hover:text-emerald-600 inline-flex items-center gap-1"><i class="fa-brands fa-whatsapp text-emerald-600 text-[11px]"></i> ' . htmlspecialchars($customer->no_whatsapp) . '</a>';
+                    }
+                    if ($customer->pppoe_username) {
+                        $subInfo[] = '<span class="text-slate-400">PPPoE: <span class="text-slate-600 font-medium">' . htmlspecialchars($customer->pppoe_username) . '</span></span>';
+                    }
+                    if (!empty($subInfo)) {
+                        $html .= '<div class="text-left text-[11px] font-mono text-slate-400 mt-0.5 flex items-center gap-1.5 flex-wrap">' . implode('<span class="text-slate-300">•</span>', $subInfo) . '</div>';
+                    }
+                    return $html;
                 })
-                ->addColumn('nama_lengkap_formatted', function($customer) use ($activeUsernames, $pppoeMap) {
-                    $isOnline = in_array($customer->pppoe_username, $activeUsernames);
-                    $badgeOnline = $isOnline 
-                        ? '<span class="badge text-[10px] font-bold py-0.5 px-1.5" style="background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0;">ONLINE</span>'
-                        : '<span class="badge text-[10px] font-bold py-0.5 px-1.5" style="background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0;">OFFLINE</span>';
-                    
-                    $p = $customer->pppoe_username ? $pppoeMap->get($customer->pppoe_username) : null;
-                    $isIsolir = $p ? (bool)$p->is_isolir : false;
-                    $badgeIsolir = $isIsolir 
-                        ? '<span class="badge text-[10px] font-bold py-0.5 px-1.5" title="' . htmlspecialchars($p->isolir_reason ?? 'Terisolir', ENT_QUOTES) . '" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5;"><i class="fa-solid fa-ban mr-0.5"></i> ISOLIR</span>' 
-                        : '';
-
-                    $badgeTrashed = $customer->trashed() 
-                        ? '<span class="badge badge-archived text-[10px] font-bold py-0.5 px-1.5 ml-1">NON-AKTIF</span>' 
-                        : '';
-                    $pppoe = $customer->pppoe_username ?? '-';
-                    return '
-                        <div class="text-left">
-                            <div class="flex items-center gap-1.5 flex-wrap">
-                                <span class="font-bold text-slate-800 text-[13px]">' . htmlspecialchars($customer->nama_lengkap, ENT_QUOTES) . '</span>
-                                ' . $badgeOnline . '
-                                ' . $badgeIsolir . '
-                                ' . $badgeTrashed . '
-                            </div>
-                            <div class="text-[11px] text-slate-500 font-normal mt-0.5">
-                                PPPoE: <span class="font-mono text-slate-700 font-medium">' . htmlspecialchars($pppoe, ENT_QUOTES) . '</span>
-                            </div>
-                        </div>
-                    ';
-                })
-                ->addColumn('wa_formatted', function($customer) {
-                    return '
-                        <a href="https://wa.me/' . htmlspecialchars($customer->no_whatsapp, ENT_QUOTES) . '" target="_blank"
-                            style="color: #10b981; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-                            <i class="fa-brands fa-whatsapp"></i> ' . htmlspecialchars($customer->no_whatsapp, ENT_QUOTES) . '
-                        </a>
-                    ';
+                ->addColumn('paket_formatted', function($customer) {
+                    $paketName = $customer->paket ? $customer->paket->nama_paket : '-';
+                    return '<div class="text-center"><span class="badge" style="background: #f8fafc; color: #334155; border: 1px solid #e2e8f0; font-weight: 600;">' . htmlspecialchars($paketName) . '</span></div>';
                 })
                 ->addColumn('teknisi_formatted', function($customer) {
-                    $teknisi = $customer->teknisiUtama->nama_lengkap ?? 'N/A';
-                    $partner = $customer->partner ? '<div style="font-size: 10px; color: #94a3b8;">Partner: ' . htmlspecialchars($customer->partner, ENT_QUOTES) . '</div>' : '';
-                    return '
-                        <div style="font-weight: 600; color: #475569;">' . htmlspecialchars($teknisi, ENT_QUOTES) . '</div>
-                        ' . $partner . '
-                    ';
+                    $teknisi = $customer->teknisiUtama->nama_lengkap ?? '-';
+                    return '<div class="text-left text-xs font-medium text-slate-700 whitespace-nowrap"><i class="fa-regular fa-user text-[11px] text-slate-400 mr-1.5"></i>' . htmlspecialchars($teknisi) . '</div>';
                 })
                 ->addColumn('tgl_formatted', function($customer) {
-                    return \Carbon\Carbon::parse($customer->created_at)->format('d-m-Y');
+                    return '<div class="text-center font-mono text-xs text-slate-500">' . \Carbon\Carbon::parse($customer->created_at)->format('d/m/Y') . '</div>';
                 })
-                ->addColumn('action', function($customer) use ($pppoeMap) {
-                    $isAdmin = auth()->user()->isAdmin();
-                    $p = $customer->pppoe_username ? $pppoeMap->get($customer->pppoe_username) : null;
-                    $isIsolir = $p ? (bool)$p->is_isolir : false;
-                    $isolirReason = $p ? ($p->isolir_reason ?? '') : '';
-                    $isolirAt = $p && $p->isolir_at ? \Carbon\Carbon::parse($p->isolir_at)->format('d-m-Y H:i') : '';
+                ->addColumn('status_opsi', function($customer) use ($activeUsernames, $isolirMap, $user) {
+                    $isOnline = in_array($customer->pppoe_username, $activeUsernames);
+                    $pIsolir = $customer->pppoe_username ? $isolirMap->get($customer->pppoe_username) : null;
+                    $isIsolir = (bool)$pIsolir;
 
+                    // Subtle neutral status badge (similar to /pre-orders)
+                    if ($customer->trashed()) {
+                        $badgeStatus = '<span class="badge badge-archived text-[10px] font-semibold py-0.5 px-2">Non-Aktif</span>';
+                    } elseif ($isIsolir) {
+                        $badgeStatus = '<span class="badge text-[10px] font-semibold py-0.5 px-2 bg-rose-50 text-rose-700 border border-rose-200">Isolir</span>';
+                    } elseif ($isOnline) {
+                        $badgeStatus = '<span class="badge text-[10px] font-semibold py-0.5 px-2 bg-emerald-50 text-emerald-700 border border-emerald-200">Online</span>';
+                    } else {
+                        $badgeStatus = '<span class="badge text-[10px] font-semibold py-0.5 px-2 bg-slate-50 text-slate-500 border border-slate-200">Offline</span>';
+                    }
+
+                    $isAdmin = $user->isAdmin();
+                    $isolirReason = $pIsolir ? ($pIsolir->isolir_reason ?? '') : '';
+                    $isolirAt = $pIsolir && $pIsolir->isolir_at ? \Carbon\Carbon::parse($pIsolir->isolir_at)->format('d-m-Y H:i') : '';
+
+                    // Compact action buttons (exact same size & style as /pre-orders)
                     $btnDetail = '
-                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Detail"
+                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Detail Informasi"
                             onclick="openCustomerDetailModal(this)"
                             data-id="' . $customer->id . '"
-                            data-customer-id="' . htmlspecialchars($customer->id_pelanggan, ENT_QUOTES) . '"
-                            data-nama-lengkap="' . htmlspecialchars($customer->nama_lengkap, ENT_QUOTES) . '"
-                            data-pppoe-user="' . htmlspecialchars($customer->pppoe_username, ENT_QUOTES) . '"
-                            data-pppoe-pass="' . htmlspecialchars($customer->pppoe_password, ENT_QUOTES) . '"
+                            data-customer-id="' . htmlspecialchars($customer->id_pelanggan ?? '', ENT_QUOTES) . '"
+                            data-nama-lengkap="' . htmlspecialchars($customer->nama_lengkap ?? '', ENT_QUOTES) . '"
+                            data-pppoe-user="' . htmlspecialchars($customer->pppoe_username ?? '', ENT_QUOTES) . '"
+                            data-pppoe-pass="' . htmlspecialchars($customer->pppoe_password ?? '', ENT_QUOTES) . '"
                             data-is-isolir="' . ($isIsolir ? '1' : '0') . '"
                             data-isolir-reason="' . htmlspecialchars($isolirReason, ENT_QUOTES) . '"
                             data-isolir-at="' . htmlspecialchars($isolirAt, ENT_QUOTES) . '"
                             data-isolir-url="' . route('customers.isolir', $customer->id) . '"
                             data-buka-isolir-url="' . route('customers.buka_isolir', $customer->id) . '"
-                            data-jenis-modem="' . htmlspecialchars($customer->jenis_modem, ENT_QUOTES) . '"
-                            data-sn-perangkat="' . htmlspecialchars($customer->sn_perangkat, ENT_QUOTES) . '"
-                            data-pembayaran="' . htmlspecialchars($customer->pembayaran, ENT_QUOTES) . '"
+                            data-jenis-modem="' . htmlspecialchars($customer->jenis_modem ?? '', ENT_QUOTES) . '"
+                            data-sn-perangkat="' . htmlspecialchars($customer->sn_perangkat ?? '', ENT_QUOTES) . '"
+                            data-pembayaran="' . htmlspecialchars($customer->pembayaran ?? '', ENT_QUOTES) . '"
                             data-tgl-aktivasi="' . \Carbon\Carbon::parse($customer->created_at)->format('d-m-Y') . '"
                             data-tgl-aktivasi-raw="' . \Carbon\Carbon::parse($customer->created_at)->format('Y-m-d') . '"
                             data-po-paket="' . htmlspecialchars($customer->paket ? $customer->paket->nama_paket : '', ENT_QUOTES) . '"
-                            data-paket-id="' . htmlspecialchars($customer->paket_id, ENT_QUOTES) . '"
+                            data-paket-id="' . htmlspecialchars($customer->paket_id ?? '', ENT_QUOTES) . '"
                             data-po-sales="' . htmlspecialchars($customer->sales->nama_lengkap ?? 'N/A', ENT_QUOTES) . '"
                             data-id-sales="' . htmlspecialchars($customer->id_sales ?? '', ENT_QUOTES) . '"
                             data-po-nik="' . htmlspecialchars($customer->preOrder->no_identitas ?? 'N/A', ENT_QUOTES) . '"
                             data-po-email="' . htmlspecialchars($customer->preOrder->alamat_email ?? 'N/A', ENT_QUOTES) . '"
-                            data-po-alamat="' . htmlspecialchars($customer->alamat_lengkap, ENT_QUOTES) . '"
-                            data-po-wa="' . htmlspecialchars($customer->no_whatsapp, ENT_QUOTES) . '"
+                            data-po-alamat="' . htmlspecialchars($customer->preOrder->alamat_lengkap ?? ($customer->alamat_lengkap ?? ''), ENT_QUOTES) . '"
+                            data-po-wa="' . htmlspecialchars($customer->no_whatsapp ?? '', ENT_QUOTES) . '"
                             data-po-tgl-po="' . \Carbon\Carbon::parse($customer->preOrder->created_at ?? $customer->created_at)->format('d-m-Y') . '"
                             data-tgl-po-raw="' . \Carbon\Carbon::parse($customer->preOrder->created_at ?? $customer->created_at)->format('Y-m-d') . '"
                             data-po-tikor="' . htmlspecialchars($customer->preOrder->titik_koordinat ?? 'N/A', ENT_QUOTES) . '"
@@ -235,7 +257,7 @@ class CustomerController extends Controller
                         $btnAcs = '
                             <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Status Modem & Wi-Fi (ACS)"
                                 onclick="openCustomerAcsModal(' . $customer->id . ', \'' . htmlspecialchars(addslashes($customer->nama_lengkap), ENT_QUOTES) . '\', \'' . htmlspecialchars($customer->id_pelanggan ?? '', ENT_QUOTES) . '\')">
-                                <i class="fa-solid fa-satellite-dish text-sky-600"></i>
+                                <i class="fa-solid fa-satellite-dish text-slate-500"></i>
                             </button>
                         ';
                     }
@@ -245,7 +267,7 @@ class CustomerController extends Controller
                         $btnMap = '
                             <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Lihat di Peta"
                                 onclick="focusOnCustomer(\'' . $customer->preOrder->titik_koordinat . '\', \'' . $customer->id_pelanggan . '\')">
-                                <i class="fa-solid fa-location-dot text-emerald-600"></i>
+                                <i class="fa-solid fa-location-dot text-slate-500"></i>
                             </button>
                         ';
                     }
@@ -275,32 +297,26 @@ class CustomerController extends Controller
                             $btnAdmin = '
                                 <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Aktifkan"
                                     onclick="confirmGlobalDelete(\'' . route('customers.restore', $customer->id) . '\', \'' . htmlspecialchars($customer->nama_lengkap, ENT_QUOTES) . ' (Restore)\')">
-                                    <i class="fa-solid fa-rotate-left text-emerald-600"></i>
+                                    <i class="fa-solid fa-rotate-left text-slate-500"></i>
                                 </button>
                             ';
                         } else {
                             $btnAdmin = '
                                 <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50" title="Non-aktifkan"
                                     onclick="confirmGlobalDelete(\'' . route('customers.destroy', $customer->id) . '\', \'' . htmlspecialchars($customer->nama_lengkap, ENT_QUOTES) . '\')">
-                                    <i class="fa-solid fa-trash text-rose-500"></i>
+                                    <i class="fa-solid fa-trash text-slate-400 hover:text-rose-500"></i>
                                 </button>
                             ';
                         }
                     }
 
-                    return '<div class="flex items-center justify-center gap-1">' . $btnDetail . $btnAcs . $btnMap . $btnIsolir . $btnAdmin . '</div>';
+                    return '<div class="flex items-center justify-center gap-1.5">' . $badgeStatus . '<div class="flex items-center gap-1">' . $btnDetail . $btnAcs . $btnMap . $btnIsolir . $btnAdmin . '</div></div>';
                 })
-                ->rawColumns(['nama_lengkap_formatted', 'wa_formatted', 'teknisi_formatted', 'tgl_formatted', 'action'])
+                ->rawColumns(['id_formatted', 'nama_lengkap_formatted', 'paket_formatted', 'teknisi_formatted', 'tgl_formatted', 'status_opsi'])
                 ->make(true);
         }
 
-        $customers = $query->orderBy('id', 'desc')->get();
-
-        foreach ($customers as $customer) {
-            $customer->is_online = in_array($customer->pppoe_username, $activeUsernames);
-        }
-
-        // --- STATISTIK ---
+        // --- 3. INITIAL PAGE LOAD DATA (OPTIMIZED) ---
         $thisMonth = Carbon::now()->month;
         $thisYear = Carbon::now()->year;
 
@@ -310,23 +326,19 @@ class CustomerController extends Controller
         }
 
         $totalActive = (clone $statsQuery)->count();
-        
         $newThisMonth = (clone $statsQuery)->whereMonth('created_at', $thisMonth)
             ->whereYear('created_at', $thisYear)
             ->count();
-            
         $newThisWeek = (clone $statsQuery)->whereBetween('created_at', [
             Carbon::now()->startOfWeek(),
             Carbon::now()->endOfWeek()
         ])->count();
-
         $totalArchived = (clone $statsQuery)->onlyTrashed()->count();
 
-        // --- DATA PELANGGAN ISOLIR (DARI DATABASE + SESI MIKROTIK) ---
+        // Data Pelanggan Isolir
         $pelangganIsolir = collect();
         if ($user->jabatan === 'Sales' || $user->isAdmin()) {
             $dbIsolirUsernames = \App\Models\Pppoe::where('is_isolir', true)->pluck('username')->toArray();
-
             $mikrotikIsolirUsernames = [];
             if ($pppoeData && isset($pppoeData['success']) && $pppoeData['success']) {
                 $mikrotikIsolirUsernames = collect($pppoeData['data'])
@@ -334,37 +346,39 @@ class CustomerController extends Controller
                     ->pluck('name')
                     ->toArray();
             }
-
             $allIsolirUsernames = array_unique(array_merge($dbIsolirUsernames, $mikrotikIsolirUsernames));
 
             if (!empty($allIsolirUsernames)) {
-                $isolirQuery = Customer::with('preOrder')
+                $isolirQuery = Customer::with(['preOrder:id,customer_id,titik_koordinat', 'sales:id,nama_lengkap', 'paket:id,nama_paket'])
                     ->whereIn('pppoe_username', $allIsolirUsernames);
-                    
                 if ($user->jabatan === 'Sales') {
                     $isolirQuery->where('id_sales', $user->id);
                 }
-                
                 $pelangganIsolir = $isolirQuery->get();
             }
         }
 
-        // --- MAP DATA ---
-        $activeData = [];
-        if ($pppoeData && isset($pppoeData['success']) && $pppoeData['success']) {
-            $activeData = collect($pppoeData['data'])->keyBy('name')->toArray();
-        }
+        // Map Data: ONLY query active customers with coordinates!
+        $activeData = ($pppoeData && isset($pppoeData['success']) && $pppoeData['success'])
+            ? collect($pppoeData['data'])->keyBy('name')->toArray()
+            : [];
+
+        $mapCustomers = Customer::withoutTrashed()
+            ->whereHas('preOrder', fn($q) => $q->whereNotNull('titik_koordinat')->where('titik_koordinat', '!=', ''))
+            ->select(['id', 'nama_lengkap', 'pppoe_username', 'paket_id', 'alamat_lengkap'])
+            ->with(['paket:id,nama_paket', 'preOrder:id,customer_id,titik_koordinat'])
+            ->get();
 
         $mapData = [];
-        foreach ($customers as $c) {
+        foreach ($mapCustomers as $c) {
             $tikor = $c->preOrder ? $c->preOrder->titik_koordinat : null;
-            if ($tikor && !$c->trashed()) {
-                $isOnline = $c->is_online;
+            if ($tikor) {
+                $isOnline = in_array($c->pppoe_username, $activeUsernames);
                 $uptime = $isOnline ? ($activeData[$c->pppoe_username]['uptime'] ?? '-') : '-';
                 $address = $isOnline ? ($activeData[$c->pppoe_username]['address'] ?? '-') : '-';
                 $bytesIn = $isOnline ? ($activeData[$c->pppoe_username]['bytes-in'] ?? null) : null;
                 $bytesOut = $isOnline ? ($activeData[$c->pppoe_username]['bytes-out'] ?? null) : null;
-                
+
                 $mapData[] = [
                     'id' => $c->id,
                     'nama' => $c->nama_lengkap,
@@ -387,21 +401,26 @@ class CustomerController extends Controller
             'offline' => collect($mapData)->where('is_online', false)->count(),
         ];
 
-        // --- STATS ONLINE/OFFLINE/ISOLIR KESELURUHAN (ADMIN) ---
+        // Stats Online/Offline/Isolir Keseluruhan (Admin)
         $totalOnlineAll = 0;
         $totalOfflineAll = 0;
         $totalIsolirAll = 0;
 
         if ($user->isAdmin()) {
-            $totalOnlineAll = $customers->whereNull('deleted_at')->where('is_online', true)->count();
-            $totalOfflineAll = $customers->whereNull('deleted_at')->where('is_online', false)->count();
+            if (!empty($activeUsernames)) {
+                $totalOnlineAll = Customer::withoutTrashed()
+                    ->whereIn('pppoe_username', $activeUsernames)
+                    ->count();
+            } else {
+                $totalOnlineAll = 0;
+            }
+            $totalOfflineAll = max(0, $totalActive - $totalOnlineAll);
             $totalIsolirAll = $pelangganIsolir->count();
         }
 
-        $salesUsers = User::where('jabatan', 'Sales')->get();
+        $salesUsers = User::where('jabatan', 'Sales')->orderBy('nama_lengkap')->get(['id', 'nama_lengkap']);
 
         return view('customers.active_list', compact(
-            'customers',
             'totalActive',
             'newThisMonth',
             'newThisWeek',
