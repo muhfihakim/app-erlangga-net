@@ -115,6 +115,7 @@ class CustomerController extends Controller
             $query = Customer::withTrashed()
                 ->select([
                     'customers.id',
+                    'customers.pre_order_id',
                     'customers.id_pelanggan',
                     'customers.nama_lengkap',
                     'customers.no_whatsapp',
@@ -127,7 +128,7 @@ class CustomerController extends Controller
                     'customers.foto_petugas',
                     'customers.foto_terpasang',
                     'customers.foto_speedtest',
-                    'customers.teknisi_utama',
+                    'customers.id_teknisi',
                     'customers.id_sales',
                     'customers.paket_id',
                     'customers.created_at',
@@ -349,7 +350,7 @@ class CustomerController extends Controller
             $allIsolirUsernames = array_unique(array_merge($dbIsolirUsernames, $mikrotikIsolirUsernames));
 
             if (!empty($allIsolirUsernames)) {
-                $isolirQuery = Customer::with(['preOrder:id,customer_id,titik_koordinat', 'sales:id,nama_lengkap', 'paket:id,nama_paket'])
+                $isolirQuery = Customer::with(['preOrder:id,titik_koordinat', 'sales:id,nama_lengkap', 'paket:id,nama_paket'])
                     ->whereIn('pppoe_username', $allIsolirUsernames);
                 if ($user->jabatan === 'Sales') {
                     $isolirQuery->where('id_sales', $user->id);
@@ -365,8 +366,8 @@ class CustomerController extends Controller
 
         $mapCustomers = Customer::withoutTrashed()
             ->whereHas('preOrder', fn($q) => $q->whereNotNull('titik_koordinat')->where('titik_koordinat', '!=', ''))
-            ->select(['id', 'nama_lengkap', 'pppoe_username', 'paket_id', 'alamat_lengkap'])
-            ->with(['paket:id,nama_paket', 'preOrder:id,customer_id,titik_koordinat'])
+            ->select(['id', 'pre_order_id', 'nama_lengkap', 'pppoe_username', 'paket_id', 'alamat_lengkap'])
+            ->with(['paket:id,nama_paket', 'preOrder:id,titik_koordinat'])
             ->get();
 
         $mapData = [];
