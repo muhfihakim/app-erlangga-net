@@ -379,7 +379,7 @@
         <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
             <span class="text-xs text-slate-400">Data pendaftaran calon pelanggan internet.</span>
             <button type="button" class="btn-cancel !h-9 !px-5 text-xs font-semibold" onclick="closeCustomModal('detailModal')">
-                <i class="fa-solid fa-xmark mr-1"></i> Tutup Detail
+                Tutup Detail
             </button>
         </div>
     </div>
@@ -612,11 +612,11 @@
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
                     <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
                         onclick="closeCustomModal('createPppoeModal')">
-                        <i class="fa-solid fa-xmark mr-1"></i> Batal
+                        Batal
                     </button>
                     <button type="submit"
-                        class="btn-primary-admin !h-9 !px-5 text-xs font-semibold flex items-center gap-1.5">
-                        <i class="fa-solid fa-floppy-disk"></i> Simpan PPPoE
+                        class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
+                        Simpan
                     </button>
                 </div>
             </form>
