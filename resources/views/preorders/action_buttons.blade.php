@@ -59,8 +59,8 @@
                     class="fa-solid fa-bolt"></i> Aktivasi</button>
         @endif
         @if ($po->pppoe)
-            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200" title="PPPoE Sudah Dibuat">
-                <i class="fa-solid fa-check mr-0.5"></i> PPPoE
+            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200" title="Akun PPPoE telah disiapkan ({{ $po->pppoe->username }})">
+                <i class="fa-solid fa-check mr-0.5"></i> PPPoE Siap
             </span>
         @else
             @if (auth()->user()->isAdmin())

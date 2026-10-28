@@ -40,7 +40,7 @@ class CustomerController extends Controller
 
         // Daftar teknisi untuk dropdown Partner
         $teknisiUsers = User::where('jabatan', 'Teknisi')->get();
-        $baseQuery = PreOrder::whereNotIn('id', $activatedPOIds);
+        $baseQuery = PreOrder::whereNotIn('id', $activatedPOIds)->with(['pppoe', 'paket', 'sales']);
 
         $thisMonth = Carbon::now()->month;
         $thisYear = Carbon::now()->year;
@@ -601,9 +601,26 @@ class CustomerController extends Controller
 
             // Sinkronkan ke Akun PPPoE & FreeRADIUS
             $isPaid = ($validatedData['pembayaran'] === 'Cash');
-            $pppoe = Pppoe::updateOrCreate(
-                ['username' => $validatedData['pppoe_username']],
-                [
+
+            // Cek apakah PO ini sudah memiliki akun PPPoE yang disiapkan oleh Admin
+            $existingPppoe = Pppoe::where('pre_order_id', $po->id)
+                ->orWhere('username', $validatedData['pppoe_username'])
+                ->first();
+
+            if ($existingPppoe) {
+                $existingPppoe->update([
+                    'pre_order_id' => $po->id,
+                    'username' => $validatedData['pppoe_username'],
+                    'password' => $validatedData['pppoe_password'],
+                    'paket_id' => $po->paket_id,
+                    'tanggal_aktif' => $existingPppoe->tanggal_aktif ?: now(),
+                    'status_invoice' => $isPaid ? 'terbayar' : ($existingPppoe->status_invoice ?: 'belum_bayar'),
+                    'is_isolir' => false,
+                ]);
+                $pppoe = $existingPppoe;
+            } else {
+                $pppoe = Pppoe::create([
+                    'username' => $validatedData['pppoe_username'],
                     'pre_order_id' => $po->id,
                     'password' => $validatedData['pppoe_password'],
                     'paket_id' => $po->paket_id,
@@ -615,8 +632,8 @@ class CustomerController extends Controller
                     'status_invoice' => $isPaid ? 'terbayar' : 'belum_bayar',
                     'generate_invoice' => true,
                     'is_isolir' => false,
-                ]
-            );
+                ]);
+            }
 
             // FreeRADIUS sync
             try {
@@ -651,37 +668,52 @@ class CustomerController extends Controller
                 Log::warning("Radius sync error on Customer Activation ({$pppoe->username}): " . $e->getMessage());
             }
 
-            // Generate First Invoice & Transaction jika lunas
+            // Generate First Invoice & Transaction jika belum ada
             try {
-                $paket = $po->paket ?? Paket::find($po->paket_id);
-                if ($paket) {
-                    $amount = (float) $paket->harga;
-                    $tax = (float) ($paket->pajak ?? 0);
-                    $discount = (float) ($paket->diskon ?? 0);
-                    $total = max(0, $amount + $tax - $discount);
-                    $dueDate = Carbon::now()->addDays(7);
+                $invoice = Invoice::where('pppoe_id', $pppoe->id)->first();
+                if (!$invoice) {
+                    $paket = $po->paket ?? Paket::find($po->paket_id);
+                    if ($paket) {
+                        $amount = (float) $paket->harga;
+                        $tax = (float) ($paket->pajak ?? 0);
+                        $discount = (float) ($paket->diskon ?? 0);
+                        $total = max(0, $amount + $tax - $discount);
+                        $dueDate = Carbon::now()->addDays(7);
 
-                    $invoice = Invoice::create([
-                        'pppoe_id' => $pppoe->id,
-                        'invoice_number' => 'INV-' . date('Ymd') . '-' . str_pad($pppoe->id, 4, '0', STR_PAD_LEFT) . '-' . rand(100, 999),
-                        'amount' => $amount,
-                        'tax' => $tax,
-                        'discount' => $discount,
-                        'total' => $total,
-                        'due_date' => $dueDate->format('Y-m-d'),
-                        'status' => $isPaid ? 'paid' : 'unpaid',
-                        'payment_method' => $isPaid ? 'cash' : null,
-                    ]);
-
-                    if ($isPaid) {
-                        Transaction::create([
-                            'invoice_id' => $invoice->id,
-                            'payment_method' => 'cash',
-                            'amount_paid' => $total,
-                            'payment_date' => now(),
-                            'status' => 'success',
+                        $invoice = Invoice::create([
+                            'pppoe_id' => $pppoe->id,
+                            'invoice_number' => 'INV-' . date('Ymd') . '-' . str_pad($pppoe->id, 4, '0', STR_PAD_LEFT) . '-' . rand(100, 999),
+                            'amount' => $amount,
+                            'tax' => $tax,
+                            'discount' => $discount,
+                            'total' => $total,
+                            'due_date' => $dueDate->format('Y-m-d'),
+                            'status' => $isPaid ? 'paid' : 'unpaid',
+                            'payment_method' => $isPaid ? 'cash' : null,
                         ]);
+
+                        if ($isPaid) {
+                            Transaction::create([
+                                'invoice_id' => $invoice->id,
+                                'payment_method' => 'cash',
+                                'amount_paid' => $total,
+                                'payment_date' => now(),
+                                'status' => 'success',
+                            ]);
+                        }
                     }
+                } elseif ($isPaid && $invoice->status !== 'paid') {
+                    $invoice->update([
+                        'status' => 'paid',
+                        'payment_method' => 'cash',
+                    ]);
+                    Transaction::create([
+                        'invoice_id' => $invoice->id,
+                        'payment_method' => 'cash',
+                        'amount_paid' => $invoice->total,
+                        'payment_date' => now(),
+                        'status' => 'success',
+                    ]);
                 }
             } catch (\Throwable $e) {
                 Log::warning("Invoice generation error on Customer Activation: " . $e->getMessage());

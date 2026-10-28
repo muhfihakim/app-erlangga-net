@@ -153,6 +153,7 @@
                             <th style="text-align: center; width: 150px;">Sales</th>
                             <th style="text-align: center; width: 200px;">Nama Pelanggan</th>
                             <th style="text-align: center; width: 150px;">Paket</th>
+                            <th style="text-align: center; width: 140px;">Status PPPoE</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -164,13 +165,26 @@
                                     {{ \Carbon\Carbon::parse($po->created_at)->format('d-m-Y') }}
                                 </td>
                                 <td style="text-align: center; font-weight: 600;">{{ $po->nama_sales }}</td>
-                                <td style="text-align: center; font-weight: 700; color: #0f172a;">
-                                    {{ $po->nama_lengkap }}</td>
+                                <td style="text-align: left; font-weight: 700; color: #0f172a;">
+                                    {{ $po->nama_lengkap }}
+                                    <div style="font-size: 11px; color: #64748b; font-weight: 500;">{{ $po->alamat_lengkap }}</div>
+                                </td>
                                 <td style="text-align: center;">
                                     <span class="badge"
                                         style="background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 6px; font-size: 10px;">
                                         {{ $po->paket ? $po->paket->nama_paket : '-' }}
                                     </span>
+                                </td>
+                                <td style="text-align: center;">
+                                    @if ($po->pppoe)
+                                        <span class="badge" style="background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-size: 10px; font-weight: 700;">
+                                            <i class="fa-solid fa-check mr-1"></i> PPPoE Siap
+                                        </span>
+                                    @else
+                                        <span class="badge" style="background: #fffbeb; color: #b45309; border: 1px solid #fde68a; font-size: 10px; font-weight: 700;">
+                                            <i class="fa-solid fa-clock mr-1"></i> Menunggu Billing
+                                        </span>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach
@@ -206,6 +220,18 @@
                                     <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
                                         {{ $po->alamat_lengkap }}
                                     </div>
+                                    @if ($po->pppoe)
+                                        <div class="mt-1.5 flex items-center gap-1.5 font-mono text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded w-fit font-bold" title="Akun PPPoE telah disiapkan oleh Admin">
+                                            <i class="fa-solid fa-network-wired text-[10px]"></i>
+                                            <span>{{ $po->pppoe->username }}</span>
+                                            <span class="text-emerald-300">|</span>
+                                            <span class="text-slate-600 font-normal">Pass: {{ $po->pppoe->password }}</span>
+                                        </div>
+                                    @else
+                                        <div class="mt-1.5 flex items-center gap-1 text-[10px] text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded w-fit font-semibold">
+                                            <i class="fa-solid fa-clock text-[9px]"></i> Menunggu Akun PPPoE dari Admin
+                                        </div>
+                                    @endif
                                 </td>
                                 <td style="text-align: center;">
                                     <span class="badge"
@@ -223,6 +249,8 @@
                                             data-paket="{{ $po->paket ? $po->paket->nama_paket : '-' }}"
                                             data-koordinat="{{ $po->titik_koordinat }}"
                                             data-sales="{{ $po->nama_sales }}"
+                                            data-pppoe-username="{{ $po->pppoe ? $po->pppoe->username : '' }}"
+                                            data-pppoe-password="{{ $po->pppoe ? $po->pppoe->password : '' }}"
                                             data-tgl="{{ \Carbon\Carbon::parse($po->created_at)->format('d/m/Y') }}">
                                             <i class="fa-solid fa-circle-info text-primary"></i>
                                         </button>
@@ -242,7 +270,9 @@
                                                 onclick="openActivationModal(this)" data-po-id="{{ $po->id }}"
                                                 data-po-sales-id="{{ $po->id_sales }}"
                                                 data-po-nama="{{ $po->nama_lengkap }}"
-                                                data-po-paket="{{ $po->paket ? $po->paket->nama_paket : '-' }}">
+                                                data-po-paket="{{ $po->paket ? $po->paket->nama_paket : '-' }}"
+                                                data-po-pppoe-username="{{ $po->pppoe ? $po->pppoe->username : '' }}"
+                                                data-po-pppoe-password="{{ $po->pppoe ? $po->pppoe->password : '' }}">
                                                 <i class="fa-solid fa-bolt"></i> Ambil & Aktivasi
                                             </button>
                                         @endif
@@ -523,6 +553,19 @@
                     <span class="text-[10px] font-black text-slate-400 uppercase block mb-2">Alamat Pemasangan</span>
                     <p id="det_alamat" class="text-sm font-medium text-slate-700 leading-relaxed m-0"></p>
                 </div>
+                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200" id="det_pppoe_box">
+                    <span class="text-[10px] font-black text-slate-400 uppercase block mb-2">Akun PPPoE (Dibuat oleh Admin)</span>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <span class="text-xs text-slate-500 block mb-0.5">Username:</span>
+                            <span id="det_pppoe_username" class="font-mono font-bold text-slate-900 text-sm"></span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-500 block mb-0.5">Password:</span>
+                            <span id="det_pppoe_password" class="font-mono font-bold text-slate-900 text-sm"></span>
+                        </div>
+                    </div>
+                </div>
                 <div class="grid grid-cols-2 gap-4">
                     <a id="det_wa_link" href="#" target="_blank"
                         class="btn-primary-admin !text-white !shadow-none !flex !items-center !justify-center gap-2 h-12 rounded-xl">
@@ -665,6 +708,16 @@
                 $('#det_sales').text($btn.data('sales'));
                 $('#det_tgl').text($btn.data('tgl'));
 
+                const pppoeUser = $btn.data('pppoe-username');
+                const pppoePass = $btn.data('pppoe-password');
+                if (pppoeUser) {
+                    $('#det_pppoe_username').text(pppoeUser);
+                    $('#det_pppoe_password').text(pppoePass || '-');
+                    $('#det_pppoe_box').show();
+                } else {
+                    $('#det_pppoe_box').hide();
+                }
+
                 const wa = String($btn.data('wa') || '');
                 const waFormatted = wa.startsWith('0') ? '62' + wa.substring(1) : wa;
                 $('#det_wa_link').attr('href', `https://wa.me/${waFormatted}`);
@@ -682,6 +735,8 @@
             function openActivationModal(triggerEl) {
                 const $btn = $(triggerEl);
                 const poNama = String($btn.data('po-nama') || '').trim();
+                const pppoeUser = String($btn.data('po-pppoe-username') || '').trim();
+                const pppoePass = String($btn.data('po-pppoe-password') || '').trim();
 
                 $('#modal_pre_order_id').val($btn.data('po-id'));
                 $('#modal_id_sales').val($btn.data('po-sales-id'));
@@ -691,21 +746,36 @@
                 // 1. Auto-fill ID Pelanggan
                 $('#id_pelanggan').val('{{ $nextIdPelanggan }}');
 
-                // 2. Auto-generate Akun PPPoE dari nama pelanggan
-                if (poNama) {
-                    const words = poNama.split(/\s+/);
-                    let base = words[0].toLowerCase().replace(/[^a-z0-9]/g, '');
-                    if (base.length > 0) {
-                        base = base.charAt(0).toUpperCase() + base.slice(1);
+                // 2. Isi Akun PPPoE (Prioritas dari akun yang sudah dibuatkan Admin)
+                if (pppoeUser) {
+                    $('#pppoe_username').val(pppoeUser);
+                    $('#pppoe_username_status').html('<span class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-bold border border-emerald-200"><i class="fa-solid fa-check mr-1"></i> Dari Admin</span>');
+                    $('#pppoe_username_note').text('Akun PPPoE telah disiapkan oleh Administrator.');
+                } else {
+                    // Fallback jika admin belum membuatkan akun
+                    if (poNama) {
+                        const words = poNama.split(/\s+/);
+                        let base = words[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+                        if (base.length > 0) {
+                            base = base.charAt(0).toUpperCase() + base.slice(1);
+                        }
+                        if (words.length > 1 && words[1]) {
+                            base += words[1].toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 3);
+                        }
+                        $('#pppoe_username').val(base + '@erlangga.net');
                     }
-                    if (words.length > 1 && words[1]) {
-                        base += words[1].toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 3);
-                    }
-                    $('#pppoe_username').val(base + '@erlangga.net');
+                    $('#pppoe_username_status').html('<span class="text-[10px] text-amber-600 bg-amber-50 px-2 py-0.5 rounded font-bold border border-amber-200"><i class="fa-solid fa-arrows-rotate mr-1"></i> Otomatis</span>');
+                    $('#pppoe_username_note').text('Belum dibuatkan Admin. Otomatis dibuat dari nama.');
                 }
 
-                // 3. Auto-fill Sandi PPPoE default '123'
-                $('#pppoe_password').val('123');
+                // 3. Sandi PPPoE (Prioritas dari sandi yang sudah dibuatkan Admin)
+                if (pppoePass) {
+                    $('#pppoe_password').val(pppoePass);
+                    $('#pppoe_password_status').text('Dari Admin');
+                } else {
+                    $('#pppoe_password').val('123');
+                    $('#pppoe_password_status').text('Default: 123');
+                }
 
                 openCustomModal('activationModal');
             }
