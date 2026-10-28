@@ -43,12 +43,41 @@
                 }
 
                 if (modalId === 'detailModal') {
-                    $('#detail_nama_lengkap').text($btn.data('nama'));
-                    $('#detail_identitas').text($btn.data('identitas'));
-                    $('#detail_email').text($btn.data('email-lengkap'));
-                    $('#detail_alamat').text($btn.data('alamat-lengkap'));
-                    $('#detail_paket').text($btn.data('paket'));
-                    $('#detail_koordinat').text($btn.data('koordinat') || 'N/A');
+                    $('#detail_nama_lengkap').text($btn.data('nama') || '-');
+                    $('#detail_identitas').text($btn.data('identitas') || '-');
+                    $('#detail_email').text($btn.data('email-lengkap') || '-');
+                    $('#detail_alamat').text($btn.data('alamat-lengkap') || '-');
+                    $('#detail_paket').text($btn.data('paket') || '-');
+                    $('#detail_paket_harga').text($btn.data('paket-harga') || '');
+                    $('#detail_sales').text($btn.data('sales') || '-');
+                    $('#detail_tgl').text($btn.data('tgl') || '-');
+
+                    const statusText = $btn.data('status') || 'Pending';
+                    const statusBadge = $btn.data('status-badge') || 'badge-draft';
+                    $('#detail_status_badge').text(statusText.toUpperCase()).attr('class', `badge ${statusBadge} text-[10px] py-0.5 px-2`);
+
+                    // WhatsApp link
+                    const wa = $btn.data('wa');
+                    if (wa && wa !== '-') {
+                        $('#detail_wa').text(wa);
+                        let cleanWa = String(wa).replace(/[^0-9]/g, '');
+                        if (cleanWa.startsWith('0')) cleanWa = '62' + cleanWa.substring(1);
+                        $('#detail_wa_btn').attr('href', `https://wa.me/${cleanWa}`).removeClass('hidden');
+                    } else {
+                        $('#detail_wa').text('-');
+                        $('#detail_wa_btn').addClass('hidden');
+                    }
+
+                    // Coordinates & Maps link
+                    const koordinat = $btn.data('koordinat');
+                    if (koordinat && String(koordinat).includes(',')) {
+                        $('#detail_koordinat').text(koordinat);
+                        const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${koordinat}`;
+                        $('#detail_maps_link').attr('href', mapsUrl).removeClass('hidden');
+                    } else {
+                        $('#detail_koordinat').text(koordinat || 'Belum diatur');
+                        $('#detail_maps_link').addClass('hidden');
+                    }
 
                     // Handle Photo Previews
                     const fotoKtp = $btn.data('foto-ktp');
@@ -166,11 +195,11 @@
                     { data: 'no', name: 'no', searchable: false, orderable: false, className: 'text-center text-slate-400 font-bold', render: function (data, type, row, meta) {
                         return meta.row + meta.settings._iDisplayStart + 1;
                     }},
-                    { data: 'created_at', name: 'created_at' },
-                    { data: 'sales', name: 'nama_sales' },
-                    { data: 'nama_lengkap', name: 'nama_lengkap' },
-                    { data: 'paket', name: 'paket_id' },
-                    { data: 'status_opsi', name: 'status_opsi', searchable: false, orderable: false }
+                    { data: 'created_at', name: 'created_at', className: 'text-center' },
+                    { data: 'sales', name: 'nama_sales', className: 'text-center' },
+                    { data: 'nama_lengkap', name: 'nama_lengkap', className: 'text-left' },
+                    { data: 'paket', name: 'paket_id', className: 'text-center' },
+                    { data: 'status_opsi', name: 'status_opsi', searchable: false, orderable: false, className: 'text-center' }
                 ],
                 "pageLength": 10,
                 "lengthChange": false,

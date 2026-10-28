@@ -238,136 +238,148 @@
 
 {{-- Detail Modal --}}
 <div class="modal-overlay" id="detailModal">
-    <div class="modal-box max-w-4xl bg-white border border-slate-300 shadow-2xl">
-        <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-            <div class="modal-title">
-                <i class="fa-solid fa-circle-info text-primary"></i>
-                <span class="text-slate-900 font-bold">Detail Informasi Pelanggan</span>
+    <div class="modal-box max-w-3xl bg-white border border-slate-300 shadow-2xl">
+        <!-- Header -->
+        <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center text-sm border border-slate-200 shrink-0">
+                    <i class="fa-solid fa-address-card"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h3 class="text-base font-bold text-slate-900 m-0">Detail Informasi Pelanggan</h3>
+                        <span id="detail_status_badge" class="badge badge-published text-[10px] py-0.5 px-2">AKTIF</span>
+                    </div>
+                    <p class="text-xs text-slate-500 m-0 mt-0.5">
+                        Tgl PO: <span id="detail_tgl" class="font-medium text-slate-700">-</span>
+                        <span class="mx-1 text-slate-300">•</span>
+                        Sales: <span id="detail_sales" class="font-medium text-slate-700">-</span>
+                    </p>
+                </div>
             </div>
             <button type="button" class="modal-close" onclick="closeCustomModal('detailModal')">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-        <div class="modal-body !p-0 bg-white">
-            <div class="grid grid-cols-1 lg:grid-cols-5 h-full">
-                <!-- Left Side: Data Pelanggan -->
-                <div class="lg:col-span-3 p-8 space-y-8 bg-white">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <!-- Biodata -->
-                        <div class="space-y-4">
-                            <h6
-                                class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-l-4 border-primary pl-3">
-                                Biodata Inti</h6>
-                            <div class="space-y-4">
-                                <div>
-                                    <span class="text-[11px] font-bold text-slate-400 block uppercase">Nama Lengkap
-                                        Pelanggan</span>
-                                    <p id="detail_nama_lengkap"
-                                        class="text-lg font-black text-slate-900 leading-none mt-1"></p>
-                                </div>
-                                <div>
-                                    <span class="text-[11px] font-bold text-slate-400 block uppercase">Nomor Identitas
-                                        (NIK)</span>
-                                    <p id="detail_identitas"
-                                        class="text-xl font-black text-slate-900 leading-none mt-1"></p>
-                                </div>
-                                <div>
-                                    <span class="text-[11px] font-bold text-slate-400 block uppercase">Alamat
-                                        Email</span>
-                                    <p id="detail_email" class="text-xl font-black text-slate-900 leading-none mt-1">
-                                    </p>
+
+        <!-- Body -->
+        <div class="modal-body p-5 bg-white space-y-4">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                <!-- Left Column: Data Lengkap (7 Cols) -->
+                <div class="lg:col-span-7 space-y-3">
+                    <!-- Section: Biodata & Kontak -->
+                    <div class="border border-slate-200 rounded-xl p-3.5 bg-white">
+                        <div class="flex items-center gap-2 mb-2.5 pb-2 border-b border-slate-100">
+                            <i class="fa-regular fa-user text-xs text-slate-400"></i>
+                            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Identitas & Kontak</span>
+                        </div>
+                        <div class="space-y-2 text-xs">
+                            <div class="flex justify-between items-start gap-2">
+                                <span class="text-slate-400 shrink-0">Nama Lengkap:</span>
+                                <span id="detail_nama_lengkap" class="font-bold text-slate-900 text-right"></span>
+                            </div>
+                            <div class="flex justify-between items-start gap-2">
+                                <span class="text-slate-400 shrink-0">NIK / Identitas:</span>
+                                <span id="detail_identitas" class="font-mono font-medium text-slate-800 text-right"></span>
+                            </div>
+                            <div class="flex justify-between items-center gap-2">
+                                <span class="text-slate-400 shrink-0">WhatsApp:</span>
+                                <div class="flex items-center gap-1.5 justify-end">
+                                    <span id="detail_wa" class="font-mono font-medium text-slate-800"></span>
+                                    <a id="detail_wa_btn" href="#" target="_blank" class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-1.5 py-0.5 rounded transition">
+                                        <i class="fa-brands fa-whatsapp"></i> Chat
+                                    </a>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Layanan -->
-                        <div class="space-y-4">
-                            <h6
-                                class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-l-4 border-indigo-500 pl-3">
-                                Paket Layanan</h6>
-                            <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-200">
-                                <span class="text-[10px] font-black text-indigo-400 block uppercase mb-1">Paket
-                                    Internet</span>
-                                <p id="detail_paket" class="text-lg font-black text-indigo-800 leading-tight"></p>
+                            <div class="flex justify-between items-start gap-2">
+                                <span class="text-slate-400 shrink-0">Email:</span>
+                                <span id="detail_email" class="text-slate-700 text-right truncate max-w-[200px]"></span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Lokasi -->
-                    <div class="space-y-4">
-                        <h6
-                            class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-l-4 border-emerald-500 pl-3">
-                            Informasi Lokasi</h6>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="md:col-span-2">
-                                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                                    <span class="text-[10px] font-bold text-slate-500 block uppercase mb-1">Alamat
-                                        Pemasangan</span>
-                                    <p id="detail_alamat" class="text-sm font-bold text-slate-800 leading-relaxed">
-                                    </p>
-                                </div>
-                            </div>
+                    <!-- Section: Paket Layanan -->
+                    <div class="border border-slate-200 rounded-xl p-3.5 bg-slate-50/60">
+                        <div class="flex items-center justify-between">
                             <div>
-                                <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-200">
-                                    <span class="text-[10px] font-bold text-emerald-600 block uppercase mb-1">Koordinat
-                                        GPS</span>
-                                    <p id="detail_koordinat" class="text-xs font-black text-emerald-800 break-all">
-                                    </p>
-                                </div>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">Paket Internet</span>
+                                <span id="detail_paket" class="text-sm font-bold text-slate-800"></span>
                             </div>
+                            <span id="detail_paket_harga" class="text-xs font-bold text-slate-700 font-mono bg-white px-2.5 py-1 rounded-md border border-slate-200 shadow-sm"></span>
+                        </div>
+                    </div>
+
+                    <!-- Section: Alamat & Lokasi -->
+                    <div class="border border-slate-200 rounded-xl p-3.5 bg-white space-y-2.5">
+                        <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                            <i class="fa-regular fa-map text-xs text-slate-400"></i>
+                            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Lokasi Pemasangan</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-semibold text-slate-400 uppercase block mb-1">Alamat Lengkap:</span>
+                            <p id="detail_alamat" class="text-xs text-slate-700 leading-relaxed m-0 bg-slate-50 p-2 rounded-lg border border-slate-200"></p>
+                        </div>
+                        <div class="flex items-center justify-between pt-1">
+                            <div>
+                                <span class="text-[10px] font-semibold text-slate-400 uppercase block">Titik Koordinat:</span>
+                                <span id="detail_koordinat" class="text-xs font-mono font-medium text-slate-700"></span>
+                            </div>
+                            <a id="detail_maps_link" href="#" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 hover:text-sky-600 bg-white hover:bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg transition shadow-sm">
+                                <i class="fa-solid fa-location-arrow text-[10px] text-sky-500"></i> Buka Maps
+                            </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right Side: Lampiran -->
-                <div class="lg:col-span-2 p-8 bg-slate-50 border-l border-slate-200 space-y-6">
-                    <h6 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Lampiran Dokumen</h6>
+                <!-- Right Column: Lampiran Dokumen (5 Cols) -->
+                <div class="lg:col-span-5">
+                    <div class="border border-slate-200 rounded-xl p-3.5 bg-slate-50/60 h-full flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-2.5 pb-2 border-b border-slate-200">
+                                <i class="fa-regular fa-file-image text-xs text-slate-400"></i>
+                                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Lampiran Dokumen</span>
+                            </div>
 
-                    <div class="space-y-6">
-                        <!-- KTP -->
-                        <div class="group relative text-center">
-                            <span class="text-[11px] font-black text-slate-600 block mb-2 uppercase text-center">Foto
-                                KTP</span>
-                            <div
-                                class="aspect-video rounded-2xl overflow-hidden border-2 border-white shadow-md bg-white flex items-center justify-center transition-transform hover:scale-[1.02] duration-300">
-                                <img id="detail_foto_ktp" src=""
-                                    class="w-full h-full object-cover hidden cursor-pointer" alt="KTP"
-                                    onclick="window.open(this.src, '_blank')">
-                                <div id="no_ktp_placeholder" class="text-slate-300 text-xs text-center">
-                                    <i class="fa-solid fa-image-portrait text-3xl mb-1 block"></i>
-                                    Tidak ada
+                            <div class="space-y-3">
+                                <!-- Foto KTP -->
+                                <div>
+                                    <span class="text-[11px] font-semibold text-slate-600 block mb-1">Foto KTP / Identitas</span>
+                                    <div class="w-full h-24 rounded-lg overflow-hidden border border-slate-200 bg-white flex items-center justify-center relative group">
+                                        <img id="detail_foto_ktp" src="" class="w-full h-full object-cover hidden cursor-pointer transition hover:scale-105 duration-200" alt="Foto KTP" onclick="window.open(this.src, '_blank')">
+                                        <div id="no_ktp_placeholder" class="text-slate-300 text-xs text-center flex flex-col items-center gap-1">
+                                            <i class="fa-regular fa-id-card text-xl text-slate-300"></i>
+                                            <span class="text-[10px] text-slate-400">Tidak dilampirkan</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Foto Rumah -->
+                                <div>
+                                    <span class="text-[11px] font-semibold text-slate-600 block mb-1">Foto Rumah / Lokasi</span>
+                                    <div class="w-full h-24 rounded-lg overflow-hidden border border-slate-200 bg-white flex items-center justify-center relative group">
+                                        <img id="detail_foto_rumah" src="" class="w-full h-full object-cover hidden cursor-pointer transition hover:scale-105 duration-200" alt="Foto Rumah" onclick="window.open(this.src, '_blank')">
+                                        <div id="no_rumah_placeholder" class="text-slate-300 text-xs text-center flex flex-col items-center gap-1">
+                                            <i class="fa-regular fa-image text-xl text-slate-300"></i>
+                                            <span class="text-[10px] text-slate-400">Tidak dilampirkan</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Rumah -->
-                        <div class="group relative text-center">
-                            <span class="text-[11px] font-black text-slate-600 block mb-2 uppercase text-center">Foto
-                                Rumah</span>
-                            <div
-                                class="aspect-video rounded-2xl overflow-hidden border-2 border-white shadow-md bg-white flex items-center justify-center transition-transform hover:scale-[1.02] duration-300">
-                                <img id="detail_foto_rumah" src=""
-                                    class="w-full h-full object-cover hidden cursor-pointer" alt="Rumah"
-                                    onclick="window.open(this.src, '_blank')">
-                                <div id="no_rumah_placeholder" class="text-slate-300 text-xs text-center">
-                                    <i class="fa-solid fa-house-chimney text-3xl mb-1 block"></i>
-                                    Tidak ada
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-primary/5 p-4 rounded-2xl border border-primary/10">
-                        <p class="text-[10px] text-slate-500 leading-relaxed font-medium italic text-center">
-                            * Klik gambar untuk melihat ukuran penuh.
+                        <p class="text-[10px] text-slate-400 text-center m-0 mt-3 pt-2 border-t border-slate-200">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[9px] mr-1"></i> Klik gambar untuk ukuran penuh
                         </p>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-            <button type="button" class="btn-cancel w-full" onclick="closeCustomModal('detailModal')">
-                <i class="fa-solid fa-xmark"></i> Tutup Detail
+
+        <!-- Footer -->
+        <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
+            <span class="text-xs text-slate-400">Data pendaftaran calon pelanggan internet.</span>
+            <button type="button" class="btn-cancel !h-9 !px-5 text-xs font-semibold" onclick="closeCustomModal('detailModal')">
+                <i class="fa-solid fa-xmark mr-1"></i> Tutup Detail
             </button>
         </div>
     </div>
@@ -470,11 +482,11 @@
                 <div class="modal-body bg-white">
                     <!-- Tab Akun PPPoE -->
                     <div class="tab-panel active" id="pppoe-tab-akun">
-                        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 mb-6">
-                            <span class="text-[10px] font-black text-indigo-500 block uppercase">Calon Pelanggan</span>
-                            <p id="create_pppoe_po_nama_akun" class="text-base font-black text-indigo-700 mt-1 mb-1">
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 mb-5">
+                            <span class="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Calon Pelanggan</span>
+                            <p id="create_pppoe_po_nama_akun" class="text-sm font-bold text-slate-800 mt-1 mb-0.5">
                             </p>
-                            <p id="create_pppoe_po_alamat_akun" class="text-xs font-medium text-indigo-600"></p>
+                            <p id="create_pppoe_po_alamat_akun" class="text-xs text-slate-600 m-0"></p>
                         </div>
 
                         <div class="form-grid-2">
@@ -524,11 +536,11 @@
 
                     <!-- Tab Pembayaran -->
                     <div class="tab-panel" id="pppoe-tab-pembayaran">
-                        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 mb-6">
-                            <span class="text-[10px] font-black text-indigo-500 block uppercase">Calon Pelanggan</span>
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 mb-5">
+                            <span class="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Calon Pelanggan</span>
                             <p id="create_pppoe_po_nama_pembayaran"
-                                class="text-base font-black text-indigo-700 mt-1 mb-1"></p>
-                            <p id="create_pppoe_po_alamat_pembayaran" class="text-xs font-medium text-indigo-600"></p>
+                                class="text-sm font-bold text-slate-800 mt-1 mb-0.5"></p>
+                            <p id="create_pppoe_po_alamat_pembayaran" class="text-xs text-slate-600 m-0"></p>
                         </div>
 
                         <div class="form-grid-2">

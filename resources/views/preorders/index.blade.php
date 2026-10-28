@@ -2,8 +2,9 @@
     @section('Css')
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
         <style>
-            #preorder-table thead th, #preorder-table tbody td {
-                text-transform: uppercase !important; font-weight: 600; font-size: 12px;
+            #preorder-table td {
+                padding: 11px 14px;
+                font-size: 13px;
             }
             .dataTables_wrapper {
                 position: relative;
@@ -119,15 +120,14 @@
             <table id="preorder-table" class="admin-table">
                 <thead>
                     <tr>
-                        <th style="text-align: center; width: 50px;">#</th>
-                        <th style="text-align: center; width: 100px;">Tgl PO</th>
-                        <th style="text-align: center;">Sales</th>
-                        <th style="text-align: center;">Nama Pelanggan</th>
-                        <th style="text-align: center;">Paket</th>
+                        <th style="text-align: center; width: 45px;">#</th>
+                        <th style="text-align: center; width: 95px;">Tgl PO</th>
+                        <th style="text-align: center; width: 130px;">Sales</th>
+                        <th style="text-align: left;">Nama Pelanggan</th>
+                        <th style="text-align: center; width: 140px;">Paket</th>
                         <th style="text-align: center; width: 180px;">Status / Opsi</th>
                     </tr>
                 </thead>
-                <tbody>
                 <tbody>
                 </tbody>
             </table>

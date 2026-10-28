@@ -77,16 +77,20 @@ class PreOrderController extends Controller
                         return ''; // Handled by DataTables JS
                     })
                     ->editColumn('created_at', function($po) {
-                        return '<div style="text-align: center; color: #64748b; font-size: 12px;">' . \Carbon\Carbon::parse($po->created_at)->format('d-m-Y') . '</div>';
+                        return '<div class="text-center font-mono text-xs text-slate-500">' . \Carbon\Carbon::parse($po->created_at)->format('d/m/Y') . '</div>';
                     })
                     ->addColumn('sales', function($po) {
-                        return '<div style="text-align: center;">' . htmlspecialchars($po->nama_sales) . '</div>';
+                        return '<div class="text-center text-xs font-medium text-slate-700">' . htmlspecialchars($po->nama_sales ?: '-') . '</div>';
                     })
                     ->addColumn('nama_lengkap', function($po) {
-                        return '<div style="text-align: center; font-weight: 700;">' . htmlspecialchars($po->nama_lengkap) . '</div>';
+                        $html = '<div class="text-left font-semibold text-slate-900 text-[13px] leading-tight">' . htmlspecialchars($po->nama_lengkap) . '</div>';
+                        if ($po->no_whatsapp) {
+                            $html .= '<div class="text-left text-[11px] font-mono text-slate-400 mt-0.5"><i class="fa-brands fa-whatsapp text-emerald-600 mr-1"></i>' . htmlspecialchars($po->no_whatsapp) . '</div>';
+                        }
+                        return $html;
                     })
                     ->addColumn('paket', function($po) {
-                        return '<div style="text-align: center;"><span class="badge" style="background: #e0f2fe; color: #0369a1;">' . htmlspecialchars($po->paket ? $po->paket->nama_paket : '') . '</span></div>';
+                        return '<div class="text-center"><span class="badge" style="background: #f8fafc; color: #334155; border: 1px solid #e2e8f0; font-weight: 600;">' . htmlspecialchars($po->paket ? $po->paket->nama_paket : '-') . '</span></div>';
                     })
                     ->addColumn('status_opsi', function($po) {
                         return view('preorders.action_buttons', compact('po'))->render();
