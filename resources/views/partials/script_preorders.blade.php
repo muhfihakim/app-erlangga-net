@@ -191,15 +191,16 @@
                 processing: true,
                 serverSide: true,
                 ajax: window.location.href,
+                autoWidth: false,
                 columns: [
-                    { data: 'no', name: 'no', searchable: false, orderable: false, className: 'text-center text-slate-400 font-bold', render: function (data, type, row, meta) {
+                    { data: 'no', name: 'no', searchable: false, orderable: false, className: 'text-center text-slate-400 font-bold', width: '45px', render: function (data, type, row, meta) {
                         return meta.row + meta.settings._iDisplayStart + 1;
                     }},
-                    { data: 'created_at', name: 'created_at', className: 'text-center' },
-                    { data: 'sales', name: 'nama_sales', className: 'text-center' },
+                    { data: 'created_at', name: 'created_at', className: 'text-center', width: '95px' },
+                    { data: 'sales', name: 'nama_sales', className: 'text-left' },
                     { data: 'nama_lengkap', name: 'nama_lengkap', className: 'text-left' },
-                    { data: 'paket', name: 'paket_id', className: 'text-center' },
-                    { data: 'status_opsi', name: 'status_opsi', searchable: false, orderable: false, className: 'text-center' }
+                    { data: 'paket', name: 'paket_id', className: 'text-center', width: '130px' },
+                    { data: 'status_opsi', name: 'status_opsi', searchable: false, orderable: false, className: 'text-center', width: '170px' }
                 ],
                 "pageLength": 10,
                 "lengthChange": false,

@@ -122,10 +122,10 @@
                     <tr>
                         <th style="text-align: center; width: 45px;">#</th>
                         <th style="text-align: center; width: 95px;">Tgl PO</th>
-                        <th style="text-align: center; width: 130px;">Sales</th>
-                        <th style="text-align: left;">Nama Pelanggan</th>
-                        <th style="text-align: center; width: 140px;">Paket</th>
-                        <th style="text-align: center; width: 180px;">Status / Opsi</th>
+                        <th style="text-align: left; min-width: 150px; width: 160px;">Sales</th>
+                        <th style="text-align: left; min-width: 240px;">Nama Pelanggan</th>
+                        <th style="text-align: center; width: 130px;">Paket</th>
+                        <th style="text-align: center; width: 170px;">Status / Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
