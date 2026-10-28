@@ -498,22 +498,22 @@
 
                         <div class="form-grid-2 mb-3.5">
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-800 font-bold text-xs">Username <span
+                                <label class="form-label text-slate-700 font-medium text-xs">Username <span
                                         class="text-rose-500">*</span></label>
                                 <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
                                     name="username" placeholder="pengguna@erlangga.net" required>
                             </div>
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-800 font-bold text-xs">Password <span
+                                <label class="form-label text-slate-700 font-medium text-xs">Password <span
                                         class="text-rose-500">*</span></label>
                                 <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
                                     name="password" placeholder="123" required>
                             </div>
                         </div>
                         <div class="form-group mb-3.5">
-                            <label class="form-label text-slate-800 font-bold text-xs">Profile / Paket <span
+                            <label class="form-label text-slate-700 font-medium text-xs">Profile / Paket <span
                                     class="text-rose-500">*</span></label>
-                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
+                            <select class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300"
                                 id="create_pppoe_paket_id" name="paket_id" required>
                                 @foreach ($pakets as $paket)
                                     <option value="{{ $paket->id }}">{{ $paket->nama_paket }} - Rp
@@ -523,8 +523,8 @@
                         </div>
                         <div class="form-grid-2">
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-800 font-bold text-xs">Router / NAS</label>
-                                <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300" name="router">
+                                <label class="form-label text-slate-700 font-medium text-xs">Router / NAS</label>
+                                <select class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300" name="router">
                                     <option value="All">Semua Router (ALL)</option>
                                     @if(isset($routers))
                                         @foreach ($routers as $r)
@@ -534,7 +534,7 @@
                                 </select>
                             </div>
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-800 font-bold text-xs">IP Address (Opsional)</label>
+                                <label class="form-label text-slate-700 font-medium text-xs">IP Address (Opsional)</label>
                                 <input type="text" class="form-input bg-white text-slate-900 border-slate-300 font-mono"
                                     name="ip_address" placeholder="192.168.x.x">
                             </div>
@@ -553,31 +553,31 @@
 
                         <div class="form-grid-2 mb-3.5">
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-800 font-bold text-xs">Tipe Pembayaran</label>
-                                <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
+                                <label class="form-label text-slate-700 font-medium text-xs">Tipe Pembayaran</label>
+                                <select class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300"
                                     name="tipe_pembayaran">
                                     <option value="postpaid">Postpaid (Pasca Bayar)</option>
                                     <option value="prepaid">Prepaid (Pra Bayar)</option>
                                 </select>
                             </div>
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-800 font-bold text-xs">Tanggal Aktif</label>
+                                <label class="form-label text-slate-700 font-medium text-xs">Tanggal Aktif</label>
                                 <input type="date" class="form-input bg-white text-slate-900 border-slate-300"
                                     name="tanggal_aktif" value="{{ date('Y-m-d') }}">
                             </div>
                         </div>
                         <div class="form-grid-2 mb-3.5">
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-800 font-bold text-xs">Periode Billing</label>
-                                <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
+                                <label class="form-label text-slate-700 font-medium text-xs">Periode Billing</label>
+                                <select class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300"
                                     name="periode_billing">
                                     <option value="fixed">Fixed (Setiap Awal Bulan)</option>
                                     <option value="renewal">Renewal (Sesuai Tgl Aktif)</option>
                                 </select>
                             </div>
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-800 font-bold text-xs">Status Invoice</label>
-                                <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
+                                <label class="form-label text-slate-700 font-medium text-xs">Status Invoice</label>
+                                <select class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300"
                                     name="status_invoice">
                                     <option value="belum_bayar">Belum Bayar (Unpaid)</option>
                                     <option value="terbayar">Terbayar (Paid)</option>
@@ -586,12 +586,12 @@
                         </div>
                         <div class="form-grid-2 mb-3.5">
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-800 font-bold text-xs">Pajak (Rp)</label>
+                                <label class="form-label text-slate-700 font-medium text-xs">Pajak (Rp)</label>
                                 <input type="number" class="form-input bg-white text-slate-900 border-slate-300 font-mono"
                                     name="pajak" value="0">
                             </div>
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-800 font-bold text-xs">Diskon (Rp)</label>
+                                <label class="form-label text-slate-700 font-medium text-xs">Diskon (Rp)</label>
                                 <input type="number" class="form-input bg-white text-slate-900 border-slate-300 font-mono"
                                     name="diskon" value="0">
                             </div>
@@ -601,7 +601,7 @@
                                 <input type="checkbox" name="generate_invoice" checked
                                     class="w-4 h-4 text-sky-600 border-slate-300 rounded focus:ring-sky-500">
                                 <div>
-                                    <span class="text-xs font-bold text-slate-800 block">Generate Invoice Otomatis</span>
+                                    <span class="text-xs font-semibold text-slate-800 block">Generate Invoice Otomatis</span>
                                     <span class="text-[11px] text-slate-500 block">Buat tagihan faktur pertama langsung saat akun PPPoE disimpan.</span>
                                 </div>
                             </label>
