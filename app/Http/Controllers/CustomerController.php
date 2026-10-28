@@ -140,28 +140,30 @@ class CustomerController extends Controller
                 ->addColumn('nama_lengkap_formatted', function($customer) use ($activeUsernames, $pppoeMap) {
                     $isOnline = in_array($customer->pppoe_username, $activeUsernames);
                     $badgeOnline = $isOnline 
-                        ? '<span class="badge" style="background: #dcfce7; color: #15803d; font-size: 8px; padding: 2px 6px; border-radius: 4px; font-weight: 800;">ONLINE</span>'
-                        : '<span class="badge" style="background: #f1f5f9; color: #64748b; font-size: 8px; padding: 2px 6px; border-radius: 4px; font-weight: 800;">OFFLINE</span>';
+                        ? '<span class="badge text-[10px] font-bold py-0.5 px-1.5" style="background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0;">ONLINE</span>'
+                        : '<span class="badge text-[10px] font-bold py-0.5 px-1.5" style="background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0;">OFFLINE</span>';
                     
                     $p = $customer->pppoe_username ? $pppoeMap->get($customer->pppoe_username) : null;
                     $isIsolir = $p ? (bool)$p->is_isolir : false;
                     $badgeIsolir = $isIsolir 
-                        ? '<span class="badge" title="' . htmlspecialchars($p->isolir_reason ?? 'Terisolir', ENT_QUOTES) . '" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; font-size: 8px; padding: 2px 6px; border-radius: 4px; font-weight: 800;"><i class="fa-solid fa-ban mr-0.5"></i> ISOLIR</span>' 
+                        ? '<span class="badge text-[10px] font-bold py-0.5 px-1.5" title="' . htmlspecialchars($p->isolir_reason ?? 'Terisolir', ENT_QUOTES) . '" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5;"><i class="fa-solid fa-ban mr-0.5"></i> ISOLIR</span>' 
                         : '';
 
                     $badgeTrashed = $customer->trashed() 
-                        ? '<span class="badge badge-archived" style="font-size: 9px; margin-top: 2px;">NON-AKTIF</span>' 
+                        ? '<span class="badge badge-archived text-[10px] font-bold py-0.5 px-1.5 ml-1">NON-AKTIF</span>' 
                         : '';
                     $pppoe = $customer->pppoe_username ?? '-';
                     return '
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;">
-                            <div style="font-weight: 700; color: #0f172a;">' . htmlspecialchars($customer->nama_lengkap, ENT_QUOTES) . '</div>
-                            ' . $badgeOnline . '
-                            ' . $badgeIsolir . '
-                        </div>
-                        ' . $badgeTrashed . '
-                        <div style="font-size: 10px; color: #94a3b8; font-weight: 600; margin-top: 2px;">
-                            PPPoE: ' . htmlspecialchars($pppoe, ENT_QUOTES) . '
+                        <div class="text-left">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="font-bold text-slate-800 text-[13px]">' . htmlspecialchars($customer->nama_lengkap, ENT_QUOTES) . '</span>
+                                ' . $badgeOnline . '
+                                ' . $badgeIsolir . '
+                                ' . $badgeTrashed . '
+                            </div>
+                            <div class="text-[11px] text-slate-500 font-normal mt-0.5">
+                                PPPoE: <span class="font-mono text-slate-700 font-medium">' . htmlspecialchars($pppoe, ENT_QUOTES) . '</span>
+                            </div>
                         </div>
                     ';
                 })
@@ -192,7 +194,7 @@ class CustomerController extends Controller
                     $isolirAt = $p && $p->isolir_at ? \Carbon\Carbon::parse($p->isolir_at)->format('d-m-Y H:i') : '';
 
                     $btnDetail = '
-                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Detail"
+                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Detail"
                             onclick="openCustomerDetailModal(this)"
                             data-id="' . $customer->id . '"
                             data-customer-id="' . htmlspecialchars($customer->id_pelanggan, ENT_QUOTES) . '"
@@ -224,16 +226,16 @@ class CustomerController extends Controller
                             data-foto-terpasang="' . ($customer->foto_terpasang ? \Storage::url($customer->foto_terpasang) : '') . '"
                             data-foto-speedtest="' . ($customer->foto_speedtest ? \Storage::url($customer->foto_speedtest) : '') . '"
                             data-keterangan="' . htmlspecialchars($customer->keterangan ?? 'Tidak ada keterangan.', ENT_QUOTES) . '">
-                            <i class="fa-solid fa-circle-info text-primary"></i>
+                            <i class="fa-solid fa-circle-info text-slate-500"></i>
                         </button>
                     ';
 
                     $btnAcs = '';
                     if (!$customer->trashed()) {
                         $btnAcs = '
-                            <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Status Modem & Wi-Fi (ACS)"
+                            <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Status Modem & Wi-Fi (ACS)"
                                 onclick="openCustomerAcsModal(' . $customer->id . ', \'' . htmlspecialchars(addslashes($customer->nama_lengkap), ENT_QUOTES) . '\', \'' . htmlspecialchars($customer->id_pelanggan ?? '', ENT_QUOTES) . '\')">
-                                <i class="fa-solid fa-satellite-dish text-sky-500"></i>
+                                <i class="fa-solid fa-satellite-dish text-sky-600"></i>
                             </button>
                         ';
                     }
@@ -241,9 +243,9 @@ class CustomerController extends Controller
                     $btnMap = '';
                     if (!$customer->trashed() && $customer->preOrder && $customer->preOrder->titik_koordinat) {
                         $btnMap = '
-                            <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Lihat di Peta"
+                            <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Lihat di Peta"
                                 onclick="focusOnCustomer(\'' . $customer->preOrder->titik_koordinat . '\', \'' . $customer->id_pelanggan . '\')">
-                                <i class="fa-solid fa-location-dot text-emerald-500"></i>
+                                <i class="fa-solid fa-location-dot text-emerald-600"></i>
                             </button>
                         ';
                     }
@@ -252,16 +254,16 @@ class CustomerController extends Controller
                     if ($isAdmin && !$customer->trashed() && !empty($customer->pppoe_username)) {
                         if ($isIsolir) {
                             $btnIsolir = '
-                                <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Buka Isolir Pelanggan"
+                                <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Buka Isolir Pelanggan"
                                     onclick="openBukaIsolirCustomerModal(\'' . route('customers.buka_isolir', $customer->id) . '\', \'' . htmlspecialchars(addslashes($customer->nama_lengkap), ENT_QUOTES) . '\', \'' . htmlspecialchars(addslashes($customer->pppoe_username), ENT_QUOTES) . '\')">
                                     <i class="fa-solid fa-lock-open text-emerald-600"></i>
                                 </button>
                             ';
                         } else {
                             $btnIsolir = '
-                                <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Isolir Pelanggan"
+                                <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Isolir Pelanggan"
                                     onclick="openIsolirCustomerModal(\'' . route('customers.isolir', $customer->id) . '\', \'' . htmlspecialchars(addslashes($customer->nama_lengkap), ENT_QUOTES) . '\', \'' . htmlspecialchars(addslashes($customer->pppoe_username), ENT_QUOTES) . '\')">
-                                    <i class="fa-solid fa-ban text-amber-500"></i>
+                                    <i class="fa-solid fa-ban text-amber-600"></i>
                                 </button>
                             ';
                         }
@@ -271,14 +273,14 @@ class CustomerController extends Controller
                     if ($isAdmin) {
                         if ($customer->trashed()) {
                             $btnAdmin = '
-                                <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Aktifkan"
+                                <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Aktifkan"
                                     onclick="confirmGlobalDelete(\'' . route('customers.restore', $customer->id) . '\', \'' . htmlspecialchars($customer->nama_lengkap, ENT_QUOTES) . ' (Restore)\')">
-                                    <i class="fa-solid fa-rotate-left text-emerald-500"></i>
+                                    <i class="fa-solid fa-rotate-left text-emerald-600"></i>
                                 </button>
                             ';
                         } else {
                             $btnAdmin = '
-                                <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Non-aktifkan"
+                                <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50" title="Non-aktifkan"
                                     onclick="confirmGlobalDelete(\'' . route('customers.destroy', $customer->id) . '\', \'' . htmlspecialchars($customer->nama_lengkap, ENT_QUOTES) . '\')">
                                     <i class="fa-solid fa-trash text-rose-500"></i>
                                 </button>
@@ -286,7 +288,7 @@ class CustomerController extends Controller
                         }
                     }
 
-                    return '<div style="display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;">' . $btnDetail . $btnAcs . $btnMap . $btnIsolir . $btnAdmin . '</div>';
+                    return '<div class="flex items-center justify-center gap-1">' . $btnDetail . $btnAcs . $btnMap . $btnIsolir . $btnAdmin . '</div>';
                 })
                 ->rawColumns(['nama_lengkap_formatted', 'wa_formatted', 'teknisi_formatted', 'tgl_formatted', 'action'])
                 ->make(true);

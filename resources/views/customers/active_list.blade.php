@@ -39,12 +39,9 @@
                 color: #fff !important;
             }
 
-            /* Full Capitalization for Table */
-            #customer-table thead th,
-            #customer-table tbody td {
-                text-transform: uppercase !important;
-                font-weight: 600;
-                font-size: 12px;
+            #customer-table td, #isolir-table td {
+                padding: 10px 14px;
+                font-size: 13px;
             }
 
             /* Map Customizations */
@@ -242,13 +239,13 @@
             <table id="customer-table" class="admin-table">
                 <thead>
                     <tr>
-                        <th style="text-align: center; width: 50px;">#</th>
-                        <th style="text-align: center; width: 120px;">ID Pelanggan</th>
-                        <th style="text-align: center; width: 250px;">Nama Pelanggan</th>
-                        <th style="text-align: center; width: 150px;">No. WA</th>
+                        <th style="text-align: center; width: 45px;">#</th>
+                        <th style="text-align: center; width: 130px;">ID Pelanggan</th>
+                        <th style="text-align: left; min-width: 240px;">Nama Pelanggan</th>
+                        <th style="text-align: center; width: 140px;">No. WA</th>
                         <th style="text-align: center; width: 150px;">Teknisi</th>
-                        <th style="text-align: center; width: 120px;">Tgl Aktivasi</th>
-                        <th style="text-align: center; width: 120px;">Opsi</th>
+                        <th style="text-align: center; width: 110px;">Tgl Aktivasi</th>
+                        <th style="text-align: center; width: 150px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody style="border-top: none;">
@@ -373,11 +370,14 @@
                     @csrf
                     @method('PUT')
             @endif
-            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                <div class="modal-title flex flex-col gap-1">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-circle-info text-primary"></i>
-                        <span class="text-slate-900 font-bold text-[17px]">Detail Informasi Pelanggan</span>
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center text-sm border border-slate-200 shrink-0">
+                        <i class="fa-solid fa-address-card"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Detail Informasi Pelanggan</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Informasi biodata, parameter teknis jaringan, dan dokumentasi instalasi.</p>
                     </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('customerDetailModal')">
@@ -385,264 +385,205 @@
                 </button>
             </div>
 
-            <div class="modal-tabs bg-white border-b border-slate-200">
+            <div class="modal-tabs bg-white border-b border-slate-200 px-6">
                 <button type="button" class="modal-tab active" data-tab="tab-biodata">
-                    <i class="fa-solid fa-id-card"></i> Biodata
+                    <i class="fa-regular fa-user text-xs"></i> Biodata
                 </button>
                 <button type="button" class="modal-tab" data-tab="tab-teknis">
-                    <i class="fa-solid fa-gears"></i> Data Teknis
+                    <i class="fa-regular fa-hard-drive text-xs"></i> Data Teknis
                 </button>
                 <button type="button" class="modal-tab" data-tab="tab-dokumentasi">
-                    <i class="fa-solid fa-camera-retro"></i> Dokumentasi
+                    <i class="fa-regular fa-image text-xs"></i> Dokumentasi
                 </button>
             </div>
 
-            <div class="modal-body !p-0 bg-white">
+            <div class="modal-body p-5 bg-white space-y-4 max-h-[75vh] overflow-y-auto">
                 <!-- Tab Biodata -->
                 <div class="tab-panel active" id="tab-biodata">
-                    <div class="grid grid-cols-1 lg:grid-cols-5">
-                        <div class="lg:col-span-3 p-8 space-y-8">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div class="space-y-4">
-                                    <h6
-                                        class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-l-4 border-primary pl-3">
-                                        Biodata Inti</h6>
-                                    <div class="space-y-4">
-                                        <div>
-                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Nomor
-                                                Identitas (NIK)</span>
-                                            <p id="detail_nik_view"
-                                                class="view-only text-xl font-black text-slate-900 leading-none mt-1">
-                                            </p>
-                                            @if ($is_admin)
-                                                <input type="text" name="no_identitas" id="detail_nik_input"
-                                                    class="edit-only form-input-custom mt-1 !text-sm !font-bold">
-                                            @endif
-                                        </div>
-                                        <div>
-                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Nama
-                                                Lengkap</span>
-                                            <p id="detail_nama_view"
-                                                class="view-only text-base font-black text-slate-900 truncate mt-1">
-                                            </p>
-                                            @if ($is_admin)
-                                                <input type="text" name="nama_lengkap" id="detail_nama_input"
-                                                    class="edit-only form-input-custom mt-1 !text-sm !font-bold"
-                                                    required>
-                                            @endif
-                                        </div>
-                                        <div>
-                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Alamat
-                                                Email</span>
-                                            <p id="detail_email_view"
-                                                class="view-only text-base font-black text-primary truncate mt-1"></p>
-                                            @if ($is_admin)
-                                                <input type="email" name="alamat_email" id="detail_email_input"
-                                                    class="edit-only form-input-custom mt-1 !text-sm !font-bold">
-                                            @endif
-                                        </div>
-                                        <div>
-                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">No.
-                                                WhatsApp</span>
-                                            <div class="view-only flex items-center gap-2 mt-1">
-                                                <p id="detail_wa_view" class="text-sm font-bold text-emerald-600 m-0">
-                                                </p>
-                                                <a id="detail_wa_link" href="#" target="_blank"
-                                                    class="bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded text-[10px] font-black no-underline">
-                                                    <i class="fa-brands fa-whatsapp"></i> CHAT
-                                                </a>
-                                            </div>
-                                            @if ($is_admin)
-                                                <input type="text" name="no_whatsapp" id="detail_wa_input"
-                                                    class="edit-only form-input-custom mt-1 !text-sm !font-bold !text-emerald-600"
-                                                    required>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="space-y-4">
-                                    <h6
-                                        class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-l-4 border-indigo-500 pl-3">
-                                        Informasi Sales</h6>
-                                    <div class="space-y-4">
-                                        <div>
-                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Petugas
-                                                Sales</span>
-                                            <p id="detail_sales_view"
-                                                class="view-only text-sm font-bold text-slate-800 mt-1"></p>
-                                            @if ($is_admin)
-                                                <select name="id_sales" id="detail_sales_input"
-                                                    class="edit-only form-input-custom mt-1 !text-sm !font-bold">
-                                                    <option value="">-- Pilih Sales --</option>
-                                                    @foreach ($salesUsers as $sales)
-                                                        <option value="{{ $sales->id }}">
-                                                            {{ $sales->nama_lengkap }}</option>
-                                                    @endforeach
-                                                </select>
-                                            @endif
-                                        </div>
-                                        <div>
-                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Tgl.
-                                                Pre-Order</span>
-                                            <p id="detail_tgl_po_view"
-                                                class="view-only text-sm font-bold text-slate-800 mt-1"></p>
-                                            @if ($is_admin)
-                                                <input type="date" name="tgl_po" id="detail_tgl_po_input"
-                                                    class="edit-only form-input-custom mt-1 !text-sm !font-bold">
-                                            @endif
-                                        </div>
-                                        <div>
-                                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Titik
-                                                Koordinat</span>
-                                            <div class="view-only flex items-center gap-2 mt-1">
-                                                <p id="detail_tikor_view"
-                                                    class="text-sm font-bold text-indigo-600 m-0"></p>
-                                                <a id="detail_tikor_link" href="#" target="_blank"
-                                                    class="bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded text-[10px] font-black no-underline">
-                                                    <i class="fa-solid fa-map-location-dot"></i> MAPS
-                                                </a>
-                                            </div>
-                                            @if ($is_admin)
-                                                <input type="text" name="titik_koordinat" id="detail_tikor_input"
-                                                    class="edit-only form-input-custom mt-1 !text-sm !font-bold">
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Biodata Inti -->
+                        <div class="border border-slate-200 rounded-xl p-4 bg-white space-y-3">
+                            <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                                <i class="fa-regular fa-user text-xs text-slate-400"></i>
+                                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Biodata Pelanggan</span>
                             </div>
-                            <div class="space-y-4">
-                                <h6
-                                    class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-l-4 border-slate-400 pl-3">
-                                    Lokasi Pasang</h6>
-                                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                                    <p id="detail_alamat_lengkap_view"
-                                        class="view-only text-sm font-bold text-slate-700 leading-relaxed"></p>
+                            <div class="space-y-3">
+                                <div>
+                                    <span class="text-[11px] font-medium text-slate-500 block uppercase mb-1">Nomor Identitas (NIK)</span>
+                                    <p id="detail_nik_view" class="view-only text-sm font-semibold font-mono text-slate-800 m-0"></p>
                                     @if ($is_admin)
-                                        <textarea name="alamat_lengkap" id="detail_alamat_lengkap_input"
-                                            class="edit-only form-input-custom !text-sm !font-bold" rows="3" required></textarea>
+                                        <input type="text" name="no_identitas" id="detail_nik_input" class="edit-only form-input-custom !font-normal text-slate-800">
+                                    @endif
+                                </div>
+                                <div>
+                                    <span class="text-[11px] font-medium text-slate-500 block uppercase mb-1">Nama Lengkap</span>
+                                    <p id="detail_nama_view" class="view-only text-sm font-bold text-slate-900 m-0"></p>
+                                    @if ($is_admin)
+                                        <input type="text" name="nama_lengkap" id="detail_nama_input" class="edit-only form-input-custom !font-normal text-slate-800" required>
+                                    @endif
+                                </div>
+                                <div>
+                                    <span class="text-[11px] font-medium text-slate-500 block uppercase mb-1">Alamat Email</span>
+                                    <p id="detail_email_view" class="view-only text-sm font-medium text-slate-700 m-0"></p>
+                                    @if ($is_admin)
+                                        <input type="email" name="alamat_email" id="detail_email_input" class="edit-only form-input-custom !font-normal text-slate-800">
+                                    @endif
+                                </div>
+                                <div>
+                                    <span class="text-[11px] font-medium text-slate-500 block uppercase mb-1">No. WhatsApp</span>
+                                    <div class="view-only flex items-center gap-2">
+                                        <span id="detail_wa_view" class="text-sm font-semibold font-mono text-slate-800"></span>
+                                        <a id="detail_wa_link" href="#" target="_blank" class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded transition">
+                                            <i class="fa-brands fa-whatsapp"></i> Chat
+                                        </a>
+                                    </div>
+                                    @if ($is_admin)
+                                        <input type="text" name="no_whatsapp" id="detail_wa_input" class="edit-only form-input-custom !font-normal text-slate-800" required>
                                     @endif
                                 </div>
                             </div>
                         </div>
-                        <div class="lg:col-span-2 p-8 bg-slate-50 border-l border-slate-200">
-                            <div class="bg-primary/5 p-4 rounded-2xl border border-primary/10">
-                                <p class="text-[10px] text-slate-500 leading-relaxed font-medium italic text-center">
-                                    Data ini bersumber dari formulir Pre-Order asli yang diinput oleh tim Sales.
-                                </p>
+
+                        <!-- Informasi Sales & Lokasi -->
+                        <div class="space-y-4">
+                            <div class="border border-slate-200 rounded-xl p-4 bg-white space-y-3">
+                                <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                                    <i class="fa-regular fa-id-badge text-xs text-slate-400"></i>
+                                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Informasi Sales & PO</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <span class="text-[11px] font-medium text-slate-500 block uppercase mb-1">Petugas Sales</span>
+                                        <p id="detail_sales_view" class="view-only text-xs font-semibold text-slate-800 m-0"></p>
+                                        @if ($is_admin)
+                                            <select name="id_sales" id="detail_sales_input" class="edit-only form-input-custom !font-normal text-slate-800">
+                                                <option value="">-- Pilih Sales --</option>
+                                                @foreach ($salesUsers as $sales)
+                                                    <option value="{{ $sales->id }}">{{ $sales->nama_lengkap }}</option>
+                                                @endforeach
+                                            </select>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <span class="text-[11px] font-medium text-slate-500 block uppercase mb-1">Tgl. Pre-Order</span>
+                                        <p id="detail_tgl_po_view" class="view-only text-xs font-semibold text-slate-800 m-0"></p>
+                                        @if ($is_admin)
+                                            <input type="date" name="tgl_po" id="detail_tgl_po_input" class="edit-only form-input-custom !font-normal text-slate-800">
+                                        @endif
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-[11px] font-medium text-slate-500 block uppercase mb-1">Titik Koordinat</span>
+                                    <div class="view-only flex items-center justify-between gap-2">
+                                        <span id="detail_tikor_view" class="text-xs font-mono font-medium text-slate-700"></span>
+                                        <a id="detail_tikor_link" href="#" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 hover:text-sky-600 bg-white hover:bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg transition shadow-sm">
+                                            <i class="fa-solid fa-location-arrow text-[10px] text-sky-500"></i> Buka Maps
+                                        </a>
+                                    </div>
+                                    @if ($is_admin)
+                                        <input type="text" name="titik_koordinat" id="detail_tikor_input" class="edit-only form-input-custom !font-normal text-slate-800 font-mono text-xs">
+                                    @endif
+                                </div>
+                            </div>
+
+                            <!-- Lokasi Pasang -->
+                            <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/60 space-y-2">
+                                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Alamat Pemasangan</span>
+                                <p id="detail_alamat_lengkap_view" class="view-only text-xs text-slate-700 leading-relaxed m-0 bg-white p-2.5 rounded-lg border border-slate-200"></p>
+                                @if ($is_admin)
+                                    <textarea name="alamat_lengkap" id="detail_alamat_lengkap_input" class="edit-only form-textarea !font-normal text-slate-800 text-xs" rows="3" required></textarea>
+                                @endif
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Tab Teknis -->
-                <div class="tab-panel p-8" id="tab-teknis">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="space-y-6">
-                            <h6
-                                class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-l-4 border-sky-500 pl-3">
-                                Akun & Layanan</h6>
-                            <div class="bg-sky-50 p-5 rounded-2xl border border-sky-100 space-y-4">
+                <div class="tab-panel" id="tab-teknis">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Akun & Layanan -->
+                        <div class="border border-slate-200 rounded-xl p-4 bg-white space-y-3">
+                            <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                                <i class="fa-regular fa-hard-drive text-xs text-slate-400"></i>
+                                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Akun & Layanan</span>
+                            </div>
+                            <div>
+                                <span class="text-[11px] font-medium text-slate-500 block uppercase mb-1">ID Pelanggan</span>
+                                <p id="detail_customer_id_view" class="view-only text-sm font-bold font-mono text-sky-700 m-0"></p>
+                                @if ($is_admin)
+                                    <input type="text" name="id_pelanggan" id="detail_customer_id_input" class="edit-only form-input-custom !font-normal text-slate-800 font-mono" required>
+                                @endif
+                            </div>
+                            <div>
+                                <span class="text-[11px] font-medium text-slate-500 block uppercase mb-1">Paket Internet</span>
+                                <p id="detail_paket_view" class="view-only text-sm font-semibold text-slate-800 m-0"></p>
+                                @if ($is_admin)
+                                    <select name="paket_id" id="detail_paket_input" class="edit-only form-input-custom !font-normal text-slate-800" required>
+                                        @foreach(\App\Models\Paket::all() as $paket)
+                                            <option value="{{ $paket->id }}">{{ $paket->nama_paket }} - Rp {{ number_format($paket->harga, 0, ',', '.') }}</option>
+                                        @endforeach
+                                    </select>
+                                @endif
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100">
                                 <div>
-                                    <span class="text-[10px] font-black text-sky-400 block uppercase">ID
-                                        Pelanggan</span>
-                                    <p id="detail_customer_id_view"
-                                        class="view-only text-xl font-black text-sky-700 mt-1"></p>
+                                    <span class="text-[11px] font-medium text-slate-500 block uppercase mb-1">PPPoE User</span>
+                                    <p id="detail_pppoe_user_view" class="view-only text-xs font-mono font-semibold text-slate-800 m-0"></p>
                                     @if ($is_admin)
-                                        <input type="text" name="id_pelanggan" id="detail_customer_id_input"
-                                            class="edit-only form-input-custom mt-1 !text-sm !font-black !text-sky-700"
-                                            required>
+                                        <input type="text" name="pppoe_username" id="detail_pppoe_user_input" class="edit-only form-input-custom !font-normal font-mono text-xs text-slate-800">
                                     @endif
                                 </div>
                                 <div>
-                                    <span class="text-[10px] font-black text-sky-400 block uppercase">Paket
-                                        Internet</span>
-                                    <p id="detail_paket_view" class="view-only text-sm font-black text-sky-800 mt-1">
-                                    </p>
+                                    <span class="text-[11px] font-medium text-slate-500 block uppercase mb-1">PPPoE Pass</span>
+                                    <p id="detail_pppoe_pass_view" class="view-only text-xs font-mono font-semibold text-slate-800 m-0"></p>
                                     @if ($is_admin)
-                                        <select name="paket_id" id="detail_paket_input"
-                                            class="edit-only form-input-custom mt-1 !text-sm !font-black !text-sky-800"
-                                            required>
-                                            @foreach(\App\Models\Paket::all() as $paket)
-                                                <option value="{{ $paket->id }}">{{ $paket->nama_paket }} - Rp {{ number_format($paket->harga, 0, ',', '.') }}</option>
-                                            @endforeach
-                                        </select>
-                                    @endif
-                                </div>
-                                <hr class="border-sky-200">
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <span class="text-[10px] font-black text-sky-400 block uppercase">PPPoE
-                                            User</span>
-                                        <p id="detail_pppoe_user_view"
-                                            class="view-only text-xs font-bold text-slate-700"></p>
-                                        @if ($is_admin)
-                                            <input type="text" name="pppoe_username" id="detail_pppoe_user_input"
-                                                class="edit-only form-input-custom mt-1 !text-xs !font-bold">
-                                        @endif
-                                    </div>
-                                    <div>
-                                        <span class="text-[10px] font-black text-sky-400 block uppercase">PPPoE
-                                            Pass</span>
-                                        <p id="detail_pppoe_pass_view"
-                                            class="view-only text-xs font-bold text-slate-700"></p>
-                                        @if ($is_admin)
-                                            <input type="text" name="pppoe_password" id="detail_pppoe_pass_input"
-                                                class="edit-only form-input-custom mt-1 !text-xs !font-bold">
-                                        @endif
-                                    </div>
-                                </div>
-                                <hr class="border-sky-200">
-                                <div class="view-only space-y-2">
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-[10px] font-black text-sky-500 uppercase">Status PPPoE</span>
-                                        <div id="detail_isolir_badge"></div>
-                                    </div>
-                                    <div id="detail_isolir_info" class="hidden text-[11px] p-2.5 rounded-xl bg-rose-100/70 border border-rose-200 text-rose-800 space-y-1">
-                                        <div><strong>Alasan:</strong> <span id="detail_isolir_reason"></span></div>
-                                        <div class="text-[10px] text-rose-600"><strong>Tanggal:</strong> <span id="detail_isolir_at"></span></div>
-                                    </div>
-                                    @if ($is_admin)
-                                        <div class="pt-1">
-                                            <button type="button" id="btnDetailIsolirAction" class="w-full text-xs font-bold py-2 px-3 rounded-xl flex items-center justify-center gap-2 transition shadow-sm"></button>
-                                        </div>
+                                        <input type="text" name="pppoe_password" id="detail_pppoe_pass_input" class="edit-only form-input-custom !font-normal font-mono text-xs text-slate-800">
                                     @endif
                                 </div>
                             </div>
+                            <div class="view-only pt-2 border-t border-slate-100 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] font-medium text-slate-500 uppercase">Status PPPoE</span>
+                                    <div id="detail_isolir_badge"></div>
+                                </div>
+                                <div id="detail_isolir_info" class="hidden text-xs p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 space-y-1">
+                                    <div><strong>Alasan:</strong> <span id="detail_isolir_reason"></span></div>
+                                    <div class="text-[10px] text-rose-600"><strong>Tanggal:</strong> <span id="detail_isolir_at"></span></div>
+                                </div>
+                                @if ($is_admin)
+                                    <div class="pt-1">
+                                        <button type="button" id="btnDetailIsolirAction" class="w-full text-xs font-semibold py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition shadow-sm"></button>
+                                    </div>
+                                @endif
+                            </div>
                         </div>
-                        <div class="space-y-6">
-                            <h6
-                                class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-l-4 border-amber-500 pl-3">
-                                Perangkat & Billing</h6>
-                            <div class="space-y-4">
+
+                        <!-- Perangkat & Billing -->
+                        <div class="border border-slate-200 rounded-xl p-4 bg-white space-y-3">
+                            <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                                <i class="fa-solid fa-server text-xs text-slate-400"></i>
+                                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Perangkat & Billing</span>
+                            </div>
+                            <div>
+                                <span class="text-[11px] font-medium text-slate-500 block uppercase mb-1">Jenis Modem</span>
+                                <p id="detail_jenis_modem_view" class="view-only text-xs font-semibold text-slate-800 m-0"></p>
+                                @if ($is_admin)
+                                    <input type="text" name="jenis_modem" id="detail_jenis_modem_input" class="edit-only form-input-custom !font-normal text-slate-800">
+                                @endif
+                            </div>
+                            <div>
+                                <span class="text-[11px] font-medium text-slate-500 block uppercase mb-1">SN Perangkat</span>
+                                <p id="detail_sn_view" class="view-only text-xs font-mono font-semibold text-slate-800 m-0"></p>
+                                @if ($is_admin)
+                                    <input type="text" name="sn_perangkat" id="detail_sn_input" class="edit-only form-input-custom !font-normal font-mono text-slate-800">
+                                @endif
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <span class="text-[11px] font-bold text-slate-400 block uppercase">Jenis
-                                        Modem</span>
-                                    <p id="detail_jenis_modem_view"
-                                        class="view-only text-sm font-bold text-slate-800 mt-1"></p>
+                                    <span class="text-[11px] font-medium text-slate-500 block uppercase mb-1">Pembayaran</span>
+                                    <p id="detail_pembayaran_view" class="view-only text-xs font-semibold text-slate-800 m-0"></p>
                                     @if ($is_admin)
-                                        <input type="text" name="jenis_modem" id="detail_jenis_modem_input"
-                                            class="edit-only form-input-custom mt-1 !text-sm !font-bold">
-                                    @endif
-                                </div>
-                                <div>
-                                    <span class="text-[11px] font-bold text-slate-400 block uppercase">SN
-                                        Perangkat</span>
-                                    <p id="detail_sn_view" class="view-only text-sm font-bold text-slate-800 mt-1">
-                                    </p>
-                                    @if ($is_admin)
-                                        <input type="text" name="sn_perangkat" id="detail_sn_input"
-                                            class="edit-only form-input-custom mt-1 !text-sm !font-bold">
-                                    @endif
-                                </div>
-                                <div>
-                                    <span class="text-[11px] font-bold text-slate-400 block uppercase">Metode
-                                        Pembayaran</span>
-                                    <p id="detail_pembayaran_view"
-                                        class="view-only text-sm font-bold text-amber-600 mt-1"></p>
-                                    @if ($is_admin)
-                                        <select name="pembayaran" id="detail_pembayaran_input"
-                                            class="edit-only form-input-custom mt-1 !text-sm !font-bold !text-amber-600"
-                                            required>
+                                        <select name="pembayaran" id="detail_pembayaran_input" class="edit-only form-input-custom !font-normal text-slate-800" required>
                                             <option value="Transfer">Transfer</option>
                                             <option value="Cash">Cash</option>
                                             <option value="Aplikasi">Aplikasi</option>
@@ -650,121 +591,101 @@
                                     @endif
                                 </div>
                                 <div>
-                                    <span class="text-[11px] font-bold text-slate-400 block uppercase">Tanggal
-                                        Aktivasi</span>
-                                    <p id="detail_tgl_aktivasi_view"
-                                        class="view-only text-sm font-bold text-slate-800 mt-1"></p>
+                                    <span class="text-[11px] font-medium text-slate-500 block uppercase mb-1">Tgl Aktivasi</span>
+                                    <p id="detail_tgl_aktivasi_view" class="view-only text-xs font-semibold text-slate-800 m-0"></p>
                                     @if ($is_admin)
-                                        <input type="date" name="tgl_aktivasi" id="detail_tgl_aktivasi_input"
-                                            class="edit-only form-input-custom mt-1 !text-sm !font-bold">
+                                        <input type="date" name="tgl_aktivasi" id="detail_tgl_aktivasi_input" class="edit-only form-input-custom !font-normal text-slate-800">
                                     @endif
                                 </div>
-                                <div class="view-only pt-2 border-t border-slate-100">
-                                    <span class="text-[11px] font-bold text-slate-400 block uppercase mb-1.5">Kontrol ONT & Wi-Fi (ACS)</span>
-                                    <button type="button" class="btn-primary-admin !h-9 !px-4 !text-xs !bg-sky-600 hover:!bg-sky-700 !text-white flex items-center gap-2 shadow-sm !w-full justify-center"
-                                        onclick="openAcsModalFromDetail()">
-                                        <i class="fa-solid fa-satellite-dish"></i> Status Live Modem & Wi-Fi
-                                    </button>
-                                </div>
+                            </div>
+                            <div class="view-only pt-2 border-t border-slate-100">
+                                <span class="text-[11px] font-medium text-slate-500 block uppercase mb-1.5">Kontrol ONT & Wi-Fi (ACS)</span>
+                                <button type="button" class="btn-primary-admin !h-9 !px-4 !text-xs !bg-slate-800 hover:!bg-slate-900 !text-white flex items-center gap-1.5 shadow-sm !w-full justify-center"
+                                    onclick="openAcsModalFromDetail()">
+                                    Status Live Modem & Wi-Fi
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Tab Dokumentasi -->
-                <div class="tab-panel overflow-x-hidden" id="tab-dokumentasi">
-                    <div class="grid grid-cols-1 lg:grid-cols-5">
-                        <div class="lg:col-span-3 p-5 sm:p-8 space-y-6">
-                            <h6
-                                class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-l-4 border-emerald-500 pl-3">
-                                Hasil Instalasi</h6>
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-4">
-                                <div class="space-y-2">
-                                    <span
-                                        class="text-[10px] font-bold text-slate-500 block text-center uppercase">Petugas</span>
-                                    <div
-                                        class="aspect-[3/4] w-full rounded-2xl overflow-hidden border-2 border-white shadow-md bg-slate-100 flex items-center justify-center">
-                                        <img id="img_petugas" src=""
-                                            class="w-full h-full object-cover hidden cursor-pointer"
-                                            onclick="window.open(this.src, '_blank')">
-                                        <i class="fa-solid fa-user-gear text-slate-300 text-3xl"
-                                            id="placeholder_petugas"></i>
+                <div class="tab-panel" id="tab-dokumentasi">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                        <div class="lg:col-span-8 border border-slate-200 rounded-xl p-4 bg-white space-y-3">
+                            <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                                <i class="fa-regular fa-image text-xs text-slate-400"></i>
+                                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Foto Hasil Instalasi</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-3">
+                                <div class="space-y-1.5">
+                                    <span class="text-[10px] font-semibold text-slate-500 block text-center uppercase">Petugas</span>
+                                    <div class="aspect-[3/4] w-full rounded-lg overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center">
+                                        <img id="img_petugas" src="" class="w-full h-full object-cover hidden cursor-pointer hover:scale-105 transition duration-200" onclick="window.open(this.src, '_blank')">
+                                        <i class="fa-solid fa-user-gear text-slate-300 text-2xl" id="placeholder_petugas"></i>
                                     </div>
                                     @if ($is_admin)
-                                        <input type="file" name="foto_petugas"
-                                            class="edit-only form-input-custom mt-2 !text-xs !p-1 !h-auto">
+                                        <input type="file" name="foto_petugas" class="edit-only form-input !p-1 !h-auto text-[11px] !font-normal">
                                     @endif
                                 </div>
-                                <div class="space-y-2">
-                                    <span
-                                        class="text-[10px] font-bold text-slate-500 block text-center uppercase">Perangkat</span>
-                                    <div
-                                        class="aspect-[3/4] w-full rounded-2xl overflow-hidden border-2 border-white shadow-md bg-slate-100 flex items-center justify-center">
-                                        <img id="img_terpasang" src=""
-                                            class="w-full h-full object-cover hidden cursor-pointer"
-                                            onclick="window.open(this.src, '_blank')">
-                                        <i class="fa-solid fa-microchip text-slate-300 text-3xl"
-                                            id="placeholder_terpasang"></i>
+                                <div class="space-y-1.5">
+                                    <span class="text-[10px] font-semibold text-slate-500 block text-center uppercase">Perangkat</span>
+                                    <div class="aspect-[3/4] w-full rounded-lg overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center">
+                                        <img id="img_terpasang" src="" class="w-full h-full object-cover hidden cursor-pointer hover:scale-105 transition duration-200" onclick="window.open(this.src, '_blank')">
+                                        <i class="fa-solid fa-microchip text-slate-300 text-2xl" id="placeholder_terpasang"></i>
                                     </div>
                                     @if ($is_admin)
-                                        <input type="file" name="foto_terpasang"
-                                            class="edit-only form-input-custom mt-2 !text-xs !p-1 !h-auto">
+                                        <input type="file" name="foto_terpasang" class="edit-only form-input !p-1 !h-auto text-[11px] !font-normal">
                                     @endif
                                 </div>
-                                <div class="space-y-2">
-                                    <span
-                                        class="text-[10px] font-bold text-slate-500 block text-center uppercase">Speedtest</span>
-                                    <div
-                                        class="aspect-[3/4] w-full rounded-2xl overflow-hidden border-2 border-white shadow-md bg-slate-100 flex items-center justify-center">
-                                        <img id="img_speedtest" src=""
-                                            class="w-full h-full object-cover hidden cursor-pointer"
-                                            onclick="window.open(this.src, '_blank')">
-                                        <i class="fa-solid fa-gauge-high text-slate-300 text-3xl"
-                                            id="placeholder_speedtest"></i>
+                                <div class="space-y-1.5">
+                                    <span class="text-[10px] font-semibold text-slate-500 block text-center uppercase">Speedtest</span>
+                                    <div class="aspect-[3/4] w-full rounded-lg overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center">
+                                        <img id="img_speedtest" src="" class="w-full h-full object-cover hidden cursor-pointer hover:scale-105 transition duration-200" onclick="window.open(this.src, '_blank')">
+                                        <i class="fa-solid fa-gauge-high text-slate-300 text-2xl" id="placeholder_speedtest"></i>
                                     </div>
                                     @if ($is_admin)
-                                        <input type="file" name="foto_speedtest"
-                                            class="edit-only form-input-custom mt-2 !text-xs !p-1 !h-auto">
+                                        <input type="file" name="foto_speedtest" class="edit-only form-input !p-1 !h-auto text-[11px] !font-normal">
                                     @endif
                                 </div>
                             </div>
                         </div>
-                        <div
-                            class="lg:col-span-2 p-5 sm:p-8 bg-slate-50 border-t lg:border-t-0 lg:border-l border-slate-200">
-                            <h6 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Catatan
-                                Teknisi</h6>
-                            <div class="bg-white p-4 rounded-2xl border border-slate-200 min-h-[120px]">
-                                <p id="detail_keterangan_view"
-                                    class="view-only text-sm font-medium text-slate-600 italic leading-relaxed break-words">
-                                </p>
-                                @if ($is_admin)
-                                    <textarea name="keterangan" id="detail_keterangan_input" class="edit-only form-input-custom !text-sm !italic"
-                                        rows="3"></textarea>
-                                @endif
+                        <div class="lg:col-span-4 border border-slate-200 rounded-xl p-4 bg-slate-50/60 space-y-2 flex flex-col justify-between">
+                            <div>
+                                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2">Catatan Teknisi</span>
+                                <div class="bg-white p-3 rounded-lg border border-slate-200 min-h-[100px]">
+                                    <p id="detail_keterangan_view" class="view-only text-xs font-normal text-slate-700 italic leading-relaxed m-0 break-words"></p>
+                                    @if ($is_admin)
+                                        <textarea name="keterangan" id="detail_keterangan_input" class="edit-only form-textarea !font-normal text-slate-800 text-xs !italic" rows="4"></textarea>
+                                    @endif
+                                </div>
                             </div>
+                            <p class="text-[10px] text-slate-400 text-center m-0 pt-2 border-t border-slate-200">
+                                Klik gambar untuk melihat ukuran penuh
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl flex justify-between gap-3">
-                <button type="button" class="view-only btn-cancel flex flex-1 items-center justify-center !gap-2"
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
+                <button type="button" class="view-only btn-cancel !h-9 !px-4 text-xs font-semibold"
                     onclick="closeCustomModal('customerDetailModal')">
-                    <i class="fa-solid fa-xmark"></i> Tutup
+                    Tutup
                 </button>
                 @if ($is_admin)
                     <button type="button" id="btnToggleEdit"
-                        class="view-only btn-primary-admin justify-center !gap-2 !bg-emerald-500 hover:!bg-emerald-600 flex-1 !shadow-emerald-500/30"
+                        class="view-only btn-primary-admin !h-9 !px-5 text-xs font-semibold"
                         onclick="toggleEditMode()">
-                        <i class="fa-solid fa-pen-to-square"></i> Edit Data
+                        Edit Data
                     </button>
-                    <button type="button" class="edit-only btn-cancel flex flex-1 items-center justify-center !gap-2"
+                    <button type="button" class="edit-only btn-cancel !h-9 !px-4 text-xs font-semibold"
                         onclick="toggleEditMode()">
-                        <i class="fa-solid fa-ban"></i> Batal Edit
+                        Batal Edit
                     </button>
                     <button type="submit"
-                        class="edit-only btn-primary-admin justify-center !gap-2 !bg-emerald-500 hover:!bg-emerald-600 flex-1 !shadow-emerald-500/30">
-                        <i class="fa-solid fa-save"></i> Simpan Perubahan
+                        class="edit-only btn-primary-admin !h-9 !px-5 text-xs font-semibold">
+                        Simpan
                     </button>
                 @endif
             </div>
@@ -961,18 +882,18 @@
                 </div>
             </div>
 
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 p-4 flex items-center justify-between gap-3">
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-3">
                 <div>
                     <a id="acs_btn_open_genieacs" href="#" target="_blank"
-                        class="btn-primary-admin !bg-slate-800 hover:!bg-slate-900 !text-white text-xs flex items-center gap-1.5">
-                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Kelola di Menu GenieACS
+                        class="btn-primary-admin !h-9 !px-4 !bg-slate-800 hover:!bg-slate-900 !text-white text-xs font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Kelola di Menu GenieACS
                     </a>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button type="button" class="btn-cancel text-xs flex items-center gap-1.5" onclick="refreshCurrentAcsModal()">
-                        <i class="fa-solid fa-arrows-rotate"></i> Muat Ulang
+                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="refreshCurrentAcsModal()">
+                        Muat Ulang
                     </button>
-                    <button type="button" class="btn-cancel text-xs" onclick="closeCustomModal('customerAcsModal')">
+                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('customerAcsModal')">
                         Tutup
                     </button>
                 </div>
@@ -983,14 +904,14 @@
     <!-- Modal Isolir Customer -->
     <div class="modal-overlay modal-centered" id="isolirCustomerModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
-            <div class="modal-header border-b border-slate-200 bg-rose-50/50 p-5 flex items-center justify-between">
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-lg">
+                    <div class="w-9 h-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-sm border border-rose-100 shrink-0">
                         <i class="fa-solid fa-ban"></i>
                     </div>
                     <div>
                         <h3 class="text-base font-bold text-slate-900 m-0">Isolir Layanan Pelanggan</h3>
-                        <p class="text-xs text-slate-500 m-0">Alihkan paket ke profil isolir FreeRADIUS & MikroTik</p>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Alihkan paket ke profil isolir FreeRADIUS & MikroTik.</p>
                     </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('isolirCustomerModal')">
@@ -1005,21 +926,21 @@
                             <i class="fa-solid fa-triangle-exclamation"></i> Konfirmasi Isolir:
                         </div>
                         <p class="m-0 leading-relaxed">
-                            Pelanggan <strong id="isolirCustomerName" class="text-slate-900 font-bold"></strong> (PPPoE: <code id="isolirCustomerUsername" class="font-mono text-rose-700 font-bold"></code>) akan dipindahkan ke group <strong>ISOLIR</strong> (kecepatan 128k/128k, IP 172.30.x.x) dan koneksi aktifnya akan diputus otomatis agar langsung dial ulang dengan limit isolir.
+                            Pelanggan <strong id="isolirCustomerName" class="text-slate-900 font-bold"></strong> (PPPoE: <code id="isolirCustomerUsername" class="font-mono text-rose-700 font-bold"></code>) akan dipindahkan ke group <strong>ISOLIR</strong> dan koneksi aktifnya akan diputus otomatis agar langsung dial ulang dengan limit isolir.
                         </p>
                     </div>
 
                     <div>
-                        <label class="form-label text-slate-800 font-bold block mb-1 text-xs">Alasan Isolir</label>
-                        <textarea name="reason" id="isolirCustomerReason" class="form-input-custom w-full text-xs" rows="3" placeholder="Contoh: Menunggak pembayaran tagihan / Gangguan keamanan" required>Isolir manual oleh Admin</textarea>
+                        <label class="form-label text-slate-700 font-medium block mb-1 text-xs">Alasan Isolir</label>
+                        <textarea name="reason" id="isolirCustomerReason" class="form-textarea !font-normal w-full text-xs text-slate-800 border-slate-300" rows="3" placeholder="Contoh: Menunggak pembayaran tagihan" required>Isolir manual oleh Admin</textarea>
                     </div>
                 </div>
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 p-4 flex justify-end gap-2">
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between gap-2">
                     <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('isolirCustomerModal')">
                         Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-9 !px-5 text-xs font-semibold flex items-center gap-2">
-                        <i class="fa-solid fa-ban"></i> Isolir Sekarang
+                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-9 !px-5 text-xs font-semibold">
+                        Isolir Sekarang
                     </button>
                 </div>
             </form>
@@ -1029,14 +950,14 @@
     <!-- Modal Buka Isolir Customer -->
     <div class="modal-overlay modal-centered" id="bukaIsolirCustomerModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
-            <div class="modal-header border-b border-slate-200 bg-emerald-50/50 p-5 flex items-center justify-between">
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg">
+                    <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm border border-emerald-100 shrink-0">
                         <i class="fa-solid fa-unlock-keyhole"></i>
                     </div>
                     <div>
                         <h3 class="text-base font-bold text-slate-900 m-0">Buka Isolir Pelanggan</h3>
-                        <p class="text-xs text-slate-500 m-0">Kembalikan kecepatan dan akses internet normal</p>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Kembalikan kecepatan dan akses internet normal.</p>
                     </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('bukaIsolirCustomerModal')">
@@ -1055,12 +976,12 @@
                         </p>
                     </div>
                 </div>
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 p-4 flex justify-end gap-2">
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between gap-2">
                     <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('bukaIsolirCustomerModal')">
                         Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-9 !px-5 text-xs font-semibold flex items-center gap-2">
-                        <i class="fa-solid fa-unlock-keyhole"></i> Buka Isolir Sekarang
+                    <button type="submit" class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-9 !px-5 text-xs font-semibold">
+                        Buka Isolir Sekarang
                     </button>
                 </div>
             </form>
@@ -1309,6 +1230,7 @@
                 const table = $('#customer-table').DataTable({
                     processing: true,
                     serverSide: true,
+                    autoWidth: false,
                     ajax: '{{ route('customers.active_list') }}',
                     columns: [{
                             data: null,
@@ -1333,7 +1255,7 @@
                             name: 'nama_lengkap',
                             orderable: true,
                             searchable: true,
-                            className: 'text-center align-middle'
+                            className: 'text-left align-middle'
                         },
                         {
                             data: 'wa_formatted',
