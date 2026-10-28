@@ -338,25 +338,24 @@ class CustomerController extends Controller
 
         // Data Pelanggan Isolir
         $pelangganIsolir = collect();
-        if ($user->jabatan === 'Sales' || $user->isAdmin()) {
-            $dbIsolirUsernames = \App\Models\Pppoe::where('is_isolir', true)->pluck('username')->toArray();
-            $mikrotikIsolirUsernames = [];
-            if ($pppoeData && isset($pppoeData['success']) && $pppoeData['success']) {
-                $mikrotikIsolirUsernames = collect($pppoeData['data'])
-                    ->filter(fn($item) => str_starts_with($item['address'] ?? '', '172.30.'))
-                    ->pluck('name')
-                    ->toArray();
-            }
-            $allIsolirUsernames = array_unique(array_merge($dbIsolirUsernames, $mikrotikIsolirUsernames));
+        $dbIsolirUsernames = \App\Models\Pppoe::where('is_isolir', true)->pluck('username')->toArray();
+        $mikrotikIsolirUsernames = [];
+        if ($pppoeData && isset($pppoeData['success']) && $pppoeData['success']) {
+            $mikrotikIsolirUsernames = collect($pppoeData['data'])
+                ->filter(fn($item) => str_starts_with($item['address'] ?? '', '172.30.'))
+                ->pluck('name')
+                ->toArray();
+        }
+        $allIsolirUsernames = array_unique(array_merge($dbIsolirUsernames, $mikrotikIsolirUsernames));
 
-            if (!empty($allIsolirUsernames)) {
-                $isolirQuery = Customer::with(['preOrder:id,titik_koordinat', 'sales:id,nama_lengkap', 'paket:id,nama_paket'])
-                    ->whereIn('pppoe_username', $allIsolirUsernames);
-                if ($user->jabatan === 'Sales') {
-                    $isolirQuery->where('id_sales', $user->id);
-                }
-                $pelangganIsolir = $isolirQuery->get();
+        // Hanya load koleksi data isolir jika bukan Admin (misal: Sales)
+        if (!$user->isAdmin() && !empty($allIsolirUsernames)) {
+            $isolirQuery = Customer::with(['preOrder:id,titik_koordinat', 'sales:id,nama_lengkap', 'paket:id,nama_paket'])
+                ->whereIn('pppoe_username', $allIsolirUsernames);
+            if ($user->jabatan === 'Sales') {
+                $isolirQuery->where('id_sales', $user->id);
             }
+            $pelangganIsolir = $isolirQuery->get();
         }
 
         // Map Data: ONLY query active customers with coordinates!
@@ -416,7 +415,9 @@ class CustomerController extends Controller
                 $totalOnlineAll = 0;
             }
             $totalOfflineAll = max(0, $totalActive - $totalOnlineAll);
-            $totalIsolirAll = $pelangganIsolir->count();
+            $totalIsolirAll = !empty($allIsolirUsernames)
+                ? Customer::withoutTrashed()->whereIn('pppoe_username', $allIsolirUsernames)->count()
+                : 0;
         }
 
         $salesUsers = User::where('jabatan', 'Sales')->orderBy('nama_lengkap')->get(['id', 'nama_lengkap']);

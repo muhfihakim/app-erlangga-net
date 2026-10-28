@@ -255,7 +255,7 @@
         </div>
     </div>
 
-    @if (Auth::user()->jabatan === 'Sales' || Auth::user()->isAdmin())
+    @if (!Auth::user()->isAdmin())
         @if (isset($pelangganIsolir) && $pelangganIsolir->count() > 0)
             <div
                 style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;margin-top:2rem;">
@@ -1209,22 +1209,24 @@
             }
 
             $(document).ready(function() {
-                // DataTables Isolir
-                $('#isolir-table').DataTable({
-                    "pageLength": 5,
-                    "lengthChange": false,
-                    "ordering": false,
-                    "info": false,
-                    "responsive": true,
-                    "dom": 'tpir',
-                    "language": {
-                        "zeroRecords": "Data tidak ditemukan",
-                        "paginate": {
-                            "previous": '<i class="fa-solid fa-chevron-left"></i>',
-                            "next": '<i class="fa-solid fa-chevron-right"></i>'
+                // DataTables Isolir (Hanya jika tabel ada di DOM / Non-Admin)
+                if ($('#isolir-table').length) {
+                    $('#isolir-table').DataTable({
+                        "pageLength": 5,
+                        "lengthChange": false,
+                        "ordering": false,
+                        "info": false,
+                        "responsive": true,
+                        "dom": 'tpir',
+                        "language": {
+                            "zeroRecords": "Data tidak ditemukan",
+                            "paginate": {
+                                "previous": '<i class="fa-solid fa-chevron-left"></i>',
+                                "next": '<i class="fa-solid fa-chevron-right"></i>'
+                            }
                         }
-                    }
-                });
+                    });
+                }
 
                 // DataTables Utama (Server Side)
                 const table = $('#customer-table').DataTable({
