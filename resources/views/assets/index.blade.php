@@ -203,18 +203,18 @@
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>
-                    <div class="modal-body p-5 space-y-4 bg-white">
+                    <div class="modal-body p-6 bg-white space-y-4">
                         <div class="form-group !mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs block mb-1">Nama Barang <span class="text-rose-500">*</span></label>
+                            <label class="form-label text-slate-700 font-medium text-xs">Nama Barang <span class="text-rose-500">*</span></label>
                             <input type="text" name="name"
-                                class="form-input bg-white text-slate-900 border-slate-300"
+                                class="form-input !font-normal bg-white text-slate-800 border-slate-300 text-xs"
                                 placeholder="Contoh: ONT Huawei HG8245H" required>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="form-grid-2">
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-700 font-medium text-xs block mb-1">Tipe Barang <span class="text-rose-500">*</span></label>
+                                <label class="form-label text-slate-700 font-medium text-xs">Tipe Barang <span class="text-rose-500">*</span></label>
                                 <select name="type"
-                                    class="form-input-custom w-full bg-white text-slate-900 border-slate-300" required>
+                                    class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300 text-xs" required>
                                     <option value="">-- Pilih Tipe --</option>
                                     <option value="ONT">ONT (Network Terminal)</option>
                                     <option value="Kabel">Kabel Fiber Optic</option>
@@ -224,16 +224,16 @@
                                 </select>
                             </div>
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-700 font-medium text-xs block mb-1">Satuan <span class="text-rose-500">*</span></label>
+                                <label class="form-label text-slate-700 font-medium text-xs">Satuan <span class="text-rose-500">*</span></label>
                                 <input type="text" name="unit"
-                                    class="form-input bg-white text-slate-900 border-slate-300"
+                                    class="form-input !font-normal bg-white text-slate-800 border-slate-300 text-xs"
                                     placeholder="Pcs, Meter, Roll, dll" required>
                             </div>
                         </div>
                         <div class="form-group !mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs block mb-1">Keterangan Tambahan</label>
-                            <textarea name="description" class="form-textarea bg-white text-slate-900 border-slate-300" rows="3"
-                                placeholder="Informasi tambahan..."></textarea>
+                            <label class="form-label text-slate-700 font-medium text-xs">Keterangan Tambahan</label>
+                            <textarea name="description" class="form-textarea !font-normal bg-white text-slate-800 border-slate-300 text-xs" rows="3"
+                                placeholder="Informasi tambahan spesifikasi atau penempatan..."></textarea>
                         </div>
                     </div>
                     <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
@@ -264,17 +264,17 @@
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>
-                    <div class="modal-body p-5 space-y-4 bg-white">
+                    <div class="modal-body p-6 bg-white space-y-4">
                         <div class="form-group !mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs block mb-1">Nama Barang <span class="text-rose-500">*</span></label>
+                            <label class="form-label text-slate-700 font-medium text-xs">Nama Barang <span class="text-rose-500">*</span></label>
                             <input type="text" name="name" id="edit_name"
-                                class="form-input bg-white text-slate-900 border-slate-300" required>
+                                class="form-input !font-normal bg-white text-slate-800 border-slate-300 text-xs" required>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="form-grid-2">
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-700 font-medium text-xs block mb-1">Tipe Barang <span class="text-rose-500">*</span></label>
+                                <label class="form-label text-slate-700 font-medium text-xs">Tipe Barang <span class="text-rose-500">*</span></label>
                                 <select name="type" id="edit_type"
-                                    class="form-input-custom w-full bg-white text-slate-900 border-slate-300" required>
+                                    class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300 text-xs" required>
                                     <option value="ONT">ONT (Network Terminal)</option>
                                     <option value="Kabel">Kabel Fiber Optic</option>
                                     <option value="Passive">Passive Splitter</option>
@@ -283,15 +283,15 @@
                                 </select>
                             </div>
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-700 font-medium text-xs block mb-1">Satuan <span class="text-rose-500">*</span></label>
+                                <label class="form-label text-slate-700 font-medium text-xs">Satuan <span class="text-rose-500">*</span></label>
                                 <input type="text" name="unit" id="edit_unit"
-                                    class="form-input bg-white text-slate-900 border-slate-300" required>
+                                    class="form-input !font-normal bg-white text-slate-800 border-slate-300 text-xs" required>
                             </div>
                         </div>
                         <div class="form-group !mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs block mb-1">Keterangan</label>
-                            <textarea name="description" id="edit_description" class="form-textarea bg-white text-slate-900 border-slate-300"
-                                rows="3"></textarea>
+                            <label class="form-label text-slate-700 font-medium text-xs">Keterangan</label>
+                            <textarea name="description" id="edit_description"
+                                class="form-textarea !font-normal bg-white text-slate-800 border-slate-300 text-xs" rows="3"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
@@ -323,36 +323,36 @@
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
-                <div class="modal-body p-5 space-y-4 bg-white">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="modal-body p-6 bg-white space-y-4">
+                    <div class="form-grid-2">
                         <div class="form-group !mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs block mb-1">Jenis Transaksi <span class="text-rose-500">*</span></label>
+                            <label class="form-label text-slate-700 font-medium text-xs">Jenis Transaksi <span class="text-rose-500">*</span></label>
                             <select name="type" id="trans_type"
-                                class="form-input-custom w-full bg-white text-slate-900 border-slate-300" required
+                                class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300 text-xs" required
                                 onchange="toggleTransactionFields()">
                                 <option value="Masuk">Barang Masuk (Stok +)</option>
                                 <option value="Keluar">Barang Keluar (Stok -)</option>
                             </select>
                         </div>
                         <div class="form-group !mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs block mb-1">Tanggal <span class="text-rose-500">*</span></label>
+                            <label class="form-label text-slate-700 font-medium text-xs">Tanggal <span class="text-rose-500">*</span></label>
                             <input type="date" name="date"
-                                class="form-input bg-white text-slate-900 border-slate-300"
+                                class="form-input !font-normal bg-white text-slate-800 border-slate-300 text-xs"
                                 value="{{ date('Y-m-d') }}" required>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="form-grid-2">
                         <div class="form-group !mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs block mb-1">Jumlah <span class="text-rose-500">*</span></label>
+                            <label class="form-label text-slate-700 font-medium text-xs">Jumlah <span class="text-rose-500">*</span></label>
                             <input type="number" name="quantity"
-                                class="form-input bg-white text-slate-900 border-slate-300" min="1"
+                                class="form-input !font-normal bg-white text-slate-800 border-slate-300 text-xs" min="1"
                                 placeholder="0" required>
                         </div>
                         <div class="form-group !mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs block mb-1" id="label_person">Penerima / Admin</label>
+                            <label class="form-label text-slate-700 font-medium text-xs" id="label_person">Penerima / Admin</label>
                             <select name="user_id"
-                                class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
+                                class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300 text-xs"
                                 style="width: 100%;">
                                 <option value="">-- Pilih User --</option>
                                 @foreach ($users as $user)
@@ -363,15 +363,15 @@
                     </div>
 
                     <div class="form-group !mb-0">
-                        <label class="form-label text-slate-700 font-medium text-xs block mb-1">Nama Pihak Luar (Opsional)</label>
+                        <label class="form-label text-slate-700 font-medium text-xs">Nama Pihak Luar (Opsional)</label>
                         <input type="text" name="external_person_name"
-                            class="form-input bg-white text-slate-900 border-slate-300"
+                            class="form-input !font-normal bg-white text-slate-800 border-slate-300 text-xs"
                             placeholder="Nama pengirim/penerima luar (jika non-staf)...">
                     </div>
 
                     <div class="form-group !mb-0">
-                        <label class="form-label text-slate-700 font-medium text-xs block mb-1">Tujuan / Keterangan <span class="text-rose-500">*</span></label>
-                        <textarea name="description" class="form-textarea bg-white text-slate-900 border-slate-300" rows="2"
+                        <label class="form-label text-slate-700 font-medium text-xs">Tujuan / Keterangan <span class="text-rose-500">*</span></label>
+                        <textarea name="description" class="form-textarea !font-normal bg-white text-slate-800 border-slate-300 text-xs" rows="2"
                             placeholder="Contoh: Pengadaan, Pasang Baru, Maintenance, dll" required></textarea>
                     </div>
                 </div>
