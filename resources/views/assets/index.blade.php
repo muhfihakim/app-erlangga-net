@@ -39,20 +39,27 @@
                 color: #fff !important;
             }
 
-            #assetTable thead th,
-            #assetTable tbody td {
-                text-transform: uppercase !important;
-                font-weight: 600;
+            #assetTable td {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+
+            #assetTable th {
+                padding: 11px 14px;
                 font-size: 12px;
+                font-weight: 700;
+                color: #64748b;
+                letter-spacing: 0.05em;
+                text-transform: uppercase !important;
             }
 
             .badge-type {
-                padding: 3px 9px;
-                border-radius: 20px;
-                font-size: 10px;
-                font-weight: 700;
+                padding: 2px 8px;
+                border-radius: 6px;
+                font-size: 11px;
+                font-weight: 600;
                 background: #f1f5f9;
-                color: #64748b;
+                color: #475569;
                 border: 1px solid #e2e8f0;
             }
         </style>
@@ -64,16 +71,15 @@
         style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
             <h1 style="font-size:22px;font-weight:900;margin:0;">Pengelolaan Aset</h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Monitor stok barang, material, dan alat kerja secara
-                real-time.</p>
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Monitor stok barang, material, dan alat kerja secara real-time.</p>
         </div>
         <div style="display:flex; gap:10px;">
             <a href="{{ route('assets.transactions') }}"
-                class="btn-primary-admin !bg-slate-800 !flex !items-center !justify-center gap-2">
+                class="btn-primary-admin !bg-slate-800 !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-2">
                 <i class="fa-solid fa-history"></i> Riwayat
             </a>
             @if ($isAdmin)
-                <button type="button" class="btn-primary-admin !flex !items-center !justify-center gap-2"
+                <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-2"
                     onclick="openCustomModal('addAssetModal')">
                     <i class="fa-solid fa-plus-square"></i> Tambah Barang
                 </button>
@@ -108,7 +114,7 @@
     </div>
 
     <div class="table-toolbar">
-        <div class="search-wrap">
+        <div class="search-wrap !max-w-md">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
             <input type="search" class="search-input custom-search" placeholder="Cari nama barang atau tipe..."
                 autocomplete="off" />
@@ -121,11 +127,11 @@
                 <thead>
                     <tr>
                         <th style="text-align: center; width: 50px;">#</th>
-                        <th>Nama Barang</th>
-                        <th style="text-align: center;">Tipe</th>
-                        <th style="text-align: center;">Stok</th>
-                        <th style="text-align: center;">Satuan</th>
-                        <th style="text-align: center; width: 150px;">Opsi</th>
+                        <th style="text-align: left;">Nama Barang</th>
+                        <th style="text-align: center; width: 140px;">Tipe</th>
+                        <th style="text-align: center; width: 100px;">Stok</th>
+                        <th style="text-align: center; width: 100px;">Satuan</th>
+                        <th style="text-align: center; width: 130px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -133,21 +139,25 @@
                         <tr>
                             <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}
                             </td>
-                            <td style="text-align: left; font-weight: 700; color: #0f172a;">{{ $asset->name }}</td>
+                            <td style="text-align: left;">
+                                <div style="font-weight: 700; color: #0f172a; font-size: 13px;">{{ $asset->name }}</div>
+                                @if ($asset->description)
+                                    <div style="font-size: 11px; color: #64748b; margin-top: 2px;">{{ $asset->description }}</div>
+                                @endif
+                            </td>
                             <td style="text-align: center;"><span class="badge-type">{{ $asset->type }}</span></td>
                             <td style="text-align: center;">
-                                <span
-                                    style="font-weight: 800; font-size: 14px; {{ $asset->stock <= 5 ? 'color: #e11d48;' : 'color: #0f172a;' }}">
+                                <span class="font-mono font-bold text-sm {{ $asset->stock <= 5 ? 'text-rose-600' : 'text-slate-900' }}">
                                     {{ number_format($asset->stock) }}
                                 </span>
                             </td>
-                            <td style="text-align: center; color: #64748b;">{{ $asset->unit }}</td>
+                            <td style="text-align: center; color: #64748b; font-size: 12px; font-weight: 500;">{{ $asset->unit }}</td>
                             <td style="text-align: center;">
-                                <div class="flex items-center justify-center gap-2">
+                                <div class="flex items-center justify-center gap-1">
                                     <button type="button"
-                                        onclick="openTransactionModal({{ $asset->id }}, '{{ $asset->name }}')"
-                                        class="topbar-icon-btn !w-9 !h-9 !rounded-xl !bg-emerald-50"
-                                        title="Input Transaksi">
+                                        onclick="openTransactionModal({{ $asset->id }}, '{{ addslashes($asset->name) }}')"
+                                        class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-emerald-300 hover:!bg-emerald-50"
+                                        title="Catat Mutasi Stok">
                                         <i class="fa-solid fa-right-left text-emerald-600"></i>
                                     </button>
                                     @if ($isAdmin)
@@ -155,13 +165,13 @@
                                             data-id="{{ $asset->id }}" data-name="{{ $asset->name }}"
                                             data-type="{{ $asset->type }}" data-unit="{{ $asset->unit }}"
                                             data-description="{{ $asset->description }}"
-                                            class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Edit">
-                                            <i class="fa-solid fa-pen-to-square text-primary"></i>
+                                            class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-sky-300 hover:!bg-sky-50" title="Edit Barang">
+                                            <i class="fa-solid fa-pen-to-square text-slate-600"></i>
                                         </button>
                                         <button type="button"
-                                            onclick="confirmGlobalDelete('{{ route('assets.destroy', $asset->id) }}', '{{ $asset->name }}')"
-                                            class="topbar-icon-btn !w-9 !h-9 !rounded-xl" title="Hapus">
-                                            <i class="fa-solid fa-trash text-rose-600"></i>
+                                            onclick="confirmGlobalDelete('{{ route('assets.destroy', $asset->id) }}', '{{ addslashes($asset->name) }}')"
+                                            class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50" title="Hapus Barang">
+                                            <i class="fa-solid fa-trash text-rose-500"></i>
                                         </button>
                                     @endif
                                 </div>
@@ -176,27 +186,33 @@
     {{-- Modals --}}
     @if ($isAdmin)
         <div class="modal-overlay" id="addAssetModal">
-            <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-box max-w-lg bg-white border border-slate-300 shadow-2xl">
                 <form action="{{ route('assets.store') }}" method="POST" novalidate>
                     @csrf
-                    <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                        <div class="modal-title"><i class="fa-solid fa-plus-square text-primary"></i> <span
-                                class="text-slate-900 font-bold text-[17px]">Tambah Jenis Barang</span></div>
-                        <button type="button" class="modal-close" onclick="closeCustomModal('addAssetModal')"><i
-                                class="fa-solid fa-xmark"></i></button>
+                    <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center text-sm border border-slate-200 shrink-0">
+                                <i class="fa-solid fa-boxes-stacked"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-slate-900 m-0">Tambah Jenis Barang</h3>
+                                <p class="text-xs text-slate-500 m-0 mt-0.5">Daftarkan item barang atau perangkat baru ke inventaris.</p>
+                            </div>
+                        </div>
+                        <button type="button" class="modal-close" onclick="closeCustomModal('addAssetModal')">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
                     </div>
-                    <div class="modal-body p-8 space-y-6 bg-white">
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Nama Barang <span
-                                    class="text-rose-500">*</span></label>
+                    <div class="modal-body p-5 space-y-4 bg-white">
+                        <div class="form-group !mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs block mb-1">Nama Barang <span class="text-rose-500">*</span></label>
                             <input type="text" name="name"
                                 class="form-input bg-white text-slate-900 border-slate-300"
                                 placeholder="Contoh: ONT Huawei HG8245H" required>
                         </div>
-                        <div class="form-grid-2">
-                            <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">Tipe Barang <span
-                                        class="text-rose-500">*</span></label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-700 font-medium text-xs block mb-1">Tipe Barang <span class="text-rose-500">*</span></label>
                                 <select name="type"
                                     class="form-input-custom w-full bg-white text-slate-900 border-slate-300" required>
                                     <option value="">-- Pilih Tipe --</option>
@@ -207,53 +223,56 @@
                                     <option value="Lainnya">Lain-lain</option>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">Satuan <span
-                                        class="text-rose-500">*</span></label>
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-700 font-medium text-xs block mb-1">Satuan <span class="text-rose-500">*</span></label>
                                 <input type="text" name="unit"
                                     class="form-input bg-white text-slate-900 border-slate-300"
                                     placeholder="Pcs, Meter, Roll, dll" required>
                             </div>
                         </div>
                         <div class="form-group !mb-0">
-                            <label class="form-label text-slate-800 font-bold">Keterangan Tambahan</label>
+                            <label class="form-label text-slate-700 font-medium text-xs block mb-1">Keterangan Tambahan</label>
                             <textarea name="description" class="form-textarea bg-white text-slate-900 border-slate-300" rows="3"
                                 placeholder="Informasi tambahan..."></textarea>
                         </div>
                     </div>
-                    <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                        <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
-                            onclick="closeCustomModal('addAssetModal')"><i class="fa-solid fa-xmark"></i>
-                            Batal</button>
-                        <button type="submit" class="btn-save !flex !items-center !justify-center gap-2"><i
-                                class="fa-solid fa-paper-plane"></i> Simpan Barang</button>
+                    <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
+                        <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
+                            onclick="closeCustomModal('addAssetModal')">Batal</button>
+                        <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold">Simpan Barang</button>
                     </div>
                 </form>
             </div>
         </div>
 
         <div class="modal-overlay" id="editAssetModal">
-            <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-box max-w-lg bg-white border border-slate-300 shadow-2xl">
                 <form id="editAssetForm" method="POST" novalidate>
                     @csrf
                     @method('PUT')
-                    <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                        <div class="modal-title"><i class="fa-solid fa-pen-to-square text-primary"></i> <span
-                                class="text-slate-900 font-bold text-[17px]">Edit Jenis Barang</span></div>
-                        <button type="button" class="modal-close" onclick="closeCustomModal('editAssetModal')"><i
-                                class="fa-solid fa-xmark"></i></button>
+                    <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center text-sm border border-slate-200 shrink-0">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-slate-900 m-0">Edit Jenis Barang</h3>
+                                <p class="text-xs text-slate-500 m-0 mt-0.5">Perbarui rincian item barang pada inventaris.</p>
+                            </div>
+                        </div>
+                        <button type="button" class="modal-close" onclick="closeCustomModal('editAssetModal')">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
                     </div>
-                    <div class="modal-body p-8 space-y-6 bg-white">
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Nama Barang <span
-                                    class="text-rose-500">*</span></label>
+                    <div class="modal-body p-5 space-y-4 bg-white">
+                        <div class="form-group !mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs block mb-1">Nama Barang <span class="text-rose-500">*</span></label>
                             <input type="text" name="name" id="edit_name"
                                 class="form-input bg-white text-slate-900 border-slate-300" required>
                         </div>
-                        <div class="form-grid-2">
-                            <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">Tipe Barang <span
-                                        class="text-rose-500">*</span></label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-700 font-medium text-xs block mb-1">Tipe Barang <span class="text-rose-500">*</span></label>
                                 <select name="type" id="edit_type"
                                     class="form-input-custom w-full bg-white text-slate-900 border-slate-300" required>
                                     <option value="ONT">ONT (Network Terminal)</option>
@@ -263,25 +282,22 @@
                                     <option value="Lainnya">Lain-lain</option>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">Satuan <span
-                                        class="text-rose-500">*</span></label>
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-700 font-medium text-xs block mb-1">Satuan <span class="text-rose-500">*</span></label>
                                 <input type="text" name="unit" id="edit_unit"
                                     class="form-input bg-white text-slate-900 border-slate-300" required>
                             </div>
                         </div>
                         <div class="form-group !mb-0">
-                            <label class="form-label text-slate-800 font-bold">Keterangan</label>
+                            <label class="form-label text-slate-700 font-medium text-xs block mb-1">Keterangan</label>
                             <textarea name="description" id="edit_description" class="form-textarea bg-white text-slate-900 border-slate-300"
                                 rows="3"></textarea>
                         </div>
                     </div>
-                    <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                        <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
-                            onclick="closeCustomModal('editAssetModal')"><i class="fa-solid fa-xmark"></i>
-                            Batal</button>
-                        <button type="submit" class="btn-save !flex !items-center !justify-center gap-2"><i
-                                class="fa-solid fa-check"></i> Perbarui Barang</button>
+                    <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
+                        <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
+                            onclick="closeCustomModal('editAssetModal')">Batal</button>
+                        <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold">Perbarui Barang</button>
                     </div>
                 </form>
             </div>
@@ -289,22 +305,28 @@
     @endif
 
     <div class="modal-overlay" id="transactionModal">
-        <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
+        <div class="modal-box max-w-lg bg-white border border-slate-300 shadow-2xl">
             <form action="{{ route('assets.transactions.store') }}" method="POST" novalidate>
                 @csrf
                 <input type="hidden" name="asset_id" id="trans_asset_id">
-                <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                    <div class="modal-title"><i class="fa-solid fa-right-left text-emerald-600"></i> <span
-                            class="text-slate-900 font-bold text-[17px]">Transaksi: <span id="trans_asset_name"
-                                class="text-emerald-600"></span></span></div>
-                    <button type="button" class="modal-close" onclick="closeCustomModal('transactionModal')"><i
-                            class="fa-solid fa-xmark"></i></button>
+                <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center text-sm border border-emerald-200 shrink-0">
+                            <i class="fa-solid fa-right-left"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900 m-0">Catat Mutasi Barang</h3>
+                            <p class="text-xs text-slate-500 m-0 mt-0.5">Barang: <span id="trans_asset_name" class="font-bold text-emerald-700"></span></p>
+                        </div>
+                    </div>
+                    <button type="button" class="modal-close" onclick="closeCustomModal('transactionModal')">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
                 </div>
-                <div class="modal-body p-8 space-y-6 bg-white">
-                    <div class="form-grid-2">
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Jenis Transaksi <span
-                                    class="text-rose-500">*</span></label>
+                <div class="modal-body p-5 space-y-4 bg-white">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="form-group !mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs block mb-1">Jenis Transaksi <span class="text-rose-500">*</span></label>
                             <select name="type" id="trans_type"
                                 class="form-input-custom w-full bg-white text-slate-900 border-slate-300" required
                                 onchange="toggleTransactionFields()">
@@ -312,60 +334,51 @@
                                 <option value="Keluar">Barang Keluar (Stok -)</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Tanggal <span
-                                    class="text-rose-500">*</span></label>
+                        <div class="form-group !mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs block mb-1">Tanggal <span class="text-rose-500">*</span></label>
                             <input type="date" name="date"
                                 class="form-input bg-white text-slate-900 border-slate-300"
                                 value="{{ date('Y-m-d') }}" required>
                         </div>
                     </div>
 
-                    <div class="form-grid-2">
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Jumlah <span
-                                    class="text-rose-500">*</span></label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="form-group !mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs block mb-1">Jumlah <span class="text-rose-500">*</span></label>
                             <input type="number" name="quantity"
                                 class="form-input bg-white text-slate-900 border-slate-300" min="1"
                                 placeholder="0" required>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold" id="label_person">Penerima /
-                                Admin</label>
+                        <div class="form-group !mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs block mb-1" id="label_person">Penerima / Admin</label>
                             <select name="user_id"
                                 class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
                                 style="width: 100%;">
                                 <option value="">-- Pilih User --</option>
                                 @foreach ($users as $user)
-                                    <option value="{{ $user->id }}">{{ $user->nama_lengkap }}
-                                        ({{ $user->jabatan }})
-                                    </option>
+                                    <option value="{{ $user->id }}">{{ $user->nama_lengkap }} ({{ $user->jabatan }})</option>
                                 @endforeach
                             </select>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label text-slate-800 font-bold">Nama Pihak Luar (Manual)</label>
+                    <div class="form-group !mb-0">
+                        <label class="form-label text-slate-700 font-medium text-xs block mb-1">Nama Pihak Luar (Opsional)</label>
                         <input type="text" name="external_person_name"
                             class="form-input bg-white text-slate-900 border-slate-300"
-                            placeholder="Nama pengirim/penerima luar...">
+                            placeholder="Nama pengirim/penerima luar (jika non-staf)...">
                     </div>
 
                     <div class="form-group !mb-0">
-                        <label class="form-label text-slate-800 font-bold">Tujuan / Keterangan <span
-                                class="text-rose-500">*</span></label>
+                        <label class="form-label text-slate-700 font-medium text-xs block mb-1">Tujuan / Keterangan <span class="text-rose-500">*</span></label>
                         <textarea name="description" class="form-textarea bg-white text-slate-900 border-slate-300" rows="2"
-                            placeholder="Contoh: Pengadaan, Pasang Baru, dll" required></textarea>
+                            placeholder="Contoh: Pengadaan, Pasang Baru, Maintenance, dll" required></textarea>
                     </div>
                 </div>
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
-                        onclick="closeCustomModal('transactionModal')"><i class="fa-solid fa-xmark"></i>
-                        Batal</button>
-                    <button type="submit" class="btn-save !bg-emerald-600 !flex !items-center !justify-center gap-2">
-                        <i class="fa-solid fa-check-circle"></i> Catat Transaksi
-                    </button>
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
+                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
+                        onclick="closeCustomModal('transactionModal')">Batal</button>
+                    <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold">Simpan Transaksi</button>
                 </div>
             </form>
         </div>
