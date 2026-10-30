@@ -13,6 +13,57 @@
                 letter-spacing: 0.05em;
                 text-transform: uppercase !important;
             }
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+                gap: 0.75rem;
+                margin-bottom: 1.25rem;
+            }
+            .stat-card {
+                background: #fff;
+                border-radius: 12px;
+                padding: 0.75rem 1rem;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                min-height: 72px;
+                transition: all 0.2s;
+            }
+            .stat-card:hover {
+                border-color: #cbd5e1;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            }
+            .stat-icon {
+                width: 40px;
+                height: 40px;
+                min-width: 40px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 16px;
+                flex-shrink: 0;
+            }
+            .stat-val {
+                font-size: 17px;
+                font-weight: 800;
+                color: #0f172a;
+                line-height: 1.25;
+                display: flex;
+                align-items: baseline;
+                gap: 5px;
+                flex-wrap: wrap;
+            }
+            .stat-lbl {
+                font-size: 11px;
+                font-weight: 600;
+                color: #64748b;
+                margin-top: 2px;
+                text-transform: uppercase;
+                letter-spacing: 0.025em;
+            }
             .dataTables_wrapper {
                 position: relative;
                 min-height: 200px;
@@ -90,36 +141,45 @@
             <div class="stat-icon" style="background:#e0e7ff;color:#4338ca;">
                 <i class="fa-solid fa-users"></i>
             </div>
-            <div>
+            <div class="min-w-0">
                 <div class="stat-val">{{ number_format($totalPppoeCount, 0, ',', '.') }}</div>
-                <div class="stat-lbl">Total Akun Pelanggan</div>
+                <div class="stat-lbl truncate">Total Akun Pelanggan</div>
             </div>
         </div>
         <div class="stat-card">
             <div class="stat-icon" style="background:#fee2e2;color:#be123c;">
                 <i class="fa-solid fa-file-invoice-dollar"></i>
             </div>
-            <div>
-                <div class="stat-val">{{ number_format($totalUnpaidCount, 0, ',', '.') }} <span style="font-size:11.5px;color:#be123c;font-weight:600;">(Rp {{ number_format($totalUnpaidAmount, 0, ',', '.') }})</span></div>
-                <div class="stat-lbl">Tagihan Belum Lunas</div>
+            <div class="min-w-0">
+                <div class="stat-val text-rose-700">
+                    <span>{{ number_format($totalUnpaidCount, 0, ',', '.') }}</span>
+                    <span class="text-[11px] font-semibold text-rose-600 font-mono">(Rp {{ number_format($totalUnpaidAmount, 0, ',', '.') }})</span>
+                </div>
+                <div class="stat-lbl truncate">Tagihan Belum Lunas</div>
             </div>
         </div>
         <div class="stat-card">
             <div class="stat-icon" style="background:#fff7ed;color:#c2410c;">
                 <i class="fa-solid fa-clock-rotate-left"></i>
             </div>
-            <div>
-                <div class="stat-val">{{ number_format($totalOverdueCount, 0, ',', '.') }} <span style="font-size:11.5px;color:#c2410c;font-weight:600;">(Rp {{ number_format($totalOverdueAmount, 0, ',', '.') }})</span></div>
-                <div class="stat-lbl">Lewat Jatuh Tempo</div>
+            <div class="min-w-0">
+                <div class="stat-val text-amber-700">
+                    <span>{{ number_format($totalOverdueCount, 0, ',', '.') }}</span>
+                    <span class="text-[11px] font-semibold text-amber-600 font-mono">(Rp {{ number_format($totalOverdueAmount, 0, ',', '.') }})</span>
+                </div>
+                <div class="stat-lbl truncate">Lewat Jatuh Tempo</div>
             </div>
         </div>
         <div class="stat-card">
             <div class="stat-icon" style="background:#dcfce7;color:#15803d;">
                 <i class="fa-solid fa-circle-check"></i>
             </div>
-            <div>
-                <div class="stat-val">{{ number_format($totalPaidCount, 0, ',', '.') }} <span style="font-size:11.5px;color:#15803d;font-weight:600;">(Rp {{ number_format($totalPaidAmount, 0, ',', '.') }})</span></div>
-                <div class="stat-lbl">Tagihan Lunas</div>
+            <div class="min-w-0">
+                <div class="stat-val text-emerald-700">
+                    <span>{{ number_format($totalPaidCount, 0, ',', '.') }}</span>
+                    <span class="text-[11px] font-semibold text-emerald-600 font-mono">(Rp {{ number_format($totalPaidAmount, 0, ',', '.') }})</span>
+                </div>
+                <div class="stat-lbl truncate">Tagihan Lunas</div>
             </div>
         </div>
     </div>

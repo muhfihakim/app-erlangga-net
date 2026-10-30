@@ -13,6 +13,57 @@
                 letter-spacing: 0.05em;
                 text-transform: uppercase !important;
             }
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+                gap: 0.75rem;
+                margin-bottom: 1.25rem;
+            }
+            .stat-card {
+                background: #fff;
+                border-radius: 12px;
+                padding: 0.75rem 1rem;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                min-height: 72px;
+                transition: all 0.2s;
+            }
+            .stat-card:hover {
+                border-color: #cbd5e1;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            }
+            .stat-icon {
+                width: 40px;
+                height: 40px;
+                min-width: 40px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 16px;
+                flex-shrink: 0;
+            }
+            .stat-val {
+                font-size: 17px;
+                font-weight: 800;
+                color: #0f172a;
+                line-height: 1.25;
+                display: flex;
+                align-items: baseline;
+                gap: 5px;
+                flex-wrap: wrap;
+            }
+            .stat-lbl {
+                font-size: 11px;
+                font-weight: 600;
+                color: #64748b;
+                margin-top: 2px;
+                text-transform: uppercase;
+                letter-spacing: 0.025em;
+            }
         </style>
     @endsection
 
@@ -108,13 +159,13 @@
             <div class="stat-icon" style="background:{{ $dueIconBg }};">
                 <i class="{{ $dueIconClass }}"></i>
             </div>
-            <div>
-                <div class="stat-val flex items-center gap-2 flex-wrap">
-                    {{ $nextDueDate }}
-                    <span class="badge"
-                        style="{{ $dueStatusBadgeClass }} font-size:10px; padding:1px 6px; border-radius:4px; font-weight:700;">{{ $dueStatusText }}</span>
+            <div class="min-w-0">
+                <div class="stat-val">
+                    <span>{{ $nextDueDate }}</span>
+                    <span class="badge shrink-0"
+                        style="{{ $dueStatusBadgeClass }} font-size:9.5px; padding:1px 6px; border-radius:4px; font-weight:700;">{{ $dueStatusText }}</span>
                 </div>
-                <div class="stat-lbl">Tagihan Selanjutnya</div>
+                <div class="stat-lbl truncate">Tagihan Selanjutnya</div>
             </div>
         </div>
 
@@ -124,17 +175,17 @@
                 style="background:{{ $unpaidCount > 0 ? '#fee2e2' : '#dcfce7' }};color:{{ $unpaidCount > 0 ? '#be123c' : '#15803d' }};">
                 <i class="fa-solid {{ $unpaidCount > 0 ? 'fa-file-invoice-dollar' : 'fa-circle-check' }}"></i>
             </div>
-            <div>
+            <div class="min-w-0">
                 <div class="stat-val" style="color:{{ $unpaidCount > 0 ? '#be123c' : '#15803d' }};">
                     @if ($unpaidCount > 0)
-                        {{ $unpaidCount }} Belum Lunas <span
-                            style="font-size:11.5px;font-weight:600;color:#e11d48;">(Rp
-                            {{ number_format($unpaidAmount, 0, ',', '.') }})</span>
+                        <span>{{ $unpaidCount }} Belum Lunas</span>
+                        <span class="text-[11px] font-semibold text-rose-600 font-mono">(Rp {{ number_format($unpaidAmount, 0, ',', '.') }})</span>
                     @else
-                        Lunas <span style="font-size:11.5px;font-weight:600;color:#64748b;">(Semua Terbayar)</span>
+                        <span>Lunas</span>
+                        <span class="text-[11px] font-medium text-slate-500 font-normal">(Semua Terbayar)</span>
                     @endif
                 </div>
-                <div class="stat-lbl">Status Pembayaran</div>
+                <div class="stat-lbl truncate">Status Pembayaran</div>
             </div>
         </div>
 
@@ -143,11 +194,13 @@
             <div class="stat-icon" style="background:#e0e7ff;color:#4338ca;">
                 <i class="fa-solid fa-wifi"></i>
             </div>
-            <div>
-                <div class="stat-val">{{ $pppoe->paket->nama_paket ?? '-' }}</div>
-                <div class="stat-lbl">Rp
-                    {{ number_format($pppoe->paket ? $pppoe->paket->total_harga : $pppoe->paket->harga ?? 0, 0, ',', '.') }}
-                    / bulan</div>
+            <div class="min-w-0">
+                <div class="stat-val truncate" title="{{ $pppoe->paket->nama_paket ?? '-' }}">
+                    <span>{{ $pppoe->paket->nama_paket ?? '-' }}</span>
+                </div>
+                <div class="stat-lbl truncate">
+                    Rp {{ number_format($pppoe->paket ? $pppoe->paket->total_harga : $pppoe->paket->harga ?? 0, 0, ',', '.') }} / bulan
+                </div>
             </div>
         </div>
 
@@ -156,9 +209,13 @@
             <div class="stat-icon" style="background:#f0fdf4;color:#16a34a;">
                 <i class="fa-solid fa-arrows-rotate"></i>
             </div>
-            <div>
-                <div class="stat-val">{{ strtoupper($pppoe->tipe_pembayaran ?? 'Prepaid') }}</div>
-                <div class="stat-lbl">Periode: {{ ucfirst($pppoe->periode_billing ?? 'Fixed') }}</div>
+            <div class="min-w-0">
+                <div class="stat-val">
+                    <span>{{ strtoupper($pppoe->tipe_pembayaran ?? 'Prepaid') }}</span>
+                    <span class="badge shrink-0"
+                        style="background:#f1f5f9; color:#475569; font-size:9.5px; padding:1px 6px; border-radius:4px; font-weight:700;">{{ ucfirst($pppoe->periode_billing ?? 'Fixed') }}</span>
+                </div>
+                <div class="stat-lbl truncate">Metode & Siklus</div>
             </div>
         </div>
     </div>
