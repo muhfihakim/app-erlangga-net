@@ -239,10 +239,10 @@
                 <thead>
                     <tr>
                         <th style="width: 50px; text-align: center;">#</th>
-                        <th style="width: 140px; text-align: center;">Tgl. Aktivasi</th>
+                        <th style="width: 130px; text-align: center;">Tgl. Aktivasi</th>
                         <th style="text-align: left;">Informasi Pelanggan</th>
-                        <th style="width: 140px; text-align: center;">Paket</th>
-                        <th style="width: 200px; text-align: left;">Teknisi Utama</th>
+                        <th style="width: 170px; text-align: left;">Paket Layanan</th>
+                        <th style="width: 180px; text-align: left;">Teknisi Utama</th>
                         <th style="width: 180px; text-align: left;">Partner</th>
                     </tr>
                 </thead>
@@ -258,10 +258,11 @@
                                 <div class="font-bold text-slate-900 text-[13px]">{{ $c->nama_lengkap }}</div>
                                 <div class="text-[11px] text-slate-400 font-mono mt-0.5">ID: {{ $c->id_pelanggan }}</div>
                             </td>
-                            <td style="text-align: center;">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-50 text-sky-700 border border-sky-200">
-                                    {{ $c->paket ? $c->paket->nama_paket : '-' }}
-                                </span>
+                            <td style="text-align: left;">
+                                <div class="font-bold text-slate-800 text-[13px]">{{ $c->paket ? $c->paket->nama_paket : '-' }}</div>
+                                @if ($c->paket && $c->paket->harga)
+                                    <div class="text-[11px] text-slate-400 font-mono mt-0.5">Rp {{ number_format($c->paket->harga, 0, ',', '.') }}</div>
+                                @endif
                             </td>
                             <td style="text-align: left;">
                                 <div class="font-bold text-slate-800 text-[13px]">{{ $c->teknisiUtama->nama_lengkap ?? 'N/A' }}</div>
