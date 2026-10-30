@@ -1,10 +1,17 @@
 <x-layouts.app>
     @section('Css')
         <style>
-            #invoice-table thead th, #invoice-table tbody td {
-                text-transform: uppercase !important;
-                font-weight: 600;
+            #invoice-table td {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+            #invoice-table th {
+                padding: 11px 14px;
                 font-size: 12px;
+                font-weight: 700;
+                color: #64748b;
+                letter-spacing: 0.05em;
+                text-transform: uppercase !important;
             }
             .dataTables_wrapper {
                 position: relative;
@@ -58,12 +65,11 @@
 
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
-            <h1 style="font-size:22px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
-                Invoice Pelanggan
-            </h1>
+            <h1 style="font-size:22px;font-weight:900;margin:0;">Invoice Pelanggan</h1>
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola tagihan pelanggan, cek riwayat invoice, dan terima pembayaran.</p>
         </div>
-        <button type="button" onclick="openCustomModal('generateMassModal')" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !px-5 !py-2.5 !text-xs flex items-center gap-2 shadow-md ml-auto">
+        <button type="button" onclick="openCustomModal('generateMassModal')"
+            class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-2 !bg-sky-600 hover:!bg-sky-700 ml-auto">
             <i class="fa-solid fa-bolt"></i> Generate Tagihan Masal
         </button>
     </div>
@@ -79,7 +85,7 @@
     @endif
 
     <!-- Stats Cards Grid -->
-    <div class="stats-grid mb-6" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+    <div class="stats-grid mb-6">
         <div class="stat-card">
             <div class="stat-icon" style="background:#e0e7ff;color:#4338ca;">
                 <i class="fa-solid fa-users"></i>
@@ -94,7 +100,7 @@
                 <i class="fa-solid fa-file-invoice-dollar"></i>
             </div>
             <div>
-                <div class="stat-val">{{ number_format($totalUnpaidCount, 0, ',', '.') }} <span style="font-size:12px;color:#be123c;font-weight:600;">(Rp {{ number_format($totalUnpaidAmount, 0, ',', '.') }})</span></div>
+                <div class="stat-val">{{ number_format($totalUnpaidCount, 0, ',', '.') }} <span style="font-size:11.5px;color:#be123c;font-weight:600;">(Rp {{ number_format($totalUnpaidAmount, 0, ',', '.') }})</span></div>
                 <div class="stat-lbl">Tagihan Belum Lunas</div>
             </div>
         </div>
@@ -103,8 +109,8 @@
                 <i class="fa-solid fa-clock-rotate-left"></i>
             </div>
             <div>
-                <div class="stat-val">{{ number_format($totalOverdueCount, 0, ',', '.') }} <span style="font-size:12px;color:#c2410c;font-weight:600;">(Rp {{ number_format($totalOverdueAmount, 0, ',', '.') }})</span></div>
-                <div class="stat-lbl">Lewat Jatuh Tempo (Overdue)</div>
+                <div class="stat-val">{{ number_format($totalOverdueCount, 0, ',', '.') }} <span style="font-size:11.5px;color:#c2410c;font-weight:600;">(Rp {{ number_format($totalOverdueAmount, 0, ',', '.') }})</span></div>
+                <div class="stat-lbl">Lewat Jatuh Tempo</div>
             </div>
         </div>
         <div class="stat-card">
@@ -112,8 +118,8 @@
                 <i class="fa-solid fa-circle-check"></i>
             </div>
             <div>
-                <div class="stat-val">{{ number_format($totalPaidCount, 0, ',', '.') }} <span style="font-size:12px;color:#15803d;font-weight:600;">(Rp {{ number_format($totalPaidAmount, 0, ',', '.') }})</span></div>
-                <div class="stat-lbl">Tagihan Lunas / Terbayar</div>
+                <div class="stat-val">{{ number_format($totalPaidCount, 0, ',', '.') }} <span style="font-size:11.5px;color:#15803d;font-weight:600;">(Rp {{ number_format($totalPaidAmount, 0, ',', '.') }})</span></div>
+                <div class="stat-lbl">Tagihan Lunas</div>
             </div>
         </div>
     </div>
@@ -124,7 +130,7 @@
             <div class="filter-group">
                 <div style="flex: 1; min-width: 170px;">
                     <label class="form-label-custom">Status Tagihan</label>
-                    <select name="status_tagihan" class="form-input-custom" id="filter-status">
+                    <select name="status_tagihan" class="form-input-custom !h-[38px] text-xs" id="filter-status">
                         <option value="">Semua Status</option>
                         <option value="unpaid" {{ $filterStatus === 'unpaid' ? 'selected' : '' }}>Ada Tagihan Belum Lunas</option>
                         <option value="paid" {{ $filterStatus === 'paid' ? 'selected' : '' }}>Semua Lunas</option>
@@ -132,7 +138,7 @@
                 </div>
                 <div style="flex: 1; min-width: 180px;">
                     <label class="form-label-custom">Paket Layanan</label>
-                    <select name="paket_id" class="form-input-custom" id="filter-paket">
+                    <select name="paket_id" class="form-input-custom !h-[38px] text-xs" id="filter-paket">
                         <option value="">Semua Paket</option>
                         @foreach ($pakets as $p)
                             <option value="{{ $p->id }}" {{ $filterPaket == $p->id ? 'selected' : '' }}>
@@ -145,11 +151,11 @@
                     <label class="form-label-custom">Live Search</label>
                     <div class="search-wrap !max-w-full">
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                        <input type="search" class="search-input custom-search" id="custom-search" placeholder="Cari nama, username, no wa..."
+                        <input type="search" class="search-input custom-search !h-[38px] text-xs" id="custom-search" placeholder="Cari nama, username, no wa..."
                             autocomplete="off" onkeydown="return event.key != 'Enter';" />
                     </div>
                 </div>
-                <button type="submit" class="btn-primary-admin !h-10 !px-6 flex items-center gap-2">
+                <button type="submit" class="btn-primary-admin !h-[38px] !px-4 text-xs font-semibold !flex !items-center !justify-center gap-2">
                     <i class="fa-solid fa-filter"></i> Filter
                 </button>
             </div>
@@ -165,7 +171,7 @@
                         <th style="text-align: center; width: 50px;">#</th>
                         <th style="text-align: left;">Pelanggan</th>
                         <th style="text-align: left; width: 220px;">Paket Layanan</th>
-                        <th style="text-align: center; width: 150px;">Tagihan Selanjutnya</th>
+                        <th style="text-align: center; width: 160px;">Tagihan Selanjutnya</th>
                         <th style="text-align: center; width: 170px;">Status Tagihan</th>
                         <th style="text-align: center; width: 150px;">Opsi</th>
                     </tr>
@@ -179,37 +185,43 @@
     <!-- Modal Konfirmasi Generate Tagihan Masal -->
     <div class="modal-overlay" id="generateMassModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
-            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                <div class="modal-title">
-                    <i class="fa-solid fa-bolt text-sky-600"></i>
-                    <span class="text-slate-900 font-bold text-[17px]">Generate Tagihan Masal?</span>
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-200 shrink-0">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Generate Tagihan Masal</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Buat tagihan serentak untuk seluruh pelanggan aktif.</p>
+                    </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('generateMassModal')">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="modal-body p-8 bg-white">
-                <div class="bg-sky-50 p-4 rounded-2xl border border-sky-100 text-center">
-                    <i class="fa-solid fa-file-invoice-dollar text-sky-600 text-3xl mb-3"></i>
-                    <p class="text-sm font-bold text-slate-800 leading-relaxed">
-                        Apakah Anda yakin ingin membuat tagihan baru untuk <span class="text-sky-600">semua pelanggan aktif (PPPoE)</span> periode bulan ini?
-                    </p>
+            <form action="{{ route('invoices.generate') }}" method="POST" class="m-0" novalidate>
+                @csrf
+                <div class="modal-body p-6 bg-white">
+                    <div class="bg-sky-50 p-4 rounded-xl border border-sky-200 flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center text-sm shrink-0 mt-0.5">
+                            <i class="fa-solid fa-file-invoice-dollar"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-bold text-sky-900 block">Konfirmasi Pembuatan Tagihan</span>
+                            <p class="text-xs text-slate-600 m-0 mt-1 leading-relaxed">
+                                Apakah Anda yakin ingin membuat invoice tagihan baru untuk <span class="font-semibold text-sky-700">semua pelanggan aktif (PPPoE)</span> pada periode siklus bulan ini?
+                            </p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <form action="{{ route('invoices.generate') }}" method="POST" class="w-full flex justify-center gap-3">
-                    @csrf
-                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2" 
-                        style="padding: 10px 24px;"
-                        onclick="closeCustomModal('generateMassModal')">
-                        <i class="fa-solid fa-xmark"></i> Batal
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
+                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
+                        onclick="closeCustomModal('generateMassModal')">Batal</button>
+                    <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !bg-sky-600 hover:!bg-sky-700">
+                        <i class="fa-solid fa-bolt"></i> Ya, Generate Tagihan
                     </button>
-                    <button type="submit" class="btn-save !bg-sky-600 hover:!bg-sky-700 !flex !items-center !justify-center gap-2"
-                        style="padding: 10px 24px;">
-                        <i class="fa-solid fa-bolt"></i> Ya, Generate!
-                    </button>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -272,7 +284,27 @@
                     e.preventDefault();
                     table.draw();
                 });
+
+                $('.modal-overlay').on('click', function(e) {
+                    if (e.target === this) closeCustomModal(this.id);
+                });
             });
+
+            function openCustomModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.add('open');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            function closeCustomModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove('open');
+                    document.body.style.overflow = '';
+                }
+            }
         </script>
     @endsection
 </x-layouts.app>

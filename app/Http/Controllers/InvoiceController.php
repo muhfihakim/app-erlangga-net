@@ -94,13 +94,13 @@ class InvoiceController extends Controller
                 ->addColumn('status_tagihan', function ($pppoe) {
                     $unpaidCount = $pppoe->invoices->where('status', 'unpaid')->count();
                     if ($unpaidCount > 0) {
-                        return '<div style="text-align: center;"><span class="badge" style="background:#fef2f2; color:#be123c; font-size:11px; padding:3px 8px; border:1px solid #fecdd3; border-radius:6px; font-weight:700;"><i class="fa-solid fa-clock mr-1"></i> ' . $unpaidCount . ' BELUM LUNAS</span></div>';
+                        return '<div style="text-align: center;"><span class="badge" style="background:#fef2f2; color:#be123c; font-size:10.5px; padding:2.5px 8px; border:1px solid #fecdd3; border-radius:6px; font-weight:700;"><i class="fa-solid fa-clock mr-1"></i> ' . $unpaidCount . ' BELUM LUNAS</span></div>';
                     }
-                    return '<div style="text-align: center;"><span class="badge badge-published" style="font-size:11px; padding:3px 8px;"><i class="fa-solid fa-check mr-1"></i> LUNAS</span></div>';
+                    return '<div style="text-align: center;"><span class="badge badge-published" style="font-size:10.5px; padding:2.5px 8px;"><i class="fa-solid fa-check mr-1"></i> LUNAS</span></div>';
                 })
                 ->addColumn('opsi', function ($pppoe) {
                     return '<div style="text-align: center;">
-                        <a href="' . route('invoices.show', $pppoe->id) . '" class="btn-primary-admin !h-8 !px-3 !text-[11px] !bg-indigo-600 hover:!bg-indigo-700 inline-flex items-center gap-1.5 shadow-sm" title="Lihat Tagihan">
+                        <a href="' . route('invoices.show', $pppoe->id) . '" class="btn-primary-admin !h-8 !px-3 !text-xs !rounded-lg !bg-indigo-600 hover:!bg-indigo-700 inline-flex items-center gap-1.5 shadow-sm font-semibold" title="Detail Tagihan">
                             <i class="fa-solid fa-file-invoice-dollar"></i> Detail Tagihan
                         </a>
                     </div>';

@@ -1,4 +1,21 @@
 <x-layouts.app>
+    @section('Css')
+        <style>
+            .admin-table td {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+            .admin-table th {
+                padding: 11px 14px;
+                font-size: 12px;
+                font-weight: 700;
+                color: #64748b;
+                letter-spacing: 0.05em;
+                text-transform: uppercase !important;
+            }
+        </style>
+    @endsection
+
     @php
         $unpaidInvoices = $pppoe->invoices->where('status', 'unpaid');
         $unpaidCount = $unpaidInvoices->count();
@@ -60,118 +77,99 @@
 
     <div
         style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
-        <div>
-            <h1 style="font-size:22px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
-                <a href="{{ route('invoices.index') }}" class="text-slate-400 hover:text-sky-600 transition-colors"><i
-                        class="fa-solid fa-arrow-left mr-1"></i></a>
-                Detail Tagihan: {{ $pppoe->preOrder->nama_lengkap ?? 'Pelanggan' }}
-            </h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0; margin-left:28px;">
-                Username PPPoE: <strong class="text-slate-800">{{ $pppoe->username }}</strong> | No. WhatsApp: <strong
-                    class="text-slate-800">{{ $pppoe->preOrder->no_whatsapp ?? '-' }}</strong>
-            </p>
+        <div class="flex items-center gap-3">
+            <a href="{{ route('invoices.index') }}"
+                class="topbar-icon-btn !w-9 !h-9 !rounded-xl hover:!border-sky-300 hover:!bg-sky-50 flex items-center justify-center shrink-0"
+                title="Kembali ke Daftar Invoice">
+                <i class="fa-solid fa-arrow-left text-slate-600"></i>
+            </a>
+            <div>
+                <h1 style="font-size:22px;font-weight:900;margin:0;">
+                    Detail Tagihan: {{ $pppoe->preOrder->nama_lengkap ?? 'Pelanggan' }}
+                </h1>
+                <p style="font-size:13px;color:#64748b;margin:3px 0 0;">
+                    Username PPPoE: <strong class="text-slate-800">{{ $pppoe->username }}</strong> • No. WhatsApp: <strong
+                        class="text-slate-800">{{ $pppoe->preOrder->no_whatsapp ?? '-' }}</strong>
+                </p>
+            </div>
         </div>
         <div class="flex items-center gap-2 ml-auto">
             <button type="button" onclick="openCustomModal('generateSingleModal')"
-                class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !text-white !gap-2 inline-flex items-center shadow-sm">
+                class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-2 !bg-sky-600 hover:!bg-sky-700">
                 <i class="fa-solid fa-plus"></i> Buat Tagihan Manual
             </button>
         </div>
     </div>
 
-    <!-- Summary Cards Grid -->
-    <div
-        style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+    <!-- Summary Stats Grid -->
+    <div class="stats-grid mb-6">
         <!-- Card 1: Tagihan Selanjutnya -->
-        <div
-            style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:1.1rem 1.25rem; display:flex; align-items:center; gap:1rem; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-            <div
-                style="width:46px; height:46px; border-radius:10px; background:{{ $dueIconBg }}; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:{{ $dueIconBg }};">
                 <i class="{{ $dueIconClass }}"></i>
             </div>
             <div>
-                <div
-                    style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">
-                    Tagihan Selanjutnya</div>
-                <div
-                    style="font-size:17px; font-weight:900; color:#1e293b; display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                <div class="stat-val flex items-center gap-2 flex-wrap">
                     {{ $nextDueDate }}
                     <span class="badge"
-                        style="{{ $dueStatusBadgeClass }} font-size:10.5px; padding:2px 7px; border-radius:5px; font-weight:700;">{{ $dueStatusText }}</span>
+                        style="{{ $dueStatusBadgeClass }} font-size:10px; padding:1px 6px; border-radius:4px; font-weight:700;">{{ $dueStatusText }}</span>
                 </div>
+                <div class="stat-lbl">Tagihan Selanjutnya</div>
             </div>
         </div>
 
         <!-- Card 2: Status Tagihan -->
-        <div
-            style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:1.1rem 1.25rem; display:flex; align-items:center; gap:1rem; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-            <div
-                style="width:46px; height:46px; border-radius:10px; background:{{ $unpaidCount > 0 ? '#fff1f2' : '#ecfdf5' }}; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;">
-                <i
-                    class="fa-solid {{ $unpaidCount > 0 ? 'fa-file-invoice-dollar text-rose-600' : 'fa-circle-check text-emerald-600' }}"></i>
+        <div class="stat-card">
+            <div class="stat-icon"
+                style="background:{{ $unpaidCount > 0 ? '#fee2e2' : '#dcfce7' }};color:{{ $unpaidCount > 0 ? '#be123c' : '#15803d' }};">
+                <i class="fa-solid {{ $unpaidCount > 0 ? 'fa-file-invoice-dollar' : 'fa-circle-check' }}"></i>
             </div>
             <div>
-                <div
-                    style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">
-                    Status Pembayaran</div>
-                @if ($unpaidCount > 0)
-                    <div style="font-size:15px; font-weight:800; color:#be123c;">
+                <div class="stat-val" style="color:{{ $unpaidCount > 0 ? '#be123c' : '#15803d' }};">
+                    @if ($unpaidCount > 0)
                         {{ $unpaidCount }} Belum Lunas <span
-                            style="font-size:12.5px; font-weight:600; color:#e11d48;">(Rp
+                            style="font-size:11.5px;font-weight:600;color:#e11d48;">(Rp
                             {{ number_format($unpaidAmount, 0, ',', '.') }})</span>
-                    </div>
-                @else
-                    <div style="font-size:15px; font-weight:800; color:#059669;">
-                        Lunas <span style="font-size:12px; font-weight:500; color:#64748b;">(Semua Terbayar)</span>
-                    </div>
-                @endif
+                    @else
+                        Lunas <span style="font-size:11.5px;font-weight:600;color:#64748b;">(Semua Terbayar)</span>
+                    @endif
+                </div>
+                <div class="stat-lbl">Status Pembayaran</div>
             </div>
         </div>
 
         <!-- Card 3: Paket & Biaya -->
-        <div
-            style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:1.1rem 1.25rem; display:flex; align-items:center; gap:1rem; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-            <div
-                style="width:46px; height:46px; border-radius:10px; background:#e0e7ff; display:flex; align-items:center; justify-content:center; font-size:18px; color:#4338ca; flex-shrink:0;">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#e0e7ff;color:#4338ca;">
                 <i class="fa-solid fa-wifi"></i>
             </div>
             <div>
-                <div
-                    style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">
-                    Paket Internet</div>
-                <div style="font-size:15px; font-weight:800; color:#1e293b;">
-                    {{ $pppoe->paket->nama_paket ?? '-' }}
-                </div>
-                <div style="font-size:11.5px; color:#64748b; font-weight:600;">Rp
+                <div class="stat-val">{{ $pppoe->paket->nama_paket ?? '-' }}</div>
+                <div class="stat-lbl">Rp
                     {{ number_format($pppoe->paket ? $pppoe->paket->total_harga : $pppoe->paket->harga ?? 0, 0, ',', '.') }}
                     / bulan</div>
             </div>
         </div>
 
         <!-- Card 4: Tipe & Periode Billing -->
-        <div
-            style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:1.1rem 1.25rem; display:flex; align-items:center; gap:1rem; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-            <div
-                style="width:46px; height:46px; border-radius:10px; background:#f0fdf4; display:flex; align-items:center; justify-content:center; font-size:18px; color:#16a34a; flex-shrink:0;">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#f0fdf4;color:#16a34a;">
                 <i class="fa-solid fa-arrows-rotate"></i>
             </div>
             <div>
-                <div
-                    style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">
-                    Metode & Siklus</div>
-                <div style="font-size:14.5px; font-weight:800; color:#1e293b;">
-                    {{ strtoupper($pppoe->tipe_pembayaran ?? 'Prepaid') }}
-                </div>
-                <div style="font-size:11.5px; color:#64748b; font-weight:600;">Periode: <span class="badge"
-                        style="background:#f1f5f9; color:#475569; font-size:10.5px; padding:1px 6px; border-radius:4px; font-weight:700;">{{ ucfirst($pppoe->periode_billing ?? 'Fixed') }}</span>
-                </div>
+                <div class="stat-val">{{ strtoupper($pppoe->tipe_pembayaran ?? 'Prepaid') }}</div>
+                <div class="stat-lbl">Periode: {{ ucfirst($pppoe->periode_billing ?? 'Fixed') }}</div>
             </div>
         </div>
     </div>
 
     @if (session('success'))
-        <div class="bg-emerald-50 text-emerald-600 p-4 rounded-xl border border-emerald-200 mb-4">
-            <i class="fa-solid fa-check-circle"></i> {{ session('success') }}
+        <div class="bg-emerald-50 text-emerald-700 p-4 rounded-xl border border-emerald-200 mb-6 flex items-start gap-3 shadow-sm">
+            <i class="fa-solid fa-circle-check text-emerald-500 text-lg mt-0.5"></i>
+            <div>
+                <strong class="font-bold">Berhasil!</strong>
+                <p class="text-sm mt-0.5">{{ session('success') }}</p>
+            </div>
         </div>
     @endif
 
@@ -182,40 +180,34 @@
                     <tr>
                         <th style="text-align: center; width: 50px;">#</th>
                         <th style="text-align: left;">No. Invoice</th>
-                        <th style="text-align: right;">Total (Rp)</th>
+                        <th style="text-align: right;">Total</th>
                         <th style="text-align: center;">Tgl Dibuat</th>
                         <th style="text-align: center;">Jatuh Tempo</th>
                         <th style="text-align: center;">Status</th>
-                        <th style="text-align: center;">Opsi</th>
+                        <th style="text-align: center; width: 220px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($pppoe->invoices as $invoice)
                         <tr>
-                            <td class="text-center">{{ $loop->iteration }}</td>
-                            <td class="text-left font-bold text-slate-700">{{ $invoice->invoice_number }}</td>
-                            <td class="text-right font-medium text-slate-700">
-                                {{ number_format($invoice->total, 0, ',', '.') }}</td>
-                            <td class="text-center text-slate-500">{{ $invoice->created_at->format('d/m/Y') }}</td>
-                            <td class="text-center font-medium text-slate-600">
+                            <td class="text-center font-bold text-slate-400">{{ $loop->iteration }}</td>
+                            <td class="text-left font-mono font-bold text-slate-800 text-xs">{{ $invoice->invoice_number }}</td>
+                            <td class="text-right font-mono font-bold text-slate-900 text-xs">
+                                Rp {{ number_format($invoice->total, 0, ',', '.') }}</td>
+                            <td class="text-center text-slate-600 font-medium text-xs">{{ $invoice->created_at->format('d/m/Y') }}</td>
+                            <td class="text-center font-medium text-xs {{ $invoice->status == 'unpaid' && \Carbon\Carbon::parse($invoice->due_date)->isPast() && !\Carbon\Carbon::parse($invoice->due_date)->isToday() ? 'text-rose-600 font-bold' : 'text-slate-600' }}">
                                 {{ $invoice->due_date ? \Carbon\Carbon::parse($invoice->due_date)->format('d/m/Y') : '-' }}
                             </td>
                             <td class="text-center">
                                 @if ($invoice->status == 'paid')
                                     <div class="inline-flex flex-col items-center gap-1">
-                                        <span class="badge badge-published">LUNAS</span>
+                                        <span class="badge badge-published" style="font-size:10px; padding:2px 8px;">LUNAS</span>
                                         @if($invoice->payment_method)
                                             @php
                                                 $pm = strtoupper($invoice->payment_method);
                                                 $pmBadge = 'background:#f1f5f9; color:#475569; border:1px solid #e2e8f0;';
                                                 $pmIcon = 'fa-money-bill-wave';
-                                                if (str_contains($pm, 'BCA')) {
-                                                    $pmBadge = 'background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe;';
-                                                    $pmIcon = 'fa-building-columns';
-                                                } elseif (str_contains($pm, 'BRI')) {
-                                                    $pmBadge = 'background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe;';
-                                                    $pmIcon = 'fa-building-columns';
-                                                } elseif (str_contains($pm, 'BNI') || str_contains($pm, 'MANDIRI') || str_contains($pm, 'PERMATA') || str_contains($pm, 'CIMB') || str_contains($pm, 'BSI')) {
+                                                if (str_contains($pm, 'BCA') || str_contains($pm, 'BRI') || str_contains($pm, 'BNI') || str_contains($pm, 'MANDIRI') || str_contains($pm, 'PERMATA') || str_contains($pm, 'CIMB') || str_contains($pm, 'BSI')) {
                                                     $pmBadge = 'background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe;';
                                                     $pmIcon = 'fa-building-columns';
                                                 } elseif (str_contains($pm, 'QRIS')) {
@@ -235,61 +227,60 @@
                                                     $pmIcon = 'fa-receipt';
                                                 }
                                             @endphp
-                                            <span class="badge" style="{{ $pmBadge }} font-size:10px; padding:2px 7px; border-radius:4px; font-weight:700;">
+                                            <span class="badge" style="{{ $pmBadge }} font-size:9.5px; padding:1px 6px; border-radius:4px; font-weight:700;">
                                                 <i class="fa-solid {{ $pmIcon }} mr-1"></i> {{ $pm }}
                                             </span>
                                         @endif
                                     </div>
                                 @elseif($invoice->status == 'unpaid')
-                                    <span class="badge" style="background:#fef2f2;color:#be123c;">BELUM LUNAS</span>
+                                    <span class="badge" style="background:#fef2f2; color:#be123c; font-size:10px; padding:2px 8px; border:1px solid #fecdd3; font-weight:700;">BELUM LUNAS</span>
                                 @else
-                                    <span class="badge"
-                                        style="background:#f1f5f9;color:#64748b;">{{ strtoupper($invoice->status) }}</span>
+                                    <span class="badge" style="background:#f1f5f9; color:#64748b; font-size:10px; padding:2px 8px;">{{ strtoupper($invoice->status) }}</span>
                                 @endif
                             </td>
                             <td class="text-center">
                                 <div class="inline-flex items-center justify-center gap-1.5 flex-wrap">
                                     <a href="{{ route('invoices.print', $invoice->id) }}" target="_blank"
-                                        class="btn-primary-admin !h-8 !px-2.5 !text-[11px] !bg-sky-600 hover:!bg-sky-700 !gap-1 inline-flex items-center justify-center"
+                                        class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-sky-300 hover:!bg-sky-50 flex items-center justify-center shrink-0"
                                         title="Unduh PDF">
-                                        <i class="fa-solid fa-file-pdf"></i>
+                                        <i class="fa-solid fa-file-pdf text-sky-600"></i>
                                     </a>
                                     @if ($invoice->status == 'unpaid')
                                         <form action="{{ route('invoices.pay_xendit', $invoice->id) }}" method="POST"
-                                            class="inline-block no-loader" data-no-validation="true"
+                                            class="inline-block no-loader m-0" data-no-validation="true"
                                             onsubmit="openXenditModal(event, this)">
                                             @csrf
                                             <button type="submit"
-                                                class="btn-primary-admin !h-8 !px-3 !text-[11px] !bg-indigo-600 hover:!bg-indigo-700 !gap-1.5 inline-flex items-center"
+                                                class="btn-primary-admin !h-8 !px-2.5 !text-xs !rounded-lg !bg-indigo-600 hover:!bg-indigo-700 !gap-1.5 inline-flex items-center font-semibold"
                                                 title="Bayar via Xendit">
                                                 <i class="fa-solid fa-credit-card"></i> Xendit
                                             </button>
                                         </form>
                                         @if ($invoice->xendit_invoice_url)
                                             <button type="button"
-                                                class="btn-primary-admin !h-8 !px-3 !text-[11px] !bg-amber-500 hover:!bg-amber-600 !gap-1.5 inline-flex items-center"
+                                                class="btn-primary-admin !h-8 !px-2.5 !text-xs !rounded-lg !bg-amber-500 hover:!bg-amber-600 !gap-1.5 inline-flex items-center font-semibold"
                                                 onclick="syncXendit({{ $invoice->id }}, this)"
-                                                title="Cek & Sinkronkan Status Xendit">
+                                                title="Cek Status Xendit">
                                                 <i class="fa-solid fa-arrows-rotate"></i> Cek Status
                                             </button>
                                         @endif
                                         <button type="button"
-                                            class="btn-primary-admin !h-8 !px-3 !text-[11px] !bg-emerald-600 hover:!bg-emerald-700 !gap-1.5 inline-flex items-center"
+                                            class="btn-primary-admin !h-8 !px-2.5 !text-xs !rounded-lg !bg-emerald-600 hover:!bg-emerald-700 !gap-1.5 inline-flex items-center font-semibold"
                                             onclick="openPayModal({{ $invoice->id }}, '{{ $invoice->invoice_number }}', '{{ number_format($invoice->total, 0, ',', '.') }}')"
                                             title="Bayar Manual">
                                             <i class="fa-solid fa-money-bill-wave"></i> Manual
                                         </button>
                                     @else
-                                        <span class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-check"></i>
-                                            Selesai</span>
+                                        <span class="badge badge-published !text-[10px] !px-2 !py-0.5">
+                                            <i class="fa-solid fa-check mr-1"></i> Selesai
+                                        </span>
                                     @endif
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center text-slate-400 py-4">Belum ada riwayat invoice untuk
-                                pelanggan ini.</td>
+                            <td colspan="7" class="text-center text-slate-400 py-6 font-semibold">Belum ada riwayat invoice untuk pelanggan ini.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -300,54 +291,48 @@
     <!-- Modal Bayar Manual -->
     <div class="modal-overlay" id="payModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
-            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                <div class="modal-title">
-                    <i class="fa-solid fa-cash-register text-emerald-600"></i>
-                    <span class="text-slate-900 font-bold text-[17px]">Konfirmasi Pembayaran Manual</span>
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm border border-emerald-200 shrink-0">
+                        <i class="fa-solid fa-cash-register"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Konfirmasi Pembayaran Manual</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Catat penerimaan kasir atau transfer bank langsung.</p>
+                    </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closePayModal()">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <form id="payForm" method="POST">
+            <form id="payForm" method="POST" novalidate>
                 @csrf
-                <div class="modal-body p-6 space-y-4 bg-white">
+                <div class="modal-body p-6 bg-white">
                     <!-- Invoice Summary Card -->
-                    <div
-                        class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 flex items-center justify-between">
+                    <div class="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/70 flex items-center justify-between mb-3.5">
                         <div>
-                            <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Nomor Invoice
-                            </div>
-                            <div class="text-[14px] font-black text-slate-800 font-mono" id="payModalInvNum">-</div>
-                            <div class="text-[11px] text-slate-500 mt-1">Pelanggan: <strong
-                                    class="text-slate-700">{{ $pppoe->preOrder->nama_lengkap ?? $pppoe->username }}</strong>
-                            </div>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Nomor Invoice</span>
+                            <span class="text-sm font-black text-slate-800 font-mono block mt-0.5" id="payModalInvNum">-</span>
+                            <span class="text-xs text-slate-500 mt-1 block">Pelanggan: <strong class="text-slate-700">{{ $pppoe->preOrder->nama_lengkap ?? $pppoe->username }}</strong></span>
                         </div>
                         <div class="text-right">
-                            <div class="text-[11px] font-bold text-emerald-800 uppercase tracking-wide">Total Bayar
-                            </div>
-                            <div class="text-lg font-black text-emerald-700" id="payModalTotal">Rp 0</div>
+                            <span class="text-[10px] font-bold text-emerald-800 uppercase tracking-wider block">Total Tagihan</span>
+                            <span class="text-base font-black text-emerald-700 block mt-0.5" id="payModalTotal">Rp 0</span>
                         </div>
                     </div>
 
-                    <div class="form-group !mb-0">
-                        <label class="form-label !text-slate-800 !font-bold">Metode Pembayaran Penerimaan</label>
-                        <select name="payment_method" class="form-input-custom w-full" required
-                            style="height: 44px; font-size: 13px;">
+                    <div class="form-group mb-0">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Metode Pembayaran Penerimaan <span class="text-rose-500">*</span></label>
+                        <select name="payment_method" class="form-input-custom !h-10 !font-normal w-full bg-white text-slate-800 border-slate-300 text-xs" required>
                             <option value="cash">Cash / Tunai (Diterima Kasir/Teknisi)</option>
                             <option value="cashless">Cashless (Transfer Bank Manual / QRIS)</option>
                         </select>
                     </div>
                 </div>
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl flex justify-end gap-3">
-                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
-                        style="padding: 10px 20px;" onclick="closePayModal()">
-                        <i class="fa-solid fa-xmark"></i> Batal
-                    </button>
-                    <button type="submit"
-                        class="btn-save !flex !items-center !justify-center gap-2 !bg-emerald-600 hover:!bg-emerald-700 !text-white"
-                        style="padding: 10px 24px;">
-                        <i class="fa-solid fa-check-circle"></i> Konfirmasi Lunas
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
+                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closePayModal()">Batal</button>
+                    <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700">
+                        <i class="fa-solid fa-circle-check"></i> Konfirmasi Lunas
                     </button>
                 </div>
             </form>
@@ -357,27 +342,34 @@
     <!-- Modal Link Xendit -->
     <div class="modal-overlay" id="xenditModal">
         <div class="modal-box max-w-3xl bg-white border border-slate-300 shadow-2xl">
-            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                <div class="modal-title">
-                    <i class="fa-solid fa-link text-indigo-500"></i>
-                    <span class="text-slate-900 font-bold text-[17px]">Pembayaran Xendit</span>
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm border border-indigo-200 shrink-0">
+                        <i class="fa-solid fa-credit-card"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Pembayaran Xendit</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Payment gateway invoice checkout.</p>
+                    </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeXenditModal()">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="modal-body p-6 space-y-4 bg-white text-center">
-                <div class="flex items-center gap-2 mb-4">
-                    <input type="text" id="xenditLink" class="form-input-custom w-full !bg-slate-100" readonly>
-                    <button type="button" class="btn-primary-admin !h-10 !px-4 !bg-indigo-600 hover:!bg-indigo-700"
+            <div class="modal-body p-6 bg-white">
+                <div class="flex items-center gap-2 mb-3.5">
+                    <input type="text" id="xenditLink" class="form-input !h-10 !font-normal bg-slate-50 text-slate-700 border-slate-300 text-xs" readonly>
+                    <button type="button" class="btn-primary-admin !h-10 !px-4 text-xs font-semibold !bg-indigo-600 hover:!bg-indigo-700 shrink-0"
                         onclick="copyXenditLink()" title="Salin Link">
-                        <i class="fa-solid fa-copy"></i>
+                        <i class="fa-solid fa-copy"></i> Salin Link
                     </button>
                 </div>
-                <div class="border rounded-xl overflow-hidden shadow-sm" style="height: 500px; background: #f8fafc;">
-                    <iframe id="xenditIframe" src="" width="100%" height="100%"
-                        frameborder="0"></iframe>
+                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm" style="height: 480px; background: #f8fafc;">
+                    <iframe id="xenditIframe" src="" width="100%" height="100%" frameborder="0"></iframe>
                 </div>
+            </div>
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
+                <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeXenditModal()">Tutup</button>
             </div>
         </div>
     </div>
@@ -385,39 +377,43 @@
     <!-- Modal Konfirmasi Buat Tagihan Baru -->
     <div class="modal-overlay" id="generateSingleModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
-            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                <div class="modal-title">
-                    <i class="fa-solid fa-file-circle-plus text-sky-600"></i>
-                    <span class="text-slate-900 font-bold text-[17px]">Buat Tagihan Baru?</span>
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-200 shrink-0">
+                        <i class="fa-solid fa-file-circle-plus"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Buat Tagihan Baru</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Terbitkan invoice manual untuk pelanggan ini.</p>
+                    </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('generateSingleModal')">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="modal-body p-8 bg-white">
-                <div class="bg-sky-50 p-4 rounded-2xl border border-sky-100 text-center">
-                    <i class="fa-solid fa-file-invoice text-sky-600 text-3xl mb-3"></i>
-                    <p class="text-sm font-bold text-slate-800 leading-relaxed">
-                        Apakah Anda yakin ingin membuat tagihan faktur baru untuk pelanggan <span
-                            class="text-sky-600 font-bold">{{ $pppoe->preOrder->nama_lengkap ?? $pppoe->username }}</span>?
-                    </p>
+            <form action="{{ route('invoices.generate_single', $pppoe->id) }}" method="POST" class="m-0" novalidate>
+                @csrf
+                <div class="modal-body p-6 bg-white">
+                    <div class="bg-sky-50 p-4 rounded-xl border border-sky-200 flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center text-sm shrink-0 mt-0.5">
+                            <i class="fa-solid fa-file-invoice"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs font-bold text-sky-900 block">Konfirmasi Tagihan Baru</span>
+                            <p class="text-xs text-slate-600 m-0 mt-1 leading-relaxed">
+                                Apakah Anda yakin ingin membuat tagihan faktur baru untuk pelanggan <span class="font-semibold text-sky-700">{{ $pppoe->preOrder->nama_lengkap ?? $pppoe->username }}</span>?
+                            </p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <form action="{{ route('invoices.generate_single', $pppoe->id) }}" method="POST"
-                    class="w-full flex justify-center gap-3">
-                    @csrf
-                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
-                        style="padding: 10px 24px;" onclick="closeCustomModal('generateSingleModal')">
-                        <i class="fa-solid fa-xmark"></i> Batal
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
+                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
+                        onclick="closeCustomModal('generateSingleModal')">Batal</button>
+                    <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !bg-sky-600 hover:!bg-sky-700">
+                        <i class="fa-solid fa-plus"></i> Ya, Buat Tagihan
                     </button>
-                    <button type="submit"
-                        class="btn-save !bg-sky-600 hover:!bg-sky-700 !flex !items-center !justify-center gap-2"
-                        style="padding: 10px 24px;">
-                        <i class="fa-solid fa-plus"></i> Ya, Buat Tagihan!
-                    </button>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -538,6 +534,18 @@
                     showToast('Link Xendit berhasil disalin!', 'success');
                 }
             }
+
+            $(document).ready(function() {
+                $('.modal-overlay').on('click', function(e) {
+                    if (e.target === this) {
+                        if (this.id === 'xenditModal') {
+                            closeXenditModal();
+                        } else {
+                            closeCustomModal(this.id);
+                        }
+                    }
+                });
+            });
         </script>
     @endsection
 </x-layouts.app>
