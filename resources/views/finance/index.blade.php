@@ -306,12 +306,12 @@
             <table id="finance-table" class="admin-table w-full">
                 <thead>
                     <tr>
-                        <th style="text-align: center; width: 45px;">#</th>
-                        <th style="text-align: center; width: 120px;">Tgl Aktivasi</th>
-                        <th style="text-align: left; min-width: 180px;">Pelanggan</th>
-                        <th style="text-align: left; min-width: 180px;">Tim Teknisi</th>
-                        <th style="text-align: center; width: 110px;">Total Tim</th>
-                        <th style="text-align: right; width: 140px;">Pendapatan</th>
+                        <th style="text-align: center; width: 50px;">#</th>
+                        <th style="text-align: center; width: 130px;">Tgl Aktivasi</th>
+                        <th style="text-align: left; width: 26%;">Pelanggan</th>
+                        <th style="text-align: left; width: 26%;">Tim Teknisi</th>
+                        <th style="text-align: center; width: 140px;">Total Tim</th>
+                        <th style="text-align: right; width: 200px; padding-right: 28px;">Pendapatan</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -370,7 +370,7 @@
                                     </span>
                                 @endif
                             </td>
-                            <td style="text-align: right;">
+                            <td style="text-align: right; padding-right: 28px;">
                                 @if ($c->calculated_fee > 0)
                                     <div style="font-weight: 700; color: #059669; font-size: 13px;">
                                         Rp {{ number_format($c->calculated_fee, 0, ',', '.') }}
@@ -401,11 +401,11 @@
                 <table class="admin-table w-full">
                     <thead>
                         <tr>
-                            <th style="text-align: center; width: 45px;">#</th>
-                            <th style="text-align: center; width: 120px;">Tanggal</th>
-                            <th style="text-align: left; min-width: 180px;">Teknisi</th>
+                            <th style="text-align: center; width: 50px;">#</th>
+                            <th style="text-align: center; width: 130px;">Tanggal</th>
+                            <th style="text-align: left; width: 26%;">Teknisi</th>
                             <th style="text-align: left;">Keterangan</th>
-                            <th style="text-align: right; width: 150px;">Nominal</th>
+                            <th style="text-align: right; width: 200px; padding-right: 28px;">Nominal</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -415,7 +415,7 @@
                                 <td style="text-align: center; color: #475569; font-size: 12px; font-weight: 600;">{{ \Carbon\Carbon::parse($k->tanggal)->format('d/m/Y') }}</td>
                                 <td style="text-align: left; font-weight: 700; color: #0f172a; font-size: 13px;">{{ $k->teknisi->nama_lengkap ?? 'Unknown' }}</td>
                                 <td style="text-align: left; color: #475569; font-size: 13px;">{{ $k->keterangan ?? '-' }}</td>
-                                <td style="text-align: right; font-weight: 700; color: #e11d48; font-size: 13px;">Rp {{ number_format($k->nominal, 0, ',', '.') }}</td>
+                                <td style="text-align: right; padding-right: 28px; font-weight: 700; color: #e11d48; font-size: 13px;">Rp {{ number_format($k->nominal, 0, ',', '.') }}</td>
                             </tr>
                         @endforeach
                     </tbody>
