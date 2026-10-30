@@ -33,7 +33,7 @@ class FinanceController extends Controller
         $setting = FinanceSetting::first();
         $baseFee = $setting ? $setting->activation_fee : 150000;
 
-        $query = Customer::withTrashed()->with(['teknisiUtama', 'sales']);
+        $query = Customer::withTrashed()->with(['teknisiUtama', 'sales', 'paket']);
 
         if ($teknisiId) {
             $query->where(function ($q) use ($teknisiId) {
@@ -101,8 +101,9 @@ class FinanceController extends Controller
         $kasbons = $kasbonsQuery->orderBy('tanggal', 'desc')->get();
         $totalKasbon = $kasbons->sum('nominal');
         $pendapatanBersih = $totalPendapatan - $totalKasbon;
+        $allUsers = User::all()->keyBy('id');
 
-        return view('finance.index', compact('customers', 'teknisis', 'teknisiId', 'start', 'end', 'baseFee', 'totalPendapatan', 'stats', 'isFiltered', 'kasbons', 'totalKasbon', 'pendapatanBersih'));
+        return view('finance.index', compact('customers', 'teknisis', 'allUsers', 'teknisiId', 'start', 'end', 'baseFee', 'totalPendapatan', 'stats', 'isFiltered', 'kasbons', 'totalKasbon', 'pendapatanBersih'));
     }
 
     public function export(Request $request)
