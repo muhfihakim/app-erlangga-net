@@ -149,7 +149,7 @@ class ActivityLogController extends Controller
         // Check if user manually applied a filter
         $isFiltered = $request->filled('start_date') && $request->filled('end_date');
 
-        $query = Customer::withTrashed()->with(['teknisiUtama', 'sales']);
+        $query = Customer::withTrashed()->with(['teknisiUtama', 'sales', 'paket']);
 
         if ($teknisiId) {
             $query->where(function ($q) use ($teknisiId) {
@@ -166,7 +166,7 @@ class ActivityLogController extends Controller
             $customers = collect();
         }
 
-        $teknisis = User::where('jabatan', 'Teknisi')->get();
+        $teknisis = User::where('jabatan', 'Teknisi')->orderBy('nama_lengkap', 'asc')->get();
 
         $stats = [
             'total_filtered' => $customers->count(),
@@ -217,7 +217,7 @@ class ActivityLogController extends Controller
         // Check if user manually applied a filter
         $isFiltered = $request->filled('start_date') && $request->filled('end_date');
 
-        $query = Customer::withTrashed()->with(['teknisiUtama', 'sales']);
+        $query = Customer::withTrashed()->with(['teknisiUtama', 'sales', 'paket']);
 
         if ($salesId) {
             $query->where('id_sales', $salesId);
@@ -231,7 +231,7 @@ class ActivityLogController extends Controller
             $customers = collect();
         }
 
-        $allSales = User::where('jabatan', 'Sales')->get();
+        $allSales = User::where('jabatan', 'Sales')->orderBy('nama_lengkap', 'asc')->get();
 
         $stats = [
             'total_filtered' => $customers->count(),
@@ -297,7 +297,7 @@ class ActivityLogController extends Controller
             $maintenances = collect();
         }
 
-        $teknisis = User::where('jabatan', 'Teknisi')->get();
+        $teknisis = User::where('jabatan', 'Teknisi')->orderBy('nama_lengkap', 'asc')->get();
 
         $stats = [
             'total_filtered' => $maintenances->count(),
@@ -376,7 +376,7 @@ class ActivityLogController extends Controller
             $preorders = collect();
         }
 
-        $allSales = User::where('jabatan', 'Sales')->get();
+        $allSales = User::where('jabatan', 'Sales')->orderBy('nama_lengkap', 'asc')->get();
 
         $stats = [
             'total' => $preorders->count(),
@@ -444,7 +444,7 @@ class ActivityLogController extends Controller
             $dismantles = collect();
         }
 
-        $teknisis = User::where('jabatan', 'Teknisi')->get();
+        $teknisis = User::where('jabatan', 'Teknisi')->orderBy('nama_lengkap', 'asc')->get();
 
         $stats = [
             'total_filtered' => $dismantles->count(),
