@@ -48,7 +48,7 @@ class KasbonController extends Controller
         if ($teknisiId) $kasbonMonthQuery->where('teknisi_id', $teknisiId);
         $totalKasbonThisMonth = $kasbonMonthQuery->whereMonth('tanggal', \Carbon\Carbon::now()->month)->whereYear('tanggal', \Carbon\Carbon::now()->year)->sum('nominal');
 
-        $teknisis = \App\Models\User::where('jabatan', 'Teknisi')->get();
+        $teknisis = \App\Models\User::where('jabatan', 'Teknisi')->orderBy('nama_lengkap', 'asc')->get();
 
         return view('finance.kasbon', compact('kasbons', 'totalKasbon', 'totalKasbonPrevious', 'totalKasbonThisMonth', 'teknisis', 'teknisiId', 'start', 'end', 'isFiltered'));
     }
