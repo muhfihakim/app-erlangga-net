@@ -12,31 +12,18 @@ use Carbon\Carbon;
 
 class MaintenanceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
 
-        // Memuat relasi customer dan preOrder (untuk WA & Tikor) secara eager loading
-        $query = Maintenance::with(['customer.preOrder', 'admin', 'teknisiEksekutor']);
-
-        // 1. Data untuk Admin (Semua Penugasan)
-        $allMaintenances = (clone $query)
-            ->orderBy('status', 'asc')
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        // 2. Data untuk Teknisi (Tugas Pending)
-        $pendingTasks = (clone $query)
-            ->where('status', 'Pending')
-            ->get();
-
-        $customers = Customer::all();
-        $teknisis = User::where('jabatan', 'Teknisi')->get();
-
-        if (request()->ajax()) {
-            $type = request()->query('type');
+        if ($request->ajax()) {
+            $type = $request->query('type');
             if ($type === 'admin') {
-                return \Yajra\DataTables\Facades\DataTables::of($allMaintenances)
+                $query = Maintenance::with(['customer.preOrder', 'teknisiEksekutor'])
+                    ->orderBy('status', 'asc')
+                    ->orderBy('created_at', 'desc');
+
+                return \Yajra\DataTables\Facades\DataTables::of($query)
                     ->addColumn('no', function ($m) { return ''; })
                     ->addColumn('pelanggan', function($m) {
                         $nama = htmlspecialchars($m->customer->nama_lengkap ?? 'N/A');
@@ -70,10 +57,57 @@ class MaintenanceController extends Controller
                     ->addColumn('opsi', function($m) {
                         return view('maintenances.action_buttons_admin', compact('m'))->render();
                     })
+                    ->filter(function ($query) use ($request) {
+                        if ($search = $request->input('search.value')) {
+                            $query->where(function ($q) use ($search) {
+                                $q->where('keterangan_kendala', 'like', "%{$search}%")
+                                  ->orWhereHas('customer', function ($cq) use ($search) {
+                                      $cq->where('nama_lengkap', 'like', "%{$search}%")
+                                         ->orWhere('id_pelanggan', 'like', "%{$search}%")
+                                         ->orWhere('no_whatsapp', 'like', "%{$search}%");
+                                  })
+                                  ->orWhereHas('teknisiEksekutor', function ($tq) use ($search) {
+                                      $tq->where('nama_lengkap', 'like', "%{$search}%");
+                                  });
+                            });
+                        }
+                    })
                     ->rawColumns(['pelanggan', 'status', 'teknisi', 'completed_at', 'opsi'])
                     ->make(true);
+            } elseif ($type === 'customers') {
+                $query = Customer::select(['id', 'nama_lengkap', 'id_pelanggan', 'alamat_lengkap']);
+                return \Yajra\DataTables\Facades\DataTables::of($query)
+                    ->addColumn('no', function ($c) { return ''; })
+                    ->addColumn('pelanggan', function($c) {
+                        return '<div class="font-bold text-slate-900 text-[13px]">' . htmlspecialchars($c->nama_lengkap) . '</div>';
+                    })
+                    ->editColumn('id_pelanggan', function($c) {
+                        return '<div class="text-center font-mono text-xs font-semibold text-slate-600">' . htmlspecialchars($c->id_pelanggan ?? '-') . '</div>';
+                    })
+                    ->editColumn('alamat_lengkap', function($c) {
+                        return '<div class="text-xs text-slate-500">' . htmlspecialchars(\Illuminate\Support\Str::limit($c->alamat_lengkap, 50)) . '</div>';
+                    })
+                    ->addColumn('opsi', function($c) {
+                        $safeName = htmlspecialchars($c->nama_lengkap . ' (' . ($c->id_pelanggan ?? '-') . ')', ENT_QUOTES);
+                        return '<div class="text-center"><button type="button" class="btn-primary-admin !h-7 !px-3 !text-xs font-semibold" onclick="selectCustomer(\'' . $c->id . '\', \'' . $safeName . '\')">Pilih</button></div>';
+                    })
+                    ->filter(function ($query) use ($request) {
+                        if ($search = $request->input('search.value')) {
+                            $query->where(function ($q) use ($search) {
+                                $q->where('nama_lengkap', 'like', "%{$search}%")
+                                  ->orWhere('id_pelanggan', 'like', "%{$search}%")
+                                  ->orWhere('alamat_lengkap', 'like', "%{$search}%");
+                            });
+                        }
+                    })
+                    ->rawColumns(['pelanggan', 'id_pelanggan', 'alamat_lengkap', 'opsi'])
+                    ->make(true);
             } else {
-                return \Yajra\DataTables\Facades\DataTables::of($pendingTasks)
+                $query = Maintenance::with(['customer.preOrder', 'teknisiEksekutor'])
+                    ->where('status', 'Pending')
+                    ->orderBy('created_at', 'desc');
+
+                return \Yajra\DataTables\Facades\DataTables::of($query)
                     ->addColumn('no', function ($m) { return ''; })
                     ->addColumn('pelanggan', function($m) {
                         $nama = htmlspecialchars($m->customer->nama_lengkap ?? 'N/A');
@@ -89,6 +123,18 @@ class MaintenanceController extends Controller
                     })
                     ->addColumn('opsi', function($m) {
                         return view('maintenances.action_buttons_pending', compact('m'))->render();
+                    })
+                    ->filter(function ($query) use ($request) {
+                        if ($search = $request->input('search.value')) {
+                            $query->where(function ($q) use ($search) {
+                                $q->where('keterangan_kendala', 'like', "%{$search}%")
+                                  ->orWhereHas('customer', function ($cq) use ($search) {
+                                      $cq->where('nama_lengkap', 'like', "%{$search}%")
+                                         ->orWhere('id_pelanggan', 'like', "%{$search}%")
+                                         ->orWhere('no_whatsapp', 'like', "%{$search}%");
+                                  });
+                            });
+                        }
                     })
                     ->rawColumns(['pelanggan', 'keterangan_kendala', 'opsi'])
                     ->make(true);
@@ -113,10 +159,9 @@ class MaintenanceController extends Controller
             ->whereYear('completed_at', $thisYear)
             ->count();
 
+        $teknisis = User::where('jabatan', 'Teknisi')->get(['id', 'nama_lengkap']);
+
         return view('maintenances.index', compact(
-            'allMaintenances',
-            'pendingTasks',
-            'customers',
             'teknisis',
             'totalThisMonth',
             'totalThisWeek',

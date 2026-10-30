@@ -104,7 +104,7 @@
             @if ($is_admin)
                 <button type="button" class="btn-primary-admin !flex !items-center !justify-center gap-2"
                     onclick="openCustomModal('addMaintenanceModal')">
-                    <i class="fa-solid fa-plus-square"></i> Tambah Maintenance
+                    <i class="fa-solid fa-plus-square"></i> Tambah Pemeliharaan
                 </button>
             @endif
         </div>
@@ -207,7 +207,7 @@
                         placeholder="Ketik nama, ID pelanggan, atau alamat..." autocomplete="off" />
                 </div>
                 <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                    <table id="customer-search-table" class="admin-table">
+                    <table id="customer-search-table" class="admin-table w-full">
                         <thead>
                             <tr>
                                 <th style="width: 45px; text-align: center;">#</th>
@@ -217,24 +217,7 @@
                                 <th style="width: 80px; text-align: center;">Opsi</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @foreach ($customers as $c)
-                                <tr>
-                                    <td style="text-align: center; color: #94a3b8; font-weight: 600; font-size: 12px;">
-                                        {{ $loop->iteration }}</td>
-                                    <td>
-                                        <div class="font-bold text-slate-900 text-[13px]">{{ $c->nama_lengkap }}</div>
-                                    </td>
-                                    <td style="text-align: center; font-mono text-xs font-semibold text-slate-600;">{{ $c->id_pelanggan }}</td>
-                                    <td style="font-size: 12px; color: #64748b;">
-                                        {{ Str::limit($c->alamat_lengkap, 50) }}</td>
-                                    <td style="text-align: center;">
-                                        <button type="button"
-                                            class="btn-primary-admin !h-7 !px-3 !text-xs font-semibold"
-                                            onclick="selectCustomer('{{ $c->id }}', '{{ $c->nama_lengkap }} ({{ $c->id_pelanggan }})')">Pilih</button>
-                                    </td>
-                                </tr>
-                            @endforeach
+                        <tbody style="border-top: none;">
                         </tbody>
                     </table>
                 </div>
@@ -651,11 +634,46 @@
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
+            let customerSearchTable = null;
+            function initCustomerSearchTable() {
+                if (!customerSearchTable && $('#customer-search-table').length) {
+                    customerSearchTable = $('#customer-search-table').DataTable({
+                        "pageLength": 5,
+                        "lengthChange": false,
+                        "ordering": false,
+                        "info": false,
+                        "responsive": true,
+                        "dom": 'tpir',
+                        processing: true,
+                        serverSide: true,
+                        ajax: '{{ route('maintenances.index') }}?type=customers',
+                        columns: [
+                            { data: 'no', name: 'no', searchable: false, orderable: false, className: 'text-center align-middle', render: function(d,t,r,m){ return `<div style="color: #94a3b8; font-weight: 600; font-size: 12px;">${m.row + m.settings._iDisplayStart + 1}</div>`; } },
+                            { data: 'pelanggan', name: 'nama_lengkap', className: 'text-left align-middle' },
+                            { data: 'id_pelanggan', name: 'id_pelanggan', className: 'text-center align-middle' },
+                            { data: 'alamat_lengkap', name: 'alamat_lengkap', className: 'text-left align-middle' },
+                            { data: 'opsi', name: 'opsi', searchable: false, orderable: false, className: 'text-center align-middle' }
+                        ],
+                        language: {
+                            "zeroRecords": "Pelanggan tidak ditemukan",
+                            "paginate": {
+                                "previous": '<i class="fa-solid fa-chevron-left"></i>',
+                                "next": '<i class="fa-solid fa-chevron-right"></i>'
+                            },
+                            processing: "<i class='fa-solid fa-circle-notch fa-spin text-sky-500 text-2xl'></i>"
+                        }
+                    });
+                }
+            }
+
             function openCustomModal(modalId) {
                 const modal = document.getElementById(modalId);
                 if (modal) {
                     modal.classList.add('open');
                     document.body.style.overflow = 'hidden';
+                    if (modalId === 'searchCustomerModal') {
+                        initCustomerSearchTable();
+                    }
                 }
             }
 
@@ -801,17 +819,23 @@
                     ],
                     language: { ...dtOptions.language, processing: "<i class='fa-solid fa-circle-notch fa-spin text-sky-500 text-2xl'></i>" }
                 }) : null;
-                const customerSearchTable = $('#customer-search-table').DataTable({
-                    ...dtOptions,
-                    "pageLength": 5
-                });
+                let searchTimer = null;
                 $('.custom-search').on('keyup', function() {
+                    clearTimeout(searchTimer);
                     const val = this.value;
-                    if (adminTable) adminTable.search(val).draw();
-                    if (pendingTable) pendingTable.search(val).draw();
+                    searchTimer = setTimeout(function() {
+                        if (adminTable) adminTable.search(val).draw();
+                        if (pendingTable) pendingTable.search(val).draw();
+                    }, 300);
                 });
+
+                let custSearchTimer = null;
                 $('#customer-modal-search').on('keyup', function() {
-                    customerSearchTable.search(this.value).draw();
+                    clearTimeout(custSearchTimer);
+                    const val = this.value;
+                    custSearchTimer = setTimeout(function() {
+                        if (customerSearchTable) customerSearchTable.search(val).draw();
+                    }, 300);
                 });
                 $(document).on('click', '.modal-tab', function() {
                     const tabId = $(this).data('tab');
