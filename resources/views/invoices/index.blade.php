@@ -57,12 +57,10 @@
                 flex-wrap: wrap;
             }
             .stat-lbl {
-                font-size: 11px;
+                font-size: 12px;
                 font-weight: 600;
                 color: #64748b;
                 margin-top: 2px;
-                text-transform: uppercase;
-                letter-spacing: 0.025em;
             }
             .dataTables_wrapper {
                 position: relative;
