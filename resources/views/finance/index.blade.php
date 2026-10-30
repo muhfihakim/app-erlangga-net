@@ -164,7 +164,7 @@
                 <i class="fa-solid fa-money-bill-wave"></i>
             </div>
             <div class="min-w-0">
-                <div class="stat-val text-slate-900 font-mono">Rp {{ number_format($baseFee, 0, ',', '.') }}</div>
+                <div class="stat-val text-slate-900">Rp {{ number_format($baseFee, 0, ',', '.') }}</div>
                 <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">Per Pasang Baru</div>
                 <div class="stat-lbl truncate">Tarif Dasar / Aktivasi</div>
             </div>
@@ -175,7 +175,7 @@
                 <i class="fa-solid fa-wallet"></i>
             </div>
             <div class="min-w-0">
-                <div class="stat-val text-amber-600 font-mono">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</div>
+                <div class="stat-val text-amber-600">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</div>
                 <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">Total Alokasi Fee</div>
                 <div class="stat-lbl truncate">Pendapatan Kotor</div>
             </div>
@@ -186,7 +186,7 @@
                 <i class="fa-solid fa-hand-holding-dollar"></i>
             </div>
             <div class="min-w-0">
-                <div class="stat-val text-rose-600 font-mono">Rp {{ number_format($totalKasbon, 0, ',', '.') }}</div>
+                <div class="stat-val text-rose-600">Rp {{ number_format($totalKasbon, 0, ',', '.') }}</div>
                 <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">Pemotongan Kasbon</div>
                 <div class="stat-lbl truncate">Total Kasbon</div>
             </div>
@@ -197,7 +197,7 @@
                 <i class="fa-solid fa-sack-dollar"></i>
             </div>
             <div class="min-w-0">
-                <div class="stat-val text-emerald-700 font-mono">Rp {{ number_format($pendapatanBersih, 0, ',', '.') }}</div>
+                <div class="stat-val text-emerald-700">Rp {{ number_format($pendapatanBersih, 0, ',', '.') }}</div>
                 <div class="text-[11px] text-emerald-600 font-semibold truncate mt-0.5">
                     <i class="fa-solid fa-arrow-trend-up mr-0.5"></i> Setelah Kasbon
                 </div>
@@ -312,7 +312,6 @@
                         <th style="text-align: left; min-width: 180px;">Tim Teknisi</th>
                         <th style="text-align: center; width: 110px;">Total Tim</th>
                         <th style="text-align: right; width: 140px;">Pendapatan</th>
-                        <th style="text-align: center; width: 85px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -332,22 +331,6 @@
                             }
                             $partnerText = count($partnerNames) > 0 ? implode(', ', $partnerNames) : '-';
                             $picName = $c->teknisiUtama->nama_lengkap ?? 'Unknown';
-                            $paketName = $c->paket->nama_paket ?? '-';
-
-                            $modalData = htmlspecialchars(json_encode([
-                                'id' => $c->id,
-                                'nama' => $c->nama_lengkap,
-                                'id_pelanggan' => $c->id_pelanggan ?? '-',
-                                'no_whatsapp' => $c->no_whatsapp ?? '-',
-                                'alamat' => $c->alamat_lengkap ?? '-',
-                                'paket' => $paketName,
-                                'tanggal' => \Carbon\Carbon::parse($c->created_at)->format('d F Y, H:i') . ' WIB',
-                                'pic' => $picName,
-                                'partners' => $partnerText,
-                                'total_techs' => $c->total_techs . ' Orang',
-                                'fee' => 'Rp ' . number_format($c->calculated_fee, 0, ',', '.'),
-                                'base_fee' => 'Rp ' . number_format($baseFee, 0, ',', '.'),
-                            ]), ENT_QUOTES, 'UTF-8');
                         @endphp
                         <tr>
                             <td style="text-align: center; color: #94a3b8; font-weight: 700;">
@@ -389,22 +372,15 @@
                             </td>
                             <td style="text-align: right;">
                                 @if ($c->calculated_fee > 0)
-                                    <div style="font-weight: 700; color: #059669; font-family: monospace; font-size: 13px;">
+                                    <div style="font-weight: 700; color: #059669; font-size: 13px;">
                                         Rp {{ number_format($c->calculated_fee, 0, ',', '.') }}
                                     </div>
-                                    <div style="font-size: 10px; color: #94a3b8; font-family: monospace;">
+                                    <div style="font-size: 10px; color: #94a3b8;">
                                         Total: Rp {{ number_format($baseFee, 0, ',', '.') }}
                                     </div>
                                 @else
                                     <div style="font-weight: 700; color: #94a3b8;">-</div>
                                 @endif
-                            </td>
-                            <td style="text-align: center;">
-                                <button type="button"
-                                    class="btn-primary-admin !h-8 !px-2.5 !text-xs !rounded-lg !bg-sky-600 hover:!bg-sky-700 inline-flex items-center justify-center gap-1.5 font-semibold shrink-0 shadow-sm"
-                                    onclick="showFinanceDetail({{ $modalData }})" title="Lihat Detail Komisi">
-                                    <i class="fa-solid fa-eye"></i> Detail
-                                </button>
                             </td>
                         </tr>
                     @endforeach
@@ -439,7 +415,7 @@
                                 <td style="text-align: center; color: #475569; font-size: 12px; font-weight: 600;">{{ \Carbon\Carbon::parse($k->tanggal)->format('d/m/Y') }}</td>
                                 <td style="text-align: left; font-weight: 700; color: #0f172a; font-size: 13px;">{{ $k->teknisi->nama_lengkap ?? 'Unknown' }}</td>
                                 <td style="text-align: left; color: #475569; font-size: 13px;">{{ $k->keterangan ?? '-' }}</td>
-                                <td style="text-align: right; font-weight: 700; color: #e11d48; font-family: monospace; font-size: 13px;">Rp {{ number_format($k->nominal, 0, ',', '.') }}</td>
+                                <td style="text-align: right; font-weight: 700; color: #e11d48; font-size: 13px;">Rp {{ number_format($k->nominal, 0, ',', '.') }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -448,107 +424,10 @@
         </div>
     @endif
 
-    <!-- Modal Detail Pembagian Komisi -->
-    <div class="modal-overlay" id="detailFinanceModal">
-        <div class="modal-box max-w-lg bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
-            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-200 shrink-0">
-                        <i class="fa-solid fa-screwdriver-wrench"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-base font-bold text-slate-900 m-0">Detail Pembagian Komisi</h3>
-                        <p class="text-xs text-slate-500 m-0 mt-0.5">Rincian pengerjaan teknisi dan alokasi fee per aktivasi.</p>
-                    </div>
-                </div>
-                <button type="button" class="modal-close" onclick="closeCustomModal('detailFinanceModal')">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <div class="modal-body p-6 bg-white space-y-4">
-                <!-- Summary Card -->
-                <div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 flex items-center justify-between">
-                    <div>
-                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Bagian Fee Teknisi</span>
-                        <span class="text-2xl font-black text-emerald-700 font-mono block mt-0.5" id="detailModalFee">Rp 0</span>
-                        <div class="mt-1 flex items-center gap-2">
-                            <span class="text-xs text-slate-500">Tarif Dasar:</span>
-                            <span class="text-xs font-bold font-mono text-slate-700" id="detailModalBaseFee">Rp 0</span>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <span class="badge" style="background:#f0f9ff; color:#0369a1; border:1px solid #bae6fd; font-size:12px; padding:3px 10px; font-weight:700; border-radius:6px;" id="detailModalTotalTechs">
-                            1 Orang
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Info Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
-                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <span class="text-slate-400 block text-[11px] font-medium mb-1">Nama Pelanggan</span>
-                        <span class="font-bold text-slate-800" id="detailModalNama">-</span>
-                    </div>
-                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <span class="text-slate-400 block text-[11px] font-medium mb-1">ID Pelanggan</span>
-                        <span class="font-bold text-slate-800 font-mono" id="detailModalIdPelanggan">-</span>
-                    </div>
-                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <span class="text-slate-400 block text-[11px] font-medium mb-1">Tanggal Aktivasi</span>
-                        <span class="font-bold text-slate-800" id="detailModalTanggal">-</span>
-                    </div>
-                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <span class="text-slate-400 block text-[11px] font-medium mb-1">Paket Layanan</span>
-                        <span class="font-bold text-slate-800" id="detailModalPaket">-</span>
-                    </div>
-                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <span class="text-slate-400 block text-[11px] font-medium mb-1">Teknisi Utama (PIC)</span>
-                        <span class="font-bold text-slate-800" id="detailModalPic">-</span>
-                    </div>
-                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <span class="text-slate-400 block text-[11px] font-medium mb-1">Partner Teknisi</span>
-                        <span class="font-bold text-slate-800" id="detailModalPartners">-</span>
-                    </div>
-                </div>
-
-                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs">
-                    <span class="text-slate-400 block text-[11px] font-medium mb-1">No. WhatsApp Pelanggan</span>
-                    <span class="font-bold text-slate-800 font-mono" id="detailModalWhatsapp">-</span>
-                </div>
-
-                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs">
-                    <span class="text-slate-400 block text-[11px] font-medium mb-1">Alamat Pemasangan</span>
-                    <span class="text-slate-700 leading-relaxed block" id="detailModalAlamat">-</span>
-                </div>
-            </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
-                <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('detailFinanceModal')">
-                    Tutup
-                </button>
-            </div>
-        </div>
-    </div>
-
     @section('Scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
         <script>
-            function showFinanceDetail(data) {
-                document.getElementById('detailModalFee').innerText = data.fee || 'Rp 0';
-                document.getElementById('detailModalBaseFee').innerText = data.base_fee || 'Rp 0';
-                document.getElementById('detailModalTotalTechs').innerText = data.total_techs || '-';
-                document.getElementById('detailModalNama').innerText = data.nama || '-';
-                document.getElementById('detailModalIdPelanggan').innerText = data.id_pelanggan || '-';
-                document.getElementById('detailModalTanggal').innerText = data.tanggal || '-';
-                document.getElementById('detailModalPaket').innerText = data.paket || '-';
-                document.getElementById('detailModalPic').innerText = data.pic || '-';
-                document.getElementById('detailModalPartners').innerText = data.partners || '-';
-                document.getElementById('detailModalWhatsapp').innerText = data.no_whatsapp || '-';
-                document.getElementById('detailModalAlamat').innerText = data.alamat || '-';
-
-                openCustomModal('detailFinanceModal');
-            }
-
             $(document).ready(function() {
                 const table = $('#finance-table').DataTable({
                     pageLength: 10,
