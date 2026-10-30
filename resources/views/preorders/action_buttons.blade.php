@@ -12,8 +12,8 @@
         data-paket="{{ $po->paket ? $po->paket->nama_paket : '-' }}"
         data-paket-harga="{{ $po->paket ? 'Rp ' . number_format($po->paket->harga, 0, ',', '.') : '' }}"
         data-koordinat="{{ $po->titik_koordinat ?: '' }}"
-        data-status="{{ $po->is_unspek ? ($po->is_unspek_approved ? 'Unspek' : 'Unspek (Pending)') : 'Menunggu Aktivasi' }}"
-        data-status-badge="{{ $po->is_unspek ? ($po->is_unspek_approved ? 'badge-archived' : 'badge-warning') : 'badge-draft' }}"
+        data-status="{{ $po->is_unspek ? ($po->is_unspek_approved ? 'Unspek' : 'Unspek (Pending)') : ($po->pppoe ? 'PPPoE Siap' : 'Menunggu PPPoE') }}"
+        data-status-badge="{{ $po->is_unspek ? ($po->is_unspek_approved ? 'badge-archived' : 'badge-warning') : ($po->pppoe ? 'badge-published' : 'badge-draft') }}"
         data-foto-ktp="{{ $po->foto_ktp ? Storage::url($po->foto_ktp) : '' }}"
         data-foto-rumah="{{ $po->foto_rumah ? Storage::url($po->foto_rumah) : '' }}"
         title="Detail Informasi Pelanggan">

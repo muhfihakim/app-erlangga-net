@@ -54,11 +54,19 @@
             </div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon" style="background:#dcfce7;color:#15803d;"><i class="fa-solid fa-hourglass-start"></i>
+            <div class="stat-icon" style="background:#fffbeb;color:#b45309;"><i class="fa-solid fa-clock"></i>
             </div>
             <div>
-                <div class="stat-val">{{ $totalPending }}</div>
-                <div class="stat-lbl">Menunggu Aktivasi</div>
+                <div class="stat-val">{{ $totalBelumPppoe }}</div>
+                <div class="stat-lbl">Belum Ada PPPoE</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#dcfce7;color:#15803d;"><i class="fa-solid fa-network-wired"></i>
+            </div>
+            <div>
+                <div class="stat-val">{{ $totalSudahPppoe }}</div>
+                <div class="stat-lbl">PPPoE Siap</div>
             </div>
         </div>
         <div class="stat-card">
@@ -77,9 +85,10 @@
                 <div style="flex: 1; min-width: 180px;">
                     <label class="form-label-custom">Status</label>
                     <select name="status" class="form-input-custom">
-                        <option value="">Semua Status PO</option>
-                        <option value="pending" {{ $filterStatus === 'pending' ? 'selected' : '' }}>Menunggu Aktivasi (Pending)</option>
+                        <option value="belum_pppoe" {{ $filterStatus === 'belum_pppoe' ? 'selected' : '' }}>Belum Ada PPPoE (Menunggu Admin)</option>
+                        <option value="sudah_pppoe" {{ $filterStatus === 'sudah_pppoe' ? 'selected' : '' }}>PPPoE Siap (Menunggu Aktivasi)</option>
                         <option value="unspek" {{ $filterStatus === 'unspek' ? 'selected' : '' }}>Ditangguhkan (Unspek)</option>
+                        <option value="semua" {{ $filterStatus === 'semua' ? 'selected' : '' }}>Semua Status PO</option>
                     </select>
                 </div>
                 @if (Auth::user()->isAdmin())

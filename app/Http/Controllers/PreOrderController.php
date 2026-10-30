@@ -18,7 +18,10 @@ class PreOrderController extends Controller
         if (auth()->check()) {
             $user = auth()->user();
             
-            $filterStatus = $request->input('status', ''); // '', 'pending', 'unspek'
+            $filterStatus = $request->input('status', 'belum_pppoe');
+            if (empty($filterStatus)) {
+                $filterStatus = 'belum_pppoe';
+            }
             $filterSales = $request->input('id_sales', '');
 
             // 1. Ambil ID PreOrder yang sudah terpasang (menjadi pelanggan di tabel customers, baik aktif maupun non-aktif/soft-deleted)
@@ -41,17 +44,30 @@ class PreOrderController extends Controller
                 $query->where('id_sales', $user->id);
             }
 
-            // Apply Status Filters
-            if ($filterStatus === 'pending') {
-                $query->where('is_unspek', false);
+            // Apply Status Filters: Menampilkan berdasarkan status PPPoE
+            if ($filterStatus === 'sudah_pppoe') {
+                $query->whereHas('pppoe')->where('is_unspek', false);
             } elseif ($filterStatus === 'unspek') {
                 $query->where('is_unspek', true);
+            } elseif ($filterStatus === 'semua') {
+                // Tampilkan semua PO yang belum terpasang
+            } else {
+                // Default: hanya tampilkan yang belum dibuatkan PPPoE-nya
+                $filterStatus = 'belum_pppoe';
+                $query->whereDoesntHave('pppoe')->where('is_unspek', false);
             }
 
-            // 3. Sorting: Menunggu aktivasi (is_unspek = 0) paling atas, lalu ID terbaru
-            $preOrders = $query->orderBy('is_unspek', 'asc')
-                ->orderBy('id', 'desc')
-                ->get();
+            // 3. Sorting: Belum ada PPPoE & bukan unspek di atas, lalu ID terbaru
+            if ($filterStatus === 'semua') {
+                $preOrders = $query->orderBy('is_unspek', 'asc')
+                    ->orderByRaw('CASE WHEN EXISTS (SELECT 1 FROM pppoes WHERE pppoes.pre_order_id = pre_orders.id) THEN 1 ELSE 0 END ASC')
+                    ->orderBy('id', 'desc')
+                    ->get();
+            } else {
+                $preOrders = $query->orderBy('is_unspek', 'asc')
+                    ->orderBy('id', 'desc')
+                    ->get();
+            }
 
             $teknisiUsers = User::where('jabatan', 'Teknisi')->orderBy('nama_lengkap')->get();
             $salesUsers = User::where('jabatan', 'Sales')->orderBy('nama_lengkap')->get();
@@ -102,8 +118,10 @@ class PreOrderController extends Controller
                 Carbon::now()->endOfWeek()
             ])->count();
 
-            $totalPending = (clone $statsQuery)->where('is_unspek', false)->count();
+            $totalBelumPppoe = (clone $statsQuery)->where('is_unspek', false)->whereDoesntHave('pppoe')->count();
+            $totalSudahPppoe = (clone $statsQuery)->where('is_unspek', false)->whereHas('pppoe')->count();
             $totalUnspek = (clone $statsQuery)->where('is_unspek', true)->count();
+            $totalPending = $totalBelumPppoe;
 
             $pakets = \App\Models\Paket::orderBy('harga', 'asc')->get();
 
@@ -121,6 +139,8 @@ class PreOrderController extends Controller
                 'routers',
                 'totalThisMonth',
                 'totalThisWeek',
+                'totalBelumPppoe',
+                'totalSudahPppoe',
                 'totalPending',
                 'totalUnspek',
                 'filterStatus',
