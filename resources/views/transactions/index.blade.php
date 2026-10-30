@@ -127,22 +127,11 @@
     @endsection
 
     <!-- Page Header -->
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
-        <div>
-            <h1 style="font-size:22px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
-                Log Riwayat Transaksi
-            </h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Riwayat aktivitas penerimaan pembayaran manual kasir & gateway online Xendit.</p>
-        </div>
-        <div style="display:flex; gap:10px;">
-            <a href="{{ route('invoices.index') }}" class="btn-cancel !bg-white !border-slate-200 !text-slate-600 !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-2">
-                <i class="fa-solid fa-file-invoice-dollar text-slate-500"></i> Kelola Tagihan
-            </a>
-            <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-2"
-                onclick="$('#transaction-table').DataTable().ajax.reload(null, false)">
-                <i class="fa-solid fa-arrows-rotate"></i> Muat Ulang
-            </button>
-        </div>
+    <div style="margin-bottom:1.25rem;">
+        <h1 style="font-size:22px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            Log Riwayat Transaksi
+        </h1>
+        <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Riwayat aktivitas penerimaan pembayaran manual kasir & gateway online Xendit.</p>
     </div>
 
     <!-- Stats Cards Grid -->
@@ -157,7 +146,7 @@
                 <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">
                     Rp {{ number_format($lastMonthEarning, 0, ',', '.') }} bulan lalu
                 </div>
-                <div class="stat-lbl truncate">Monthly Earning</div>
+                <div class="stat-lbl truncate">Pendapatan Bulanan</div>
             </div>
         </div>
 
@@ -171,7 +160,7 @@
                 <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">
                     Rp {{ number_format($lastMonthExpenses, 0, ',', '.') }} bulan lalu
                 </div>
-                <div class="stat-lbl truncate">Monthly Expenses</div>
+                <div class="stat-lbl truncate">Pengeluaran Bulanan</div>
             </div>
         </div>
 
@@ -185,7 +174,7 @@
                 <div class="text-[11px] text-emerald-600 font-semibold truncate mt-0.5">
                     <i class="fa-solid fa-arrow-trend-up mr-0.5"></i> Pendapatan Bersih
                 </div>
-                <div class="stat-lbl truncate">Monthly Profit</div>
+                <div class="stat-lbl truncate">Laba Bersih Bulanan</div>
             </div>
         </div>
 
@@ -199,7 +188,7 @@
                 <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">
                     {{ number_format($lastMonthTxCount, 0, ',', '.') }} bulan lalu
                 </div>
-                <div class="stat-lbl truncate">Monthly Transaction</div>
+                <div class="stat-lbl truncate">Total Transaksi Bulanan</div>
             </div>
         </div>
     </div>
@@ -243,13 +232,10 @@
                             onkeydown="return event.key != 'Enter';" />
                     </div>
                 </div>
-                <div class="flex items-end gap-1.5 shrink-0">
+                <div class="flex items-end shrink-0">
                     <button type="submit" class="btn-primary-admin !h-[38px] !px-4 text-xs font-semibold !flex !items-center !justify-center gap-1.5 shadow-sm">
                         <i class="fa-solid fa-filter"></i> Filter
                     </button>
-                    <a href="{{ route('transactions.index') }}" class="topbar-icon-btn !w-[38px] !h-[38px] !rounded-lg !bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-700 hover:bg-slate-50 shadow-sm" title="Reset Filter">
-                        <i class="fa-solid fa-rotate-left"></i>
-                    </a>
                 </div>
             </div>
         </form>
