@@ -208,7 +208,7 @@
                     </select>
                 </div>
                 <div style="flex: 1.5; min-width: 220px;">
-                    <label class="form-label-custom">Live Search</label>
+                    <label class="form-label-custom">Cari Tagihan</label>
                     <div class="search-wrap !max-w-full">
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
                         <input type="search" class="search-input custom-search !h-[38px] text-xs" id="custom-search" placeholder="Cari nama, username, no wa..."
