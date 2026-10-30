@@ -209,10 +209,10 @@
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
-                <div class="modal-body p-6 bg-white space-y-4">
-                    <div class="form-group !mb-0">
-                        <label class="form-label text-slate-700 font-medium text-xs">Pilih Barang <span class="text-rose-500">*</span></label>
-                        <select name="asset_id" class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300 text-xs" required>
+                <div class="modal-body p-6 bg-white">
+                    <div class="form-group mb-3.5">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Pilih Barang <span class="text-rose-500">*</span></label>
+                        <select name="asset_id" class="form-input-custom !h-10 !font-normal w-full bg-white text-slate-800 border-slate-300 text-xs" required>
                             <option value="">-- Pilih Barang --</option>
                             @foreach ($assets as $asset)
                                 <option value="{{ $asset->id }}">{{ $asset->name }} (Sisa: {{ number_format($asset->stock) }} {{ $asset->unit }})</option>
@@ -220,35 +220,35 @@
                         </select>
                     </div>
 
-                    <div class="form-grid-2">
+                    <div class="form-grid-2 mb-3.5">
                         <div class="form-group !mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs">Jenis Mutasi <span class="text-rose-500">*</span></label>
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Jenis Mutasi <span class="text-rose-500">*</span></label>
                             <select name="type" id="mutation_type"
-                                class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300 text-xs" required
+                                class="form-input-custom !h-10 !font-normal w-full bg-white text-slate-800 border-slate-300 text-xs" required
                                 onchange="toggleMutationFields()">
                                 <option value="Masuk">Barang Masuk (Stok +)</option>
                                 <option value="Keluar">Barang Keluar (Stok -)</option>
                             </select>
                         </div>
                         <div class="form-group !mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs">Tanggal <span class="text-rose-500">*</span></label>
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Tanggal <span class="text-rose-500">*</span></label>
                             <input type="date" name="date"
-                                class="form-input !font-normal bg-white text-slate-800 border-slate-300 text-xs"
+                                class="form-input !h-10 !font-normal bg-white text-slate-800 border-slate-300 text-xs"
                                 value="{{ date('Y-m-d') }}" required>
                         </div>
                     </div>
 
-                    <div class="form-grid-2">
+                    <div class="form-grid-2 mb-3.5">
                         <div class="form-group !mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs">Jumlah <span class="text-rose-500">*</span></label>
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Jumlah <span class="text-rose-500">*</span></label>
                             <input type="number" name="quantity"
-                                class="form-input !font-normal bg-white text-slate-800 border-slate-300 text-xs" min="1"
+                                class="form-input !h-10 !font-normal bg-white text-slate-800 border-slate-300 text-xs" min="1"
                                 placeholder="0" required>
                         </div>
                         <div class="form-group !mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs" id="label_mutation_person">Penerima / Admin</label>
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block" id="label_mutation_person">Penerima / Admin</label>
                             <select name="user_id"
-                                class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300 text-xs"
+                                class="form-input-custom !h-10 !font-normal w-full bg-white text-slate-800 border-slate-300 text-xs"
                                 style="width: 100%;">
                                 <option value="">-- Pilih User --</option>
                                 @foreach ($users as $user)
@@ -258,15 +258,15 @@
                         </div>
                     </div>
 
-                    <div class="form-group !mb-0">
-                        <label class="form-label text-slate-700 font-medium text-xs">Nama Pihak Luar (Opsional)</label>
+                    <div class="form-group mb-3.5">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Nama Pihak Luar (Opsional)</label>
                         <input type="text" name="external_person_name"
-                            class="form-input !font-normal bg-white text-slate-800 border-slate-300 text-xs"
+                            class="form-input !h-10 !font-normal bg-white text-slate-800 border-slate-300 text-xs"
                             placeholder="Nama pengirim/penerima luar (jika non-staf)...">
                     </div>
 
-                    <div class="form-group !mb-0">
-                        <label class="form-label text-slate-700 font-medium text-xs">Tujuan / Keterangan <span class="text-rose-500">*</span></label>
+                    <div class="form-group mb-0">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Tujuan / Keterangan <span class="text-rose-500">*</span></label>
                         <textarea name="description" class="form-textarea !font-normal bg-white text-slate-800 border-slate-300 text-xs" rows="2"
                             placeholder="Contoh: Pengadaan, Pasang Baru, Maintenance, dll" required></textarea>
                     </div>
