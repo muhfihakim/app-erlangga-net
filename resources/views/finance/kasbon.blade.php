@@ -279,10 +279,10 @@
 
     <!-- Modal Tambah Kasbon -->
     <div class="modal-overlay" id="kasbonModal">
-        <div class="modal-box max-w-lg bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+        <div class="modal-box max-w-lg bg-white border border-slate-300 shadow-2xl">
             <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-sm border border-rose-200 shrink-0">
+                    <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center text-sm border border-slate-200 shrink-0">
                         <i class="fa-solid fa-hand-holding-dollar"></i>
                     </div>
                     <div>
@@ -296,46 +296,50 @@
             </div>
             <form action="{{ route('kasbons.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <div class="modal-body p-6 bg-white space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="form-group md:col-span-2">
-                            <label class="form-label-custom">Teknisi <span class="text-rose-500">*</span></label>
-                            <select name="teknisi_id" class="form-input-custom !h-[38px] text-xs w-full" required>
-                                <option value="">-- Pilih Teknisi --</option>
-                                @foreach ($teknisis as $t)
-                                    <option value="{{ $t->id }}">{{ $t->nama_lengkap }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label-custom">Nominal (Rp) <span class="text-rose-500">*</span></label>
-                            <input type="number" name="nominal" class="form-input-custom !h-[38px] text-xs w-full" required
+                <div class="modal-body bg-white p-6">
+                    <div class="form-group mb-3.5">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Teknisi <span class="text-rose-500">*</span></label>
+                        <select name="teknisi_id" class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300 text-xs" required>
+                            <option value="">-- Pilih Teknisi --</option>
+                            @foreach ($teknisis as $t)
+                                <option value="{{ $t->id }}">{{ $t->nama_lengkap }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-grid-2 mb-3.5">
+                        <div class="form-group !mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Nominal (Rp) <span class="text-rose-500">*</span></label>
+                            <input type="number" name="nominal" class="form-input !font-normal bg-white text-slate-800 border-slate-300 text-xs" required
                                 placeholder="Contoh: 50000" min="0" step="1000">
                         </div>
-                        <div class="form-group">
-                            <label class="form-label-custom">Tanggal <span class="text-rose-500">*</span></label>
-                            <input type="date" name="tanggal" class="form-input-custom !h-[38px] text-xs w-full" required
+                        <div class="form-group !mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Tanggal <span class="text-rose-500">*</span></label>
+                            <input type="date" name="tanggal" class="form-input !font-normal bg-white text-slate-800 border-slate-300 text-xs" required
                                 value="{{ date('Y-m-d') }}">
                         </div>
-                        <div class="form-group md:col-span-2">
-                            <label class="form-label-custom">Bukti Pembayaran / Nota (Opsional)</label>
-                            <input type="file" name="bukti" class="form-input-custom text-xs w-full py-1.5"
-                                accept="image/jpeg,image/png,application/pdf" capture="environment">
-                            <span class="text-[11px] text-slate-400 mt-1 block">Format: JPG, PNG, atau PDF (Maks. 5MB)</span>
-                        </div>
-                        <div class="form-group md:col-span-2">
-                            <label class="form-label-custom">Keterangan (Opsional)</label>
-                            <textarea name="keterangan" class="form-input-custom text-xs w-full" rows="2" placeholder="Catatan atau alasan kasbon..."></textarea>
-                        </div>
+                    </div>
+
+                    <div class="form-group mb-3.5">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Bukti Pembayaran / Nota (Opsional)</label>
+                        <input type="file" name="bukti" class="form-input !font-normal bg-white text-slate-700 border-slate-300 text-xs py-1.5"
+                            accept="image/jpeg,image/png,application/pdf" capture="environment">
+                        <span class="text-[11px] text-slate-400 mt-1 block">Format: JPG, PNG, atau PDF (Maks. 5MB)</span>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Keterangan (Opsional)</label>
+                        <textarea name="keterangan" class="form-textarea !font-normal bg-white text-slate-800 border-slate-300 text-xs" rows="2"
+                            placeholder="Catatan atau alasan kasbon..."></textarea>
                     </div>
                 </div>
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3.5 flex items-center justify-end gap-2.5">
-                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold flex items-center gap-1.5"
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2.5">
+                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
                         onclick="closeCustomModal('kasbonModal')">
-                        <i class="fa-solid fa-xmark"></i> Batal
+                        Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold flex items-center gap-1.5 shadow-sm">
-                        <i class="fa-solid fa-floppy-disk"></i> Simpan
+                    <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
+                        Simpan
                     </button>
                 </div>
             </form>
