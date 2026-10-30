@@ -119,10 +119,6 @@
             <h1 style="font-size:22px;font-weight:900;margin:0;">Invoice Pelanggan</h1>
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola tagihan pelanggan, cek riwayat invoice, dan terima pembayaran.</p>
         </div>
-        <button type="button" onclick="openCustomModal('generateMassModal')"
-            class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-2 !bg-sky-600 hover:!bg-sky-700 ml-auto">
-            <i class="fa-solid fa-bolt"></i> Generate Tagihan Masal
-        </button>
     </div>
 
     @if(session('success'))
@@ -239,49 +235,6 @@
                 <tbody>
                 </tbody>
             </table>
-        </div>
-    </div>
-
-    <!-- Modal Konfirmasi Generate Tagihan Masal -->
-    <div class="modal-overlay" id="generateMassModal">
-        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
-            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-200 shrink-0">
-                        <i class="fa-solid fa-bolt"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-base font-bold text-slate-900 m-0">Generate Tagihan Masal</h3>
-                        <p class="text-xs text-slate-500 m-0 mt-0.5">Buat tagihan serentak untuk seluruh pelanggan aktif.</p>
-                    </div>
-                </div>
-                <button type="button" class="modal-close" onclick="closeCustomModal('generateMassModal')">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <form action="{{ route('invoices.generate') }}" method="POST" class="m-0" novalidate>
-                @csrf
-                <div class="modal-body p-6 bg-white">
-                    <div class="bg-sky-50 p-4 rounded-xl border border-sky-200 flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center text-sm shrink-0 mt-0.5">
-                            <i class="fa-solid fa-file-invoice-dollar"></i>
-                        </div>
-                        <div>
-                            <span class="text-xs font-bold text-sky-900 block">Konfirmasi Pembuatan Tagihan</span>
-                            <p class="text-xs text-slate-600 m-0 mt-1 leading-relaxed">
-                                Apakah Anda yakin ingin membuat invoice tagihan baru untuk <span class="font-semibold text-sky-700">semua pelanggan aktif (PPPoE)</span> pada periode siklus bulan ini?
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
-                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
-                        onclick="closeCustomModal('generateMassModal')">Batal</button>
-                    <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !bg-sky-600 hover:!bg-sky-700">
-                        <i class="fa-solid fa-bolt"></i> Ya, Generate Tagihan
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 
