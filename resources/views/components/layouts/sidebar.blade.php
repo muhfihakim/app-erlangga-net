@@ -142,7 +142,7 @@
                     @if ($isSuperAdmin)
                         <a class="sidebar-sublink {{ Request::is('withdrawals*') ? 'active' : '' }}" href="{{ route('withdrawals.index') }}" style="color: #10b981;">
                             <i class="fa-solid fa-circle-dot" style="color: #10b981;"></i>
-                            <span>Tarik Saldo Xendit</span>
+                            <span>XenPlatform</span>
                         </a>
                     @endif
                 </div>

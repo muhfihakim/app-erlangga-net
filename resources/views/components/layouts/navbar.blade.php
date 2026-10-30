@@ -100,7 +100,7 @@
             @elseif(request()->routeIs('withdrawals.*') || request()->is('withdrawals*'))
                 <span>Keuangan</span>
                 <span class="sep">/</span>
-                <span class="current">Tarik Saldo Xendit</span>
+                <span class="current">XenPlatform</span>
 
             {{-- Laporan --}}
             @elseif(request()->routeIs('activitylog.aktivasi_sales*') || request()->is('laporan/aktivasi-sales*'))

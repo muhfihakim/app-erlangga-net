@@ -1,84 +1,158 @@
 <x-layouts.app>
-    <div
-        style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+    @section('Css')
+        <style>
+            .admin-table td {
+                padding: 10px 14px;
+                font-size: 13px;
+                vertical-align: middle;
+            }
+
+            .admin-table th {
+                padding: 11px 14px;
+                font-size: 12px;
+                font-weight: 700;
+                color: #64748b;
+                letter-spacing: 0.05em;
+                text-transform: uppercase !important;
+                vertical-align: middle;
+            }
+
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 0.75rem;
+                margin-bottom: 1.25rem;
+            }
+
+            .stat-card {
+                background: #fff;
+                border-radius: 12px;
+                padding: 0.75rem 1rem;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                min-height: 72px;
+                transition: all 0.2s;
+            }
+
+            .stat-card:hover {
+                border-color: #cbd5e1;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            }
+
+            .stat-icon {
+                width: 40px;
+                height: 40px;
+                min-width: 40px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 16px;
+                flex-shrink: 0;
+            }
+
+            .stat-val {
+                font-size: 17px;
+                font-weight: 800;
+                color: #0f172a;
+                line-height: 1.25;
+                display: flex;
+                align-items: baseline;
+                gap: 5px;
+                flex-wrap: wrap;
+            }
+
+            .stat-lbl {
+                font-size: 12px;
+                font-weight: 600;
+                color: #64748b;
+                margin-top: 2px;
+            }
+        </style>
+    @endsection
+
+    <!-- Page Header -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
             <h1 style="font-size:22px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
-                Penarikan Saldo Xendit
+                XenPlatform
             </h1>
-            <p style="font-size:13px;color:#64748b;margin:4px 0 0;">
-                Kelola pencairan dana real-time dari rekening tampungan Xendit ke rekening bank tujuan dengan proteksi
-                keamanan OTP.
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">
+                Kelola saldo dan pencairan dana real-time akun XenPlatform dengan proteksi OTP.
             </p>
         </div>
     </div>
 
     <!-- Summary Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
-        <!-- Saldo Xendit -->
-        <div
-            class="table-card p-6 bg-gradient-to-br from-slate-900 to-slate-800 text-white relative overflow-hidden shadow-xl">
-            <div
-                class="absolute -right-8 -bottom-8 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none">
+    <div class="stats-grid mb-6">
+        <!-- Saldo Aktif XenPlatform -->
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#ecfdf5;color:#059669;">
+                <i class="fa-solid fa-wallet"></i>
             </div>
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-xs uppercase tracking-wider text-slate-400 font-bold">Saldo Aktif Xendit</span>
-                <a href="{{ route('withdrawals.index') }}"
-                    class="text-xs text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1">
-                    <i class="fa-solid fa-rotate-right"></i> Refresh
-                </a>
+            <div class="min-w-0">
+                <div class="stat-val text-emerald-600">Rp {{ number_format($balance, 0, ',', '.') }}</div>
+                <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">Saldo Siap Ditarik</div>
+                <div class="stat-lbl truncate">Saldo XenPlatform</div>
             </div>
-            <div class="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">
-                Rp {{ number_format($balance, 0, ',', '.') }}
-            </div>
-            <p class="text-[11px] text-slate-400 mt-2 flex items-center gap-1.5">
-                <i class="fa-solid fa-circle-check text-emerald-500"></i> Saldo CASH yang siap ditarik kapan saja
-            </p>
         </div>
 
         <!-- Total Pending -->
-        <div class="table-card p-6 bg-white border border-slate-200 shadow-sm">
-            <div class="flex items-center justify-between mb-3">
-                <span class="text-xs uppercase tracking-wider text-slate-500 font-bold">Dalam Proses / Pending</span>
-                <div
-                    class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm font-bold">
-                    <i class="fa-solid fa-clock"></i>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fffbeb;color:#d97706;">
+                <i class="fa-solid fa-clock-rotate-left"></i>
             </div>
-            <div class="text-2xl sm:text-3xl font-black text-amber-600 font-mono">
-                Rp {{ number_format($totalPending, 0, ',', '.') }}
+            <div class="min-w-0">
+                <div class="stat-val text-amber-600">Rp {{ number_format($totalPending, 0, ',', '.') }}</div>
+                <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">Menunggu Konfirmasi</div>
+                <div class="stat-lbl truncate">Dalam Proses (Pending)</div>
             </div>
-            <p class="text-[11px] text-slate-400 mt-2">Menunggu konfirmasi bank penerima</p>
+        </div>
+
+        <!-- Total Transaksi -->
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#eff6ff;color:#2563eb;">
+                <i class="fa-solid fa-receipt"></i>
+            </div>
+            <div class="min-w-0">
+                <div class="stat-val text-blue-600">{{ $withdrawals->total() }} Transaksi</div>
+                <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">Riwayat Pencairan</div>
+                <div class="stat-lbl truncate">Total Penarikan</div>
+            </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+    <!-- Main Grid: Form Penarikan & Rekening Tersimpan -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 mb-6">
         <!-- Form Pengajuan Penarikan -->
         <div class="lg:col-span-6">
-            <div class="table-card p-6 bg-white border border-slate-200 shadow-sm h-full flex flex-col justify-between">
+            <div class="table-card p-5 bg-white border border-slate-200 shadow-sm h-full flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-5">
-                        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                            <i class="fa-solid fa-money-bill-transfer text-emerald-600"></i> Form Penarikan Dana
-                        </h2>
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                        <div>
+                            <h2 class="text-sm font-bold text-slate-900 m-0">Form Penarikan Dana</h2>
+                            <p class="text-xs text-slate-500 m-0 mt-0.5">Pencairan saldo ke rekening bank tujuan.</p>
+                        </div>
                     </div>
 
                     <form id="formWithdrawal" onsubmit="event.preventDefault(); initiateWithdrawal();">
-
                         <!-- Pilihan Rekening Tersimpan -->
-                        <div class="form-group mb-5 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
-                            <div class="flex items-center justify-between mb-2">
-                                <label
-                                    class="form-label !mb-0 font-bold text-slate-700 flex items-center gap-1.5 text-xs">
-                                    <i class="fa-solid fa-bookmark text-emerald-600"></i> Gunakan Rekening Tersimpan
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 mb-3.5">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="form-label text-slate-700 font-medium text-xs mb-0">
+                                    Gunakan Rekening Tersimpan
                                 </label>
                                 <button type="button" onclick="openAddBankModal()"
-                                    class="text-xs text-emerald-600 hover:text-emerald-700 font-bold flex items-center gap-1">
-                                    <i class="fa-solid fa-plus-circle"></i> Tambah Rekening
+                                    class="text-xs text-indigo-600 hover:text-indigo-700 font-semibold">
+                                    Tambah Rekening
                                 </button>
                             </div>
-                            <select id="selectSavedBank" class="form-input bg-white text-xs font-medium"
+                            <select id="selectSavedBank" class="form-input-custom !h-[38px] text-xs w-full bg-white"
                                 onchange="applySavedBankAccount(this.value)">
-                                <option value="">-- Pilih dari Rekening Tersimpan (Otomatis Terisi) --</option>
+                                <option value="">-- Pilih Rekening Tersimpan --</option>
                                 @foreach ($bankAccounts as $acc)
                                     <option value="{{ $acc->id }}" data-bank-code="{{ $acc->bank_code }}"
                                         data-bank-name="{{ $acc->bank_name }}"
@@ -86,238 +160,202 @@
                                         data-account-name="{{ $acc->account_holder_name }}"
                                         data-no-whatsapp="{{ $acc->no_whatsapp }}"
                                         {{ $acc->is_default ? 'selected' : '' }}>
-                                        {{ $acc->bank_name }} - {{ $acc->account_number }} (a.n
-                                        {{ $acc->account_holder_name }})
-                                        {{ $acc->no_whatsapp ? '[WA: ' . $acc->no_whatsapp . ']' : '' }}
-                                        {{ $acc->is_default ? '[REKENING UTAMA]' : '' }}
+                                        {{ $acc->bank_name }} - {{ $acc->account_number }} (a.n {{ $acc->account_holder_name }})
+                                        {{ $acc->is_default ? '[UTAMA]' : '' }}
                                     </option>
                                 @endforeach
                             </select>
-                            <small class="text-slate-400 text-[10px] block mt-1">Pilih rekening untuk mengisi data bank
-                                dan nomor WhatsApp penerima OTP secara otomatis.</small>
                         </div>
 
                         <!-- Bank Tujuan -->
-                        <div class="form-group mb-4">
-                            <label class="form-label font-bold text-slate-700">Bank / E-Wallet Penerima <span
-                                    class="text-rose-500">*</span></label>
-                            <select id="wd_bank_code" class="form-input bg-white" required>
+                        <div class="form-group mb-3.5">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
+                                Bank / E-Wallet Penerima <span class="text-rose-500">*</span>
+                            </label>
+                            <select id="wd_bank_code" class="form-input-custom !h-[38px] text-xs w-full bg-white" required>
                                 <option value="" disabled selected>-- Pilih Bank / E-Wallet Tujuan --</option>
                                 @foreach ($banks as $bank)
-                                    <option value="{{ $bank['code'] }}">{{ $bank['name'] }} ({{ $bank['code'] }})
-                                    </option>
+                                    <option value="{{ $bank['code'] }}">{{ $bank['name'] }} ({{ $bank['code'] }})</option>
                                 @endforeach
                             </select>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <div class="form-grid-2 mb-3.5">
                             <!-- Nomor Rekening -->
                             <div class="form-group !mb-0">
-                                <label class="form-label font-bold text-slate-700">Nomor Rekening <span
-                                        class="text-rose-500">*</span></label>
+                                <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
+                                    Nomor Rekening <span class="text-rose-500">*</span>
+                                </label>
                                 <input type="text" id="wd_account_number"
-                                    class="form-input font-mono font-bold text-slate-800" placeholder="1234567890"
-                                    required>
+                                    class="form-input !h-[38px] text-xs font-mono font-bold text-slate-800"
+                                    placeholder="1234567890" required>
                             </div>
 
                             <!-- Nama Pemilik Rekening -->
                             <div class="form-group !mb-0">
-                                <label class="form-label font-bold text-slate-700">Nama Pemilik Rekening <span
-                                        class="text-rose-500">*</span></label>
+                                <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
+                                    Nama Pemilik <span class="text-rose-500">*</span>
+                                </label>
                                 <input type="text" id="wd_account_holder_name"
-                                    class="form-input uppercase font-semibold" placeholder="MUHAMMAD FIHAKIM" required>
+                                    class="form-input !h-[38px] text-xs uppercase font-semibold"
+                                    placeholder="Nama sesuai buku tabungan" required>
                             </div>
                         </div>
 
                         <!-- Nomor WhatsApp Penerima OTP -->
-                        <div class="form-group mb-4">
-                            <label class="form-label font-bold text-slate-700 flex items-center justify-between">
-                                <span>Nomor WhatsApp Penerima OTP <span class="text-rose-500">*</span></span>
-                                <span class="text-[10px] text-emerald-600 font-semibold"><i
-                                        class="fa-brands fa-whatsapp"></i> OTP dikirim ke sini</span>
+                        <div class="form-group mb-3.5">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
+                                Nomor WhatsApp Penerima OTP <span class="text-rose-500">*</span>
                             </label>
                             <input type="text" id="wd_no_whatsapp"
-                                class="form-input font-mono font-bold text-slate-800" placeholder="081234567890"
-                                required>
-                            <small class="text-slate-400 text-[10px] block mt-1">Nomor WhatsApp yang akan menerima 6
-                                digit kode OTP verifikasi penarikan saldo.</small>
+                                class="form-input !h-[38px] text-xs font-mono font-bold text-slate-800"
+                                placeholder="081234567890" required>
+                            <span class="text-[11px] text-slate-400 mt-1 block">Nomor WhatsApp untuk menerima 6 digit kode OTP verifikasi penarikan.</span>
                         </div>
 
                         <!-- Nominal Penarikan -->
-                        <div class="form-group mb-4">
-                            <label class="form-label font-bold text-slate-700">Nominal Penarikan (Rp) <span
-                                    class="text-rose-500">*</span></label>
+                        <div class="form-group mb-3.5">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
+                                Nominal Penarikan (Rp) <span class="text-rose-500">*</span>
+                            </label>
                             <div class="relative">
-                                <span
-                                    class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">Rp</span>
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">Rp</span>
                                 <input type="number" id="wd_amount"
-                                    class="form-input !pl-11 font-mono font-bold text-base text-slate-800"
+                                    class="form-input !h-[38px] !pl-9 text-xs font-mono font-bold text-slate-800"
                                     placeholder="100000" min="10000" max="{{ (int) $balance }}" required>
                             </div>
 
                             <!-- Quick Amount Buttons -->
-                            <div class="flex flex-wrap gap-1.5 mt-2.5">
+                            <div class="flex flex-wrap gap-1.5 mt-2">
                                 <button type="button" onclick="setWithdrawAmount(50000)"
-                                    class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold">50rb</button>
+                                    class="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium transition-colors">50rb</button>
                                 <button type="button" onclick="setWithdrawAmount(100000)"
-                                    class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold">100rb</button>
+                                    class="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium transition-colors">100rb</button>
                                 <button type="button" onclick="setWithdrawAmount(500000)"
-                                    class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold">500rb</button>
+                                    class="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium transition-colors">500rb</button>
                                 <button type="button" onclick="setWithdrawAmount(1000000)"
-                                    class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold">1
-                                    Juta</button>
+                                    class="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium transition-colors">1 Juta</button>
                                 <button type="button" onclick="setWithdrawAmount({{ (int) $balance }})"
-                                    class="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold">Semua
-                                    Saldo</button>
+                                    class="px-2.5 py-1 rounded-md bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-semibold transition-colors">Semua Saldo</button>
                             </div>
                         </div>
 
                         <!-- Catatan -->
-                        <div class="form-group mb-6">
-                            <label class="form-label font-bold text-slate-700">Catatan Penarikan (Opsional)</label>
-                            <input type="text" id="wd_description" class="form-input text-xs"
+                        <div class="form-group mb-4">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Catatan Penarikan (Opsional)</label>
+                            <input type="text" id="wd_description" class="form-input !h-[38px] text-xs"
                                 placeholder="Penarikan Saldo XenPlatform Erlangga Net">
                         </div>
 
                         <button type="submit" id="btnInitiateWithdrawal"
-                            class="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-600/20">
-                            <i class="fa-solid fa-key"></i> Lanjutkan & Verifikasi OTP
+                            class="btn-primary-admin !h-10 text-xs font-semibold w-full flex items-center justify-center shadow-sm">
+                            Lanjutkan Verifikasi OTP
                         </button>
                     </form>
                 </div>
 
-                <div class="mt-6 pt-4 border-t border-slate-100 text-[11px] text-slate-400 flex items-center gap-2">
-                    <i class="fa-brands fa-whatsapp text-emerald-600 text-sm"></i>
-                    <span>Setiap transaksi dilindungi verifikasi OTP 6 digit via WhatsApp demi keamanan kas.</span>
+                <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-400 text-center">
+                    Setiap penarikan dana dilindungi verifikasi OTP via WhatsApp demi keamanan saldo.
                 </div>
             </div>
         </div>
 
-        <!-- Daftar Rekening Bank Tersimpan & Kelola -->
+        <!-- Daftar Rekening Bank Tersimpan -->
         <div class="lg:col-span-6">
-            <div
-                class="table-card p-6 bg-white border border-slate-200 shadow-sm h-full flex flex-col justify-between">
+            <div class="table-card p-5 bg-white border border-slate-200 shadow-sm h-full flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3.5">
                         <div>
-                            <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                                <i class="fa-solid fa-credit-card text-indigo-600"></i> Daftar Rekening Bank Tersimpan
-                            </h2>
-                            <p class="text-xs text-slate-400 mt-0.5">Kelola rekening bank tujuan pencairan dana</p>
+                            <h2 class="text-sm font-bold text-slate-900 m-0">Rekening Tersimpan</h2>
+                            <p class="text-xs text-slate-500 m-0 mt-0.5">Daftar rekening tujuan pencairan dana.</p>
                         </div>
                         <button type="button" onclick="openAddBankModal()"
-                            class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm">
-                            <i class="fa-solid fa-plus"></i> Tambah Bank
+                            class="btn-primary-admin !h-8 !px-3 text-xs font-semibold shadow-sm">
+                            Tambah Bank
                         </button>
                     </div>
 
                     <!-- List of saved bank accounts -->
-                    <div class="space-y-3 max-h-[460px] overflow-y-auto pr-1">
+                    <div class="space-y-2.5 max-h-[460px] overflow-y-auto pr-1">
                         @forelse($bankAccounts as $acc)
-                            <div
-                                class="p-4 rounded-2xl border {{ $acc->is_default ? 'border-emerald-500/50 bg-emerald-50/20' : 'border-slate-200 bg-slate-50/60' }} relative transition-all hover:border-slate-300">
-                                <div class="flex items-start justify-between gap-3">
-                                    <div class="flex items-start gap-3">
-                                        <div
-                                            class="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center font-bold text-xs text-indigo-600 shadow-sm flex-shrink-0">
+                            <div class="p-3 rounded-xl border {{ $acc->is_default ? 'border-emerald-300 bg-emerald-50/20' : 'border-slate-200 bg-slate-50/40' }} transition-colors hover:border-slate-300">
+                                <div class="flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <div class="w-9 h-9 rounded-lg bg-white border border-slate-200 flex items-center justify-center font-bold text-xs text-slate-700 shrink-0">
                                             {{ $acc->bank_code }}
                                         </div>
-                                        <div>
+                                        <div class="min-w-0">
                                             <div class="flex items-center gap-2">
-                                                <h4 class="font-bold text-slate-900 text-sm leading-tight">
-                                                    {{ $acc->bank_name }}</h4>
+                                                <span class="font-bold text-slate-900 text-xs truncate">{{ $acc->bank_name }}</span>
                                                 @if ($acc->is_default)
-                                                    <span
-                                                        class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-extrabold border border-emerald-300">
+                                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
                                                         UTAMA
                                                     </span>
                                                 @endif
                                             </div>
-                                            <p class="font-mono font-bold text-slate-700 text-xs mt-1">
-                                                {{ $acc->account_number }}</p>
-                                            <p class="text-[11px] text-slate-500 uppercase font-semibold">a.n
-                                                {{ $acc->account_holder_name }}</p>
+                                            <div class="text-xs font-semibold text-slate-700 font-mono mt-0.5">
+                                                {{ $acc->account_number }} <span class="font-sans font-normal text-slate-500 text-[11px]">a.n {{ $acc->account_holder_name }}</span>
+                                            </div>
                                             @if ($acc->no_whatsapp)
-                                                <p
-                                                    class="text-[11px] text-emerald-600 font-semibold mt-0.5 flex items-center gap-1">
-                                                    <i class="fa-brands fa-whatsapp"></i> {{ $acc->no_whatsapp }}
-                                                </p>
-                                            @endif
-                                            @if ($acc->notes)
-                                                <p class="text-[10px] text-slate-400 mt-1 italic">{{ $acc->notes }}
-                                                </p>
+                                                <div class="text-[11px] text-slate-500 font-mono">
+                                                    WA: {{ $acc->no_whatsapp }}
+                                                </div>
                                             @endif
                                         </div>
                                     </div>
 
                                     <!-- Actions -->
-                                    <div class="flex items-center gap-1.5">
+                                    <div class="flex items-center gap-1.5 shrink-0">
                                         @if (!$acc->is_default)
-                                            <form action="{{ route('bank_accounts.set_default', $acc->id) }}"
-                                                method="POST" class="inline">
+                                            <form action="{{ route('bank_accounts.set_default', $acc->id) }}" method="POST" class="inline">
                                                 @csrf
                                                 <button type="submit"
-                                                    class="px-2 py-1 rounded-lg bg-slate-200 hover:bg-emerald-100 text-slate-600 hover:text-emerald-700 text-[11px] font-semibold transition-all"
+                                                    class="px-2 py-1 rounded-md bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 text-[11px] font-semibold border border-slate-200 transition-colors"
                                                     title="Jadikan Rekening Utama">
                                                     Set Utama
                                                 </button>
                                             </form>
                                         @endif
                                         <button type="button" onclick="openEditBankModal({{ json_encode($acc) }})"
-                                            class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs transition-all"
-                                            title="Edit Rekening">
-                                            <i class="fa-solid fa-pen"></i>
+                                            class="topbar-icon-btn !w-7 !h-7 !rounded-lg" title="Edit Rekening">
+                                            <i class="fa-solid fa-pen text-[11px] text-slate-500"></i>
                                         </button>
-                                        <form action="{{ route('bank_accounts.destroy', $acc->id) }}" method="POST"
-                                            class="inline"
+                                        <form action="{{ route('bank_accounts.destroy', $acc->id) }}" method="POST" class="inline"
                                             onsubmit="return confirm('Hapus rekening bank ini dari daftar tersimpan?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
-                                                class="w-7 h-7 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center text-xs transition-all"
-                                                title="Hapus Rekening">
-                                                <i class="fa-solid fa-trash"></i>
+                                                class="topbar-icon-btn !w-7 !h-7 !rounded-lg hover:!bg-rose-50" title="Hapus Rekening">
+                                                <i class="fa-solid fa-trash text-[11px] text-rose-500"></i>
                                             </button>
                                         </form>
                                     </div>
                                 </div>
                             </div>
                         @empty
-                            <div
-                                class="p-8 text-center text-slate-400 border border-dashed border-slate-200 rounded-2xl">
-                                <i class="fa-solid fa-credit-card text-3xl mb-2 text-slate-300"></i>
-                                <p class="text-xs font-semibold text-slate-600">Belum ada rekening bank tersimpan.</p>
-                                <p class="text-[11px] text-slate-400 mt-0.5">Simpan rekening bank Anda agar tidak perlu
-                                    mengetik ulang saat melakukan penarikan.</p>
-                                <button type="button" onclick="openAddBankModal()"
-                                    class="mt-3 px-4 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-600 text-xs font-bold transition-all inline-flex items-center gap-1.5">
-                                    <i class="fa-solid fa-plus"></i> Tambah Rekening Pertama
-                                </button>
+                            <div class="p-6 text-center text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                                <p class="text-xs font-semibold text-slate-600 m-0">Belum ada rekening bank tersimpan.</p>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Simpan rekening bank Anda agar pengajuan penarikan dana lebih cepat.</p>
                             </div>
                         @endforelse
                     </div>
                 </div>
 
-                <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-400 flex items-center gap-1.5">
-                    <i class="fa-solid fa-circle-check text-emerald-500"></i>
-                    <span>Rekening yang diset <strong>UTAMA</strong> akan langsung terisi di form penarikan secara
-                        otomatis.</span>
+                <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-400">
+                    Rekening <strong>UTAMA</strong> akan terpilih secara otomatis pada form penarikan.
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Riwayat Penarikan Dana -->
-    <div class="table-card bg-white border border-slate-200 shadow-sm">
-        <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+    <div class="table-card bg-white border border-slate-200 shadow-sm mb-6">
+        <div class="p-4 md:p-5 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
             <div>
-                <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                    <i class="fa-solid fa-clock-rotate-left text-slate-700"></i> Riwayat Penarikan Dana
-                </h2>
-                <p class="text-xs text-slate-400 mt-0.5">Daftar seluruh transaksi pencairan saldo Xendit oleh Super
-                    Admin</p>
+                <h2 class="text-sm font-bold text-slate-900 m-0">Riwayat Penarikan Dana</h2>
+                <p class="text-xs text-slate-500 m-0 mt-0.5">Daftar seluruh transaksi pencairan saldo XenPlatform.</p>
             </div>
-            <div class="text-xs font-bold text-slate-500 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg">
+            <div class="text-xs font-semibold text-slate-600 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg">
                 Total: {{ $withdrawals->total() }} Transaksi
             </div>
         </div>
@@ -326,14 +364,14 @@
             <table class="admin-table w-full text-xs">
                 <thead>
                     <tr>
-                        <th style="text-align: center; width: 50px;">#</th>
-                        <th>Tanggal & Waktu</th>
-                        <th>No. Referensi / ID Xendit</th>
-                        <th>Bank Tujuan</th>
-                        <th>Rekening & Nama Penerima</th>
-                        <th style="text-align: right;">Jumlah (Rp)</th>
-                        <th style="text-align: center;">Status</th>
-                        <th style="text-align: center; width: 110px;">Aksi</th>
+                        <th style="width: 50px; text-align: center;">#</th>
+                        <th style="width: 130px; text-align: center;">Tanggal & Waktu</th>
+                        <th style="width: 200px; text-align: left;">No. Referensi</th>
+                        <th style="width: 140px; text-align: left;">Bank Tujuan</th>
+                        <th style="text-align: left;">Rekening Penerima</th>
+                        <th style="width: 160px; text-align: right; padding-right: 24px;">Jumlah</th>
+                        <th style="width: 110px; text-align: center;">Status</th>
+                        <th style="width: 90px; text-align: center;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -342,65 +380,57 @@
                             <td style="text-align: center; color: #94a3b8; font-weight: 700;">
                                 {{ ($withdrawals->currentPage() - 1) * $withdrawals->perPage() + $loop->iteration }}
                             </td>
-                            <td class="whitespace-nowrap">
-                                <span
-                                    class="font-bold text-slate-800 block">{{ $wd->created_at->format('d/m/Y') }}</span>
-                                <span class="text-[11px] text-slate-400">{{ $wd->created_at->format('H:i:s') }}
-                                    WIB</span>
+                            <td style="text-align: center;">
+                                <div class="font-semibold text-slate-800">{{ $wd->created_at->format('d/m/Y') }}</div>
+                                <div class="text-[11px] text-slate-400">{{ $wd->created_at->format('H:i') }} WIB</div>
                             </td>
-                            <td class="font-mono text-[11px]">
-                                <span class="font-bold text-indigo-600 block">{{ $wd->reference_id }}</span>
-                                <span class="text-slate-400">{{ $wd->xendit_disbursement_id ?: '-' }}</span>
+                            <td style="text-align: left;">
+                                <div class="font-semibold text-indigo-600 font-mono text-[11px]">{{ $wd->reference_id }}</div>
+                                <div class="text-slate-400 text-[10px] font-mono">{{ $wd->xendit_disbursement_id ?: '-' }}</div>
                             </td>
-                            <td>
-                                <span class="font-bold text-slate-800">{{ $wd->bank_name ?: $wd->bank_code }}</span>
-                                <span
-                                    class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-mono ml-1 font-bold">{{ $wd->bank_code }}</span>
+                            <td style="text-align: left;">
+                                <div class="font-semibold text-slate-800">{{ $wd->bank_name ?: $wd->bank_code }}</div>
+                                <div class="text-[10px] text-slate-400 font-mono font-bold">{{ $wd->bank_code }}</div>
                             </td>
-                            <td>
-                                <span
-                                    class="font-mono font-bold text-slate-900 block">{{ $wd->account_number }}</span>
-                                <span
-                                    class="text-[11px] text-slate-500 uppercase">{{ $wd->account_holder_name }}</span>
+                            <td style="text-align: left;">
+                                <div class="font-mono font-bold text-slate-900">{{ $wd->account_number }}</div>
+                                <div class="text-[11px] text-slate-500 uppercase">{{ $wd->account_holder_name }}</div>
                             </td>
-                            <td class="text-right font-mono font-bold text-slate-900 text-sm whitespace-nowrap">
-                                Rp {{ number_format($wd->amount, 0, ',', '.') }}
+                            <td style="text-align: right; padding-right: 24px;">
+                                <span class="font-bold text-slate-900 text-[13px]">
+                                    Rp {{ number_format($wd->amount, 0, ',', '.') }}
+                                </span>
                             </td>
-                            <td class="text-center whitespace-nowrap">
+                            <td style="text-align: center;">
                                 @if ($wd->status === 'COMPLETED')
-                                    <span
-                                        class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
-                                        <i class="fa-solid fa-circle-check mr-1"></i> SELESAI
+                                    <span class="badge badge-published !text-[11px] !px-2.5 !py-0.5">
+                                        SELESAI
                                     </span>
                                 @elseif($wd->status === 'PENDING')
-                                    <span
-                                        class="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-bold">
-                                        <i class="fa-solid fa-clock mr-1"></i> PENDING
+                                    <span class="badge badge-draft !text-[11px] !px-2.5 !py-0.5">
+                                        PENDING
                                     </span>
                                 @else
-                                    <span
-                                        class="px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-[11px] font-bold"
-                                        title="{{ $wd->failure_code }}">
-                                        <i class="fa-solid fa-circle-xmark mr-1"></i> GAGAL
+                                    <span class="badge badge-inactive !text-[11px] !px-2.5 !py-0.5" title="{{ $wd->failure_code }}">
+                                        GAGAL
                                     </span>
                                 @endif
                             </td>
-                            <td class="text-center whitespace-nowrap">
+                            <td style="text-align: center;">
                                 @if ($wd->xendit_disbursement_id && $wd->status === 'PENDING')
                                     <button type="button" onclick="syncWithdrawalStatus({{ $wd->id }})"
-                                        class="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 text-xs font-bold transition-all">
-                                        <i class="fa-solid fa-rotate mr-1"></i> Cek Status
+                                        class="btn-primary-admin !h-7 !px-2 text-[11px] font-semibold">
+                                        Cek Status
                                     </button>
                                 @else
-                                    <span class="text-slate-300">-</span>
+                                    <span class="text-slate-300 text-xs">-</span>
                                 @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
                             <td colspan="8" class="py-8 text-center text-slate-400">
-                                <i class="fa-solid fa-receipt text-2xl mb-2 text-slate-300"></i>
-                                <p>Belum ada riwayat penarikan dana.</p>
+                                Belum ada riwayat penarikan dana.
                             </td>
                         </tr>
                     @endforelse
@@ -424,81 +454,93 @@
     <!-- Modal Tambah Rekening Bank -->
     <div class="modal-overlay" id="modalAddBank">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center text-sm border border-slate-200 shrink-0">
+                        <i class="fa-solid fa-building-columns"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Tambah Rekening Bank</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Simpan rekening bank tujuan penarikan dana.</p>
+                    </div>
+                </div>
+                <button type="button" class="modal-close" onclick="closeAddBankModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
             <form action="{{ route('bank_accounts.store') }}" method="POST">
                 @csrf
                 <input type="hidden" name="bank_name" id="add_bank_name">
 
-                <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                    <div class="modal-title">
-                        <i class="fa-solid fa-plus-circle text-indigo-600"></i>
-                        <span class="text-slate-900 font-bold text-[17px]">Tambah Rekening Bank</span>
-                    </div>
-                    <button type="button" class="modal-close" onclick="closeAddBankModal()">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-
-                <div class="modal-body p-6 space-y-4 bg-white">
-                    <div class="form-group">
-                        <label class="form-label !text-slate-800 !font-bold">Bank Tujuan <span
-                                class="text-rose-500">*</span></label>
+                <div class="modal-body p-6 bg-white">
+                    <div class="form-group mb-3.5">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
+                            Bank Tujuan <span class="text-rose-500">*</span>
+                        </label>
                         <select name="bank_code" id="add_bank_code"
-                            class="form-input-custom w-full bg-white text-slate-900 border-slate-300" required
+                            class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300 text-xs" required
                             onchange="setBankName(this, 'add_bank_name')">
                             <option value="" disabled selected>-- Pilih Bank / E-Wallet --</option>
                             @foreach ($banks as $bank)
                                 <option value="{{ $bank['code'] }}" data-name="{{ $bank['name'] }}">
-                                    {{ $bank['name'] }} ({{ $bank['code'] }})</option>
+                                    {{ $bank['name'] }} ({{ $bank['code'] }})
+                                </option>
                             @endforeach
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label !text-slate-800 !font-bold">Nomor Rekening <span
-                                class="text-rose-500">*</span></label>
-                        <input type="text" name="account_number" class="form-input font-mono font-bold"
+                    <div class="form-group mb-3.5">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
+                            Nomor Rekening <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="text" name="account_number"
+                            class="form-input !font-normal font-mono bg-white text-slate-800 border-slate-300 text-xs"
                             placeholder="Nomor rekening" required>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label !text-slate-800 !font-bold">Nama Pemilik Rekening <span
-                                class="text-rose-500">*</span></label>
-                        <input type="text" name="account_holder_name" class="form-input uppercase font-semibold"
+                    <div class="form-group mb-3.5">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
+                            Nama Pemilik Rekening <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="text" name="account_holder_name"
+                            class="form-input !font-normal uppercase bg-white text-slate-800 border-slate-300 text-xs"
                             placeholder="Nama sesuai buku tabungan" required>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label !text-slate-800 !font-bold">Nomor WhatsApp Penerima OTP <span
-                                class="text-rose-500">*</span></label>
-                        <input type="text" name="no_whatsapp" class="form-input font-mono font-bold"
+                    <div class="form-group mb-3.5">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
+                            Nomor WhatsApp Penerima OTP <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="text" name="no_whatsapp"
+                            class="form-input !font-normal font-mono bg-white text-slate-800 border-slate-300 text-xs"
                             placeholder="081234567890" required>
-                        <small class="text-slate-400 text-[11px]">Kode OTP verifikasi penarikan ke rekening ini akan
-                            dikirimkan ke nomor ini.</small>
+                        <span class="text-[11px] text-slate-400 mt-1 block">Kode OTP penarikan ke rekening ini akan dikirimkan ke nomor ini.</span>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label !text-slate-800 !font-bold">Catatan / Label (Opsional)</label>
-                        <input type="text" name="notes" class="form-input text-xs"
+                    <div class="form-group mb-3.5">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Catatan / Label (Opsional)</label>
+                        <input type="text" name="notes"
+                            class="form-input !font-normal bg-white text-slate-800 border-slate-300 text-xs"
                             placeholder="misal: Rekening Utama BCA">
                     </div>
 
-                    <div class="form-group flex items-center gap-2 pt-1">
+                    <div class="form-group mb-0 flex items-center gap-2 pt-1">
                         <input type="checkbox" name="is_default" id="add_is_default" value="1"
                             class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300">
-                        <label for="add_is_default"
-                            class="text-xs font-semibold text-slate-700 cursor-pointer">Jadikan Rekening Utama
-                            (Default)</label>
+                        <label for="add_is_default" class="text-xs font-medium text-slate-700 cursor-pointer">
+                            Jadikan Rekening Utama (Default)
+                        </label>
                     </div>
                 </div>
 
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2.5">
+                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
                         onclick="closeAddBankModal()">
-                        <i class="fa-solid fa-xmark"></i> Batal
+                        Batal
                     </button>
-                    <button type="submit"
-                        class="btn-save !flex !items-center !justify-center gap-2 !bg-indigo-600 hover:!bg-indigo-700">
-                        <i class="fa-solid fa-floppy-disk"></i> Simpan Rekening
+                    <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
+                        Simpan
                     </button>
                 </div>
             </form>
@@ -508,81 +550,91 @@
     <!-- Modal Edit Rekening Bank -->
     <div class="modal-overlay" id="modalEditBank">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center text-sm border border-slate-200 shrink-0">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Edit Rekening Bank</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Perbarui data rekening bank penerima.</p>
+                    </div>
+                </div>
+                <button type="button" class="modal-close" onclick="closeEditBankModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
             <form id="formEditBank" method="POST">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="bank_name" id="edit_bank_name">
 
-                <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                    <div class="modal-title">
-                        <i class="fa-solid fa-pen-to-square text-amber-500"></i>
-                        <span class="text-slate-900 font-bold text-[17px]">Edit Rekening Bank</span>
-                    </div>
-                    <button type="button" class="modal-close" onclick="closeEditBankModal()">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-
-                <div class="modal-body p-6 space-y-4 bg-white">
-                    <div class="form-group">
-                        <label class="form-label !text-slate-800 !font-bold">Bank Tujuan <span
-                                class="text-rose-500">*</span></label>
+                <div class="modal-body p-6 bg-white">
+                    <div class="form-group mb-3.5">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
+                            Bank Tujuan <span class="text-rose-500">*</span>
+                        </label>
                         <select name="bank_code" id="edit_bank_code"
-                            class="form-input-custom w-full bg-white text-slate-900 border-slate-300" required
+                            class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300 text-xs" required
                             onchange="setBankName(this, 'edit_bank_name')">
                             <option value="" disabled>-- Pilih Bank / E-Wallet --</option>
                             @foreach ($banks as $bank)
                                 <option value="{{ $bank['code'] }}" data-name="{{ $bank['name'] }}">
-                                    {{ $bank['name'] }} ({{ $bank['code'] }})</option>
+                                    {{ $bank['name'] }} ({{ $bank['code'] }})
+                                </option>
                             @endforeach
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label !text-slate-800 !font-bold">Nomor Rekening <span
-                                class="text-rose-500">*</span></label>
+                    <div class="form-group mb-3.5">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
+                            Nomor Rekening <span class="text-rose-500">*</span>
+                        </label>
                         <input type="text" name="account_number" id="edit_account_number"
-                            class="form-input font-mono font-bold" required>
+                            class="form-input !font-normal font-mono bg-white text-slate-800 border-slate-300 text-xs" required>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label !text-slate-800 !font-bold">Nama Pemilik Rekening <span
-                                class="text-rose-500">*</span></label>
+                    <div class="form-group mb-3.5">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
+                            Nama Pemilik Rekening <span class="text-rose-500">*</span>
+                        </label>
                         <input type="text" name="account_holder_name" id="edit_account_holder_name"
-                            class="form-input uppercase font-semibold" required>
+                            class="form-input !font-normal uppercase bg-white text-slate-800 border-slate-300 text-xs" required>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label !text-slate-800 !font-bold">Nomor WhatsApp Penerima OTP <span
-                                class="text-rose-500">*</span></label>
+                    <div class="form-group mb-3.5">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
+                            Nomor WhatsApp Penerima OTP <span class="text-rose-500">*</span>
+                        </label>
                         <input type="text" name="no_whatsapp" id="edit_no_whatsapp"
-                            class="form-input font-mono font-bold" placeholder="081234567890" required>
-                        <small class="text-slate-400 text-[11px]">Kode OTP verifikasi penarikan ke rekening ini akan
-                            dikirimkan ke nomor ini.</small>
+                            class="form-input !font-normal font-mono bg-white text-slate-800 border-slate-300 text-xs"
+                            placeholder="081234567890" required>
+                        <span class="text-[11px] text-slate-400 mt-1 block">Kode OTP penarikan ke rekening ini akan dikirimkan ke nomor ini.</span>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label !text-slate-800 !font-bold">Catatan / Label (Opsional)</label>
-                        <input type="text" name="notes" id="edit_notes" class="form-input text-xs">
+                    <div class="form-group mb-3.5">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Catatan / Label (Opsional)</label>
+                        <input type="text" name="notes" id="edit_notes"
+                            class="form-input !font-normal bg-white text-slate-800 border-slate-300 text-xs">
                     </div>
 
-                    <div class="form-group flex items-center gap-2 pt-1">
+                    <div class="form-group mb-0 flex items-center gap-2 pt-1">
                         <input type="checkbox" name="is_default" id="edit_is_default" value="1"
                             class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300">
-                        <label for="edit_is_default"
-                            class="text-xs font-semibold text-slate-700 cursor-pointer">Jadikan Rekening Utama
-                            (Default)</label>
+                        <label for="edit_is_default" class="text-xs font-medium text-slate-700 cursor-pointer">
+                            Jadikan Rekening Utama (Default)
+                        </label>
                     </div>
                 </div>
 
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2.5">
+                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
                         onclick="closeEditBankModal()">
-                        <i class="fa-solid fa-xmark"></i> Batal
+                        Batal
                     </button>
-                    <button type="submit"
-                        class="btn-save !flex !items-center !justify-center gap-2 !bg-amber-500 hover:!bg-amber-600">
-                        <i class="fa-solid fa-check"></i> Simpan Perubahan
+                    <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
+                        Simpan
                     </button>
                 </div>
             </form>
@@ -591,15 +643,15 @@
 
     <!-- OTP Verification Modal -->
     <div class="modal-overlay" id="otpModal">
-        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
             <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm border border-emerald-100 shrink-0">
+                    <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center text-sm border border-slate-200 shrink-0">
                         <i class="fa-solid fa-shield-halved"></i>
                     </div>
                     <div>
                         <h3 class="text-base font-bold text-slate-900 m-0">Verifikasi Kode OTP</h3>
-                        <p class="text-xs text-slate-500 m-0 mt-0.5">Konfirmasi penarikan saldo Xendit.</p>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Konfirmasi penarikan saldo XenPlatform.</p>
                     </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeOtpModal()">
@@ -607,15 +659,13 @@
                 </button>
             </div>
 
-            <div class="modal-body p-5 space-y-3.5 bg-white">
-                <div class="text-center">
-                    <p class="text-xs text-slate-500 m-0" id="otpRecipientInfo">
-                        Masukkan 6-digit kode OTP yang telah dikirimkan ke WhatsApp Anda.
-                    </p>
-                </div>
+            <div class="modal-body p-6 bg-white">
+                <p class="text-xs text-slate-500 text-center m-0 mb-4" id="otpRecipientInfo">
+                    Masukkan 6-digit kode OTP yang telah dikirimkan ke WhatsApp Anda.
+                </p>
 
                 <!-- Detail Transaksi Singkat -->
-                <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200 text-xs space-y-1.5">
+                <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200 text-xs space-y-1.5 mb-4">
                     <div class="flex justify-between">
                         <span class="text-slate-500">Bank Tujuan:</span>
                         <span class="font-bold text-slate-800" id="otp_preview_bank">-</span>
@@ -630,13 +680,13 @@
                     </div>
                     <div class="flex justify-between border-t border-slate-200 pt-2 mt-2">
                         <span class="text-slate-700 font-bold">Nominal Penarikan:</span>
-                        <span class="font-black text-emerald-600 text-sm font-mono" id="otp_preview_amount">-</span>
+                        <span class="font-bold text-emerald-600 text-sm font-mono" id="otp_preview_amount">-</span>
                     </div>
                 </div>
 
                 <!-- OTP Input -->
-                <div>
-                    <label class="form-label text-slate-700 font-medium text-center block mb-1 text-xs">Kode OTP (6 Digit)</label>
+                <div class="mb-3">
+                    <label class="form-label text-slate-700 font-medium text-center block mb-1.5 text-xs">Kode OTP (6 Digit)</label>
                     <input type="text" id="inputOtp" maxlength="6"
                         class="form-input text-center font-mono text-2xl font-black tracking-widest text-slate-800 py-2 bg-slate-50 focus:bg-white"
                         placeholder="••••••" autofocus>
@@ -651,13 +701,13 @@
                 </div>
             </div>
 
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2">
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2.5">
                 <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
                     onclick="closeOtpModal()">
                     Batal
                 </button>
                 <button type="button" id="btnConfirmWithdrawal" onclick="executeWithdrawal()"
-                    class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-9 !px-5 text-xs font-semibold">
+                    class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
                     Konfirmasi Penarikan
                 </button>
             </div>
