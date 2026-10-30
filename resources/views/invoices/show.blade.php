@@ -4,6 +4,7 @@
             .admin-table td {
                 padding: 10px 14px;
                 font-size: 13px;
+                vertical-align: middle;
             }
             .admin-table th {
                 padding: 11px 14px;
@@ -12,6 +13,7 @@
                 color: #64748b;
                 letter-spacing: 0.05em;
                 text-transform: uppercase !important;
+                vertical-align: middle;
             }
             .stats-grid {
                 display: grid;
@@ -241,7 +243,7 @@
                         <th style="text-align: center;">Tgl Dibuat</th>
                         <th style="text-align: center;">Jatuh Tempo</th>
                         <th style="text-align: center;">Status</th>
-                        <th style="text-align: center; width: 220px;">Opsi</th>
+                        <th style="text-align: center; width: 360px; min-width: 360px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -295,41 +297,41 @@
                                     <span class="badge" style="background:#f1f5f9; color:#64748b; font-size:10px; padding:2px 8px;">{{ strtoupper($invoice->status) }}</span>
                                 @endif
                             </td>
-                            <td class="text-center">
-                                <div class="inline-flex items-center justify-center gap-1.5 flex-wrap">
+                            <td class="text-center" style="white-space: nowrap;">
+                                <div class="flex items-center justify-center gap-1.5 flex-nowrap">
                                     <a href="{{ route('invoices.print', $invoice->id) }}" target="_blank"
-                                        class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-sky-300 hover:!bg-sky-50 flex items-center justify-center shrink-0"
-                                        title="Unduh PDF">
-                                        <i class="fa-solid fa-file-pdf text-sky-600"></i>
+                                        class="btn-primary-admin !h-8 !px-2.5 !text-xs !rounded-lg !bg-sky-600 hover:!bg-sky-700 inline-flex items-center justify-center gap-1.5 font-semibold shrink-0 shadow-sm"
+                                        title="Unduh PDF Faktur">
+                                        <i class="fa-solid fa-file-pdf"></i> PDF
                                     </a>
                                     @if ($invoice->status == 'unpaid')
                                         <form action="{{ route('invoices.pay_xendit', $invoice->id) }}" method="POST"
-                                            class="inline-block no-loader m-0" data-no-validation="true"
+                                            class="inline-flex items-center m-0 p-0 no-loader shrink-0" data-no-validation="true"
                                             onsubmit="openXenditModal(event, this)">
                                             @csrf
                                             <button type="submit"
-                                                class="btn-primary-admin !h-8 !px-2.5 !text-xs !rounded-lg !bg-indigo-600 hover:!bg-indigo-700 !gap-1.5 inline-flex items-center font-semibold"
+                                                class="btn-primary-admin !h-8 !px-2.5 !text-xs !rounded-lg !bg-indigo-600 hover:!bg-indigo-700 inline-flex items-center justify-center gap-1.5 font-semibold shrink-0 shadow-sm"
                                                 title="Bayar via Xendit">
                                                 <i class="fa-solid fa-credit-card"></i> Xendit
                                             </button>
                                         </form>
                                         @if ($invoice->xendit_invoice_url)
                                             <button type="button"
-                                                class="btn-primary-admin !h-8 !px-2.5 !text-xs !rounded-lg !bg-amber-500 hover:!bg-amber-600 !gap-1.5 inline-flex items-center font-semibold"
+                                                class="btn-primary-admin !h-8 !px-2.5 !text-xs !rounded-lg !bg-amber-500 hover:!bg-amber-600 inline-flex items-center justify-center gap-1.5 font-semibold shrink-0 shadow-sm"
                                                 onclick="syncXendit({{ $invoice->id }}, this)"
                                                 title="Cek Status Xendit">
                                                 <i class="fa-solid fa-arrows-rotate"></i> Cek Status
                                             </button>
                                         @endif
                                         <button type="button"
-                                            class="btn-primary-admin !h-8 !px-2.5 !text-xs !rounded-lg !bg-emerald-600 hover:!bg-emerald-700 !gap-1.5 inline-flex items-center font-semibold"
+                                            class="btn-primary-admin !h-8 !px-2.5 !text-xs !rounded-lg !bg-emerald-600 hover:!bg-emerald-700 inline-flex items-center justify-center gap-1.5 font-semibold shrink-0 shadow-sm"
                                             onclick="openPayModal({{ $invoice->id }}, '{{ $invoice->invoice_number }}', '{{ number_format($invoice->total, 0, ',', '.') }}')"
                                             title="Bayar Manual">
                                             <i class="fa-solid fa-money-bill-wave"></i> Manual
                                         </button>
                                     @else
-                                        <span class="badge badge-published !text-[10px] !px-2 !py-0.5">
-                                            <i class="fa-solid fa-check mr-1"></i> Selesai
+                                        <span class="badge badge-published !h-8 !px-3 !text-xs !rounded-lg inline-flex items-center justify-center gap-1.5 font-semibold shrink-0">
+                                            <i class="fa-solid fa-check"></i> Selesai
                                         </span>
                                     @endif
                                 </div>
