@@ -70,11 +70,10 @@
                 color: #92400e;
             }
 
-            /* Full Capitalization for Table Only */
-            #odp-table thead th,
-            #odp-table tbody td {
+            #odp-table thead th {
                 text-transform: uppercase !important;
                 font-weight: 600;
+                font-size: 12px;
             }
 
             #odp-table tbody td {
@@ -184,15 +183,15 @@
     <!-- Table Section -->
     <div class="table-card">
         <div class="table-responsive">
-            <table id="odp-table" class="admin-table">
+            <table id="odp-table" class="admin-table w-full">
                 <thead>
                     <tr>
                         <th style="text-align: center; width: 50px;">#</th>
                         <th style="width: 120px; text-align: center;">Jenis</th>
                         <th>Lokasi ODP</th>
-                        <th style="text-align: center; width: 200px;">Koordinat</th>
+                        <th style="text-align: center; width: 180px;">Koordinat</th>
                         <th>Keterangan</th>
-                        <th style="text-align: center; width: 120px;">Opsi</th>
+                        <th style="text-align: center; width: 140px; min-width: 130px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -211,15 +210,15 @@
                                 {{ $odp->titik_koordinat }}
                             </td>
                             <td style="font-size: 12px; color: #64748b;">{{ $odp->keterangan ?: '-' }}</td>
-                            <td style="text-align: center;">
-                                <div style="display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;">
-                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
+                            <td class="text-center whitespace-nowrap">
+                                <div class="flex items-center justify-center gap-1.5 whitespace-nowrap flex-nowrap">
+                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-emerald-300 hover:!bg-emerald-50"
                                         title="Lihat di Peta"
                                         onclick="focusOnOdp('{{ $odp->titik_koordinat }}', '{{ $odp->id }}')">
                                         <i class="fa-solid fa-location-dot text-emerald-500"></i>
                                     </button>
                                     @if ($canCrud)
-                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
+                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-amber-300 hover:!bg-amber-50"
                                             title="Edit" onclick="openEditOdpModal(this)"
                                             data-id="{{ $odp->id }}" data-jenis="{{ $odp->jenis_odp }}"
                                             data-lokasi="{{ $odp->lokasi_odp }}"
@@ -246,56 +245,58 @@
     @if ($canCrud)
         {{-- Modal Tambah ODP --}}
         <div class="modal-overlay" id="addOdpModal">
-            <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
                 <form action="{{ route('odp.store') }}" method="POST" enctype="multipart/form-data" novalidate>
                     @csrf
-                    <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                        <div class="modal-title">
-                            <i class="fa-solid fa-plus-circle text-primary"></i>
-                            <span class="text-slate-900 font-bold">Tambah Data ODP</span>
+                    <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between rounded-t-2xl">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-200 shrink-0">
+                                <i class="fa-solid fa-tower-broadcast"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-slate-900 m-0">Tambah Data ODP</h3>
+                                <p class="text-xs text-slate-500 m-0 mt-0.5">Kelola titik distribusi fiber optik dan koordinat peta.</p>
+                            </div>
                         </div>
                         <button type="button" class="modal-close" onclick="closeCustomModal('addOdpModal')">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>
-                    <div class="modal-body p-5 space-y-3">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                            <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">Jenis ODP
-                                    <span class="text-rose-500">*</span></label>
-                                <select name="jenis_odp" class="form-input-custom w-full bg-white text-slate-900 border-slate-300" required>
+                    <div class="modal-body !p-4 md:!p-5 bg-white space-y-3">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-700 font-medium text-xs mb-1">Jenis ODP <span class="text-rose-500">*</span></label>
+                                <select name="jenis_odp" class="form-input-custom !font-normal !h-8.5 !text-xs w-full bg-white text-slate-800 border-slate-300" required>
                                     <option value="EPON">EPON (Amber)</option>
                                     <option value="GPON">GPON (Blue)</option>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">Titik
-                                    Koordinat <span class="text-rose-500">*</span></label>
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-700 font-medium text-xs mb-1">Titik Koordinat <span class="text-rose-500">*</span></label>
                                 <div class="flex gap-2">
-                                    <input type="text" name="titik_koordinat" id="add_tikor" class="form-input bg-white text-slate-900 border-slate-300"
+                                    <input type="text" name="titik_koordinat" id="add_tikor" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono"
                                         placeholder="-7.xxx, 110.xxx" required>
-                                    <button type="button" class="btn-primary-admin !shadow-xs !px-3 !h-8.5 text-xs font-semibold flex items-center gap-1.5" onclick="getAddLocation()"><i class="fa-solid fa-location-crosshairs"></i> GPS</button>
+                                    <button type="button" class="btn-primary-admin !shadow-xs !px-3 !h-8.5 text-xs font-semibold flex items-center gap-1.5 shrink-0" onclick="getAddLocation()"><i class="fa-solid fa-location-crosshairs"></i> GPS</button>
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Lokasi / Nama ODP
-                                <span class="text-rose-500">*</span></label>
-                            <input type="text" name="lokasi_odp" class="form-input bg-white text-slate-900 border-slate-300"
+                        <div class="form-group mb-3">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1">Lokasi / Nama ODP <span class="text-rose-500">*</span></label>
+                            <input type="text" name="lokasi_odp" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300"
                                 placeholder="Contoh: ODP-KLT-01" required>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Foto ODP</label>
-                            <input type="file" name="foto_odp" class="form-input bg-white text-slate-900 border-slate-300" accept="image/*">
+                        <div class="form-group mb-3">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1">Foto ODP</label>
+                            <input type="file" name="foto_odp" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 !py-1" accept="image/*">
                         </div>
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Keterangan</label>
-                            <textarea name="keterangan" class="form-textarea bg-white text-slate-900 border-slate-300" rows="3" placeholder="Informasi tambahan..."></textarea>
+                        <div class="form-group !mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1">Keterangan</label>
+                            <textarea name="keterangan" class="form-textarea !text-xs bg-white text-slate-900 border-slate-300" rows="3" placeholder="Informasi tambahan..."></textarea>
                         </div>
                     </div>
-                    <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                    <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between rounded-b-2xl">
                         <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold" onclick="closeCustomModal('addOdpModal')">Batal</button>
-                        <button type="submit" class="btn-save !h-8.5 !px-4 text-xs font-semibold">Simpan</button>
+                        <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold">Simpan</button>
                     </div>
                 </form>
             </div>
@@ -303,62 +304,61 @@
 
         {{-- Modal Edit ODP --}}
         <div class="modal-overlay" id="editOdpModal">
-            <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
                 <form id="editOdpForm" method="POST" enctype="multipart/form-data" novalidate>
                     @csrf
                     @method('PUT')
-                    <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                        <div class="modal-title">
-                            <i class="fa-solid fa-pen-to-square text-primary"></i>
-                            <span class="text-slate-900 font-bold">Edit Data ODP</span>
+                    <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between rounded-t-2xl">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-sm border border-amber-200 shrink-0">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-slate-900 m-0">Edit Data ODP</h3>
+                                <p class="text-xs text-slate-500 m-0 mt-0.5">Perbarui data titik distribusi dan informasi teknis ODP.</p>
+                            </div>
                         </div>
                         <button type="button" class="modal-close" onclick="closeCustomModal('editOdpModal')">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>
-                    <div class="modal-body p-5 space-y-3">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                            <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">Jenis ODP
-                                    <span class="text-rose-500">*</span></label>
-                                <select name="jenis_odp" id="edit_jenis" class="form-input-custom w-full bg-white text-slate-900 border-slate-300" required>
+                    <div class="modal-body !p-4 md:!p-5 bg-white space-y-3">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-700 font-medium text-xs mb-1">Jenis ODP <span class="text-rose-500">*</span></label>
+                                <select name="jenis_odp" id="edit_jenis" class="form-input-custom !font-normal !h-8.5 !text-xs w-full bg-white text-slate-800 border-slate-300" required>
                                     <option value="EPON">EPON (Amber)</option>
                                     <option value="GPON">GPON (Blue)</option>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">Titik
-                                    Koordinat <span class="text-rose-500">*</span></label>
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-700 font-medium text-xs mb-1">Titik Koordinat <span class="text-rose-500">*</span></label>
                                 <div class="flex gap-2">
-                                    <input type="text" name="titik_koordinat" id="edit_tikor_input"
-                                        class="form-input bg-white text-slate-900 border-slate-300" required>
-                                    <button type="button" class="btn-primary-admin !shadow-xs !px-3 !h-8.5 text-xs font-semibold flex items-center gap-1.5" onclick="getEditLocation()"><i class="fa-solid fa-location-crosshairs"></i> GPS</button>
+                                    <input type="text" name="titik_koordinat" id="edit_tikor_input" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono" required>
+                                    <button type="button" class="btn-primary-admin !shadow-xs !px-3 !h-8.5 text-xs font-semibold flex items-center gap-1.5 shrink-0" onclick="getEditLocation()"><i class="fa-solid fa-location-crosshairs"></i> GPS</button>
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Lokasi / Nama ODP
-                                <span class="text-rose-500">*</span></label>
-                            <input type="text" name="lokasi_odp" id="edit_lokasi" class="form-input bg-white text-slate-900 border-slate-300" required>
+                        <div class="form-group mb-3">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1">Lokasi / Nama ODP <span class="text-rose-500">*</span></label>
+                            <input type="text" name="lokasi_odp" id="edit_lokasi" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300" required>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Foto ODP
-                                (Kosongkan jika tidak diubah)</label>
-                            <input type="file" name="foto_odp" class="form-input bg-white text-slate-900 border-slate-300" accept="image/*">
+                        <div class="form-group mb-3">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1">Foto ODP (Kosongkan jika tidak diubah)</label>
+                            <input type="file" name="foto_odp" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 !py-1" accept="image/*">
                             <div id="current_foto_wrap" class="mt-2 hidden">
                                 <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">Foto Saat Ini:</p>
-                                <img id="current_foto" src=""
-                                    class="w-24 h-24 object-cover rounded-lg border border-slate-200">
+                                <img id="current_foto" src="" class="w-24 h-24 object-cover rounded-lg border border-slate-200">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Keterangan</label>
-                            <textarea name="keterangan" id="edit_keterangan" class="form-textarea bg-white text-slate-900 border-slate-300" rows="3"></textarea>
+                        <div class="form-group !mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1">Keterangan</label>
+                            <textarea name="keterangan" id="edit_keterangan" class="form-textarea !text-xs bg-white text-slate-900 border-slate-300" rows="3" placeholder="Informasi tambahan..."></textarea>
                         </div>
                     </div>
-                    <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+                    <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between rounded-b-2xl">
                         <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold" onclick="closeCustomModal('editOdpModal')">Batal</button>
-                        <button type="submit" class="btn-save !h-8.5 !px-4 text-xs font-semibold">Simpan</button>
+                        <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold !bg-amber-500 hover:!bg-amber-600">Simpan</button>
                     </div>
                 </form>
             </div>
