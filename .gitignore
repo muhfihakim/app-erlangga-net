@@ -32,3 +32,4 @@ auth.json
 /backup/
 *.xlsx
 *.rsc
+/.agents/
