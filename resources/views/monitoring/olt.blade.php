@@ -155,8 +155,8 @@
                                     Perangkat</p>
                             </div>
                             <button type="button" id="btn_quick_check_uncfg" title="Cek Perangkat Baru"
-                                class="bg-amber-100 text-amber-700 hover:bg-amber-200 h-7.5 px-3 rounded-lg text-[10px] font-bold border border-amber-200 shadow-xs uppercase">
-                                Cek Baru
+                                class="bg-amber-100 text-amber-700 hover:bg-amber-200 h-7.5 px-3 rounded-lg text-[10px] font-bold border border-amber-200 shadow-xs uppercase flex items-center gap-1.5">
+                                <i class="fa-solid fa-bolt-lightning text-xs"></i> Cek Baru
                             </button>
                         </div>
 
@@ -260,8 +260,8 @@
                             </div>
                             <div class="flex gap-2">
                                 <button onclick="copyScript()"
-                                    class="btn-primary-admin !h-8 !px-3.5 !text-xs !bg-indigo-600 hover:!bg-indigo-700 font-semibold shadow-xs">
-                                    Salin Skrip
+                                    class="btn-primary-admin !h-8 !px-3.5 !text-xs !bg-indigo-600 hover:!bg-indigo-700 font-semibold shadow-xs flex items-center gap-1.5">
+                                    <i class="fa-solid fa-copy"></i> Salin Skrip
                                 </button>
                             </div>
                         </div>
@@ -372,8 +372,8 @@
 
                     <!-- Sync Button -->
                     <button id="btn_sync_global"
-                        class="btn-primary-admin !h-8.5 !px-4 !text-xs font-semibold shadow-xs">
-                        Sync Seluruh OLT
+                        class="btn-primary-admin !h-8.5 !px-4 !text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-rotate"></i> Sync Seluruh OLT
                     </button>
                 </div>
             </div>
@@ -812,13 +812,17 @@ show gpon onu state gpon-olt_${port}`;
                                         <td style="text-align: center; font-weight: 600;">${onu.port}</td>
                                         <td style="text-align: center; font-weight: 700; color: #0f172a;">${onu.sn}</td>
                                         <td style="text-align: center;">
-                                            <span class="badge" style="background: #fef3c7; color: #d97706; font-size: 10px;">${onu.status}</span>
+                                            <span class="badge inline-flex items-center gap-1" style="background: #fef3c7; color: #d97706; font-size: 10px;">
+                                                <i class="fa-solid fa-clock text-[9px]"></i> ${onu.status}
+                                            </span>
                                         </td>
                                         <td style="text-align: center; font-weight: 700; color: #64748b;">-</td>
                                         <td style="text-align: center;">
                                             <button onclick="useForActivation('${onu.port}', '${onu.sn}')" 
-                                                class="btn-primary-admin !h-7 !px-2.5 !text-[11px] font-semibold shadow-xs mx-auto">
-                                                Aktivasi
+                                                class="btn-primary-admin !h-7 !px-2.5 !text-[11px] font-semibold shadow-xs mx-auto flex items-center justify-center gap-1.5"
+                                                title="Aktivasi Pelanggan">
+                                                <i class="fa-solid fa-bolt text-xs"></i>
+                                                <span>Aktivasi</span>
                                             </button>
                                         </td>
                                     </tr>
@@ -830,12 +834,19 @@ show gpon onu state gpon-olt_${port}`;
                                     count++;
                                     let badgeColor = '#f1f5f9';
                                     let textColor = '#64748b';
+                                    let badgeIcon = '<i class="fa-solid fa-circle-question text-[9px] mr-1"></i>';
                                     if (onu.status === 'WORKING') {
                                         badgeColor = '#dcfce7';
                                         textColor = '#15803d';
+                                        badgeIcon = '<i class="fa-solid fa-circle-check text-[9px] mr-1 text-emerald-600"></i>';
                                     } else if (onu.status === 'LOS') {
                                         badgeColor = '#fef2f2';
                                         textColor = '#dc2626';
+                                        badgeIcon = '<i class="fa-solid fa-circle-xmark text-[9px] mr-1 text-rose-600"></i>';
+                                    } else if (onu.status === 'DyingGasp' || onu.status === 'PowerFail') {
+                                        badgeColor = '#fffbeb';
+                                        textColor = '#b45309';
+                                        badgeIcon = '<i class="fa-solid fa-triangle-exclamation text-[9px] mr-1 text-amber-600"></i>';
                                     }
 
                                     let powerColor = '#64748b';
@@ -862,7 +873,7 @@ show gpon onu state gpon-olt_${port}`;
                                         <td style="text-align: center; font-weight: 600;">${onu.port}:${onu.onu_id}</td>
                                         <td style="text-align: center; font-weight: 700; color: #0f172a;">${onu.sn}</td>
                                         <td style="text-align: center;">
-                                            <span class="badge" style="background: ${badgeColor}; color: ${textColor}; font-size: 10px;">${onu.status}</span>
+                                            <span class="badge inline-flex items-center" style="background: ${badgeColor}; color: ${textColor}; font-size: 10px;">${badgeIcon}${onu.status}</span>
                                         </td>
                                         <td style="text-align: center; font-weight: 800; color: ${powerColor}; font-size: 11px;">
                                             ${onu.rx_power}
@@ -870,8 +881,10 @@ show gpon onu state gpon-olt_${port}`;
                                         <td style="text-align: center;">
                                             <div class="flex items-center justify-center gap-2">
                                                 <button onclick="checkOnuStatus('${onu.port}', '${onu.onu_id}')" 
-                                                    class="btn-primary-admin !h-7 !px-2.5 !text-[11px] !bg-slate-700 hover:!bg-slate-800 font-semibold shadow-xs">
-                                                    Cek Status
+                                                    class="btn-primary-admin !h-7 !px-2.5 !text-[11px] !bg-slate-700 hover:!bg-slate-800 font-semibold shadow-xs flex items-center justify-center gap-1.5"
+                                                    title="Cek Status Detail">
+                                                    <i class="fa-solid fa-chart-line text-xs"></i>
+                                                    <span>Cek Status</span>
                                                 </button>
                                             </div>
                                         </td>

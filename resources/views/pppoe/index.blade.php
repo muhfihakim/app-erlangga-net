@@ -75,7 +75,9 @@
             <form action="{{ route('pppoe_accounts.sync_radius') }}" method="POST"
                 onsubmit="return confirm('Mulai sinkronisasi data dari server RADIUS?');">
                 @csrf
-                <button type="submit" class="btn-primary-admin !bg-indigo-600 hover:!bg-indigo-700 !h-8.5 !px-3.5 text-xs font-semibold shadow-xs">Sinkronkan RADIUS</button>
+                <button type="submit" class="btn-primary-admin !bg-indigo-600 hover:!bg-indigo-700 !h-8.5 !px-3.5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate"></i> Sinkronkan RADIUS
+                </button>
             </form>
         </div>
     </div>
@@ -175,7 +177,9 @@
                             onkeydown="return event.key != 'Enter';" />
                     </div>
                 </div>
-                <button type="submit" class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold shadow-xs">Filter</button>
+                <button type="submit" class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <i class="fa-solid fa-filter"></i> Filter
+                </button>
             </div>
         </form>
     </div>

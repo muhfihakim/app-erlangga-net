@@ -110,7 +110,7 @@
                             autocomplete="off" onkeydown="return event.key != 'Enter';" />
                     </div>
                 </div>
-                <button type="submit" class="btn-primary-admin !h-10 !px-6 flex items-center gap-2">
+                <button type="submit" class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold shadow-xs flex items-center gap-1.5">
                     <i class="fa-solid fa-filter"></i> Filter
                 </button>
             </div>

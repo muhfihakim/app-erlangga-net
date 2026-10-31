@@ -117,7 +117,8 @@ class GenieAcsController extends Controller
                 </span>';
         } else {
             $statusHtml = '
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-500">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-500">
+                    <i class="fa-solid fa-circle-xmark text-[10px] text-slate-400"></i>
                     OFFLINE
                 </span>';
         }
@@ -209,24 +210,24 @@ class GenieAcsController extends Controller
         $actionHtml = '
             <div class="flex items-center justify-center gap-1.5 flex-wrap">
                 <a href="' . $showUrl . '"
-                    class="btn-primary-admin !h-7 !px-2 !text-[11px] !bg-slate-700 hover:!bg-slate-800 font-semibold shadow-xs"
+                    class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!bg-sky-50 hover:!border-sky-300"
                     title="Detail & Diagnostik">
-                    Detail
+                    <i class="fa-solid fa-arrow-up-right-from-square text-sky-600 text-xs"></i>
                 </a>
                 <button type="button"
-                    class="btn-quick-wifi btn-primary-admin !h-7 !px-2 !text-[11px] !bg-emerald-600 hover:!bg-emerald-700 font-semibold shadow-xs"
+                    class="btn-quick-wifi topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!bg-emerald-50 hover:!border-emerald-300"
                     data-device-id="' . $devId . '"
                     data-serial="' . $serialEsc . '"
                     data-ssid="' . $ssidEsc . '"
                     title="Ubah Nama & Password Wi-Fi">
-                    Wi-Fi
+                    <i class="fa-solid fa-wifi text-emerald-600 text-xs"></i>
                 </button>
                 <button type="button"
-                    class="btn-quick-reboot btn-cancel !h-7 !px-2 !text-[11px] hover:!text-rose-600 hover:!border-rose-300 font-semibold"
+                    class="btn-quick-reboot topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!bg-rose-50 hover:!border-rose-300"
                     data-device-id="' . $devId . '"
                     data-serial="' . $serialEsc . '"
                     title="Reboot ONT">
-                    Reboot
+                    <i class="fa-solid fa-power-off text-rose-600 text-xs"></i>
                 </button>
             </div>';
 

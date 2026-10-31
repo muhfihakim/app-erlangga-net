@@ -212,26 +212,26 @@
                             </td>
                             <td style="font-size: 12px; color: #64748b;">{{ $odp->keterangan ?: '-' }}</td>
                             <td style="text-align: center;">
-                                <div style="display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap;">
-                                    <button type="button" class="btn-primary-admin !h-7 !px-2 !text-[11px] !bg-emerald-600 hover:!bg-emerald-700 font-semibold shadow-xs"
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;">
+                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                         title="Lihat di Peta"
                                         onclick="focusOnOdp('{{ $odp->titik_koordinat }}', '{{ $odp->id }}')">
-                                        Peta
+                                        <i class="fa-solid fa-location-dot text-emerald-500"></i>
                                     </button>
                                     @if ($canCrud)
-                                        <button type="button" class="btn-primary-admin !h-7 !px-2 !text-[11px] !bg-amber-500 hover:!bg-amber-600 font-semibold shadow-xs"
+                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                             title="Edit" onclick="openEditOdpModal(this)"
                                             data-id="{{ $odp->id }}" data-jenis="{{ $odp->jenis_odp }}"
                                             data-lokasi="{{ $odp->lokasi_odp }}"
                                             data-tikor="{{ $odp->titik_koordinat }}"
                                             data-keterangan="{{ $odp->keterangan }}"
                                             data-foto="{{ $odp->foto_odp ? Storage::url($odp->foto_odp) : '' }}">
-                                            Edit
+                                            <i class="fa-solid fa-pen-to-square text-amber-500"></i>
                                         </button>
-                                        <button type="button" class="btn-cancel !h-7 !px-2 !text-[11px] hover:!text-rose-600 hover:!border-rose-300 font-semibold"
+                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50"
                                             title="Hapus"
                                             onclick="confirmGlobalDelete('{{ route('odp.destroy', $odp->id) }}', 'ODP {{ addslashes($odp->lokasi_odp) }}')">
-                                            Hapus
+                                            <i class="fa-solid fa-trash text-rose-500"></i>
                                         </button>
                                     @endif
                                 </div>
@@ -274,7 +274,7 @@
                                 <div class="flex gap-2">
                                     <input type="text" name="titik_koordinat" id="add_tikor" class="form-input bg-white text-slate-900 border-slate-300"
                                         placeholder="-7.xxx, 110.xxx" required>
-                                    <button type="button" class="btn-primary-admin !shadow-xs !px-3 !h-8.5 text-xs font-semibold" onclick="getAddLocation()">GPS</button>
+                                    <button type="button" class="btn-primary-admin !shadow-xs !px-3 !h-8.5 text-xs font-semibold flex items-center gap-1.5" onclick="getAddLocation()"><i class="fa-solid fa-location-crosshairs"></i> GPS</button>
                                 </div>
                             </div>
                         </div>
@@ -332,7 +332,7 @@
                                 <div class="flex gap-2">
                                     <input type="text" name="titik_koordinat" id="edit_tikor_input"
                                         class="form-input bg-white text-slate-900 border-slate-300" required>
-                                    <button type="button" class="btn-primary-admin !shadow-xs !px-3 !h-8.5 text-xs font-semibold" onclick="getEditLocation()">GPS</button>
+                                    <button type="button" class="btn-primary-admin !shadow-xs !px-3 !h-8.5 text-xs font-semibold flex items-center gap-1.5" onclick="getEditLocation()"><i class="fa-solid fa-location-crosshairs"></i> GPS</button>
                                 </div>
                             </div>
                         </div>

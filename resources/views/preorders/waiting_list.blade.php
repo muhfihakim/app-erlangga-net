@@ -146,8 +146,8 @@
                             autocomplete="off" onkeydown="return event.key != 'Enter';" />
                     </div>
                 </div>
-                <button type="submit" class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold">
-                    Filter
+                <button type="submit" class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5 shadow-xs">
+                    <i class="fa-solid fa-filter"></i> Filter
                 </button>
             </div>
         </form>
@@ -215,9 +215,9 @@
                             <td style="text-align: center;">
                                 @if ($po->titik_koordinat && str_contains($po->titik_koordinat, ','))
                                     <a href="https://www.google.com/maps/search/?api=1&query={{ $po->titik_koordinat }}" target="_blank"
-                                        class="inline-flex items-center px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-mono font-semibold"
-                                        title="Buka lokasi di Google Maps">
-                                        Peta
+                                        class="topbar-icon-btn !w-7 !h-7 !rounded-lg inline-flex items-center justify-center text-emerald-600 hover:text-emerald-700"
+                                        title="Buka lokasi di Google Maps: {{ $po->titik_koordinat }}">
+                                        <i class="fa-solid fa-location-dot text-xs"></i>
                                     </a>
                                 @else
                                     <span class="text-xs text-slate-400 italic">-</span>
@@ -225,12 +225,12 @@
                             </td>
                             <td style="text-align: center;">
                                 @if ($po->is_unspek_approved)
-                                    <span class="badge text-[10px] font-bold" style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;">
-                                        EKSPANSI
+                                    <span class="badge text-[10px] font-bold inline-flex items-center gap-1" style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;">
+                                        <i class="fa-solid fa-circle-check text-emerald-600"></i> EKSPANSI
                                     </span>
                                 @else
-                                    <span class="badge text-[10px] font-bold" style="background:#fffbeb;color:#b45309;border:1px solid #fde68a;">
-                                        PENDING REVIEW
+                                    <span class="badge text-[10px] font-bold inline-flex items-center gap-1" style="background:#fffbeb;color:#b45309;border:1px solid #fde68a;">
+                                        <i class="fa-solid fa-clock text-amber-600"></i> PENDING REVIEW
                                     </span>
                                 @endif
                             </td>
@@ -242,24 +242,24 @@
                                             <form action="{{ route('pre_orders.approve_unspek', $po->id) }}" method="POST" class="inline"
                                                 onsubmit="return confirm('Setujui calon pelanggan ini resmi masuk ke Waiting List Ekspansi?')">
                                                 @csrf
-                                                <button type="submit" class="btn-primary-admin !h-7 !px-2 !text-[11px] !bg-emerald-600 hover:!bg-emerald-700 font-semibold shadow-xs"
+                                                <button type="submit" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!bg-emerald-50 hover:!border-emerald-300"
                                                     title="Setujui Masuk Waiting List">
-                                                    Setujui
+                                                    <i class="fa-solid fa-check text-emerald-600"></i>
                                                 </button>
                                             </form>
                                         @endif
                                         <form action="{{ route('pre_orders.reopen_unspek', $po->id) }}" method="POST" class="inline"
                                             onsubmit="return confirm('Aktifkan kembali calon pelanggan ini ke antrean Pre-Order & Aktivasi?')">
                                             @csrf
-                                            <button type="submit" class="btn-primary-admin !h-7 !px-2 !text-[11px] !bg-sky-600 hover:!bg-sky-700 font-semibold shadow-xs"
+                                            <button type="submit" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!bg-sky-50 hover:!border-sky-300"
                                                 title="Aktifkan ke Pre-Order">
-                                                Aktifkan
+                                                <i class="fa-solid fa-arrow-up-right-from-square text-sky-600"></i>
                                             </button>
                                         </form>
                                     @endif
 
                                     {{-- Detail Button --}}
-                                    <button type="button" class="btn-primary-admin !h-7 !px-2 !text-[11px] !bg-slate-700 hover:!bg-slate-800 font-semibold shadow-xs"
+                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!bg-slate-100 hover:!border-slate-300"
                                         onclick="openCustomModal('detailModal', this)"
                                         data-po-id="{{ $po->id }}"
                                         data-nama="{{ $po->nama_lengkap }}"
@@ -276,16 +276,16 @@
                                         data-status-badge="{{ $po->is_unspek_approved ? 'badge-published' : 'badge-warning' }}"
                                         data-foto-ktp="{{ $po->foto_ktp ? Storage::url($po->foto_ktp) : '' }}"
                                         data-foto-rumah="{{ $po->foto_rumah ? Storage::url($po->foto_rumah) : '' }}"
-                                        title="Detail">
-                                        Detail
+                                        title="Detail Informasi">
+                                        <i class="fa-solid fa-eye text-slate-600"></i>
                                     </button>
 
                                     {{-- Delete Button --}}
                                     @if (Auth::user()->isAdmin() || (auth()->user()->jabatan === 'Sales' && $po->id_sales == auth()->id()))
-                                        <button type="button" class="btn-cancel !h-7 !px-2 !text-[11px] hover:!text-rose-600 hover:!border-rose-300 font-semibold"
+                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50"
                                             onclick="confirmGlobalDelete('{{ route('pre_orders.destroy', $po->id) }}', '{{ addslashes($po->nama_lengkap) }}')"
                                             title="Hapus">
-                                            Hapus
+                                            <i class="fa-solid fa-trash text-rose-500"></i>
                                         </button>
                                     @endif
                                 </div>

@@ -73,7 +73,9 @@
             </p>
         </div>
         <div class="flex items-center gap-2">
-            <button type="button" id="btn-refresh-live" class="btn-primary-admin !h-8.5 !px-3.5 text-xs font-semibold shadow-xs">Refresh</button>
+            <button type="button" id="btn-refresh-live" class="btn-primary-admin !h-8.5 !px-3.5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                <i class="fa-solid fa-arrows-rotate" id="refresh-icon"></i> Refresh
+            </button>
         </div>
     </div>
 
@@ -331,7 +333,7 @@
                         <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Caller ID (MAC)</span><span class="text-sm font-bold text-slate-700 font-mono">${caller || '-'}</span></div>
                         
                         <div class="mt-6">
-                            <button onclick="createRemoteTunnel('${addr}')" class="btn-primary-admin w-full !h-8.5 text-xs font-semibold shadow-xs">Remote Akses ONT/ONU</button>
+                            <button onclick="createRemoteTunnel('${addr}')" class="btn-primary-admin w-full !h-8.5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5"><i class="fa-solid fa-satellite-dish"></i> Remote Akses ONT/ONU</button>
                         </div>
                     </div>
                 `);

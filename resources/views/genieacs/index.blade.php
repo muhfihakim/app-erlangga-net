@@ -139,8 +139,8 @@
                 Pengaturan
             </a>
             <button type="button" id="btn-refresh-data"
-                class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-3.5 text-xs font-semibold shadow-xs">
-                Refresh
+                class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-3.5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                <i class="fa-solid fa-arrows-rotate" id="refresh-icon"></i> Refresh
             </button>
         </div>
     </div>
@@ -199,11 +199,11 @@
                             onkeydown="return event.key != 'Enter';" />
                     </div>
                 </div>
-                <button type="button" id="btn-filter" class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold shadow-xs">
-                    Filter
+                <button type="button" id="btn-filter" class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <i class="fa-solid fa-filter"></i> Filter
                 </button>
-                <button type="button" id="btn-reset-filter" class="btn-cancel !h-8.5 !px-3 text-xs font-semibold">
-                    Reset
+                <button type="button" id="btn-reset-filter" class="btn-cancel !h-8.5 !px-3 text-xs font-semibold flex items-center gap-1.5" title="Reset Filter">
+                    <i class="fa-solid fa-xmark"></i> Reset
                 </button>
             </div>
         </form>

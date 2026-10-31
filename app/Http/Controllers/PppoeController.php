@@ -190,7 +190,7 @@ class PppoeController extends Controller
                 'is_isolir' => $isIsolir,
             ]), ENT_QUOTES);
 
-            $opsiHtml = '<button type="button" class="btn-primary-admin !h-7 !px-2.5 !text-[11px] !bg-slate-700 hover:!bg-slate-800 font-semibold shadow-xs" title="Detail Koneksi & Remote ONT" onclick=\'showDetail(' . $detailPayload . ')\'>Detail</button>';
+            $opsiHtml = '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Detail Koneksi & Remote ONT" onclick=\'showDetail(' . $detailPayload . ')\'><i class="fa-solid fa-eye text-primary"></i></button>';
 
             $rows[] = [
                 'DT_RowIndex' => $start + $index + 1,
