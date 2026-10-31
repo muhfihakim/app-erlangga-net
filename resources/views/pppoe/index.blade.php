@@ -169,11 +169,11 @@
                     </select>
                 </div>
                 <div style="flex: 1.5; min-width: 220px;">
-                    <label class="form-label-custom">Live Search</label>
+                    <label class="form-label-custom">Pencarian</label>
                     <div class="search-wrap !max-w-full">
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
                         <input type="search" class="search-input custom-search !h-8.5 !text-xs" id="custom-search"
-                            placeholder="Cari username, nama, IP..." autocomplete="off"
+                            placeholder="Cari username, nama, IP, router..." autocomplete="off"
                             onkeydown="return event.key != 'Enter';" />
                     </div>
                 </div>
@@ -198,7 +198,7 @@
                         <th style="text-align: center; width: 120px;">IP Address</th>
                         <th style="text-align: center; width: 110px;">Tipe Bayar</th>
                         <th style="text-align: center; width: 130px;">Status Invoice</th>
-                        <th style="text-align: center; width: 90px;">Opsi</th>
+                        <th style="text-align: center; width: 160px; min-width: 150px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -209,22 +209,22 @@
 
     <!-- Edit Modal -->
     <div class="modal-overlay" id="editPppoeModal">
-        <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
-            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                <div class="modal-title">
+        <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="modal-header border-b border-slate-200 bg-white px-5 py-3.5 flex items-center justify-between rounded-t-2xl">
+                <div class="modal-title flex items-center gap-2">
                     <i class="fa-solid fa-pen-to-square text-amber-500"></i>
-                    <span class="text-slate-900 font-bold text-[17px]">Edit Akun PPPoE</span>
+                    <span class="text-slate-900 font-bold text-sm">Edit Akun PPPoE</span>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('editPppoeModal')">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <div class="modal-tabs bg-white border-b border-slate-200">
-                <button class="modal-tab active" data-tab="edit-pppoe-tab-akun">
+            <div class="modal-tabs bg-white border-b border-slate-200 px-4">
+                <button type="button" class="modal-tab !py-2.5 !text-xs active" data-tab="edit-pppoe-tab-akun">
                     <i class="fa-solid fa-user-shield"></i> Akun PPPoE
                 </button>
-                <button class="modal-tab" data-tab="edit-pppoe-tab-pembayaran">
+                <button type="button" class="modal-tab !py-2.5 !text-xs" data-tab="edit-pppoe-tab-pembayaran">
                     <i class="fa-solid fa-money-bill"></i> Pembayaran
                 </button>
             </div>
@@ -233,118 +233,95 @@
                 @csrf
                 @method('PUT')
 
-                <div class="modal-body bg-white">
+                <div class="modal-body !p-4 md:!p-5 bg-white">
                     <!-- Tab Akun PPPoE -->
                     <div class="tab-panel active" id="edit-pppoe-tab-akun">
-                        <div class="form-grid-2">
-                            <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">Username <span
-                                        class="text-rose-500">*</span></label>
-                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
-                                    id="edit_username" name="username" required>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-800 font-bold text-xs uppercase mb-1">Username <span class="text-rose-500">*</span></label>
+                                <input type="text" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono font-bold" id="edit_username" name="username" required>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">Password <span
-                                        class="text-rose-500">*</span></label>
-                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
-                                    id="edit_password" name="password" required>
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-800 font-bold text-xs uppercase mb-1">Password <span class="text-rose-500">*</span></label>
+                                <input type="text" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono font-bold" id="edit_password" name="password" required>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Profile / Paket <span
-                                    class="text-rose-500">*</span></label>
-                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
-                                id="edit_paket_id" name="paket_id" required>
+                        <div class="form-group mb-3">
+                            <label class="form-label text-slate-800 font-bold text-xs uppercase mb-1">Profile / Paket <span class="text-rose-500">*</span></label>
+                            <select class="form-input-custom !h-8.5 !text-xs w-full bg-white text-slate-900 border-slate-300" id="edit_paket_id" name="paket_id" required>
                                 @foreach ($pakets as $paket)
-                                    <option value="{{ $paket->id }}">{{ $paket->nama_paket }} - Rp
-                                        {{ number_format($paket->harga, 0, ',', '.') }}</option>
+                                    <option value="{{ $paket->id }}">{{ $paket->nama_paket }} - Rp {{ number_format($paket->harga, 0, ',', '.') }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="form-grid-2">
-                            <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">Router / NAS</label>
-                                <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
-                                    id="edit_router" name="router">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-800 font-bold text-xs uppercase mb-1">Router / NAS</label>
+                                <select class="form-input-custom !h-8.5 !text-xs w-full bg-white text-slate-900 border-slate-300" id="edit_router" name="router">
                                     <option value="All">Semua Router (ALL)</option>
                                     @foreach ($routers as $r)
-                                        <option value="{{ $r->shortname }}">{{ $r->shortname }}
-                                            ({{ $r->nasname }})</option>
+                                        <option value="{{ $r->shortname }}">{{ $r->shortname }} ({{ $r->nasname }})</option>
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">IP Address</label>
-                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
-                                    id="edit_ip_address" name="ip_address">
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-800 font-bold text-xs uppercase mb-1">IP Address</label>
+                                <input type="text" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono" id="edit_ip_address" name="ip_address" placeholder="Contoh: 10.10.10.2">
                             </div>
                         </div>
                     </div>
 
                     <!-- Tab Pembayaran -->
                     <div class="tab-panel" id="edit-pppoe-tab-pembayaran">
-                        <div class="form-grid-2">
-                            <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">Tipe Pembayaran</label>
-                                <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
-                                    id="edit_tipe_pembayaran" name="tipe_pembayaran">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-800 font-bold text-xs uppercase mb-1">Tipe Pembayaran</label>
+                                <select class="form-input-custom !h-8.5 !text-xs w-full bg-white text-slate-900 border-slate-300" id="edit_tipe_pembayaran" name="tipe_pembayaran">
                                     <option value="postpaid">Postpaid</option>
                                     <option value="prepaid">Prepaid</option>
                                 </select>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">Tanggal Aktif</label>
-                                <input type="date" class="form-input bg-white text-slate-900 border-slate-300"
-                                    id="edit_tanggal_aktif" name="tanggal_aktif">
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-800 font-bold text-xs uppercase mb-1">Tanggal Aktif</label>
+                                <input type="date" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300" id="edit_tanggal_aktif" name="tanggal_aktif">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Periode Billing</label>
-                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
-                                id="edit_periode_billing" name="periode_billing">
+                        <div class="form-group mb-3">
+                            <label class="form-label text-slate-800 font-bold text-xs uppercase mb-1">Periode Billing</label>
+                            <select class="form-input-custom !h-8.5 !text-xs w-full bg-white text-slate-900 border-slate-300" id="edit_periode_billing" name="periode_billing">
                                 <option value="fixed">Fixed</option>
                                 <option value="renewal">Renewal</option>
                             </select>
                         </div>
-                        <div class="form-grid-2">
-                            <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">Pajak (Rp)</label>
-                                <input type="number" class="form-input bg-white text-slate-900 border-slate-300"
-                                    id="edit_pajak" name="pajak">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-800 font-bold text-xs uppercase mb-1">Pajak (Rp)</label>
+                                <input type="number" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono" id="edit_pajak" name="pajak">
                             </div>
-                            <div class="form-group">
-                                <label class="form-label text-slate-800 font-bold">Diskon (Rp)</label>
-                                <input type="number" class="form-input bg-white text-slate-900 border-slate-300"
-                                    id="edit_diskon" name="diskon">
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-800 font-bold text-xs uppercase mb-1">Diskon (Rp)</label>
+                                <input type="number" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono" id="edit_diskon" name="diskon">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Status Invoice</label>
-                            <select class="form-input-custom w-full bg-white text-slate-900 border-slate-300"
-                                id="edit_status_invoice" name="status_invoice">
+                        <div class="form-group mb-3">
+                            <label class="form-label text-slate-800 font-bold text-xs uppercase mb-1">Status Invoice</label>
+                            <select class="form-input-custom !h-8.5 !text-xs w-full bg-white text-slate-900 border-slate-300" id="edit_status_invoice" name="status_invoice">
                                 <option value="belum_bayar">Belum Bayar</option>
                                 <option value="terbayar">Terbayar</option>
                             </select>
                         </div>
-                        <div class="form-group mt-2">
+                        <div class="form-group !mb-0 pt-1">
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" id="edit_generate_invoice" name="generate_invoice"
-                                    class="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500">
-                                <span class="text-sm font-medium text-slate-700">Generate Invoice</span>
+                                <input type="checkbox" id="edit_generate_invoice" name="generate_invoice" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
+                                <span class="text-xs font-semibold text-slate-700">Generate Invoice Otomatis</span>
                             </label>
                         </div>
                     </div>
                 </div>
 
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                    <button type="button" class="btn-cancel !h-8 !px-3.5 text-xs font-semibold"
-                        onclick="closeCustomModal('editPppoeModal')">
-                        Batal
-                    </button>
-                    <button type="submit"
-                        class="btn-save !h-8 !px-4 text-xs font-semibold !bg-amber-500 hover:!bg-amber-600">
-                        Simpan
-                    </button>
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl px-5 py-3 flex justify-end gap-2">
+                    <button type="button" class="btn-cancel !h-8.5 !px-3.5 text-xs font-semibold" onclick="closeCustomModal('editPppoeModal')">Batal</button>
+                    <button type="submit" class="btn-save !h-8.5 !px-4 text-xs font-semibold !bg-amber-500 hover:!bg-amber-600">Simpan</button>
                 </div>
             </form>
         </div>
@@ -499,7 +476,8 @@
                             data: 'opsi',
                             name: 'opsi',
                             searchable: false,
-                            orderable: false
+                            orderable: false,
+                            className: 'text-center whitespace-nowrap'
                         }
                     ],
                     pageLength: 10,
