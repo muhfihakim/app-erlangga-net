@@ -75,16 +75,13 @@
             <form action="{{ route('pppoe_accounts.sync_radius') }}" method="POST"
                 onsubmit="return confirm('Mulai sinkronisasi data dari server RADIUS?');">
                 @csrf
-                <button type="submit"
-                    class="btn-primary-admin !bg-indigo-600 hover:!bg-indigo-700 !h-10 flex items-center gap-2">
-                    <i class="fa-solid fa-rotate"></i> Sync RADIUS
-                </button>
+                <button type="submit" class="btn-primary-admin !bg-indigo-600 hover:!bg-indigo-700 !h-8.5 !px-3.5 text-xs font-semibold shadow-xs">Sinkronkan RADIUS</button>
             </form>
         </div>
     </div>
 
     <!-- Stats Cards Grid -->
-    <div class="stats-grid mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="stats-grid mb-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         <div class="stat-card">
             <div class="stat-icon" style="background:#e0e7ff;color:#4338ca;">
                 <i class="fa-solid fa-users-gear"></i>
@@ -129,7 +126,7 @@
             <div class="filter-group">
                 <div style="flex: 1; min-width: 160px;">
                     <label class="form-label-custom">Status Akun</label>
-                    <select name="status_invoice" class="form-input-custom" id="filter-status">
+                    <select name="status_invoice" class="form-input-custom !h-8.5 !text-xs" id="filter-status">
                         <option value="">Semua Status</option>
                         <option value="terbayar" {{ $filterStatus === 'terbayar' ? 'selected' : '' }}>Terbayar</option>
                         <option value="belum_bayar" {{ $filterStatus === 'belum_bayar' ? 'selected' : '' }}>Belum Bayar</option>
@@ -138,7 +135,7 @@
                 </div>
                 <div style="flex: 1; min-width: 180px;">
                     <label class="form-label-custom">Paket Layanan</label>
-                    <select name="paket_id" class="form-input-custom" id="filter-paket">
+                    <select name="paket_id" class="form-input-custom !h-8.5 !text-xs" id="filter-paket">
                         <option value="">Semua Paket</option>
                         @foreach ($pakets as $p)
                             <option value="{{ $p->id }}" {{ $filterPaket == $p->id ? 'selected' : '' }}>
@@ -149,7 +146,7 @@
                 </div>
                 <div style="flex: 1; min-width: 150px;">
                     <label class="form-label-custom">Tipe Bayar</label>
-                    <select name="tipe_pembayaran" class="form-input-custom" id="filter-tipe">
+                    <select name="tipe_pembayaran" class="form-input-custom !h-8.5 !text-xs" id="filter-tipe">
                         <option value="">Semua Tipe</option>
                         <option value="prepaid" {{ $filterTipe === 'prepaid' ? 'selected' : '' }}>Prepaid</option>
                         <option value="postpaid" {{ $filterTipe === 'postpaid' ? 'selected' : '' }}>Postpaid</option>
@@ -157,7 +154,7 @@
                 </div>
                 <div style="flex: 1; min-width: 160px;">
                     <label class="form-label-custom">Router / NAS</label>
-                    <select name="router" class="form-input-custom" id="filter-router">
+                    <select name="router" class="form-input-custom !h-8.5 !text-xs" id="filter-router">
                         <option value="">Semua Router</option>
                         <option value="All" {{ $filterRouter === 'All' ? 'selected' : '' }}>All (Semua Router)
                         </option>
@@ -173,14 +170,12 @@
                     <label class="form-label-custom">Live Search</label>
                     <div class="search-wrap !max-w-full">
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                        <input type="search" class="search-input custom-search" id="custom-search"
+                        <input type="search" class="search-input custom-search !h-8.5 !text-xs" id="custom-search"
                             placeholder="Cari username, nama, IP..." autocomplete="off"
                             onkeydown="return event.key != 'Enter';" />
                     </div>
                 </div>
-                <button type="submit" class="btn-primary-admin !h-10 !px-6 flex items-center gap-2">
-                    <i class="fa-solid fa-filter"></i> Filter
-                </button>
+                <button type="submit" class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold shadow-xs">Filter</button>
             </div>
         </form>
     </div>
@@ -338,12 +333,12 @@
                 </div>
 
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+                    <button type="button" class="btn-cancel !h-8 !px-3.5 text-xs font-semibold"
                         onclick="closeCustomModal('editPppoeModal')">
-                        <i class="fa-solid fa-xmark"></i> Batal
+                        Batal
                     </button>
                     <button type="submit"
-                        class="btn-save !flex !items-center !justify-center gap-2 !bg-amber-500 hover:!bg-amber-600">
+                        class="btn-save !h-8 !px-4 text-xs font-semibold !bg-amber-500 hover:!bg-amber-600">
                         Simpan
                     </button>
                 </div>
@@ -376,7 +371,7 @@
                             <i class="fa-solid fa-triangle-exclamation"></i> Perhatian:
                         </div>
                         <p class="m-0 leading-relaxed">
-                            Akun <strong id="isolirPppoeUsername" class="font-mono text-rose-700 font-bold"></strong> akan dialihkan ke group FreeRADIUS <strong>ISOLIR</strong> (kecepatan 128k/128k, IP 172.30.x.x) dan sesi aktif di MikroTik akan di-kick agar dial ulang secara otomatis.
+                            Akun <strong id="isolirPppoeUsername" class="font-mono text-rose-700 font-bold"></strong> akan dialihkan ke group RADIUS <strong>ISOLIR</strong> (kecepatan 128k/128k, IP 172.30.x.x) dan sesi aktif di MikroTik akan di-kick agar dial ulang secara otomatis.
                         </p>
                     </div>
 
@@ -386,11 +381,11 @@
                     </div>
                 </div>
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2">
-                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('isolirPppoeModal')">
+                    <button type="button" class="btn-cancel !h-8 !px-3.5 text-xs font-semibold" onclick="closeCustomModal('isolirPppoeModal')">
                         Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-9 !px-5 text-xs font-semibold">
-                        Isolir Sekarang
+                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8 !px-4 text-xs font-semibold">
+                        Isolir
                     </button>
                 </div>
             </form>
@@ -422,16 +417,16 @@
                             <i class="fa-solid fa-circle-check"></i> Konfirmasi Pembukaan:
                         </div>
                         <p class="m-0 leading-relaxed">
-                            Akun <strong id="bukaIsolirPppoeUsername" class="font-mono text-emerald-800 font-bold"></strong> akan dikembalikan ke profil paket aslinya di FreeRADIUS dan sesi aktif di MikroTik akan di-kick agar dial ulang dengan kecepatan normal.
+                            Akun <strong id="bukaIsolirPppoeUsername" class="font-mono text-emerald-800 font-bold"></strong> akan dikembalikan ke profil paket aslinya di RADIUS dan sesi aktif di MikroTik akan di-kick agar dial ulang dengan kecepatan normal.
                         </p>
                     </div>
                 </div>
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2">
-                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('bukaIsolirPppoeModal')">
+                    <button type="button" class="btn-cancel !h-8 !px-3.5 text-xs font-semibold" onclick="closeCustomModal('bukaIsolirPppoeModal')">
                         Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-9 !px-5 text-xs font-semibold">
-                        Buka Isolir Sekarang
+                    <button type="submit" class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-8 !px-4 text-xs font-semibold">
+                        Buka Isolir
                     </button>
                 </div>
             </form>

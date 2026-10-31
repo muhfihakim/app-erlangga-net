@@ -51,7 +51,7 @@
             <form action="{{ route('pakets.sync_to_mikrotik') }}" method="POST" style="margin:0;">
                 @csrf
                 <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !bg-indigo-600 hover:!bg-indigo-700" 
-                    onclick="return confirm('Kirim dan sinkronkan seluruh paket layanan dari database ke MikroTik (PPP Profile, IP Pool & FreeRADIUS)?')">
+                    onclick="return confirm('Kirim dan sinkronkan seluruh paket layanan dari database ke MikroTik (PPP Profile, IP Pool & RADIUS)?')">
                     Sync ke MikroTik
                 </button>
             </form>
@@ -234,7 +234,7 @@
                     <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 mb-3.5 space-y-3">
                         <div class="flex items-center gap-2 text-slate-700 font-bold text-xs uppercase tracking-wider">
                             <i class="fa-solid fa-network-wired text-slate-500"></i>
-                            <span>Pengaturan IP Pool & Gateway MikroTik / FreeRADIUS</span>
+                            <span>Pengaturan IP Pool & Gateway MikroTik / RADIUS</span>
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">

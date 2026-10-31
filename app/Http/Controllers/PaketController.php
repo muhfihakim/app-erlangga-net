@@ -423,7 +423,7 @@ class PaketController extends Controller
             $routerHost = \App\Models\Setting::get('mikrotik_host', config('mikrotik.host'));
 
             if (empty($errors)) {
-                return redirect()->route('pakets.index')->with('success', "Berhasil mengirim & menyinkronkan {$syncedCount} paket ke MikroTik ($routerHost) & FreeRADIUS (PPP Profile & IP Pool)!");
+                return redirect()->route('pakets.index')->with('success', "Berhasil mengirim & menyinkronkan {$syncedCount} paket ke MikroTik ($routerHost) & RADIUS (PPP Profile & IP Pool)!");
             } else {
                 $fail = implode(', ', $errors);
                 return redirect()->route('pakets.index')->with('warning', "Tersinkron {$syncedCount} paket, gagal pada: {$fail}");

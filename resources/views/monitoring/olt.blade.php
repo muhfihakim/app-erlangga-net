@@ -4,27 +4,27 @@
             .olt-card {
                 background: #fff;
                 border: 1px solid #e2e8f0;
-                border-radius: 16px;
-                padding: 1.5rem;
-                box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
+                border-radius: 12px;
+                padding: 1rem;
+                box-shadow: 0 1px 4px rgba(0, 0, 0, .04);
             }
 
             .form-label {
-                font-size: 11px;
+                font-size: 10px;
                 font-weight: 700;
-                color: #94a3b8;
+                color: #64748b;
                 text-transform: uppercase;
-                margin-bottom: 0.5rem;
+                margin-bottom: 0.35rem;
                 display: block;
             }
 
             .form-input {
                 width: 100%;
-                padding: 0.75rem 1rem;
-                border: 2px solid #f1f5f9;
-                border-radius: 12px;
-                font-size: 13px;
-                font-weight: 600;
+                padding: 0.45rem 0.75rem;
+                border: 1px solid #cbd5e1;
+                border-radius: 8px;
+                font-size: 12px;
+                font-weight: 500;
                 color: #334155;
                 transition: all 0.2s;
                 background: #f8fafc;
@@ -34,21 +34,21 @@
                 border-color: #0ea5e9;
                 background: #fff;
                 outline: none;
-                box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+                box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
             }
 
             .tab-btn {
-                padding: 0.75rem 1.5rem;
-                font-size: 12px;
-                font-weight: 800;
+                padding: 0.4rem 0.9rem;
+                font-size: 11px;
+                font-weight: 700;
                 color: #64748b;
                 border-bottom: 2px solid transparent;
                 transition: all 0.2s;
                 text-transform: uppercase;
-                letter-spacing: 0.05em;
+                letter-spacing: 0.025em;
                 display: flex;
                 align-items: center;
-                gap: 8px;
+                gap: 6px;
             }
 
             .tab-btn.active {
@@ -119,17 +119,17 @@
                 real-time.</p>
         </div>
         <div style="display:flex; gap:10px;">
-            <div class="flex bg-white rounded-xl border border-slate-200 p-1 shadow-sm h-[46px]">
+            <div class="flex bg-white rounded-xl border border-slate-200 p-0.5 shadow-xs h-[36px]">
                 @if (auth()->user()->isAdmin())
                     <button class="tab-btn active" data-target="panel-generator">
-                        <i class="fa-solid fa-terminal"></i> Generator Skrip
+                        Generator Skrip
                     </button>
                     <button class="tab-btn" data-target="panel-dashboard" id="btn-tab-dashboard">
-                        <i class="fa-solid fa-chart-pie"></i> Dashboard OLT
+                        Dashboard OLT
                     </button>
                 @else
                     <button class="tab-btn active" data-target="panel-dashboard" id="btn-tab-dashboard">
-                        <i class="fa-solid fa-chart-pie"></i> Dashboard OLT
+                        Dashboard OLT
                     </button>
                 @endif
             </div>
@@ -155,8 +155,8 @@
                                     Perangkat</p>
                             </div>
                             <button type="button" id="btn_quick_check_uncfg" title="Cek Perangkat Baru"
-                                class="bg-amber-100 text-amber-700 hover:bg-amber-200 h-9 px-3 rounded-xl text-[10px] font-black transition-all flex items-center gap-2 border border-amber-200 shadow-sm uppercase">
-                                <i class="fa-solid fa-bolt-lightning"></i> Cek Baru
+                                class="bg-amber-100 text-amber-700 hover:bg-amber-200 h-7.5 px-3 rounded-lg text-[10px] font-bold border border-amber-200 shadow-xs uppercase">
+                                Cek Baru
                             </button>
                         </div>
 
@@ -260,8 +260,8 @@
                             </div>
                             <div class="flex gap-2">
                                 <button onclick="copyScript()"
-                                    class="btn-primary-admin !py-2.5 !px-5 !text-[12px] !bg-indigo-600 hover:!bg-indigo-700 border-none shadow-sm flex items-center gap-2">
-                                    <i class="fa-solid fa-copy"></i> SALIN SKRIP
+                                    class="btn-primary-admin !h-8 !px-3.5 !text-xs !bg-indigo-600 hover:!bg-indigo-700 font-semibold shadow-xs">
+                                    Salin Skrip
                                 </button>
                             </div>
                         </div>
@@ -280,14 +280,14 @@
                                 <i class="fa-solid fa-terminal text-emerald-400 text-xs"></i>
                                 <span class="text-[10px] text-slate-300 font-mono font-bold tracking-wider ml-1">OLT Terminal Output</span>
                             </div>
-                            <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-2.5">
                                 <button id="btn_connect_terminal"
-                                    class="bg-emerald-500 hover:bg-emerald-400 text-slate-900 px-3 py-1 rounded-lg text-[10px] font-black shadow-sm transition-colors flex items-center gap-1">
-                                    <i class="fa-solid fa-plug"></i> HUBUNGKAN
+                                    class="bg-emerald-500 hover:bg-emerald-400 text-slate-900 px-2.5 py-1 rounded-md text-[10px] font-bold shadow-xs">
+                                    Hubungkan
                                 </button>
                                 <button id="btn_clear_terminal"
-                                    class="text-slate-400 hover:text-white transition-colors" title="Clear Terminal">
-                                    <i class="fa-solid fa-eraser text-xs"></i>
+                                    class="text-slate-400 hover:text-white text-[11px] font-medium" title="Clear Terminal">
+                                    Bersihkan
                                 </button>
                             </div>
                         </div>
@@ -365,15 +365,15 @@
                         <div class="search-wrap !max-w-full">
                             <i class="fa-solid fa-magnifying-glass search-icon"></i>
                             <input type="search" class="search-input" id="olt-livesearch"
-                                style="padding: 9px 12px 9px 36px; height: 40px; border-radius: 10px; font-weight: 600;"
+                                style="padding: 6px 10px 6px 32px; height: 34px; border-radius: 8px; font-size: 12px;"
                                 placeholder="Cari SN, Port, atau Status..." autocomplete="off" />
                         </div>
                     </div>
 
                     <!-- Sync Button -->
                     <button id="btn_sync_global"
-                        class="btn-primary-admin !h-10 !px-6 !text-[13px] !w-fit flex items-center gap-2 shadow-sm">
-                        <i class="fa-solid fa-rotate"></i> SYNC SELURUH OLT
+                        class="btn-primary-admin !h-8.5 !px-4 !text-xs font-semibold shadow-xs">
+                        Sync Seluruh OLT
                     </button>
                 </div>
             </div>
@@ -485,7 +485,7 @@
                 </div>
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <button type="button" class="btn-cancel w-full" onclick="closeCustomModal('onuDetailModal')">
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold w-full" onclick="closeCustomModal('onuDetailModal')">
                     <i class="fa-solid fa-xmark"></i> Tutup Detail
                 </button>
             </div>
@@ -513,7 +513,7 @@
                 </div>
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <button type="button" class="btn-cancel w-full" onclick="closeCustomModal('selectUncfgModal')">
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold w-full" onclick="closeCustomModal('selectUncfgModal')">
                     <i class="fa-solid fa-xmark"></i> Batal
                 </button>
             </div>
@@ -817,9 +817,8 @@ show gpon onu state gpon-olt_${port}`;
                                         <td style="text-align: center; font-weight: 700; color: #64748b;">-</td>
                                         <td style="text-align: center;">
                                             <button onclick="useForActivation('${onu.port}', '${onu.sn}')" 
-                                                class="topbar-icon-btn !w-fit !px-4 !h-9 !rounded-xl !bg-emerald-50 hover:!bg-emerald-100 text-emerald-600 transition-all flex items-center gap-2 shadow-none border-none mx-auto">
-                                                <i class="fa-solid fa-bolt"></i>
-                                                <span class="text-[10px] font-black uppercase">Aktivasi</span>
+                                                class="btn-primary-admin !h-7 !px-2.5 !text-[11px] font-semibold shadow-xs mx-auto">
+                                                Aktivasi
                                             </button>
                                         </td>
                                     </tr>
@@ -871,9 +870,8 @@ show gpon onu state gpon-olt_${port}`;
                                         <td style="text-align: center;">
                                             <div class="flex items-center justify-center gap-2">
                                                 <button onclick="checkOnuStatus('${onu.port}', '${onu.onu_id}')" 
-                                                    class="topbar-icon-btn !w-fit !px-4 !h-9 !rounded-xl !bg-indigo-50 hover:!bg-indigo-100 text-indigo-600 transition-all flex items-center gap-2 shadow-none border-none">
-                                                    <i class="fa-solid fa-chart-line"></i>
-                                                    <span class="text-[10px] font-black uppercase">Cek Status</span>
+                                                    class="btn-primary-admin !h-7 !px-2.5 !text-[11px] !bg-slate-700 hover:!bg-slate-800 font-semibold shadow-xs">
+                                                    Cek Status
                                                 </button>
                                             </div>
                                         </td>

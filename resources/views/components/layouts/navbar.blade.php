@@ -12,143 +12,143 @@
             
             {{-- Dashboard --}}
             @if (request()->routeIs('dashboards.*') || request()->is('dashboard'))
-                <span>Dashboard</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="location.href='{{ route('dashboards.index') }}'">Dashboard</span>
                 <span class="sep">/</span>
                 <span class="current">Overview</span>
 
-            {{-- Infrastruktur --}}
+            {{-- Jaringan & Router --}}
+            @elseif(request()->routeIs('pppoe_accounts.*') || request()->is('pppoe-accounts*'))
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-jaringan')">Jaringan & Router</span>
+                <span class="sep">/</span>
+                <span class="current">Daftar Akun PPPoE</span>
+            @elseif(request()->routeIs('pppoe.*') || request()->is('pppoe'))
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-jaringan')">Jaringan & Router</span>
+                <span class="sep">/</span>
+                <span class="current">Sesi Aktif (Live)</span>
             @elseif(request()->routeIs('olt.*') || request()->is('olt*'))
-                <span>Infrastruktur</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-jaringan')">Jaringan & Router</span>
                 <span class="sep">/</span>
                 <span class="current">Manajemen OLT</span>
             @elseif(request()->routeIs('odp.*') || request()->is('odp*'))
-                <span>Infrastruktur</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-jaringan')">Jaringan & Router</span>
                 <span class="sep">/</span>
                 <span class="current">Manajemen ODP</span>
-            @elseif(request()->routeIs('pppoe_accounts.*') || request()->is('pppoe-accounts*'))
-                <span>Infrastruktur</span>
-                <span class="sep">/</span>
-                <span class="current">Manajemen PPPoE</span>
-            @elseif(request()->routeIs('pppoe.*') || request()->is('pppoe*'))
-                <span>Infrastruktur</span>
-                <span class="sep">/</span>
-                <span class="current">PPPoE Aktif</span>
             @elseif(request()->routeIs('genieacs.*') || request()->is('genieacs*'))
-                <span>Infrastruktur</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-jaringan')">Jaringan & Router</span>
                 <span class="sep">/</span>
                 @if (request()->routeIs('genieacs.show'))
-                    <a href="{{ route('genieacs.index') }}" class="hover:text-slate-900 transition-colors">Manajemen ONT (ACS)</a>
+                    <a href="{{ route('genieacs.index') }}" class="hover:text-slate-900 transition-colors">Modem ONT (ACS)</a>
                     <span class="sep">/</span>
                     <span class="current">Detail ONT</span>
                 @else
-                    <span class="current">Manajemen ONT (ACS)</span>
+                    <span class="current">Modem ONT (ACS)</span>
                 @endif
             @elseif(request()->routeIs('monitoring.*') || request()->is('monitoring*'))
-                <span>Infrastruktur</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-jaringan')">Jaringan & Router</span>
                 <span class="sep">/</span>
-                <span class="current">Monitoring</span>
+                <span class="current">Traffic Monitoring</span>
 
-            {{-- Pelanggan --}}
-            @elseif(request()->routeIs('pre_orders.*') || request()->is('pre-orders*'))
-                <span>Pelanggan</span>
+            {{-- Layanan Pelanggan --}}
+            @elseif(request()->routeIs('pre_orders.waiting_list*') || request()->is('pre-orders/waiting-list*'))
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-pelanggan')">Layanan Pelanggan</span>
                 <span class="sep">/</span>
-                <span class="current">Pre-Order</span>
+                <span class="current">Prospek Tunggu (Ekspansi)</span>
+            @elseif(request()->routeIs('pre_orders.*') || request()->is('pre-orders*'))
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-pelanggan')">Layanan Pelanggan</span>
+                <span class="sep">/</span>
+                <span class="current">Pre-Order (PSB)</span>
             @elseif(request()->routeIs('customers.*') || request()->is('customers*'))
-                <span>Pelanggan</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-pelanggan')">Layanan Pelanggan</span>
                 <span class="sep">/</span>
                 <span class="current">Data Pelanggan</span>
             @elseif(request()->routeIs('maintenances.*') || request()->is('maintenances*'))
-                <span>Pelanggan</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-pelanggan')">Layanan Pelanggan</span>
                 <span class="sep">/</span>
-                <span class="current">Pemeliharaan</span>
+                <span class="current">Tiket Pemeliharaan</span>
 
-            {{-- Gudang --}}
+            {{-- Gudang & Aset --}}
             @elseif(request()->routeIs('assets.transactions*'))
-                <span>Gudang</span>
-                <span class="sep">/</span>
-                <a href="{{ route('assets.index') }}" class="hover:text-slate-900 transition-colors">Pengelolaan Aset</a>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="location.href='{{ route('assets.index') }}'">Pengelolaan Aset</span>
                 <span class="sep">/</span>
                 <span class="current">Log Transaksi</span>
             @elseif(request()->routeIs('assets.*') || request()->is('assets*'))
-                <span>Gudang</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="location.href='{{ route('assets.index') }}'">Pengelolaan Aset</span>
                 <span class="sep">/</span>
-                <span class="current">Pengelolaan Aset</span>
+                <span class="current">Daftar Aset</span>
 
-            {{-- Keuangan --}}
+            {{-- Billing & Keuangan --}}
             @elseif(request()->routeIs('invoices.show', 'invoices.print'))
-                <span>Keuangan</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-keuangan')">Billing & Keuangan</span>
                 <span class="sep">/</span>
-                <a href="{{ route('invoices.index') }}" class="hover:text-slate-900 transition-colors">Invoice Pelanggan</a>
+                <a href="{{ route('invoices.index') }}" class="hover:text-slate-900 transition-colors">Invoice Tagihan</a>
                 <span class="sep">/</span>
                 <span class="current">Detail Tagihan</span>
             @elseif(request()->routeIs('invoices.*') || request()->is('invoices*'))
-                <span>Keuangan</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-keuangan')">Billing & Keuangan</span>
                 <span class="sep">/</span>
-                <span class="current">Invoice Pelanggan</span>
+                <span class="current">Invoice Tagihan</span>
             @elseif(request()->routeIs('transactions.*') || request()->is('transactions*'))
-                <span>Keuangan</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-keuangan')">Billing & Keuangan</span>
                 <span class="sep">/</span>
-                <span class="current">Log Transaksi</span>
+                <span class="current">Riwayat Transaksi</span>
             @elseif(request()->routeIs('finance.*') || request()->is('keuangan/teknisi*'))
-                <span>Keuangan</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-keuangan')">Billing & Keuangan</span>
                 <span class="sep">/</span>
                 <span class="current">Pendapatan Teknisi</span>
             @elseif(request()->routeIs('kasbons.*') || request()->is('keuangan/kasbon*'))
-                <span>Keuangan</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-keuangan')">Billing & Keuangan</span>
                 <span class="sep">/</span>
                 <span class="current">Kasbon Teknisi</span>
             @elseif(request()->routeIs('withdrawals.*') || request()->is('withdrawals*'))
-                <span>Keuangan</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-keuangan')">Billing & Keuangan</span>
                 <span class="sep">/</span>
                 <span class="current">XenPlatform</span>
 
-            {{-- Laporan --}}
+            {{-- Laporan Sistem --}}
             @elseif(request()->routeIs('activitylog.aktivasi_sales*') || request()->is('laporan/aktivasi-sales*'))
-                <span>Laporan</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-laporan')">Laporan Sistem</span>
                 <span class="sep">/</span>
                 <span class="current">Lap. Aktivasi Sales</span>
             @elseif(request()->routeIs('activitylog.aktivasi*') || request()->is('laporan/aktivasi*'))
-                <span>Laporan</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-laporan')">Laporan Sistem</span>
                 <span class="sep">/</span>
                 <span class="current">Lap. Aktivasi</span>
             @elseif(request()->routeIs('activitylog.maintenance*') || request()->is('laporan/maintenance*'))
-                <span>Laporan</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-laporan')">Laporan Sistem</span>
                 <span class="sep">/</span>
                 <span class="current">Lap. Pemeliharaan</span>
             @elseif(request()->routeIs('activitylog.preorder*') || request()->is('laporan/preorder*'))
-                <span>Laporan</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-laporan')">Laporan Sistem</span>
                 <span class="sep">/</span>
                 <span class="current">Lap. Pre-Order</span>
 
-            {{-- Manajemen --}}
+            {{-- Sistem & Pengaturan --}}
             @elseif(request()->routeIs('pakets.*', 'paket.*') || request()->is('pakets*') || request()->is('paket*'))
-                <span>Manajemen</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-sistem')">Sistem & Pengaturan</span>
                 <span class="sep">/</span>
                 <span class="current">Paket Layanan</span>
             @elseif(request()->routeIs('nas.*') || request()->is('nas*'))
-                <span>Manajemen</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-sistem')">Sistem & Pengaturan</span>
                 <span class="sep">/</span>
-                <span class="current">Router (NAS)</span>
+                <span class="current">Router MikroTik</span>
             @elseif(request()->routeIs('accounts.tracking') || request()->is('tracking*'))
-                <span>Manajemen</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-sistem')">Sistem & Pengaturan</span>
                 <span class="sep">/</span>
-                <span class="current">Pelacakan Akun</span>
+                <span class="current">Pelacakan Lokasi</span>
             @elseif(request()->routeIs('accounts.*', 'admin.users.2fa.*') || request()->is('accounts*'))
-                <span>Manajemen</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-sistem')">Sistem & Pengaturan</span>
                 <span class="sep">/</span>
-                <span class="current">Akun Pengguna</span>
+                <span class="current">Manajemen Staf / Akun</span>
             @elseif(request()->routeIs('activitylog.index*') || request()->is('activity-log*'))
-                <span>Manajemen</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-sistem')">Sistem & Pengaturan</span>
                 <span class="sep">/</span>
-                <span class="current">Aktivitas Log</span>
+                <span class="current">Log Aktivitas</span>
             @elseif(request()->routeIs('migration.*') || request()->is('migration*'))
-                <span>Manajemen</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-sistem')">Sistem & Pengaturan</span>
                 <span class="sep">/</span>
-                <span class="current">Backup / Restore</span>
-
-            {{-- Pengaturan --}}
+                <span class="current">Backup & Restore</span>
             @elseif(request()->routeIs('settings.*') || request()->is('settings*'))
-                <span>Pengaturan</span>
+                <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-sistem')">Sistem & Pengaturan</span>
                 <span class="sep">/</span>
                 <span class="current">Pengaturan Sistem</span>
 

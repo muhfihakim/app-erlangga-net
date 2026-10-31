@@ -142,17 +142,17 @@
                         <i class="fa-solid fa-server text-emerald-600" aria-hidden="true"></i> Server RADIUS Client
                         (NAS di MikroTik)
                     </h3>
-                    <p class="text-xs text-slate-500 mb-4">Pengaturan IP dan Shared Secret FreeRADIUS yang akan
+                    <p class="text-xs text-slate-500 mb-4">Pengaturan IP dan Shared Secret RADIUS yang akan
                         dikonfigurasikan di MikroTik Server.</p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div class="form-group !mb-0">
                             <label for="radius_server_ip" class="form-label font-bold text-slate-700">IP Server
-                                FreeRADIUS <span class="text-rose-500">*</span></label>
+                                RADIUS <span class="text-rose-500">*</span></label>
                             <input type="text" name="radius_server_ip" id="radius_server_ip"
                                 class="form-input font-mono"
                                 value="{{ old('radius_server_ip', $settings['mikrotik']['radius_server_ip']) }}"
                                 placeholder="192.168.21.202" required>
-                            <small class="text-slate-500 text-xs mt-1 block">IP Server FreeRADIUS tempat MikroTik
+                            <small class="text-slate-500 text-xs mt-1 block">IP Server RADIUS tempat MikroTik
                                 meminta autentikasi (port 1812/1813).</small>
                         </div>
                         <div class="form-group !mb-0">
@@ -1097,10 +1097,10 @@ ${paketProfilesScript}
 
                 // 2. Script Server RADIUS & CoA (Auto-Kick)
                 const scriptRadius = `# ================================================================
-# 1. TAMBAHKAN SERVER RADIUS CLIENT (FREERADIUS)
+# 1. TAMBAHKAN SERVER RADIUS CLIENT (RADIUS)
 # ================================================================
 /radius add service=ppp address=${radiusServerIp} secret="${radiusSecret}" \\
-    authentication-port=1812 accounting-port=1813 timeout=3000ms comment="FreeRADIUS Server App"
+    authentication-port=1812 accounting-port=1813 timeout=3000ms comment="RADIUS Server App"
 
 # ================================================================
 # 2. AKTIFKAN RADIUS PADA PPPOE SERVER (AAA)

@@ -87,18 +87,18 @@ class PppoeAccountController extends Controller
                     $tgl = $pppoe->tanggal_aktif ? (is_string($pppoe->tanggal_aktif) ? \Carbon\Carbon::parse($pppoe->tanggal_aktif)->format('Y-m-d') : $pppoe->tanggal_aktif->format('Y-m-d')) : '';
                     $gen = $pppoe->generate_invoice ? '1' : '0';
                     $invoiceRoute = route('invoices.show', $pppoe->id);
-                    $btnInvoice = '<a href="' . $invoiceRoute . '" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Kelola Tagihan & Xendit"><i class="fa-solid fa-file-invoice-dollar text-emerald-500"></i></a>';
+                    $btnInvoice = '<a href="' . $invoiceRoute . '" class="btn-primary-admin !h-7 !px-2 !text-[11px] !bg-indigo-600 hover:!bg-indigo-700 font-semibold shadow-xs" title="Kelola Tagihan & Xendit">Tagihan</a>';
                     
                     $btnIsolir = '';
                     if ($pppoe->is_isolir) {
-                        $btnIsolir = '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" onclick="openBukaIsolirPppoeModal(\'' . route('pppoe_accounts.buka_isolir', $pppoe->id) . '\', \'' . addslashes($pppoe->username) . '\')" title="Buka Isolir / Aktifkan Kembali"><i class="fa-solid fa-unlock-keyhole text-emerald-600"></i></button>';
+                        $btnIsolir = '<button type="button" class="btn-primary-admin !h-7 !px-2 !text-[11px] !bg-emerald-600 hover:!bg-emerald-700 font-semibold shadow-xs" onclick="openBukaIsolirPppoeModal(\'' . route('pppoe_accounts.buka_isolir', $pppoe->id) . '\', \'' . addslashes($pppoe->username) . '\')" title="Buka Isolir / Aktifkan Kembali">Buka</button>';
                     } else {
-                        $btnIsolir = '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" onclick="openIsolirPppoeModal(\'' . route('pppoe_accounts.isolir', $pppoe->id) . '\', \'' . addslashes($pppoe->username) . '\')" title="Isolir Akun PPPoE"><i class="fa-solid fa-ban text-rose-500"></i></button>';
+                        $btnIsolir = '<button type="button" class="btn-primary-admin !h-7 !px-2 !text-[11px] !bg-rose-600 hover:!bg-rose-700 font-semibold shadow-xs" onclick="openIsolirPppoeModal(\'' . route('pppoe_accounts.isolir', $pppoe->id) . '\', \'' . addslashes($pppoe->username) . '\')" title="Isolir Akun PPPoE">Isolir</button>';
                     }
 
-                    $btnEdit = '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" onclick="openEditModal(' . $pppoe->id . ', \'' . addslashes($pppoe->username) . '\', \'' . addslashes($pppoe->password) . '\', \'' . $pppoe->paket_id . '\', \'' . addslashes($pppoe->router ?? 'All') . '\', \'' . addslashes($pppoe->ip_address ?? '') . '\', \'' . addslashes($pppoe->tipe_pembayaran ?? 'prepaid') . '\', \'' . $tgl . '\', \'' . addslashes($pppoe->periode_billing ?? 'fixed') . '\', \'' . ($pppoe->pajak ?? 0) . '\', \'' . ($pppoe->diskon ?? 0) . '\', \'' . addslashes($pppoe->status_invoice ?? 'belum_bayar') . '\', \'' . $gen . '\')" title="Edit PPPoE"><i class="fa-solid fa-pen-to-square text-amber-500"></i></button>';
-                    $btnDelete = '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" onclick="confirmGlobalDelete(\'' . route('pppoe_accounts.destroy', $pppoe->id) . '\', \'PPPoE ' . addslashes($pppoe->username) . '\')" title="Hapus"><i class="fa-solid fa-trash text-rose-500"></i></button>';
-                    return '<div class="flex items-center justify-center gap-1">' . $btnInvoice . $btnIsolir . $btnEdit . $btnDelete . '</div>';
+                    $btnEdit = '<button type="button" class="btn-primary-admin !h-7 !px-2 !text-[11px] !bg-amber-500 hover:!bg-amber-600 font-semibold shadow-xs" onclick="openEditModal(' . $pppoe->id . ', \'' . addslashes($pppoe->username) . '\', \'' . addslashes($pppoe->password) . '\', \'' . $pppoe->paket_id . '\', \'' . addslashes($pppoe->router ?? 'All') . '\', \'' . addslashes($pppoe->ip_address ?? '') . '\', \'' . addslashes($pppoe->tipe_pembayaran ?? 'prepaid') . '\', \'' . $tgl . '\', \'' . addslashes($pppoe->periode_billing ?? 'fixed') . '\', \'' . ($pppoe->pajak ?? 0) . '\', \'' . ($pppoe->diskon ?? 0) . '\', \'' . addslashes($pppoe->status_invoice ?? 'belum_bayar') . '\', \'' . $gen . '\')" title="Edit PPPoE">Edit</button>';
+                    $btnDelete = '<button type="button" class="btn-cancel !h-7 !px-2 !text-[11px] hover:!text-rose-600 hover:!border-rose-300 font-semibold" onclick="confirmGlobalDelete(\'' . route('pppoe_accounts.destroy', $pppoe->id) . '\', \'PPPoE ' . addslashes($pppoe->username) . '\')" title="Hapus">Hapus</button>';
+                    return '<div class="flex items-center justify-center gap-1.5 flex-wrap">' . $btnInvoice . $btnIsolir . $btnEdit . $btnDelete . '</div>';
                 })
                 ->filter(function ($query) use ($request) {
                     if ($search = $request->input('search.value')) {
@@ -153,9 +153,9 @@ class PppoeAccountController extends Controller
         try {
             \Illuminate\Support\Facades\Artisan::call('radius:sync');
             $output = \Illuminate\Support\Facades\Artisan::output();
-            return redirect()->route('pppoe_accounts.index')->with('success', 'Sinkronisasi dengan FreeRADIUS / daloRADIUS berhasil diselesaikan!');
+            return redirect()->route('pppoe_accounts.index')->with('success', 'Sinkronisasi dengan RADIUS berhasil diselesaikan!');
         } catch (\Throwable $e) {
-            return redirect()->route('pppoe_accounts.index')->with('error', 'Gagal sinkronisasi FreeRADIUS: ' . $e->getMessage());
+            return redirect()->route('pppoe_accounts.index')->with('error', 'Gagal sinkronisasi RADIUS: ' . $e->getMessage());
         }
     }
 
@@ -260,7 +260,7 @@ class PppoeAccountController extends Controller
 
         $successMessage = $radiusSynced 
             ? 'PPPoE berhasil dibuat & Tersinkronisasi dengan Radius.' 
-            : 'PPPoE berhasil disimpan. (Catatan: Database FreeRADIUS belum terhubung/dikonfigurasi).';
+            : 'PPPoE berhasil disimpan. (Catatan: Database RADIUS belum terhubung/dikonfigurasi).';
 
         return redirect()->back()->with('success', $successMessage);
     }

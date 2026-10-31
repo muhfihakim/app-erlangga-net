@@ -4,7 +4,7 @@
         <style>
             /* Map Styling */
             #odp-map {
-                height: 500px;
+                height: 380px;
                 width: 100%;
                 border-radius: 16px;
                 border: 1px solid #e2e8f0;
@@ -14,7 +14,7 @@
 
             .map-container {
                 position: relative;
-                margin-bottom: 2rem;
+                margin-bottom: 1.25rem;
             }
 
             /* Legend Styling */
@@ -95,13 +95,13 @@
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Visualisasi dan pengelolaan titik distribusi
                 infrastruktur FTTH.</p>
         </div>
-        <div style="display:flex; gap:10px;">
-            <button type="button" id="measure-btn" class="btn-primary-admin !flex !items-center !justify-center gap-2">
-                <i class="fa-solid fa-ruler-combined"></i> Ukur Jarak
+        <div style="display:flex; gap:8px;">
+            <button type="button" id="measure-btn" class="btn-primary-admin !h-8.5 !px-3.5 text-xs font-semibold shadow-xs">
+                Ukur Jarak
             </button>
             @if ($canCrud)
                 <button type="button" onclick="openCustomModal('addOdpModal')"
-                    class="btn-primary-admin !flex !items-center !justify-center gap-2">
+                    class="btn-primary-admin !h-8.5 !px-3.5 text-xs font-semibold shadow-xs">
                     Tambah
                 </button>
             @endif
@@ -109,7 +109,7 @@
     </div>
 
     <!-- Stats Grid -->
-    <div class="stats-grid mb-6">
+    <div class="stats-grid mb-5">
         <div class="stat-card">
             <div class="stat-icon" style="background:#e0f2fe;color:#0369a1;">
                 <i class="fa-solid fa-tower-broadcast"></i>
@@ -170,7 +170,7 @@
     <div class="table-toolbar">
         <div class="search-wrap">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            <input type="search" class="search-input custom-search" placeholder="Cari lokasi atau jenis ODP..."
+            <input type="search" class="search-input custom-search !h-8.5 !text-xs" placeholder="Cari lokasi atau jenis ODP..."
                 autocomplete="off" />
         </div>
         <div style="display:flex;gap:8px;">
@@ -212,26 +212,26 @@
                             </td>
                             <td style="font-size: 12px; color: #64748b;">{{ $odp->keterangan ?: '-' }}</td>
                             <td style="text-align: center;">
-                                <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
-                                    <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap;">
+                                    <button type="button" class="btn-primary-admin !h-7 !px-2 !text-[11px] !bg-emerald-600 hover:!bg-emerald-700 font-semibold shadow-xs"
                                         title="Lihat di Peta"
                                         onclick="focusOnOdp('{{ $odp->titik_koordinat }}', '{{ $odp->id }}')">
-                                        <i class="fa-solid fa-location-dot text-emerald-500"></i>
+                                        Peta
                                     </button>
                                     @if ($canCrud)
-                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                        <button type="button" class="btn-primary-admin !h-7 !px-2 !text-[11px] !bg-amber-500 hover:!bg-amber-600 font-semibold shadow-xs"
                                             title="Edit" onclick="openEditOdpModal(this)"
                                             data-id="{{ $odp->id }}" data-jenis="{{ $odp->jenis_odp }}"
                                             data-lokasi="{{ $odp->lokasi_odp }}"
                                             data-tikor="{{ $odp->titik_koordinat }}"
                                             data-keterangan="{{ $odp->keterangan }}"
                                             data-foto="{{ $odp->foto_odp ? Storage::url($odp->foto_odp) : '' }}">
-                                            <i class="fa-solid fa-pen-to-square text-primary"></i>
+                                            Edit
                                         </button>
-                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                        <button type="button" class="btn-cancel !h-7 !px-2 !text-[11px] hover:!text-rose-600 hover:!border-rose-300 font-semibold"
                                             title="Hapus"
-                                            onclick="confirmGlobalDelete('{{ route('odp.destroy', $odp->id) }}', 'ODP {{ $odp->lokasi_odp }}')">
-                                            <i class="fa-solid fa-trash text-rose-600"></i>
+                                            onclick="confirmGlobalDelete('{{ route('odp.destroy', $odp->id) }}', 'ODP {{ addslashes($odp->lokasi_odp) }}')">
+                                            Hapus
                                         </button>
                                     @endif
                                 </div>
@@ -258,8 +258,8 @@
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>
-                    <div class="modal-body p-8 space-y-5">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="modal-body p-5 space-y-3">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                             <div class="form-group">
                                 <label class="form-label text-slate-800 font-bold">Jenis ODP
                                     <span class="text-rose-500">*</span></label>
@@ -274,10 +274,7 @@
                                 <div class="flex gap-2">
                                     <input type="text" name="titik_koordinat" id="add_tikor" class="form-input bg-white text-slate-900 border-slate-300"
                                         placeholder="-7.xxx, 110.xxx" required>
-                                    <button type="button" class="btn-primary-admin !shadow-none !px-4"
-                                        onclick="getAddLocation()">
-                                        <i class="fa-solid fa-location-crosshairs"></i>
-                                    </button>
+                                    <button type="button" class="btn-primary-admin !shadow-xs !px-3 !h-8.5 text-xs font-semibold" onclick="getAddLocation()">GPS</button>
                                 </div>
                             </div>
                         </div>
@@ -297,13 +294,8 @@
                         </div>
                     </div>
                     <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                        <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
-                            onclick="closeCustomModal('addOdpModal')">
-                            <i class="fa-solid fa-xmark"></i> Batal
-                        </button>
-                        <button type="submit" class="btn-save !flex !items-center !justify-center gap-2">
-                            Simpan
-                        </button>
+                        <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold" onclick="closeCustomModal('addOdpModal')">Batal</button>
+                        <button type="submit" class="btn-save !h-8.5 !px-4 text-xs font-semibold">Simpan</button>
                     </div>
                 </form>
             </div>
@@ -324,8 +316,8 @@
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>
-                    <div class="modal-body p-8 space-y-5">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="modal-body p-5 space-y-3">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                             <div class="form-group">
                                 <label class="form-label text-slate-800 font-bold">Jenis ODP
                                     <span class="text-rose-500">*</span></label>
@@ -340,10 +332,7 @@
                                 <div class="flex gap-2">
                                     <input type="text" name="titik_koordinat" id="edit_tikor_input"
                                         class="form-input bg-white text-slate-900 border-slate-300" required>
-                                    <button type="button" class="btn-primary-admin !shadow-none !px-4"
-                                        onclick="getEditLocation()">
-                                        <i class="fa-solid fa-location-crosshairs"></i>
-                                    </button>
+                                    <button type="button" class="btn-primary-admin !shadow-xs !px-3 !h-8.5 text-xs font-semibold" onclick="getEditLocation()">GPS</button>
                                 </div>
                             </div>
                         </div>
@@ -368,13 +357,8 @@
                         </div>
                     </div>
                     <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                        <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
-                            onclick="closeCustomModal('editOdpModal')">
-                            <i class="fa-solid fa-xmark"></i> Batal
-                        </button>
-                        <button type="submit" class="btn-save !flex !items-center !justify-center gap-2">
-                            Simpan
-                        </button>
+                        <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold" onclick="closeCustomModal('editOdpModal')">Batal</button>
+                        <button type="submit" class="btn-save !h-8.5 !px-4 text-xs font-semibold">Simpan</button>
                     </div>
                 </form>
             </div>

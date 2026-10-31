@@ -203,10 +203,12 @@ class PreOrderController extends Controller
             ->count();
 
         $salesUsers = User::where('jabatan', 'Sales')->orderBy('nama_lengkap')->get();
+        $pakets = \App\Models\Paket::orderBy('harga', 'asc')->get();
 
         return view('preorders.waiting_list', compact(
             'waitingList',
             'salesUsers',
+            'pakets',
             'totalWaiting',
             'totalPendingReview',
             'totalApproved',

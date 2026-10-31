@@ -135,18 +135,18 @@
         </div>
         <div class="flex items-center gap-2">
             <a href="{{ route('settings.index', ['tab' => 'genieacs']) }}"
-                class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-10 flex items-center gap-2">
-                <i class="fa-solid fa-sliders"></i> Pengaturan GenieACS
+                class="btn-cancel !h-8.5 !px-3.5 text-xs font-semibold shadow-xs">
+                Pengaturan
             </a>
             <button type="button" id="btn-refresh-data"
-                class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-10 flex items-center gap-2">
-                <i class="fa-solid fa-arrows-rotate" id="refresh-icon"></i> Refresh Data
+                class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-3.5 text-xs font-semibold shadow-xs">
+                Refresh
             </button>
         </div>
     </div>
 
     <!-- Stats Cards Grid -->
-    <div class="stats-grid mb-6">
+    <div class="stats-grid mb-5">
         <div class="stat-card">
             <div class="stat-icon" style="background:#e0e7ff;color:#4338ca;">
                 <i class="fa-solid fa-satellite-dish"></i>
@@ -184,7 +184,7 @@
             <div class="filter-group">
                 <div style="flex: 1; min-width: 170px;">
                     <label class="form-label-custom">Status Koneksi</label>
-                    <select name="status" class="form-input-custom" id="filter-status">
+                    <select name="status" class="form-input-custom !h-8.5 !text-xs" id="filter-status">
                         <option value="all">Semua Status</option>
                         <option value="online">Online Saja</option>
                         <option value="offline">Offline Saja</option>
@@ -194,16 +194,16 @@
                     <label class="form-label-custom">Live Search</label>
                     <div class="search-wrap !max-w-full">
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                        <input type="search" name="search" class="search-input custom-search" id="custom-search"
+                        <input type="search" name="search" class="search-input custom-search !h-8.5 !text-xs" id="custom-search"
                             placeholder="Cari serial number, username PPPoE, SSID, IP..." autocomplete="off"
                             onkeydown="return event.key != 'Enter';" />
                     </div>
                 </div>
-                <button type="button" id="btn-filter" class="btn-primary-admin !h-10 !px-6 flex items-center gap-2">
-                    <i class="fa-solid fa-filter"></i> Filter
+                <button type="button" id="btn-filter" class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold shadow-xs">
+                    Filter
                 </button>
-                <button type="button" id="btn-reset-filter" class="btn-cancel !h-10 !px-4 flex items-center gap-1.5" title="Reset Filter">
-                    <i class="fa-solid fa-xmark"></i> Reset
+                <button type="button" id="btn-reset-filter" class="btn-cancel !h-8.5 !px-3 text-xs font-semibold">
+                    Reset
                 </button>
             </div>
         </form>
@@ -275,10 +275,10 @@
                         <small class="text-slate-400 text-[11px]">Panjang 8 - 63 karakter WPA2-PSK.</small>
                     </div>
                 </div>
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl p-4 flex justify-end gap-2">
-                    <button type="button" class="btn-cancel" onclick="closeCustomModal('quickWifiModal')">Batal</button>
-                    <button type="submit" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 flex items-center gap-2" id="btn-submit-quick-wifi">
-                        <i class="fa-solid fa-paper-plane"></i> Terapkan ke ONT
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl p-3 flex justify-end gap-2">
+                    <button type="button" class="btn-cancel !h-8 !px-3.5 text-xs font-semibold" onclick="closeCustomModal('quickWifiModal')">Batal</button>
+                    <button type="submit" class="btn-primary-admin !h-8 !px-4 text-xs font-semibold !bg-sky-600 hover:!bg-sky-700 shadow-xs" id="btn-submit-quick-wifi">
+                        Simpan
                     </button>
                 </div>
             </form>
@@ -312,12 +312,12 @@
                     </p>
                 </div>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2">
-                <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('rebootModal')">
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between gap-2">
+                <button type="button" class="btn-cancel !h-8 !px-3.5 text-xs font-semibold" onclick="closeCustomModal('rebootModal')">
                     Batal
                 </button>
-                <button type="button" onclick="executeReboot()" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-9 !px-5 text-xs font-semibold" id="btn-submit-reboot">
-                    Ya, Reboot
+                <button type="button" onclick="executeReboot()" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8 !px-4 text-xs font-semibold" id="btn-submit-reboot">
+                    Reboot
                 </button>
             </div>
         </div>

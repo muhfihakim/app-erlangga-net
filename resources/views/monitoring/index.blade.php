@@ -5,12 +5,12 @@
                 background: #fff;
                 border: 1px solid #e2e8f0;
                 border-radius: 14px;
-                padding: 1.25rem 1.5rem;
+                padding: 0.85rem 1.25rem;
                 display: flex;
                 align-items: center;
-                gap: 2rem;
+                gap: 1.25rem;
                 box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
-                margin-bottom: 1rem;
+                margin-bottom: 0.85rem;
                 flex-wrap: wrap;
             }
             .info-item { flex: 1 1 calc(16.666% - 1rem); min-width: 120px; }
@@ -31,7 +31,7 @@
                 display: grid;
                 grid-template-columns: repeat(4, 1fr);
                 gap: 1rem;
-                margin-bottom: 1rem;
+                margin-bottom: 0.85rem;
             }
             .stat-card {
                 background: #fff;
@@ -49,7 +49,7 @@
                 margin-bottom: 4px;
             }
             .stat-card .val {
-                font-size: 20px;
+                font-size: 18px;
                 font-weight: 900;
             }
             .stat-card .val.rx { color: #0ea5e9; }
@@ -58,7 +58,7 @@
                 background: #fff;
                 border: 1px solid #e2e8f0;
                 border-radius: 14px;
-                padding: 1.5rem;
+                padding: 1.25rem;
                 box-shadow: 0 1px 6px rgba(0, 0, 0, .05);
             }
             .badge-online {
@@ -184,7 +184,7 @@
     <div class="chart-card" style="margin-top: 1rem;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:8px;">
             <div style="font-size:14px;font-weight:800;color:#334155;">Log PPPoE MikroTik</div>
-            <button onclick="fetchPppoeLogs()" style="background:#f1f5f9;border:1px solid #e2e8f0;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;color:#475569;cursor:pointer;">Refresh</button>
+            <button onclick="fetchPppoeLogs()" class="btn-cancel !h-7 !px-3 text-xs font-semibold">Refresh</button>
         </div>
         <div style="background:#0f172a; border-radius:10px; padding:12px; max-height:300px; overflow-y:auto; font-family:monospace; font-size:12px; color:#e2e8f0;" id="pppoe-log-container">
             <div style="text-align:center; color:#94a3b8; padding:20px;">Memuat log...</div>

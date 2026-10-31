@@ -207,26 +207,26 @@ class GenieAcsController extends Controller
         $ssidEsc = htmlspecialchars($d['ssid'] !== '-' ? $d['ssid'] : '', ENT_QUOTES, 'UTF-8');
 
         $actionHtml = '
-            <div class="flex items-center justify-center gap-1.5">
+            <div class="flex items-center justify-center gap-1.5 flex-wrap">
                 <a href="' . $showUrl . '"
-                    class="btn-sm-action !p-2 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-600 hover:text-white transition-colors"
+                    class="btn-primary-admin !h-7 !px-2 !text-[11px] !bg-slate-700 hover:!bg-slate-800 font-semibold shadow-xs"
                     title="Detail & Diagnostik">
-                    <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                    Detail
                 </a>
                 <button type="button"
-                    class="btn-quick-wifi btn-sm-action !p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-colors"
+                    class="btn-quick-wifi btn-primary-admin !h-7 !px-2 !text-[11px] !bg-emerald-600 hover:!bg-emerald-700 font-semibold shadow-xs"
                     data-device-id="' . $devId . '"
                     data-serial="' . $serialEsc . '"
                     data-ssid="' . $ssidEsc . '"
                     title="Ubah Nama & Password Wi-Fi">
-                    <i class="fa-solid fa-key text-xs"></i>
+                    Wi-Fi
                 </button>
                 <button type="button"
-                    class="btn-quick-reboot btn-sm-action !p-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-colors"
+                    class="btn-quick-reboot btn-cancel !h-7 !px-2 !text-[11px] hover:!text-rose-600 hover:!border-rose-300 font-semibold"
                     data-device-id="' . $devId . '"
                     data-serial="' . $serialEsc . '"
                     title="Reboot ONT">
-                    <i class="fa-solid fa-power-off text-xs"></i>
+                    Reboot
                 </button>
             </div>';
 

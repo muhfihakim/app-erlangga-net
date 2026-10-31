@@ -277,7 +277,7 @@ class SettingController extends Controller
 
                 return response()->json([
                     'success' => true,
-                    'message' => "Koneksi Database FreeRADIUS Sukses! Ditemukan {$count} akun di tabel radcheck [{$elapsed}ms]",
+                    'message' => "Koneksi Database RADIUS Sukses! Ditemukan {$count} akun di tabel radcheck [{$elapsed}ms]",
                 ]);
             }
 

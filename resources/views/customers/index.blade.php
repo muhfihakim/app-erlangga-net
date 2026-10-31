@@ -441,13 +441,13 @@
                                 </div>
                                 <div class="form-group" id="pppoe_ip_container" style="display: none;">
                                     <div class="flex items-center justify-between mb-1">
-                                        <label class="form-label text-slate-800 font-bold uppercase text-[11px] m-0">IP Statis (FreeRADIUS)</label>
+                                        <label class="form-label text-slate-800 font-bold uppercase text-[11px] m-0">IP Statis (RADIUS)</label>
                                         <span class="text-[10px] text-purple-700 bg-purple-50 px-2 py-0.5 rounded font-bold border border-purple-200">
                                             Disiapkan Admin
                                         </span>
                                     </div>
                                     <input type="text" class="form-input font-mono font-bold text-slate-700 bg-slate-100 cursor-not-allowed" id="pppoe_ip_address" readonly>
-                                    <small class="text-[11px] text-slate-400 block mt-1">Alamat IP statis ini didaftarkan di Radreply FreeRADIUS.</small>
+                                    <small class="text-[11px] text-slate-400 block mt-1">Alamat IP statis ini didaftarkan di Radreply RADIUS.</small>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Metode
@@ -797,7 +797,7 @@
                         .addClass('bg-slate-100 text-slate-700 cursor-not-allowed')
                         .removeClass('bg-white text-slate-900');
                     $('#pppoe_username_status').html('<span class="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold border border-emerald-200"><i class="fa-solid fa-lock mr-1"></i> Disiapkan Admin</span>');
-                    $('#pppoe_username_note').text('Disinkronkan dari Pre-Order. Terkunci untuk menjaga integritas FreeRADIUS.');
+                    $('#pppoe_username_note').text('Disinkronkan dari Pre-Order. Terkunci untuk menjaga integritas RADIUS.');
                     $('#pppoe_password_status').html('<span class="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold border border-emerald-200">Disiapkan Admin</span>');
                     $('#pppoe_password_note').text('Kata sandi yang disiapkan Administrator.');
                     $btnLock.html('<i class="fa-solid fa-lock-open text-[10px]"></i> Buka Kunci');
@@ -824,7 +824,7 @@
                         .addClass('bg-amber-100 text-amber-700')
                         .html('<i class="fa-solid fa-triangle-exclamation"></i>');
                     $('#pppoe_sync_title').text('Akun PPPoE Dibuka Kunci (Mode Manual)');
-                    $('#pppoe_sync_desc').text('Peringatan: Mengubah username atau kata sandi akan memperbarui akun FreeRADIUS yang sudah disiapkan Admin.');
+                    $('#pppoe_sync_desc').text('Peringatan: Mengubah username atau kata sandi akan memperbarui akun RADIUS yang sudah disiapkan Admin.');
                     $('#pppoe_username_status').html('<span class="text-[10px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded font-bold border border-amber-200"><i class="fa-solid fa-pen mr-1"></i> Mode Manual</span>');
                     $('#pppoe_password_status').html('<span class="text-[10px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded font-bold border border-amber-200">Mode Manual</span>');
                     $('#pppoe_username').focus();
@@ -839,7 +839,7 @@
                         .addClass('bg-emerald-100 text-emerald-700')
                         .html('<i class="fa-solid fa-shield-halved"></i>');
                     $('#pppoe_sync_title').text('Akun PPPoE Disiapkan Admin');
-                    $('#pppoe_sync_desc').text('Kredensial username dan kata sandi disinkronkan langsung dari Pre-Order. Dikunci secara default agar selaras dengan FreeRADIUS.');
+                    $('#pppoe_sync_desc').text('Kredensial username dan kata sandi disinkronkan langsung dari Pre-Order. Dikunci secara default agar selaras dengan RADIUS.');
                 }
             });
 
@@ -887,7 +887,7 @@
                         .addClass('bg-emerald-100 text-emerald-700')
                         .html('<i class="fa-solid fa-shield-halved"></i>');
                     $('#pppoe_sync_title').text('Akun PPPoE Disiapkan Admin');
-                    $('#pppoe_sync_desc').text('Kredensial username dan kata sandi disinkronkan langsung dari Pre-Order. Dikunci secara default agar selaras dengan FreeRADIUS.');
+                    $('#pppoe_sync_desc').text('Kredensial username dan kata sandi disinkronkan langsung dari Pre-Order. Dikunci secara default agar selaras dengan RADIUS.');
                     
                     $('#btn_toggle_lock_pppoe').removeClass('hidden').addClass('flex');
                 } else {

@@ -923,7 +923,7 @@
                     </div>
                     <div>
                         <h3 class="text-base font-bold text-slate-900 m-0">Isolir Layanan Pelanggan</h3>
-                        <p class="text-xs text-slate-500 m-0 mt-0.5">Alihkan paket ke profil isolir FreeRADIUS & MikroTik.</p>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Alihkan paket ke profil isolir RADIUS & MikroTik.</p>
                     </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('isolirCustomerModal')">
@@ -1038,7 +1038,7 @@
                             </div>
                             <div class="flex items-start gap-2">
                                 <i class="fa-solid fa-circle-xmark text-rose-500 mt-0.5"></i>
-                                <span>Kredensial login FreeRADIUS dinonaktifkan dan sesi router di-kick otomatis.</span>
+                                <span>Kredensial login RADIUS dinonaktifkan dan sesi router di-kick otomatis.</span>
                             </div>
                         </div>
                     </div>
@@ -1083,7 +1083,7 @@
                             </p>
                         </div>
                         <p class="text-xs text-slate-600 m-0 leading-relaxed">
-                            Akun PPPoE dan kredensial FreeRADIUS akan otomatis dipulihkan ke paket aslinya agar modem dapat terhubung kembali.
+                            Akun PPPoE dan kredensial RADIUS akan otomatis dipulihkan ke paket aslinya agar modem dapat terhubung kembali.
                         </p>
                     </div>
                     <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between gap-2">

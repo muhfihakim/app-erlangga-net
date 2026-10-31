@@ -92,7 +92,7 @@
                         </div>
                         <div>
                             <h3 class="text-sm font-bold text-slate-800 m-0" id="modalNasTitle">Tambah Router (NAS)</h3>
-                            <p class="text-[11px] text-slate-500 font-normal m-0 mt-0.5">Konfigurasi router access server FreeRADIUS</p>
+                            <p class="text-[11px] text-slate-500 font-normal m-0 mt-0.5">Konfigurasi router access server RADIUS</p>
                         </div>
                     </div>
                     <button type="button" class="modal-close" onclick="closeCustomModal('formNasModal')">

@@ -3,9 +3,47 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
         <style>
             #waiting-list-table td {
-                padding: 12px 14px;
-                font-size: 13px;
+                padding: 10px 12px;
+                font-size: 12px;
                 vertical-align: middle;
+            }
+            .dataTables_wrapper {
+                padding: 0;
+            }
+            .dataTables_filter {
+                display: none;
+            }
+            .dataTables_paginate {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                padding: 0.75rem 1rem;
+                border-top: 1px solid #f1f5f9;
+                justify-content: flex-end;
+            }
+            .paginate_button {
+                height: 30px;
+                padding: 0 10px;
+                border-radius: 6px;
+                border: 1px solid #e2e8f0;
+                background: #fff;
+                color: #475569 !important;
+                font-size: 11px;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                text-decoration: none;
+            }
+            .paginate_button.current {
+                background: #4f46e5;
+                border-color: #4f46e5;
+                color: #fff !important;
+            }
+            .paginate_button.disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
             }
         </style>
     @endsection
@@ -17,23 +55,28 @@
         </div>
     </div>
 
-    <!-- Navigation Tabs -->
-    <div class="flex items-center gap-2 mb-5 border-b border-slate-200 pb-2">
-        <a href="{{ route('pre_orders.index') }}"
-            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all">
-            Pre-Order Aktif
-        </a>
-        <a href="{{ route('pre_orders.waiting_list') }}"
-            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-primary text-white shadow-sm flex items-center gap-2">
-            <span>Waiting List Ekspansi</span>
-            @if($totalWaiting > 0)
-                <span class="bg-white/20 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">{{ $totalWaiting }}</span>
-            @endif
-        </a>
-    </div>
+    @if (session('success'))
+        <div class="bg-emerald-50 text-emerald-700 p-3.5 rounded-xl border border-emerald-200 mb-4 flex items-start gap-3 shadow-xs">
+            <i class="fa-solid fa-circle-check text-emerald-500 text-base mt-0.5"></i>
+            <div>
+                <strong class="font-bold text-xs">Berhasil!</strong>
+                <p class="text-xs mt-0.5">{{ session('success') }}</p>
+            </div>
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="bg-rose-50 text-rose-700 p-3.5 rounded-xl border border-rose-200 mb-4 flex items-start gap-3 shadow-xs">
+            <i class="fa-solid fa-circle-exclamation text-rose-500 text-base mt-0.5"></i>
+            <div>
+                <strong class="font-bold text-xs">Terjadi Kesalahan!</strong>
+                <p class="text-xs mt-0.5">{{ session('error') }}</p>
+            </div>
+        </div>
+    @endif
 
     <!-- Stats Grid -->
-    <div class="stats-grid mb-6">
+    <div class="stats-grid mb-5">
         <div class="stat-card">
             <div class="stat-icon" style="background:#fef2f2;color:#be123c;">
                 <i class="fa-solid fa-clock-rotate-left"></i>
@@ -78,7 +121,7 @@
             <div class="filter-group">
                 <div style="flex: 1; min-width: 170px;">
                     <label class="form-label-custom">Status Review</label>
-                    <select name="status_review" class="form-input-custom">
+                    <select name="status_review" class="form-input-custom !h-8.5 !text-xs">
                         <option value="semua" {{ $filterReview === 'semua' ? 'selected' : '' }}>Semua Status</option>
                         <option value="pending" {{ $filterReview === 'pending' ? 'selected' : '' }}>Menunggu Review</option>
                         <option value="approved" {{ $filterReview === 'approved' ? 'selected' : '' }}>Terverifikasi Ekspansi</option>
@@ -87,7 +130,7 @@
                 @if (Auth::user()->isAdmin())
                     <div style="flex: 1; min-width: 170px;">
                         <label class="form-label-custom">Sales</label>
-                        <select name="id_sales" class="form-input-custom">
+                        <select name="id_sales" class="form-input-custom !h-8.5 !text-xs">
                             <option value="">Semua Sales</option>
                             @foreach ($salesUsers as $sales)
                                 <option value="{{ $sales->id }}" {{ $filterSales == $sales->id ? 'selected' : '' }}>
@@ -98,13 +141,12 @@
                 @endif
                 <div style="flex: 1.5; min-width: 200px;">
                     <label class="form-label-custom">Cari Prospek</label>
-                    <div class="search-wrap !max-w-full">
-                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                        <input type="search" class="search-input custom-search" id="waiting-list-search" placeholder="Cari nama, alamat, kendala..."
+                    <div class="search-wrap !max-w-full !mb-0">
+                        <input type="search" class="search-input custom-search !h-8.5 !text-xs" id="waiting-list-search" placeholder="Cari nama, alamat, kendala..."
                             autocomplete="off" onkeydown="return event.key != 'Enter';" />
                     </div>
                 </div>
-                <button type="submit" class="btn-primary-admin !h-10 !px-6 flex items-center justify-center">
+                <button type="submit" class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold">
                     Filter
                 </button>
             </div>
@@ -112,35 +154,34 @@
     </div>
 
     <!-- Table Card -->
-    <div class="table-card">
+    <div class="table-card overflow-hidden">
         <div class="table-responsive">
-            <table id="waiting-list-table" class="admin-table">
+            <table id="waiting-list-table" class="admin-table w-full">
                 <thead>
                     <tr>
                         <th style="text-align: center; width: 45px;">#</th>
                         <th style="text-align: center; width: 95px;">Tgl List</th>
-                        <th style="text-align: left; min-width: 130px; width: 140px;">Sales</th>
-                        <th style="text-align: left; min-width: 220px;">Calon Pelanggan</th>
-                        <th style="text-align: center; width: 120px;">Paket</th>
-                        <th style="text-align: left; min-width: 200px;">Kendala Lapangan</th>
-                        <th style="text-align: center; width: 130px;">Koordinat</th>
-                        <th style="text-align: center; width: 130px;">Status</th>
-                        <th style="text-align: center; width: 160px;">Opsi</th>
+                        <th style="text-align: left; min-width: 120px; width: 130px;">Sales</th>
+                        <th style="text-align: left; min-width: 200px;">Calon Pelanggan</th>
+                        <th style="text-align: center; width: 110px;">Paket</th>
+                        <th style="text-align: left; min-width: 180px;">Kendala Lapangan</th>
+                        <th style="text-align: center; width: 90px;">Koordinat</th>
+                        <th style="text-align: center; width: 120px;">Status</th>
+                        <th style="text-align: center; width: 190px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($waitingList as $po)
                         <tr>
                             <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}</td>
-                            <td style="text-align: center; font-mono; font-size: 12px; color: #64748b;">
+                            <td style="text-align: center; font-family: monospace; font-size: 11px; color: #64748b;">
                                 {{ $po->updated_at ? $po->updated_at->format('d/m/Y') : ($po->created_at ? $po->created_at->format('d/m/Y') : '-') }}
                             </td>
                             <td style="text-align: left; font-size: 12px; font-weight: 600; color: #334155;">
-                                <i class="fa-regular fa-user text-[11px] text-slate-400 mr-1.5"></i>
                                 {{ $po->nama_sales ?: ($po->sales ? $po->sales->nama_lengkap : '-') }}
                             </td>
                             <td style="text-align: left;">
-                                <div style="font-weight: 700; color: #0f172a; font-size: 13px;">{{ $po->nama_lengkap }}</div>
+                                <div style="font-weight: 700; color: #0f172a; font-size: 12px;">{{ $po->nama_lengkap }}</div>
                                 @if ($po->no_whatsapp)
                                     @php
                                         $cleanWa = preg_replace('/[^0-9]/', '', $po->no_whatsapp);
@@ -150,7 +191,7 @@
                                         <a href="https://wa.me/{{ $cleanWa }}" target="_blank"
                                             class="text-[11px] font-mono text-emerald-700 hover:underline inline-flex items-center gap-1 font-semibold"
                                             title="Chat via WhatsApp">
-                                            <i class="fa-brands fa-whatsapp text-emerald-600"></i> {{ $po->no_whatsapp }}
+                                            {{ $po->no_whatsapp }}
                                         </a>
                                     </div>
                                 @endif
@@ -165,8 +206,8 @@
                             </td>
                             <td style="text-align: left;">
                                 <div class="p-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs leading-relaxed">
-                                    <div class="font-bold text-[10px] uppercase text-amber-700 mb-0.5 flex items-center gap-1">
-                                        <i class="fa-solid fa-triangle-exclamation text-[10px]"></i> Catatan Lapangan
+                                    <div class="font-bold text-[10px] uppercase text-amber-700 mb-0.5">
+                                        Catatan Lapangan:
                                     </div>
                                     <div>{{ $po->keterangan_unspek ?: 'Belum ada catatan kendala.' }}</div>
                                 </div>
@@ -174,12 +215,12 @@
                             <td style="text-align: center;">
                                 @if ($po->titik_koordinat && str_contains($po->titik_koordinat, ','))
                                     <a href="https://www.google.com/maps/search/?api=1&query={{ $po->titik_koordinat }}" target="_blank"
-                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-mono font-semibold transition-colors"
+                                        class="inline-flex items-center px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-mono font-semibold"
                                         title="Buka lokasi di Google Maps">
-                                        <i class="fa-solid fa-map-location-dot text-indigo-600"></i> Peta
+                                        Peta
                                     </a>
                                 @else
-                                    <span class="text-xs text-slate-400 italic">Belum ada</span>
+                                    <span class="text-xs text-slate-400 italic">-</span>
                                 @endif
                             </td>
                             <td style="text-align: center;">
@@ -194,14 +235,14 @@
                                 @endif
                             </td>
                             <td style="text-align: center;">
-                                <div class="flex items-center justify-center gap-1.5">
+                                <div class="flex items-center justify-center gap-1.5 flex-wrap">
                                     {{-- Re-open Button (Aktifkan ke PO) --}}
                                     @if (Auth::user()->isAdmin() || (auth()->user()->jabatan === 'Sales' && $po->id_sales == auth()->id()))
                                         @if (!$po->is_unspek_approved)
                                             <form action="{{ route('pre_orders.approve_unspek', $po->id) }}" method="POST" class="inline"
                                                 onsubmit="return confirm('Setujui calon pelanggan ini resmi masuk ke Waiting List Ekspansi?')">
                                                 @csrf
-                                                <button type="submit" class="btn-primary-admin !h-8 !px-2.5 !text-[11px] !bg-emerald-600 hover:!bg-emerald-700"
+                                                <button type="submit" class="btn-primary-admin !h-7 !px-2 !text-[11px] !bg-emerald-600 hover:!bg-emerald-700 font-semibold shadow-xs"
                                                     title="Setujui Masuk Waiting List">
                                                     Setujui
                                                 </button>
@@ -210,15 +251,15 @@
                                         <form action="{{ route('pre_orders.reopen_unspek', $po->id) }}" method="POST" class="inline"
                                             onsubmit="return confirm('Aktifkan kembali calon pelanggan ini ke antrean Pre-Order & Aktivasi?')">
                                             @csrf
-                                            <button type="submit" class="btn-primary-admin !h-8 !px-2.5 !text-[11px] !bg-sky-600 hover:!bg-sky-700"
+                                            <button type="submit" class="btn-primary-admin !h-7 !px-2 !text-[11px] !bg-sky-600 hover:!bg-sky-700 font-semibold shadow-xs"
                                                 title="Aktifkan ke Pre-Order">
-                                                Aktifkan ke PO
+                                                Aktifkan
                                             </button>
                                         </form>
                                     @endif
 
                                     {{-- Detail Button --}}
-                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
+                                    <button type="button" class="btn-primary-admin !h-7 !px-2 !text-[11px] !bg-slate-700 hover:!bg-slate-800 font-semibold shadow-xs"
                                         onclick="openCustomModal('detailModal', this)"
                                         data-po-id="{{ $po->id }}"
                                         data-nama="{{ $po->nama_lengkap }}"
@@ -236,15 +277,15 @@
                                         data-foto-ktp="{{ $po->foto_ktp ? Storage::url($po->foto_ktp) : '' }}"
                                         data-foto-rumah="{{ $po->foto_rumah ? Storage::url($po->foto_rumah) : '' }}"
                                         title="Detail">
-                                        <i class="fa-solid fa-circle-info text-slate-500"></i>
+                                        Detail
                                     </button>
 
                                     {{-- Delete Button --}}
                                     @if (Auth::user()->isAdmin() || (auth()->user()->jabatan === 'Sales' && $po->id_sales == auth()->id()))
-                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50"
-                                            onclick="confirmGlobalDelete('{{ route('pre_orders.destroy', $po->id) }}', '{{ $po->nama_lengkap }}')"
+                                        <button type="button" class="btn-cancel !h-7 !px-2 !text-[11px] hover:!text-rose-600 hover:!border-rose-300 font-semibold"
+                                            onclick="confirmGlobalDelete('{{ route('pre_orders.destroy', $po->id) }}', '{{ addslashes($po->nama_lengkap) }}')"
                                             title="Hapus">
-                                            <i class="fa-solid fa-trash text-rose-500"></i>
+                                            Hapus
                                         </button>
                                     @endif
                                 </div>
@@ -252,7 +293,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center py-8 text-slate-400 text-sm italic">
+                            <td colspan="9" class="text-center py-8 text-slate-400 text-xs italic">
                                 Belum ada calon pelanggan di daftar prospek tunggu (waiting list ekspansi).
                             </td>
                         </tr>
@@ -263,31 +304,107 @@
     </div>
 
     @include('partials.modal_preorders')
-    @include('partials.script_preorders')
 
-    @push('scripts')
-    <script>
-        $(document).ready(function() {
-            const table = $('#waiting-list-table').DataTable({
-                "pageLength": 10,
-                "lengthChange": false,
-                "ordering": false,
-                "info": false,
-                "responsive": true,
-                "dom": 'tpir',
-                "language": {
-                    "zeroRecords": "Data tidak ditemukan",
-                    "paginate": {
-                        "previous": '<i class="fa-solid fa-chevron-left"></i>',
-                        "next": '<i class="fa-solid fa-chevron-right"></i>'
+    @section('Scripts')
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+        <script>
+            function openCustomModal(modalId, triggerEl = null) {
+                const modal = document.getElementById(modalId);
+                if (!modal) return;
+
+                if (triggerEl && modalId === 'detailModal') {
+                    const $btn = $(triggerEl);
+                    $('#detail_nama_lengkap').text($btn.data('nama') || '-');
+                    $('#detail_identitas').text($btn.data('identitas') || '-');
+                    $('#detail_email').text($btn.data('email-lengkap') || '-');
+                    $('#detail_alamat').text($btn.data('alamat-lengkap') || '-');
+                    $('#detail_paket').text($btn.data('paket') || '-');
+                    $('#detail_paket_harga').text($btn.data('paket-harga') || '');
+                    $('#detail_sales').text($btn.data('sales') || '-');
+                    $('#detail_tgl').text($btn.data('tgl') || '-');
+
+                    const statusText = $btn.data('status') || 'Pending';
+                    const statusBadge = $btn.data('status-badge') || 'badge-draft';
+                    $('#detail_status_badge').text(statusText.toUpperCase()).attr('class', `badge ${statusBadge} text-[10px] py-0.5 px-2`);
+
+                    const wa = $btn.data('wa');
+                    if (wa && wa !== '-') {
+                        let cleanWa = String(wa).replace(/[^0-9]/g, '');
+                        if (cleanWa.startsWith('0')) cleanWa = '62' + cleanWa.substring(1);
+                        $('#detail_wa').html(`<a href="https://wa.me/${cleanWa}" target="_blank" class="text-emerald-600 hover:underline font-semibold">${wa}</a>`);
+                    } else {
+                        $('#detail_wa').text('-');
                     }
+
+                    const coord = $btn.data('koordinat');
+                    if (coord && coord !== '-' && coord.includes(',')) {
+                        $('#detail_koordinat').html(`<a href="https://www.google.com/maps/search/?api=1&query=${coord}" target="_blank" class="text-indigo-600 hover:underline font-mono">${coord}</a>`);
+                    } else {
+                        $('#detail_koordinat').text(coord || '-');
+                    }
+
+                    const fotoKtp = $btn.data('foto-ktp');
+                    if (fotoKtp) {
+                        $('#detail_foto_ktp').attr('src', fotoKtp).removeClass('hidden');
+                        $('#detail_foto_ktp_empty').addClass('hidden');
+                    } else {
+                        $('#detail_foto_ktp').addClass('hidden');
+                        $('#detail_foto_ktp_empty').removeClass('hidden');
+                    }
+
+                    const fotoRumah = $btn.data('foto-rumah');
+                    if (fotoRumah) {
+                        $('#detail_foto_rumah').attr('src', fotoRumah).removeClass('hidden');
+                        $('#detail_foto_rumah_empty').addClass('hidden');
+                    } else {
+                        $('#detail_foto_rumah').addClass('hidden');
+                        $('#detail_foto_rumah_empty').removeClass('hidden');
+                    }
+                }
+
+                modal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeCustomModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove('open');
+                    document.body.style.overflow = '';
+                }
+            }
+
+            $(document).on('click', '.modal-overlay', function(e) {
+                if (e.target === this) {
+                    $(this).removeClass('open');
+                    document.body.style.overflow = '';
                 }
             });
 
-            $('#waiting-list-search').on('keyup', function() {
-                table.search(this.value).draw();
+            $(document).ready(function() {
+                const table = $('#waiting-list-table').DataTable({
+                    pageLength: 10,
+                    lengthChange: false,
+                    ordering: false,
+                    info: false,
+                    responsive: true,
+                    dom: 'tpir',
+                    language: {
+                        zeroRecords: '<div class="p-4 text-center text-xs text-slate-400">Data tidak ditemukan</div>',
+                        paginate: {
+                            previous: 'Sebelumnya',
+                            next: 'Berikutnya'
+                        }
+                    }
+                });
+
+                $('#waiting-list-search').on('keyup input', function() {
+                    table.search(this.value).draw();
+                });
             });
-        });
-    </script>
-    @endpush
+        </script>
+    @endsection
 </x-layouts.app>

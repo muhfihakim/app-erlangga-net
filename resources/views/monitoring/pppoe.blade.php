@@ -73,16 +73,12 @@
             </p>
         </div>
         <div class="flex items-center gap-2">
-            <button type="button" id="btn-refresh-live"
-                class="btn-primary-admin !h-10 flex items-center gap-2">
-                <i class="fa-solid fa-arrows-rotate" id="refresh-icon"></i>
-                <span>Refresh Data Live</span>
-            </button>
+            <button type="button" id="btn-refresh-live" class="btn-primary-admin !h-8.5 !px-3.5 text-xs font-semibold shadow-xs">Refresh</button>
         </div>
     </div>
 
     <!-- Stats Cards Grid -->
-    <div class="stats-grid mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="stats-grid mb-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         <div class="stat-card">
             <div class="stat-icon" style="background:#e0f2fe;color:#0284c7;">
                 <i class="fa-solid fa-network-wired"></i>
@@ -125,13 +121,13 @@
     <div class="table-toolbar">
         <div class="search-wrap">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            <input type="search" class="search-input" id="custom-search"
+            <input type="search" class="search-input !h-8.5 !text-xs" id="custom-search"
                 placeholder="Live Search user, sales, IP, atau MAC..." autocomplete="off" />
         </div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:nowrap;">
             <!-- Filter Status -->
             <div style="min-width: 160px; max-width: 190px;">
-                <select id="filter-status" class="form-input-custom !h-10 !text-xs !bg-white !border-slate-300 !w-full cursor-pointer">
+                <select id="filter-status" class="form-input-custom !h-8.5 !text-xs !bg-white !border-slate-300 !w-full cursor-pointer">
                     <option value="">Semua Status</option>
                     <option value="normal">Normal (Aktif)</option>
                     <option value="isolir">Terisolir (172.30.x.x)</option>
@@ -140,7 +136,7 @@
 
             <!-- Per Page Length -->
             <div style="min-width: 110px; max-width: 130px;">
-                <select id="filter-length" class="form-input-custom !h-10 !text-xs !bg-white !border-slate-300 !w-full cursor-pointer">
+                <select id="filter-length" class="form-input-custom !h-8.5 !text-xs !bg-white !border-slate-300 !w-full cursor-pointer">
                     <option value="10">10 Baris</option>
                     <option value="25">25 Baris</option>
                     <option value="50">50 Baris</option>
@@ -188,9 +184,7 @@
                 <!-- Content injected by JS -->
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <button type="button" class="btn-cancel w-full" onclick="closeCustomModal('pppoeDetailModal')">
-                    <i class="fa-solid fa-xmark"></i> Tutup Detail
-                </button>
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold w-full" onclick="closeCustomModal('pppoeDetailModal')">Tutup</button>
             </div>
         </div>
     </div>
@@ -337,9 +331,7 @@
                         <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Caller ID (MAC)</span><span class="text-sm font-bold text-slate-700 font-mono">${caller || '-'}</span></div>
                         
                         <div class="mt-6">
-                            <button onclick="createRemoteTunnel('${addr}')" class="btn-primary-admin w-full flex items-center justify-center gap-2" style="padding: 12px; border-radius: 12px; font-weight: 700; width: 100%;">
-                                <i class="fa-solid fa-satellite-dish"></i> Remote Akses ONT/ONU
-                            </button>
+                            <button onclick="createRemoteTunnel('${addr}')" class="btn-primary-admin w-full !h-8.5 text-xs font-semibold shadow-xs">Remote Akses ONT/ONU</button>
                         </div>
                     </div>
                 `);

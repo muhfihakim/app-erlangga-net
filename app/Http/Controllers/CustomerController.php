@@ -959,7 +959,7 @@ class CustomerController extends Controller
             'logged_at' => now(),
         ]);
 
-        return redirect()->back()->with('success', "Pelanggan berhasil diaktifkan kembali dan kredensial FreeRADIUS dipulihkan.");
+        return redirect()->back()->with('success', "Pelanggan berhasil diaktifkan kembali dan kredensial RADIUS dipulihkan.");
     }
 
     public function destroy($id)
