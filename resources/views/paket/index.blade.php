@@ -68,7 +68,7 @@
             <!-- Tombol Tambah Paket Baru -->
             <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold"
                 onclick="openPaketModal()">
-                Tambah Paket
+                Tambah
             </button>
         </div>
     </div>
@@ -150,7 +150,7 @@
                                 <div class="flex items-center justify-center gap-1.5">
                                     <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                         onclick="editPaketModal({{ $paket->id }}, @js($paket->nama_paket), @js($paket->harga), @js($paket->pajak ?? 0), @js($paket->diskon ?? 0), @js($paket->rate_limit), @js($paket->keterangan), @js($paket->local_address), @js($paket->ip_pool), @js($paket->pool_range))"
-                                        title="Edit Paket"><i class="fa-solid fa-pen-to-square text-slate-500 hover:text-amber-600"></i></button>
+                                        title="Edit"><i class="fa-solid fa-pen-to-square text-slate-500 hover:text-amber-600"></i></button>
                                     <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                         onclick="confirmGlobalDelete('{{ route('pakets.destroy', $paket->id) }}', 'Paket {{ $paket->nama_paket }}')"
                                         title="Hapus"><i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i></button>
@@ -274,7 +274,7 @@
                         Batal
                     </button>
                     <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
-                        Simpan Paket
+                        Simpan
                     </button>
                 </div>
             </form>

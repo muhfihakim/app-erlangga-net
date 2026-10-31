@@ -73,7 +73,7 @@
                     Batal
                 </button>
                 <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
-                    Simpan Akun
+                    Simpan
                 </button>
             </div>
         </form>
@@ -155,7 +155,7 @@
                     Batal
                 </button>
                 <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
-                    Perbarui Akun
+                    Simpan
                 </button>
             </div>
         </form>
@@ -194,7 +194,7 @@
             <form id="deleteForm" method="POST" class="m-0">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-9 !px-5 text-xs font-semibold">Ya, Hapus</button>
+                <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-9 !px-5 text-xs font-semibold">Hapus</button>
             </form>
         </div>
     </div>

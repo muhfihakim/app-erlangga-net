@@ -689,7 +689,7 @@
                     <button type="button" id="btnToggleEdit"
                         class="view-only btn-primary-admin !h-9 !px-5 text-xs font-semibold"
                         onclick="toggleEditMode()">
-                        Edit Data
+                        Edit
                     </button>
                     <button type="button" class="edit-only btn-cancel !h-9 !px-4 text-xs font-semibold"
                         onclick="toggleEditMode()">
@@ -1136,7 +1136,7 @@
                             Batal
                         </button>
                         <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-9 !px-5 text-xs font-semibold">
-                            Ya, Hapus Permanen
+                            Hapus
                         </button>
                     </div>
                 </form>

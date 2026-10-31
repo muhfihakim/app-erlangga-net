@@ -344,7 +344,7 @@
                     </button>
                     <button type="submit"
                         class="btn-save !flex !items-center !justify-center gap-2 !bg-amber-500 hover:!bg-amber-600">
-                        <i class="fa-solid fa-rotate"></i> Update PPPoE
+                        Simpan
                     </button>
                 </div>
             </form>

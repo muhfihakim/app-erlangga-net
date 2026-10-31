@@ -147,7 +147,7 @@
                                 </label>
                                 <button type="button" onclick="openAddBankModal()"
                                     class="text-xs text-indigo-600 hover:text-indigo-700 font-semibold">
-                                    Tambah Rekening
+                                    Tambah
                                 </button>
                             </div>
                             <select id="selectSavedBank" class="form-input-custom !h-[38px] text-xs w-full bg-white"
@@ -271,7 +271,7 @@
                         </div>
                         <button type="button" onclick="openAddBankModal()"
                             class="btn-primary-admin !h-8 !px-3 text-xs font-semibold shadow-sm">
-                            Tambah Bank
+                            Tambah
                         </button>
                     </div>
 
@@ -317,7 +317,7 @@
                                             </form>
                                         @endif
                                         <button type="button" onclick="openEditBankModal({{ json_encode($acc) }})"
-                                            class="topbar-icon-btn !w-7 !h-7 !rounded-lg" title="Edit Rekening">
+                                            class="topbar-icon-btn !w-7 !h-7 !rounded-lg" title="Edit">
                                             <i class="fa-solid fa-pen text-[11px] text-slate-500"></i>
                                         </button>
                                         <form action="{{ route('bank_accounts.destroy', $acc->id) }}" method="POST" class="inline"
@@ -325,7 +325,7 @@
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
-                                                class="topbar-icon-btn !w-7 !h-7 !rounded-lg hover:!bg-rose-50" title="Hapus Rekening">
+                                                class="topbar-icon-btn !w-7 !h-7 !rounded-lg hover:!bg-rose-50" title="Hapus">
                                                 <i class="fa-solid fa-trash text-[11px] text-rose-500"></i>
                                             </button>
                                         </form>

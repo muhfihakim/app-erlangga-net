@@ -102,7 +102,7 @@
             @if ($canCrud)
                 <button type="button" onclick="openCustomModal('addOdpModal')"
                     class="btn-primary-admin !flex !items-center !justify-center gap-2">
-                    <i class="fa-solid fa-plus"></i> Tambah ODP
+                    Tambah
                 </button>
             @endif
         </div>
@@ -302,7 +302,7 @@
                             <i class="fa-solid fa-xmark"></i> Batal
                         </button>
                         <button type="submit" class="btn-save !flex !items-center !justify-center gap-2">
-                            <i class="fa-solid fa-paper-plane"></i> Simpan Data ODP
+                            Simpan
                         </button>
                     </div>
                 </form>
@@ -373,7 +373,7 @@
                             <i class="fa-solid fa-xmark"></i> Batal
                         </button>
                         <button type="submit" class="btn-save !flex !items-center !justify-center gap-2">
-                            <i class="fa-solid fa-check"></i> Perbarui Data ODP
+                            Simpan
                         </button>
                     </div>
                 </form>

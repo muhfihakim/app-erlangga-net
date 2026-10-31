@@ -559,7 +559,7 @@
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-9 !px-5 text-xs font-semibold">
-                        Ya, Hapus Arsip
+                        Hapus
                     </button>
                 </form>
             </div>

@@ -126,7 +126,7 @@
         <div style="display:flex; gap:10px;">
             <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-1.5 shadow-sm"
                 onclick="openCustomModal('kasbonModal')">
-                <i class="fa-solid fa-plus"></i> Tambah Kasbon
+                Tambah
             </button>
         </div>
     </div>
@@ -265,7 +265,7 @@
                             </td>
                             <td style="text-align: center;">
                                 <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!bg-rose-50"
-                                    title="Hapus Kasbon"
+                                    title="Hapus"
                                     onclick="confirmGlobalDelete('{{ route('kasbons.destroy', $k->id) }}', 'Kasbon {{ addslashes($k->teknisi->nama_lengkap ?? '') }} (Rp {{ number_format($k->nominal, 0, ',', '.') }})')">
                                     <i class="fa-solid fa-trash text-rose-500 text-xs"></i>
                                 </button>

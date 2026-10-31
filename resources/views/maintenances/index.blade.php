@@ -104,7 +104,7 @@
             @if ($is_admin)
                 <button type="button" class="btn-primary-admin !flex !items-center !justify-center gap-2"
                     onclick="openCustomModal('addMaintenanceModal')">
-                    <i class="fa-solid fa-plus-square"></i> Tambah Pemeliharaan
+                    Tambah
                 </button>
             @endif
         </div>

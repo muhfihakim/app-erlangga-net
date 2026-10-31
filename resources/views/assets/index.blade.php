@@ -81,7 +81,7 @@
             @if ($isAdmin)
                 <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-2"
                     onclick="openCustomModal('addAssetModal')">
-                    <i class="fa-solid fa-plus-square"></i> Tambah Barang
+                    Tambah
                 </button>
             @endif
         </div>
@@ -165,12 +165,12 @@
                                             data-id="{{ $asset->id }}" data-name="{{ $asset->name }}"
                                             data-type="{{ $asset->type }}" data-unit="{{ $asset->unit }}"
                                             data-description="{{ $asset->description }}"
-                                            class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-sky-300 hover:!bg-sky-50" title="Edit Barang">
+                                            class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-sky-300 hover:!bg-sky-50" title="Edit">
                                             <i class="fa-solid fa-pen-to-square text-slate-600"></i>
                                         </button>
                                         <button type="button"
                                             onclick="confirmGlobalDelete('{{ route('assets.destroy', $asset->id) }}', '{{ addslashes($asset->name) }}')"
-                                            class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50" title="Hapus Barang">
+                                            class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50" title="Hapus">
                                             <i class="fa-solid fa-trash text-rose-500"></i>
                                         </button>
                                     @endif
@@ -239,7 +239,7 @@
                     <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
                         <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
                             onclick="closeCustomModal('addAssetModal')">Batal</button>
-                        <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold">Simpan Barang</button>
+                        <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold">Simpan</button>
                     </div>
                 </form>
             </div>
@@ -297,7 +297,7 @@
                     <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
                         <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
                             onclick="closeCustomModal('editAssetModal')">Batal</button>
-                        <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold">Perbarui Barang</button>
+                        <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold">Simpan</button>
                     </div>
                 </form>
             </div>
@@ -386,7 +386,7 @@
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
                     <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
                         onclick="closeCustomModal('transactionModal')">Batal</button>
-                    <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold">Simpan Transaksi</button>
+                    <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold">Simpan</button>
                 </div>
             </form>
         </div>

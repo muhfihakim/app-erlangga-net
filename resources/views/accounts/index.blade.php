@@ -9,7 +9,7 @@
         <div style="display:flex; gap:8px;">
             <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold"
                 onclick="openCustomModal('addUserModal')">
-                Tambah Akun
+                Tambah
             </button>
         </div>
     </div>
@@ -128,7 +128,7 @@
                             <td style="text-align: center;">
                                 <div class="flex items-center justify-center gap-1.5 flex-wrap">
                                     <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
-                                        title="Edit Akun" onclick="openCustomModal('editModal', this)"
+                                        title="Edit" onclick="openCustomModal('editModal', this)"
                                         data-user-id="{{ $user->id }}"
                                         data-user-nama="{{ $user->nama_lengkap }}"
                                         data-user-nik="{{ $user->nik }}" 
@@ -154,7 +154,7 @@
                                     </button>
 
                                     <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
-                                        title="Hapus Akun" onclick="confirmGlobalDelete('{{ route('accounts.destroy', $user->id) }}', '{{ $user->nama_lengkap }}')">
+                                        title="Hapus" onclick="confirmGlobalDelete('{{ route('accounts.destroy', $user->id) }}', '{{ $user->nama_lengkap }}')">
                                         <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i>
                                     </button>
 

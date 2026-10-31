@@ -95,7 +95,7 @@
                 </a>
             @endif
             <button type="button" class="btn-primary-admin btn-glow-primary !flex !items-center !justify-center gap-2"
-                onclick="addModal()"><i class="fa-solid fa-plus"></i> Tambah Perbantuan</button>
+                onclick="addModal()">Tambah</button>
         </div>
     </div>
 

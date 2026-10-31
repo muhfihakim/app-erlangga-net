@@ -231,8 +231,8 @@
                         <i class="fa-solid fa-plug" aria-hidden="true"></i> <span id="btn-test-mikrotik-text">Test Koneksi MikroTik</span>
                     </button>
                     <button type="submit"
-                        class="btn-primary-admin !bg-indigo-600 hover:!bg-indigo-700 flex items-center gap-2 !px-6">
-                        <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Simpan Konfigurasi MikroTik
+                        class="btn-primary-admin !bg-indigo-600 hover:!bg-indigo-700 !px-6">
+                        Simpan
                     </button>
                 </div>
             </form>
@@ -448,8 +448,8 @@
                         <i class="fa-solid fa-plug" aria-hidden="true"></i> <span id="btn-test-olt-text">Test Koneksi OLT</span>
                     </button>
                     <button type="submit"
-                        class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 flex items-center gap-2 !px-6">
-                        <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Simpan Konfigurasi OLT
+                        class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !px-6">
+                        Simpan
                     </button>
                 </div>
             </form>
@@ -527,8 +527,8 @@
                         <i class="fa-solid fa-plug" aria-hidden="true"></i> <span id="btn-test-radius-text">Test Koneksi Database RADIUS</span>
                     </button>
                     <button type="submit"
-                        class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 flex items-center gap-2 !px-6">
-                        <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Simpan Konfigurasi RADIUS
+                        class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !px-6">
+                        Simpan
                     </button>
                 </div>
             </form>
@@ -612,8 +612,8 @@
                         <i class="fa-solid fa-plug" aria-hidden="true"></i> <span id="btn-test-xendit-text">Test Validitas API Key Xendit</span>
                     </button>
                     <button type="submit"
-                        class="btn-primary-admin !bg-amber-600 hover:!bg-amber-700 flex items-center gap-2 !px-6">
-                        <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Simpan Konfigurasi Xendit
+                        class="btn-primary-admin !bg-amber-600 hover:!bg-amber-700 !px-6">
+                        Simpan
                     </button>
                 </div>
             </form>
@@ -679,8 +679,8 @@
                         <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> <span id="btn-test-whatsapp-text">Kirim Pesan Tes WhatsApp</span>
                     </button>
                     <button type="submit"
-                        class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 flex items-center gap-2 !px-6">
-                        <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Simpan Konfigurasi WhatsApp
+                        class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !px-6">
+                        Simpan
                     </button>
                 </div>
             </form>
@@ -757,8 +757,8 @@
                         <i class="fa-solid fa-satellite-dish" aria-hidden="true"></i> <span id="btn-test-genieacs-text">Uji Koneksi GenieACS</span>
                     </button>
                     <button type="submit"
-                        class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 flex items-center gap-2 !px-6">
-                        <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Simpan Konfigurasi GenieACS
+                        class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !px-6">
+                        Simpan
                     </button>
                 </div>
             </form>

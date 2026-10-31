@@ -86,7 +86,7 @@
                     <i class="fa-solid fa-xmark"></i> Batal
                 </button>
                 <button type="submit" class="btn-save !flex !items-center !justify-center gap-2">
-                    <i class="fa-solid fa-floppy-disk"></i> Simpan Data
+                    Simpan
                 </button>
             </div>
         </form>

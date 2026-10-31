@@ -83,11 +83,11 @@
                 data-po-koordinat="{{ $po->titik_koordinat }}"
                 data-foto-ktp="{{ $po->foto_ktp ? Storage::url($po->foto_ktp) : '' }}"
                 data-foto-rumah="{{ $po->foto_rumah ? Storage::url($po->foto_rumah) : '' }}"
-                title="Edit Data"><i
+                title="Edit"><i
                     class="fa-solid fa-pen-to-square text-slate-600"></i></button>
             <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50"
                 onclick="confirmGlobalDelete('{{ route('pre_orders.destroy', $po->id) }}', '{{ $po->nama_lengkap }}')"
-                title="Hapus Pre-Order"><i
+                title="Hapus"><i
                     class="fa-solid fa-trash text-rose-500"></i></button>
         @endif
     @endif

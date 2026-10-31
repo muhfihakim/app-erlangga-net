@@ -235,7 +235,7 @@
                     <i class="fa-solid fa-xmark"></i> Tutup
                 </button>
                 <button type="submit" class="btn-save !flex !items-center !justify-center gap-2">
-                    <i class="fa-solid fa-rotate"></i> Update Data
+                    Simpan
                 </button>
             </div>
         </form>
@@ -455,7 +455,7 @@
                     Batal
                 </button>
                 <button type="submit" class="btn-primary-admin !bg-amber-600 hover:!bg-amber-700 !text-white !h-9 !px-5 text-xs font-semibold">
-                    Simpan Unspek
+                    Simpan
                 </button>
             </div>
         </form>

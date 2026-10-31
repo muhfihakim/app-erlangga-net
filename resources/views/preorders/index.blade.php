@@ -38,8 +38,8 @@
         <div style="display:flex; gap:10px;">
             @if (auth()->user()->jabatan === 'Sales' || auth()->user()->isAdmin())
                 <button type="button" class="btn-primary-admin btn-glow-primary !flex !items-center !justify-center gap-2"
-                    onclick="openCustomModal('addPreOrderModal')"><i class="fa-solid fa-user-plus"></i> Tambah
-                    Pre-Order</button>
+                    onclick="openCustomModal('addPreOrderModal')">Tambah
+</button>
             @endif
         </div>
     </div>

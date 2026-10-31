@@ -22,7 +22,7 @@
         </div>
         <div style="display:flex; gap:8px;">
             <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold" onclick="openNasModal()">
-                Tambah Router
+                Tambah
             </button>
         </div>
     </div>
@@ -65,7 +65,7 @@
                                 <div class="flex items-center justify-center gap-1.5">
                                     <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                         onclick="editNasModal({{ $router->id }}, '{{ $router->shortname }}', '{{ $router->nasname }}', '{{ $router->secret }}', '{{ $router->description }}')"
-                                        title="Edit Router"><i class="fa-solid fa-pen-to-square text-slate-500 hover:text-amber-600"></i></button>
+                                        title="Edit"><i class="fa-solid fa-pen-to-square text-slate-500 hover:text-amber-600"></i></button>
                                     <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                         onclick="confirmGlobalDelete('{{ route('nas.destroy', $router->id) }}', 'Router {{ $router->shortname }}')"
                                         title="Hapus"><i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i></button>

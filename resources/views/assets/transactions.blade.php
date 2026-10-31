@@ -274,7 +274,7 @@
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
                     <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
                         onclick="closeCustomModal('addMutationModal')">Batal</button>
-                    <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold">Simpan Mutasi</button>
+                    <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold">Simpan</button>
                 </div>
             </form>
         </div>

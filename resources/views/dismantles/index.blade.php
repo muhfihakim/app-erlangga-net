@@ -64,7 +64,7 @@
             @if ($is_admin)
                 <button type="button" class="btn-primary-admin !flex !items-center !justify-center gap-2"
                     onclick="openCustomModal('addDismantleModal')">
-                    <i class="fa-solid fa-plus-square"></i> Tambah Dismantle
+                    Tambah
                 </button>
             @endif
         </div>
@@ -163,7 +163,7 @@
                                             @if (!$isTrashed)
                                                 <button type="button" class="btn-primary-admin !h-9 !px-3 !text-[11px]"
                                                     onclick="confirmGlobalDelete('{{ route('dismantles.deleteCustomer', $d->customer_id) }}', '{{ $d->customer->nama_lengkap }}')">
-                                                    <i class="fa-solid fa-user-slash"></i> Hapus
+                                                    Hapus
                                                 </button>
                                             @endif
                                         @else
