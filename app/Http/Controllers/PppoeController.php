@@ -167,8 +167,8 @@ class PppoeController extends Controller
                 ? '<span style="background:#fee2e2; color:#be123c; border:1px solid #fecdd3; font-size:10px; padding:2px 6px; border-radius:6px; font-weight:800; margin-left:6px;"><i class="fa-solid fa-ban mr-1"></i>ISOLIR</span>'
                 : '<span style="background:#dcfce7; color:#15803d; border:1px solid #bbf7d0; font-size:10px; padding:2px 6px; border-radius:6px; font-weight:800; margin-left:6px;"><i class="fa-solid fa-circle-check mr-1"></i>AKTIF</span>';
 
-            $userHtml = '<div style="font-weight: 700; color: #0f172a; display:inline-flex; align-items:center;">' .
-                htmlspecialchars($name, ENT_QUOTES) . $statusBadge . '</div>';
+            $userHtml = '<div style="display:inline-flex; align-items:center;"><span class="font-mono font-bold text-slate-900">' .
+                htmlspecialchars($name, ENT_QUOTES) . '</span>' . $statusBadge . '</div>';
 
             $salesHtml = '<span style="font-weight: 600; color: #475569; font-size: 11px;">' . htmlspecialchars($salesName, ENT_QUOTES) . '</span>';
 

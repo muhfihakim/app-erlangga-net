@@ -42,7 +42,7 @@
                 <div class="sidebar-group-content {{ $isNetActive ? 'open' : '' }}" id="group-jaringan">
                     <a class="sidebar-sublink {{ Request::is('pppoe') ? 'active' : '' }}" href="{{ route('pppoe.index') }}">
                         <i class="fa-solid fa-circle-dot"></i>
-                        <span>Sesi Aktif (Live)</span>
+                        <span>PPPoE Aktif</span>
                     </a>
                     @if ($isAdmin)
                         <a class="sidebar-sublink {{ Request::is('pppoe-accounts*') ? 'active' : '' }}" href="{{ route('pppoe_accounts.index') }}">

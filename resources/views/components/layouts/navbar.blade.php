@@ -24,7 +24,7 @@
             @elseif(request()->routeIs('pppoe.*') || request()->is('pppoe'))
                 <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-jaringan')">Jaringan & Router</span>
                 <span class="sep">/</span>
-                <span class="current">Sesi Aktif (Live)</span>
+                <span class="current">PPPoE Aktif</span>
             @elseif(request()->routeIs('olt.*') || request()->is('olt*'))
                 <span class="cursor-pointer hover:text-slate-900 transition-colors" onclick="toggleSidebarGroup('group-jaringan')">Jaringan & Router</span>
                 <span class="sep">/</span>

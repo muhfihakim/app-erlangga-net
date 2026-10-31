@@ -1,11 +1,16 @@
 <x-layouts.app>
     @section('Css')
         <style>
-            #pppoe-table thead th,
+            #pppoe-table thead th {
+                font-weight: 700;
+                font-size: 11px;
+                letter-spacing: 0.03em;
+                color: #64748b;
+            }
+
             #pppoe-table tbody td {
-                text-transform: uppercase !important;
-                font-weight: 600;
                 font-size: 12px;
+                vertical-align: middle;
             }
 
             .dataTables_wrapper {
@@ -66,10 +71,10 @@
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
             <h1 style="font-size:22px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
-                PPPoE Aktif (Realtime)
+                PPPoE Aktif
             </h1>
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">
-                Monitoring pengguna PPPoE yang sedang terhubung secara live langsung dari router MikroTik.
+                Monitoring pengguna PPPoE yang sedang terhubung langsung dari router MikroTik.
             </p>
         </div>
         <div class="flex items-center gap-2">
@@ -80,7 +85,7 @@
     </div>
 
     <!-- Stats Cards Grid -->
-    <div class="stats-grid mb-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+    <div class="stats-grid mb-5 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-3.5">
         <div class="stat-card">
             <div class="stat-icon" style="background:#e0f2fe;color:#0284c7;">
                 <i class="fa-solid fa-network-wired"></i>
@@ -108,15 +113,6 @@
                 <div class="stat-lbl">Pelanggan Terisolir</div>
             </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#ede9fe;color:#6d28d9;">
-                <i class="fa-solid fa-server"></i>
-            </div>
-            <div>
-                <div class="stat-val truncate" style="font-size:15px;" title="{{ $routerName }}">{{ $routerName }}</div>
-                <div class="stat-lbl font-mono text-[11px]">{{ $routerHost }}</div>
-            </div>
-        </div>
     </div>
 
     <!-- Toolbar -->
@@ -124,20 +120,29 @@
         <div class="search-wrap">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
             <input type="search" class="search-input !h-8.5 !text-xs" id="custom-search"
-                placeholder="Live Search user, sales, IP, atau MAC..." autocomplete="off" />
+                placeholder="Cari user, sales, IP, atau MAC..." autocomplete="off" />
         </div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:nowrap;">
             <!-- Filter Status -->
-            <div style="min-width: 160px; max-width: 190px;">
+            <div style="min-width: 150px; max-width: 180px;">
                 <select id="filter-status" class="form-input-custom !h-8.5 !text-xs !bg-white !border-slate-300 !w-full cursor-pointer">
                     <option value="">Semua Status</option>
-                    <option value="normal">Normal (Aktif)</option>
-                    <option value="isolir">Terisolir (172.30.x.x)</option>
+                    <option value="normal">Normal</option>
+                    <option value="isolir">Terisolir</option>
                 </select>
             </div>
 
             <!-- Per Page Length -->
             <div style="min-width: 110px; max-width: 130px;">
+                <select id="filter-length" class="form-input-custom !h-8.5 !text-xs !bg-white !border-slate-300 !w-full cursor-pointer">
+                    <option value="10">10 Baris</option>
+                    <option value="25">25 Baris</option>
+                    <option value="50">50 Baris</option>
+                    <option value="100">100 Baris</option>
+                </select>
+            </div>
+        </div>
+    </div>
                 <select id="filter-length" class="form-input-custom !h-8.5 !text-xs !bg-white !border-slate-300 !w-full cursor-pointer">
                     <option value="10">10 Baris</option>
                     <option value="25">25 Baris</option>
@@ -172,21 +177,99 @@
 
     <!-- Detail Modal -->
     <div class="modal-overlay" id="pppoeDetailModal">
-        <div class="modal-box max-w-lg bg-white border border-slate-300 shadow-2xl">
-            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                <div class="modal-title">
-                    <i class="fa-solid fa-circle-info text-primary"></i>
-                    <span class="text-slate-900 font-bold">Detail Koneksi PPPoE</span>
+        <div class="modal-box max-w-lg bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+            <!-- Header -->
+            <div class="modal-header border-b border-slate-200 bg-white px-5 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-100 shrink-0">
+                        <i class="fa-solid fa-network-wired"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h3 class="text-base font-bold text-slate-900 m-0">Detail Koneksi PPPoE</h3>
+                            <span id="det_status_badge" class="badge text-[10px] py-0.5 px-2 font-bold inline-flex items-center gap-1"></span>
+                        </div>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">
+                            User: <span id="det_header_user" class="font-bold text-slate-800 font-mono">-</span>
+                            <span class="mx-1 text-slate-300">•</span>
+                            Sales: <span id="det_header_sales" class="font-medium text-slate-700">-</span>
+                        </p>
+                    </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('pppoeDetailModal')">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="modal-body p-6" id="modal-content">
-                <!-- Content injected by JS -->
+
+            <!-- Body -->
+            <div class="modal-body p-4 bg-white space-y-3">
+                <!-- Card 1: Informasi Sesi & Jaringan -->
+                <div class="border border-slate-200 rounded-xl p-3.5 bg-white">
+                    <div class="flex items-center gap-2 mb-2.5 pb-2 border-b border-slate-100">
+                        <i class="fa-solid fa-circle-nodes text-xs text-slate-400"></i>
+                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Informasi Sesi & Jaringan</span>
+                    </div>
+                    <div class="space-y-2 text-xs">
+                        <div class="flex justify-between items-center gap-2">
+                            <span class="text-slate-400 shrink-0">Username PPPoE:</span>
+                            <span id="det_username" class="font-bold text-slate-900 font-mono text-right"></span>
+                        </div>
+                        <div class="flex justify-between items-center gap-2">
+                            <span class="text-slate-400 shrink-0">Remote IP Address:</span>
+                            <span id="det_address" class="font-mono font-bold text-right"></span>
+                        </div>
+                        <div class="flex justify-between items-center gap-2">
+                            <span class="text-slate-400 shrink-0">Caller ID (MAC):</span>
+                            <span id="det_caller" class="font-mono font-medium text-slate-700 text-right"></span>
+                        </div>
+                        <div class="flex justify-between items-center gap-2">
+                            <span class="text-slate-400 shrink-0">Sales Penanggung Jawab:</span>
+                            <span id="det_sales" class="font-medium text-slate-800 text-right"></span>
+                        </div>
+                        <div class="flex justify-between items-center gap-2">
+                            <span class="text-slate-400 shrink-0">Waktu Aktif (Uptime):</span>
+                            <span id="det_uptime" class="font-mono font-semibold text-slate-700 text-right"></span>
+                        </div>
+                        <div class="flex justify-between items-center gap-2">
+                            <span class="text-slate-400 shrink-0">Service:</span>
+                            <span id="det_service" class="font-mono text-slate-600 uppercase text-right">PPPOE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Lalu Lintas Data (Traffic) -->
+                <div class="border border-slate-200 rounded-xl p-3.5 bg-slate-50/60">
+                    <div class="flex items-center gap-2 mb-2 pb-1.5 border-b border-slate-200/60">
+                        <i class="fa-solid fa-chart-simple text-xs text-slate-400"></i>
+                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Lalu Lintas Data (Traffic)</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 pt-1">
+                        <div class="bg-white border border-slate-200 rounded-lg p-2.5">
+                            <div class="flex items-center gap-1.5 text-[10px] font-bold text-orange-600 uppercase mb-0.5">
+                                <i class="fa-solid fa-arrow-up"></i> Total Upload (TX)
+                            </div>
+                            <div id="det_tx" class="text-sm font-bold text-slate-800 font-mono">0 B</div>
+                        </div>
+                        <div class="bg-white border border-slate-200 rounded-lg p-2.5">
+                            <div class="flex items-center gap-1.5 text-[10px] font-bold text-sky-600 uppercase mb-0.5">
+                                <i class="fa-solid fa-arrow-down"></i> Total Download (RX)
+                            </div>
+                            <div id="det_rx" class="text-sm font-bold text-slate-800 font-mono">0 B</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Remote Akses -->
+                <div class="pt-1">
+                    <button type="button" id="btn_remote_tunnel_action" class="btn-primary-admin w-full !h-8.5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-satellite-dish"></i> Remote Akses ONT/ONU
+                    </button>
+                </div>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold w-full" onclick="closeCustomModal('pppoeDetailModal')">Tutup</button>
+
+            <!-- Footer -->
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl px-5 py-3 flex justify-end">
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold" onclick="closeCustomModal('pppoeDetailModal')">Tutup</button>
             </div>
         </div>
     </div>
@@ -317,31 +400,38 @@
                 const addr = item.address || '-';
                 const uptime = item.uptime || '';
                 const caller = item.caller || '-';
+                const service = item.service || 'pppoe';
                 const bin = item.bytes_in || 0;
                 const bout = item.bytes_out || 0;
                 const isIsolir = item.is_isolir || false;
 
-                $('#modal-content').html(`
-                    <div class="space-y-4">
-                        <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">User PPPoE</span><span class="text-sm font-bold text-slate-900">${name}</span></div>
-                        <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Status</span><span class="text-xs font-bold ${isIsolir ? 'text-rose-600' : 'text-emerald-600'}">${isIsolir ? 'TERISOLIR (172.30.x.x)' : 'AKTIF NORMAL'}</span></div>
-                        <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Sales</span><span class="text-sm font-bold text-slate-900">${sales}</span></div>
-                        <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Remote Address</span><span class="text-sm font-bold ${isIsolir ? 'text-rose-600' : 'text-primary'} font-mono">${addr}</span></div>
-                        <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Uptime</span><span class="text-sm font-bold text-slate-700 font-mono">${formatUptimeToHMS(uptime)}</span></div>
-                        <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Total Upload (TX)</span><span class="text-sm font-bold text-orange-600 font-mono">${formatBytes(bin)}</span></div>
-                        <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Total Download (RX)</span><span class="text-sm font-bold text-sky-600 font-mono">${formatBytes(bout)}</span></div>
-                        <div class="flex justify-between border-b pb-2"><span class="text-[11px] font-bold text-slate-400 uppercase">Caller ID (MAC)</span><span class="text-sm font-bold text-slate-700 font-mono">${caller || '-'}</span></div>
-                        
-                        <div class="mt-6">
-                            <button onclick="createRemoteTunnel('${addr}')" class="btn-primary-admin w-full !h-8.5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5"><i class="fa-solid fa-satellite-dish"></i> Remote Akses ONT/ONU</button>
-                        </div>
-                    </div>
-                `);
+                $('#det_header_user').text(name);
+                $('#det_header_sales').text(sales);
+                $('#det_username').text(name);
+                $('#det_sales').text(sales);
+                $('#det_caller').text(caller || '-');
+                $('#det_service').text(service.toUpperCase());
+                $('#det_uptime').text(formatUptimeToHMS(uptime));
+                $('#det_tx').text(formatBytes(bin));
+                $('#det_rx').text(formatBytes(bout));
+
+                if (isIsolir) {
+                    $('#det_status_badge').html('<i class="fa-solid fa-ban mr-1"></i> TERISOLIR').attr('class', 'badge badge-danger text-[10px] py-0.5 px-2 font-bold inline-flex items-center');
+                    $('#det_address').text(addr).attr('class', 'font-mono font-bold text-right text-rose-600');
+                } else {
+                    $('#det_status_badge').html('<i class="fa-solid fa-circle-check mr-1"></i> AKTIF').attr('class', 'badge badge-published text-[10px] py-0.5 px-2 font-bold inline-flex items-center');
+                    $('#det_address').text(addr).attr('class', 'font-mono font-bold text-right text-sky-600');
+                }
+
+                $('#btn_remote_tunnel_action').off('click').on('click', function(e) {
+                    createRemoteTunnel(addr, e);
+                });
+
                 openCustomModal('pppoeDetailModal');
             }
 
-            function createRemoteTunnel(ip) {
-                const btn = $(event.currentTarget);
+            function createRemoteTunnel(ip, e = null) {
+                const btn = e ? $(e.currentTarget) : $('#btn_remote_tunnel_action');
                 const originalHtml = btn.html();
                 btn.html('<i class="fa-solid fa-spinner fa-spin"></i> Menyiapkan tunnel...').prop('disabled', true).css('opacity', '0.7');
                 
