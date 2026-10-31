@@ -221,11 +221,15 @@
                                         {{ $po->alamat_lengkap }}
                                     </div>
                                     @if ($po->pppoe)
-                                        <div class="mt-1.5 flex items-center gap-1.5 font-mono text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded w-fit font-bold" title="Akun PPPoE telah disiapkan oleh Admin">
+                                        <div class="mt-1.5 flex flex-wrap items-center gap-1.5 font-mono text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded w-fit font-bold" title="Akun PPPoE telah disiapkan oleh Admin">
                                             <i class="fa-solid fa-network-wired text-[10px]"></i>
                                             <span>{{ $po->pppoe->username }}</span>
                                             <span class="text-emerald-300">|</span>
                                             <span class="text-slate-600 font-normal">Pass: {{ $po->pppoe->password }}</span>
+                                            @if(!empty($po->pppoe->ip_address))
+                                                <span class="text-emerald-300">|</span>
+                                                <span class="text-purple-700 font-normal">IP: {{ $po->pppoe->ip_address }}</span>
+                                            @endif
                                         </div>
                                     @else
                                         <div class="mt-1.5 flex items-center gap-1 text-[10px] text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded w-fit font-semibold">
@@ -251,6 +255,7 @@
                                             data-sales="{{ $po->nama_sales }}"
                                             data-pppoe-username="{{ $po->pppoe ? $po->pppoe->username : '' }}"
                                             data-pppoe-password="{{ $po->pppoe ? $po->pppoe->password : '' }}"
+                                            data-pppoe-ip="{{ $po->pppoe ? ($po->pppoe->ip_address ?? '') : '' }}"
                                             data-tgl="{{ \Carbon\Carbon::parse($po->created_at)->format('d/m/Y') }}">
                                             <i class="fa-solid fa-circle-info text-primary"></i>
                                         </button>
@@ -272,8 +277,9 @@
                                                 data-po-nama="{{ $po->nama_lengkap }}"
                                                 data-po-paket="{{ $po->paket ? $po->paket->nama_paket : '-' }}"
                                                 data-po-pppoe-username="{{ $po->pppoe ? $po->pppoe->username : '' }}"
-                                                data-po-pppoe-password="{{ $po->pppoe ? $po->pppoe->password : '' }}">
-                                                <i class="fa-solid fa-bolt"></i> Ambil & Aktivasi
+                                                data-po-pppoe-password="{{ $po->pppoe ? $po->pppoe->password : '' }}"
+                                                data-po-pppoe-ip="{{ $po->pppoe ? ($po->pppoe->ip_address ?? '') : '' }}">
+                                                Ambil & Aktivasi
                                             </button>
                                         @endif
                                     </div>
@@ -375,6 +381,22 @@
 
                     <!-- Tab Teknis & Billing -->
                     <div class="tab-panel" id="tab-teknis">
+                        <!-- PPPoE Sync Banner -->
+                        <div id="pppoe_sync_banner" class="mb-5 p-3.5 rounded-xl border flex items-start gap-3 transition-all duration-200">
+                            <div id="pppoe_sync_icon" class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm font-bold">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between gap-2">
+                                    <h4 id="pppoe_sync_title" class="text-xs font-bold uppercase tracking-wider m-0">Sinkronisasi PPPoE</h4>
+                                    <button type="button" id="btn_toggle_lock_pppoe" class="hidden text-[11px] font-semibold text-primary hover:underline items-center gap-1 cursor-pointer">
+                                        <i class="fa-solid fa-lock-open text-[10px]"></i> Buka Kunci
+                                    </button>
+                                </div>
+                                <p id="pppoe_sync_desc" class="text-xs mt-0.5 leading-relaxed m-0 text-slate-600"></p>
+                            </div>
+                        </div>
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-4">
                                 <div class="form-group">
@@ -393,25 +415,39 @@
                                     <div class="flex items-center justify-between mb-1">
                                         <label class="form-label text-slate-800 font-bold uppercase text-[11px] m-0">Akun
                                             PPPoE (Username) <span class="text-rose-500">*</span></label>
-                                        <span class="text-[10px] text-sky-600 bg-sky-50 px-2 py-0.5 rounded font-bold border border-sky-200">
-                                            <i class="fa-solid fa-arrows-rotate mr-1"></i> Otomatis
+                                        <span id="pppoe_username_status">
+                                            <span class="text-[10px] text-sky-600 bg-sky-50 px-2 py-0.5 rounded font-bold border border-sky-200">
+                                                <i class="fa-solid fa-arrows-rotate mr-1"></i> Otomatis
+                                            </span>
                                         </span>
                                     </div>
-                                    <input type="text" class="form-input font-mono font-bold text-slate-900" name="pppoe_username"
+                                    <input type="text" class="form-input font-mono font-bold text-slate-900 transition-colors" name="pppoe_username"
                                         id="pppoe_username" placeholder="Nama@erlangga.net" required>
-                                    <small class="text-[11px] text-slate-400">Otomatis dari nama pelanggan (dapat diedit).</small>
+                                    <small id="pppoe_username_note" class="text-[11px] text-slate-400 block mt-1">Otomatis dari nama pelanggan (dapat diedit).</small>
                                 </div>
                                 <div class="form-group">
                                     <div class="flex items-center justify-between mb-1">
                                         <label class="form-label text-slate-800 font-bold uppercase text-[11px] m-0">Sandi
                                             PPPoE <span class="text-rose-500">*</span></label>
-                                        <span class="text-[10px] text-slate-600 bg-slate-100 px-2 py-0.5 rounded font-bold">
-                                            Default: 123
+                                        <span id="pppoe_password_status">
+                                            <span class="text-[10px] text-slate-600 bg-slate-100 px-2 py-0.5 rounded font-bold">
+                                                Default: 123
+                                            </span>
                                         </span>
                                     </div>
-                                    <input type="text" class="form-input font-mono font-bold text-slate-900" name="pppoe_password"
+                                    <input type="text" class="form-input font-mono font-bold text-slate-900 transition-colors" name="pppoe_password"
                                         id="pppoe_password" value="123" placeholder="123" required>
-                                    <small class="text-[11px] text-slate-400">Password dial router & password login mobile app.</small>
+                                    <small id="pppoe_password_note" class="text-[11px] text-slate-400 block mt-1">Password dial router & password login mobile app.</small>
+                                </div>
+                                <div class="form-group" id="pppoe_ip_container" style="display: none;">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <label class="form-label text-slate-800 font-bold uppercase text-[11px] m-0">IP Statis (FreeRADIUS)</label>
+                                        <span class="text-[10px] text-purple-700 bg-purple-50 px-2 py-0.5 rounded font-bold border border-purple-200">
+                                            Disiapkan Admin
+                                        </span>
+                                    </div>
+                                    <input type="text" class="form-input font-mono font-bold text-slate-700 bg-slate-100 cursor-not-allowed" id="pppoe_ip_address" readonly>
+                                    <small class="text-[11px] text-slate-400 block mt-1">Alamat IP statis ini didaftarkan di Radreply FreeRADIUS.</small>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label text-slate-800 font-bold uppercase text-[11px]">Metode
@@ -514,11 +550,11 @@
                 </div>
 
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+                    <button type="button" class="btn-cancel !flex !items-center !justify-center"
                         onclick="closeCustomModal('activationModal')">
-                        <i class="fa-solid fa-xmark"></i> Batal
+                        Batal
                     </button>
-                    <button type="submit" class="btn-save !flex !items-center !justify-center gap-2 !bg-primary">
+                    <button type="submit" class="btn-save !flex !items-center !justify-center !bg-primary">
                         Simpan
                     </button>
                 </div>
@@ -564,6 +600,10 @@
                             <span class="text-xs text-slate-500 block mb-0.5">Password:</span>
                             <span id="det_pppoe_password" class="font-mono font-bold text-slate-900 text-sm"></span>
                         </div>
+                        <div id="det_pppoe_ip_box" class="col-span-2 pt-2 border-t border-slate-200 flex items-center justify-between text-xs" style="display:none;">
+                            <span class="text-slate-500">IP Statis:</span>
+                            <span id="det_pppoe_ip" class="font-mono font-bold text-purple-700"></span>
+                        </div>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
@@ -581,7 +621,7 @@
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
                 <button type="button" class="btn-cancel w-full" onclick="closeCustomModal('detailActivationModal')">
-                    <i class="fa-solid fa-xmark"></i> Tutup Detail
+                    Tutup Detail
                 </button>
             </div>
         </div>
@@ -698,6 +738,8 @@
                 }
             }
 
+            let pppoeIsLocked = false;
+
             function openActivationDetailModal(triggerEl) {
                 const $btn = $(triggerEl);
                 $('#det_nama').text($btn.data('nama'));
@@ -710,9 +752,17 @@
 
                 const pppoeUser = $btn.data('pppoe-username');
                 const pppoePass = $btn.data('pppoe-password');
+                const pppoeIp = $btn.data('pppoe-ip');
+
                 if (pppoeUser) {
                     $('#det_pppoe_username').text(pppoeUser);
                     $('#det_pppoe_password').text(pppoePass || '-');
+                    if (pppoeIp) {
+                        $('#det_pppoe_ip').text(pppoeIp);
+                        $('#det_pppoe_ip_box').show();
+                    } else {
+                        $('#det_pppoe_ip_box').hide();
+                    }
                     $('#det_pppoe_box').show();
                 } else {
                     $('#det_pppoe_box').hide();
@@ -732,11 +782,72 @@
                 openCustomModal('detailActivationModal');
             }
 
+            function setLockPppoeState(isLocked) {
+                pppoeIsLocked = isLocked;
+                const $user = $('#pppoe_username');
+                const $pass = $('#pppoe_password');
+                const $btnLock = $('#btn_toggle_lock_pppoe');
+
+                if (isLocked) {
+                    $user.prop('readonly', true)
+                        .addClass('bg-slate-100 text-slate-700 cursor-not-allowed')
+                        .removeClass('bg-white text-slate-900');
+                    $pass.prop('readonly', true)
+                        .addClass('bg-slate-100 text-slate-700 cursor-not-allowed')
+                        .removeClass('bg-white text-slate-900');
+                    $('#pppoe_username_status').html('<span class="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold border border-emerald-200"><i class="fa-solid fa-lock mr-1"></i> Disiapkan Admin</span>');
+                    $('#pppoe_username_note').text('Disinkronkan dari Pre-Order. Terkunci untuk menjaga integritas FreeRADIUS.');
+                    $('#pppoe_password_status').html('<span class="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold border border-emerald-200">Disiapkan Admin</span>');
+                    $('#pppoe_password_note').text('Kata sandi yang disiapkan Administrator.');
+                    $btnLock.html('<i class="fa-solid fa-lock-open text-[10px]"></i> Buka Kunci');
+                } else {
+                    $user.prop('readonly', false)
+                        .removeClass('bg-slate-100 text-slate-700 cursor-not-allowed')
+                        .addClass('bg-white text-slate-900');
+                    $pass.prop('readonly', false)
+                        .removeClass('bg-slate-100 text-slate-700 cursor-not-allowed')
+                        .addClass('bg-white text-slate-900');
+                    $btnLock.html('<i class="fa-solid fa-lock text-[10px]"></i> Kunci Kembali');
+                }
+            }
+
+            $('#btn_toggle_lock_pppoe').on('click', function() {
+                if (pppoeIsLocked) {
+                    // Unlock
+                    setLockPppoeState(false);
+                    $('#pppoe_sync_banner')
+                        .removeClass('bg-emerald-50 border-emerald-200 text-emerald-950')
+                        .addClass('bg-amber-50 border-amber-200 text-amber-950');
+                    $('#pppoe_sync_icon')
+                        .removeClass('bg-emerald-100 text-emerald-700')
+                        .addClass('bg-amber-100 text-amber-700')
+                        .html('<i class="fa-solid fa-triangle-exclamation"></i>');
+                    $('#pppoe_sync_title').text('Akun PPPoE Dibuka Kunci (Mode Manual)');
+                    $('#pppoe_sync_desc').text('Peringatan: Mengubah username atau kata sandi akan memperbarui akun FreeRADIUS yang sudah disiapkan Admin.');
+                    $('#pppoe_username_status').html('<span class="text-[10px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded font-bold border border-amber-200"><i class="fa-solid fa-pen mr-1"></i> Mode Manual</span>');
+                    $('#pppoe_password_status').html('<span class="text-[10px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded font-bold border border-amber-200">Mode Manual</span>');
+                    $('#pppoe_username').focus();
+                } else {
+                    // Relock
+                    setLockPppoeState(true);
+                    $('#pppoe_sync_banner')
+                        .removeClass('bg-amber-50 border-amber-200 text-amber-950')
+                        .addClass('bg-emerald-50 border-emerald-200 text-emerald-950');
+                    $('#pppoe_sync_icon')
+                        .removeClass('bg-amber-100 text-amber-700')
+                        .addClass('bg-emerald-100 text-emerald-700')
+                        .html('<i class="fa-solid fa-shield-halved"></i>');
+                    $('#pppoe_sync_title').text('Akun PPPoE Disiapkan Admin');
+                    $('#pppoe_sync_desc').text('Kredensial username dan kata sandi disinkronkan langsung dari Pre-Order. Dikunci secara default agar selaras dengan FreeRADIUS.');
+                }
+            });
+
             function openActivationModal(triggerEl) {
                 const $btn = $(triggerEl);
                 const poNama = String($btn.data('po-nama') || '').trim();
                 const pppoeUser = String($btn.data('po-pppoe-username') || '').trim();
                 const pppoePass = String($btn.data('po-pppoe-password') || '').trim();
+                const pppoeIp = String($btn.data('po-pppoe-ip') || '').trim();
 
                 $('#modal_pre_order_id').val($btn.data('po-id'));
                 $('#modal_id_sales').val($btn.data('po-sales-id'));
@@ -746,11 +857,38 @@
                 // 1. Auto-fill ID Pelanggan
                 $('#id_pelanggan').val('{{ $nextIdPelanggan }}');
 
-                // 2. Isi Akun PPPoE (Prioritas dari akun yang sudah dibuatkan Admin)
+                // Reset Tab ke tab pertama
+                $('.modal-tab[data-tab="tab-po"]').trigger('click');
+
+                // 2. IP Statis Container
+                if (pppoeIp) {
+                    $('#pppoe_ip_address').val(pppoeIp);
+                    $('#pppoe_ip_container').show();
+                } else {
+                    $('#pppoe_ip_address').val('');
+                    $('#pppoe_ip_container').hide();
+                }
+
+                // 3. Akun PPPoE Sync & Lock State
                 if (pppoeUser) {
                     $('#pppoe_username').val(pppoeUser);
-                    $('#pppoe_username_status').html('<span class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-bold border border-emerald-200"><i class="fa-solid fa-check mr-1"></i> Dari Admin</span>');
-                    $('#pppoe_username_note').text('Akun PPPoE telah disiapkan oleh Administrator.');
+                    $('#pppoe_password').val(pppoePass || '123');
+
+                    // Kunci input secara default
+                    setLockPppoeState(true);
+
+                    // Setup Banner Akun dari Admin
+                    $('#pppoe_sync_banner')
+                        .removeClass('bg-sky-50 border-sky-200 text-sky-950 bg-amber-50 border-amber-200 text-amber-950')
+                        .addClass('bg-emerald-50 border-emerald-200 text-emerald-950');
+                    $('#pppoe_sync_icon')
+                        .removeClass('bg-sky-100 text-sky-700 bg-amber-100 text-amber-700')
+                        .addClass('bg-emerald-100 text-emerald-700')
+                        .html('<i class="fa-solid fa-shield-halved"></i>');
+                    $('#pppoe_sync_title').text('Akun PPPoE Disiapkan Admin');
+                    $('#pppoe_sync_desc').text('Kredensial username dan kata sandi disinkronkan langsung dari Pre-Order. Dikunci secara default agar selaras dengan FreeRADIUS.');
+                    
+                    $('#btn_toggle_lock_pppoe').removeClass('hidden').addClass('flex');
                 } else {
                     // Fallback jika admin belum membuatkan akun
                     if (poNama) {
@@ -764,17 +902,28 @@
                         }
                         $('#pppoe_username').val(base + '@erlangga.net');
                     }
-                    $('#pppoe_username_status').html('<span class="text-[10px] text-amber-600 bg-amber-50 px-2 py-0.5 rounded font-bold border border-amber-200"><i class="fa-solid fa-arrows-rotate mr-1"></i> Otomatis</span>');
-                    $('#pppoe_username_note').text('Belum dibuatkan Admin. Otomatis dibuat dari nama.');
-                }
-
-                // 3. Sandi PPPoE (Prioritas dari sandi yang sudah dibuatkan Admin)
-                if (pppoePass) {
-                    $('#pppoe_password').val(pppoePass);
-                    $('#pppoe_password_status').text('Dari Admin');
-                } else {
                     $('#pppoe_password').val('123');
-                    $('#pppoe_password_status').text('Default: 123');
+
+                    // Unlock input
+                    setLockPppoeState(false);
+
+                    // Setup Banner Akun Otomatis
+                    $('#pppoe_sync_banner')
+                        .removeClass('bg-emerald-50 border-emerald-200 text-emerald-950 bg-amber-50 border-amber-200 text-amber-950')
+                        .addClass('bg-sky-50 border-sky-200 text-sky-950');
+                    $('#pppoe_sync_icon')
+                        .removeClass('bg-emerald-100 text-emerald-700 bg-amber-100 text-amber-700')
+                        .addClass('bg-sky-100 text-sky-700')
+                        .html('<i class="fa-solid fa-wand-magic-sparkles"></i>');
+                    $('#pppoe_sync_title').text('Akun PPPoE Otomatis');
+                    $('#pppoe_sync_desc').text('Admin belum membuatkan akun PPPoE untuk Pre-Order ini. Sistem membuatkan username otomatis dari nama pelanggan dengan password default 123.');
+
+                    $('#btn_toggle_lock_pppoe').addClass('hidden').removeClass('flex');
+
+                    $('#pppoe_username_status').html('<span class="text-[10px] text-sky-600 bg-sky-50 px-2 py-0.5 rounded font-bold border border-sky-200"><i class="fa-solid fa-arrows-rotate mr-1"></i> Otomatis</span>');
+                    $('#pppoe_username_note').text('Otomatis dari nama pelanggan (dapat disesuaikan).');
+                    $('#pppoe_password_status').html('<span class="text-[10px] text-slate-600 bg-slate-100 px-2 py-0.5 rounded font-bold border border-slate-200">Default: 123</span>');
+                    $('#pppoe_password_note').text('Password default dial router & login mobile app.');
                 }
 
                 openCustomModal('activationModal');

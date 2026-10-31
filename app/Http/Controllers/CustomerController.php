@@ -608,9 +608,24 @@ class CustomerController extends Controller
                 ->first();
 
             if ($existingPppoe) {
+                $oldUsername = $existingPppoe->username;
+                $newUsername = $validatedData['pppoe_username'];
+
+                // Jika username diubah oleh teknisi, bersihkan record FreeRADIUS lama agar tidak tertinggal data usang
+                if ($oldUsername && $oldUsername !== $newUsername) {
+                    try {
+                        Radcheck::where('username', $oldUsername)->delete();
+                        Radreply::where('username', $oldUsername)->delete();
+                        Radusergroup::where('username', $oldUsername)->delete();
+                        Userinfo::where('username', $oldUsername)->delete();
+                    } catch (\Throwable $e) {
+                        Log::warning("Radius cleanup error on Customer activation username change ({$oldUsername} -> {$newUsername}): " . $e->getMessage());
+                    }
+                }
+
                 $existingPppoe->update([
                     'pre_order_id' => $po->id,
-                    'username' => $validatedData['pppoe_username'],
+                    'username' => $newUsername,
                     'password' => $validatedData['pppoe_password'],
                     'paket_id' => $po->paket_id,
                     'tanggal_aktif' => $existingPppoe->tanggal_aktif ?: now(),
@@ -641,6 +656,13 @@ class CustomerController extends Controller
                     ['username' => $pppoe->username, 'attribute' => 'Cleartext-Password'],
                     ['op' => ':=', 'value' => $pppoe->password]
                 );
+
+                if (!empty($pppoe->ip_address)) {
+                    Radreply::updateOrCreate(
+                        ['username' => $pppoe->username, 'attribute' => 'Framed-IP-Address'],
+                        ['op' => ':=', 'value' => $pppoe->ip_address]
+                    );
+                }
 
                 $paket = $po->paket ?? Paket::find($po->paket_id);
                 if ($paket) {
