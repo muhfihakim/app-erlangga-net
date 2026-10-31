@@ -85,7 +85,7 @@
     </div>
 
     <!-- Stats Cards Grid -->
-    <div class="stats-grid mb-5 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-3.5">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-5">
         <div class="stat-card">
             <div class="stat-icon" style="background:#e0f2fe;color:#0284c7;">
                 <i class="fa-solid fa-network-wired"></i>
@@ -134,15 +134,6 @@
 
             <!-- Per Page Length -->
             <div style="min-width: 110px; max-width: 130px;">
-                <select id="filter-length" class="form-input-custom !h-8.5 !text-xs !bg-white !border-slate-300 !w-full cursor-pointer">
-                    <option value="10">10 Baris</option>
-                    <option value="25">25 Baris</option>
-                    <option value="50">50 Baris</option>
-                    <option value="100">100 Baris</option>
-                </select>
-            </div>
-        </div>
-    </div>
                 <select id="filter-length" class="form-input-custom !h-8.5 !text-xs !bg-white !border-slate-300 !w-full cursor-pointer">
                     <option value="10">10 Baris</option>
                     <option value="25">25 Baris</option>
@@ -391,19 +382,34 @@
                 return String(totalH).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
             }
 
-            function showDetail(item) {
-                if (typeof item === 'string') {
-                    try { item = JSON.parse(item); } catch (e) {}
+            function showDetail(target) {
+                let name, sales, addr, uptime, caller, service, bin, bout, isIsolir;
+                if (target instanceof HTMLElement || (target && target.nodeType)) {
+                    const $el = $(target);
+                    name = $el.data('name') || '-';
+                    sales = $el.data('sales') || '-';
+                    addr = $el.data('address') || '-';
+                    uptime = $el.data('uptime') || '';
+                    caller = $el.data('caller') || '-';
+                    service = $el.data('service') || 'pppoe';
+                    bin = parseInt($el.data('bin') || 0);
+                    bout = parseInt($el.data('bout') || 0);
+                    isIsolir = String($el.data('isolir')) === '1';
+                } else {
+                    let item = target;
+                    if (typeof item === 'string') {
+                        try { item = JSON.parse(item); } catch (e) {}
+                    }
+                    name = item.name || '-';
+                    sales = item.sales || '-';
+                    addr = item.address || '-';
+                    uptime = item.uptime || '';
+                    caller = item.caller || '-';
+                    service = item.service || 'pppoe';
+                    bin = parseInt(item.bytes_in || 0);
+                    bout = parseInt(item.bytes_out || 0);
+                    isIsolir = !!item.is_isolir;
                 }
-                const name = item.name || '-';
-                const sales = item.sales || '-';
-                const addr = item.address || '-';
-                const uptime = item.uptime || '';
-                const caller = item.caller || '-';
-                const service = item.service || 'pppoe';
-                const bin = item.bytes_in || 0;
-                const bout = item.bytes_out || 0;
-                const isIsolir = item.is_isolir || false;
 
                 $('#det_header_user').text(name);
                 $('#det_header_sales').text(sales);

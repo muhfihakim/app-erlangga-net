@@ -178,19 +178,17 @@ class PppoeController extends Controller
 
             $callerHtml = '<span style="color: #64748b; font-size: 11px; font-family: monospace;">' . htmlspecialchars($callerId, ENT_QUOTES) . '</span>';
 
-            $detailPayload = htmlspecialchars(json_encode([
-                'name' => $name,
-                'sales' => $salesName,
-                'address' => $address,
-                'uptime' => $uptime,
-                'caller' => $callerId,
-                'service' => $service,
-                'bytes_in' => $bytesIn,
-                'bytes_out' => $bytesOut,
-                'is_isolir' => $isIsolir,
-            ]), ENT_QUOTES);
-
-            $opsiHtml = '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Detail Koneksi & Remote ONT" onclick=\'showDetail(' . $detailPayload . ')\'><i class="fa-solid fa-eye text-primary"></i></button>';
+            $opsiHtml = '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Detail Koneksi & Remote ONT" onclick="showDetail(this)" ' .
+                'data-name="' . htmlspecialchars($name, ENT_QUOTES) . '" ' .
+                'data-sales="' . htmlspecialchars($salesName, ENT_QUOTES) . '" ' .
+                'data-address="' . htmlspecialchars($address, ENT_QUOTES) . '" ' .
+                'data-uptime="' . htmlspecialchars($uptime, ENT_QUOTES) . '" ' .
+                'data-caller="' . htmlspecialchars($callerId, ENT_QUOTES) . '" ' .
+                'data-service="' . htmlspecialchars($service, ENT_QUOTES) . '" ' .
+                'data-bin="' . $bytesIn . '" ' .
+                'data-bout="' . $bytesOut . '" ' .
+                'data-isolir="' . ($isIsolir ? '1' : '0') . '">' .
+                '<i class="fa-solid fa-eye text-primary"></i></button>';
 
             $rows[] = [
                 'DT_RowIndex' => $start + $index + 1,
