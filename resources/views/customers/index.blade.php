@@ -636,8 +636,8 @@
                         <i class="fa-solid fa-ban"></i>
                     </div>
                     <div>
-                        <h3 class="text-base font-bold text-slate-900 m-0">Unspek / Tangguhkan PO</h3>
-                        <p class="text-xs text-slate-500 m-0 mt-0.5">Penangguhan pemasangan pre-order.</p>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Tangguhkan ke Waiting List</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Alihkan calon pelanggan ke Prospek Tunggu (Waiting List Ekspansi).</p>
                     </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('unspekModal')">
@@ -653,10 +653,11 @@
                     </div>
                     <div class="form-group !mb-0">
                         <label class="form-label text-slate-700 font-medium block mb-1 text-xs">
-                            Alasan Unspek / Penangguhan <span class="text-rose-500">*</span>
+                            Kendala Lapangan / Alasan Penangguhan <span class="text-rose-500">*</span>
                         </label>
                         <textarea name="keterangan_unspek" class="form-textarea !font-normal text-xs text-slate-800" required rows="3"
-                            placeholder="Contoh: Tiang penuh, Jarak terlalu jauh, Pelanggan membatalkan..."></textarea>
+                            placeholder="Contoh: Tiang penuh, Jarak terlalu jauh (>500m), Butuh penambahan ODP baru..."></textarea>
+                        <small class="text-[11px] text-slate-400 block mt-1">Calon pelanggan akan dialihkan ke daftar prospek tunggu untuk perencanaan ekspansi ODP.</small>
                     </div>
                 </div>
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2">
@@ -665,7 +666,7 @@
                         Batal
                     </button>
                     <button type="submit" class="btn-primary-admin !bg-amber-600 hover:!bg-amber-700 !text-white !h-9 !px-5 text-xs font-semibold">
-                        Simpan
+                        Tangguhkan ke Waiting List
                     </button>
                 </div>
             </form>

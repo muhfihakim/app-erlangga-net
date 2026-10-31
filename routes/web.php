@@ -175,7 +175,8 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/locations/all', [LocationController::class, 'getAllLocations'])->name('api.locations.all');
     Route::get('/locations/{user}', [LocationController::class, 'getUserLocation'])->name('api.locations.user');
 
-    // Rute untuk Pre-Order
+    // Rute untuk Pre-Order & Waiting List Ekspansi
+    Route::get('/pre-orders/waiting-list', [PreOrderController::class, 'waitingList'])->name('pre_orders.waiting_list');
     Route::get('/pre-orders', [PreOrderController::class, 'index'])->name('pre_orders.index');
     Route::post('/pre-orders', [PreOrderController::class, 'store'])->name('pre_orders.store');
     Route::put('/pre-orders/{preOrder}', [PreOrderController::class, 'update'])->name('pre_orders.update');

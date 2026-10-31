@@ -89,6 +89,10 @@
                         <span>Pre-Order (PSB)</span>
                     </a>
                 @endif
+                <a class="sidebar-sublink {{ Request::is('pre-orders/waiting-list*') ? 'active' : '' }}" href="{{ route('pre_orders.waiting_list') }}">
+                    <i class="fa-solid fa-circle-dot"></i>
+                    <span>Prospek Tunggu (Ekspansi)</span>
+                </a>
                 <a class="sidebar-sublink {{ Request::is('customers') || Request::is('customers/active-list') ? 'active' : '' }}"
                     href="{{ $isTeknisi ? route('customers.index') : route('customers.active_list') }}">
                     <i class="fa-solid fa-circle-dot"></i>

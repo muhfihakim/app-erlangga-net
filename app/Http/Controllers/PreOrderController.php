@@ -88,6 +88,9 @@ class PreOrderController extends Controller
                         if ($po->no_whatsapp) {
                             $html .= '<div class="text-left text-[11px] font-mono text-slate-400 mt-0.5 flex items-center gap-1"><i class="fa-brands fa-whatsapp text-emerald-600 text-[11px]"></i>' . htmlspecialchars($po->no_whatsapp) . '</div>';
                         }
+                        if ($po->is_unspek && $po->keterangan_unspek) {
+                            $html .= '<div class="mt-1 text-[11px] text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded font-normal leading-tight"><i class="fa-solid fa-triangle-exclamation text-[10px] mr-1 text-amber-600"></i><strong>Kendala:</strong> ' . htmlspecialchars($po->keterangan_unspek) . '</div>';
+                        }
                         return $html;
                     })
                     ->addColumn('paket', function($po) {
@@ -147,6 +150,70 @@ class PreOrderController extends Controller
                 'filterSales'
             ));
         }
+    }
+
+    public function waitingList(Request $request)
+    {
+        if (!auth()->check()) {
+            return redirect('/login')->with('error', 'Silakan login.');
+        }
+
+        $user = auth()->user();
+        $filterSales = $request->input('id_sales', '');
+        $filterReview = $request->input('status_review', 'semua');
+
+        // Ambil ID PreOrder yang sudah terpasang
+        $installedPOIds = \App\Models\Customer::withTrashed()
+            ->whereNotNull('pre_order_id')
+            ->pluck('pre_order_id')
+            ->toArray();
+
+        $query = PreOrder::whereNotIn('id', $installedPOIds)
+            ->where('is_unspek', true)
+            ->with(['paket', 'sales']);
+
+        if ($user->isAdmin()) {
+            if ($filterSales) {
+                $query->where('id_sales', $filterSales);
+            }
+        } elseif ($user->jabatan === 'Sales') {
+            $query->where('id_sales', $user->id);
+        }
+
+        if ($filterReview === 'approved') {
+            $query->where('is_unspek_approved', true);
+        } elseif ($filterReview === 'pending') {
+            $query->where('is_unspek_approved', false);
+        }
+
+        $waitingList = $query->orderBy('is_unspek_approved', 'asc')
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        $statsBase = PreOrder::whereNotIn('id', $installedPOIds)->where('is_unspek', true);
+        if ($user->jabatan === 'Sales') {
+            $statsBase->where('id_sales', $user->id);
+        }
+
+        $totalWaiting = (clone $statsBase)->count();
+        $totalPendingReview = (clone $statsBase)->where('is_unspek_approved', false)->count();
+        $totalApproved = (clone $statsBase)->where('is_unspek_approved', true)->count();
+        $totalThisMonth = (clone $statsBase)->whereMonth('updated_at', Carbon::now()->month)
+            ->whereYear('updated_at', Carbon::now()->year)
+            ->count();
+
+        $salesUsers = User::where('jabatan', 'Sales')->orderBy('nama_lengkap')->get();
+
+        return view('preorders.waiting_list', compact(
+            'waitingList',
+            'salesUsers',
+            'totalWaiting',
+            'totalPendingReview',
+            'totalApproved',
+            'totalThisMonth',
+            'filterSales',
+            'filterReview'
+        ));
     }
 
     public function store(Request $request)
@@ -310,7 +377,7 @@ class PreOrderController extends Controller
             'logged_at' => now(),
         ]);
 
-        return redirect()->back()->with('success', 'Tugas Aktivasi berhasil ditangguhkan/Unspek.');
+        return redirect()->back()->with('success', 'Calon pelanggan berhasil dialihkan ke Prospek Tunggu (Waiting List Ekspansi).');
     }
 
     public function approveUnspek(PreOrder $preOrder)
@@ -327,11 +394,11 @@ class PreOrderController extends Controller
         ActivityLog::create([
             'user_id' => $user->id,
             'activity_type' => 'preorder_unspek_approve',
-            'description' => 'Approve Unspek PO "' . $preOrder->nama_lengkap . '"',
+            'description' => 'Menyetujui Unspek PO "' . $preOrder->nama_lengkap . '" masuk ke Waiting List Ekspansi',
             'logged_at' => now(),
         ]);
 
-        return redirect()->back()->with('success', 'Unspek / Penangguhan PO berhasil disetujui.');
+        return redirect()->back()->with('success', 'Penangguhan PO disetujui. Calon pelanggan resmi masuk ke Waiting List Ekspansi.');
     }
 
     public function reopenUnspek(PreOrder $preOrder)
@@ -350,10 +417,10 @@ class PreOrderController extends Controller
         ActivityLog::create([
             'user_id' => auth()->id(),
             'activity_type' => 'preorder_unspek_reopen',
-            'description' => 'Membuka kembali (Re-Open) PO Unspek "' . $preOrder->nama_lengkap . '"',
+            'description' => 'Mengaktifkan kembali PO Waiting List "' . $preOrder->nama_lengkap . '" ke Pre-Order aktif',
             'logged_at' => now(),
         ]);
 
-        return redirect()->back()->with('success', 'Tugas berhasil dibuka kembali menjadi aktif.');
+        return redirect()->back()->with('success', 'Calon pelanggan berhasil diaktifkan kembali ke Pre-Order & antrean aktivasi.');
     }
 }

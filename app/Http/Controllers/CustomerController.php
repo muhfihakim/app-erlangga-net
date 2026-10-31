@@ -40,7 +40,9 @@ class CustomerController extends Controller
 
         // Daftar teknisi untuk dropdown Partner
         $teknisiUsers = User::where('jabatan', 'Teknisi')->get();
-        $baseQuery = PreOrder::whereNotIn('id', $activatedPOIds)->with(['pppoe', 'paket', 'sales']);
+        $baseQuery = PreOrder::whereNotIn('id', $activatedPOIds)
+            ->where('is_unspek_approved', false)
+            ->with(['pppoe', 'paket', 'sales']);
 
         $thisMonth = Carbon::now()->month;
         $thisYear = Carbon::now()->year;

@@ -44,6 +44,21 @@
         </div>
     </div>
 
+    <!-- Navigation Tabs -->
+    <div class="flex items-center gap-2 mb-5 border-b border-slate-200 pb-2">
+        <a href="{{ route('pre_orders.index') }}"
+            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-primary text-white shadow-sm">
+            Pre-Order Aktif
+        </a>
+        <a href="{{ route('pre_orders.waiting_list') }}"
+            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all flex items-center gap-2">
+            <span>Waiting List Ekspansi</span>
+            @if($totalUnspek > 0)
+                <span class="bg-rose-100 text-rose-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{{ $totalUnspek }}</span>
+            @endif
+        </a>
+    </div>
+
     <div class="stats-grid mb-6">
         <div class="stat-card">
             <div class="stat-icon" style="background:#e0f2fe;color:#0369a1;"><i class="fa-solid fa-cart-shopping"></i>
@@ -69,14 +84,14 @@
                 <div class="stat-lbl">PPPoE Siap</div>
             </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#fef2f2;color:#be123c;"><i class="fa-solid fa-ban"></i>
+        <a href="{{ route('pre_orders.waiting_list') }}" class="stat-card hover:border-rose-300 transition-colors block cursor-pointer" title="Klik untuk membuka Daftar Prospek Tunggu">
+            <div class="stat-icon" style="background:#fef2f2;color:#be123c;"><i class="fa-solid fa-clock-rotate-left"></i>
             </div>
             <div>
                 <div class="stat-val">{{ $totalUnspek }}</div>
-                <div class="stat-lbl">Ditangguhkan (Unspek)</div>
+                <div class="stat-lbl">Waiting List Ekspansi</div>
             </div>
-        </div>
+        </a>
     </div>
 
     <div class="table-toolbar">
