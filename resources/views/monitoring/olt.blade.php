@@ -67,31 +67,31 @@
             /* Stats Card Consistency */
             .stats-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-                gap: 1.25rem;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 0.875rem;
                 margin-bottom: 1.25rem;
             }
 
             .stat-card {
                 background: #fff;
                 border: 1px solid #e2e8f0;
-                border-radius: 16px;
-                padding: 1.25rem;
+                border-radius: 14px;
+                padding: 1rem 1.15rem;
                 display: flex;
                 align-items: center;
-                gap: 1rem;
-                box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+                gap: 0.875rem;
+                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
             }
 
             .stat-icon {
-                width: 48px;
-                height: 48px;
-                border-radius: 12px;
+                width: 44px;
+                height: 44px;
+                border-radius: 10px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 20px;
-                shrink: 0;
+                font-size: 18px;
+                flex-shrink: 0;
             }
 
             .stat-val {
@@ -102,11 +102,20 @@
             }
 
             .stat-lbl {
-                font-size: 11px;
-                font-weight: 700;
+                font-size: 12px;
+                font-weight: 600;
                 color: #64748b;
-                text-transform: uppercase;
-                letter-spacing: 0.025em;
+                text-transform: none !important;
+            }
+
+            #dashboard-onu-table thead th {
+                text-transform: uppercase !important;
+                font-weight: 600;
+                font-size: 12px;
+            }
+
+            #dashboard-onu-table tbody td {
+                font-size: 12px;
             }
         </style>
     @endsection
@@ -352,27 +361,26 @@
                     <!-- Filter Interface -->
                     <div style="flex: 1; min-width: 180px;">
                         <label class="form-label-custom">Filter Interface</label>
-                        <select id="filter-interface" class="form-input-custom w-full">
+                        <select id="filter-interface" class="form-input-custom !h-8.5 !text-xs w-full">
                             <option value="">Semua Interface</option>
                             <option value="1/2/">Interface 1/2</option>
                             <option value="1/4/">Interface 1/4</option>
                         </select>
                     </div>
 
-                    <!-- Live Search -->
+                    <!-- Pencarian -->
                     <div style="flex: 1.5; min-width: 200px;">
-                        <label class="form-label-custom">Pencarian Cepat</label>
+                        <label class="form-label-custom">Pencarian</label>
                         <div class="search-wrap !max-w-full">
                             <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                            <input type="search" class="search-input" id="olt-livesearch"
-                                style="padding: 6px 10px 6px 32px; height: 34px; border-radius: 8px; font-size: 12px;"
+                            <input type="search" class="search-input custom-search !h-8.5 !text-xs" id="olt-livesearch"
                                 placeholder="Cari SN, Port, atau Status..." autocomplete="off" />
                         </div>
                     </div>
 
                     <!-- Sync Button -->
                     <button id="btn_sync_global"
-                        class="btn-primary-admin !h-8.5 !px-4 !text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        class="btn-primary-admin !h-8.5 !px-3.5 !text-xs font-semibold shadow-xs flex items-center gap-1.5 shrink-0">
                         <i class="fa-solid fa-rotate"></i> Sync Seluruh OLT
                     </button>
                 </div>
@@ -381,23 +389,23 @@
 
         <!-- Results Table -->
         <div class="table-card">
-            <div class="p-6 border-b border-slate-100 flex items-center justify-between">
-                <h6 id="dashboard_table_title" class="text-sm font-black text-slate-800">Daftar Perangkat ONU</h6>
+            <div class="px-5 py-3 border-b border-slate-200 flex items-center justify-between">
+                <h6 id="dashboard_table_title" class="text-xs font-bold text-slate-800 m-0">Daftar Perangkat ONU</h6>
                 <span id="dashboard_record_count"
-                    class="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-1 rounded-lg uppercase">0
+                    class="bg-slate-100 text-slate-600 text-[11px] font-semibold px-2 py-0.5 rounded-md">0
                     Records</span>
             </div>
 
             <div class="table-responsive">
-                <table id="dashboard-onu-table" class="admin-table">
+                <table id="dashboard-onu-table" class="admin-table w-full">
                     <thead>
                         <tr id="dashboard_table_header">
-                            <th style="text-align: center; width: 60px;">#</th>
-                            <th style="text-align: center;">PON Port</th>
+                            <th style="text-align: center; width: 50px;">#</th>
+                            <th style="text-align: center; width: 120px;">PON Port</th>
                             <th style="text-align: center;">Serial Number (SN)</th>
-                            <th style="text-align: center;">Status</th>
-                            <th style="text-align: center;">RX Power</th>
-                            <th style="text-align: center; width: 150px;">Opsi</th>
+                            <th style="text-align: center; width: 130px;">Status</th>
+                            <th style="text-align: center; width: 120px;">RX Power</th>
+                            <th style="text-align: center; width: 100px;">Opsi</th>
                         </tr>
                     </thead>
                     <tbody id="dashboard-onu-body">
@@ -417,76 +425,83 @@
 
     <!-- ONU Detail Modal -->
     <div class="modal-overlay" id="onuDetailModal">
-        <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl">
-            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                <div class="modal-title">
-                    <i class="fa-solid fa-circle-info text-primary"></i>
-                    <span class="text-slate-900 font-bold text-[17px]">Detail Status ONU</span>
+        <div class="modal-box max-w-xl bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="modal-header border-b border-slate-200 bg-white px-5 py-3.5 flex items-center justify-between rounded-t-2xl">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-xs border border-sky-200 shrink-0">
+                        <i class="fa-solid fa-circle-info"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900 m-0">Detail Status ONU</h3>
+                        <p class="text-[11px] text-slate-500 m-0">Informasi status koneksi WAN dan statistik trafik perangkat</p>
+                    </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('onuDetailModal')">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="modal-body p-8 bg-white">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="modal-body !p-4 md:!p-5 bg-white space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                     <!-- WAN Info -->
-                    <div class="space-y-4">
-                        <h6
-                            class="text-[10px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-sky-500 pl-3">
-                            Informasi WAN (PPPoE)</h6>
-                        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-3">
-                            <div class="flex justify-between items-center">
-                                <span class="text-[11px] font-bold text-slate-400">USERNAME</span>
-                                <span id="det_wan_user" class="text-xs font-black text-slate-700">-</span>
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-1.5 text-xs font-bold text-slate-700">
+                            <i class="fa-solid fa-network-wired text-sky-500 text-[11px]"></i>
+                            <span>Informasi WAN (PPPoE)</span>
+                        </div>
+                        <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 space-y-2">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500 font-medium">Username</span>
+                                <span id="det_wan_user" class="font-mono font-bold text-slate-800 text-right truncate max-w-[130px]">-</span>
                             </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-[11px] font-bold text-slate-400">CURRENT IP</span>
-                                <span id="det_wan_ip" class="text-xs font-black text-indigo-600">-</span>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500 font-medium">Current IP</span>
+                                <span id="det_wan_ip" class="font-mono font-bold text-indigo-600">-</span>
                             </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-[11px] font-bold text-slate-400">VLAN</span>
-                                <span id="det_wan_user_vlan" class="text-xs font-black text-slate-700">-</span>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500 font-medium">VLAN</span>
+                                <span id="det_wan_user_vlan" class="font-mono font-bold text-slate-800">-</span>
                             </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-[11px] font-bold text-slate-400">RX POWER (ATT)</span>
-                                <span id="det_rx_power" class="text-xs font-black text-rose-600">-</span>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500 font-medium">RX Power (Att)</span>
+                                <span id="det_rx_power" class="font-mono font-bold text-rose-600">-</span>
                             </div>
-                            <div class="flex justify-between items-center border-t border-slate-200 pt-2 mt-2">
-                                <span class="text-[11px] font-bold text-slate-400">STATUS WAN</span>
-                                <span id="det_wan_status" class="badge !text-[9px]">-</span>
+                            <div class="flex justify-between items-center text-xs border-t border-slate-200 pt-2 mt-1">
+                                <span class="text-slate-500 font-medium">Status WAN</span>
+                                <span id="det_wan_status" class="badge !text-[10px] !py-0.5 !px-2 font-bold">-</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Traffic Stats -->
-                    <div class="space-y-4">
-                        <h6
-                            class="text-[10px] font-black text-slate-500 uppercase tracking-widest border-l-4 border-emerald-500 pl-3">
-                            Statistik Trafik</h6>
-                        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-3">
-                            <div class="flex justify-between items-center">
-                                <span class="text-[11px] font-bold text-slate-400">INPUT RATE</span>
-                                <span id="det_stat_in_rate" class="text-xs font-black text-emerald-600">-</span>
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-1.5 text-xs font-bold text-slate-700">
+                            <i class="fa-solid fa-chart-simple text-emerald-500 text-[11px]"></i>
+                            <span>Statistik Trafik</span>
+                        </div>
+                        <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 space-y-2">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500 font-medium">Input Rate</span>
+                                <span id="det_stat_in_rate" class="font-mono font-bold text-emerald-600">-</span>
                             </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-[11px] font-bold text-slate-400">OUTPUT RATE</span>
-                                <span id="det_stat_out_rate" class="text-xs font-black text-emerald-600">-</span>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500 font-medium">Output Rate</span>
+                                <span id="det_stat_out_rate" class="font-mono font-bold text-emerald-600">-</span>
                             </div>
-                            <div class="flex justify-between items-center border-t border-slate-200 pt-2 mt-2">
-                                <span class="text-[11px] font-bold text-slate-400">TOTAL DOWNLOAD</span>
-                                <span id="det_stat_in_total" class="text-xs font-black text-slate-700">-</span>
+                            <div class="flex justify-between items-center text-xs border-t border-slate-200 pt-2 mt-1">
+                                <span class="text-slate-500 font-medium">Total Download</span>
+                                <span id="det_stat_in_total" class="font-mono font-bold text-slate-800">-</span>
                             </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-[11px] font-bold text-slate-400">TOTAL UPLOAD</span>
-                                <span id="det_stat_out_total" class="text-xs font-black text-slate-700">-</span>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500 font-medium">Total Upload</span>
+                                <span id="det_stat_out_total" class="font-mono font-bold text-slate-800">-</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold w-full" onclick="closeCustomModal('onuDetailModal')">
-                    <i class="fa-solid fa-xmark"></i> Tutup Detail
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-5 py-3 flex justify-end rounded-b-2xl">
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold" onclick="closeCustomModal('onuDetailModal')">
+                    Tutup
                 </button>
             </div>
         </div>
@@ -494,27 +509,25 @@
 
     <!-- Unconfigured Selection Modal -->
     <div class="modal-overlay" id="selectUncfgModal">
-        <div class="modal-box max-w-xl bg-white border border-slate-300 shadow-2xl">
-            <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                <div class="modal-title">
+        <div class="modal-box max-w-xl bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="modal-header border-b border-slate-200 bg-white px-5 py-3.5 flex items-center justify-between rounded-t-2xl">
+                <div class="flex items-center gap-2">
                     <i class="fa-solid fa-list-ul text-amber-500"></i>
-                    <span class="text-slate-900 font-bold text-[17px]">Pilih Perangkat Baru</span>
+                    <span class="text-slate-900 font-bold text-sm">Pilih Perangkat Baru</span>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('selectUncfgModal')">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="modal-body p-6 bg-white">
-                <p class="text-xs font-bold text-slate-400 uppercase mb-4 tracking-wider">Perangkat yang belum
-                    terdaftar di
-                    OLT:</p>
-                <div id="uncfg_selection_list" class="space-y-3">
+            <div class="modal-body !p-4 bg-white">
+                <p class="text-xs font-medium text-slate-500 mb-3">Perangkat yang belum terdaftar di OLT:</p>
+                <div id="uncfg_selection_list" class="space-y-2">
                     <!-- List items will be injected here -->
                 </div>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold w-full" onclick="closeCustomModal('selectUncfgModal')">
-                    <i class="fa-solid fa-xmark"></i> Batal
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-5 py-3 flex justify-end rounded-b-2xl">
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold" onclick="closeCustomModal('selectUncfgModal')">
+                    Batal
                 </button>
             </div>
         </div>
@@ -870,21 +883,20 @@ show gpon onu state gpon-olt_${port}`;
                                     html += `
                                     <tr>
                                         <td style="text-align: center; color: #94a3b8; font-weight: 700;">${count}</td>
-                                        <td style="text-align: center; font-weight: 600;">${onu.port}:${onu.onu_id}</td>
-                                        <td style="text-align: center; font-weight: 700; color: #0f172a;">${onu.sn}</td>
+                                        <td style="text-align: center; font-weight: 600; font-family: monospace;">${onu.port}:${onu.onu_id}</td>
+                                        <td style="text-align: center; font-weight: 700; color: #0f172a; font-family: monospace;">${onu.sn}</td>
                                         <td style="text-align: center;">
-                                            <span class="badge inline-flex items-center" style="background: ${badgeColor}; color: ${textColor}; font-size: 10px;">${badgeIcon}${onu.status}</span>
+                                            <span class="badge inline-flex items-center" style="background: ${badgeColor}; color: ${textColor}; font-size: 11px; padding: 2px 7px; border-radius: 6px; font-weight: 700;">${badgeIcon}${onu.status}</span>
                                         </td>
-                                        <td style="text-align: center; font-weight: 800; color: ${powerColor}; font-size: 11px;">
+                                        <td style="text-align: center; font-weight: 700; color: ${powerColor}; font-size: 12px; font-family: monospace;">
                                             ${onu.rx_power}
                                         </td>
                                         <td style="text-align: center;">
-                                            <div class="flex items-center justify-center gap-2">
-                                                <button onclick="checkOnuStatus('${onu.port}', '${onu.onu_id}')" 
-                                                    class="btn-primary-admin !h-7 !px-2.5 !text-[11px] !bg-slate-700 hover:!bg-slate-800 font-semibold shadow-xs flex items-center justify-center gap-1.5"
-                                                    title="Cek Status Detail">
-                                                    <i class="fa-solid fa-chart-line text-xs"></i>
-                                                    <span>Cek Status</span>
+                                            <div class="flex items-center justify-center gap-1.5 whitespace-nowrap">
+                                                <button type="button" onclick="checkOnuStatus('${onu.port}', '${onu.onu_id}')" 
+                                                    class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-sky-300 hover:!bg-sky-50"
+                                                    title="Detail Status ONU">
+                                                    <i class="fa-solid fa-eye text-sky-600"></i>
                                                 </button>
                                             </div>
                                         </td>
@@ -908,7 +920,7 @@ show gpon onu state gpon-olt_${port}`;
 
                                 // Re-initialize DataTables
                                 dashboardTable = $('#dashboard-onu-table').DataTable({
-                                    "pageLength": 15,
+                                    "pageLength": 10,
                                     "lengthChange": false,
                                     "ordering": true,
                                     "info": false,
