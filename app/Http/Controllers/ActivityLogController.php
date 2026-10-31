@@ -38,15 +38,15 @@ class ActivityLogController extends Controller
                             <div style="font-size: 10px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">' . htmlspecialchars($jabatan) . '</div>';
                 })
                 ->editColumn('activity_type', function ($log) {
-                    $bg = '#f1f5f9'; $color = '#64748b';
+                    $bg = '#f1f5f9'; $color = '#64748b'; $border = '#e2e8f0';
                     $type = strtolower($log->activity_type);
-                    if(str_contains($type, 'create')) { $bg = '#f0fdf4'; $color = '#16a34a'; }
-                    elseif(str_contains($type, 'update')) { $bg = '#fffbeb'; $color = '#d97706'; }
-                    elseif(str_contains($type, 'delete')) { $bg = '#fef2f2'; $color = '#dc2626'; }
-                    elseif(str_contains($type, 'aktivasi')) { $bg = '#f0f9ff'; $color = '#0ea5e9'; }
+                    if(str_contains($type, 'create')) { $bg = '#f0fdf4'; $color = '#16a34a'; $border = '#bbf7d0'; }
+                    elseif(str_contains($type, 'update')) { $bg = '#fffbeb'; $color = '#d97706'; $border = '#fde68a'; }
+                    elseif(str_contains($type, 'delete')) { $bg = '#fef2f2'; $color = '#dc2626'; $border = '#fecaca'; }
+                    elseif(str_contains($type, 'aktivasi')) { $bg = '#f0f9ff'; $color = '#0ea5e9'; $border = '#bae6fd'; }
                     
                     $label = str_replace('_', ' ', $log->activity_type);
-                    return '<span class="badge" style="background: ' . $bg . '; color: ' . $color . '; padding: 4px 10px; border-radius: 6px; font-size: 9px; font-weight: 800; text-transform: uppercase;">' . htmlspecialchars($label) . '</span>';
+                    return '<span class="badge text-[10px] font-bold py-0.5 px-2" style="background: ' . $bg . '; color: ' . $color . '; border: 1px solid ' . $border . '; text-transform: uppercase;">' . htmlspecialchars($label) . '</span>';
                 })
                 ->editColumn('description', function ($log) {
                     return '<div style="font-size: 12px; color: #475569; font-weight: 500; line-height: 1.5;">' . htmlspecialchars($log->description) . '</div>';

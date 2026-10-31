@@ -13,19 +13,19 @@
             .dataTables_paginate {
                 display: flex;
                 justify-content: flex-end;
-                padding: 1.25rem 1.5rem;
+                padding: 1rem 1.25rem;
                 gap: 4px;
                 border-top: 1px solid #f1f5f9;
             }
 
             .paginate_button {
-                width: 34px;
-                height: 34px;
+                width: 32px;
+                height: 32px;
                 border-radius: 8px;
                 border: 1.5px solid #e2e8f0;
                 background: #fff;
                 color: #64748b !important;
-                font-size: 13px;
+                font-size: 12px;
                 font-weight: 600;
                 display: inline-flex;
                 align-items: center;
@@ -38,13 +38,6 @@
                 border-color: #0ea5e9;
                 color: #fff !important;
             }
-
-            #paketTable thead th,
-            #paketTable tbody td {
-                text-transform: uppercase !important;
-                font-weight: 600;
-                font-size: 12px;
-            }
         </style>
     @endsection
 
@@ -53,31 +46,29 @@
             <h1 style="font-size:22px;font-weight:900;margin:0;">Manajemen Paket Layanan</h1>
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola data paket layanan yang tersedia.</p>
         </div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
             <!-- Tombol Sync / Kirim ke MikroTik -->
             <form action="{{ route('pakets.sync_to_mikrotik') }}" method="POST" style="margin:0;">
                 @csrf
-                <button type="submit" class="btn-primary-admin !flex !items-center !justify-center gap-2 !px-4" 
-                    style="background-color: #4f46e5; border-color: #4f46e5;"
+                <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !bg-indigo-600 hover:!bg-indigo-700" 
                     onclick="return confirm('Kirim dan sinkronkan seluruh paket layanan dari database ke MikroTik (PPP Profile, IP Pool & FreeRADIUS)?')">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> Sync ke MikroTik
+                    Sync ke MikroTik
                 </button>
             </form>
 
             <!-- Tombol Tarik Profile dari MikroTik -->
             <form action="{{ route('paket.sync') }}" method="POST" style="margin:0;">
                 @csrf
-                <button type="submit" class="btn-primary-admin !flex !items-center !justify-center gap-2 !px-4" 
-                    style="background-color: #059669; border-color: #059669;"
+                <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700" 
                     onclick="return confirm('Tarik semua Profile dari MikroTik dan masukkan ke database lokal?')">
-                    <i class="fa-solid fa-cloud-arrow-down"></i> Tarik dari MikroTik
+                    Tarik dari MikroTik
                 </button>
             </form>
 
             <!-- Tombol Tambah Paket Baru -->
-            <button type="button" class="btn-primary-admin !flex !items-center !justify-center gap-2 !px-4"
+            <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold"
                 onclick="openPaketModal()">
-                <i class="fa-solid fa-plus-square"></i> Tambah Paket
+                Tambah Paket
             </button>
         </div>
     </div>
@@ -95,7 +86,7 @@
             <table id="paketTable" class="admin-table w-full">
                 <thead>
                     <tr>
-                        <th style="text-align: center; width: 50px;">#</th>
+                        <th style="text-align: center; width: 45px;">#</th>
                         <th style="text-align: left;">Nama Paket</th>
                         <th style="text-align: right;">Harga Pokok</th>
                         <th style="text-align: right;">Pajak (Rp)</th>
@@ -103,8 +94,8 @@
                         <th style="text-align: right;">Total Tagihan</th>
                         <th style="text-align: center;">Limitasi (Radius)</th>
                         <th style="text-align: left;">IP Pool & Gateway</th>
-                        <th style="text-align: center;">Pengguna</th>
-                        <th style="text-align: center; width: 100px;">Opsi</th>
+                        <th style="text-align: center; width: 90px;">Pengguna</th>
+                        <th style="text-align: center; width: 90px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -131,13 +122,13 @@
                                 @if($paket->ip_pool || $paket->local_address)
                                     <div class="flex items-center gap-1.5 flex-wrap">
                                         @if($paket->ip_pool)
-                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold font-mono bg-indigo-50 text-indigo-700 border border-indigo-200" title="IP Pool">
-                                                <i class="fa-solid fa-server text-[9px]"></i> {{ $paket->ip_pool }}
+                                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold font-mono bg-indigo-50 text-indigo-700 border border-indigo-200" title="IP Pool">
+                                                {{ $paket->ip_pool }}
                                             </span>
                                         @endif
                                         @if($paket->local_address)
-                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono text-slate-600 bg-slate-100 border border-slate-200" title="Local Gateway">
-                                                <i class="fa-solid fa-network-wired text-[9px] text-slate-400"></i> {{ $paket->local_address }}
+                                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono text-slate-600 bg-slate-100 border border-slate-200" title="Local Gateway">
+                                                {{ $paket->local_address }}
                                             </span>
                                         @endif
                                     </div>
@@ -151,18 +142,18 @@
                                 @endif
                             </td>
                             <td style="text-align: center;">
-                                <span class="badge" style="background:#f1f5f9;color:#64748b;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid #e2e8f0;">
-                                    <i class="fa-solid fa-users mr-1"></i> {{ number_format($paket->customers_count) }}
+                                <span class="badge text-[10px] font-bold py-0.5 px-2" style="background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;">
+                                    {{ number_format($paket->customers_count) }}
                                 </span>
                             </td>
                             <td style="text-align: center;">
-                                <div class="flex items-center justify-center gap-2">
-                                    <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                         onclick="editPaketModal({{ $paket->id }}, @js($paket->nama_paket), @js($paket->harga), @js($paket->pajak ?? 0), @js($paket->diskon ?? 0), @js($paket->rate_limit), @js($paket->keterangan), @js($paket->local_address), @js($paket->ip_pool), @js($paket->pool_range))"
-                                        title="Edit Paket"><i class="fa-solid fa-pen-to-square text-amber-500"></i></button>
-                                    <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                        title="Edit Paket"><i class="fa-solid fa-pen-to-square text-slate-500 hover:text-amber-600"></i></button>
+                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                         onclick="confirmGlobalDelete('{{ route('pakets.destroy', $paket->id) }}', 'Paket {{ $paket->nama_paket }}')"
-                                        title="Hapus"><i class="fa-solid fa-trash text-rose-600"></i></button>
+                                        title="Hapus"><i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i></button>
                                 </div>
                             </td>
                         </tr>
@@ -179,108 +170,111 @@
                 @csrf
                 <input type="hidden" name="_method" id="paketMethod" value="POST">
                 
-                <div class="modal-header border-b border-slate-200 bg-white rounded-t-2xl">
-                    <div class="modal-title">
-                        <i class="fa-solid fa-box-open text-primary"></i>
-                        <span class="text-slate-900 font-bold text-[17px]" id="modalPaketTitle">Tambah Paket</span>
+                <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center text-sm border border-slate-200 shrink-0">
+                            <i class="fa-solid fa-box-open"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-800 m-0" id="modalPaketTitle">Tambah Paket Layanan</h3>
+                            <p class="text-[11px] text-slate-500 font-normal m-0 mt-0.5">Konfigurasi profil tarif, bandwidth & IP pool</p>
+                        </div>
                     </div>
                     <button type="button" class="modal-close" onclick="closeCustomModal('formPaketModal')">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
 
-                <div class="modal-body p-8 space-y-6 bg-white">
-                    <div class="form-group">
-                        <label class="form-label text-slate-800 font-bold">Nama Paket <span
-                                class="text-rose-500">*</span></label>
-                        <input type="text" class="form-input bg-white text-slate-900 border-slate-300"
+                <div class="modal-body p-6 bg-white">
+                    <div class="form-group mb-3.5">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Nama Paket <span class="text-rose-500">*</span></label>
+                        <input type="text" class="form-input !font-normal bg-white text-slate-800 border-slate-300 text-xs"
                             id="nama_paket" name="nama_paket" required placeholder="Contoh: Bronze 10Mbps">
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Harga Pokok (Rp) <span
-                                    class="text-rose-500">*</span></label>
-                            <input type="number" class="form-input bg-white text-slate-900 border-slate-300" id="harga"
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 mb-3.5">
+                        <div class="form-group !mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Harga Pokok (Rp) <span class="text-rose-500">*</span></label>
+                            <input type="number" class="form-input !font-normal bg-white text-slate-800 border-slate-300 text-xs" id="harga"
                                 name="harga" required min="0" placeholder="0" oninput="calculatePaketTotal()">
                         </div>
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Pajak (Rp)</label>
-                            <input type="number" class="form-input bg-white text-slate-900 border-slate-300" id="pajak"
+                        <div class="form-group !mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Pajak (Rp)</label>
+                            <input type="number" class="form-input !font-normal bg-white text-slate-800 border-slate-300 text-xs" id="pajak"
                                 name="pajak" min="0" placeholder="0" oninput="calculatePaketTotal()">
-                            <span class="text-[10.5px] text-slate-500 mt-1 block">PPN / Fee Admin</span>
+                            <span class="text-[10.5px] text-slate-400 mt-1 block">PPN / Fee Admin</span>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label text-slate-800 font-bold">Diskon (Rp)</label>
-                            <input type="number" class="form-input bg-white text-slate-900 border-slate-300" id="diskon"
+                        <div class="form-group !mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Diskon (Rp)</label>
+                            <input type="number" class="form-input !font-normal bg-white text-slate-800 border-slate-300 text-xs" id="diskon"
                                 name="diskon" min="0" placeholder="0" oninput="calculatePaketTotal()">
-                            <span class="text-[10.5px] text-slate-500 mt-1 block">Potongan Paket</span>
+                            <span class="text-[10.5px] text-slate-400 mt-1 block">Potongan Paket</span>
                         </div>
                     </div>
 
                     <!-- Total Tagihan Preview Card -->
-                    <div class="p-3.5 rounded-xl border border-sky-200 bg-sky-50 flex items-center justify-between">
+                    <div class="p-3 rounded-xl border border-sky-200 bg-sky-50/70 flex items-center justify-between mb-3.5">
                         <div>
                             <div class="text-[11px] font-bold text-sky-800 uppercase tracking-wide">Total Tagihan Final Paket</div>
-                            <div class="text-[12px] text-sky-600">Harga Pokok + Pajak - Diskon</div>
+                            <div class="text-[11px] text-sky-600">Harga Pokok + Pajak - Diskon</div>
                         </div>
-                        <div class="text-lg font-black text-sky-700" id="previewTotalTagihan">
+                        <div class="text-base font-black text-sky-700" id="previewTotalTagihan">
                             Rp 0
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label text-slate-800 font-bold">Limit Bandwidth (Radius)</label>
-                        <input type="text" class="form-input bg-white text-slate-900 border-slate-300" id="rate_limit"
+                    <div class="form-group mb-3.5">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Limit Bandwidth (Radius)</label>
+                        <input type="text" class="form-input !font-normal bg-white text-slate-800 border-slate-300 text-xs" id="rate_limit"
                             name="rate_limit" placeholder="Contoh: 10M/20M">
-                        <span class="text-[11px] text-slate-500 mt-1 block">Format: [Upload]/[Download], contoh: <code>5M/10M</code> atau <code>10M/20M</code></span>
+                        <span class="text-[11px] text-slate-400 mt-1 block">Format: [Upload]/[Download], contoh: <code>5M/10M</code> atau <code>10M/20M</code></span>
                     </div>
 
                     <!-- Alokasi IP Pool & Gateway MikroTik -->
-                    <div class="p-4 rounded-xl border border-indigo-200 bg-indigo-50/60 space-y-3.5">
-                        <div class="flex items-center gap-2 text-indigo-900 font-bold text-xs uppercase tracking-wider">
-                            <i class="fa-solid fa-network-wired text-indigo-600"></i>
+                    <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 mb-3.5 space-y-3">
+                        <div class="flex items-center gap-2 text-slate-700 font-bold text-xs uppercase tracking-wider">
+                            <i class="fa-solid fa-network-wired text-slate-500"></i>
                             <span>Pengaturan IP Pool & Gateway MikroTik / FreeRADIUS</span>
                         </div>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-800 font-bold text-xs">Local Address (Gateway)</label>
-                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300 font-mono text-xs" 
+                                <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Local Address (Gateway)</label>
+                                <input type="text" class="form-input !font-normal bg-white text-slate-800 border-slate-300 font-mono text-xs" 
                                     id="local_address" name="local_address" placeholder="Contoh: 182.10.0.1">
-                                <span class="text-[10px] text-slate-500 mt-1 block">IP Gateway lokal PPPoE untuk paket ini (contoh: <code>182.10.0.1</code>)</span>
+                                <span class="text-[10px] text-slate-400 mt-1 block">IP Gateway lokal PPPoE (contoh: <code>182.10.0.1</code>)</span>
                             </div>
 
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-800 font-bold text-xs">Nama IP Pool</label>
-                                <input type="text" class="form-input bg-white text-slate-900 border-slate-300 font-mono text-xs" 
+                                <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Nama IP Pool</label>
+                                <input type="text" class="form-input !font-normal bg-white text-slate-800 border-slate-300 font-mono text-xs" 
                                     id="ip_pool" name="ip_pool" placeholder="Contoh: pool-10m">
-                                <span class="text-[10px] text-slate-500 mt-1 block">Nama pool di MikroTik & RADIUS (contoh: <code>pool-10m</code>)</span>
+                                <span class="text-[10px] text-slate-400 mt-1 block">Nama pool di MikroTik & RADIUS (contoh: <code>pool-10m</code>)</span>
                             </div>
                         </div>
 
                         <div class="form-group !mb-0">
-                            <label class="form-label text-slate-800 font-bold text-xs">Rentang IP Pool (Pool Range)</label>
-                            <input type="text" class="form-input bg-white text-slate-900 border-slate-300 font-mono text-xs" 
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Rentang IP Pool (Pool Range)</label>
+                            <input type="text" class="form-input !font-normal bg-white text-slate-800 border-slate-300 font-mono text-xs" 
                                 id="pool_range" name="pool_range" placeholder="Contoh: 182.10.0.2-182.10.255.254">
-                            <span class="text-[10px] text-slate-500 mt-1 block">Rentang IP pool pelanggan (contoh: <code>182.10.0.2-182.10.255.254</code>)</span>
+                            <span class="text-[10px] text-slate-400 mt-1 block">Rentang IP pool pelanggan (contoh: <code>182.10.0.2-182.10.255.254</code>)</span>
                         </div>
                     </div>
 
-                    <div class="form-group !mb-0">
-                        <label class="form-label text-slate-800 font-bold">Keterangan Tambahan</label>
-                        <textarea class="form-textarea bg-white text-slate-900 border-slate-300" id="keterangan" name="keterangan"
-                            rows="3" placeholder="Informasi tambahan..."></textarea>
+                    <div class="form-group mb-0">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Keterangan Tambahan</label>
+                        <textarea class="form-textarea !font-normal bg-white text-slate-800 border-slate-300 text-xs" id="keterangan" name="keterangan"
+                            rows="2" placeholder="Informasi tambahan..."></textarea>
                     </div>
                 </div>
 
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2.5">
+                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
                         onclick="closeCustomModal('formPaketModal')">
-                        <i class="fa-solid fa-xmark"></i> Batal
+                        Batal
                     </button>
-                    <button type="submit" class="btn-save !flex !items-center !justify-center gap-2">
-                        <i class="fa-solid fa-paper-plane"></i> Simpan Paket
+                    <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
+                        Simpan Paket
                     </button>
                 </div>
             </form>

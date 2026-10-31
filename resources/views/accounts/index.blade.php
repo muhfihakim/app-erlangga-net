@@ -6,10 +6,10 @@
             <h1 style="font-size:22px;font-weight:900;margin:0;">Manajemen Akun</h1>
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola akses pengguna dan pengaturan keamanan akun.</p>
         </div>
-        <div style="display:flex; gap:10px;">
-            <button type="button" class="btn-primary-admin !flex !items-center !justify-center gap-2"
+        <div style="display:flex; gap:8px;">
+            <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold"
                 onclick="openCustomModal('addUserModal')">
-                <i class="fa-solid fa-user-plus"></i> Tambah Akun
+                Tambah Akun
             </button>
         </div>
     </div>
@@ -78,12 +78,12 @@
             <table id="accounts-table" class="admin-table">
                 <thead>
                     <tr>
-                        <th style="text-align: center; width: 50px;">#</th>
-                        <th style="text-align: center; width: 250px;">Informasi Pengguna</th>
+                        <th style="text-align: center; width: 45px;">#</th>
+                        <th style="text-align: left; width: 250px;">Informasi Pengguna</th>
                         <th style="text-align: center; width: 150px;">Identitas</th>
                         <th style="text-align: center; width: 120px;">Jabatan</th>
-                        <th style="text-align: center; width: 200px;">Alamat</th>
-                        <th style="text-align: center; width: 180px;">Opsi / Keamanan</th>
+                        <th style="text-align: left; width: 200px;">Alamat</th>
+                        <th style="text-align: center; width: 160px;">Opsi / Keamanan</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -91,13 +91,13 @@
                         <tr>
                             <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}</td>
                             <td style="text-align: left;">
-                                <div style="font-weight: 700; color: #0f172a;">{{ $user->nama_lengkap }}</div>
+                                <div style="font-weight: 700; color: #0f172a; font-size: 13px;">{{ $user->nama_lengkap }}</div>
                                 <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
-                                    <i class="fa-regular fa-envelope mr-1"></i> {{ $user->email }}
+                                    {{ $user->email }}
                                 </div>
                                 @if($user->no_whatsapp)
                                     <div style="font-size: 11px; color: #16a34a; margin-top: 1px; font-weight: 600;">
-                                        <i class="fa-brands fa-whatsapp mr-1"></i> {{ $user->no_whatsapp }}
+                                        {{ $user->no_whatsapp }}
                                     </div>
                                 @endif
                             </td>
@@ -107,27 +107,27 @@
                             </td>
                             <td style="text-align: center;">
                                 @if($user->isSuperAdmin())
-                                    <span class="badge" style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; display: inline-block; margin-bottom: 4px;">SUPER ADMIN</span>
+                                    <span class="badge text-[10px] font-bold py-0.5 px-2 inline-block mb-1" style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0;">SUPER ADMIN</span>
                                 @elseif($user->isAdmin())
-                                    <span class="badge" style="background: #fef2f2; color: #dc2626; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; display: inline-block; margin-bottom: 4px;">{{ strtoupper($user->jabatan) }}</span>
+                                    <span class="badge text-[10px] font-bold py-0.5 px-2 inline-block mb-1" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;">{{ strtoupper($user->jabatan) }}</span>
                                 @elseif($user->jabatan === 'Sales')
-                                    <span class="badge" style="background: #f0f9ff; color: #0ea5e9; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; display: inline-block; margin-bottom: 4px;">SALES</span>
+                                    <span class="badge text-[10px] font-bold py-0.5 px-2 inline-block mb-1" style="background: #f0f9ff; color: #0ea5e9; border: 1px solid #bae6fd;">SALES</span>
                                 @else
-                                    <span class="badge" style="background: #f0fdf4; color: #16a34a; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; display: inline-block; margin-bottom: 4px;">TEKNISI</span>
+                                    <span class="badge text-[10px] font-bold py-0.5 px-2 inline-block mb-1" style="background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0;">TEKNISI</span>
                                 @endif
                                 <br>
                                 @if($user->is_active)
-                                    <span class="badge" style="background: #e0e7ff; color: #4338ca; padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: 700;">Aktif</span>
+                                    <span class="badge text-[9px] font-bold py-0.5 px-1.5" style="background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe;">Aktif</span>
                                 @else
-                                    <span class="badge" style="background: #f1f5f9; color: #64748b; padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: 700;">Nonaktif</span>
+                                    <span class="badge text-[9px] font-bold py-0.5 px-1.5" style="background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0;">Nonaktif</span>
                                 @endif
                             </td>
                             <td style="text-align: left; font-size: 11px; color: #64748b; line-height: 1.4;">
                                 {{ Str::limit($user->alamat ?? '-', 60) }}
                             </td>
                             <td style="text-align: center;">
-                                <div style="display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;">
-                                    <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                         title="Edit Akun" onclick="openCustomModal('editModal', this)"
                                         data-user-id="{{ $user->id }}"
                                         data-user-nama="{{ $user->nama_lengkap }}"
@@ -138,34 +138,34 @@
                                         data-user-tgl="{{ $user->tanggal_lahir ? \Carbon\Carbon::parse($user->tanggal_lahir)->format('Y-m-d') : '' }}"
                                         data-user-email="{{ $user->email }}"
                                         data-user-jabatan="{{ $user->jabatan }}">
-                                        <i class="fa-solid fa-pen-to-square text-amber-500"></i>
+                                        <i class="fa-solid fa-pen-to-square text-slate-500 hover:text-amber-600"></i>
                                     </button>
 
                                     @if ($user->google2fa_secret)
-                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                             onclick="show2FAQRCode({{ $user->id }})" title="Lihat QR Code 2FA">
-                                            <i class="fa-solid fa-qrcode text-primary"></i>
+                                            <i class="fa-solid fa-qrcode text-slate-500 hover:text-indigo-600"></i>
                                         </button>
                                     @endif
 
-                                    <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                         onclick="reset2FA({{ $user->id }})" title="Reset 2FA">
-                                        <i class="fa-solid fa-shield-halved text-rose-500"></i>
+                                        <i class="fa-solid fa-shield-halved text-slate-500 hover:text-amber-600"></i>
                                     </button>
 
-                                    <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                         title="Hapus Akun" onclick="confirmGlobalDelete('{{ route('accounts.destroy', $user->id) }}', '{{ $user->nama_lengkap }}')">
-                                        <i class="fa-solid fa-trash text-rose-600"></i>
+                                        <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i>
                                     </button>
 
                                     @if(auth()->id() !== $user->id)
-                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                             title="{{ $user->is_active ? 'Nonaktifkan Akun' : 'Aktifkan Akun' }}"
                                             onclick="confirmToggleStatus('{{ route('accounts.toggleStatus', $user->id) }}', '{{ $user->nama_lengkap }}', {{ $user->is_active ? 'true' : 'false' }})">
                                             @if($user->is_active)
-                                                <i class="fa-solid fa-user-slash text-slate-500"></i>
+                                                <i class="fa-solid fa-user-slash text-slate-400 hover:text-rose-600"></i>
                                             @else
-                                                <i class="fa-solid fa-user-check text-green-600"></i>
+                                                <i class="fa-solid fa-user-check text-slate-400 hover:text-emerald-600"></i>
                                             @endif
                                         </button>
                                     @endif
@@ -240,11 +240,11 @@
                     textEl.textContent = isActive ? 'menonaktifkan' : 'mengaktifkan';
                     
                     if (isActive) {
-                        iconEl.className = 'fa-solid fa-user-slash text-rose-500 text-4xl mb-4';
-                        btnSubmit.className = 'btn-save flex-1 !flex !items-center !justify-center !bg-rose-600';
+                        iconEl.className = 'fa-solid fa-user-slash text-rose-500 text-3xl mb-3';
+                        btnSubmit.className = 'btn-primary-admin !h-9 !px-5 text-xs font-semibold !bg-rose-600 hover:!bg-rose-700';
                     } else {
-                        iconEl.className = 'fa-solid fa-user-check text-green-500 text-4xl mb-4';
-                        btnSubmit.className = 'btn-save flex-1 !flex !items-center !justify-center !bg-green-600';
+                        iconEl.className = 'fa-solid fa-user-check text-green-500 text-3xl mb-3';
+                        btnSubmit.className = 'btn-primary-admin !h-9 !px-5 text-xs font-semibold !bg-green-600 hover:!bg-green-700';
                     }
                     
                     openCustomModal('toggleStatusModal');
@@ -254,7 +254,7 @@
             let qrModalInstance = null;
             function show2FAQRCode(userId) {
                 const qrModalBody = document.getElementById('qrModalBody');
-                qrModalBody.innerHTML = `<div class="flex justify-center py-8"><i class="fa-solid fa-circle-notch fa-spin text-3xl text-primary"></i></div>`;
+                qrModalBody.innerHTML = `<div class="flex justify-center py-8"><i class="fa-solid fa-circle-notch fa-spin text-2xl text-slate-400"></i></div>`;
                 
                 openCustomModal('qrModal');
 
@@ -262,20 +262,20 @@
                     .then(response => response.json())
                     .then(data => {
                         qrModalBody.innerHTML = `
-                            <div class="text-center space-y-4">
-                                <p class="text-sm font-medium text-slate-600">Scan QR Code ini menggunakan aplikasi Google Authenticator:</p>
-                                <div class="bg-white border-2 border-slate-100 rounded-2xl p-4 inline-block shadow-sm">
+                            <div class="text-center space-y-3.5">
+                                <p class="text-xs font-medium text-slate-600">Scan QR Code ini menggunakan aplikasi Google Authenticator:</p>
+                                <div class="bg-white border border-slate-200 rounded-xl p-3 inline-block shadow-sm">
                                     ${data.qr}
                                 </div>
-                                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Setup Key Manual</p>
-                                    <code class="text-sm font-black text-rose-600 tracking-widest">${data.secret}</code>
+                                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Setup Key Manual</p>
+                                    <code class="text-xs font-bold text-slate-800 tracking-widest font-mono">${data.secret}</code>
                                 </div>
                             </div>
                         `;
                     })
                     .catch(error => {
-                        qrModalBody.innerHTML = `<div class="bg-rose-50 text-rose-600 p-4 rounded-xl text-sm font-bold text-center">Gagal memuat QR Code.</div>`;
+                        qrModalBody.innerHTML = `<div class="bg-rose-50 text-rose-600 p-3 rounded-xl text-xs font-bold text-center">Gagal memuat QR Code.</div>`;
                     });
             }
 
