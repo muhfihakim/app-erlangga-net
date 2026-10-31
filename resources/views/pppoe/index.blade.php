@@ -1,11 +1,18 @@
 <x-layouts.app>
     @section('Css')
         <style>
-            #pppoe-table thead th,
-            #pppoe-table tbody td {
+            #pppoe-table thead th {
                 text-transform: uppercase !important;
                 font-weight: 600;
                 font-size: 12px;
+            }
+
+            #pppoe-table tbody td {
+                font-size: 12px;
+            }
+
+            .pppoe-username-val {
+                text-transform: none !important;
             }
 
             .dataTables_wrapper {
@@ -210,22 +217,27 @@
     <!-- Edit Modal -->
     <div class="modal-overlay" id="editPppoeModal">
         <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
-            <div class="modal-header border-b border-slate-200 bg-white px-5 py-3.5 flex items-center justify-between rounded-t-2xl">
-                <div class="modal-title flex items-center gap-2">
-                    <i class="fa-solid fa-pen-to-square text-amber-500"></i>
-                    <span class="text-slate-900 font-bold text-sm">Edit Akun PPPoE</span>
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-sm border border-amber-200 shrink-0">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Edit Akun PPPoE</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Konfigurasi akun koneksi internet dan skema billing pelanggan.</p>
+                    </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('editPppoeModal')">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <div class="modal-tabs bg-white border-b border-slate-200 px-4">
+            <div class="modal-tabs bg-white border-b border-slate-200 px-6">
                 <button type="button" class="modal-tab !py-2.5 !text-xs active" data-tab="edit-pppoe-tab-akun">
-                    <i class="fa-solid fa-user-shield"></i> Akun PPPoE
+                    <i class="fa-regular fa-user text-xs"></i> Akun PPPoE
                 </button>
                 <button type="button" class="modal-tab !py-2.5 !text-xs" data-tab="edit-pppoe-tab-pembayaran">
-                    <i class="fa-solid fa-money-bill"></i> Pembayaran
+                    <i class="fa-regular fa-credit-card text-xs"></i> Billing & Pembayaran
                 </button>
             </div>
 
@@ -233,31 +245,31 @@
                 @csrf
                 @method('PUT')
 
-                <div class="modal-body !p-4 md:!p-5 bg-white">
+                <div class="modal-body p-5 bg-white space-y-4">
                     <!-- Tab Akun PPPoE -->
                     <div class="tab-panel active" id="edit-pppoe-tab-akun">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                        <div class="form-grid-2 mb-3.5">
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-800 font-bold text-xs uppercase mb-1">Username <span class="text-rose-500">*</span></label>
-                                <input type="text" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono font-bold" id="edit_username" name="username" required>
+                                <label class="form-label text-slate-700 font-medium text-xs">Username <span class="text-rose-500">*</span></label>
+                                <input type="text" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono" id="edit_username" name="username" required>
                             </div>
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-800 font-bold text-xs uppercase mb-1">Password <span class="text-rose-500">*</span></label>
-                                <input type="text" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono font-bold" id="edit_password" name="password" required>
+                                <label class="form-label text-slate-700 font-medium text-xs">Password <span class="text-rose-500">*</span></label>
+                                <input type="text" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono" id="edit_password" name="password" required>
                             </div>
                         </div>
-                        <div class="form-group mb-3">
-                            <label class="form-label text-slate-800 font-bold text-xs uppercase mb-1">Profile / Paket <span class="text-rose-500">*</span></label>
-                            <select class="form-input-custom !h-8.5 !text-xs w-full bg-white text-slate-900 border-slate-300" id="edit_paket_id" name="paket_id" required>
+                        <div class="form-group mb-3.5">
+                            <label class="form-label text-slate-700 font-medium text-xs">Profile / Paket <span class="text-rose-500">*</span></label>
+                            <select class="form-input-custom !font-normal !h-8.5 !text-xs w-full bg-white text-slate-800 border-slate-300" id="edit_paket_id" name="paket_id" required>
                                 @foreach ($pakets as $paket)
                                     <option value="{{ $paket->id }}">{{ $paket->nama_paket }} - Rp {{ number_format($paket->harga, 0, ',', '.') }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="form-grid-2">
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-800 font-bold text-xs uppercase mb-1">Router / NAS</label>
-                                <select class="form-input-custom !h-8.5 !text-xs w-full bg-white text-slate-900 border-slate-300" id="edit_router" name="router">
+                                <label class="form-label text-slate-700 font-medium text-xs">Router / NAS</label>
+                                <select class="form-input-custom !font-normal !h-8.5 !text-xs w-full bg-white text-slate-800 border-slate-300" id="edit_router" name="router">
                                     <option value="All">Semua Router (ALL)</option>
                                     @foreach ($routers as $r)
                                         <option value="{{ $r->shortname }}">{{ $r->shortname }} ({{ $r->nasname }})</option>
@@ -265,7 +277,7 @@
                                 </select>
                             </div>
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-800 font-bold text-xs uppercase mb-1">IP Address</label>
+                                <label class="form-label text-slate-700 font-medium text-xs">IP Address (Opsional)</label>
                                 <input type="text" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono" id="edit_ip_address" name="ip_address" placeholder="Contoh: 10.10.10.2">
                             </div>
                         </div>
@@ -273,55 +285,61 @@
 
                     <!-- Tab Pembayaran -->
                     <div class="tab-panel" id="edit-pppoe-tab-pembayaran">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                        <div class="form-grid-2 mb-3.5">
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-800 font-bold text-xs uppercase mb-1">Tipe Pembayaran</label>
-                                <select class="form-input-custom !h-8.5 !text-xs w-full bg-white text-slate-900 border-slate-300" id="edit_tipe_pembayaran" name="tipe_pembayaran">
-                                    <option value="postpaid">Postpaid</option>
-                                    <option value="prepaid">Prepaid</option>
+                                <label class="form-label text-slate-700 font-medium text-xs">Tipe Pembayaran</label>
+                                <select class="form-input-custom !font-normal !h-8.5 !text-xs w-full bg-white text-slate-800 border-slate-300" id="edit_tipe_pembayaran" name="tipe_pembayaran">
+                                    <option value="postpaid">Postpaid (Pasca Bayar)</option>
+                                    <option value="prepaid">Prepaid (Pra Bayar)</option>
                                 </select>
                             </div>
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-800 font-bold text-xs uppercase mb-1">Tanggal Aktif</label>
+                                <label class="form-label text-slate-700 font-medium text-xs">Tanggal Aktif</label>
                                 <input type="date" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300" id="edit_tanggal_aktif" name="tanggal_aktif">
                             </div>
                         </div>
-                        <div class="form-group mb-3">
-                            <label class="form-label text-slate-800 font-bold text-xs uppercase mb-1">Periode Billing</label>
-                            <select class="form-input-custom !h-8.5 !text-xs w-full bg-white text-slate-900 border-slate-300" id="edit_periode_billing" name="periode_billing">
-                                <option value="fixed">Fixed</option>
-                                <option value="renewal">Renewal</option>
-                            </select>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                        <div class="form-grid-2 mb-3.5">
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-800 font-bold text-xs uppercase mb-1">Pajak (Rp)</label>
+                                <label class="form-label text-slate-700 font-medium text-xs">Periode Billing</label>
+                                <select class="form-input-custom !font-normal !h-8.5 !text-xs w-full bg-white text-slate-800 border-slate-300" id="edit_periode_billing" name="periode_billing">
+                                    <option value="fixed">Fixed (Setiap Awal Bulan)</option>
+                                    <option value="renewal">Renewal (Sesuai Tgl Aktif)</option>
+                                </select>
+                            </div>
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-700 font-medium text-xs">Status Invoice</label>
+                                <select class="form-input-custom !font-normal !h-8.5 !text-xs w-full bg-white text-slate-800 border-slate-300" id="edit_status_invoice" name="status_invoice">
+                                    <option value="belum_bayar">Belum Bayar (Unpaid)</option>
+                                    <option value="terbayar">Terbayar (Paid)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-grid-2 mb-3.5">
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-700 font-medium text-xs">Pajak (Rp)</label>
                                 <input type="number" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono" id="edit_pajak" name="pajak">
                             </div>
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-800 font-bold text-xs uppercase mb-1">Diskon (Rp)</label>
+                                <label class="form-label text-slate-700 font-medium text-xs">Diskon (Rp)</label>
                                 <input type="number" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono" id="edit_diskon" name="diskon">
                             </div>
                         </div>
-                        <div class="form-group mb-3">
-                            <label class="form-label text-slate-800 font-bold text-xs uppercase mb-1">Status Invoice</label>
-                            <select class="form-input-custom !h-8.5 !text-xs w-full bg-white text-slate-900 border-slate-300" id="edit_status_invoice" name="status_invoice">
-                                <option value="belum_bayar">Belum Bayar</option>
-                                <option value="terbayar">Terbayar</option>
-                            </select>
-                        </div>
-                        <div class="form-group !mb-0 pt-1">
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" id="edit_generate_invoice" name="generate_invoice" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
-                                <span class="text-xs font-semibold text-slate-700">Generate Invoice Otomatis</span>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 mt-2">
+                            <label class="flex items-center gap-2.5 cursor-pointer m-0">
+                                <input type="checkbox" id="edit_generate_invoice" name="generate_invoice"
+                                    class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
+                                <div>
+                                    <span class="text-xs font-semibold text-slate-800 block">Generate Invoice Otomatis</span>
+                                    <span class="text-[11px] text-slate-500 block">Buat tagihan faktur pertama langsung saat akun PPPoE disimpan.</span>
+                                </div>
                             </label>
                         </div>
                     </div>
                 </div>
 
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl px-5 py-3 flex justify-end gap-2">
-                    <button type="button" class="btn-cancel !h-8.5 !px-3.5 text-xs font-semibold" onclick="closeCustomModal('editPppoeModal')">Batal</button>
-                    <button type="submit" class="btn-save !h-8.5 !px-4 text-xs font-semibold !bg-amber-500 hover:!bg-amber-600">Simpan</button>
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold" onclick="closeCustomModal('editPppoeModal')">Batal</button>
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold !bg-amber-500 hover:!bg-amber-600">Simpan</button>
                 </div>
             </form>
         </div>

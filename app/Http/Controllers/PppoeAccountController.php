@@ -51,10 +51,10 @@ class PppoeAccountController extends Controller
                 ->addColumn('pelanggan', function ($pppoe) {
                     $name = $pppoe->preOrder->nama_lengkap ?? '-';
                     $phone = $pppoe->preOrder->no_whatsapp ?? '';
-                    return '<div><div style="font-weight: 700; color: #1e293b; font-size: 12.5px;">' . htmlspecialchars($name) . '</div>' . ($phone ? '<span style="font-size: 11px; color: #64748b; font-weight: 500;">' . htmlspecialchars($phone) . '</span>' : '') . '</div>';
+                    return '<div><div style="font-weight: 600; color: #1e293b; font-size: 12.5px; text-transform: none !important;">' . htmlspecialchars($name) . '</div>' . ($phone ? '<span style="font-size: 11px; color: #64748b; font-weight: 500;">' . htmlspecialchars($phone) . '</span>' : '') . '</div>';
                 })
                 ->addColumn('username_col', function ($pppoe) {
-                    return '<div><div style="font-weight: 700; color: #0f172a; font-family: monospace; font-size: 12.5px;">' . htmlspecialchars($pppoe->username) . '</div><span style="font-size: 11px; color: #94a3b8; font-family: monospace;">Pass: ' . htmlspecialchars($pppoe->password) . '</span></div>';
+                    return '<div class="pppoe-username"><div class="pppoe-username-val" style="font-weight: 600; color: #0f172a; font-family: monospace; font-size: 12px; text-transform: none !important;">' . htmlspecialchars($pppoe->username) . '</div><span style="font-size: 11px; color: #94a3b8; font-family: monospace; text-transform: none !important;">Pass: ' . htmlspecialchars($pppoe->password) . '</span></div>';
                 })
                 ->addColumn('paket', function ($pppoe) {
                     $namaPaket = $pppoe->paket->nama_paket ?? '-';
