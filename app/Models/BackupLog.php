@@ -39,6 +39,11 @@ class BackupLog extends Model
 
     public function getFormattedCreatedAtAttribute(): string
     {
-        return $this->created_at ? $this->created_at->translatedFormat('d M Y, H:i') . ' WIB' : '-';
+        return $this->created_at ? $this->created_at->locale('id')->translatedFormat('d F Y, H:i') . ' WIB' : '-';
+    }
+
+    public function getDiffForHumansIdAttribute(): string
+    {
+        return $this->created_at ? $this->created_at->locale('id')->diffForHumans() : '-';
     }
 }
