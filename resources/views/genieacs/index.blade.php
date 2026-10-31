@@ -134,10 +134,6 @@
             </p>
         </div>
         <div class="flex items-center gap-2">
-            <a href="{{ route('settings.index', ['tab' => 'genieacs']) }}"
-                class="btn-cancel !h-8.5 !px-3.5 text-xs font-semibold shadow-xs">
-                Pengaturan
-            </a>
             <button type="button" id="btn-refresh-data"
                 class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-3.5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
                 <i class="fa-solid fa-arrows-rotate" id="refresh-icon"></i> Refresh
@@ -178,7 +174,7 @@
         </div>
     </div>
 
-    <!-- Table Toolbar / Live Search & Filter -->
+    <!-- Table Toolbar / Pencarian & Filter -->
     <div class="table-toolbar">
         <form class="w-full" id="filterForm" onsubmit="return false;">
             <div class="filter-group">
@@ -186,12 +182,12 @@
                     <label class="form-label-custom">Status Koneksi</label>
                     <select name="status" class="form-input-custom !h-8.5 !text-xs" id="filter-status">
                         <option value="all">Semua Status</option>
-                        <option value="online">Online Saja</option>
-                        <option value="offline">Offline Saja</option>
+                        <option value="online">Online</option>
+                        <option value="offline">Offline</option>
                     </select>
                 </div>
                 <div style="flex: 2; min-width: 250px;">
-                    <label class="form-label-custom">Live Search</label>
+                    <label class="form-label-custom">Pencarian</label>
                     <div class="search-wrap !max-w-full">
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
                         <input type="search" name="search" class="search-input custom-search !h-8.5 !text-xs" id="custom-search"
@@ -201,9 +197,6 @@
                 </div>
                 <button type="button" id="btn-filter" class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold shadow-xs flex items-center gap-1.5">
                     <i class="fa-solid fa-filter"></i> Filter
-                </button>
-                <button type="button" id="btn-reset-filter" class="btn-cancel !h-8.5 !px-3 text-xs font-semibold flex items-center gap-1.5" title="Reset Filter">
-                    <i class="fa-solid fa-xmark"></i> Reset
                 </button>
             </div>
         </form>
@@ -398,13 +391,6 @@
                 // Tombol Filter
                 $('#btn-filter').on('click', function() {
                     genieTable.search($('#custom-search').val()).draw();
-                });
-
-                // Tombol Reset Filter
-                $('#btn-reset-filter').on('click', function() {
-                    $('#filter-status').val('all');
-                    $('#custom-search').val('');
-                    genieTable.search('').draw();
                 });
 
                 // Tombol Refresh Data (Hanya refresh tabel via AJAX)
