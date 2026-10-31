@@ -95,13 +95,13 @@
                 infrastruktur FTTH.</p>
         </div>
         <div style="display:flex; gap:8px;">
-            <button type="button" id="measure-btn" class="btn-primary-admin !h-8.5 !px-3.5 text-xs font-semibold shadow-xs">
-                Ukur Jarak
+            <button type="button" id="measure-btn" class="btn-primary-admin !h-8.5 !px-3.5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                <i class="fa-solid fa-ruler"></i> Ukur Jarak
             </button>
             @if ($canCrud)
                 <button type="button" onclick="openCustomModal('addOdpModal')"
-                    class="btn-primary-admin !h-8.5 !px-3.5 text-xs font-semibold shadow-xs">
-                    Tambah
+                    class="btn-primary-admin !h-8.5 !px-3.5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <i class="fa-solid fa-plus"></i> Tambah ODP
                 </button>
             @endif
         </div>
@@ -159,7 +159,7 @@
                 <span id="total-dist" class="text-lg font-bold text-primary">0 m</span>
                 <div class="flex gap-2 mt-2">
                     <button id="reset-measure" class="text-[10px] font-bold text-rose-500 underline">Reset</button>
-                    <button id="close-measure" class="text-[10px] font-bold text-slate-500 underline">Tutup</button>
+                    <button id="close-measure" class="text-[10px] font-bold text-slate-500 underline">Batal</button>
                 </div>
             </div>
         </div>
@@ -191,7 +191,7 @@
                         <th>Lokasi ODP</th>
                         <th style="text-align: center; width: 180px;">Koordinat</th>
                         <th>Keterangan</th>
-                        <th style="text-align: center; width: 140px; min-width: 130px;">Opsi</th>
+                        <th style="text-align: center; width: 230px; min-width: 220px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -212,25 +212,25 @@
                             <td style="font-size: 12px; color: #64748b;">{{ $odp->keterangan ?: '-' }}</td>
                             <td class="text-center whitespace-nowrap">
                                 <div class="flex items-center justify-center gap-1.5 whitespace-nowrap flex-nowrap">
-                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-emerald-300 hover:!bg-emerald-50"
+                                    <button type="button" class="btn-primary-admin !h-8 !px-2.5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-emerald-600 hover:!bg-emerald-700"
                                         title="Lihat di Peta"
                                         onclick="focusOnOdp('{{ $odp->titik_koordinat }}', '{{ $odp->id }}')">
-                                        <i class="fa-solid fa-location-dot text-emerald-500"></i>
+                                        <i class="fa-solid fa-location-dot"></i> Peta
                                     </button>
                                     @if ($canCrud)
-                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-amber-300 hover:!bg-amber-50"
+                                        <button type="button" class="btn-primary-admin !h-8 !px-2.5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-amber-500 hover:!bg-amber-600"
                                             title="Edit" onclick="openEditOdpModal(this)"
                                             data-id="{{ $odp->id }}" data-jenis="{{ $odp->jenis_odp }}"
                                             data-lokasi="{{ $odp->lokasi_odp }}"
                                             data-tikor="{{ $odp->titik_koordinat }}"
                                             data-keterangan="{{ $odp->keterangan }}"
                                             data-foto="{{ $odp->foto_odp ? Storage::url($odp->foto_odp) : '' }}">
-                                            <i class="fa-solid fa-pen-to-square text-amber-500"></i>
+                                            <i class="fa-solid fa-pen-to-square"></i> Edit
                                         </button>
-                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50"
+                                        <button type="button" class="btn-primary-admin !h-8 !px-2.5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-rose-600 hover:!bg-rose-700 text-white"
                                             title="Hapus"
                                             onclick="confirmGlobalDelete('{{ route('odp.destroy', $odp->id) }}', 'ODP {{ addslashes($odp->lokasi_odp) }}')">
-                                            <i class="fa-solid fa-trash text-rose-500"></i>
+                                            <i class="fa-solid fa-trash"></i> Hapus
                                         </button>
                                     @endif
                                 </div>
@@ -295,8 +295,12 @@
                         </div>
                     </div>
                     <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between rounded-b-2xl">
-                        <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold" onclick="closeCustomModal('addOdpModal')">Batal</button>
-                        <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold">Simpan</button>
+                        <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('addOdpModal')">
+                            <i class="fa-solid fa-xmark"></i> Batal
+                        </button>
+                        <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold flex items-center gap-1.5">
+                            <i class="fa-solid fa-floppy-disk"></i> Simpan
+                        </button>
                     </div>
                 </form>
             </div>
@@ -357,8 +361,12 @@
                         </div>
                     </div>
                     <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between rounded-b-2xl">
-                        <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold" onclick="closeCustomModal('editOdpModal')">Batal</button>
-                        <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold !bg-amber-500 hover:!bg-amber-600">Simpan</button>
+                        <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('editOdpModal')">
+                            <i class="fa-solid fa-xmark"></i> Batal
+                        </button>
+                        <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold !bg-amber-500 hover:!bg-amber-600 flex items-center gap-1.5">
+                            <i class="fa-solid fa-floppy-disk"></i> Simpan
+                        </button>
                     </div>
                 </form>
             </div>

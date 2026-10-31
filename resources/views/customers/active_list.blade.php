@@ -681,23 +681,23 @@
             </div>
 
             <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
-                <button type="button" class="view-only btn-cancel !h-9 !px-4 text-xs font-semibold"
+                <button type="button" class="view-only btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                     onclick="closeCustomModal('customerDetailModal')">
-                    Tutup
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
                 @if ($is_admin)
                     <button type="button" id="btnToggleEdit"
-                        class="view-only btn-primary-admin !h-9 !px-5 text-xs font-semibold"
+                        class="view-only btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5"
                         onclick="toggleEditMode()">
-                        Edit
+                        <i class="fa-solid fa-pen-to-square"></i> Edit
                     </button>
-                    <button type="button" class="edit-only btn-cancel !h-9 !px-4 text-xs font-semibold"
+                    <button type="button" class="edit-only btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                         onclick="toggleEditMode()">
-                        Batal Edit
+                        <i class="fa-solid fa-xmark"></i> Batal Edit
                     </button>
                     <button type="submit"
-                        class="edit-only btn-primary-admin !h-9 !px-5 text-xs font-semibold">
-                        Simpan
+                        class="edit-only btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 @endif
             </div>
@@ -902,11 +902,11 @@
                     </a>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="refreshCurrentAcsModal()">
-                        Muat Ulang
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="refreshCurrentAcsModal()">
+                        <i class="fa-solid fa-rotate"></i> Muat Ulang
                     </button>
-                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('customerAcsModal')">
-                        Tutup
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('customerAcsModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
                     </button>
                 </div>
             </div>
@@ -948,7 +948,7 @@
                     </div>
                 </div>
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between gap-2">
-                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('isolirCustomerModal')">
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('isolirCustomerModal')">
                         Batal
                     </button>
                     <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-9 !px-5 text-xs font-semibold">
@@ -989,7 +989,7 @@
                     </div>
                 </div>
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between gap-2">
-                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('bukaIsolirCustomerModal')">
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('bukaIsolirCustomerModal')">
                         Batal
                     </button>
                     <button type="submit" class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-9 !px-5 text-xs font-semibold">
@@ -1043,7 +1043,7 @@
                         </div>
                     </div>
                     <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between gap-2">
-                        <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('deactivateCustomerModal')">
+                        <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('deactivateCustomerModal')">
                             Batal
                         </button>
                         <button type="submit" class="btn-primary-admin !bg-amber-600 hover:!bg-amber-700 !text-white !h-9 !px-5 text-xs font-semibold">
@@ -1087,7 +1087,7 @@
                         </p>
                     </div>
                     <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between gap-2">
-                        <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('restoreCustomerModal')">
+                        <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('restoreCustomerModal')">
                             Batal
                         </button>
                         <button type="submit" class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-9 !px-5 text-xs font-semibold">
@@ -1132,7 +1132,7 @@
                         </p>
                     </div>
                     <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between gap-2">
-                        <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('forceDeleteCustomerModal')">
+                        <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('forceDeleteCustomerModal')">
                             Batal
                         </button>
                         <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-9 !px-5 text-xs font-semibold">

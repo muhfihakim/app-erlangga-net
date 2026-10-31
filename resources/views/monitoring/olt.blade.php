@@ -405,7 +405,7 @@
                             <th style="text-align: center;">Serial Number (SN)</th>
                             <th style="text-align: center; width: 130px;">Status</th>
                             <th style="text-align: center; width: 120px;">RX Power</th>
-                            <th style="text-align: center; width: 100px;">Opsi</th>
+                            <th style="text-align: center; width: 110px; min-width: 100px;">Opsi</th>
                         </tr>
                     </thead>
                     <tbody id="dashboard-onu-body">
@@ -500,8 +500,8 @@
                 </div>
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 px-5 py-3 flex justify-end rounded-b-2xl">
-                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold" onclick="closeCustomModal('onuDetailModal')">
-                    Tutup
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('onuDetailModal')">
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
             </div>
         </div>
@@ -526,8 +526,8 @@
                 </div>
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 px-5 py-3 flex justify-end rounded-b-2xl">
-                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold" onclick="closeCustomModal('selectUncfgModal')">
-                    Batal
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('selectUncfgModal')">
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
             </div>
         </div>
@@ -832,7 +832,7 @@ show gpon onu state gpon-olt_${port}`;
                                         <td style="text-align: center; font-weight: 700; color: #64748b;">-</td>
                                         <td style="text-align: center;">
                                             <button onclick="useForActivation('${onu.port}', '${onu.sn}')" 
-                                                class="btn-primary-admin !h-7 !px-2.5 !text-[11px] font-semibold shadow-xs mx-auto flex items-center justify-center gap-1.5"
+                                                class="btn-primary-admin !h-8 !px-2.5 text-xs font-semibold shadow-xs mx-auto flex items-center justify-center gap-1.5"
                                                 title="Aktivasi Pelanggan">
                                                 <i class="fa-solid fa-bolt text-xs"></i>
                                                 <span>Aktivasi</span>
@@ -894,9 +894,10 @@ show gpon onu state gpon-olt_${port}`;
                                         <td style="text-align: center;">
                                             <div class="flex items-center justify-center gap-1.5 whitespace-nowrap">
                                                 <button type="button" onclick="checkOnuStatus('${onu.port}', '${onu.onu_id}')" 
-                                                    class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-sky-300 hover:!bg-sky-50"
+                                                    class="btn-primary-admin !h-8 !px-2.5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5 !bg-sky-600 hover:!bg-sky-700"
                                                     title="Detail Status ONU">
-                                                    <i class="fa-solid fa-eye text-sky-600"></i>
+                                                    <i class="fa-solid fa-eye text-xs"></i>
+                                                    <span>Detail</span>
                                                 </button>
                                             </div>
                                         </td>

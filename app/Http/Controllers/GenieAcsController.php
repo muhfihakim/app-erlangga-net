@@ -208,26 +208,26 @@ class GenieAcsController extends Controller
         $ssidEsc = htmlspecialchars($d['ssid'] !== '-' ? $d['ssid'] : '', ENT_QUOTES, 'UTF-8');
 
         $actionHtml = '
-            <div class="flex items-center justify-center gap-1.5 flex-wrap">
+            <div class="flex items-center justify-center gap-1.5 whitespace-nowrap flex-nowrap">
                 <a href="' . $showUrl . '"
-                    class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!bg-sky-50 hover:!border-sky-300"
+                    class="btn-primary-admin !h-8 !px-2.5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-sky-600 hover:!bg-sky-700"
                     title="Detail & Diagnostik">
-                    <i class="fa-solid fa-arrow-up-right-from-square text-sky-600 text-xs"></i>
+                    <i class="fa-solid fa-eye text-xs"></i> Detail
                 </a>
                 <button type="button"
-                    class="btn-quick-wifi topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!bg-emerald-50 hover:!border-emerald-300"
+                    class="btn-quick-wifi btn-primary-admin !h-8 !px-2.5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-emerald-600 hover:!bg-emerald-700"
                     data-device-id="' . $devId . '"
                     data-serial="' . $serialEsc . '"
                     data-ssid="' . $ssidEsc . '"
                     title="Ubah Nama & Password Wi-Fi">
-                    <i class="fa-solid fa-wifi text-emerald-600 text-xs"></i>
+                    <i class="fa-solid fa-wifi text-xs"></i> Wi-Fi
                 </button>
                 <button type="button"
-                    class="btn-quick-reboot topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!bg-rose-50 hover:!border-rose-300"
+                    class="btn-quick-reboot btn-primary-admin !h-8 !px-2.5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-rose-600 hover:!bg-rose-700 text-white"
                     data-device-id="' . $devId . '"
                     data-serial="' . $serialEsc . '"
                     title="Reboot ONT">
-                    <i class="fa-solid fa-power-off text-rose-600 text-xs"></i>
+                    <i class="fa-solid fa-power-off text-xs"></i> Reboot
                 </button>
             </div>';
 

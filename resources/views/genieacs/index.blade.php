@@ -215,7 +215,7 @@
                         <th style="min-width: 140px; white-space: nowrap;">Nama Wi-Fi (SSID)</th>
                         <th class="col-rx" style="text-align: center; width: 145px; min-width: 145px; white-space: nowrap !important;">Redaman RX</th>
                         <th class="col-temp" style="text-align: center; width: 130px; min-width: 130px; white-space: nowrap !important;">Suhu ONT</th>
-                        <th style="text-align: center; width: 120px; min-width: 120px; white-space: nowrap;">Opsi</th>
+                        <th style="text-align: center; width: 240px; min-width: 230px; white-space: nowrap;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody style="border-top: none;">
@@ -268,10 +268,12 @@
                         <small class="text-slate-400 text-[11px]">Panjang 8 - 63 karakter WPA2-PSK.</small>
                     </div>
                 </div>
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl p-3 flex justify-end gap-2">
-                    <button type="button" class="btn-cancel !h-8 !px-3.5 text-xs font-semibold" onclick="closeCustomModal('quickWifiModal')">Batal</button>
-                    <button type="submit" class="btn-primary-admin !h-8 !px-4 text-xs font-semibold !bg-sky-600 hover:!bg-sky-700 shadow-xs" id="btn-submit-quick-wifi">
-                        Simpan
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl px-5 py-3 flex items-center justify-between">
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('quickWifiModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
+                    </button>
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold !bg-sky-600 hover:!bg-sky-700 shadow-xs flex items-center gap-1.5" id="btn-submit-quick-wifi">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>
@@ -305,12 +307,12 @@
                     </p>
                 </div>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between gap-2">
-                <button type="button" class="btn-cancel !h-8 !px-3.5 text-xs font-semibold" onclick="closeCustomModal('rebootModal')">
-                    Batal
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between">
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('rebootModal')">
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
-                <button type="button" onclick="executeReboot()" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8 !px-4 text-xs font-semibold" id="btn-submit-reboot">
-                    Reboot
+                <button type="button" onclick="executeReboot()" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5" id="btn-submit-reboot">
+                    <i class="fa-solid fa-power-off"></i> Reboot
                 </button>
             </div>
         </div>

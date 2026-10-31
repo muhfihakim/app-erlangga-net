@@ -620,8 +620,8 @@
                 </div>
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <button type="button" class="btn-cancel w-full" onclick="closeCustomModal('detailActivationModal')">
-                    Tutup Detail
+                <button type="button" class="btn-cancel !h-8.5 text-xs font-semibold flex items-center justify-center gap-1.5 w-full" onclick="closeCustomModal('detailActivationModal')">
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
             </div>
         </div>

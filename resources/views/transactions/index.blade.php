@@ -343,8 +343,8 @@
                         <i class="fa-solid fa-file-pdf"></i> Cetak PDF
                     </a>
                 </div>
-                <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('detailTransactionModal')">
-                    Tutup
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('detailTransactionModal')">
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
             </div>
         </div>

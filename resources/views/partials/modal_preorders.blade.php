@@ -117,12 +117,12 @@
                 </div>
 
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
-                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                         onclick="closeCustomModal('addPreOrderModal')">
-                        Batal
+                        <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
-                        Simpan
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>
@@ -229,13 +229,13 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl px-6 py-3 flex items-center justify-between">
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                     onclick="closeCustomModal('editModal')">
-                    <i class="fa-solid fa-xmark"></i> Tutup
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
-                <button type="submit" class="btn-save !flex !items-center !justify-center gap-2">
-                    Simpan
+                <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-floppy-disk"></i> Simpan
                 </button>
             </div>
         </form>
@@ -384,8 +384,8 @@
         <!-- Footer -->
         <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
             <span class="text-xs text-slate-400">Data pendaftaran calon pelanggan internet.</span>
-            <button type="button" class="btn-cancel !h-9 !px-5 text-xs font-semibold" onclick="closeCustomModal('detailModal')">
-                Tutup Detail
+            <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('detailModal')">
+                <i class="fa-solid fa-xmark"></i> Batal
             </button>
         </div>
     </div>
@@ -404,14 +404,14 @@
         <div class="modal-body !p-0 overflow-hidden bg-white">
             <div id="modal-map" style="width: 100%;" class="h-[50vh] md:h-[500px]"></div>
         </div>
-        <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+        <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl px-6 py-3 flex items-center justify-between">
             <a id="gmaps-button" href="#" target="_blank"
-                class="btn-save !shadow-lg !flex !items-center !justify-center gap-2">
+                class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold shadow-xs flex items-center gap-1.5">
                 <i class="fa-solid fa-map-location-dot"></i> Lihat di Google Maps
             </a>
-            <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+            <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                 onclick="closeCustomModal('mapModal')">
-                <i class="fa-solid fa-xmark"></i> Tutup
+                <i class="fa-solid fa-xmark"></i> Batal
             </button>
         </div>
     </div>
@@ -426,7 +426,7 @@
                     <i class="fa-solid fa-ban"></i>
                 </div>
                 <div>
-                    <h3 class="text-base font-bold text-slate-900 m-0">Tangguhkan ke Waiting List</h3>
+                    <h3 class="text-base font-bold text-slate-900 m-0"><i class="fa-solid fa-clock"></i> Tangguhkan ke Waiting List</h3>
                     <p class="text-xs text-slate-500 m-0 mt-0.5">Alihkan calon pelanggan ke Prospek Tunggu (Waiting List Ekspansi).</p>
                 </div>
             </div>
@@ -451,12 +451,12 @@
                 </div>
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2">
-                <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                     onclick="closeCustomModal('unspekModal')">
-                    Batal
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
-                <button type="submit" class="btn-primary-admin !bg-amber-600 hover:!bg-amber-700 !text-white !h-9 !px-5 text-xs font-semibold">
-                    Tangguhkan ke Waiting List
+                <button type="submit" class="btn-primary-admin !bg-amber-600 hover:!bg-amber-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <i class="fa-solid fa-clock"></i> Tangguhkan ke Waiting List
                 </button>
             </div>
         </form>
@@ -621,13 +621,13 @@
                 </div>
 
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
-                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                         onclick="closeCustomModal('createPppoeModal')">
-                        Batal
+                        <i class="fa-solid fa-xmark"></i> Batal
                     </button>
                     <button type="submit"
-                        class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
-                        Simpan
+                        class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>

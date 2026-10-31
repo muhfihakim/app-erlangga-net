@@ -205,7 +205,7 @@
                         <th style="text-align: center; width: 120px;">IP Address</th>
                         <th style="text-align: center; width: 110px;">Tipe Bayar</th>
                         <th style="text-align: center; width: 130px;">Status Invoice</th>
-                        <th style="text-align: center; width: 160px; min-width: 150px;">Opsi</th>
+                        <th style="text-align: center; width: 330px; min-width: 320px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -338,8 +338,12 @@
                 </div>
 
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
-                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold" onclick="closeCustomModal('editPppoeModal')">Batal</button>
-                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold !bg-amber-500 hover:!bg-amber-600">Simpan</button>
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('editPppoeModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
+                    </button>
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold !bg-amber-500 hover:!bg-amber-600 shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
+                    </button>
                 </div>
             </form>
         </div>
@@ -380,11 +384,11 @@
                     </div>
                 </div>
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2">
-                    <button type="button" class="btn-cancel !h-8 !px-3.5 text-xs font-semibold" onclick="closeCustomModal('isolirPppoeModal')">
-                        Batal
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('isolirPppoeModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8 !px-4 text-xs font-semibold">
-                        Isolir
+                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-ban"></i> Isolir Sekarang
                     </button>
                 </div>
             </form>
@@ -421,11 +425,11 @@
                     </div>
                 </div>
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2">
-                    <button type="button" class="btn-cancel !h-8 !px-3.5 text-xs font-semibold" onclick="closeCustomModal('bukaIsolirPppoeModal')">
-                        Batal
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('bukaIsolirPppoeModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-8 !px-4 text-xs font-semibold">
-                        Buka Isolir
+                    <button type="submit" class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-unlock-keyhole"></i> Buka Isolir
                     </button>
                 </div>
             </form>

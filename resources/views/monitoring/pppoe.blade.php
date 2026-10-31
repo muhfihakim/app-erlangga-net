@@ -156,7 +156,7 @@
                         <th style="text-align: center; width: 120px;">Uptime</th>
                         <th style="text-align: center; width: 150px;">Remote Address</th>
                         <th style="text-align: center; width: 170px;">Caller ID (MAC)</th>
-                        <th style="text-align: center; width: 70px;">Opsi</th>
+                        <th style="text-align: center; width: 110px; min-width: 100px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -260,7 +260,9 @@
 
             <!-- Footer -->
             <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl px-5 py-3 flex justify-end">
-                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold" onclick="closeCustomModal('pppoeDetailModal')">Tutup</button>
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('pppoeDetailModal')">
+                    <i class="fa-solid fa-xmark"></i> Batal
+                </button>
             </div>
         </div>
     </div>

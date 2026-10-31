@@ -32,10 +32,10 @@
 
         <!-- Quick Control Buttons -->
         <div class="flex items-center gap-2">
-            <button type="button" onclick="refreshOntData()" class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-10 flex items-center gap-2" id="btn-refresh-ont">
+            <button type="button" onclick="refreshOntData()" class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-8.5 !px-3.5 text-xs font-semibold shadow-xs flex items-center gap-1.5" id="btn-refresh-ont">
                 <i class="fa-solid fa-rotate"></i> <span>Refresh Parameter</span>
             </button>
-            <button type="button" onclick="rebootOnt()" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !h-10 flex items-center gap-2" id="btn-reboot-ont">
+            <button type="button" onclick="rebootOnt()" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !h-8.5 !px-3.5 text-xs font-semibold shadow-xs flex items-center gap-1.5" id="btn-reboot-ont">
                 <i class="fa-solid fa-power-off"></i> <span>Reboot ONT</span>
             </button>
         </div>
@@ -233,7 +233,7 @@
                         </div>
 
                         <div class="pt-3 border-t border-slate-100 flex justify-end">
-                            <button type="submit" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 flex items-center gap-2 !px-6" id="btn-save-wifi-1">
+                            <button type="submit" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5" id="btn-save-wifi-1">
                                 <i class="fa-solid fa-floppy-disk"></i> Terapkan Wi-Fi 2.4 GHz
                             </button>
                         </div>
@@ -269,7 +269,7 @@
                             </div>
 
                             <div class="pt-3 border-t border-slate-100 flex justify-end">
-                                <button type="submit" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 flex items-center gap-2 !px-6" id="btn-save-wifi-5">
+                                <button type="submit" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5" id="btn-save-wifi-5">
                                     <i class="fa-solid fa-floppy-disk"></i> Terapkan Wi-Fi 5 GHz
                                 </button>
                             </div>
