@@ -219,11 +219,27 @@ class DashboardController extends Controller
             }
         }
 
-        // 8. Logika Khusus Teknisi
+        // 8. Logika Kasbon Khusus Sales
+        $totalKasbonSalesBulanIni = 0;
+        if ($user->jabatan === 'Sales') {
+            $totalKasbonSalesBulanIni = \App\Models\Kasbon::where('user_id', $user->id)
+                ->where('status', 'approved')
+                ->whereMonth('tanggal', Carbon::now()->month)
+                ->whereYear('tanggal', Carbon::now()->year)
+                ->sum('nominal');
+        }
+
+        // 9. Logika Khusus Teknisi
+        $totalKasbonTeknisiMingguIni = 0;
         if ($user->jabatan === 'Teknisi') {
-            // Periode Sabtu - Jumat (Untuk Aktivasi)
+            // Periode Sabtu - Jumat (Untuk Aktivasi & Kasbon)
             $startOfWeekSat = Carbon::now()->isSaturday() ? Carbon::now()->startOfDay() : Carbon::now()->previous(Carbon::SATURDAY)->startOfDay();
             $endOfWeekFri = $startOfWeekSat->copy()->addDays(6)->endOfDay();
+
+            $totalKasbonTeknisiMingguIni = \App\Models\Kasbon::where('user_id', $user->id)
+                ->where('status', 'approved')
+                ->whereBetween('tanggal', [$startOfWeekSat->format('Y-m-d'), $endOfWeekFri->format('Y-m-d')])
+                ->sum('nominal');
 
             // 1. Maintenance Selesai SAYA (Bulan Berjalan: 29 - 28)
             $maintenancesMonthly = Maintenance::where('status', 'Selesai')
@@ -314,7 +330,9 @@ class DashboardController extends Controller
             'mChartLabels',
             'mChartValues',
             'mDonutLabels',
-            'mDonutValues'
+            'mDonutValues',
+            'totalKasbonSalesBulanIni',
+            'totalKasbonTeknisiMingguIni'
         ));
     }
 }

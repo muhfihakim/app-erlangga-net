@@ -90,8 +90,8 @@ class FinanceController extends Controller
             $c->total_techs = $totalTechs;
         }
 
-        // Fetch Kasbon
-        $kasbonsQuery = \App\Models\Kasbon::with('teknisi');
+        // Fetch Kasbon (hanya yang sudah disetujui / approved)
+        $kasbonsQuery = \App\Models\Kasbon::with('teknisi')->where('status', 'approved');
         if ($teknisiId) {
             $kasbonsQuery->where('teknisi_id', $teknisiId);
         }
@@ -171,8 +171,8 @@ class FinanceController extends Controller
 
         $teknisi = $teknisiId ? User::find($teknisiId) : null;
 
-        // Fetch Kasbon for export
-        $kasbonsQuery = \App\Models\Kasbon::with('teknisi');
+        // Fetch Kasbon for export (hanya yang sudah disetujui / approved)
+        $kasbonsQuery = \App\Models\Kasbon::with('teknisi')->where('status', 'approved');
         if ($teknisiId) {
             $kasbonsQuery->where('teknisi_id', $teknisiId);
         }

@@ -114,7 +114,7 @@
                 <span class="cursor-pointer hover:text-slate-900 transition-colors"
                     onclick="toggleSidebarGroup('group-keuangan')">Billing & Keuangan</span>
                 <span class="sep">/</span>
-                <span class="current">Kasbon Teknisi</span>
+                <span class="current">Kasbon</span>
             @elseif(request()->routeIs('withdrawals.*') || request()->is('withdrawals*'))
                 <span class="cursor-pointer hover:text-slate-900 transition-colors"
                     onclick="toggleSidebarGroup('group-keuangan')">Billing & Keuangan</span>

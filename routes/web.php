@@ -126,9 +126,11 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/keuangan/teknisi', [FinanceController::class, 'index'])->name('finance.index');
     Route::get('/keuangan/teknisi/export', [FinanceController::class, 'export'])->name('finance.export');
 
-    // Kasbon Teknisi
+    // Modul Kasbon (Teknisi, Sales, Admin & Super Admin)
     Route::get('/keuangan/kasbon', [App\Http\Controllers\KasbonController::class, 'index'])->name('kasbons.index');
     Route::post('/kasbons', [App\Http\Controllers\KasbonController::class, 'store'])->name('kasbons.store');
+    Route::post('/kasbons/{id}/approve', [App\Http\Controllers\KasbonController::class, 'approve'])->name('kasbons.approve');
+    Route::post('/kasbons/{id}/reject', [App\Http\Controllers\KasbonController::class, 'reject'])->name('kasbons.reject');
     Route::delete('/kasbons/{id}', [App\Http\Controllers\KasbonController::class, 'destroy'])->name('kasbons.destroy');
 
     // Rute untuk FTTH - Manajemen ODP

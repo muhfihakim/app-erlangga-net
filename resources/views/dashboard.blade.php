@@ -65,6 +65,21 @@
                         <div class="stat-lbl">Pending (Periode Ini)</div>
                     </div>
                 </div>
+
+                @if (Auth::user()->jabatan === 'Sales')
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#fce7f3;color:#db2777;">
+                            <i class="fa-solid fa-hand-holding-dollar"></i>
+                        </div>
+                        <div>
+                            <div class="stat-val text-pink-600">Rp {{ number_format($totalKasbonSalesBulanIni ?? 0, 0, ',', '.') }}</div>
+                            <div class="stat-lbl">Kasbon Bulan Ini</div>
+                            <a href="{{ route('kasbons.index') }}" style="font-size: 10px; color: #db2777; margin-top: 4px; display: inline-block; font-weight: 700;">
+                                LIHAT KASBON &rarr;
+                            </a>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     @endif
@@ -98,6 +113,16 @@
                     <div class="stat-val">{{ $personalMaintenanceSelesaiBulanIni ?? 0 }}</div>
                     <div class="stat-lbl">Maintenance Selesai</div>
                     <p style="font-size: 10px; color: #94a3b8; margin-top: 4px; font-weight: 600;">BULAN INI</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fee2e2;color:#be123c;">
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                </div>
+                <div>
+                    <div class="stat-val text-rose-600">Rp {{ number_format($totalKasbonTeknisiMingguIni ?? 0, 0, ',', '.') }}</div>
+                    <div class="stat-lbl">Kasbon Minggu Ini</div>
+                    <p style="font-size: 10px; color: #94a3b8; margin-top: 4px; font-weight: 600;">SABTU - JUMAT</p>
                 </div>
             </div>
         </div>

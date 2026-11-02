@@ -114,25 +114,29 @@
                 </a>
             </div>
 
-            <div class="sidebar-section-label" style="margin-top:.75rem;">Keuangan</div>
-            <div class="mobile-menu-grid">
-                <a class="mobile-grid-item {{ Request::is('invoices*') ? 'active' : '' }}" href="{{ route('invoices.index') }}">
-                    <i class="fa-solid fa-file-invoice-dollar"></i>
-                    <span>Invoice Pelanggan</span>
-                </a>
-                <a class="mobile-grid-item {{ Request::is('transactions*') ? 'active' : '' }}" href="{{ route('transactions.index') }}">
-                    <i class="fa-solid fa-receipt"></i>
-                    <span>Log Transaksi</span>
-                </a>
-                <a class="mobile-grid-item {{ Request::is('keuangan/teknisi*') ? 'active' : '' }}" href="{{ route('finance.index') }}">
-                    <i class="fa-solid fa-wallet"></i>
-                    <span>Pendapatan Teknisi</span>
-                </a>
-                <a class="mobile-grid-item {{ Request::is('keuangan/kasbon*') ? 'active' : '' }}" href="{{ route('kasbons.index') }}">
-                    <i class="fa-solid fa-hand-holding-dollar"></i>
-                    <span>Kasbon Teknisi</span>
-                </a>
-            </div>
+            @if (auth()->check() && (auth()->user()->isAdmin() || auth()->user()->jabatan === 'Teknisi' || auth()->user()->jabatan === 'Sales'))
+                <div class="sidebar-section-label" style="margin-top:.75rem;">Keuangan</div>
+                <div class="mobile-menu-grid">
+                    @if (auth()->user()->isAdmin())
+                        <a class="mobile-grid-item {{ Request::is('invoices*') ? 'active' : '' }}" href="{{ route('invoices.index') }}">
+                            <i class="fa-solid fa-file-invoice-dollar"></i>
+                            <span>Invoice Pelanggan</span>
+                        </a>
+                        <a class="mobile-grid-item {{ Request::is('transactions*') ? 'active' : '' }}" href="{{ route('transactions.index') }}">
+                            <i class="fa-solid fa-receipt"></i>
+                            <span>Log Transaksi</span>
+                        </a>
+                        <a class="mobile-grid-item {{ Request::is('keuangan/teknisi*') ? 'active' : '' }}" href="{{ route('finance.index') }}">
+                            <i class="fa-solid fa-wallet"></i>
+                            <span>Pendapatan Teknisi</span>
+                        </a>
+                    @endif
+                    <a class="mobile-grid-item {{ Request::is('keuangan/kasbon*') ? 'active' : '' }}" href="{{ route('kasbons.index') }}">
+                        <i class="fa-solid fa-hand-holding-dollar"></i>
+                        <span>Kasbon</span>
+                    </a>
+                </div>
+            @endif
 
             <div class="sidebar-section-label" style="margin-top:.75rem;">Laporan</div>
             <div class="mobile-menu-grid">

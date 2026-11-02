@@ -1,110 +1,126 @@
 <x-layouts.app>
-    @section('Css')
+    @section('styles')
         <style>
             #kasbon-table td,
-            .admin-table td {
-                padding: 10px 14px;
-                font-size: 13px;
-                vertical-align: middle;
+            #kasbon-table th {
+                vertical-align: middle !important;
+                white-space: nowrap;
             }
 
-            #kasbon-table th,
-            .admin-table th {
-                padding: 11px 14px;
-                font-size: 12px;
-                font-weight: 700;
-                color: #64748b;
-                letter-spacing: 0.05em;
-                text-transform: uppercase !important;
-                vertical-align: middle;
-            }
-
-            .stats-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-                gap: 0.75rem;
-                margin-bottom: 1.25rem;
-            }
-
-            .stat-card {
-                background: #fff;
-                border-radius: 12px;
-                padding: 0.75rem 1rem;
-                border: 1px solid #e2e8f0;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-                display: flex;
+            .badge-status-pending {
+                display: inline-flex;
                 align-items: center;
-                gap: 12px;
-                min-height: 72px;
-                transition: all 0.2s;
-            }
-
-            .stat-card:hover {
-                border-color: #cbd5e1;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            }
-
-            .stat-icon {
-                width: 40px;
-                height: 40px;
-                min-width: 40px;
-                border-radius: 10px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 16px;
-                flex-shrink: 0;
-            }
-
-            .stat-val {
-                font-size: 17px;
-                font-weight: 800;
-                color: #0f172a;
-                line-height: 1.25;
-                display: flex;
-                align-items: baseline;
                 gap: 5px;
-                flex-wrap: wrap;
+                padding: 3px 8px;
+                border-radius: 9999px;
+                font-size: 11px;
+                font-weight: 700;
+                background-color: #fef3c7;
+                color: #b45309;
+                border: 1px solid #fde68a;
             }
 
-            .stat-lbl {
-                font-size: 12px;
+            .badge-status-approved {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                padding: 3px 8px;
+                border-radius: 9999px;
+                font-size: 11px;
+                font-weight: 700;
+                background-color: #dcfce7;
+                color: #15803d;
+                border: 1px solid #bbf7d0;
+            }
+
+            .badge-status-rejected {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                padding: 3px 8px;
+                border-radius: 9999px;
+                font-size: 11px;
+                font-weight: 700;
+                background-color: #fee2e2;
+                color: #b91c1c;
+                border: 1px solid #fecaca;
+            }
+
+            .badge-role-teknisi {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                padding: 2px 7px;
+                border-radius: 4px;
+                font-size: 10px;
+                font-weight: 700;
+                background-color: #f0f9ff;
+                color: #0369a1;
+                border: 1px solid #bae6fd;
+            }
+
+            .badge-role-sales {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                padding: 2px 7px;
+                border-radius: 4px;
+                font-size: 10px;
+                font-weight: 700;
+                background-color: #fdf2f8;
+                color: #be185d;
+                border: 1px solid #fbcfe8;
+            }
+
+            .badge-perf-tech {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                padding: 2px 7px;
+                border-radius: 4px;
+                font-size: 10px;
                 font-weight: 600;
-                color: #64748b;
-                margin-top: 2px;
+                background-color: #f0fdf4;
+                color: #166534;
+                border: 1px solid #dcfce7;
             }
 
-            .dataTables_wrapper {
-                position: relative;
-                min-height: 200px;
-                padding: 0;
-            }
-
-            .dataTables_filter {
-                display: none;
+            .badge-perf-sales {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                padding: 2px 7px;
+                border-radius: 4px;
+                font-size: 10px;
+                font-weight: 600;
+                background-color: #fffbeb;
+                color: #92400e;
+                border: 1px solid #fef3c7;
             }
 
             .dataTables_paginate {
-                display: flex;
+                display: flex !important;
+                align-items: center;
                 justify-content: flex-end;
-                padding: 1.25rem 1.5rem;
                 gap: 4px;
-                border-top: 1px solid #f1f5f9;
+                padding: 12px 16px !important;
             }
 
             .paginate_button {
-                width: 34px;
-                height: 34px;
-                border-radius: 8px;
-                border: 1.5px solid #e2e8f0;
-                background: #fff;
+                border: 1px solid #e2e8f0 !important;
+                background: #fff !important;
+                border-radius: 6px !important;
                 color: #64748b !important;
-                font-size: 13px;
-                font-weight: 600;
-                display: inline-flex;
+                font-size: 12px !important;
+                font-weight: 600 !important;
+                min-width: 32px;
+                height: 32px;
+                display: inline-flex !important;
                 align-items: center;
                 justify-content: center;
+                padding: 0 6px !important;
                 cursor: pointer;
+                transition: all 0.15s ease;
             }
 
             .paginate_button.current {
@@ -119,101 +135,261 @@
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
             <h1 style="font-size:22px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
-                Kasbon Teknisi
+                Kasbon
             </h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Pengelolaan dan pencatatan kasbon operasional teknisi.</p>
+            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">
+                @if ($isAdmin)
+                    Pengelolaan, persetujuan (ACC), dan pencatatan kasbon operasional teknisi dan sales.
+                @elseif ($isTeknisi)
+                    Riwayat kasbon dan pengajuan kasbon operasional teknisi (Siklus Sabtu - Jumat).
+                @elseif ($isSales)
+                    Riwayat kasbon dan pengajuan kasbon operasional sales (Siklus Bulanan).
+                @endif
+            </p>
         </div>
         <div style="display:flex; gap:10px;">
             <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-1.5 shadow-sm"
                 onclick="openCustomModal('kasbonModal')">
-                <i class="fa-solid fa-plus"></i> Tambah Kasbon
+                @if ($isAdmin)
+                    <i class="fa-solid fa-plus"></i> Catat Kasbon
+                @else
+                    <i class="fa-solid fa-paper-plane"></i> Ajukan Kasbon
+                @endif
             </button>
         </div>
     </div>
 
-    <!-- Overview Stats -->
+    <!-- Overview Stats Cards -->
     <div class="stats-grid mb-6">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#fee2e2;color:#be123c;">
-                <i class="fa-solid fa-hand-holding-dollar"></i>
+        @if ($isAdmin)
+            {{-- STATS ADMIN --}}
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#dcfce7;color:#15803d;">
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="stat-val text-emerald-600">Rp {{ number_format($stats['total_approved_nominal'] ?? 0, 0, ',', '.') }}</div>
+                    <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">Kasbon Disetujui</div>
+                    <div class="stat-lbl truncate">Periode Terpilih</div>
+                </div>
             </div>
-            <div class="min-w-0">
-                <div class="stat-val text-rose-600">Rp {{ number_format($totalKasbon, 0, ',', '.') }}</div>
-                <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">Siklus Aktif</div>
-                <div class="stat-lbl truncate">Kasbon Periode Ini</div>
-            </div>
-        </div>
 
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#ffedd5;color:#ea580c;">
-                <i class="fa-solid fa-clock-rotate-left"></i>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fef3c7;color:#b45309;">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="stat-val text-amber-600">{{ $stats['total_pending_count'] ?? 0 }} Pengajuan</div>
+                    <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                        Rp {{ number_format($stats['total_pending_nominal'] ?? 0, 0, ',', '.') }}
+                    </div>
+                    <div class="stat-lbl truncate">Menunggu ACC Admin</div>
+                </div>
             </div>
-            <div class="min-w-0">
-                <div class="stat-val text-orange-600">Rp {{ number_format($totalKasbonPrevious ?? 0, 0, ',', '.') }}</div>
-                <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">Siklus Sebelumnya</div>
-                <div class="stat-lbl truncate">Kasbon Periode Sebelumnya</div>
-            </div>
-        </div>
 
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#fce7f3;color:#db2777;">
-                <i class="fa-solid fa-calendar-days"></i>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#e0f2fe;color:#0369a1;">
+                    <i class="fa-solid fa-wrench"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="stat-val text-sky-600">Rp {{ number_format($stats['teknisi_kasbon_minggu_ini'] ?? 0, 0, ',', '.') }}</div>
+                    <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                        {{ $startOfWeekSat->format('d M') }} - {{ $endOfWeekFri->format('d M Y') }}
+                    </div>
+                    <div class="stat-lbl truncate">Kasbon Teknisi (Sabtu - Jumat)</div>
+                </div>
             </div>
-            <div class="min-w-0">
-                <div class="stat-val text-pink-600">Rp {{ number_format($totalKasbonThisMonth ?? 0, 0, ',', '.') }}</div>
-                <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">{{ \Carbon\Carbon::now()->translatedFormat('F Y') }}</div>
-                <div class="stat-lbl truncate">Total Kasbon Bulan Ini</div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fce7f3;color:#be185d;">
+                    <i class="fa-solid fa-briefcase"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="stat-val text-pink-600">Rp {{ number_format($stats['sales_kasbon_bulan_ini'] ?? 0, 0, ',', '.') }}</div>
+                    <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                        {{ \Carbon\Carbon::now()->translatedFormat('F Y') }}
+                    </div>
+                    <div class="stat-lbl truncate">Kasbon Sales (Bulan Ini)</div>
+                </div>
             </div>
-        </div>
+
+        @elseif ($isTeknisi)
+            {{-- STATS KHUSUS TEKNISI --}}
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fee2e2;color:#be123c;">
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="stat-val text-rose-600">Rp {{ number_format($stats['teknisi_kasbon_minggu_ini'] ?? 0, 0, ',', '.') }}</div>
+                    <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                        {{ $startOfWeekSat->format('d M') }} - {{ $endOfWeekFri->format('d M Y') }}
+                    </div>
+                    <div class="stat-lbl truncate">Kasbon Minggu Ini (Disetujui)</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#dcfce7;color:#15803d;">
+                    <i class="fa-solid fa-coins"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="stat-val text-emerald-600">Rp {{ number_format($stats['teknisi_pendapatan_minggu_ini'] ?? 0, 0, ',', '.') }}</div>
+                    <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">Fee Aktivasi Siklus Ini</div>
+                    <div class="stat-lbl truncate">Pendapatan Minggu Ini</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#f0f9ff;color:#0284c7;">
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="stat-val text-sky-600">Rp {{ number_format($stats['teknisi_sisa_estimasi'] ?? 0, 0, ',', '.') }}</div>
+                    <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">Pendapatan - Kasbon</div>
+                    <div class="stat-lbl truncate">Estimasi Penerimaan</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fef3c7;color:#b45309;">
+                    <i class="fa-solid fa-hourglass-half"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="stat-val text-amber-600">{{ $stats['my_pending_count'] ?? 0 }} Pengajuan</div>
+                    <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                        Rp {{ number_format($stats['my_pending_nominal'] ?? 0, 0, ',', '.') }}
+                    </div>
+                    <div class="stat-lbl truncate">Menunggu ACC Admin</div>
+                </div>
+            </div>
+
+        @elseif ($isSales)
+            {{-- STATS KHUSUS SALES --}}
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fce7f3;color:#be185d;">
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="stat-val text-pink-600">Rp {{ number_format($stats['sales_kasbon_bulan_ini'] ?? 0, 0, ',', '.') }}</div>
+                    <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                        {{ \Carbon\Carbon::now()->translatedFormat('F Y') }}
+                    </div>
+                    <div class="stat-lbl truncate">Kasbon Bulan Ini (Disetujui)</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#dcfce7;color:#15803d;">
+                    <i class="fa-solid fa-user-check"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="stat-val text-emerald-600">{{ $stats['sales_aktivasi_bulan_ini'] ?? 0 }} Pelanggan</div>
+                    <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">Closed PSB / Aktivasi</div>
+                    <div class="stat-lbl truncate">Aktivasi Bulan Ini</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fef3c7;color:#b45309;">
+                    <i class="fa-solid fa-hourglass-half"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="stat-val text-amber-600">{{ $stats['my_pending_count'] ?? 0 }} Pengajuan</div>
+                    <div class="text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                        Rp {{ number_format($stats['my_pending_nominal'] ?? 0, 0, ',', '.') }}
+                    </div>
+                    <div class="stat-lbl truncate">Menunggu ACC Admin</div>
+                </div>
+            </div>
+        @endif
     </div>
 
     <!-- Filter & Search Toolbar -->
     <div class="table-toolbar">
         <form method="GET" action="{{ route('kasbons.index') }}" class="w-full">
-            <div class="filter-group">
-                <!-- Filter Teknisi -->
-                <div style="flex: 1; min-width: 180px;">
-                    <label class="form-label-custom">Teknisi</label>
-                    <select name="teknisi_id" class="form-input-custom !h-[38px] text-xs w-full">
-                        <option value="">-- Semua Teknisi --</option>
-                        @foreach ($teknisis as $t)
-                            <option value="{{ $t->id }}" {{ $teknisiId == $t->id ? 'selected' : '' }}>
-                                {{ $t->nama_lengkap }}
-                            </option>
-                        @endforeach
+            <div class="filter-group flex-wrap">
+                @if ($isAdmin)
+                    <!-- Filter Karyawan / Pemohon -->
+                    <div style="flex: 1.5; min-width: 200px;">
+                        <label class="form-label-custom">Pemohon Kasbon</label>
+                        <select name="user_id" class="form-input-custom !h-[38px] text-xs w-full">
+                            <option value="">-- Semua Pemohon --</option>
+                            <optgroup label="Teknisi">
+                                @foreach ($teknisis as $t)
+                                    <option value="{{ $t->id }}" {{ $userId == $t->id ? 'selected' : '' }}>
+                                        {{ $t->nama_lengkap }} (Teknisi)
+                                    </option>
+                                @endforeach
+                            </optgroup>
+                            <optgroup label="Sales">
+                                @foreach ($allSales as $s)
+                                    <option value="{{ $s->id }}" {{ $userId == $s->id ? 'selected' : '' }}>
+                                        {{ $s->nama_lengkap }} (Sales)
+                                    </option>
+                                @endforeach
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <!-- Filter Role -->
+                    <div style="width: 130px;">
+                        <label class="form-label-custom">Role</label>
+                        <select name="role" class="form-input-custom !h-[38px] text-xs w-full">
+                            <option value="">Semua Role</option>
+                            <option value="Teknisi" {{ $roleFilter === 'Teknisi' ? 'selected' : '' }}>Teknisi</option>
+                            <option value="Sales" {{ $roleFilter === 'Sales' ? 'selected' : '' }}>Sales</option>
+                        </select>
+                    </div>
+                @endif
+
+                <!-- Filter Status -->
+                <div style="width: 140px;">
+                    <label class="form-label-custom">Status ACC</label>
+                    <select name="status" class="form-input-custom !h-[38px] text-xs w-full">
+                        <option value="">Semua Status</option>
+                        <option value="pending" {{ $statusFilter === 'pending' ? 'selected' : '' }}>Menunggu ACC</option>
+                        <option value="approved" {{ $statusFilter === 'approved' ? 'selected' : '' }}>Disetujui</option>
+                        <option value="rejected" {{ $statusFilter === 'rejected' ? 'selected' : '' }}>Ditolak</option>
                     </select>
                 </div>
 
                 <!-- Periode Mulai -->
-                <div style="width: 150px;">
+                <div style="width: 145px;">
                     <label class="form-label-custom">Dari Tanggal</label>
                     <input type="date" name="start_date" class="form-input-custom !h-[38px] text-xs w-full"
                         value="{{ $start }}">
                 </div>
 
                 <!-- Periode Selesai -->
-                <div style="width: 150px;">
+                <div style="width: 145px;">
                     <label class="form-label-custom">Sampai Tanggal</label>
                     <input type="date" name="end_date" class="form-input-custom !h-[38px] text-xs w-full"
                         value="{{ $end }}">
                 </div>
 
                 <!-- Live Search -->
-                <div style="flex: 1.5; min-width: 200px;">
+                <div style="flex: 1.5; min-width: 180px;">
                     <label class="form-label-custom">Pencarian</label>
                     <div class="search-wrap !max-w-full">
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
                         <input type="search" class="search-input !h-[38px] text-xs" id="custom-search"
-                            placeholder="Cari kasbon..." autocomplete="off" />
+                            placeholder="Cari pemohon, keterangan..." autocomplete="off" />
                     </div>
                 </div>
 
                 <!-- Action Filter -->
-                <div class="flex items-end">
+                <div class="flex items-end gap-2">
                     <button type="submit"
                         class="btn-primary-admin !h-[38px] !px-4 text-xs font-semibold flex items-center gap-1.5 shadow-sm">
                         <i class="fa-solid fa-filter"></i> Filter
                     </button>
+                    @if ($isFiltered || $statusFilter || ($isAdmin && ($userId || $roleFilter)))
+                        <a href="{{ route('kasbons.index') }}"
+                            class="topbar-icon-btn !w-[38px] !h-[38px] !rounded-lg hover:!bg-slate-100 flex items-center justify-center text-slate-500"
+                            title="Reset Filter">
+                            <i class="fa-solid fa-rotate-left text-xs"></i>
+                        </a>
+                    @endif
                 </div>
             </div>
         </form>
@@ -225,51 +401,130 @@
             <table id="kasbon-table" class="admin-table">
                 <thead>
                     <tr>
-                        <th style="width: 50px; text-align: center;">#</th>
-                        <th style="width: 120px; text-align: center;">Tanggal</th>
-                        <th style="width: 220px; text-align: left;">Teknisi</th>
+                        <th style="width: 45px; text-align: center;">#</th>
+                        <th style="width: 110px; text-align: center;">Tanggal</th>
+                        <th style="min-width: 240px; text-align: left;">Pemohon & Performa</th>
+                        <th style="width: 150px; text-align: right; padding-right: 20px;">Nominal</th>
+                        <th style="width: 140px; text-align: center;">Status ACC</th>
                         <th style="text-align: left;">Keterangan</th>
-                        <th style="width: 170px; text-align: right; padding-right: 24px;">Nominal</th>
-                        <th style="width: 70px; text-align: center;">Bukti</th>
-                        <th style="width: 70px; text-align: center;">Opsi</th>
+                        <th style="width: 60px; text-align: center;">Bukti</th>
+                        <th style="width: 100px; text-align: center;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($kasbons as $k)
+                        @php
+                            $applicant = $k->user;
+                            $role = $applicant ? $applicant->jabatan : 'Teknisi';
+                        @endphp
                         <tr>
                             <td style="text-align: center; color: #94a3b8; font-weight: 700;">{{ $loop->iteration }}</td>
                             <td style="text-align: center; color: #64748b; font-weight: 600;">
                                 {{ \Carbon\Carbon::parse($k->tanggal)->format('d/m/Y') }}
                             </td>
                             <td style="text-align: left;">
-                                <div class="font-bold text-slate-800 text-[13px]">{{ $k->teknisi->nama_lengkap ?? 'Unknown' }}</div>
-                                <div class="text-[11px] text-slate-400 font-medium">Teknisi</div>
+                                <div class="font-bold text-slate-800 text-[13px]">{{ $applicant->nama_lengkap ?? 'Unknown' }}</div>
+                                <div class="flex items-center gap-1.5 mt-1 flex-wrap">
+                                    @if ($role === 'Teknisi')
+                                        <span class="badge-role-teknisi">
+                                            <i class="fa-solid fa-wrench"></i> Teknisi
+                                        </span>
+                                        <span class="badge-perf-tech" title="Total Pendapatan Aktivasi Siklus Minggu Ini (Sabtu - Jumat)">
+                                            <i class="fa-solid fa-coins"></i> Pendapatan Mgg Ini: Rp {{ number_format($k->performa_teknisi_pendapatan ?? 0, 0, ',', '.') }}
+                                        </span>
+                                    @elseif ($role === 'Sales')
+                                        <span class="badge-role-sales">
+                                            <i class="fa-solid fa-briefcase"></i> Sales
+                                        </span>
+                                        <span class="badge-perf-sales" title="Total Aktivasi Pelanggan Bulan Ini">
+                                            <i class="fa-solid fa-user-check"></i> {{ $k->performa_sales_aktivasi ?? 0 }} Aktivasi (Bulan Ini)
+                                        </span>
+                                    @else
+                                        <span class="text-[11px] text-slate-400 font-medium">{{ $role }}</span>
+                                    @endif
+                                </div>
                             </td>
-                            <td style="text-align: left; color: #475569;">
-                                {{ $k->keterangan ?: '-' }}
-                            </td>
-                            <td style="text-align: right; padding-right: 24px;">
+                            <td style="text-align: right; padding-right: 20px;">
                                 <span class="font-bold text-rose-600 text-[13px]">
                                     Rp {{ number_format($k->nominal, 0, ',', '.') }}
                                 </span>
                             </td>
                             <td style="text-align: center;">
+                                @if ($k->status === 'pending')
+                                    <span class="badge-status-pending">
+                                        <i class="fa-solid fa-clock"></i> Menunggu ACC
+                                    </span>
+                                @elseif ($k->status === 'approved')
+                                    <span class="badge-status-approved" title="Disetujui oleh: {{ $k->approver->nama_lengkap ?? 'Admin' }}">
+                                        <i class="fa-solid fa-check"></i> Disetujui
+                                    </span>
+                                @elseif ($k->status === 'rejected')
+                                    <span class="badge-status-rejected" title="{{ $k->catatan_admin ?? 'Ditolak' }}">
+                                        <i class="fa-solid fa-xmark"></i> Ditolak
+                                    </span>
+                                @endif
+                            </td>
+                            <td style="text-align: left; color: #475569; max-width: 260px; white-space: normal;">
+                                <div class="text-xs leading-relaxed">{{ $k->keterangan ?: '-' }}</div>
+                                @if ($k->catatan_admin)
+                                    <div class="text-[11px] text-slate-400 italic mt-0.5">
+                                        <i class="fa-solid fa-comment-dots text-slate-400 mr-1"></i>{{ $k->catatan_admin }}
+                                    </div>
+                                @endif
+                            </td>
+                            <td style="text-align: center;">
                                 @if ($k->bukti)
                                     <a href="{{ Storage::url($k->bukti) }}" target="_blank"
                                         class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-sky-300 hover:!bg-sky-50 inline-flex items-center justify-center"
-                                        title="Lihat Lampiran Bukti">
-                                        <i class="fa-solid fa-paperclip text-slate-500 hover:text-sky-600"></i>
+                                        title="Lihat Lampiran Bukti / Nota">
+                                        <i class="fa-solid fa-paperclip text-slate-500 hover:text-sky-600 text-xs"></i>
                                     </a>
                                 @else
                                     <span class="text-slate-300 text-xs font-medium">-</span>
                                 @endif
                             </td>
                             <td style="text-align: center;">
-                                <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50"
-                                    title="Hapus"
-                                    onclick="confirmGlobalDelete('{{ route('kasbons.destroy', $k->id) }}', 'Kasbon {{ addslashes($k->teknisi->nama_lengkap ?? '') }} (Rp {{ number_format($k->nominal, 0, ',', '.') }})')">
-                                    <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600 text-xs"></i>
-                                </button>
+                                <div class="flex items-center justify-center gap-1">
+                                    @if ($isAdmin)
+                                        {{-- AKSI ADMIN --}}
+                                        @if ($k->status === 'pending')
+                                            <!-- Tombol ACC -->
+                                            <button type="button"
+                                                class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-emerald-300 hover:!bg-emerald-50 text-emerald-600"
+                                                title="Setujui (ACC) Kasbon"
+                                                onclick="openAccModal({{ $k->id }}, '{{ addslashes($applicant->nama_lengkap ?? '') }}', '{{ number_format($k->nominal, 0, ',', '.') }}', '{{ $role }}', '{{ $role === 'Teknisi' ? 'Pendapatan: Rp ' . number_format($k->performa_teknisi_pendapatan ?? 0, 0, ',', '.') : 'Aktivasi: ' . ($k->performa_sales_aktivasi ?? 0) . ' Pelanggan' }}')">
+                                                <i class="fa-solid fa-check text-xs"></i>
+                                            </button>
+
+                                            <!-- Tombol Tolak -->
+                                            <button type="button"
+                                                class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-amber-300 hover:!bg-amber-50 text-amber-600"
+                                                title="Tolak Pengajuan Kasbon"
+                                                onclick="openRejectModal({{ $k->id }}, '{{ addslashes($applicant->nama_lengkap ?? '') }}', '{{ number_format($k->nominal, 0, ',', '.') }}')">
+                                                <i class="fa-solid fa-xmark text-xs"></i>
+                                            </button>
+                                        @endif
+
+                                        <!-- Tombol Hapus -->
+                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 text-rose-500"
+                                            title="Hapus Kasbon"
+                                            onclick="confirmGlobalDelete('{{ route('kasbons.destroy', $k->id) }}', 'Kasbon {{ addslashes($applicant->nama_lengkap ?? '') }} (Rp {{ number_format($k->nominal, 0, ',', '.') }})')">
+                                            <i class="fa-solid fa-trash text-xs"></i>
+                                        </button>
+
+                                    @else
+                                        {{-- AKSI TEKNISI / SALES --}}
+                                        @if ($k->status === 'pending')
+                                            <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 text-rose-500"
+                                                title="Batalkan Pengajuan"
+                                                onclick="confirmGlobalDelete('{{ route('kasbons.destroy', $k->id) }}', 'Pengajuan kasbon Rp {{ number_format($k->nominal, 0, ',', '.') }}')">
+                                                <i class="fa-solid fa-ban text-xs"></i>
+                                            </button>
+                                        @else
+                                            <span class="text-slate-300 text-xs font-semibold">-</span>
+                                        @endif
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @endforeach
@@ -278,7 +533,7 @@
         </div>
     </div>
 
-    <!-- Modal Tambah Kasbon -->
+    <!-- MODAL 1: CATAT / AJUKAN KASBON -->
     <div class="modal-overlay" id="kasbonModal">
         <div class="modal-box max-w-lg bg-white border border-slate-300 shadow-2xl">
             <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
@@ -287,8 +542,12 @@
                         <i class="fa-solid fa-hand-holding-dollar"></i>
                     </div>
                     <div>
-                        <h3 class="text-base font-bold text-slate-900 m-0">Tambah Kasbon Teknisi</h3>
-                        <p class="text-xs text-slate-500 m-0 mt-0.5">Catat pinjaman atau kasbon operasional teknisi.</p>
+                        <h3 class="text-base font-bold text-slate-900 m-0">
+                            {{ $isAdmin ? 'Catat Kasbon Karyawan' : 'Form Pengajuan Kasbon' }}
+                        </h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">
+                            {{ $isAdmin ? 'Catat kasbon operasional untuk Teknisi atau Sales (langsung disetujui).' : 'Ajukan kasbon ke Admin/Superadmin untuk persetujuan (ACC).' }}
+                        </p>
                     </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('kasbonModal')">
@@ -298,40 +557,70 @@
             <form action="{{ route('kasbons.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body bg-white p-6">
-                    <div class="form-group mb-3.5">
-                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Teknisi <span class="text-rose-500">*</span></label>
-                        <select name="teknisi_id" class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300 text-xs" required>
-                            <option value="">-- Pilih Teknisi --</option>
-                            @foreach ($teknisis as $t)
-                                <option value="{{ $t->id }}">{{ $t->nama_lengkap }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                    @if ($isAdmin)
+                        <div class="form-group mb-3.5">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
+                                Pemohon / Penerima Kasbon <span class="text-rose-500">*</span>
+                            </label>
+                            <select name="user_id" class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300 text-xs" required>
+                                <option value="">-- Pilih Karyawan (Teknisi / Sales) --</option>
+                                <optgroup label="Teknisi">
+                                    @foreach ($teknisis as $t)
+                                        <option value="{{ $t->id }}">{{ $t->nama_lengkap }} (Teknisi)</option>
+                                    @endforeach
+                                </optgroup>
+                                <optgroup label="Sales">
+                                    @foreach ($allSales as $s)
+                                        <option value="{{ $s->id }}">{{ $s->nama_lengkap }} (Sales)</option>
+                                    @endforeach
+                                </optgroup>
+                            </select>
+                        </div>
+                    @else
+                        <!-- Tampilan Pemohon untuk Teknisi / Sales -->
+                        <div class="form-group mb-3.5">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Nama Pemohon</label>
+                            <div class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 flex items-center justify-between">
+                                <span>{{ $user->nama_lengkap }}</span>
+                                <span class="{{ $isTeknisi ? 'badge-role-teknisi' : 'badge-role-sales' }}">
+                                    {{ $user->jabatan }}
+                                </span>
+                            </div>
+                        </div>
+                    @endif
 
                     <div class="form-grid-2 mb-3.5">
                         <div class="form-group !mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Nominal (Rp) <span class="text-rose-500">*</span></label>
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
+                                Nominal Kasbon (Rp) <span class="text-rose-500">*</span>
+                            </label>
                             <input type="number" name="nominal" class="form-input !font-normal bg-white text-slate-800 border-slate-300 text-xs" required
-                                placeholder="Contoh: 50000" min="0" step="1000">
+                                placeholder="Contoh: 150000" min="1000" step="1000">
                         </div>
                         <div class="form-group !mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Tanggal <span class="text-rose-500">*</span></label>
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
+                                Tanggal <span class="text-rose-500">*</span>
+                            </label>
                             <input type="date" name="tanggal" class="form-input !font-normal bg-white text-slate-800 border-slate-300 text-xs" required
                                 value="{{ date('Y-m-d') }}">
                         </div>
                     </div>
 
                     <div class="form-group mb-3.5">
-                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Bukti Pembayaran / Nota (Opsional)</label>
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
+                            Bukti / Nota Pembayaran (Opsional)
+                        </label>
                         <input type="file" name="bukti" class="form-input !font-normal bg-white text-slate-700 border-slate-300 text-xs py-1.5"
                             accept="image/jpeg,image/png,application/pdf" capture="environment">
                         <span class="text-[11px] text-slate-400 mt-1 block">Format: JPG, PNG, atau PDF (Maks. 5MB)</span>
                     </div>
 
                     <div class="form-group mb-0">
-                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Keterangan (Opsional)</label>
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
+                            Keterangan / Keperluan Kasbon
+                        </label>
                         <textarea name="keterangan" class="form-textarea !font-normal bg-white text-slate-800 border-slate-300 text-xs" rows="2"
-                            placeholder="Catatan atau alasan kasbon..."></textarea>
+                            placeholder="Alasan atau catatan kasbon operasional..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2.5">
@@ -340,12 +629,114 @@
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
                     <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
-                        <i class="fa-solid fa-floppy-disk"></i> Simpan
+                        <i class="fa-solid {{ $isAdmin ? 'fa-floppy-disk' : 'fa-paper-plane' }}"></i>
+                        {{ $isAdmin ? 'Simpan Kasbon' : 'Kirim Pengajuan' }}
                     </button>
                 </div>
             </form>
         </div>
     </div>
+
+    @if ($isAdmin)
+        <!-- MODAL 2: ACC / SETUJUI KASBON -->
+        <div class="modal-overlay" id="accModal">
+            <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
+                <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm border border-emerald-200 shrink-0">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900 m-0">Setujui (ACC) Kasbon</h3>
+                            <p class="text-xs text-slate-500 m-0 mt-0.5">Konfirmasi persetujuan pengajuan kasbon.</p>
+                        </div>
+                    </div>
+                    <button type="button" class="modal-close" onclick="closeCustomModal('accModal')">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <form id="accForm" method="POST">
+                    @csrf
+                    <div class="modal-body bg-white p-6">
+                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg mb-4">
+                            <div class="text-xs text-slate-500 mb-1">Pemohon:</div>
+                            <div class="text-sm font-bold text-slate-900" id="accApplicantName">-</div>
+                            <div class="text-xs font-semibold text-emerald-600 mt-1" id="accApplicantPerf">-</div>
+                            <div class="mt-2 pt-2 border-t border-slate-200 flex items-center justify-between">
+                                <span class="text-xs text-slate-500 font-medium">Nominal Kasbon:</span>
+                                <span class="text-sm font-black text-rose-600" id="accNominal">Rp 0</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Catatan Persetujuan (Opsional)</label>
+                            <input type="text" name="catatan_admin" class="form-input !font-normal bg-white text-slate-800 border-slate-300 text-xs"
+                                placeholder="Contoh: Disetujui, dana ditransfer via BCA">
+                        </div>
+                    </div>
+                    <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2.5">
+                        <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
+                            onclick="closeCustomModal('accModal')">
+                            <i class="fa-solid fa-xmark"></i> Batal
+                        </button>
+                        <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-emerald-600 hover:!bg-emerald-700">
+                            <i class="fa-solid fa-check"></i> Setujui (ACC)
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- MODAL 3: TOLAK KASBON -->
+        <div class="modal-overlay" id="rejectModal">
+            <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
+                <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-sm border border-rose-200 shrink-0">
+                            <i class="fa-solid fa-xmark"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900 m-0">Tolak Pengajuan Kasbon</h3>
+                            <p class="text-xs text-slate-500 m-0 mt-0.5">Berikan alasan penolakan kasbon pemohon.</p>
+                        </div>
+                    </div>
+                    <button type="button" class="modal-close" onclick="closeCustomModal('rejectModal')">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <form id="rejectForm" method="POST">
+                    @csrf
+                    <div class="modal-body bg-white p-6">
+                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg mb-4">
+                            <div class="text-xs text-slate-500 mb-1">Pemohon:</div>
+                            <div class="text-sm font-bold text-slate-900" id="rejectApplicantName">-</div>
+                            <div class="mt-2 pt-2 border-t border-slate-200 flex items-center justify-between">
+                                <span class="text-xs text-slate-500 font-medium">Nominal Kasbon:</span>
+                                <span class="text-sm font-black text-rose-600" id="rejectNominal">Rp 0</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
+                                Alasan Penolakan <span class="text-rose-500">*</span>
+                            </label>
+                            <textarea name="catatan_admin" class="form-textarea !font-normal bg-white text-slate-800 border-slate-300 text-xs" rows="2" required
+                                placeholder="Contoh: Melebihi plafon kasbon / Aktivasi belum mencukupi..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2.5">
+                        <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
+                            onclick="closeCustomModal('rejectModal')">
+                            <i class="fa-solid fa-xmark"></i> Batal
+                        </button>
+                        <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-rose-600 hover:!bg-rose-700">
+                            <i class="fa-solid fa-ban"></i> Tolak Pengajuan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
 
     @section('Scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -372,6 +763,23 @@
                     kasbonTable.search(this.value).draw();
                 });
             });
+
+            @if ($isAdmin)
+                function openAccModal(id, name, nominal, role, perf) {
+                    $('#accForm').attr('action', '/kasbons/' + id + '/approve');
+                    $('#accApplicantName').text(name + ' (' + role + ')');
+                    $('#accApplicantPerf').text(perf);
+                    $('#accNominal').text('Rp ' + nominal);
+                    openCustomModal('accModal');
+                }
+
+                function openRejectModal(id, name, nominal) {
+                    $('#rejectForm').attr('action', '/kasbons/' + id + '/reject');
+                    $('#rejectApplicantName').text(name);
+                    $('#rejectNominal').text('Rp ' + nominal);
+                    openCustomModal('rejectModal');
+                }
+            @endif
         </script>
     @endsection
 </x-layouts.app>

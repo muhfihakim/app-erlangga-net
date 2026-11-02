@@ -137,7 +137,7 @@
         @endif
 
         <!-- 5. BILLING & KEUANGAN (Accordion) -->
-        @if ($isAdmin)
+        @if ($isAdmin || $isTeknisi || $isSales)
             <div class="sidebar-group">
                 <button type="button" class="sidebar-group-btn {{ $isFinActive ? 'active open' : '' }}"
                     data-group-target="group-keuangan" onclick="toggleSidebarGroup('group-keuangan')">
@@ -148,25 +148,27 @@
                     <i class="fa-solid fa-chevron-down sidebar-group-arrow"></i>
                 </button>
                 <div class="sidebar-group-content {{ $isFinActive ? 'open' : '' }}" id="group-keuangan">
-                    <a class="sidebar-sublink {{ Request::is('invoices*') ? 'active' : '' }}"
-                        href="{{ route('invoices.index') }}">
-                        <i class="fa-solid fa-circle-dot"></i>
-                        <span>Invoice Tagihan</span>
-                    </a>
-                    <a class="sidebar-sublink {{ Request::is('transactions*') ? 'active' : '' }}"
-                        href="{{ route('transactions.index') }}">
-                        <i class="fa-solid fa-circle-dot"></i>
-                        <span>Riwayat Transaksi</span>
-                    </a>
-                    <a class="sidebar-sublink {{ Request::is('keuangan/teknisi*') ? 'active' : '' }}"
-                        href="{{ route('finance.index') }}">
-                        <i class="fa-solid fa-circle-dot"></i>
-                        <span>Pendapatan Teknisi</span>
-                    </a>
+                    @if ($isAdmin)
+                        <a class="sidebar-sublink {{ Request::is('invoices*') ? 'active' : '' }}"
+                            href="{{ route('invoices.index') }}">
+                            <i class="fa-solid fa-circle-dot"></i>
+                            <span>Invoice Tagihan</span>
+                        </a>
+                        <a class="sidebar-sublink {{ Request::is('transactions*') ? 'active' : '' }}"
+                            href="{{ route('transactions.index') }}">
+                            <i class="fa-solid fa-circle-dot"></i>
+                            <span>Riwayat Transaksi</span>
+                        </a>
+                        <a class="sidebar-sublink {{ Request::is('keuangan/teknisi*') ? 'active' : '' }}"
+                            href="{{ route('finance.index') }}">
+                            <i class="fa-solid fa-circle-dot"></i>
+                            <span>Pendapatan Teknisi</span>
+                        </a>
+                    @endif
                     <a class="sidebar-sublink {{ Request::is('keuangan/kasbon*') ? 'active' : '' }}"
                         href="{{ route('kasbons.index') }}">
                         <i class="fa-solid fa-circle-dot"></i>
-                        <span>Kasbon Teknisi</span>
+                        <span>Kasbon</span>
                     </a>
                     @if ($isSuperAdmin)
                         <a class="sidebar-sublink {{ Request::is('withdrawals*') ? 'active' : '' }}"
