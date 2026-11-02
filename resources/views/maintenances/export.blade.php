@@ -90,7 +90,7 @@
 
 <body>
     <div class="header">
-        <h2>Laporan Aktivasi Pelanggan</h2>
+        <h2>Laporan Pemeliharaan Pelanggan</h2>
         <p>ERLANGGA NETWORK | www.erlangga.net</p>
         <p>office@erlangga.net</p>
         <p>0851 1742 4407</p>

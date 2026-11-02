@@ -111,7 +111,7 @@
                 </div>
                 <div>
                     <div class="stat-val">{{ $personalMaintenanceSelesaiBulanIni ?? 0 }}</div>
-                    <div class="stat-lbl">Maintenance Selesai</div>
+                    <div class="stat-lbl">Pemeliharaan Selesai</div>
                     <p style="font-size: 10px; color: #94a3b8; margin-top: 4px; font-weight: 600;">BULAN INI</p>
                 </div>
             </div>
@@ -179,7 +179,7 @@
         <div style="margin-top: 1.5rem;">
             <div
                 style="display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; border-left: 4px solid #10b981; padding-left: 12px;">
-                <h3 style="font-size: 16px; font-weight: 800; color: #0f172a; margin: 0;">Pengerjaan Maintenance
+                <h3 style="font-size: 16px; font-weight: 800; color: #0f172a; margin: 0;">Pengerjaan Pemeliharaan
                     (Periode Berjalan)</h3>
             </div>
             <div class="stats-grid">
@@ -301,7 +301,7 @@
                 <div class="table-card p-6" style="margin-bottom: 0;">
                     <h4
                         style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
-                        <i class="fa-solid fa-chart-line text-primary"></i> Tren Maintenance (Bulan Ini)
+                        <i class="fa-solid fa-chart-line text-primary"></i> Tren Pemeliharaan (Bulan Ini)
                     </h4>
                     <div style="height: 300px; position: relative;">
                         <canvas id="maintenanceChart"></canvas>
@@ -312,7 +312,7 @@
                 <div class="table-card p-6" style="margin-bottom: 0;">
                     <h4
                         style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
-                        <i class="fa-solid fa-trophy text-amber-500"></i> Top Teknisi Maintenance (Bulan Ini)
+                        <i class="fa-solid fa-trophy text-amber-500"></i> Top Teknisi Pemeliharaan (Bulan Ini)
                     </h4>
                     <div
                         style="height: 300px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;">
@@ -701,7 +701,7 @@
                         data: {
                             labels: {!! json_encode($mChartLabels) !!},
                             datasets: [{
-                                label: 'Total Maintenance',
+                                label: 'Total Pemeliharaan',
                                 data: {!! json_encode($mChartValues) !!},
                                 backgroundColor: 'rgba(14, 165, 233, 0.15)',
                                 borderColor: '#0ea5e9',

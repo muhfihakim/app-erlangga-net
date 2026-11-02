@@ -201,11 +201,11 @@ class MaintenanceController extends Controller
         ActivityLog::create([
             'user_id' => auth()->id(),
             'activity_type' => 'penugasan_maintenance',
-            'description' => "Menugaskan maintenance pelanggan: " . $maintenance->customer->nama_lengkap,
+            'description' => "Menugaskan pemeliharaan pelanggan: " . $maintenance->customer->nama_lengkap,
             'logged_at' => now()
         ]);
 
-        return redirect()->back()->with('success', 'Tugas maintenance berhasil dikirim.');
+        return redirect()->back()->with('success', 'Tugas pemeliharaan berhasil dikirim.');
     }
 
     public function destroy($id)
@@ -221,7 +221,7 @@ class MaintenanceController extends Controller
             if ($m->foto_selfie_teknisi) Storage::disk('s3')->delete($m->foto_selfie_teknisi);
 
             $m->delete();
-            return redirect()->back()->with('success', 'Tugas maintenance berhasil dihapus.');
+            return redirect()->back()->with('success', 'Tugas pemeliharaan berhasil dihapus.');
         }
         abort(403);
     }
@@ -269,7 +269,7 @@ class MaintenanceController extends Controller
         ActivityLog::create([
             'user_id' => auth()->id(),
             'activity_type' => 'maintenance_complete',
-            'description' => "Menyelesaikan maintenance pelanggan: " . $customer->nama_lengkap . ($request->kategori_kendala === 'ONT' ? " (Pergantian ONT)" : ""),
+            'description' => "Menyelesaikan pemeliharaan pelanggan: " . $customer->nama_lengkap . ($request->kategori_kendala === 'ONT' ? " (Pergantian ONT)" : ""),
             'logged_at' => now()
         ]);
 

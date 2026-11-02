@@ -388,7 +388,7 @@
                     <div class="form-group mb-0">
                         <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Tujuan / Keterangan <span class="text-rose-500">*</span></label>
                         <textarea name="description" class="form-textarea !font-normal bg-white text-slate-800 border-slate-300 text-xs" rows="2"
-                            placeholder="Contoh: Pengadaan, Pasang Baru, Maintenance, dll" required></textarea>
+                            placeholder="Contoh: Pengadaan, Pasang Baru, Pemeliharaan, dll" required></textarea>
                     </div>
                 </div>
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2 rounded-b-2xl">
