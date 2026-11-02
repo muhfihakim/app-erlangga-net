@@ -38,6 +38,9 @@ Route::post('/magic-login', [AuthController::class, 'magicLogin']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth.custom'])->group(function () {
+    // Changelogs & Version Milestones (All Roles)
+    Route::get('/changelogs', [\App\Http\Controllers\ChangelogController::class, 'index'])->name('changelogs.index');
+
     // Routes accessible by Admin and Teknisi
     Route::get('/pppoe', [PppoeController::class, 'index'])->name('pppoe.index');
 

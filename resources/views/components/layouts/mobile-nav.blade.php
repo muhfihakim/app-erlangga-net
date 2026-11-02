@@ -184,6 +184,10 @@
                     <i class="fa-solid fa-sliders"></i>
                     <span>Pengaturan Sistem</span>
                 </a>
+                <a class="mobile-grid-item {{ Request::is('changelogs*') ? 'active' : '' }}" href="{{ route('changelogs.index') }}">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>Riwayat Versi</span>
+                </a>
                 <a class="mobile-grid-item" href="#" style="color:#f87171;" onclick="localStorage.removeItem('app_token'); document.getElementById('logout-form').submit(); return false;">
                     <i class="fa-solid fa-arrow-right-from-bracket" style="color:#f87171;"></i>
                     <span>Keluar</span>
@@ -192,6 +196,10 @@
         @else
             <div class="sidebar-section-label" style="margin-top:.75rem;">Pengaturan</div>
             <div class="mobile-menu-grid">
+                <a class="mobile-grid-item {{ Request::is('changelogs*') ? 'active' : '' }}" href="{{ route('changelogs.index') }}">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>Riwayat Versi</span>
+                </a>
                 <a class="mobile-grid-item" href="#" style="color:#f87171;" onclick="localStorage.removeItem('app_token'); document.getElementById('logout-form').submit(); return false;">
                     <i class="fa-solid fa-arrow-right-from-bracket" style="color:#f87171;"></i>
                     <span>Keluar</span>

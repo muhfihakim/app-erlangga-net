@@ -179,6 +179,11 @@
                     onclick="toggleSidebarGroup('group-sistem')">Sistem & Pengaturan</span>
                 <span class="sep">/</span>
                 <span class="current">Pengaturan Sistem</span>
+            @elseif(request()->routeIs('changelogs.*') || request()->is('changelogs*'))
+                <span class="cursor-pointer hover:text-slate-900 transition-colors"
+                    onclick="toggleSidebarGroup('group-sistem')">Sistem & Pengaturan</span>
+                <span class="sep">/</span>
+                <span class="current">Riwayat Versi (Milestone)</span>
 
                 {{-- Fallback --}}
             @else

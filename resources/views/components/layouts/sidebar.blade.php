@@ -25,7 +25,8 @@
         Request::is('tracking*') ||
         Request::is('activity-log*') ||
         Request::is('migration*') ||
-        Request::is('settings*');
+        Request::is('settings*') ||
+        Request::is('changelogs*');
 @endphp
 
 <!-- Sidebar -->
@@ -210,17 +211,17 @@
         @endif
 
         <!-- 7. MANAJEMEN & PENGATURAN (Accordion) -->
-        @if ($isAdmin)
-            <div class="sidebar-group">
-                <button type="button" class="sidebar-group-btn {{ $isSysActive ? 'active open' : '' }}"
-                    data-group-target="group-sistem" onclick="toggleSidebarGroup('group-sistem')">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <i class="fa-solid fa-gear" style="width: 18px; text-align: center;"></i>
-                        <span>Sistem & Pengaturan</span>
-                    </div>
-                    <i class="fa-solid fa-chevron-down sidebar-group-arrow"></i>
-                </button>
-                <div class="sidebar-group-content {{ $isSysActive ? 'open' : '' }}" id="group-sistem">
+        <div class="sidebar-group">
+            <button type="button" class="sidebar-group-btn {{ $isSysActive ? 'active open' : '' }}"
+                data-group-target="group-sistem" onclick="toggleSidebarGroup('group-sistem')">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-gear" style="width: 18px; text-align: center;"></i>
+                    <span>Sistem & Pengaturan</span>
+                </div>
+                <i class="fa-solid fa-chevron-down sidebar-group-arrow"></i>
+            </button>
+            <div class="sidebar-group-content {{ $isSysActive ? 'open' : '' }}" id="group-sistem">
+                @if ($isAdmin)
                     <a class="sidebar-sublink {{ Request::is('pakets*') ? 'active' : '' }}"
                         href="{{ route('pakets.index') }}">
                         <i class="fa-solid fa-circle-dot"></i>
@@ -256,9 +257,14 @@
                         <i class="fa-solid fa-circle-dot"></i>
                         <span>Pengaturan Sistem</span>
                     </a>
-                </div>
+                @endif
+                <a class="sidebar-sublink {{ Request::is('changelogs*') ? 'active' : '' }}"
+                    href="{{ route('changelogs.index') }}">
+                    <i class="fa-solid fa-circle-dot"></i>
+                    <span>Riwayat Versi (Milestone)</span>
+                </a>
             </div>
-        @endif
+        </div>
 
         <!-- 8. LOGOUT -->
         <form action="{{ route('logout') }}" method="POST" id="logout-form" class="hidden">@csrf</form>
