@@ -100,6 +100,30 @@
     </div>
 
     <script>
+        function toggleDesktopSidebar() {
+            const isCollapsed = document.documentElement.classList.toggle('sidebar-collapsed');
+            localStorage.setItem('sidebar_collapsed', isCollapsed ? 'true' : 'false');
+            
+            document.querySelectorAll('.sidebar-toggle-icon').forEach(icon => {
+                if (isCollapsed) {
+                    icon.classList.remove('fa-bars-staggered');
+                    icon.classList.add('fa-bars');
+                } else {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-bars-staggered');
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (document.documentElement.classList.contains('sidebar-collapsed')) {
+                document.querySelectorAll('.sidebar-toggle-icon').forEach(icon => {
+                    icon.classList.remove('fa-bars-staggered');
+                    icon.classList.add('fa-bars');
+                });
+            }
+        });
+
         function toggleSidebar() {
             const sb = document.getElementById('sidebar');
             const ov = document.getElementById('sidebar-overlay');

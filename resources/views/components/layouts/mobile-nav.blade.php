@@ -15,7 +15,7 @@
     </a>
     
     @if ($isAdmin)
-        {{-- ROLE: ADMIN / SUPER ADMIN / WEB DEVELOPER --}}
+        {{-- ROLE: ADMIN / SUPER ADMIN --}}
         <a href="{{ route('customers.active_list') }}" class="mobile-nav-item {{ Request::is('customers*') ? 'active' : '' }}">
             <i class="fa-solid fa-users"></i>
             <span>Pelanggan</span>

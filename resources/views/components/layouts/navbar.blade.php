@@ -4,6 +4,12 @@
         <button class="mobile-menu-btn" onclick="toggleSidebar()">
             <i class="fa-solid fa-bars"></i>
         </button>
+        <button type="button" class="topbar-icon-btn hidden lg:inline-flex items-center justify-center !w-8 !h-8 !rounded-lg"
+            onclick="toggleDesktopSidebar()" 
+            title="Perkecil / Perbesar Sidebar (Collapse / Expand)"
+            id="sidebar-toggle-btn">
+            <i class="fa-solid fa-bars-staggered text-slate-600 text-xs sidebar-toggle-icon" id="sidebar-toggle-icon"></i>
+        </button>
         <div class="topbar-breadcrumb">
             <a href="{{ route('dashboards.index') }}"
                 class="text-slate-400 hover:text-sky-600 transition-colors flex items-center" title="Dashboard">

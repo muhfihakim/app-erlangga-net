@@ -57,7 +57,6 @@
                             <option value="">Pilih Jabatan</option>
                             <option value="Super Admin">Super Admin</option>
                             <option value="Administrator">Administrator</option>
-                            <option value="Web Developer">Web Developer</option>
                             <option value="Sales">Sales</option>
                             <option value="Teknisi">Teknisi</option>
                         </select>
@@ -139,7 +138,6 @@
                         <select class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300 text-xs" id="edit_jabatan" name="jabatan" required>
                             <option value="Super Admin">Super Admin</option>
                             <option value="Administrator">Administrator</option>
-                            <option value="Web Developer">Web Developer</option>
                             <option value="Sales">Sales</option>
                             <option value="Teknisi">Teknisi</option>
                         </select>

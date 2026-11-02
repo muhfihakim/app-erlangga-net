@@ -358,7 +358,7 @@ class PreOrderController extends Controller
 
     public function unspek(Request $request, PreOrder $preOrder)
     {
-        if (!in_array(auth()->user()->jabatan, ['Administrator', 'Teknisi', 'Web Developer'])) {
+        if (!in_array(auth()->user()->jabatan, ['Super Admin', 'Administrator', 'Teknisi'])) {
             abort(403, 'Akses ditolak.');
         }
 

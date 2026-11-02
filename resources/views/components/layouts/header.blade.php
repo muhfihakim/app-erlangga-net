@@ -3,6 +3,13 @@
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     
+    <script>
+        // Apply persisted sidebar collapsed state before DOM render to prevent layout jump
+        if (localStorage.getItem('sidebar_collapsed') === 'true' && window.innerWidth > 1024) {
+            document.documentElement.classList.add('sidebar-collapsed');
+        }
+    </script>
+
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>

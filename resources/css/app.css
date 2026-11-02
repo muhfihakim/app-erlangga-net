@@ -57,7 +57,7 @@
         display: flex; flex-direction: column;
         position: fixed; top: 0; left: 0; bottom: 0;
         z-index: 100;
-        transition: transform .3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: width .25s cubic-bezier(0.4, 0, 0.2, 1), transform .3s cubic-bezier(0.4, 0, 0.2, 1);
         overflow-y: auto;
     }
     .sidebar::-webkit-scrollbar { width: 4px; }
@@ -213,6 +213,7 @@
         display: flex; 
         flex-direction: column;
         min-width: 0;
+        transition: margin-left .25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     /* ── Top bar ── */
@@ -683,6 +684,110 @@
     font-size: 18px; color: #374151; padding: 4px; margin-right: 8px;
 }
 @media (max-width: 1024px) { .mobile-menu-btn { display: flex; align-items: center; } }
+
+/* =====================================================================
+   COLLAPSED DESKTOP SIDEBAR
+   ===================================================================== */
+@media (min-width: 1025px) {
+    html.sidebar-collapsed .sidebar {
+        width: 72px !important;
+        overflow-x: hidden;
+    }
+
+    html.sidebar-collapsed .main-content {
+        margin-left: 72px !important;
+    }
+
+    html.sidebar-collapsed .page-skeleton-overlay {
+        left: 72px !important;
+    }
+
+    /* Logo handling */
+    html.sidebar-collapsed .sidebar-logo {
+        padding: 0.85rem 0.25rem !important;
+        justify-content: center !important;
+    }
+    html.sidebar-collapsed .sidebar-logo-link {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+    html.sidebar-collapsed .sidebar-logo-img {
+        height: 32px !important;
+        max-width: 38px !important;
+    }
+    html.sidebar-collapsed .sidebar-collapse-btn {
+        display: none !important;
+    }
+
+    /* Hide section labels */
+    html.sidebar-collapsed .sidebar-section-label {
+        display: none !important;
+    }
+
+    /* Standard links: icon only, centered */
+    html.sidebar-collapsed .sidebar-link {
+        width: 44px !important;
+        height: 44px !important;
+        margin: 6px auto !important;
+        padding: 0 !important;
+        justify-content: center !important;
+        border-radius: 10px !important;
+    }
+    html.sidebar-collapsed .sidebar-link span,
+    html.sidebar-collapsed .sidebar-link .sidebar-badge {
+        display: none !important;
+    }
+    html.sidebar-collapsed .sidebar-link i {
+        font-size: 16px !important;
+        width: auto !important;
+        margin: 0 !important;
+    }
+
+    /* Accordion groups: icon only */
+    html.sidebar-collapsed .sidebar-group {
+        margin-bottom: 4px !important;
+    }
+    html.sidebar-collapsed .sidebar-group-btn {
+        width: 44px !important;
+        height: 44px !important;
+        margin: 6px auto !important;
+        padding: 0 !important;
+        justify-content: center !important;
+        border-radius: 10px !important;
+    }
+    html.sidebar-collapsed .sidebar-group-btn > div {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        gap: 0 !important;
+    }
+    html.sidebar-collapsed .sidebar-group-btn span,
+    html.sidebar-collapsed .sidebar-group-btn .sidebar-group-arrow {
+        display: none !important;
+    }
+    html.sidebar-collapsed .sidebar-group-btn i:first-child,
+    html.sidebar-collapsed .sidebar-group-btn > div i {
+        font-size: 16px !important;
+        width: auto !important;
+        margin: 0 !important;
+    }
+    html.sidebar-collapsed .sidebar-group-content {
+        display: none !important;
+    }
+
+    /* Footer / user info: avatar only */
+    html.sidebar-collapsed .sidebar-footer {
+        padding: 0.75rem 0.25rem !important;
+    }
+    html.sidebar-collapsed .sidebar-user {
+        justify-content: center !important;
+    }
+    html.sidebar-collapsed .sidebar-user-name,
+    html.sidebar-collapsed .sidebar-user-role {
+        display: none !important;
+    }
+}
 
 /* =====================================================================
    GLOBAL SKELETON LOADER

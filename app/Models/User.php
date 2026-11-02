@@ -66,7 +66,7 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return in_array($this->jabatan, ['Super Admin', 'Administrator', 'Web Developer']);
+        return in_array($this->jabatan, ['Super Admin', 'Administrator']);
     }
 
     public function withdrawals()

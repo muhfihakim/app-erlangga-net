@@ -31,16 +31,24 @@
 
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
-    <!-- Logo -->
-    <div class="sidebar-logo" style="display: flex; justify-content: center; align-items: center; padding: 1rem 0rem;">
-        <img src="{{ asset('dist/assets/img/logo.png') }}" alt="Erlangga Net Logo"
-            style="height: 58px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));">
+    <!-- Logo & Desktop Toggle -->
+    <div class="sidebar-logo" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1rem;">
+        <a href="{{ route('dashboards.index') }}" class="sidebar-logo-link" style="display: flex; align-items: center; justify-content: center; overflow: hidden; text-decoration: none;">
+            <img src="{{ asset('dist/assets/img/logo.png') }}" alt="Erlangga Net Logo" class="sidebar-logo-img"
+                style="height: 48px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15)); transition: all 0.25s ease;">
+        </a>
+        <button type="button" class="sidebar-collapse-btn hidden lg:flex items-center justify-center" 
+            onclick="toggleDesktopSidebar()" 
+            title="Sembunyikan / Tampilkan Sidebar"
+            style="width: 28px; height: 28px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; cursor: pointer; transition: all 0.2s; flex-shrink: 0;">
+            <i class="fa-solid fa-angles-left text-xs"></i>
+        </button>
     </div>
 
     <!-- Navigation -->
     <nav style="padding-top: 0.85rem; padding-bottom: 1.5rem; flex: 1;">
         <!-- 1. DASHBOARD (Overview) -->
-        <a class="sidebar-link {{ Request::is('dashboard') ? 'active' : '' }}" href="{{ route('dashboards.index') }}">
+        <a class="sidebar-link {{ Request::is('dashboard') ? 'active' : '' }}" href="{{ route('dashboards.index') }}" title="Overview">
             <i class="fa-solid fa-gauge"></i>
             <span>Overview</span>
         </a>
@@ -49,7 +57,7 @@
         @if ($isAdmin || $isTeknisi)
             <div class="sidebar-group">
                 <button type="button" class="sidebar-group-btn {{ $isNetActive ? 'active open' : '' }}"
-                    data-group-target="group-jaringan" onclick="toggleSidebarGroup('group-jaringan')">
+                    data-group-target="group-jaringan" onclick="toggleSidebarGroup('group-jaringan')" title="Jaringan & Router">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <i class="fa-solid fa-network-wired" style="width: 18px; text-align: center;"></i>
                         <span>Jaringan & Router</span>
@@ -93,7 +101,7 @@
         <!-- 3. LAYANAN PELANGGAN (Accordion) -->
         <div class="sidebar-group">
             <button type="button" class="sidebar-group-btn {{ $isCustActive ? 'active open' : '' }}"
-                data-group-target="group-pelanggan" onclick="toggleSidebarGroup('group-pelanggan')">
+                data-group-target="group-pelanggan" onclick="toggleSidebarGroup('group-pelanggan')" title="Layanan Pelanggan">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <i class="fa-solid fa-users" style="width: 18px; text-align: center;"></i>
                     <span>Layanan Pelanggan</span>
@@ -130,7 +138,7 @@
 
         <!-- 4. GUDANG & ASET (Single Link) -->
         @if ($isAdmin)
-            <a class="sidebar-link {{ Request::is('assets*') ? 'active' : '' }}" href="{{ route('assets.index') }}">
+            <a class="sidebar-link {{ Request::is('assets*') ? 'active' : '' }}" href="{{ route('assets.index') }}" title="Pengelolaan Aset">
                 <i class="fa-solid fa-boxes-stacked"></i>
                 <span>Pengelolaan Aset</span>
             </a>
@@ -140,7 +148,7 @@
         @if ($isAdmin || $isTeknisi || $isSales)
             <div class="sidebar-group">
                 <button type="button" class="sidebar-group-btn {{ $isFinActive ? 'active open' : '' }}"
-                    data-group-target="group-keuangan" onclick="toggleSidebarGroup('group-keuangan')">
+                    data-group-target="group-keuangan" onclick="toggleSidebarGroup('group-keuangan')" title="Billing & Keuangan">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <i class="fa-solid fa-file-invoice-dollar" style="width: 18px; text-align: center;"></i>
                         <span>Billing & Keuangan</span>
@@ -185,7 +193,7 @@
         @if ($isAdmin)
             <div class="sidebar-group">
                 <button type="button" class="sidebar-group-btn {{ $isReportActive ? 'active open' : '' }}"
-                    data-group-target="group-laporan" onclick="toggleSidebarGroup('group-laporan')">
+                    data-group-target="group-laporan" onclick="toggleSidebarGroup('group-laporan')" title="Laporan Sistem">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <i class="fa-solid fa-chart-pie" style="width: 18px; text-align: center;"></i>
                         <span>Laporan Sistem</span>
@@ -215,7 +223,7 @@
         <!-- 7. MANAJEMEN & PENGATURAN (Accordion) -->
         <div class="sidebar-group">
             <button type="button" class="sidebar-group-btn {{ $isSysActive ? 'active open' : '' }}"
-                data-group-target="group-sistem" onclick="toggleSidebarGroup('group-sistem')">
+                data-group-target="group-sistem" onclick="toggleSidebarGroup('group-sistem')" title="Sistem & Pengaturan">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <i class="fa-solid fa-gear" style="width: 18px; text-align: center;"></i>
                     <span>Sistem & Pengaturan</span>
@@ -270,7 +278,7 @@
 
         <!-- 8. LOGOUT -->
         <form action="{{ route('logout') }}" method="POST" id="logout-form" class="hidden">@csrf</form>
-        <a class="sidebar-link" href="#" style="color: #f87171; margin-top: 0.5rem;"
+        <a class="sidebar-link" href="#" style="color: #f87171; margin-top: 0.5rem;" title="Keluar"
             onclick="localStorage.removeItem('app_token'); document.getElementById('logout-form').submit(); return false;">
             <i class="fa-solid fa-arrow-right-from-bracket" style="color: #f87171;"></i>
             <span>Keluar</span>
@@ -280,7 +288,7 @@
     <!-- Footer -->
     <div class="sidebar-footer">
         <div class="sidebar-user">
-            <div class="sidebar-user-avatar">
+            <div class="sidebar-user-avatar" title="{{ auth()->user()->nama_lengkap ?? 'Pengguna' }} ({{ auth()->user()->jabatan ?? 'Jabatan' }})">
                 {{ strtoupper(substr(auth()->user()->nama_lengkap ?? 'U', 0, 1)) }}
             </div>
             <div class="min-w-0">
@@ -293,6 +301,22 @@
 
 <script>
     function toggleSidebarGroup(groupId) {
+        if (document.documentElement.classList.contains('sidebar-collapsed')) {
+            if (typeof toggleDesktopSidebar === 'function') {
+                toggleDesktopSidebar();
+            }
+            setTimeout(() => {
+                const content = document.getElementById(groupId);
+                const btn = document.querySelector(`[data-group-target="${groupId}"]`);
+                if (content && btn) {
+                    content.classList.add('open');
+                    btn.classList.add('active');
+                    btn.classList.add('open');
+                }
+            }, 100);
+            return;
+        }
+
         const content = document.getElementById(groupId);
         const btn = document.querySelector(`[data-group-target="${groupId}"]`);
         if (!content || !btn) return;
