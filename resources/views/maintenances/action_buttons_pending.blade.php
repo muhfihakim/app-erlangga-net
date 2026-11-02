@@ -12,11 +12,12 @@
         <i class="fa-solid fa-circle-info text-slate-500"></i>
     </button>
     @if(auth()->user()->jabatan === 'Teknisi' || auth()->user()->isAdmin())
-        <button type="button" class="btn-primary-admin !h-8 !px-3 !text-xs font-semibold"
+        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
+            title="Selesaikan Pemeliharaan"
             onclick="openCompleteModal(this)" data-id="{{ $m->id }}"
             data-nama="{{ $m->customer->nama_lengkap }}"
             data-sn="{{ $m->customer->sn_perangkat }}">
-            Selesaikan
+            <i class="fa-solid fa-circle-check text-emerald-600"></i>
         </button>
     @endif
 </div>

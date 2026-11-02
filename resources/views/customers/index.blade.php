@@ -203,7 +203,7 @@
                             <th style="text-align: center; width: 150px;">Sales</th>
                             <th style="text-align: center;">Nama Pelanggan</th>
                             <th style="text-align: center;">Paket</th>
-                            <th style="text-align: center; width: 150px;">Opsi</th>
+                            <th style="text-align: center; width: 110px;">Opsi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -245,8 +245,8 @@
                                 </td>
                                 <td style="text-align: center;">
                                     <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
-                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
-                                            title="Detail" onclick="openActivationDetailModal(this)"
+                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
+                                            title="Detail Informasi" onclick="openActivationDetailModal(this)"
                                             data-nama="{{ $po->nama_lengkap }}"
                                             data-email="{{ $po->alamat_email ?? '-' }}"
                                             data-wa="{{ $po->no_whatsapp }}" data-alamat="{{ $po->alamat_lengkap }}"
@@ -257,7 +257,7 @@
                                             data-pppoe-password="{{ $po->pppoe ? $po->pppoe->password : '' }}"
                                             data-pppoe-ip="{{ $po->pppoe ? ($po->pppoe->ip_address ?? '') : '' }}"
                                             data-tgl="{{ \Carbon\Carbon::parse($po->created_at)->format('d/m/Y') }}">
-                                            <i class="fa-solid fa-circle-info text-primary"></i>
+                                            <i class="fa-solid fa-circle-info text-slate-500"></i>
                                         </button>
                                         @if ($po->is_unspek)
                                             @if ($po->is_unspek_approved)
@@ -266,12 +266,13 @@
                                                 <span class="badge" style="background:#fef3c7;color:#b45309;">UNSPEK (PENDING)</span>
                                             @endif
                                         @else
-                                            <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
-                                                title="Unspek" onclick="openUnspekModal('{{ $po->id }}', '{{ $po->nama_lengkap }}')">
-                                                <i class="fa-solid fa-ban text-amber-500"></i>
+                                            <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
+                                                title="Tangguhkan (Unspek)" onclick="openUnspekModal('{{ $po->id }}', '{{ $po->nama_lengkap }}')">
+                                                <i class="fa-solid fa-ban text-amber-600"></i>
                                             </button>
                                             <button type="button"
-                                                class="btn-primary-admin !h-9 !px-3 !text-[11px] activate-btn !flex !items-center !justify-center gap-1"
+                                                class="topbar-icon-btn !w-8 !h-8 !rounded-lg activate-btn"
+                                                title="Ambil & Aktivasi"
                                                 onclick="openActivationModal(this)" data-po-id="{{ $po->id }}"
                                                 data-po-sales-id="{{ $po->id_sales }}"
                                                 data-po-nama="{{ $po->nama_lengkap }}"
@@ -279,7 +280,7 @@
                                                 data-po-pppoe-username="{{ $po->pppoe ? $po->pppoe->username : '' }}"
                                                 data-po-pppoe-password="{{ $po->pppoe ? $po->pppoe->password : '' }}"
                                                 data-po-pppoe-ip="{{ $po->pppoe ? ($po->pppoe->ip_address ?? '') : '' }}">
-                                                Ambil & Aktivasi
+                                                <i class="fa-solid fa-bolt text-sky-600"></i>
                                             </button>
                                         @endif
                                     </div>

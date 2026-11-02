@@ -167,7 +167,7 @@
                         <th style="text-align: left; min-width: 180px;">Kendala Lapangan</th>
                         <th style="text-align: center; width: 90px;">Koordinat</th>
                         <th style="text-align: center; width: 120px;">Status</th>
-                        <th style="text-align: center; width: 190px;">Opsi</th>
+                        <th style="text-align: center; width: 130px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -277,7 +277,7 @@
                                         data-foto-ktp="{{ $po->foto_ktp ? Storage::url($po->foto_ktp) : '' }}"
                                         data-foto-rumah="{{ $po->foto_rumah ? Storage::url($po->foto_rumah) : '' }}"
                                         title="Detail Informasi">
-                                        <i class="fa-solid fa-eye text-slate-600"></i>
+                                        <i class="fa-solid fa-circle-info text-slate-500"></i>
                                     </button>
 
                                     {{-- Delete Button --}}

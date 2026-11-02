@@ -173,7 +173,7 @@
                             <th style="text-align: center; width: 45px;">#</th>
                             <th style="text-align: left; min-width: 220px;">Pelanggan</th>
                             <th style="text-align: left; min-width: 200px;">Kendala</th>
-                            <th style="text-align: center; width: 150px;">Opsi</th>
+                            <th style="text-align: center; width: 90px;">Opsi</th>
                         </tr>
                     </thead>
                     <tbody style="border-top: none;">

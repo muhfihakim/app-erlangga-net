@@ -128,7 +128,7 @@
                         <th style="text-align: left; min-width: 150px; width: 160px;">Sales</th>
                         <th style="text-align: left; min-width: 240px;">Nama Pelanggan</th>
                         <th style="text-align: center; width: 130px;">Paket</th>
-                        <th style="text-align: center; width: 340px; min-width: 320px;">Status / Opsi</th>
+                        <th style="text-align: center; width: 220px;">Status / Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
