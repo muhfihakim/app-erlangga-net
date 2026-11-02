@@ -1,0 +1,505 @@
+{
+	"info": {
+		"_postman_id": "8e3c12a4-b01f-4cb1-93da-189fec0e3861",
+		"name": "Erlangga Net - Mobile Pelanggan API",
+		"description": "Koleksi Postman API Mobile Pelanggan (Android & iOS) Erlangga Net untuk environment Staging.\n\n### Cara Pakai:\n1. Jalankan request **1.1 Login Pelanggan**.\n2. Token akan otomatis tersimpan ke variabel `{{token}}`.\n3. Request lainnya sudah terkonfigurasi otomatis menggunakan Bearer Token tersebut.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://stage.erlangga.net/api",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Autentikasi",
+			"item": [
+				{
+					"name": "1.1 Login Pelanggan",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.token) {",
+									"        pm.collectionVariables.set(\"token\", jsonData.token);",
+									"        console.log(\"Token berhasil disimpan ke variabel: \" + jsonData.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id_pelanggan\": \"23114957687\",\n  \"password\": \"123\",\n  \"device_name\": \"Postman Test Client\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login"
+							]
+						},
+						"description": "Login menggunakan ID Pelanggan atau Username PPPoE dan Password PPPoE. Token otomatis disimpan ke variabel {{token}}."
+					},
+					"response": []
+				},
+				{
+					"name": "1.2 Profil Sesi Aktif (/me)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/me",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"me"
+							]
+						},
+						"description": "Mengecek apakah sesi token masih aktif dan mengambil ringkasan akun pelanggan saat ini."
+					},
+					"response": []
+				},
+				{
+					"name": "1.3 Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"logout"
+							]
+						},
+						"description": "Menghapus token akses sesi aktif dari server."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Pembayaran & Tagihan",
+			"item": [
+				{
+					"name": "2.1 Ringkasan Status Tagihan",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/payments/status",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"status"
+							]
+						},
+						"description": "Melihat status layanan (aktif/isolir), sisa hari jatuh tempo, dan tagihan tertunggak aktif."
+					},
+					"response": []
+				},
+				{
+					"name": "2.2 Riwayat & Daftar Faktur",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/payments/invoices?status=unpaid",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"invoices"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "unpaid",
+									"description": "Filter: unpaid, paid, expired, failed (opsional)"
+								}
+							]
+						},
+						"description": "Daftar seluruh invoice pelanggan."
+					},
+					"response": []
+				},
+				{
+					"name": "2.3 Detail Faktur Tertentu",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/payments/invoices/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"invoices",
+								"1"
+							]
+						},
+						"description": "Detail rincian faktur tertentu berdasarkan ID faktur."
+					},
+					"response": []
+				},
+				{
+					"name": "2.4 Melakukan Pembayaran (Xendit URL)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"invoice_id\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/payments/pay",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"pay"
+							]
+						},
+						"description": "Membuat sesi payment gateway Xendit dan mengembalikan URL checkout (VA/QRIS/E-Wallet)."
+					},
+					"response": []
+				},
+				{
+					"name": "2.5 Cek Status Pembayaran Real-Time",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/payments/invoices/1/check-status",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"invoices",
+								"1",
+								"check-status"
+							]
+						},
+						"description": "Sinkronisasi status lunas secara real-time dari Xendit paska pelanggan selesai membayar di WebView."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Akun & Pemakaian",
+			"item": [
+				{
+					"name": "3.1 Informasi Akun & Layanan",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/account/info",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"account",
+								"info"
+							]
+						},
+						"description": "Informasi profil, rincian paket berlangganan, IP address, dan parameter teknis."
+					},
+					"response": []
+				},
+				{
+					"name": "3.2 Informasi Penggunaan & Kuota",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/account/usage",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"account",
+								"usage"
+							]
+						},
+						"description": "Status koneksi online/offline, uptime perangkat, total kuota pemakaian download/upload, serta log sesi."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Kontrol Perangkat (TR-069 ACS)",
+			"item": [
+				{
+					"name": "4.1 Status ONT, Sinyal Optik & Wi-Fi",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/device/wifi",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"device",
+								"wifi"
+							]
+						},
+						"description": "Status modem ONT pelanggan, redaman optik (RX Power dBm), suhu, serta nama & kata sandi Wi-Fi saat ini."
+					},
+					"response": []
+				},
+				{
+					"name": "4.2 Daftar Perangkat Terhubung (Hosts)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/device/hosts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"device",
+								"hosts"
+							]
+						},
+						"description": "Melihat daftar gadget (HP, Laptop, Smart TV) yang sedang terhubung ke router Wi-Fi ONT pelanggan."
+					},
+					"response": []
+				},
+				{
+					"name": "4.3 Ganti Nama SSID & Password Wi-Fi",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ssid\": \"ERLANGGA-WIFI-BARU\",\n  \"password\": \"sandiBaruMinimal8\",\n  \"wlan_index\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/device/wifi",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"device",
+								"wifi"
+							]
+						},
+						"description": "Mengirimkan konfigurasi SSID & Sandi baru ke modem ONT pelanggan via TR-069 GenieACS."
+					},
+					"response": []
+				},
+				{
+					"name": "4.4 Reboot ONT Jarak Jauh",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/device/reboot",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"device",
+								"reboot"
+							]
+						},
+						"description": "Mengirim perintah restart / reboot modem ONT jarak jauh via TR-069."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
