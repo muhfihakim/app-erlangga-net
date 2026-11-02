@@ -178,7 +178,8 @@ class PppoeController extends Controller
 
             $callerHtml = '<span style="color: #64748b; font-size: 11px; font-family: monospace;">' . htmlspecialchars($callerId, ENT_QUOTES) . '</span>';
 
-            $opsiHtml = '<button type="button" class="btn-primary-admin !h-8 !px-2.5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5 !bg-sky-600 hover:!bg-sky-700" title="Detail Koneksi & Remote ONT" onclick="showDetail(this)" ' .
+            $opsiHtml = '<div class="flex items-center justify-center">' .
+                '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Detail Informasi" onclick="showDetail(this)" ' .
                 'data-name="' . htmlspecialchars($name, ENT_QUOTES) . '" ' .
                 'data-sales="' . htmlspecialchars($salesName, ENT_QUOTES) . '" ' .
                 'data-address="' . htmlspecialchars($address, ENT_QUOTES) . '" ' .
@@ -188,7 +189,8 @@ class PppoeController extends Controller
                 'data-bin="' . $bytesIn . '" ' .
                 'data-bout="' . $bytesOut . '" ' .
                 'data-isolir="' . ($isIsolir ? '1' : '0') . '">' .
-                '<i class="fa-solid fa-eye text-xs"></i> <span>Detail</span></button>';
+                '<i class="fa-solid fa-circle-info text-slate-500"></i></button>' .
+                '</div>';
 
             $rows[] = [
                 'DT_RowIndex' => $start + $index + 1,

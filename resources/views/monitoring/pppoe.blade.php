@@ -156,7 +156,7 @@
                         <th style="text-align: center; width: 120px;">Uptime</th>
                         <th style="text-align: center; width: 150px;">Remote Address</th>
                         <th style="text-align: center; width: 170px;">Caller ID (MAC)</th>
-                        <th style="text-align: center; width: 110px; min-width: 100px;">Opsi</th>
+                        <th style="text-align: center; width: 70px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -387,7 +387,7 @@
             function showDetail(target) {
                 let name, sales, addr, uptime, caller, service, bin, bout, isIsolir;
                 if (target instanceof HTMLElement || (target && target.nodeType)) {
-                    const $el = $(target);
+                    const $el = $(target).closest('button').length ? $(target).closest('button') : $(target);
                     name = $el.data('name') || '-';
                     sales = $el.data('sales') || '-';
                     addr = $el.data('address') || '-';
