@@ -241,7 +241,7 @@
                         <th style="text-align: center;">Tgl Dibuat</th>
                         <th style="text-align: center;">Jatuh Tempo</th>
                         <th style="text-align: center;">Status</th>
-                        <th style="text-align: center; width: 360px; min-width: 360px;">Opsi</th>
+                        <th style="text-align: center; width: 150px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -298,9 +298,9 @@
                             <td class="text-center" style="white-space: nowrap;">
                                 <div class="flex items-center justify-center gap-1.5 flex-nowrap">
                                     <a href="{{ route('invoices.print', $invoice->id) }}" target="_blank"
-                                        class="btn-primary-admin !h-8 !px-2.5 !text-xs !rounded-lg !bg-sky-600 hover:!bg-sky-700 inline-flex items-center justify-center gap-1.5 font-semibold shrink-0 shadow-sm"
-                                        title="Unduh PDF Faktur">
-                                        <i class="fa-solid fa-file-pdf"></i> PDF
+                                        class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-sky-300 hover:!bg-sky-50"
+                                        title="Unduh & Cetak PDF Faktur">
+                                        <i class="fa-solid fa-file-pdf text-slate-500 hover:text-sky-600"></i>
                                     </a>
                                     @if ($invoice->status == 'unpaid')
                                         <form action="{{ route('invoices.pay_xendit', $invoice->id) }}" method="POST"
@@ -308,28 +308,28 @@
                                             onsubmit="openXenditModal(event, this)">
                                             @csrf
                                             <button type="submit"
-                                                class="btn-primary-admin !h-8 !px-2.5 !text-xs !rounded-lg !bg-indigo-600 hover:!bg-indigo-700 inline-flex items-center justify-center gap-1.5 font-semibold shrink-0 shadow-sm"
-                                                title="Bayar via Xendit">
-                                                <i class="fa-solid fa-credit-card"></i> Xendit
+                                                class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-indigo-300 hover:!bg-indigo-50"
+                                                title="Bayar via Xendit Online">
+                                                <i class="fa-solid fa-credit-card text-indigo-600"></i>
                                             </button>
                                         </form>
                                         @if ($invoice->xendit_invoice_url)
                                             <button type="button"
-                                                class="btn-primary-admin !h-8 !px-2.5 !text-xs !rounded-lg !bg-amber-500 hover:!bg-amber-600 inline-flex items-center justify-center gap-1.5 font-semibold shrink-0 shadow-sm"
+                                                class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-amber-300 hover:!bg-amber-50"
                                                 onclick="syncXendit({{ $invoice->id }}, this)"
                                                 title="Cek Status Xendit">
-                                                <i class="fa-solid fa-arrows-rotate"></i> Cek Status
+                                                <i class="fa-solid fa-arrows-rotate text-amber-600"></i>
                                             </button>
                                         @endif
                                         <button type="button"
-                                            class="btn-primary-admin !h-8 !px-2.5 !text-xs !rounded-lg !bg-emerald-600 hover:!bg-emerald-700 inline-flex items-center justify-center gap-1.5 font-semibold shrink-0 shadow-sm"
+                                            class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-emerald-300 hover:!bg-emerald-50"
                                             onclick="openPayModal({{ $invoice->id }}, '{{ $invoice->invoice_number }}', '{{ number_format($invoice->total, 0, ',', '.') }}')"
-                                            title="Bayar Manual">
-                                            <i class="fa-solid fa-money-bill-wave"></i> Manual
+                                            title="Konfirmasi Pembayaran Manual">
+                                            <i class="fa-solid fa-money-bill-wave text-emerald-600"></i>
                                         </button>
                                     @else
-                                        <span class="badge badge-published !h-8 !px-3 !text-xs !rounded-lg inline-flex items-center justify-center gap-1.5 font-semibold shrink-0">
-                                            <i class="fa-solid fa-check"></i> Selesai
+                                        <span class="topbar-icon-btn !w-8 !h-8 !rounded-lg !bg-emerald-50 !border-emerald-200 inline-flex items-center justify-center shrink-0 cursor-default" title="Tagihan Selesai (Lunas)">
+                                            <i class="fa-solid fa-check text-emerald-600"></i>
                                         </span>
                                     @endif
                                 </div>

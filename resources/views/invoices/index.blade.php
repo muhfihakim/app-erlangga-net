@@ -227,7 +227,7 @@
                         <th style="text-align: left; width: 220px;">Paket Layanan</th>
                         <th style="text-align: center; width: 160px;">Tagihan Selanjutnya</th>
                         <th style="text-align: center; width: 170px;">Status Tagihan</th>
-                        <th style="text-align: center; width: 150px;">Opsi</th>
+                        <th style="text-align: center; width: 70px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>

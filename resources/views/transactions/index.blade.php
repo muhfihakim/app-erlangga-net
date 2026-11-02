@@ -254,7 +254,7 @@
                         <th style="text-align: right; width: 130px;">Nominal</th>
                         <th style="text-align: center; width: 130px;">Metode</th>
                         <th style="text-align: center; width: 110px;">Status</th>
-                        <th style="text-align: center; width: 90px;">Opsi</th>
+                        <th style="text-align: center; width: 70px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>

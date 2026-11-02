@@ -131,10 +131,10 @@ class TransactionController extends Controller
                         'xendit_id' => $xenditId,
                     ]), ENT_QUOTES, 'UTF-8');
 
-                    return '<div class="flex items-center justify-center gap-1.5 flex-nowrap">
-                        <button type="button" class="btn-primary-admin !h-8 !px-2.5 !text-xs !rounded-lg !bg-sky-600 hover:!bg-sky-700 inline-flex items-center justify-center gap-1.5 font-semibold shrink-0 shadow-sm"
+                    return '<div class="flex items-center justify-center">
+                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                             onclick="showTransactionDetail(' . $payload . ')" title="Lihat Detail Transaksi">
-                            <i class="fa-solid fa-eye"></i> Detail
+                            <i class="fa-solid fa-circle-info text-slate-500"></i>
                         </button>
                     </div>';
                 })
