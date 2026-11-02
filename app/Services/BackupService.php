@@ -12,17 +12,12 @@ use App\Models\Transaction;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class BackupService
 {
-    protected string $storageDir;
-
     public function __construct()
     {
-        $this->storageDir = storage_path('app/backups');
-        if (!File::exists($this->storageDir)) {
-            File::makeDirectory($this->storageDir, 0755, true);
-        }
     }
 
     /**
@@ -310,9 +305,9 @@ class BackupService
     public function exportFull(?User $user = null): array
     {
         $fileName = 'backup_seluruh_data_' . date('Y-m-d_His') . '.csv';
-        $filePath = $this->storageDir . '/' . $fileName;
+        $tempPath = tempnam(sys_get_temp_dir(), 'csv_full_');
 
-        $fp = fopen($filePath, 'w');
+        $fp = fopen($tempPath, 'w');
         // UTF-8 BOM for seamless Excel opening
         fwrite($fp, "\xEF\xBB\xBF");
 
@@ -471,7 +466,13 @@ class BackupService
 
         fclose($fp);
 
-        $fileSize = file_exists($filePath) ? filesize($filePath) : 0;
+        $fileSize = file_exists($tempPath) ? filesize($tempPath) : 0;
+
+        // Upload ke server S3 (Cloud Storage)
+        $s3Path = Storage::putFileAs('backups', new \Illuminate\Http\File($tempPath), $fileName);
+
+        // Hapus file temporary di server lokal
+        @unlink($tempPath);
 
         $log = BackupLog::create([
             'user_id' => $user ? $user->id : (auth()->check() ? auth()->id() : null),
@@ -479,7 +480,7 @@ class BackupService
             'backup_type' => 'full',
             'backup_type_label' => 'Seluruh Data (Full Backup)',
             'file_name' => $fileName,
-            'file_path' => 'backups/' . $fileName,
+            'file_path' => $s3Path ?: ('backups/' . $fileName),
             'file_size' => $fileSize,
             'total_rows' => $totalRows,
             'notes' => 'Master CSV mencakup Paket, Users, Pelanggan, PPPoE, Invoice, dan Transaksi.',
@@ -487,13 +488,13 @@ class BackupService
 
         return [
             'log' => $log,
-            'path' => $filePath,
+            'path' => $s3Path ?: ('backups/' . $fileName),
             'name' => $fileName,
         ];
     }
 
     /**
-     * Helper untuk menulis array CSV dan menyimpan log
+     * Helper untuk menulis array CSV dan mengunggah ke S3
      */
     protected function saveAndLogCsv(
         string $type,
@@ -503,9 +504,9 @@ class BackupService
         array $rows,
         ?User $user = null
     ): array {
-        $filePath = $this->storageDir . '/' . $fileName;
+        $tempPath = tempnam(sys_get_temp_dir(), 'csv_backup_');
 
-        $fp = fopen($filePath, 'w');
+        $fp = fopen($tempPath, 'w');
         // UTF-8 BOM
         fwrite($fp, "\xEF\xBB\xBF");
         fputcsv($fp, $headers, ',', '"', "\\");
@@ -516,8 +517,14 @@ class BackupService
 
         fclose($fp);
 
-        $fileSize = file_exists($filePath) ? filesize($filePath) : 0;
+        $fileSize = file_exists($tempPath) ? filesize($tempPath) : 0;
         $totalRows = count($rows);
+
+        // Upload ke server S3 (Cloud Storage)
+        $s3Path = Storage::putFileAs('backups', new \Illuminate\Http\File($tempPath), $fileName);
+
+        // Hapus file temporary di server lokal
+        @unlink($tempPath);
 
         $log = BackupLog::create([
             'user_id' => $user ? $user->id : (auth()->check() ? auth()->id() : null),
@@ -525,7 +532,7 @@ class BackupService
             'backup_type' => $type,
             'backup_type_label' => $label,
             'file_name' => $fileName,
-            'file_path' => 'backups/' . $fileName,
+            'file_path' => $s3Path ?: ('backups/' . $fileName),
             'file_size' => $fileSize,
             'total_rows' => $totalRows,
             'notes' => "Ekspor {$label} ke format .csv berhasil.",
@@ -533,7 +540,7 @@ class BackupService
 
         return [
             'log' => $log,
-            'path' => $filePath,
+            'path' => $s3Path ?: ('backups/' . $fileName),
             'name' => $fileName,
         ];
     }

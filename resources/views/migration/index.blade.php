@@ -2,75 +2,25 @@
     @section('Css')
         <style>
             .dataTables_wrapper {
-                padding: 0;
                 position: relative;
-                min-height: 180px;
+                min-height: 200px;
             }
-            .dataTables_filter {
-                display: none;
-            }
-            .dataTables_paginate {
-                display: flex;
-                align-items: center;
-                gap: 4px;
-            }
-            .paginate_button {
-                height: 30px;
-                padding: 0 10px;
-                border-radius: 6px;
-                border: 1px solid #e2e8f0;
-                background: #fff;
-                color: #475569 !important;
-                font-size: 11px;
-                font-weight: 600;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                text-decoration: none;
-                transition: all 0.15s ease;
-            }
-            .paginate_button:hover:not(.current):not(.disabled) {
-                background: #f8fafc;
-                border-color: #cbd5e1;
-                color: #1e293b !important;
-            }
-            .paginate_button.current {
-                background: #4f46e5;
-                border-color: #4f46e5;
-                color: #fff !important;
-            }
-            .paginate_button.disabled {
-                opacity: 0.5;
-                cursor: not-allowed;
-                background: #f8fafc;
-                border-color: #e2e8f0;
-                color: #94a3b8 !important;
-            }
-            .dataTables_info {
-                font-size: 11px;
-                color: #64748b;
-                font-weight: 500;
-            }
+
             .dataTables_wrapper .dataTables_processing {
                 position: absolute !important;
                 top: 50% !important;
                 left: 50% !important;
                 transform: translate(-50%, -50%) !important;
                 background: rgba(255, 255, 255, 0.95) !important;
-                padding: 10px 18px !important;
-                border-radius: 10px !important;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+                padding: 15px 25px !important;
+                border-radius: 12px !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
                 z-index: 50 !important;
                 margin: 0 !important;
                 border: 1px solid #e2e8f0 !important;
                 width: auto !important;
                 height: auto !important;
                 text-align: center;
-            }
-            #backup-log-table td {
-                padding: 10px 14px;
-                vertical-align: middle;
             }
         </style>
     @endsection
@@ -367,40 +317,45 @@
 
     <!-- SEKSI 3: RIWAYAT & LOG BACKUP (.CSV) -->
     <div class="mb-6">
-        <div class="table-card overflow-hidden">
-            <div class="p-3.5 sm:p-4 border-b border-slate-200 flex items-center justify-between flex-wrap gap-3 bg-slate-50/50">
-                <div>
-                    <h3 class="text-sm font-bold text-slate-800 m-0">
-                        Riwayat Log Backup Data (.CSV)
-                    </h3>
-                    <p class="text-xs text-slate-500 mt-0.5 m-0">
-                        Daftar arsip cadangan yang telah dibuat di server dan dapat diunduh ulang sewaktu-waktu.
-                    </p>
-                </div>
-                <div class="flex items-center gap-2.5">
-                    <div class="search-wrap !mb-0">
-                        <input type="search" id="search-backup-logs" class="search-input !h-8 !text-xs !w-44 sm:!w-60" placeholder="Cari arsip backup..." autocomplete="off" />
-                    </div>
-                    <span class="text-xs font-semibold px-2.5 py-1 bg-white border border-slate-200 text-slate-600 rounded-lg shadow-2xs shrink-0">
-                        Total: <strong id="total-backup-badge">{{ number_format($totalBackupLogs) }}</strong> Arsip
-                    </span>
+        <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+            <div>
+                <h2 class="text-sm sm:text-base font-bold text-slate-800 m-0">
+                    Riwayat Log Backup Data (.CSV)
+                </h2>
+                <p class="text-xs text-slate-500 mt-0.5 m-0">
+                    Daftar arsip cadangan yang telah tersimpan di cloud storage S3 dan dapat diunduh ulang sewaktu-waktu.
+                </p>
+            </div>
+        </div>
+
+        <div class="table-toolbar">
+            <div class="search-wrap !max-w-md">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="search" id="search-backup-logs" class="search-input" placeholder="Cari arsip backup..." autocomplete="off" />
+            </div>
+            <div class="flex items-center gap-2">
+                <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    Total: <strong id="total-backup-badge" style="color: #0f172a;">{{ number_format($totalBackupLogs) }}</strong> Arsip
                 </div>
             </div>
+        </div>
 
+        <div class="table-card">
             <div class="table-responsive">
-                <table id="backup-log-table" class="admin-table w-full">
+                <table id="backup-log-table" class="admin-table">
                     <thead>
                         <tr>
-                            <th class="text-left" style="width: 180px;">Waktu Backup</th>
-                            <th class="text-left" style="width: 160px;">Kategori Data</th>
-                            <th class="text-left">Nama File CSV</th>
-                            <th class="text-center" style="width: 100px;">Jumlah Baris</th>
-                            <th class="text-center" style="width: 95px;">Ukuran File</th>
-                            <th class="text-left" style="width: 120px;">Oleh</th>
-                            <th class="text-center" style="width: 90px;">Opsi</th>
+                            <th style="text-align: center; width: 45px;">#</th>
+                            <th style="text-align: left; width: 170px;">Waktu Backup</th>
+                            <th style="text-align: center; width: 140px;">Kategori Data</th>
+                            <th style="text-align: left; min-width: 220px;">Nama File CSV</th>
+                            <th style="text-align: center; width: 95px;">Jumlah Baris</th>
+                            <th style="text-align: center; width: 95px;">Ukuran File</th>
+                            <th style="text-align: left; width: 120px;">Oleh</th>
+                            <th style="text-align: center; width: 90px;">Opsi</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody style="border-top: none;">
                     </tbody>
                 </table>
             </div>
@@ -607,33 +562,41 @@
                 const backupTable = $('#backup-log-table').DataTable({
                     processing: true,
                     serverSide: true,
+                    autoWidth: false,
                     ajax: '{{ route('migration.index') }}',
                     columns: [
-                        { data: 'created_at', name: 'created_at', className: 'text-left whitespace-nowrap' },
-                        { data: 'backup_type', name: 'backup_type', className: 'text-left whitespace-nowrap' },
-                        { data: 'file_name', name: 'file_name', className: 'text-left' },
-                        { data: 'total_rows', name: 'total_rows', className: 'text-center whitespace-nowrap' },
-                        { data: 'formatted_size', name: 'file_size', className: 'text-center whitespace-nowrap' },
-                        { data: 'user_name', name: 'user_name', className: 'text-left whitespace-nowrap' },
-                        { data: 'aksi', name: 'aksi', orderable: false, searchable: false, className: 'text-center whitespace-nowrap' }
+                        {
+                            data: 'no',
+                            name: 'no',
+                            searchable: false,
+                            orderable: false,
+                            className: 'text-center align-middle',
+                            render: function(d, t, r, m) {
+                                return `<div style="color: #94a3b8; font-weight: 600; font-size: 12px;">${m.row + m.settings._iDisplayStart + 1}</div>`;
+                            }
+                        },
+                        { data: 'created_at', name: 'created_at', className: 'text-left align-middle whitespace-nowrap' },
+                        { data: 'backup_type', name: 'backup_type', className: 'text-center align-middle whitespace-nowrap' },
+                        { data: 'file_name', name: 'file_name', className: 'text-left align-middle' },
+                        { data: 'total_rows', name: 'total_rows', className: 'text-center align-middle whitespace-nowrap' },
+                        { data: 'formatted_size', name: 'file_size', className: 'text-center align-middle whitespace-nowrap' },
+                        { data: 'user_name', name: 'user_name', className: 'text-left align-middle whitespace-nowrap' },
+                        { data: 'aksi', name: 'aksi', orderable: false, searchable: false, className: 'text-center align-middle whitespace-nowrap' }
                     ],
-                    order: [[0, 'desc']],
+                    order: [[1, 'desc']],
                     pageLength: 10,
                     lengthChange: false,
+                    info: false,
                     ordering: true,
-                    info: true,
                     responsive: true,
-                    dom: 't<"flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 border-t border-slate-200"ip>',
+                    dom: 'tpir',
                     language: {
-                        processing: '<div class="text-xs font-semibold text-indigo-600">Memuat riwayat log...</div>',
+                        processing: "<i class='fa-solid fa-circle-notch fa-spin text-sky-500 text-2xl'></i>",
                         zeroRecords: '<div class="p-6 text-center text-xs text-slate-400">Tidak ada riwayat log backup yang cocok.</div>',
-                        emptyTable: '<div class="p-6 text-center text-xs text-slate-400">Belum ada riwayat log backup di server.</div>',
-                        info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ arsip',
-                        infoEmpty: 'Menampilkan 0 arsip',
-                        infoFiltered: '(disaring dari _MAX_ total arsip)',
+                        emptyTable: '<div class="p-6 text-center text-xs text-slate-400">Belum ada riwayat log backup di cloud S3.</div>',
                         paginate: {
-                            previous: 'Sebelumnya',
-                            next: 'Berikutnya'
+                            previous: '<i class="fa-solid fa-chevron-left"></i>',
+                            next: '<i class="fa-solid fa-chevron-right"></i>'
                         }
                     },
                     drawCallback: function(settings) {
@@ -642,8 +605,13 @@
                     }
                 });
 
+                let searchTimer = null;
                 $('#search-backup-logs').on('keyup input', function() {
-                    backupTable.search(this.value).draw();
+                    clearTimeout(searchTimer);
+                    const val = this.value;
+                    searchTimer = setTimeout(function() {
+                        backupTable.search(val).draw();
+                    }, 300);
                 });
             });
         </script>

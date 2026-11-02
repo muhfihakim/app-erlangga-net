@@ -15,6 +15,7 @@ use App\Services\RadbooxImportService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 
 class MigrationController extends Controller
@@ -47,29 +48,19 @@ class MigrationController extends Controller
                 })
                 ->editColumn('backup_type', function ($log) {
                     $label = htmlspecialchars($log->backup_type_label ?? $log->backup_type);
-                    $bg = '#f1f5f9';
-                    $color = '#64748b';
-                    $border = '#e2e8f0';
+                    $badgeClass = 'bg-slate-100 text-slate-700 border-slate-300';
 
                     if ($log->backup_type === 'full') {
-                        $bg = '#e0e7ff';
-                        $color = '#4338ca';
-                        $border = '#c7d2fe';
+                        $badgeClass = 'bg-indigo-50 text-indigo-700 border-indigo-200';
                     } elseif ($log->backup_type === 'customers_pppoe') {
-                        $bg = '#ecfdf5';
-                        $color = '#059669';
-                        $border = '#a7f3d0';
+                        $badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
                     } elseif ($log->backup_type === 'users') {
-                        $bg = '#fef3c7';
-                        $color = '#d97706';
-                        $border = '#fde68a';
+                        $badgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
                     } elseif ($log->backup_type === 'finance') {
-                        $bg = '#f0f9ff';
-                        $color = '#0284c7';
-                        $border = '#bae6fd';
+                        $badgeClass = 'bg-sky-50 text-sky-700 border-sky-200';
                     }
 
-                    return '<span class="badge text-[10px] font-bold py-0.5 px-2" style="background:' . $bg . ';color:' . $color . ';border:1px solid ' . $border . ';">' . $label . '</span>';
+                    return '<span class="inline-block text-[11px] font-bold py-0.5 px-2.5 rounded border ' . $badgeClass . '">' . $label . '</span>';
                 })
                 ->editColumn('file_name', function ($log) {
                     $fileName = htmlspecialchars($log->file_name);
@@ -92,11 +83,11 @@ class MigrationController extends Controller
                     $downloadUrl = route('migration.backup.download', $log->id);
                     $safeFileName = addslashes(htmlspecialchars($log->file_name));
                     return '<div class="flex items-center justify-center gap-1.5">
-                        <a href="' . $downloadUrl . '" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-indigo-300 hover:!bg-indigo-50" title="Unduh File Backup">
-                            <i class="fa-solid fa-download text-indigo-600"></i>
+                        <a href="' . $downloadUrl . '" class="topbar-icon-btn !w-8 !h-8 !rounded-lg text-slate-500 hover:text-slate-800" title="Unduh File Backup">
+                            <i class="fa-solid fa-download"></i>
                         </a>
-                        <button type="button" onclick="confirmDeleteBackup(' . $log->id . ', \'' . $safeFileName . '\')" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50" title="Hapus File Backup">
-                            <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i>
+                        <button type="button" onclick="confirmDeleteBackup(' . $log->id . ', \'' . $safeFileName . '\')" class="topbar-icon-btn !w-8 !h-8 !rounded-lg text-slate-500 hover:text-rose-600 hover:!bg-rose-50 hover:!border-rose-300" title="Hapus File Backup">
+                            <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>';
                 })
@@ -147,7 +138,7 @@ class MigrationController extends Controller
                     return redirect()->back()->with('error', 'Kategori backup tidak dikenal.');
             }
 
-            return response()->download($result['path'], $result['name'], [
+            return Storage::disk('s3')->download($result['log']->file_path, $result['name'], [
                 'Content-Type' => 'text/csv; charset=UTF-8',
                 'Cache-Control' => 'no-cache, no-store, must-revalidate',
             ]);
@@ -157,32 +148,45 @@ class MigrationController extends Controller
     }
 
     /**
-     * Unduh file backup dari riwayat log
+     * Unduh file backup dari riwayat log di server S3
      */
     public function downloadBackup(int $id)
     {
         $log = BackupLog::findOrFail($id);
-        $fullPath = storage_path('app/' . $log->file_path);
 
-        if (!File::exists($fullPath)) {
-            return redirect()->back()->with('error', 'File backup tidak ditemukan di server atau sudah dibersihkan.');
+        try {
+            return Storage::disk('s3')->download($log->file_path, $log->file_name, [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+                'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            ]);
+        } catch (\Throwable $e) {
+            $fullPath = storage_path('app/' . $log->file_path);
+            if (File::exists($fullPath)) {
+                return response()->download($fullPath, $log->file_name, [
+                    'Content-Type' => 'text/csv; charset=UTF-8',
+                ]);
+            }
+
+            return redirect()->back()->with('error', 'File backup tidak ditemukan di cloud server S3 atau sudah dibersihkan.');
         }
-
-        return response()->download($fullPath, $log->file_name, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-        ]);
     }
 
     /**
-     * Hapus riwayat log dan file backup
+     * Hapus riwayat log dan file backup dari server S3
      */
     public function deleteBackup(int $id)
     {
         $log = BackupLog::findOrFail($id);
-        $fullPath = storage_path('app/' . $log->file_path);
 
+        try {
+            Storage::disk('s3')->delete($log->file_path);
+        } catch (\Throwable $e) {
+            // Abaikan jika file sudah tidak ada di S3
+        }
+
+        $fullPath = storage_path('app/' . $log->file_path);
         if (File::exists($fullPath)) {
-            File::delete($fullPath);
+            @unlink($fullPath);
         }
 
         $log->delete();
