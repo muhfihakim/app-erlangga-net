@@ -183,7 +183,7 @@
                 <span class="cursor-pointer hover:text-slate-900 transition-colors"
                     onclick="toggleSidebarGroup('group-sistem')">Sistem & Pengaturan</span>
                 <span class="sep">/</span>
-                <span class="current">Riwayat Versi (Milestone)</span>
+                <span class="current">Riwayat Versi</span>
 
                 {{-- Fallback --}}
             @else

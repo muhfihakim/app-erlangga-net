@@ -261,7 +261,7 @@
                 <a class="sidebar-sublink {{ Request::is('changelogs*') ? 'active' : '' }}"
                     href="{{ route('changelogs.index') }}">
                     <i class="fa-solid fa-circle-dot"></i>
-                    <span>Riwayat Versi (Milestone)</span>
+                    <span>Riwayat Versi</span>
                 </a>
             </div>
         </div>
