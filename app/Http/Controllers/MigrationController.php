@@ -83,7 +83,7 @@ class MigrationController extends Controller
                     $downloadUrl = route('migration.backup.download', $log->id);
                     $safeFileName = addslashes(htmlspecialchars($log->file_name));
                     return '<div class="flex items-center justify-center gap-1.5">
-                        <a href="' . $downloadUrl . '" class="topbar-icon-btn !w-8 !h-8 !rounded-lg text-slate-500 hover:text-slate-800" title="Unduh File Backup">
+                        <a href="' . $downloadUrl . '" target="_blank" class="topbar-icon-btn !w-8 !h-8 !rounded-lg text-slate-500 hover:text-slate-800" title="Unduh File Backup">
                             <i class="fa-solid fa-download"></i>
                         </a>
                         <button type="button" onclick="confirmDeleteBackup(' . $log->id . ', \'' . $safeFileName . '\')" class="topbar-icon-btn !w-8 !h-8 !rounded-lg text-slate-500 hover:text-rose-600 hover:!bg-rose-50 hover:!border-rose-300" title="Hapus File Backup">

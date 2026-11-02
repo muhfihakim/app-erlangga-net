@@ -40,26 +40,6 @@
         </div>
     </div>
 
-    @if (session('success'))
-        <div class="bg-emerald-50 text-emerald-700 p-3.5 rounded-xl border border-emerald-200 mb-4 flex items-start gap-3 shadow-xs">
-            <i class="fa-solid fa-circle-check text-emerald-500 text-base mt-0.5"></i>
-            <div>
-                <strong class="font-bold text-xs">Berhasil!</strong>
-                <p class="text-xs mt-0.5">{{ session('success') }}</p>
-            </div>
-        </div>
-    @endif
-
-    @if (session('error'))
-        <div class="bg-rose-50 text-rose-700 p-3.5 rounded-xl border border-rose-200 mb-4 flex items-start gap-3 shadow-xs">
-            <i class="fa-solid fa-circle-exclamation text-rose-500 text-base mt-0.5"></i>
-            <div>
-                <strong class="font-bold text-xs">Terjadi Kesalahan!</strong>
-                <p class="text-xs mt-0.5">{{ session('error') }}</p>
-            </div>
-        </div>
-    @endif
-
     @if ($errors->any())
         <div class="bg-rose-50 text-rose-700 p-3.5 rounded-xl border border-rose-200 mb-4 shadow-xs">
             <div class="flex items-center gap-2 font-bold text-xs mb-1">
@@ -150,7 +130,7 @@
                         Master CSV menggabungkan seluruh tabel: <strong>Paket Layanan, Akun Login Sistem, Pelanggan, PPPoE, Faktur Tagihan,</strong> dan <strong>Riwayat Transaksi</strong>.
                     </p>
                 </div>
-                <a href="{{ route('migration.backup', 'full') }}"
+                <a href="{{ route('migration.backup', 'full') }}" target="_blank"
                     class="btn-primary-admin !bg-indigo-600 hover:!bg-indigo-700 !w-full !justify-center !h-8 text-xs font-semibold shadow-xs mt-1">
                     Unduh Master CSV
                 </a>
@@ -169,7 +149,7 @@
                         Mencakup Username & Password PPPoE, IP Address, Nama Pelanggan, No WA, Alamat, Koordinat, NIK, SN Perangkat, Modem, Teknisi & Sales.
                     </p>
                 </div>
-                <a href="{{ route('migration.backup', 'customers_pppoe') }}"
+                <a href="{{ route('migration.backup', 'customers_pppoe') }}" target="_blank"
                     class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !w-full !justify-center !h-8 text-xs font-semibold shadow-xs mt-1">
                     Unduh CSV Pelanggan
                 </a>
@@ -188,7 +168,7 @@
                         Data akun pengguna aplikasi: Administrator, Teknisi, Sales, Staf Kasir, info login, No WhatsApp, Email, dan Hak Akses Jabatan.
                     </p>
                 </div>
-                <a href="{{ route('migration.backup', 'users') }}"
+                <a href="{{ route('migration.backup', 'users') }}" target="_blank"
                     class="btn-primary-admin !bg-amber-600 hover:!bg-amber-700 !w-full !justify-center !h-8 text-xs font-semibold shadow-xs mt-1">
                     Unduh CSV Akun
                 </a>
@@ -207,7 +187,7 @@
                         Seluruh riwayat transaksi pembayaran tagihan, nomor invoice, nominal bayar, biaya admin, kanal bayar, dan tanggal verifikasi pembayaran.
                     </p>
                 </div>
-                <a href="{{ route('migration.backup', 'finance') }}"
+                <a href="{{ route('migration.backup', 'finance') }}" target="_blank"
                     class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !w-full !justify-center !h-8 text-xs font-semibold shadow-xs mt-1">
                     Unduh CSV Keuangan
                 </a>

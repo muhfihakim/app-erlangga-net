@@ -69,7 +69,7 @@
                 <i class="fa-solid fa-right-left"></i> Catat Mutasi
             </button>
             @if (request('start_date') && request('end_date'))
-                <a href="{{ route('assets.export', request()->query()) }}" class="btn-primary-admin !bg-rose-600 !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-2">
+                <a href="{{ route('assets.export', request()->query()) }}" target="_blank" class="btn-primary-admin !bg-rose-600 !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-2">
                     <i class="fa-solid fa-file-pdf"></i> Export PDF
                 </a>
             @endif

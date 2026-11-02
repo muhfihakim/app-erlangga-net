@@ -323,6 +323,11 @@
         document.addEventListener('click', (e) => {
             const link = e.target.closest('a');
             if (link && link.href && !link.href.includes('#') && !link.hasAttribute('download') && link.target !== '_blank' && link.origin === window.location.origin) {
+                // Abaikan jika URL mengarah ke unduhan atau ekspor file agar halaman tidak blank
+                const path = link.pathname.toLowerCase();
+                if (path.includes('/export') || path.includes('/download') || path.includes('/backup/')) {
+                    return;
+                }
                 const skeleton = document.getElementById('page-skeleton');
                 if (skeleton) skeleton.classList.remove('hidden');
             }
@@ -331,6 +336,10 @@
         document.addEventListener('submit', (e) => {
             const form = e.target;
             if (!form.hasAttribute('target') && !form.classList.contains('no-loader')) {
+                const action = (form.action || '').toLowerCase();
+                if (action.includes('/export') || action.includes('/download') || action.includes('/backup/')) {
+                    return;
+                }
                 const skeleton = document.getElementById('page-skeleton');
                 if (skeleton) skeleton.classList.remove('hidden');
             }

@@ -280,7 +280,7 @@
                 </div>
 
                 <!-- Filter & Export Isolir -->
-                <form action="{{ route('customers.export_isolir') }}" method="GET"
+                <form action="{{ route('customers.export_isolir') }}" method="GET" target="_blank"
                     style="display:flex; gap:8px; align-items:center;">
                     @if (Auth::user()->isAdmin())
                         <select name="sales_id" class="form-control"

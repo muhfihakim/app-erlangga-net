@@ -89,7 +89,7 @@
                     request()->filled('activity_type') ||
                     request()->filled('search') ||
                     request()->filled('teknisi_id'))
-                <a href="{{ route('supporting.export', request()->all()) }}"
+                <a href="{{ route('supporting.export', request()->all()) }}" target="_blank"
                     class="btn-primary-admin !bg-rose-600 !h-10 !px-6 flex items-center gap-2">
                     <i class="fa-solid fa-file-pdf"></i> Export PDF
                 </a>
