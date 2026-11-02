@@ -60,58 +60,6 @@
                 border: 1px solid #fecaca;
             }
 
-            .badge-role-teknisi {
-                display: inline-flex;
-                align-items: center;
-                gap: 3px;
-                padding: 1px 6px;
-                border-radius: 4px;
-                font-size: 10px;
-                font-weight: 700;
-                background-color: #f0f9ff;
-                color: #0369a1;
-                border: 1px solid #bae6fd;
-            }
-
-            .badge-role-sales {
-                display: inline-flex;
-                align-items: center;
-                gap: 3px;
-                padding: 1px 6px;
-                border-radius: 4px;
-                font-size: 10px;
-                font-weight: 700;
-                background-color: #fdf2f8;
-                color: #be185d;
-                border: 1px solid #fbcfe8;
-            }
-
-            .badge-perf-tech {
-                display: inline-flex;
-                align-items: center;
-                gap: 3px;
-                padding: 1px 6px;
-                border-radius: 4px;
-                font-size: 10px;
-                font-weight: 600;
-                background-color: #f0fdf4;
-                color: #166534;
-                border: 1px solid #dcfce7;
-            }
-
-            .badge-perf-sales {
-                display: inline-flex;
-                align-items: center;
-                gap: 3px;
-                padding: 1px 6px;
-                border-radius: 4px;
-                font-size: 10px;
-                font-weight: 600;
-                background-color: #fffbeb;
-                color: #92400e;
-                border: 1px solid #fef3c7;
-            }
-
             .dataTables_paginate {
                 display: flex !important;
                 align-items: center;
@@ -417,7 +365,7 @@
                     <tr>
                         <th style="width: 45px; text-align: center;">#</th>
                         <th style="width: 105px; text-align: center;">Tanggal</th>
-                        <th style="min-width: 230px; text-align: left;">Pemohon & Performa</th>
+                        <th style="min-width: 190px; text-align: left;">Pemohon</th>
                         <th style="width: 140px; text-align: right; padding-right: 18px;">Nominal</th>
                         <th style="width: 130px; text-align: center;">Status ACC</th>
                         <th style="text-align: left;">Keterangan</th>
@@ -439,24 +387,14 @@
                                 {{ \Carbon\Carbon::parse($k->tanggal)->format('d/m/Y') }}
                             </td>
                             <td style="text-align: left;">
-                                <div class="font-bold text-slate-800 text-[12px] leading-tight">{{ $applicant->nama_lengkap ?? 'Unknown' }}</div>
-                                <div class="flex items-center gap-1.5 mt-1 flex-wrap">
+                                <div style="font-weight: 700; color: #0f172a; font-size: 12.5px;">{{ $applicant->nama_lengkap ?? 'Unknown' }}</div>
+                                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
                                     @if ($role === 'Teknisi')
-                                        <span class="badge-role-teknisi">
-                                            <i class="fa-solid fa-wrench"></i> Teknisi
-                                        </span>
-                                        <span class="badge-perf-tech" title="Total Pendapatan Aktivasi Siklus Minggu Ini (Sabtu - Jumat)">
-                                            <i class="fa-solid fa-coins"></i> Pendapatan Mgg Ini: Rp {{ number_format($k->performa_teknisi_pendapatan ?? 0, 0, ',', '.') }}
-                                        </span>
+                                        Teknisi &bull; Pendapatan: <span style="font-weight: 600; color: #334155;">Rp {{ number_format($k->performa_teknisi_pendapatan ?? 0, 0, ',', '.') }}</span>
                                     @elseif ($role === 'Sales')
-                                        <span class="badge-role-sales">
-                                            <i class="fa-solid fa-briefcase"></i> Sales
-                                        </span>
-                                        <span class="badge-perf-sales" title="Total Aktivasi Pelanggan Bulan Ini">
-                                            <i class="fa-solid fa-user-check"></i> {{ $k->performa_sales_aktivasi ?? 0 }} Aktivasi (Bulan Ini)
-                                        </span>
+                                        Sales &bull; Aktivasi: <span style="font-weight: 600; color: #334155;">{{ $k->performa_sales_aktivasi ?? 0 }}</span>
                                     @else
-                                        <span class="text-[11px] text-slate-400 font-medium">{{ $role }}</span>
+                                        {{ $role }}
                                     @endif
                                 </div>
                             </td>
@@ -508,7 +446,7 @@
                                             <button type="button"
                                                 class="topbar-icon-btn !w-7 !h-7 !rounded-lg"
                                                 title="Setujui (ACC) Kasbon"
-                                                onclick="openAccModal({{ $k->id }}, '{{ addslashes($applicant->nama_lengkap ?? '') }}', '{{ $nominalFormatted }}', '{{ $role }}', '{{ $role === 'Teknisi' ? 'Pendapatan: Rp ' . number_format($k->performa_teknisi_pendapatan ?? 0, 0, ',', '.') : 'Aktivasi: ' . ($k->performa_sales_aktivasi ?? 0) . ' Pelanggan' }}')">
+                                                onclick="openAccModal({{ $k->id }}, '{{ addslashes($applicant->nama_lengkap ?? '') }}', '{{ $nominalFormatted }}', '{{ $role }}', '{{ $role === 'Teknisi' ? 'Pendapatan: Rp ' . number_format($k->performa_teknisi_pendapatan ?? 0, 0, ',', '.') : 'Aktivasi: ' . ($k->performa_sales_aktivasi ?? 0) }}')">
                                                 <i class="fa-solid fa-check text-slate-500 hover:text-emerald-600 text-xs"></i>
                                             </button>
 
@@ -772,7 +710,7 @@
                         <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg mb-3">
                             <div class="text-[11px] text-slate-500 mb-0.5">Pemohon:</div>
                             <div class="text-xs font-bold text-slate-900" id="accApplicantName">-</div>
-                            <div class="text-[11px] font-semibold text-emerald-600 mt-1" id="accApplicantPerf">-</div>
+                            <div class="text-[11px] text-slate-500 font-medium mt-0.5" id="accApplicantPerf">-</div>
                             <div class="mt-2 pt-2 border-t border-slate-200 flex items-center justify-between">
                                 <span class="text-xs text-slate-500 font-medium">Nominal Kasbon:</span>
                                 <span class="text-sm font-black text-rose-600" id="accNominal">Rp 0</span>
@@ -896,8 +834,8 @@
             @if ($isAdmin)
                 function openAccModal(id, name, nominal, role, perf) {
                     $('#accForm').attr('action', '/kasbons/' + id + '/approve');
-                    $('#accApplicantName').text(name + ' (' + role + ')');
-                    $('#accApplicantPerf').text(perf);
+                    $('#accApplicantName').text(name);
+                    $('#accApplicantPerf').text(role + ' • ' + perf);
                     $('#accNominal').text('Rp ' + nominal);
                     openCustomModal('accModal');
                 }
