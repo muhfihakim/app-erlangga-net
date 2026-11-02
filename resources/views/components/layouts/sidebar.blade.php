@@ -31,18 +31,12 @@
 
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
-    <!-- Logo & Desktop Toggle -->
-    <div class="sidebar-logo" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1rem;">
+    <!-- Logo -->
+    <div class="sidebar-logo" style="display: flex; justify-content: center; align-items: center; padding: 1rem 0.75rem;">
         <a href="{{ route('dashboards.index') }}" class="sidebar-logo-link" style="display: flex; align-items: center; justify-content: center; overflow: hidden; text-decoration: none;">
             <img src="{{ asset('dist/assets/img/logo.png') }}" alt="Erlangga Net Logo" class="sidebar-logo-img"
                 style="height: 48px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15)); transition: all 0.25s ease;">
         </a>
-        <button type="button" class="sidebar-collapse-btn hidden lg:flex items-center justify-center" 
-            onclick="toggleDesktopSidebar()" 
-            title="Sembunyikan / Tampilkan Sidebar"
-            style="width: 28px; height: 28px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; cursor: pointer; transition: all 0.2s; flex-shrink: 0;">
-            <i class="fa-solid fa-angles-left text-xs"></i>
-        </button>
     </div>
 
     <!-- Navigation -->

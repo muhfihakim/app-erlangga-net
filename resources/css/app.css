@@ -715,9 +715,6 @@
         height: 32px !important;
         max-width: 38px !important;
     }
-    html.sidebar-collapsed .sidebar-collapse-btn {
-        display: none !important;
-    }
 
     /* Hide section labels */
     html.sidebar-collapsed .sidebar-section-label {
