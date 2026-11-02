@@ -80,10 +80,6 @@
                     <i class="fa-solid fa-users-gear"></i>
                     <span>Manajemen PPPoE</span>
                 </a>
-                <a class="mobile-grid-item {{ Request::is('monitoring') ? 'active' : '' }}" href="{{ route('monitoring.index') }}">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Monitoring</span>
-                </a>
             @endif
         </div>
 

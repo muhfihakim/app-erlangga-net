@@ -9,7 +9,6 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DismantleController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MaintenanceController;
-use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\OdpController;
 use App\Http\Controllers\SupportingActivityController;
 use App\Http\Controllers\PreOrderController;
@@ -44,8 +43,6 @@ Route::middleware(['auth.custom'])->group(function () {
 
     // Routes only for Administrator
     Route::middleware(['admin'])->group(function () {
-        Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring.index');
-
         // Asset Management
         Route::prefix('assets')->name('assets.')->group(function () {
             Route::get('/', [AssetController::class, 'index'])->name('index');
@@ -212,10 +209,6 @@ Route::middleware(['auth.custom'])->group(function () {
 
         // MikroTik & OLT Config Actions (Administrator only)
         Route::middleware(['admin'])->group(function () {
-            Route::get('/mikrotik/traffic', [MonitoringController::class, 'traffic']);
-            Route::get('/mikrotik/status', [MonitoringController::class, 'status']);
-            Route::get('/mikrotik/pppoe-logs', [MonitoringController::class, 'pppoeLogs']);
-
             Route::post('/olt/check-next-id', [OltController::class, 'checkNextOnuId']);
             Route::post('/olt/connect', [OltController::class, 'connectTerminal']);
             Route::post('/olt/verify-login', [OltController::class, 'verifyLogin']);

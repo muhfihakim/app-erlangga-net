@@ -5,11 +5,27 @@
     $isSales = $user && $user->jabatan === 'Sales';
     $isSuperAdmin = $user && method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin();
 
-    $isNetActive = Request::is('pppoe*') || Request::is('olt*') || Request::is('odp*') || Request::is('genieacs*') || Request::is('monitoring*');
+    $isNetActive =
+        Request::is('pppoe*') ||
+        Request::is('olt*') ||
+        Request::is('odp*') ||
+        Request::is('genieacs*');
     $isCustActive = Request::is('pre-orders*') || Request::is('customers*') || Request::is('maintenances*');
-    $isFinActive = Request::is('invoices*') || Request::is('transactions*') || Request::is('keuangan*') || Request::is('kasbons*') || Request::is('withdrawals*');
+    $isFinActive =
+        Request::is('invoices*') ||
+        Request::is('transactions*') ||
+        Request::is('keuangan*') ||
+        Request::is('kasbons*') ||
+        Request::is('withdrawals*');
     $isReportActive = Request::is('laporan*');
-    $isSysActive = Request::is('pakets*') || Request::is('nas*') || Request::is('accounts*') || Request::is('tracking*') || Request::is('activity-log*') || Request::is('migration*') || Request::is('settings*');
+    $isSysActive =
+        Request::is('pakets*') ||
+        Request::is('nas*') ||
+        Request::is('accounts*') ||
+        Request::is('tracking*') ||
+        Request::is('activity-log*') ||
+        Request::is('migration*') ||
+        Request::is('settings*');
 @endphp
 
 <!-- Sidebar -->
@@ -40,32 +56,33 @@
                     <i class="fa-solid fa-chevron-down sidebar-group-arrow"></i>
                 </button>
                 <div class="sidebar-group-content {{ $isNetActive ? 'open' : '' }}" id="group-jaringan">
-                    <a class="sidebar-sublink {{ Request::is('pppoe') ? 'active' : '' }}" href="{{ route('pppoe.index') }}">
+                    <a class="sidebar-sublink {{ Request::is('pppoe') ? 'active' : '' }}"
+                        href="{{ route('pppoe.index') }}">
                         <i class="fa-solid fa-circle-dot"></i>
                         <span>PPPoE Aktif</span>
                     </a>
                     @if ($isAdmin)
-                        <a class="sidebar-sublink {{ Request::is('pppoe-accounts*') ? 'active' : '' }}" href="{{ route('pppoe_accounts.index') }}">
+                        <a class="sidebar-sublink {{ Request::is('pppoe-accounts*') ? 'active' : '' }}"
+                            href="{{ route('pppoe_accounts.index') }}">
                             <i class="fa-solid fa-circle-dot"></i>
                             <span>Daftar Akun PPPoE</span>
                         </a>
                     @endif
-                    <a class="sidebar-sublink {{ Request::is('olt*') ? 'active' : '' }}" href="{{ route('olt.index') }}">
+                    <a class="sidebar-sublink {{ Request::is('olt*') ? 'active' : '' }}"
+                        href="{{ route('olt.index') }}">
                         <i class="fa-solid fa-circle-dot"></i>
                         <span>Manajemen OLT</span>
                     </a>
-                    <a class="sidebar-sublink {{ Request::is('odp*') ? 'active' : '' }}" href="{{ route('odp.index') }}">
+                    <a class="sidebar-sublink {{ Request::is('odp*') ? 'active' : '' }}"
+                        href="{{ route('odp.index') }}">
                         <i class="fa-solid fa-circle-dot"></i>
                         <span>Manajemen ODP</span>
                     </a>
                     @if ($isAdmin)
-                        <a class="sidebar-sublink {{ Request::is('genieacs*') ? 'active' : '' }}" href="{{ route('genieacs.index') }}">
+                        <a class="sidebar-sublink {{ Request::is('genieacs*') ? 'active' : '' }}"
+                            href="{{ route('genieacs.index') }}">
                             <i class="fa-solid fa-circle-dot"></i>
                             <span>Modem ONT (ACS)</span>
-                        </a>
-                        <a class="sidebar-sublink {{ Request::is('monitoring') ? 'active' : '' }}" href="{{ route('monitoring.index') }}">
-                            <i class="fa-solid fa-circle-dot"></i>
-                            <span>Traffic Monitoring</span>
                         </a>
                     @endif
                 </div>
@@ -84,12 +101,14 @@
             </button>
             <div class="sidebar-group-content {{ $isCustActive ? 'open' : '' }}" id="group-pelanggan">
                 @if ($isAdmin || $isSales)
-                    <a class="sidebar-sublink {{ Request::is('pre-orders') ? 'active' : '' }}" href="{{ route('pre_orders.index') }}">
+                    <a class="sidebar-sublink {{ Request::is('pre-orders') ? 'active' : '' }}"
+                        href="{{ route('pre_orders.index') }}">
                         <i class="fa-solid fa-circle-dot"></i>
                         <span>Pre-Order (PSB)</span>
                     </a>
                 @endif
-                <a class="sidebar-sublink {{ Request::is('pre-orders/waiting-list*') ? 'active' : '' }}" href="{{ route('pre_orders.waiting_list') }}">
+                <a class="sidebar-sublink {{ Request::is('pre-orders/waiting-list*') ? 'active' : '' }}"
+                    href="{{ route('pre_orders.waiting_list') }}">
                     <i class="fa-solid fa-circle-dot"></i>
                     <span>Prospek Tunggu (Ekspansi)</span>
                 </a>
@@ -99,7 +118,8 @@
                     <span>Data Pelanggan</span>
                 </a>
                 @if ($isAdmin || $isTeknisi)
-                    <a class="sidebar-sublink {{ Request::is('maintenances*') ? 'active' : '' }}" href="{{ route('maintenances.index') }}">
+                    <a class="sidebar-sublink {{ Request::is('maintenances*') ? 'active' : '' }}"
+                        href="{{ route('maintenances.index') }}">
                         <i class="fa-solid fa-circle-dot"></i>
                         <span>Tiket Pemeliharaan</span>
                     </a>
@@ -127,24 +147,29 @@
                     <i class="fa-solid fa-chevron-down sidebar-group-arrow"></i>
                 </button>
                 <div class="sidebar-group-content {{ $isFinActive ? 'open' : '' }}" id="group-keuangan">
-                    <a class="sidebar-sublink {{ Request::is('invoices*') ? 'active' : '' }}" href="{{ route('invoices.index') }}">
+                    <a class="sidebar-sublink {{ Request::is('invoices*') ? 'active' : '' }}"
+                        href="{{ route('invoices.index') }}">
                         <i class="fa-solid fa-circle-dot"></i>
                         <span>Invoice Tagihan</span>
                     </a>
-                    <a class="sidebar-sublink {{ Request::is('transactions*') ? 'active' : '' }}" href="{{ route('transactions.index') }}">
+                    <a class="sidebar-sublink {{ Request::is('transactions*') ? 'active' : '' }}"
+                        href="{{ route('transactions.index') }}">
                         <i class="fa-solid fa-circle-dot"></i>
                         <span>Riwayat Transaksi</span>
                     </a>
-                    <a class="sidebar-sublink {{ Request::is('keuangan/teknisi*') ? 'active' : '' }}" href="{{ route('finance.index') }}">
+                    <a class="sidebar-sublink {{ Request::is('keuangan/teknisi*') ? 'active' : '' }}"
+                        href="{{ route('finance.index') }}">
                         <i class="fa-solid fa-circle-dot"></i>
                         <span>Pendapatan Teknisi</span>
                     </a>
-                    <a class="sidebar-sublink {{ Request::is('keuangan/kasbon*') ? 'active' : '' }}" href="{{ route('kasbons.index') }}">
+                    <a class="sidebar-sublink {{ Request::is('keuangan/kasbon*') ? 'active' : '' }}"
+                        href="{{ route('kasbons.index') }}">
                         <i class="fa-solid fa-circle-dot"></i>
                         <span>Kasbon Teknisi</span>
                     </a>
                     @if ($isSuperAdmin)
-                        <a class="sidebar-sublink {{ Request::is('withdrawals*') ? 'active' : '' }}" href="{{ route('withdrawals.index') }}" style="color: #10b981;">
+                        <a class="sidebar-sublink {{ Request::is('withdrawals*') ? 'active' : '' }}"
+                            href="{{ route('withdrawals.index') }}" style="color: #10b981;">
                             <i class="fa-solid fa-circle-dot" style="color: #10b981;"></i>
                             <span>XenPlatform</span>
                         </a>
@@ -165,15 +190,18 @@
                     <i class="fa-solid fa-chevron-down sidebar-group-arrow"></i>
                 </button>
                 <div class="sidebar-group-content {{ $isReportActive ? 'open' : '' }}" id="group-laporan">
-                    <a class="sidebar-sublink {{ Request::is('laporan/aktivasi') ? 'active' : '' }}" href="{{ route('activitylog.aktivasi') }}">
+                    <a class="sidebar-sublink {{ Request::is('laporan/aktivasi') ? 'active' : '' }}"
+                        href="{{ route('activitylog.aktivasi') }}">
                         <i class="fa-solid fa-circle-dot"></i>
                         <span>Lap. Aktivasi</span>
                     </a>
-                    <a class="sidebar-sublink {{ Request::is('laporan/aktivasi-sales') ? 'active' : '' }}" href="{{ route('activitylog.aktivasi_sales') }}">
+                    <a class="sidebar-sublink {{ Request::is('laporan/aktivasi-sales') ? 'active' : '' }}"
+                        href="{{ route('activitylog.aktivasi_sales') }}">
                         <i class="fa-solid fa-circle-dot"></i>
                         <span>Lap. Aktivasi Sales</span>
                     </a>
-                    <a class="sidebar-sublink {{ Request::is('laporan/maintenance') ? 'active' : '' }}" href="{{ route('activitylog.maintenance') }}">
+                    <a class="sidebar-sublink {{ Request::is('laporan/maintenance') ? 'active' : '' }}"
+                        href="{{ route('activitylog.maintenance') }}">
                         <i class="fa-solid fa-circle-dot"></i>
                         <span>Lap. Pemeliharaan</span>
                     </a>
@@ -193,31 +221,38 @@
                     <i class="fa-solid fa-chevron-down sidebar-group-arrow"></i>
                 </button>
                 <div class="sidebar-group-content {{ $isSysActive ? 'open' : '' }}" id="group-sistem">
-                    <a class="sidebar-sublink {{ Request::is('pakets*') ? 'active' : '' }}" href="{{ route('pakets.index') }}">
+                    <a class="sidebar-sublink {{ Request::is('pakets*') ? 'active' : '' }}"
+                        href="{{ route('pakets.index') }}">
                         <i class="fa-solid fa-circle-dot"></i>
                         <span>Paket Layanan</span>
                     </a>
-                    <a class="sidebar-sublink {{ Request::is('nas*') ? 'active' : '' }}" href="{{ route('nas.index') }}">
+                    <a class="sidebar-sublink {{ Request::is('nas*') ? 'active' : '' }}"
+                        href="{{ route('nas.index') }}">
                         <i class="fa-solid fa-circle-dot"></i>
-                        <span>Router MikroTik</span>
+                        <span>Router (NAS)</span>
                     </a>
-                    <a class="sidebar-sublink {{ Request::is('accounts') ? 'active' : '' }}" href="{{ route('accounts.index') }}">
+                    <a class="sidebar-sublink {{ Request::is('accounts') ? 'active' : '' }}"
+                        href="{{ route('accounts.index') }}">
                         <i class="fa-solid fa-circle-dot"></i>
                         <span>Manajemen Staf / Akun</span>
                     </a>
-                    <a class="sidebar-sublink {{ Request::is('tracking') ? 'active' : '' }}" href="{{ route('accounts.tracking') }}">
+                    <a class="sidebar-sublink {{ Request::is('tracking') ? 'active' : '' }}"
+                        href="{{ route('accounts.tracking') }}">
                         <i class="fa-solid fa-circle-dot"></i>
                         <span>Pelacakan Lokasi</span>
                     </a>
-                    <a class="sidebar-sublink {{ Request::is('activity-log') ? 'active' : '' }}" href="{{ route('activitylog.index') }}">
+                    <a class="sidebar-sublink {{ Request::is('activity-log') ? 'active' : '' }}"
+                        href="{{ route('activitylog.index') }}">
                         <i class="fa-solid fa-circle-dot"></i>
                         <span>Log Aktivitas</span>
                     </a>
-                    <a class="sidebar-sublink {{ Request::is('migration*') ? 'active' : '' }}" href="{{ route('migration.index') }}">
+                    <a class="sidebar-sublink {{ Request::is('migration*') ? 'active' : '' }}"
+                        href="{{ route('migration.index') }}">
                         <i class="fa-solid fa-circle-dot"></i>
                         <span>Backup & Restore</span>
                     </a>
-                    <a class="sidebar-sublink {{ Request::is('settings*') ? 'active' : '' }}" href="{{ route('settings.index') }}">
+                    <a class="sidebar-sublink {{ Request::is('settings*') ? 'active' : '' }}"
+                        href="{{ route('settings.index') }}">
                         <i class="fa-solid fa-circle-dot"></i>
                         <span>Pengaturan Sistem</span>
                     </a>
