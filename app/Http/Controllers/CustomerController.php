@@ -322,7 +322,7 @@ class CustomerController extends Controller
                                 </button>
                                 <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50" title="Hapus Permanen"
                                     onclick="openForceDeleteCustomerModal(\'' . route('customers.force_delete', $customer->id) . '\', \'' . htmlspecialchars(addslashes($customer->nama_lengkap), ENT_QUOTES) . '\')">
-                                    <i class="fa-solid fa-trash-can text-rose-600"></i>
+                                    <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i>
                                 </button>
                             ';
                         } else {

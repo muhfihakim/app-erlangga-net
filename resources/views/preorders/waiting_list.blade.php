@@ -285,7 +285,7 @@
                                         <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50"
                                             onclick="confirmGlobalDelete('{{ route('pre_orders.destroy', $po->id) }}', '{{ addslashes($po->nama_lengkap) }}')"
                                             title="Hapus">
-                                            <i class="fa-solid fa-trash text-rose-500"></i>
+                                            <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i>
                                         </button>
                                     @endif
                                 </div>

@@ -227,10 +227,10 @@
                                             data-foto="{{ $odp->foto_odp ? Storage::url($odp->foto_odp) : '' }}">
                                             <i class="fa-solid fa-pen-to-square text-slate-500"></i>
                                         </button>
-                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
+                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50"
                                             title="Hapus"
                                             onclick="confirmGlobalDelete('{{ route('odp.destroy', $odp->id) }}', 'ODP {{ addslashes($odp->lokasi_odp) }}')">
-                                            <i class="fa-solid fa-trash text-rose-500"></i>
+                                            <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i>
                                         </button>
                                     @endif
                                 </div>

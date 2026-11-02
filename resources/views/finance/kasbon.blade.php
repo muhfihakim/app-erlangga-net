@@ -264,10 +264,10 @@
                                 @endif
                             </td>
                             <td style="text-align: center;">
-                                <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!bg-rose-50"
+                                <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50"
                                     title="Hapus"
                                     onclick="confirmGlobalDelete('{{ route('kasbons.destroy', $k->id) }}', 'Kasbon {{ addslashes($k->teknisi->nama_lengkap ?? '') }} (Rp {{ number_format($k->nominal, 0, ',', '.') }})')">
-                                    <i class="fa-solid fa-trash text-rose-500 text-xs"></i>
+                                    <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600 text-xs"></i>
                                 </button>
                             </td>
                         </tr>

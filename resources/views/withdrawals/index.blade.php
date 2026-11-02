@@ -325,8 +325,8 @@
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
-                                                class="topbar-icon-btn !w-7 !h-7 !rounded-lg hover:!bg-rose-50" title="Hapus">
-                                                <i class="fa-solid fa-trash text-[11px] text-rose-500"></i>
+                                                class="topbar-icon-btn !w-7 !h-7 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50" title="Hapus">
+                                                <i class="fa-solid fa-trash text-[11px] text-slate-500 hover:text-rose-600"></i>
                                             </button>
                                         </form>
                                     </div>

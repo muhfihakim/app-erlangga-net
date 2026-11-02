@@ -171,7 +171,7 @@
                                         <button type="button"
                                             onclick="confirmGlobalDelete('{{ route('assets.destroy', $asset->id) }}', '{{ addslashes($asset->name) }}')"
                                             class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50" title="Hapus">
-                                            <i class="fa-solid fa-trash text-rose-500"></i>
+                                            <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i>
                                         </button>
                                     @endif
                                 </div>

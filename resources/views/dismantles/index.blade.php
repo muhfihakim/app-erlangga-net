@@ -167,9 +167,9 @@
                                                 </button>
                                             @endif
                                         @else
-                                            <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                            <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50"
                                                 onclick="confirmGlobalDelete('{{ route('dismantles.destroy', $d->id) }}', '{{ $d->customer->nama_lengkap ?? 'N/A' }}')">
-                                                <i class="fa-solid fa-trash text-rose-600"></i>
+                                                <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i>
                                             </button>
                                         @endif
                                     </div>
