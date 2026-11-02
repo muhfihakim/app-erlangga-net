@@ -549,13 +549,13 @@
                     </div>
                 </div>
 
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                    <button type="button" class="btn-cancel !flex !items-center !justify-center"
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2 rounded-b-2xl">
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                         onclick="closeCustomModal('activationModal')">
-                        Batal
+                        <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-save !flex !items-center !justify-center !bg-primary">
-                        Simpan
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>
@@ -661,12 +661,12 @@
                     </div>
                 </div>
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2">
-                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                         onclick="closeCustomModal('unspekModal')">
-                        Batal
+                        <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !bg-amber-600 hover:!bg-amber-700 !text-white !h-9 !px-5 text-xs font-semibold">
-                        Tangguhkan ke Waiting List
+                    <button type="submit" class="btn-primary-admin !bg-amber-600 hover:!bg-amber-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Tangguhkan ke Waiting List
                     </button>
                 </div>
             </form>

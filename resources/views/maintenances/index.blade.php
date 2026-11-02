@@ -102,9 +102,9 @@
         </div>
         <div style="display:flex; gap:10px;">
             @if ($is_admin)
-                <button type="button" class="btn-primary-admin !flex !items-center !justify-center gap-2"
+                <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-1.5"
                     onclick="openCustomModal('addMaintenanceModal')">
-                    Tambah
+                    <i class="fa-solid fa-plus"></i> Tambah Pemeliharaan
                 </button>
             @endif
         </div>
@@ -224,7 +224,7 @@
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-end">
                 <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('searchCustomerModal')">
-                    Batal
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
             </div>
         </div>
@@ -279,10 +279,10 @@
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
                     <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                         onclick="closeCustomModal('addMaintenanceModal')">
-                        Batal
+                        <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
-                        Kirim Tugas
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>
@@ -618,10 +618,10 @@
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
                     <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                         onclick="closeCustomModal('completeModal')">
-                        Batal
+                        <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
-                        Kirim Laporan
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>

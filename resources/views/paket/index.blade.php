@@ -50,25 +50,25 @@
             <!-- Tombol Sync / Kirim ke MikroTik -->
             <form action="{{ route('pakets.sync_to_mikrotik') }}" method="POST" style="margin:0;">
                 @csrf
-                <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !bg-indigo-600 hover:!bg-indigo-700" 
+                <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !bg-indigo-600 hover:!bg-indigo-700 flex items-center gap-1.5" 
                     onclick="return confirm('Kirim dan sinkronkan seluruh paket layanan dari database ke MikroTik (PPP Profile, IP Pool & RADIUS)?')">
-                    Sync ke MikroTik
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Sync ke MikroTik
                 </button>
             </form>
 
             <!-- Tombol Tarik Profile dari MikroTik -->
             <form action="{{ route('paket.sync') }}" method="POST" style="margin:0;">
                 @csrf
-                <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700" 
+                <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700 flex items-center gap-1.5" 
                     onclick="return confirm('Tarik semua Profile dari MikroTik dan masukkan ke database lokal?')">
-                    Tarik dari MikroTik
+                    <i class="fa-solid fa-cloud-arrow-down"></i> Tarik dari MikroTik
                 </button>
             </form>
 
             <!-- Tombol Tambah Paket Baru -->
-            <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold"
+            <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold flex items-center gap-1.5"
                 onclick="openPaketModal()">
-                Tambah
+                <i class="fa-solid fa-plus"></i> Tambah Paket
             </button>
         </div>
     </div>
@@ -268,13 +268,13 @@
                     </div>
                 </div>
 
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2.5">
-                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2.5">
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                         onclick="closeCustomModal('formPaketModal')">
-                        Batal
+                        <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
-                        Simpan
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>

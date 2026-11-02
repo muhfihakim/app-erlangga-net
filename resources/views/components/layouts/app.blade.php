@@ -58,15 +58,15 @@
                 </div>
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2">
-                <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" 
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" 
                     onclick="closeCustomModal('globalDeleteModal')">
-                    Batal
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
                 <form id="globalDeleteForm" method="POST" class="m-0">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-9 !px-5 text-xs font-semibold">
-                        Hapus
+                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-trash"></i> Hapus
                     </button>
                 </form>
             </div>

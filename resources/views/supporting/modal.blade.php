@@ -81,12 +81,12 @@
                 </div>
             </div>
 
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2" onclick="closeCustomModal('supportingModal')">
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2 rounded-b-2xl">
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('supportingModal')">
                     <i class="fa-solid fa-xmark"></i> Batal
                 </button>
-                <button type="submit" class="btn-save !flex !items-center !justify-center gap-2">
-                    Simpan
+                <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <i class="fa-solid fa-floppy-disk"></i> Simpan
                 </button>
             </div>
         </form>

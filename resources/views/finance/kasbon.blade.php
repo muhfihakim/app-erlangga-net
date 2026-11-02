@@ -126,7 +126,7 @@
         <div style="display:flex; gap:10px;">
             <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-1.5 shadow-sm"
                 onclick="openCustomModal('kasbonModal')">
-                Tambah
+                <i class="fa-solid fa-plus"></i> Tambah Kasbon
             </button>
         </div>
     </div>
@@ -333,13 +333,13 @@
                             placeholder="Catatan atau alasan kasbon..."></textarea>
                     </div>
                 </div>
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2.5">
-                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2.5">
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                         onclick="closeCustomModal('kasbonModal')">
-                        Batal
+                        <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
-                        Simpan
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>

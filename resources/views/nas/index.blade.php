@@ -21,8 +21,8 @@
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola data Router / Server Akses untuk Radius.</p>
         </div>
         <div style="display:flex; gap:8px;">
-            <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold" onclick="openNasModal()">
-                Tambah
+            <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="openNasModal()">
+                <i class="fa-solid fa-plus"></i> Tambah Router
             </button>
         </div>
     </div>
@@ -121,12 +121,12 @@
                     </div>
                 </div>
 
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2.5">
-                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('formNasModal')">
-                        Batal
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2.5">
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('formNasModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
-                        Simpan
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>

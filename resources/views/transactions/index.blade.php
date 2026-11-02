@@ -336,10 +336,10 @@
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2 rounded-b-2xl">
                 <div class="flex items-center gap-2">
-                    <a id="detailModalInvoiceBtn" href="#" class="btn-primary-admin !h-9 !px-3.5 text-xs font-semibold !bg-indigo-600 hover:!bg-indigo-700 !flex items-center gap-1.5 shadow-sm">
+                    <a id="detailModalInvoiceBtn" href="#" class="btn-primary-admin !h-8.5 !px-3.5 text-xs font-semibold !bg-indigo-600 hover:!bg-indigo-700 !flex items-center gap-1.5 shadow-sm">
                         <i class="fa-solid fa-file-invoice"></i> Lihat Invoice
                     </a>
-                    <a id="detailModalPrintBtn" href="#" target="_blank" class="btn-primary-admin !h-9 !px-3.5 text-xs font-semibold !bg-rose-600 hover:!bg-rose-700 !flex items-center gap-1.5 shadow-sm">
+                    <a id="detailModalPrintBtn" href="#" target="_blank" class="btn-primary-admin !h-8.5 !px-3.5 text-xs font-semibold !bg-rose-600 hover:!bg-rose-700 !flex items-center gap-1.5 shadow-sm">
                         <i class="fa-solid fa-file-pdf"></i> Cetak PDF
                     </a>
                 </div>

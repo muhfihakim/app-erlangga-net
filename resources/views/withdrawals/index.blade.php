@@ -248,8 +248,8 @@
                         </div>
 
                         <button type="submit" id="btnInitiateWithdrawal"
-                            class="btn-primary-admin !h-10 text-xs font-semibold w-full flex items-center justify-center shadow-sm">
-                            Lanjutkan Verifikasi OTP
+                            class="btn-primary-admin !h-10 text-xs font-semibold w-full flex items-center justify-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-shield-halved"></i> Lanjutkan Verifikasi OTP
                         </button>
                     </form>
                 </div>
@@ -310,9 +310,9 @@
                                             <form action="{{ route('bank_accounts.set_default', $acc->id) }}" method="POST" class="inline">
                                                 @csrf
                                                 <button type="submit"
-                                                    class="px-2 py-1 rounded-md bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 text-[11px] font-semibold border border-slate-200 transition-colors"
+                                                    class="px-2 py-1 rounded-md bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 text-[11px] font-semibold border border-slate-200 transition-colors flex items-center gap-1"
                                                     title="Jadikan Rekening Utama">
-                                                    Set Utama
+                                                    <i class="fa-solid fa-star text-[10px]"></i> Set Utama
                                                 </button>
                                             </form>
                                         @endif
@@ -534,13 +534,13 @@
                     </div>
                 </div>
 
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2.5">
-                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2.5">
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                         onclick="closeAddBankModal()">
-                        Batal
+                        <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
-                        Simpan
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>
@@ -628,13 +628,13 @@
                     </div>
                 </div>
 
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2.5">
-                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2.5">
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                         onclick="closeEditBankModal()">
-                        Batal
+                        <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
-                        Simpan
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>
@@ -701,14 +701,14 @@
                 </div>
             </div>
 
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2.5">
-                <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2.5">
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                     onclick="closeOtpModal()">
-                    Batal
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
                 <button type="button" id="btnConfirmWithdrawal" onclick="executeWithdrawal()"
-                    class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
-                    Konfirmasi Penarikan
+                    class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-check"></i> Konfirmasi Penarikan
                 </button>
             </div>
         </div>

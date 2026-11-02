@@ -62,9 +62,9 @@
         </div>
         <div style="display:flex; gap:10px;">
             @if ($is_admin)
-                <button type="button" class="btn-primary-admin !flex !items-center !justify-center gap-2"
+                <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-1.5"
                     onclick="openCustomModal('addDismantleModal')">
-                    Tambah
+                    <i class="fa-solid fa-plus"></i> Tambah Dismantle
                 </button>
             @endif
         </div>
@@ -276,8 +276,8 @@
                     </table>
                 </div>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                <button type="button" class="btn-cancel w-full" onclick="closeCustomModal('searchCustomerModal')">
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-end rounded-b-2xl">
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('searchCustomerModal')">
                     <i class="fa-solid fa-xmark"></i> Batal
                 </button>
             </div>
@@ -323,13 +323,13 @@
                             placeholder="Jelaskan detail alasan dismantle..."></textarea>
                     </div>
                 </div>
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2 rounded-b-2xl">
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                         onclick="closeCustomModal('addDismantleModal')">
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-save !flex !items-center !justify-center gap-2 !bg-indigo-600">
-                        <i class="fa-solid fa-paper-plane"></i> Kirim Tugas
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>
@@ -418,13 +418,13 @@
                         <input type="file" name="foto_pencabutan" class="form-input" required accept="image/*">
                     </div>
                 </div>
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 rounded-b-2xl">
-                    <button type="button" class="btn-cancel !flex !items-center !justify-center gap-2"
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2 rounded-b-2xl">
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                         onclick="closeCustomModal('completeDismantleModal')">
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-save !flex !items-center !justify-center gap-2 !bg-emerald-600">
-                        <i class="fa-solid fa-cloud-arrow-up"></i> Kirim Laporan Selesai
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>

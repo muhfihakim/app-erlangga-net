@@ -33,12 +33,12 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2.5">
-                <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold" onclick="closeCustomModal('exportLogModal')">
-                    Batal
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2.5">
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('exportLogModal')">
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
-                <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
-                    Unduh PDF
+                <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-pdf"></i> Unduh PDF
                 </button>
             </div>
         </form>

@@ -949,10 +949,10 @@
                 </div>
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between gap-2">
                     <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('isolirCustomerModal')">
-                        Batal
+                        <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-9 !px-5 text-xs font-semibold">
-                        Isolir Sekarang
+                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-ban"></i> Isolir Sekarang
                     </button>
                 </div>
             </form>
@@ -990,10 +990,10 @@
                 </div>
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between gap-2">
                     <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('bukaIsolirCustomerModal')">
-                        Batal
+                        <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-9 !px-5 text-xs font-semibold">
-                        Buka Isolir Sekarang
+                    <button type="submit" class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-unlock-keyhole"></i> Buka Isolir Sekarang
                     </button>
                 </div>
             </form>
@@ -1044,10 +1044,10 @@
                     </div>
                     <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between gap-2">
                         <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('deactivateCustomerModal')">
-                            Batal
+                            <i class="fa-solid fa-xmark"></i> Batal
                         </button>
-                        <button type="submit" class="btn-primary-admin !bg-amber-600 hover:!bg-amber-700 !text-white !h-9 !px-5 text-xs font-semibold">
-                            Non-aktifkan (Arsipkan)
+                        <button type="submit" class="btn-primary-admin !bg-amber-600 hover:!bg-amber-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                            <i class="fa-solid fa-box-archive"></i> Non-aktifkan (Arsipkan)
                         </button>
                     </div>
                 </form>
@@ -1088,10 +1088,10 @@
                     </div>
                     <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between gap-2">
                         <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('restoreCustomerModal')">
-                            Batal
+                            <i class="fa-solid fa-xmark"></i> Batal
                         </button>
-                        <button type="submit" class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-9 !px-5 text-xs font-semibold">
-                            Aktifkan Kembali
+                        <button type="submit" class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                            <i class="fa-solid fa-rotate-left"></i> Aktifkan Kembali
                         </button>
                     </div>
                 </form>
@@ -1133,10 +1133,10 @@
                     </div>
                     <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between gap-2">
                         <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('forceDeleteCustomerModal')">
-                            Batal
+                            <i class="fa-solid fa-xmark"></i> Batal
                         </button>
-                        <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-9 !px-5 text-xs font-semibold">
-                            Hapus
+                        <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                            <i class="fa-solid fa-trash"></i> Hapus
                         </button>
                     </div>
                 </form>

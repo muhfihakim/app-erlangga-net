@@ -280,11 +280,11 @@
 
                 <div class="flex items-center justify-end gap-2 pt-3.5 mt-3.5 border-t border-slate-100">
                     <button type="button" onclick="testConnectionAjax('mikrotik')"
-                        class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-9 !px-4 text-xs font-semibold">
-                        <span id="btn-test-mikrotik-text">Uji Koneksi</span>
+                        class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-bolt"></i> <span id="btn-test-mikrotik-text">Uji Koneksi</span>
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
-                        Simpan
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>
@@ -535,11 +535,11 @@
 
                 <div class="flex items-center justify-end gap-2 pt-3.5 mt-3.5 border-t border-slate-100">
                     <button type="button" onclick="testConnectionAjax('olt')"
-                        class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-9 !px-4 text-xs font-semibold">
-                        <span id="btn-test-olt-text">Uji Koneksi</span>
+                        class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-bolt"></i> <span id="btn-test-olt-text">Uji Koneksi</span>
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
-                        Simpan
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>
@@ -622,11 +622,11 @@
 
                 <div class="flex items-center justify-end gap-2 pt-3.5 mt-3.5 border-t border-slate-100">
                     <button type="button" onclick="testConnectionAjax('radius')"
-                        class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-9 !px-4 text-xs font-semibold">
-                        <span id="btn-test-radius-text">Uji Koneksi</span>
+                        class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-bolt"></i> <span id="btn-test-radius-text">Uji Koneksi</span>
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
-                        Simpan
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>
@@ -716,11 +716,11 @@
 
                 <div class="flex items-center justify-end gap-2 pt-3.5 mt-3.5 border-t border-slate-100">
                     <button type="button" onclick="testConnectionAjax('xendit')"
-                        class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-9 !px-4 text-xs font-semibold">
-                        <span id="btn-test-xendit-text">Uji Koneksi</span>
+                        class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-bolt"></i> <span id="btn-test-xendit-text">Uji Koneksi</span>
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
-                        Simpan
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>
@@ -792,11 +792,11 @@
 
                 <div class="flex items-center justify-end gap-2 pt-3.5 mt-3.5 border-t border-slate-100">
                     <button type="button" onclick="testConnectionAjax('whatsapp')"
-                        class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-9 !px-4 text-xs font-semibold">
-                        <span id="btn-test-whatsapp-text">Uji Koneksi</span>
+                        class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-bolt"></i> <span id="btn-test-whatsapp-text">Uji Koneksi</span>
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
-                        Simpan
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>
@@ -880,11 +880,11 @@
 
                 <div class="flex items-center justify-end gap-2 pt-3.5 mt-3.5 border-t border-slate-100">
                     <button type="button" onclick="testConnectionAjax('genieacs')"
-                        class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-9 !px-4 text-xs font-semibold">
-                        <span id="btn-test-genieacs-text">Uji Koneksi</span>
+                        class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-bolt"></i> <span id="btn-test-genieacs-text">Uji Koneksi</span>
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-9 !px-5 text-xs font-semibold">
-                        Simpan
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>

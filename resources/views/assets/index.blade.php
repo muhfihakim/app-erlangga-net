@@ -79,9 +79,9 @@
                 <i class="fa-solid fa-history"></i> Riwayat
             </a>
             @if ($isAdmin)
-                <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-2"
+                <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-1.5"
                     onclick="openCustomModal('addAssetModal')">
-                    Tambah
+                    <i class="fa-solid fa-plus"></i> Tambah Aset
                 </button>
             @endif
         </div>
@@ -236,10 +236,14 @@
                                 placeholder="Informasi tambahan spesifikasi atau penempatan..."></textarea>
                         </div>
                     </div>
-                    <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
-                        <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
-                            onclick="closeCustomModal('addAssetModal')">Batal</button>
-                        <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold">Simpan</button>
+                    <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2 rounded-b-2xl">
+                        <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
+                            onclick="closeCustomModal('addAssetModal')">
+                            <i class="fa-solid fa-xmark"></i> Batal
+                        </button>
+                        <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                            <i class="fa-solid fa-floppy-disk"></i> Simpan
+                        </button>
                     </div>
                 </form>
             </div>
@@ -294,10 +298,14 @@
                                 class="form-textarea !font-normal bg-white text-slate-800 border-slate-300 text-xs" rows="3"></textarea>
                         </div>
                     </div>
-                    <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
-                        <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
-                            onclick="closeCustomModal('editAssetModal')">Batal</button>
-                        <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold">Simpan</button>
+                    <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2 rounded-b-2xl">
+                        <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
+                            onclick="closeCustomModal('editAssetModal')">
+                            <i class="fa-solid fa-xmark"></i> Batal
+                        </button>
+                        <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                            <i class="fa-solid fa-floppy-disk"></i> Simpan
+                        </button>
                     </div>
                 </form>
             </div>
@@ -383,10 +391,14 @@
                             placeholder="Contoh: Pengadaan, Pasang Baru, Maintenance, dll" required></textarea>
                     </div>
                 </div>
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
-                    <button type="button" class="btn-cancel !h-9 !px-4 text-xs font-semibold"
-                        onclick="closeCustomModal('transactionModal')">Batal</button>
-                    <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold">Simpan</button>
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2 rounded-b-2xl">
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
+                        onclick="closeCustomModal('transactionModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
+                    </button>
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
+                    </button>
                 </div>
             </form>
         </div>

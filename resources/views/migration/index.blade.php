@@ -84,8 +84,8 @@
         </div>
         <div class="flex items-center gap-2">
             <button type="button" onclick="openCustomModal('resetModal')"
-                class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !px-3.5 !h-8.5 !text-xs font-semibold shadow-xs">
-                Reset & Kosongkan Data
+                class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !px-3.5 !h-8.5 !text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                <i class="fa-solid fa-triangle-exclamation"></i> Reset & Kosongkan Data
             </button>
         </div>
     </div>
@@ -433,15 +433,15 @@
                     </p>
                 </div>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-end gap-2">
-                <button type="button" class="btn-cancel !h-8 !px-3.5 text-xs font-semibold" onclick="closeCustomModal('deleteBackupModal')">
-                    Batal
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between gap-2">
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('deleteBackupModal')">
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
                 <form id="formDeleteBackup" action="" method="POST" class="m-0">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8 !px-4 text-xs font-semibold">
-                        Hapus
+                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-trash"></i> Hapus
                     </button>
                 </form>
             </div>
@@ -471,12 +471,12 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-end gap-2">
-                <button type="button" class="btn-cancel !h-8 !px-3.5 text-xs font-semibold" onclick="closeCustomModal('confirmImportModal')">
-                    Batal
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between gap-2">
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('confirmImportModal')">
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
-                <button type="button" id="btnExecuteImport" class="btn-primary-admin !h-8 !px-4 text-xs font-semibold" onclick="proceedImport()">
-                    Mulai Import
+                <button type="button" id="btnExecuteImport" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5" onclick="proceedImport()">
+                    <i class="fa-solid fa-file-import"></i> Mulai Import
                 </button>
             </div>
         </div>
@@ -502,14 +502,14 @@
                     </p>
                 </div>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-end gap-2">
-                <button type="button" class="btn-cancel !h-8 !px-3.5 text-xs font-semibold" onclick="closeCustomModal('resetModal')">
-                    Batal
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between gap-2">
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('resetModal')">
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
                 <form action="{{ route('migration.reset') }}" method="POST" class="m-0">
                     @csrf
-                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8 !px-4 text-xs font-semibold">
-                        Kosongkan Data
+                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-trash"></i> Kosongkan Data
                     </button>
                 </form>
             </div>
