@@ -205,7 +205,7 @@
                         <th style="text-align: center; width: 120px;">IP Address</th>
                         <th style="text-align: center; width: 110px;">Tipe Bayar</th>
                         <th style="text-align: center; width: 130px;">Status Invoice</th>
-                        <th style="text-align: center; width: 330px; min-width: 320px;">Opsi</th>
+                        <th style="text-align: center; width: 160px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
