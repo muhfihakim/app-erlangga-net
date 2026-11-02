@@ -1,69 +1,76 @@
 # 📱 Dokumentasi API Mobile Pelanggan (Android & iOS)
-**Aplikasi Manajemen Pelanggan - Erlangga Net**
+**Sistem Billing & Otomasi ISP — Erlangga Net**
 
-Dokumentasi ini ditujukan untuk tim pengembang Mobile App (Flutter / React Native / Swift / Kotlin) dan pengujian integrasi via Postman.
-
----
-
-## 📌 Ringkasan Konfigurasi API
-
-- **Base URL Pengembangan (Lokal)**: `http://127.0.0.1:8000/api`
-- **Base URL Server Produksi**: `https://app.erlangga.net/api` *(atau domain hosting aktif)*
-- **Header Standar (Semua Request)**:
-  ```http
-  Accept: application/json
-  Content-Type: application/json
-  ```
-- **Mekanisme Autentikasi**:
-  - Pelanggan login menggunakan **`id_pelanggan`** dan **`pppoe_password`**.
-  - Server mengembalikan **Bearer Token (Laravel Sanctum)**.
-  - Untuk setiap endpoint yang terproteksi, sertakan header:
-    ```http
-    Authorization: Bearer <token_dari_login>
-    ```
+Dokumentasi ini disiapkan khusus untuk Mobile Developer (Flutter / React Native / Native Android & iOS) untuk integrasi dan pengujian API pelanggan.
 
 ---
 
-## 📑 Daftar Endpoint
+## 🌐 Konfigurasi Lingkungan (Environment)
 
-| No | Modul | Method | Endpoint | Akses | Deskripsi |
-|---|---|:---:|---|:---:|---|
-| **1** | **Autentikasi** | `POST` | `/login` | Public | Login pelanggan (ID Pelanggan & Sandi PPPoE) |
-| | | `GET` | `/me` | Protected | Cek sesi & data profil pelanggan yang sedang aktif |
-| | | `POST` | `/logout` | Protected | Logout & revoke access token |
-| **2** | **Pembayaran** | `GET` | `/payments/status` | Protected | Cek status layanan (Aktif/Isolir), jatuh tempo & tagihan berjalan |
-| | | `GET` | `/payments/invoices` | Protected | Riwayat faktur tagihan (`?status=unpaid` / `paid`) |
-| | | `GET` | `/payments/invoices/{id}` | Protected | Detail rincian faktur tertentu |
-| | | `POST` | `/payments/pay` | Protected | Generate URL Checkout Payment Gateway Xendit |
-| | | `POST` | `/payments/invoices/{id}/check-status` | Protected | Cek & sinkronisasi real-time status pembayaran |
-| **3** | **Akun & Penggunaan** | `GET` | `/account/info` | Protected | Detail lengkap profil pelanggan, paket langganan & modem ONT |
-| | | `GET` | `/account/usage` | Protected | Status koneksi real-time, uptime, dan kuota/traffic bulanan |
-| **4** | **Kontrol Perangkat (ACS)** | `GET` | `/device/wifi` | Protected | Informasi SSID, Sandi Wi-Fi, dan status ONT via TR-069 |
-| | | `GET` | `/device/hosts` | Protected | Daftar perangkat yang sedang terhubung ke Wi-Fi / LAN |
-| | | `POST` | `/device/wifi` | Protected | Ubah Nama (SSID) dan Password Wi-Fi via TR-069 |
-| | | `POST` | `/device/reboot` | Protected | Restart / Reboot perangkat ONT jarak jauh via TR-069 |
+| Parameter | Nilai / Konfigurasi |
+|---|---|
+| **Base URL Staging** | `https://stage.erlangga.net/api` |
+| **Base URL Produksi** | `https://app.erlangga.net/api` |
+| **Format Data** | `application/json` |
+| **Autentikasi** | Bearer Token (Laravel Sanctum) |
+
+### Standar Request Header
+Untuk seluruh request API, wajib menyertakan header berikut:
+```http
+Accept: application/json
+Content-Type: application/json
+```
+Untuk endpoint yang **memerlukan autentikasi (Protected)**, tambahkan header:
+```http
+Authorization: Bearer <TOKEN_HASIL_LOGIN>
+```
+
+---
+
+## 📑 Ringkasan Daftar Endpoint API
+
+| No | Modul | Method | Full URL (Staging) | Akses | Deskripsi |
+|:---:|---|:---:|---|:---:|---|
+| **1** | **Autentikasi** | `POST` | `https://stage.erlangga.net/api/login` | Public | Login pelanggan via ID Pelanggan / Username & Sandi |
+| | | `GET` | `https://stage.erlangga.net/api/me` | Protected | Cek profil & masa aktif sesi login saat ini |
+| | | `POST` | `https://stage.erlangga.net/api/logout` | Protected | Logout & hapus token akses |
+| **2** | **Pembayaran & Tagihan** | `GET` | `https://stage.erlangga.net/api/payments/status` | Protected | Ringkasan billing, status isolir, jatuh tempo & total tunggakan |
+| | | `GET` | `https://stage.erlangga.net/api/payments/invoices` | Protected | Riwayat & daftar tagihan (`?status=unpaid` / `paid`) |
+| | | `GET` | `https://stage.erlangga.net/api/payments/invoices/{id}` | Protected | Detail item rincian faktur tagihan |
+| | | `POST` | `https://stage.erlangga.net/api/payments/pay` | Protected | Generate URL Checkout Pembayaran Xendit (VA, QRIS, dll) |
+| | | `POST` | `https://stage.erlangga.net/api/payments/invoices/{id}/check-status` | Protected | Cek status pembayaran real-time setelah checkout |
+| **3** | **Akun & Pemakaian** | `GET` | `https://stage.erlangga.net/api/account/info` | Protected | Detail akun pelanggan, paket langganan, IP & info teknis |
+| | | `GET` | `https://stage.erlangga.net/api/account/usage` | Protected | Status online/offline, uptime, traffic & kuota pemakaian |
+| **4** | **Kontrol ONT (TR-069)** | `GET` | `https://stage.erlangga.net/api/device/wifi` | Protected | Status modem ONT, sinyal optik (dBm), SSID & Sandi Wi-Fi |
+| | | `GET` | `https://stage.erlangga.net/api/device/hosts` | Protected | Daftar HP / Laptop yang sedang terhubung ke Wi-Fi |
+| | | `POST` | `https://stage.erlangga.net/api/device/wifi` | Protected | Ganti SSID dan Password Wi-Fi langsung ke ONT |
+| | | `POST` | `https://stage.erlangga.net/api/device/reboot` | Protected | Perintah restart / reboot modem ONT jarak jauh |
 
 ---
 
 ## 1️⃣ Modul Autentikasi
 
 ### 1.1 Login Pelanggan
-Digunakan untuk login pertama kali pada mobile app.
+Digunakan saat pelanggan membuka aplikasi dan memasukkan kredensial login.
 
 - **Method**: `POST`
-- **Endpoint**: `/login`
-- **Akses**: Public
+- **URL**: `https://stage.erlangga.net/api/login`
+- **Headers**:
+  ```http
+  Accept: application/json
+  Content-Type: application/json
+  ```
 - **Request Body (JSON)**:
   ```json
   {
     "id_pelanggan": "23114957687",
-    "password": "123",
-    "device_name": "iPhone 15 Pro"
+    "password": "password_pppoe_pelanggan",
+    "device_name": "Flutter Android - Xiaomi 13"
   }
   ```
-  *(Catatan: Kolom `id_pelanggan` juga menerima `username` PPPoE).*
+  *(Catatan: Field `id_pelanggan` juga dapat diisi dengan username PPPoE pelanggan).*
 
-- **Response `200 OK` (Sukses)**:
+- **Response `200 OK` (Berhasil)**:
   ```json
   {
     "success": true,
@@ -74,20 +81,20 @@ Digunakan untuk login pertama kali pada mobile app.
         "id": 1,
         "id_pelanggan": "23114957687",
         "nama_lengkap": "Nurul Adhira",
-        "no_whatsapp": "6282191285271",
+        "no_whatsapp": "082191285271",
         "alamat_lengkap": "Blok Tegal Kalapa RT. 14 RW 10 Dangdeur Subang",
         "jenis_modem": "EPON",
-        "sn_perangkat": null
+        "sn_perangkat": "ZTEGC1234567"
       },
       "paket": {
         "id": 1,
-        "nama_paket": "Paket Bronze 112K",
-        "kecepatan": "10 Mbps",
-        "harga": 112000,
-        "total_harga": 112000
+        "nama_paket": "Paket Home 20 Mbps",
+        "kecepatan": "20 Mbps",
+        "harga": 150000,
+        "total_harga": 166500
       },
       "layanan": {
-        "pppoe_username": "Nurultgl@erlangga.net",
+        "pppoe_username": "nurul_tegal",
         "status_invoice": "terbayar",
         "tanggal_aktif": "2026-09-20",
         "unpaid_invoices_count": 0,
@@ -97,26 +104,45 @@ Digunakan untuk login pertama kali pada mobile app.
   }
   ```
 
-- **Response `401 Unauthorized` (Gagal)**:
+- **Response `401 Unauthorized` (Sandi / Akun Salah)**:
   ```json
   {
     "success": false,
     "message": "ID Pelanggan atau Sandi salah.",
     "errors": {
-      "id_pelanggan": ["Akun pelanggan tidak ditemukan."]
+      "id_pelanggan": [
+        "Akun pelanggan tidak ditemukan."
+      ]
+    }
+  }
+  ```
+
+- **Response `422 Unprocessable Entity` (Validasi Kosong)**:
+  ```json
+  {
+    "success": false,
+    "message": "ID Pelanggan wajib diisi.",
+    "errors": {
+      "id_pelanggan": [
+        "ID Pelanggan atau Username wajib diisi."
+      ]
     }
   }
   ```
 
 ---
 
-### 1.2 Profil Saya (`/me`)
-Memeriksa apakah token masih valid dan mengambil informasi dasar pelanggan.
+### 1.2 Profil Sesi Aktif (`/me`)
+Memeriksa apakah token pelanggan masih valid dan mengambil informasi dasar profil.
 
 - **Method**: `GET`
-- **Endpoint**: `/me`
-- **Header**: `Authorization: Bearer <token>`
-- **Response `200 OK`**:
+- **URL**: `https://stage.erlangga.net/api/me`
+- **Headers**:
+  ```http
+  Accept: application/json
+  Authorization: Bearer <TOKEN_PELANGGAN>
+  ```
+- **Response `200 OK` (Berhasil)**:
   ```json
   {
     "success": true,
@@ -124,29 +150,40 @@ Memeriksa apakah token masih valid dan mengambil informasi dasar pelanggan.
       "id": 1,
       "id_pelanggan": "23114957687",
       "nama_lengkap": "Nurul Adhira",
-      "no_whatsapp": "6282191285271",
+      "no_whatsapp": "082191285271",
       "alamat_lengkap": "Blok Tegal Kalapa RT. 14 RW 10 Dangdeur Subang",
       "paket": {
-        "nama_paket": "Paket Bronze 112K",
-        "kecepatan": "10 Mbps",
-        "harga": 112000,
-        "total_harga": 112000
+        "nama_paket": "Paket Home 20 Mbps",
+        "kecepatan": "20 Mbps",
+        "harga": 150000,
+        "total_harga": 166500
       },
-      "pppoe_username": "Nurultgl@erlangga.net",
+      "pppoe_username": "nurul_tegal",
       "status_layanan": "Aktif",
       "tanggal_aktif": "2026-09-20"
     }
   }
   ```
 
+- **Response `401 Unauthorized` (Token Kadaluarsa / Hilang)**:
+  ```json
+  {
+    "message": "Unauthenticated."
+  }
+  ```
+
 ---
 
-### 1.3 Logout
-Menghapus session token pada database.
+### 1.3 Logout Pelanggan
+Menghapus token sesi aktif di database saat pelanggan menekan tombol Logout.
 
 - **Method**: `POST`
-- **Endpoint**: `/logout`
-- **Header**: `Authorization: Bearer <token>`
+- **URL**: `https://stage.erlangga.net/api/logout`
+- **Headers**:
+  ```http
+  Accept: application/json
+  Authorization: Bearer <TOKEN_PELANGGAN>
+  ```
 - **Response `200 OK`**:
   ```json
   {
@@ -159,21 +196,26 @@ Menghapus session token pada database.
 
 ## 2️⃣ Modul Pembayaran & Payment Gateway
 
-### 2.1 Status Pembayaran & Tagihan Aktif
-Menampilkan kartu ringkasan status billing di halaman utama mobile app.
+### 2.1 Ringkasan Billing & Tagihan Aktif
+Menampilkan widget kartu status tagihan di dashboard utama aplikasi. Memberikan informasi apakah status koneksi aktif, isolir, atau menunggu pembayaran.
 
 - **Method**: `GET`
-- **Endpoint**: `/payments/status`
-- **Header**: `Authorization: Bearer <token>`
-- **Response `200 OK`**:
+- **URL**: `https://stage.erlangga.net/api/payments/status`
+- **Headers**:
+  ```http
+  Accept: application/json
+  Authorization: Bearer <TOKEN_PELANGGAN>
+  ```
+
+- **Response `200 OK` (Kondisi Sudah Lunas / Aktif)**:
   ```json
   {
     "success": true,
     "data": {
       "status_layanan": "aktif",
       "status_invoice": "terbayar",
-      "tanggal_jatuh_tempo": "2026-09-20",
-      "sisa_hari": 11,
+      "tanggal_jatuh_tempo": "2026-11-20",
+      "sisa_hari": 18,
       "is_overdue": false,
       "total_tunggakan": 0,
       "unpaid_count": 0,
@@ -182,35 +224,82 @@ Menampilkan kartu ringkasan status billing di halaman utama mobile app.
   }
   ```
 
-*(Jika ada tagihan belum lunas, properti `tagihan_aktif` akan berisi objek invoice dan `status_layanan` bernilai `menunggu_pembayaran` atau `isolir`).*
+- **Response `200 OK` (Kondisi Ada Tagihan Belum Dibayar)**:
+  ```json
+  {
+    "success": true,
+    "data": {
+      "status_layanan": "menunggu_pembayaran",
+      "status_invoice": "belum_bayar",
+      "tanggal_jatuh_tempo": "2026-11-05",
+      "sisa_hari": 3,
+      "is_overdue": false,
+      "total_tunggakan": 166500,
+      "unpaid_count": 1,
+      "tagihan_aktif": {
+        "id": 142,
+        "invoice_number": "INV-202611-0001",
+        "amount": 150000,
+        "tax": 16500,
+        "discount": 0,
+        "total": 166500,
+        "status": "unpaid",
+        "due_date": "2026-11-05",
+        "xendit_invoice_url": "https://checkout.xendit.co/web/6725ec389140ab12"
+      }
+    }
+  }
+  ```
+  *(Catatan: Jika `is_overdue` bernilai `true` dan `unpaid_count > 0`, maka `status_layanan` bernilai `isolir`).*
 
 ---
 
-### 2.2 Riwayat Faktur / Invoices
-Menampilkan daftar riwayat tagihan bulanan pelanggan.
+### 2.2 Riwayat & Daftar Faktur Tagihan
+Menampilkan seluruh riwayat tagihan bulanan pelanggan.
 
 - **Method**: `GET`
-- **Endpoint**: `/payments/invoices`
-- **Query Parameter (Opsional)**: `?status=unpaid` atau `?status=paid`
-- **Header**: `Authorization: Bearer <token>`
+- **URL**: `https://stage.erlangga.net/api/payments/invoices`
+- **Query Parameter (Opsional)**:
+  - `?status=unpaid` *(Hanya tagihan tertunggak)*
+  - `?status=paid` *(Hanya tagihan lunas)*
+  - Contoh: `https://stage.erlangga.net/api/payments/invoices?status=paid`
+- **Headers**:
+  ```http
+  Accept: application/json
+  Authorization: Bearer <TOKEN_PELANGGAN>
+  ```
 - **Response `200 OK`**:
   ```json
   {
     "success": true,
     "data": [
       {
-        "id": 1,
-        "invoice_number": "INV-20260901-0001",
-        "amount": 112000,
-        "tax": 0,
+        "id": 142,
+        "invoice_number": "INV-202611-0001",
+        "amount": 150000,
+        "tax": 16500,
         "discount": 0,
-        "total": 112000,
+        "total": 166500,
+        "status": "unpaid",
+        "due_date": "2026-11-05",
+        "payment_method": null,
+        "xendit_invoice_url": "https://checkout.xendit.co/web/6725ec389140ab12",
+        "paid_at": null,
+        "created_at": "2026-11-01 00:00:00"
+      },
+      {
+        "id": 115,
+        "invoice_number": "INV-202610-0012",
+        "amount": 150000,
+        "tax": 16500,
+        "discount": 0,
+        "total": 166500,
         "status": "paid",
-        "due_date": "2026-09-08",
+        "due_date": "2026-10-05",
         "payment_method": "Xendit - BCA_VA",
-        "xendit_invoice_url": "https://checkout.xendit.co/web/...",
-        "paid_at": "2026-09-05 10:14:20",
-        "created_at": "2026-09-01 00:00:00"
+        "xendit_invoice_url": "https://checkout.xendit.co/web/66de46781290abcdef",
+        "paid_at": "2026-10-03 14:22:10",
+        "created_at": "2026-10-01 00:00:00"
       }
     ]
   }
@@ -218,98 +307,124 @@ Menampilkan daftar riwayat tagihan bulanan pelanggan.
 
 ---
 
-### 2.3 Detail Faktur Tertentu
+### 2.3 Detail Rincian Faktur Tertentu
+Mengambil rincian faktur tertentu beserta riwayat transaksinya.
+
 - **Method**: `GET`
-- **Endpoint**: `/payments/invoices/{id}`
-- **Header**: `Authorization: Bearer <token>`
+- **URL**: `https://stage.erlangga.net/api/payments/invoices/142`
+- **Headers**:
+  ```http
+  Accept: application/json
+  Authorization: Bearer <TOKEN_PELANGGAN>
+  ```
 - **Response `200 OK`**:
   ```json
   {
     "success": true,
     "data": {
-      "id": 1,
-      "invoice_number": "INV-20260901-0001",
-      "paket_nama": "Paket Bronze 112K",
-      "amount": 112000,
-      "tax": 0,
+      "id": 142,
+      "invoice_number": "INV-202611-0001",
+      "paket_nama": "Paket Home 20 Mbps",
+      "amount": 150000,
+      "tax": 16500,
       "discount": 0,
-      "total": 112000,
-      "status": "paid",
-      "due_date": "2026-09-08",
-      "payment_method": "Xendit - BCA_VA",
-      "xendit_invoice_url": "https://checkout.xendit.co/web/...",
-      "created_at": "2026-09-01 00:00:00",
-      "transactions": [
-        {
-          "id": 1,
-          "payment_method": "Xendit - BCA_VA",
-          "amount_paid": 112000,
-          "payment_date": "2026-09-05 10:14:20",
-          "status": "success",
-          "xendit_payment_id": "pm_12345"
-        }
-      ]
+      "total": 166500,
+      "status": "unpaid",
+      "due_date": "2026-11-05",
+      "payment_method": null,
+      "xendit_invoice_url": "https://checkout.xendit.co/web/6725ec389140ab12",
+      "created_at": "2026-11-01 00:00:00",
+      "transactions": []
     }
   }
   ```
 
 ---
 
-### 2.4 Melakukan Pembayaran (Xendit Payment Gateway)
-Mengambil atau membuat link checkout pembayaran online (Virtual Account, QRIS, Alfamart/Indomaret, OVO, Dana, GoPay, Kartu Debit/Kredit).
+### 2.4 Melakukan Pembayaran (Bayar via Xendit Payment Gateway)
+Mengambil link checkout pembayaran aktif atau membuat sesi invoice baru di Payment Gateway Xendit (Mendukung BCA/BRI/Mandiri/BNI Virtual Account, QRIS, Alfamart/Indomaret, GoPay, OVO, ShopeePay, Kartu Kredit).
 
 - **Method**: `POST`
-- **Endpoint**: `/payments/pay`
-- **Header**: `Authorization: Bearer <token>`
+- **URL**: `https://stage.erlangga.net/api/payments/pay`
+- **Headers**:
+  ```http
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer <TOKEN_PELANGGAN>
+  ```
 - **Request Body (JSON - Opsional)**:
   ```json
   {
-    "invoice_id": 1
+    "invoice_id": 142
   }
   ```
-  *(Jika `invoice_id` dikosongkan, sistem secara otomatis memilih tagihan aktif yang paling awal jatuh tempo).*
+  *(Catatan: Jika `invoice_id` dikosongkan `{}` sistem secara otomatis memilih tagihan unpaid paling awal yang harus dibayar).*
 
-- **Response `200 OK`**:
+- **Response `200 OK` (Berhasil)**:
   ```json
   {
     "success": true,
     "message": "Checkout payment gateway berhasil dibuat.",
-    "invoice_id": 1,
-    "invoice_number": "INV-20260901-0001",
-    "total": 112000,
-    "payment_url": "https://checkout.xendit.co/web/66de46781290abcdef"
+    "invoice_id": 142,
+    "invoice_number": "INV-202611-0001",
+    "total": 166500,
+    "payment_url": "https://checkout.xendit.co/web/6725ec389140ab12"
   }
   ```
-> **Implementasi Mobile App:** Buka nilai `payment_url` tersebut menggunakan **WebView** di dalam aplikasi atau melalui Browser sistem.
+  > **Panduan Mobile App:** Buka nilai `payment_url` menggunakan **In-App WebView** atau browser sistem bawaan perangkat.
+
+- **Response `400 Bad Request` (Sudah Lunas)**:
+  ```json
+  {
+    "success": false,
+    "message": "Tagihan ini sudah lunas terbayar."
+  }
+  ```
 
 ---
 
-### 2.5 Cek / Sinkronisasi Status Pembayaran
-Digunakan ketika pelanggan selesai melakukan pembayaran di WebView Xendit dan kembali ke halaman aplikasi.
+### 2.5 Cek / Sinkronisasi Real-Time Status Pembayaran
+Dipanggil setelah pelanggan selesai membayar di WebView / In-App Browser untuk memverifikasi apakah status sudah berubah menjadi lunas secara instan.
 
-- **Method**: `POST`
-- **Endpoint**: `/payments/invoices/{id}/check-status`
-- **Header**: `Authorization: Bearer <token>`
-- **Response `200 OK`**:
+- **Method**: `POST` *(atau `GET`)*
+- **URL**: `https://stage.erlangga.net/api/payments/invoices/142/check-status`
+- **Headers**:
+  ```http
+  Accept: application/json
+  Authorization: Bearer <TOKEN_PELANGGAN>
+  ```
+- **Response `200 OK` (Sudah Terbayar)**:
   ```json
   {
     "success": true,
     "status": "paid",
-    "payment_method": "Xendit - QRIS",
+    "payment_method": "Xendit - BCA VA",
     "message": "Pembayaran lunas terverifikasi."
+  }
+  ```
+- **Response `200 OK` (Masih Menunggu)**:
+  ```json
+  {
+    "success": true,
+    "status": "pending",
+    "message": "Status pembayaran saat ini: PENDING"
   }
   ```
 
 ---
 
-## 3️⃣ Modul Informasi Akun & Penggunaan
+## 3️⃣ Modul Informasi Akun & Penggunaan (Account & Usage)
 
-### 3.1 Informasi Akun & Paket Lengkap
-Menampilkan data profil pelanggan, paket internet aktif, spesifikasi modem, dan informasi teknis.
+### 3.1 Informasi Profil Akun & Paket Langganan
+Mengambil data detail pelanggan, paket internet aktif, IP address, router gateway, dan rincian teknis.
 
 - **Method**: `GET`
-- **Endpoint**: `/account/info`
-- **Header**: `Authorization: Bearer <token>`
+- **URL**: `https://stage.erlangga.net/api/account/info`
+- **Headers**:
+  ```http
+  Accept: application/json
+  Authorization: Bearer <TOKEN_PELANGGAN>
+  ```
 - **Response `200 OK`**:
   ```json
   {
@@ -319,25 +434,25 @@ Menampilkan data profil pelanggan, paket internet aktif, spesifikasi modem, dan 
         "id": 1,
         "id_pelanggan": "23114957687",
         "nama_lengkap": "Nurul Adhira",
-        "no_whatsapp": "6282191285271",
+        "no_whatsapp": "082191285271",
         "alamat_lengkap": "Blok Tegal Kalapa RT. 14 RW 10 Dangdeur Subang",
-        "email": "nurul@bbs.id"
+        "email": "nuruladhira@gmail.com"
       },
       "paket": {
         "id": 1,
-        "nama_paket": "Paket Bronze 112K",
-        "kecepatan": "10 Mbps",
-        "harga": 112000,
-        "pajak": 0,
+        "nama_paket": "Paket Home 20 Mbps",
+        "kecepatan": "20 Mbps",
+        "harga": 150000,
+        "pajak": 16500,
         "diskon": 0,
-        "total_harga": 112000,
+        "total_harga": 166500,
         "deskripsi": "Akses internet unlimited 24 jam tanpa FUP"
       },
       "teknis": {
-        "pppoe_username": "Nurultgl@erlangga.net",
+        "pppoe_username": "nurul_tegal",
         "jenis_modem": "EPON",
-        "sn_perangkat": null,
-        "ip_address": "182.10.0.3",
+        "sn_perangkat": "ZTEGC1234567",
+        "ip_address": "10.10.20.45",
         "router": "MikroTik Gateway"
       },
       "layanan": {
@@ -353,12 +468,16 @@ Menampilkan data profil pelanggan, paket internet aktif, spesifikasi modem, dan 
 
 ---
 
-### 3.2 Informasi Penggunaan (Traffic Kuota & Koneksi)
-Menampilkan data pemakaian traffic internet (FreeRADIUS / MikroTik), status koneksi saat ini (Online/Offline), uptime perangkat, dan riwayat sesi.
+### 3.2 Informasi Penggunaan (Traffic Kuota & Status Koneksi)
+Mengambil data pemakaian traffic download/upload bulan berjalan (dari FreeRADIUS `radacct`), status koneksi saat ini (online/offline), uptime perangkat, dan riwayat sesi koneksi.
 
 - **Method**: `GET`
-- **Endpoint**: `/account/usage`
-- **Header**: `Authorization: Bearer <token>`
+- **URL**: `https://stage.erlangga.net/api/account/usage`
+- **Headers**:
+  ```http
+  Accept: application/json
+  Authorization: Bearer <TOKEN_PELANGGAN>
+  ```
 - **Response `200 OK`**:
   ```json
   {
@@ -366,37 +485,47 @@ Menampilkan data pemakaian traffic internet (FreeRADIUS / MikroTik), status kone
     "data": {
       "koneksi": {
         "status": "online",
-        "ip_address": "182.10.0.3",
-        "mac_address": "1C:3D:2F:80:05:47",
-        "online_since": "2026-09-06 18:29:12",
-        "uptime": "3 Hari 15 Jam 20 Menit",
-        "uptime_seconds": 314400
+        "ip_address": "10.10.20.45",
+        "mac_address": "48:8D:36:12:34:56",
+        "online_since": "2026-11-01 06:15:30",
+        "uptime": "1 Hari 5 Jam 33 Menit",
+        "uptime_seconds": 106380
       },
       "penggunaan_kuota": {
-        "periode": "September 2026",
-        "total_download": "44.95 GB",
-        "total_upload": "3.59 GB",
-        "total_traffic": "48.54 GB",
-        "download_bytes": 48264556084,
-        "upload_bytes": 3854175653,
-        "total_bytes": 52118731737,
-        "total_sesi": 1,
+        "periode": "November 2026",
+        "total_download": "42.50 GB",
+        "total_upload": "8.12 GB",
+        "total_traffic": "50.62 GB",
+        "download_bytes": 45634027520,
+        "upload_bytes": 8718909440,
+        "total_bytes": 54352936960,
+        "total_sesi": 4,
         "tipe_kuota": "Unlimited (Tanpa FUP)"
       },
       "paket": {
-        "nama_paket": "Paket Bronze 112K",
-        "kecepatan": "10 Mbps"
+        "nama_paket": "Paket Home 20 Mbps",
+        "kecepatan": "20 Mbps"
       },
       "riwayat_sesi": [
         {
-          "ip_address": "182.10.0.3",
-          "waktu_konek": "06/09/2026 18:29",
+          "ip_address": "10.10.20.45",
+          "waktu_konek": "01/11/2026 06:15",
           "waktu_putus": "Aktif Sekarang",
-          "durasi": "3 Hari 15 Jam 20 Menit",
-          "download": "44.95 GB",
-          "upload": "3.59 GB",
-          "total": "48.54 GB",
+          "durasi": "1 Hari 5 Jam 33 Menit",
+          "download": "12.40 GB",
+          "upload": "2.10 GB",
+          "total": "14.50 GB",
           "status": "online"
+        },
+        {
+          "ip_address": "10.10.20.45",
+          "waktu_konek": "28/10/2026 10:00",
+          "waktu_putus": "01/11/2026 06:14",
+          "durasi": "3 Hari 20 Jam 14 Menit",
+          "download": "30.10 GB",
+          "upload": "6.02 GB",
+          "total": "36.12 GB",
+          "status": "selesai"
         }
       ]
     }
@@ -405,50 +534,83 @@ Menampilkan data pemakaian traffic internet (FreeRADIUS / MikroTik), status kone
 
 ---
 
-## 4️⃣ Modul Kontrol Perangkat & Wi-Fi (ACS / TR-069)
+## 4️⃣ Modul Kontrol Perangkat Modem & Wi-Fi (TR-069 ACS)
 
-### 4.1 Informasi Wi-Fi & Status ONT
-Mengambil konfigurasi Wi-Fi (SSID, Sandi), sinyal optik (RX Power), suhu, dan status online modem secara langsung dari ONT via GenieACS.
+Sistem secara otomatis mengaitkan akun pelanggan dengan perangkat ONT di GenieACS melalui Serial Number (`sn_perangkat`) atau username dial PPPoE.
+
+### 4.1 Status ONT, Sinyal Optik & Wi-Fi
+Mengambil informasi status modem, sinyal optik (RX Power), suhu, status radio Wi-Fi 2.4GHz & 5GHz, SSID, serta password Wi-Fi saat ini.
 
 - **Method**: `GET`
-- **Endpoint**: `/device/wifi`
-- **Header**: `Authorization: Bearer <token>`
-- **Response `200 OK`**:
+- **URL**: `https://stage.erlangga.net/api/device/wifi`
+- **Headers**:
+  ```http
+  Accept: application/json
+  Authorization: Bearer <TOKEN_PELANGGAN>
+  ```
+- **Response `200 OK` (Berhasil)**:
   ```json
   {
     "success": true,
     "data": {
       "device": {
-        "device_id": "202BC1-F609-ZTEG12345678",
-        "serial_number": "ZTEG12345678",
+        "device_id": "202BC1-ZTEGC1234567",
+        "serial_number": "ZTEGC1234567",
         "model": "F609",
         "manufacturer": "ZTE",
         "is_online": true,
-        "rx_power": "-21.4 dBm",
-        "temperature": "45.0 °C",
-        "pon_mode": "GPON",
-        "last_inform": "09 Sep 2026 14:20:00"
+        "rx_power": "-19.45 dBm",
+        "temperature": "42.0 °C",
+        "pon_mode": "GPON/EPON",
+        "last_inform": "2026-11-02 11:30:00"
       },
       "wlan_2_4g": {
-        "ssid": "ERLANGGA_NET_NURUL",
-        "password": "wifi_password123",
-        "channel": "Auto",
+        "ssid": "ERLANGGA-NET-NURUL",
+        "password": "sandi_wifi_rahasia",
+        "channel": "6",
         "status": "Up",
         "enable": true
       },
-      "wlan_5g": null
+      "wlan_5g": {
+        "ssid": "ERLANGGA-NET-NURUL-5G",
+        "password": "sandi_wifi_rahasia",
+        "channel": "149",
+        "status": "Up",
+        "enable": true
+      }
+    }
+  }
+  ```
+
+- **Response `404 Not Found` (Modem Belum Terhubung ke ACS)**:
+  ```json
+  {
+    "success": false,
+    "message": "Perangkat ONT belum terdaftar di ACS atau belum terhubung.",
+    "data": {
+      "device": {
+        "serial_number": "ZTEGC1234567",
+        "jenis_modem": "EPON",
+        "is_online": false
+      },
+      "wlan1": null,
+      "wlan5": null
     }
   }
   ```
 
 ---
 
-### 4.2 Daftar Perangkat Terhubung (Connected Devices)
-Melihat daftar gadget/perangkat (HP, Laptop, Smart TV, dll.) yang sedang terhubung ke router Wi-Fi atau port LAN ONT pelanggan.
+### 4.2 Daftar Gadget Terhubung (Connected Hosts)
+Melihat daftar gadget (HP, laptop, Smart TV, dll.) yang sedang terhubung ke router ONT pelanggan.
 
 - **Method**: `GET`
-- **Endpoint**: `/device/hosts`
-- **Header**: `Authorization: Bearer <token>`
+- **URL**: `https://stage.erlangga.net/api/device/hosts`
+- **Headers**:
+  ```http
+  Accept: application/json
+  Authorization: Bearer <TOKEN_PELANGGAN>
+  ```
 - **Response `200 OK`**:
   ```json
   {
@@ -458,27 +620,24 @@ Melihat daftar gadget/perangkat (HP, Laptop, Smart TV, dll.) yang sedang terhubu
       "total_recorded": 5,
       "hosts": [
         {
-          "index": "1",
-          "hostname": "iPhone-15-Pro",
-          "ip": "192.168.1.10",
-          "mac": "AA:BB:CC:11:22:33",
-          "interface": "Wi-Fi",
+          "host_name": "Galaxy-S23-Ultra",
+          "ip_address": "192.168.1.102",
+          "mac_address": "8C:AA:B5:11:22:33",
+          "interface_type": "802.11 (Wi-Fi 5GHz)",
           "active": true
         },
         {
-          "index": "2",
-          "hostname": "Samsung-Smart-TV",
-          "ip": "192.168.1.15",
-          "mac": "AA:BB:CC:44:55:66",
-          "interface": "Wi-Fi",
+          "host_name": "iPhone-14-Pro",
+          "ip_address": "192.168.1.105",
+          "mac_address": "B4:43:0D:44:55:66",
+          "interface_type": "802.11 (Wi-Fi 2.4GHz)",
           "active": true
         },
         {
-          "index": "3",
-          "hostname": "PC-Workstation",
-          "ip": "192.168.1.20",
-          "mac": "AA:BB:CC:77:88:99",
-          "interface": "Ethernet",
+          "host_name": "Smart-TV-LivingRoom",
+          "ip_address": "192.168.1.110",
+          "mac_address": "00:E0:4C:77:88:99",
+          "interface_type": "Ethernet (LAN 1)",
           "active": true
         }
       ]
@@ -488,43 +647,71 @@ Melihat daftar gadget/perangkat (HP, Laptop, Smart TV, dll.) yang sedang terhubu
 
 ---
 
-### 4.3 Mengganti Nama (SSID) & Sandi Wi-Fi
-Mengirimkan tugas `setParameterValues` TR-069 ke modem ONT pelanggan untuk mengubah nama Wi-Fi atau kata sandi secara instan.
+### 4.3 Mengganti Nama SSID & Password Wi-Fi
+Mengirimkan perintah perubahan konfigurasi SSID atau password Wi-Fi secara instan ke modem ONT via protokol TR-069.
 
 - **Method**: `POST`
-- **Endpoint**: `/device/wifi`
-- **Header**: `Authorization: Bearer <token>`
+- **URL**: `https://stage.erlangga.net/api/device/wifi`
+- **Headers**:
+  ```http
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer <TOKEN_PELANGGAN>
+  ```
 - **Request Body (JSON)**:
   ```json
   {
-    "ssid": "ERLANGGA_WIFI_BARU",
-    "password": "password_baru123",
+    "ssid": "ERLANGGA-NURUL-BARU",
+    "password": "sandiBaruMinimal8Karakter",
     "wlan_index": 1
   }
   ```
-  *(Catatan: `wlan_index` bernilai `1` untuk frekuensi 2.4GHz dan `5` untuk 5GHz. Default: `1`).*
+  *(Catatan: `wlan_index` bernilai `1` untuk frekuensi 2.4GHz [default], atau `5` untuk frekuensi 5GHz).*
 
-- **Response `200 OK`**:
+- **Ketentuan Validasi**:
+  - `ssid`: Wajib diisi, string, 1 - 32 karakter.
+  - `password`: Opsional / string, 8 - 63 karakter.
+  - `wlan_index`: Opsional, integer `1` atau `5`.
+
+- **Response `200 OK` (Berhasil)**:
   ```json
   {
     "success": true,
     "message": "Perubahan nama dan sandi Wi-Fi berhasil dikirim ke perangkat ONT!",
     "data": {
-      "ssid": "ERLANGGA_WIFI_BARU",
+      "ssid": "ERLANGGA-NURUL-BARU",
       "wlan_index": 1
+    }
+  }
+  ```
+
+- **Response `422 Unprocessable Entity` (Sandi Terlalu Pendek)**:
+  ```json
+  {
+    "message": "The password field must be at least 8 characters.",
+    "errors": {
+      "password": [
+        "The password field must be at least 8 characters."
+      ]
     }
   }
   ```
 
 ---
 
-### 4.4 Reboot / Restart Perangkat ONT
-Mengirimkan perintah `reboot` TR-069 ke modem ONT pelanggan jika internet lambat atau ingin melakukan restart mandiri dari aplikasi.
+### 4.4 Reboot / Restart Modem ONT
+Mengirimkan perintah `reboot` jarak jauh ke modem ONT via TR-069 ketika pelanggan mengalami gangguan internet atau ingin me-restart modem tanpa mencabut adaptor.
 
 - **Method**: `POST`
-- **Endpoint**: `/device/reboot`
-- **Header**: `Authorization: Bearer <token>`
-- **Response `200 OK`**:
+- **URL**: `https://stage.erlangga.net/api/device/reboot`
+- **Headers**:
+  ```http
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer <TOKEN_PELANGGAN>
+  ```
+- **Request Body**: Kosong `{}`
+- **Response `200 OK` (Berhasil)**:
   ```json
   {
     "success": true,
@@ -532,56 +719,64 @@ Mengirimkan perintah `reboot` TR-069 ke modem ONT pelanggan jika internet lambat
   }
   ```
 
----
-
-## 5️⃣ Mekanisme Penghubungan (Link) ACS & Pelanggan
-
-Sistem **secara otomatis menghubungkan (auto-link)** akun pelanggan dengan perangkat modem ONT di GenieACS melalui 2 lapisan identitas unik:
-
-```mermaid
-flowchart LR
-    Customer["Akun Pelanggan (Login Mobile)"]
-    ACS["GenieACS (TR-069 Engine)"]
-    ONT["Perangkat Modem ONT"]
-
-    Customer -->|"1. Cocokkan Serial Number (sn_perangkat)"| ACS
-    Customer -.->|"2. Fallback: Cocokkan PPPoE (pppoe_username)"| ACS
-    ACS <-->|"TR-069 Protocol"| ONT
-```
-
-1. **Prioritas 1: Serial Number ONT (`sn_perangkat`)**
-   - Dicocokkan dengan parameter TR-069 `DeviceID.SerialNumber` / `DeviceID.ID`.
-2. **Prioritas 2: Akun Dial PPPoE (`pppoe_username`)**
-   - Jika SN belum terisi atau berbeda, sistem secara cerdas mencocokkan `Customer.pppoe_username` dengan parameter WAN PPP Dialer ONT (`VirtualParameters.pppoeUsername` atau `WANPPPConnection.Username`).
-3. **Hasil**: Pelanggan yang login **hanya bisa mengakses dan mengontrol modem milik mereka sendiri**, tanpa perlu konfigurasi ID manual di aplikasi.
-
----
-
-## 6️⃣ Format Response Standar Error
-
-### 401 Unauthorized (Token Kadaluarsa / Belum Login)
-```json
-{
-  "message": "Unauthenticated."
-}
-```
-
-### 422 Unprocessable Entity (Validasi Input Gagal)
-```json
-{
-  "message": "The given data was invalid.",
-  "errors": {
-    "ssid": [
-      "The ssid field is required."
-    ]
+- **Response `404 Not Found` (Modem Sedang Offline)**:
+  ```json
+  {
+    "success": false,
+    "message": "Perangkat ONT tidak ditemukan di ACS atau sedang offline."
   }
-}
+  ```
+
+---
+
+## 5️⃣ Contoh Perintah Pengujian (cURL)
+
+Berikut cURL template cepat untuk pengujian di terminal atau diimpor ke Postman / Bruno / Insomnia:
+
+### Step 1: Login
+```bash
+curl -X POST "https://stage.erlangga.net/api/login" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id_pelanggan": "23114957687",
+    "password": "123",
+    "device_name": "Test Terminal"
+  }'
 ```
 
-### 404 Not Found (Modem / Data Tidak Ditemukan)
-```json
-{
-  "success": false,
-  "message": "Perangkat ONT belum terdaftar di ACS atau belum terhubung."
-}
+### Step 2: Cek Status Billing & Tagihan
+```bash
+curl -X GET "https://stage.erlangga.net/api/payments/status" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer <GANTI_DENGAN_TOKEN>"
+```
+
+### Step 3: Dapatkan URL Pembayaran Xendit
+```bash
+curl -X POST "https://stage.erlangga.net/api/payments/pay" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <GANTI_DENGAN_TOKEN>" \
+  -d '{}'
+```
+
+### Step 4: Cek Informasi Wi-Fi & Sinyal Optik
+```bash
+curl -X GET "https://stage.erlangga.net/api/device/wifi" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer <GANTI_DENGAN_TOKEN>"
+```
+
+### Step 5: Ganti Password Wi-Fi
+```bash
+curl -X POST "https://stage.erlangga.net/api/device/wifi" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <GANTI_DENGAN_TOKEN>" \
+  -d '{
+    "ssid": "ERLANGGA-TEST",
+    "password": "passwordBaru123",
+    "wlan_index": 1
+  }'
 ```
