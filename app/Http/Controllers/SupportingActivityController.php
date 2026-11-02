@@ -75,7 +75,7 @@ class SupportingActivityController extends Controller
         ]);
 
         if ($request->hasFile('photo')) {
-            $validated['photo'] = $request->file('photo')->store('supporting_activities');
+            $validated['photo'] = $request->file('photo')->store('supporting_activities', 's3');
         }
 
         $validated['created_by'] = auth()->id();
@@ -108,9 +108,9 @@ class SupportingActivityController extends Controller
         if ($request->hasFile('photo')) {
             // Delete old photo if exists
             if ($activity->photo) {
-                Storage::delete($activity->photo);
+                Storage::disk('s3')->delete($activity->photo);
             }
-            $validated['photo'] = $request->file('photo')->store('supporting_activities');
+            $validated['photo'] = $request->file('photo')->store('supporting_activities', 's3');
         }
 
         $activity->update($validated);
@@ -133,7 +133,7 @@ class SupportingActivityController extends Controller
 
         // Delete photo from storage if exists
         if ($activity->photo) {
-            Storage::delete($activity->photo);
+            Storage::disk('s3')->delete($activity->photo);
         }
 
         $activity->delete();

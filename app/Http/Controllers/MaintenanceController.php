@@ -187,7 +187,7 @@ class MaintenanceController extends Controller
         ]);
 
         $fotoPath = $request->file('foto_kendala_awal')
-            ? $request->file('foto_kendala_awal')->store('maintenances/issues')
+            ? $request->file('foto_kendala_awal')->store('maintenances/issues', 's3')
             : null;
 
         $maintenance = Maintenance::create([
@@ -214,11 +214,11 @@ class MaintenanceController extends Controller
             $m = Maintenance::findOrFail($id);
 
             // Hapus file-file terkait
-            if ($m->foto_kendala_awal) Storage::delete($m->foto_kendala_awal);
-            if ($m->foto_sebelum_perbaikan) Storage::delete($m->foto_sebelum_perbaikan);
-            if ($m->foto_setelah_perbaikan) Storage::delete($m->foto_setelah_perbaikan);
-            if ($m->foto_speedtest) Storage::delete($m->foto_speedtest);
-            if ($m->foto_selfie_teknisi) Storage::delete($m->foto_selfie_teknisi);
+            if ($m->foto_kendala_awal) Storage::disk('s3')->delete($m->foto_kendala_awal);
+            if ($m->foto_sebelum_perbaikan) Storage::disk('s3')->delete($m->foto_sebelum_perbaikan);
+            if ($m->foto_setelah_perbaikan) Storage::disk('s3')->delete($m->foto_setelah_perbaikan);
+            if ($m->foto_speedtest) Storage::disk('s3')->delete($m->foto_speedtest);
+            if ($m->foto_selfie_teknisi) Storage::disk('s3')->delete($m->foto_selfie_teknisi);
 
             $m->delete();
             return redirect()->back()->with('success', 'Tugas maintenance berhasil dihapus.');
@@ -258,10 +258,10 @@ class MaintenanceController extends Controller
             'sn_baru' => $request->sn_baru,
             'sn_lama' => $customer->getOriginal('sn_perangkat'),
             'solusi_kendala' => $request->solusi_kendala,
-            'foto_sebelum_perbaikan' => $request->file('foto_sebelum')->store('maintenances/before'),
-            'foto_setelah_perbaikan' => $request->file('foto_sesudah')->store('maintenances/after'),
-            'foto_speedtest' => $request->file('foto_speedtest')->store('maintenances/speedtest'),
-            'foto_selfie_teknisi' => $request->file('foto_selfie')->store('maintenances/selfie'),
+            'foto_sebelum_perbaikan' => $request->file('foto_sebelum')->store('maintenances/before', 's3'),
+            'foto_setelah_perbaikan' => $request->file('foto_sesudah')->store('maintenances/after', 's3'),
+            'foto_speedtest' => $request->file('foto_speedtest')->store('maintenances/speedtest', 's3'),
+            'foto_selfie_teknisi' => $request->file('foto_selfie')->store('maintenances/selfie', 's3'),
             'completed_at' => now(),
             'status' => 'Selesai'
         ]);

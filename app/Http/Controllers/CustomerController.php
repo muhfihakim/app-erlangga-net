@@ -575,9 +575,9 @@ class CustomerController extends Controller
                     ->implode(', ');
             }
 
-            $fotoPetugasPath = $request->file('foto_petugas')->store('customers/foto_petugas');
-            $fotoTerpasangPath = $request->file('foto_terpasang')->store('customers/foto_terpasang');
-            $fotoSpeedtestPath = $request->file('foto_speedtest')->store('customers/foto_speedtest');
+            $fotoPetugasPath = $request->file('foto_petugas')->store('customers/foto_petugas', 's3');
+            $fotoTerpasangPath = $request->file('foto_terpasang')->store('customers/foto_terpasang', 's3');
+            $fotoSpeedtestPath = $request->file('foto_speedtest')->store('customers/foto_speedtest', 's3');
 
             $customer = Customer::create([
                 'pre_order_id' => $po->id,
@@ -755,9 +755,9 @@ class CustomerController extends Controller
             $errorMessages = implode('<br>', $e->validator->errors()->all());
             return redirect()->back()->withInput()->withErrors($e->validator)->with('error', $errorMessages);
         } catch (\Exception $e) {
-            if (isset($fotoPetugasPath)) \Storage::delete($fotoPetugasPath);
-            if (isset($fotoTerpasangPath)) \Storage::delete($fotoTerpasangPath);
-            if (isset($fotoSpeedtestPath)) \Storage::delete($fotoSpeedtestPath);
+            if (isset($fotoPetugasPath)) Storage::disk('s3')->delete($fotoPetugasPath);
+            if (isset($fotoTerpasangPath)) Storage::disk('s3')->delete($fotoTerpasangPath);
+            if (isset($fotoSpeedtestPath)) Storage::disk('s3')->delete($fotoSpeedtestPath);
             return redirect()->back()->withInput()->with('error', 'Gagal Aktivasi: ' . $e->getMessage());
         }
     }
@@ -831,16 +831,16 @@ class CustomerController extends Controller
         }
 
         if ($request->hasFile('foto_petugas')) {
-            if ($customer->foto_petugas) \Storage::delete($customer->foto_petugas);
-            $updateData['foto_petugas'] = $request->file('foto_petugas')->store('customers/foto_petugas');
+            if ($customer->foto_petugas) Storage::disk('s3')->delete($customer->foto_petugas);
+            $updateData['foto_petugas'] = $request->file('foto_petugas')->store('customers/foto_petugas', 's3');
         }
         if ($request->hasFile('foto_terpasang')) {
-            if ($customer->foto_terpasang) \Storage::delete($customer->foto_terpasang);
-            $updateData['foto_terpasang'] = $request->file('foto_terpasang')->store('customers/foto_terpasang');
+            if ($customer->foto_terpasang) Storage::disk('s3')->delete($customer->foto_terpasang);
+            $updateData['foto_terpasang'] = $request->file('foto_terpasang')->store('customers/foto_terpasang', 's3');
         }
         if ($request->hasFile('foto_speedtest')) {
-            if ($customer->foto_speedtest) \Storage::delete($customer->foto_speedtest);
-            $updateData['foto_speedtest'] = $request->file('foto_speedtest')->store('customers/foto_speedtest');
+            if ($customer->foto_speedtest) Storage::disk('s3')->delete($customer->foto_speedtest);
+            $updateData['foto_speedtest'] = $request->file('foto_speedtest')->store('customers/foto_speedtest', 's3');
         }
 
         $oldUsername = $customer->pppoe_username;
@@ -1028,14 +1028,14 @@ class CustomerController extends Controller
         }
 
         // Hapus file dokumentasi jika ada di storage
-        if ($customer->foto_petugas && Storage::exists($customer->foto_petugas)) {
-            Storage::delete($customer->foto_petugas);
+        if ($customer->foto_petugas) {
+            Storage::disk('s3')->delete($customer->foto_petugas);
         }
-        if ($customer->foto_terpasang && Storage::exists($customer->foto_terpasang)) {
-            Storage::delete($customer->foto_terpasang);
+        if ($customer->foto_terpasang) {
+            Storage::disk('s3')->delete($customer->foto_terpasang);
         }
-        if ($customer->foto_speedtest && Storage::exists($customer->foto_speedtest)) {
-            Storage::delete($customer->foto_speedtest);
+        if ($customer->foto_speedtest) {
+            Storage::disk('s3')->delete($customer->foto_speedtest);
         }
 
         $customer->forceDelete();

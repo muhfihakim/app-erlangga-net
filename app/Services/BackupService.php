@@ -469,7 +469,7 @@ class BackupService
         $fileSize = file_exists($tempPath) ? filesize($tempPath) : 0;
 
         // Upload ke server S3 (Cloud Storage)
-        $s3Path = Storage::putFileAs('backups', new \Illuminate\Http\File($tempPath), $fileName);
+        $s3Path = Storage::disk('s3')->putFileAs('backups', new \Illuminate\Http\File($tempPath), $fileName);
 
         // Hapus file temporary di server lokal
         @unlink($tempPath);
@@ -521,7 +521,7 @@ class BackupService
         $totalRows = count($rows);
 
         // Upload ke server S3 (Cloud Storage)
-        $s3Path = Storage::putFileAs('backups', new \Illuminate\Http\File($tempPath), $fileName);
+        $s3Path = Storage::disk('s3')->putFileAs('backups', new \Illuminate\Http\File($tempPath), $fileName);
 
         // Hapus file temporary di server lokal
         @unlink($tempPath);

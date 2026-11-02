@@ -243,12 +243,12 @@ class PreOrderController extends Controller
             ]);
 
             if ($request->hasFile('foto_ktp')) {
-                $fotoKtpPath = $request->file('foto_ktp')->store('pre_orders/ktp');
+                $fotoKtpPath = $request->file('foto_ktp')->store('pre_orders/ktp', 's3');
                 $validatedData['foto_ktp'] = $fotoKtpPath;
             }
 
             if ($request->hasFile('foto_rumah')) {
-                $fotoRumahPath = $request->file('foto_rumah')->store('pre_orders/rumah');
+                $fotoRumahPath = $request->file('foto_rumah')->store('pre_orders/rumah', 's3');
                 $validatedData['foto_rumah'] = $fotoRumahPath;
             }
 
@@ -301,17 +301,17 @@ class PreOrderController extends Controller
 
             if ($request->hasFile('foto_ktp')) {
                 if ($preOrder->getOriginal('foto_ktp')) {
-                    Storage::delete($preOrder->getOriginal('foto_ktp'));
+                    Storage::disk('s3')->delete($preOrder->getOriginal('foto_ktp'));
                 }
-                $path = $request->file('foto_ktp')->store('pre_orders/ktp');
+                $path = $request->file('foto_ktp')->store('pre_orders/ktp', 's3');
                 $preOrder->foto_ktp = $path;
             }
 
             if ($request->hasFile('foto_rumah')) {
                 if ($preOrder->getOriginal('foto_rumah')) {
-                    Storage::delete($preOrder->getOriginal('foto_rumah'));
+                    Storage::disk('s3')->delete($preOrder->getOriginal('foto_rumah'));
                 }
-                $path = $request->file('foto_rumah')->store('pre_orders/rumah');
+                $path = $request->file('foto_rumah')->store('pre_orders/rumah', 's3');
                 $preOrder->foto_rumah = $path;
             }
 
@@ -341,8 +341,8 @@ class PreOrderController extends Controller
             abort(403, 'Akses ditolak.');
         }
 
-        if ($preOrder->foto_ktp) Storage::delete($preOrder->foto_ktp);
-        if ($preOrder->foto_rumah) Storage::delete($preOrder->foto_rumah);
+        if ($preOrder->foto_ktp) Storage::disk('s3')->delete($preOrder->foto_ktp);
+        if ($preOrder->foto_rumah) Storage::disk('s3')->delete($preOrder->foto_rumah);
 
         $preOrder->delete();
 

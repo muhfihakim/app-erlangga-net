@@ -428,7 +428,7 @@
                             </td>
                             <td style="text-align: center;">
                                 @if ($k->bukti)
-                                    <a href="{{ Storage::url($k->bukti) }}" target="_blank"
+                                    <a href="{{ Storage::disk('s3')->url($k->bukti) }}" target="_blank" rel="noopener noreferrer"
                                         class="topbar-icon-btn !w-7 !h-7 !rounded-lg inline-flex items-center justify-center"
                                         title="Lihat Lampiran Bukti / Nota">
                                         <i class="fa-solid fa-paperclip text-slate-500 hover:text-sky-600 text-xs"></i>

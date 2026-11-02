@@ -128,7 +128,7 @@ class DismantleController extends Controller
         ]);
 
         $d = Dismantle::findOrFail($id);
-        $path = $request->file('foto_pencabutan')->store('dismantles');
+        $path = $request->file('foto_pencabutan')->store('dismantles', 's3');
 
         $d->update([
             'id_teknisi_eksekutor' => auth()->id(),
@@ -156,7 +156,7 @@ class DismantleController extends Controller
         $nama = $d->customer->nama_lengkap;
 
         // Hapus file terkait
-        if ($d->foto_pencabutan) Storage::delete($d->foto_pencabutan);
+        if ($d->foto_pencabutan) Storage::disk('s3')->delete($d->foto_pencabutan);
 
         ActivityLog::create([
             'user_id' => auth()->id(),

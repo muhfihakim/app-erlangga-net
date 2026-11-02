@@ -230,7 +230,7 @@ class KasbonController extends Controller
 
         $buktiPath = null;
         if ($isAdmin && $request->hasFile('bukti')) {
-            $buktiPath = $request->file('bukti')->store('kasbons');
+            $buktiPath = $request->file('bukti')->store('kasbons', 's3');
         }
 
         // Jika dibuat oleh Admin, status langsung 'approved'
@@ -296,9 +296,9 @@ class KasbonController extends Controller
 
         if ($currentUser->isAdmin() && $request->hasFile('bukti')) {
             if ($kasbon->bukti) {
-                Storage::delete($kasbon->bukti);
+                Storage::disk('s3')->delete($kasbon->bukti);
             }
-            $data['bukti'] = $request->file('bukti')->store('kasbons');
+            $data['bukti'] = $request->file('bukti')->store('kasbons', 's3');
         }
 
         $kasbon->update($data);
@@ -331,9 +331,9 @@ class KasbonController extends Controller
                 'bukti' => 'nullable|mimes:jpeg,png,jpg,pdf|max:5120',
             ]);
             if ($kasbon->bukti) {
-                Storage::delete($kasbon->bukti);
+                Storage::disk('s3')->delete($kasbon->bukti);
             }
-            $updateData['bukti'] = $request->file('bukti')->store('kasbons');
+            $updateData['bukti'] = $request->file('bukti')->store('kasbons', 's3');
         }
 
         $kasbon->update($updateData);
@@ -385,7 +385,7 @@ class KasbonController extends Controller
         }
 
         if ($kasbon->bukti) {
-            Storage::delete($kasbon->bukti);
+            Storage::disk('s3')->delete($kasbon->bukti);
         }
 
         $kasbon->delete();

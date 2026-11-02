@@ -212,9 +212,10 @@ class MigrationController extends Controller
             ]);
 
             $file = $request->file('pppoe_file');
-            $filename = 'pppoe_upload_' . time() . '.' . $file->getClientOriginalExtension();
-            $file->move(base_path('backup'), $filename);
-            $filePath = base_path('backup/' . $filename);
+            $filename = 'pppoe_upload_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $tempDir = sys_get_temp_dir();
+            $file->move($tempDir, $filename);
+            $filePath = $tempDir . DIRECTORY_SEPARATOR . $filename;
 
             $options = [
                 'sync_radius' => $request->has('sync_radius'),
@@ -230,9 +231,10 @@ class MigrationController extends Controller
             ]);
 
             $file = $request->file('full_backup_file');
-            $filename = 'full_backup_upload_' . time() . '.' . $file->getClientOriginalExtension();
-            $file->move(base_path('backup'), $filename);
-            $filePath = base_path('backup/' . $filename);
+            $filename = 'full_backup_upload_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $tempDir = sys_get_temp_dir();
+            $file->move($tempDir, $filename);
+            $filePath = $tempDir . DIRECTORY_SEPARATOR . $filename;
 
             $options = [
                 'sync_radius' => $request->has('sync_radius'),
@@ -258,6 +260,10 @@ class MigrationController extends Controller
             return redirect()->route('migration.index')->with('success', $msg);
         } catch (\Throwable $e) {
             return redirect()->back()->with('error', 'Gagal memproses file: ' . $e->getMessage());
+        } finally {
+            if ($filePath && file_exists($filePath)) {
+                @unlink($filePath);
+            }
         }
     }
 
