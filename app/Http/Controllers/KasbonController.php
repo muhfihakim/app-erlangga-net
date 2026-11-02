@@ -215,12 +215,12 @@ class KasbonController extends Controller
         $rules = [
             'nominal'    => 'required|numeric|min:1000',
             'tanggal'    => 'required|date',
-            'bukti'      => 'nullable|mimes:jpeg,png,jpg,pdf|max:5120',
             'keterangan' => 'nullable|string|max:500'
         ];
 
         if ($isAdmin) {
             $rules['user_id'] = 'required|exists:users,id';
+            $rules['bukti']   = 'nullable|mimes:jpeg,png,jpg,pdf|max:5120';
         }
 
         $request->validate($rules);
@@ -229,7 +229,7 @@ class KasbonController extends Controller
         $targetUser = User::findOrFail($targetUserId);
 
         $buktiPath = null;
-        if ($request->hasFile('bukti')) {
+        if ($isAdmin && $request->hasFile('bukti')) {
             $buktiPath = $request->file('bukti')->store('kasbons');
         }
 
@@ -276,12 +276,17 @@ class KasbonController extends Controller
             }
         }
 
-        $request->validate([
+        $rules = [
             'nominal'    => 'required|numeric|min:1000',
             'tanggal'    => 'required|date',
-            'bukti'      => 'nullable|mimes:jpeg,png,jpg,pdf|max:5120',
             'keterangan' => 'nullable|string|max:500'
-        ]);
+        ];
+
+        if ($currentUser->isAdmin()) {
+            $rules['bukti'] = 'nullable|mimes:jpeg,png,jpg,pdf|max:5120';
+        }
+
+        $request->validate($rules);
 
         $data = [
             'nominal'    => $request->input('nominal'),
@@ -289,7 +294,7 @@ class KasbonController extends Controller
             'keterangan' => $request->input('keterangan'),
         ];
 
-        if ($request->hasFile('bukti')) {
+        if ($currentUser->isAdmin() && $request->hasFile('bukti')) {
             if ($kasbon->bukti) {
                 Storage::delete($kasbon->bukti);
             }
@@ -313,12 +318,25 @@ class KasbonController extends Controller
 
         $kasbon = Kasbon::with('user')->findOrFail($id);
 
-        $kasbon->update([
+        $updateData = [
             'status'        => 'approved',
             'approved_by'   => $currentUser->id,
             'approved_at'   => now(),
             'catatan_admin' => $request->input('catatan_admin', 'Disetujui oleh ' . $currentUser->nama_lengkap)
-        ]);
+        ];
+
+        // Lampirkan bukti transfer/nota pencairan dari admin saat ACC
+        if ($request->hasFile('bukti')) {
+            $request->validate([
+                'bukti' => 'nullable|mimes:jpeg,png,jpg,pdf|max:5120',
+            ]);
+            if ($kasbon->bukti) {
+                Storage::delete($kasbon->bukti);
+            }
+            $updateData['bukti'] = $request->file('bukti')->store('kasbons');
+        }
+
+        $kasbon->update($updateData);
 
         $namaPemohon = $kasbon->user->nama_lengkap ?? 'Pemohon';
         $nominal = number_format($kasbon->nominal, 0, ',', '.');

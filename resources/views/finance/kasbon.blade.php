@@ -579,7 +579,7 @@
                             {{ $isAdmin ? 'Catat Kasbon Karyawan' : 'Form Pengajuan Kasbon' }}
                         </h3>
                         <p class="text-[11px] text-slate-500 m-0 mt-0.5">
-                            {{ $isAdmin ? 'Catat kasbon operasional untuk Teknisi atau Sales (langsung disetujui).' : 'Ajukan kasbon ke Admin/Superadmin untuk persetujuan (ACC).' }}
+                            {{ $isAdmin ? 'Catat kasbon operasional untuk Teknisi atau Sales (langsung disetujui).' : 'Ajukan kasbon ke Admin untuk persetujuan.' }}
                         </p>
                     </div>
                 </div>
@@ -639,14 +639,16 @@
                         </div>
                     </div>
 
-                    <div class="form-group mb-3">
-                        <label class="form-label text-slate-700 font-medium text-xs mb-1 block">
-                            Bukti / Nota Pembayaran (Opsional)
-                        </label>
-                        <input type="file" name="bukti" class="form-input !font-normal bg-white text-slate-700 border-slate-300 text-xs py-1.5"
-                            accept="image/jpeg,image/png,application/pdf" capture="environment">
-                        <span class="text-[10px] text-slate-400 mt-1 block">Format: JPG, PNG, atau PDF (Maks. 5MB)</span>
-                    </div>
+                    @if ($isAdmin)
+                        <div class="form-group mb-3">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1 block">
+                                Bukti / Nota Pembayaran (Opsional)
+                            </label>
+                            <input type="file" name="bukti" class="form-input !font-normal bg-white text-slate-700 border-slate-300 text-xs py-1.5"
+                                accept="image/jpeg,image/png,application/pdf" capture="environment">
+                            <span class="text-[10px] text-slate-400 mt-1 block">Format: JPG, PNG, atau PDF (Maks. 5MB)</span>
+                        </div>
+                    @endif
 
                     <div class="form-group mb-0">
                         <label class="form-label text-slate-700 font-medium text-xs mb-1 block">
@@ -714,14 +716,16 @@
                         </div>
                     </div>
 
-                    <div class="form-group mb-3">
-                        <label class="form-label text-slate-700 font-medium text-xs mb-1 block">
-                            Ganti Bukti / Nota (Opsional)
-                        </label>
-                        <input type="file" name="bukti" class="form-input !font-normal bg-white text-slate-700 border-slate-300 text-xs py-1.5"
-                            accept="image/jpeg,image/png,application/pdf" capture="environment">
-                        <span class="text-[10px] text-slate-400 mt-1 block">Biarkan kosong jika tidak ingin mengubah lampiran nota.</span>
-                    </div>
+                    @if ($isAdmin)
+                        <div class="form-group mb-3">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1 block">
+                                Ganti Bukti / Nota (Opsional)
+                            </label>
+                            <input type="file" name="bukti" class="form-input !font-normal bg-white text-slate-700 border-slate-300 text-xs py-1.5"
+                                accept="image/jpeg,image/png,application/pdf" capture="environment">
+                            <span class="text-[10px] text-slate-400 mt-1 block">Biarkan kosong jika tidak ingin mengubah lampiran nota.</span>
+                        </div>
+                    @endif
 
                     <div class="form-group mb-0">
                         <label class="form-label text-slate-700 font-medium text-xs mb-1 block">
@@ -762,7 +766,7 @@
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
-                <form id="accForm" method="POST">
+                <form id="accForm" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body bg-white p-5">
                         <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg mb-3">
@@ -773,6 +777,15 @@
                                 <span class="text-xs text-slate-500 font-medium">Nominal Kasbon:</span>
                                 <span class="text-sm font-black text-rose-600" id="accNominal">Rp 0</span>
                             </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1 block">
+                                Lampirkan Bukti Transfer / Nota (Opsional)
+                            </label>
+                            <input type="file" name="bukti" class="form-input !font-normal bg-white text-slate-700 border-slate-300 text-xs py-1.5"
+                                accept="image/jpeg,image/png,application/pdf" capture="environment">
+                            <span class="text-[10px] text-slate-400 mt-1 block">Lampirkan struk / bukti transfer pencairan kasbon (JPG, PNG, atau PDF).</span>
                         </div>
 
                         <div class="form-group mb-0">
