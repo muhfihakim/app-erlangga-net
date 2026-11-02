@@ -129,6 +129,7 @@ Route::middleware(['auth.custom'])->group(function () {
     // Modul Kasbon (Teknisi, Sales, Admin & Super Admin)
     Route::get('/keuangan/kasbon', [App\Http\Controllers\KasbonController::class, 'index'])->name('kasbons.index');
     Route::post('/kasbons', [App\Http\Controllers\KasbonController::class, 'store'])->name('kasbons.store');
+    Route::put('/kasbons/{id}', [App\Http\Controllers\KasbonController::class, 'update'])->name('kasbons.update');
     Route::post('/kasbons/{id}/approve', [App\Http\Controllers\KasbonController::class, 'approve'])->name('kasbons.approve');
     Route::post('/kasbons/{id}/reject', [App\Http\Controllers\KasbonController::class, 'reject'])->name('kasbons.reject');
     Route::delete('/kasbons/{id}', [App\Http\Controllers\KasbonController::class, 'destroy'])->name('kasbons.destroy');

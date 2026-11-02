@@ -259,6 +259,49 @@ class KasbonController extends Controller
     }
 
     /**
+     * Update / Ubah Permohonan Kasbon (Pemohon atau Admin)
+     */
+    public function update($id, Request $request)
+    {
+        $currentUser = auth()->user();
+        $kasbon = Kasbon::with('user')->findOrFail($id);
+
+        // Hanya Admin atau Pemohon sendiri yang boleh mengedit
+        if (!$currentUser->isAdmin()) {
+            if ($kasbon->user_id !== $currentUser->id) {
+                abort(403, "Akses ditolak. Anda tidak berhak mengubah pengajuan ini.");
+            }
+            if ($kasbon->status !== 'pending') {
+                return redirect()->back()->with('error', "Permohonan kasbon yang sudah diproses ({$kasbon->status}) tidak dapat diubah.");
+            }
+        }
+
+        $request->validate([
+            'nominal'    => 'required|numeric|min:1000',
+            'tanggal'    => 'required|date',
+            'bukti'      => 'nullable|mimes:jpeg,png,jpg,pdf|max:5120',
+            'keterangan' => 'nullable|string|max:500'
+        ]);
+
+        $data = [
+            'nominal'    => $request->input('nominal'),
+            'tanggal'    => $request->input('tanggal'),
+            'keterangan' => $request->input('keterangan'),
+        ];
+
+        if ($request->hasFile('bukti')) {
+            if ($kasbon->bukti) {
+                Storage::delete($kasbon->bukti);
+            }
+            $data['bukti'] = $request->file('bukti')->store('kasbons');
+        }
+
+        $kasbon->update($data);
+
+        return redirect()->back()->with('success', 'Perubahan permohonan kasbon berhasil disimpan.');
+    }
+
+    /**
      * ACC / Setujui Pengajuan Kasbon (Khusus Admin / Super Admin)
      */
     public function approve($id, Request $request)
