@@ -94,8 +94,10 @@
                     <i class="fa-solid fa-file-pdf"></i> Export PDF
                 </a>
             @endif
-            <button type="button" class="btn-primary-admin btn-glow-primary !flex !items-center !justify-center gap-2"
-                onclick="addModal()">Tambah</button>
+            <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-1.5"
+                onclick="addModal()">
+                <i class="fa-solid fa-plus"></i> Tambah Perbantuan
+            </button>
         </div>
     </div>
 

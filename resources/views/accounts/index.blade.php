@@ -7,9 +7,9 @@
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola akses pengguna dan pengaturan keamanan akun.</p>
         </div>
         <div style="display:flex; gap:8px;">
-            <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold"
+            <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-1.5"
                 onclick="openCustomModal('addUserModal')">
-                Tambah
+                <i class="fa-solid fa-plus"></i> Tambah Pengguna
             </button>
         </div>
     </div>

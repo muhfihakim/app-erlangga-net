@@ -146,8 +146,8 @@
                                     Gunakan Rekening Tersimpan
                                 </label>
                                 <button type="button" onclick="openAddBankModal()"
-                                    class="text-xs text-indigo-600 hover:text-indigo-700 font-semibold">
-                                    Tambah
+                                    class="text-xs text-indigo-600 hover:text-indigo-700 font-semibold flex items-center gap-1">
+                                    <i class="fa-solid fa-plus text-[10px]"></i> Tambah
                                 </button>
                             </div>
                             <select id="selectSavedBank" class="form-input-custom !h-[38px] text-xs w-full bg-white"
@@ -270,8 +270,8 @@
                             <p class="text-xs text-slate-500 m-0 mt-0.5">Daftar rekening tujuan pencairan dana.</p>
                         </div>
                         <button type="button" onclick="openAddBankModal()"
-                            class="btn-primary-admin !h-8 !px-3 text-xs font-semibold shadow-sm">
-                            Tambah
+                            class="btn-primary-admin !h-8.5 !px-3 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                            <i class="fa-solid fa-plus"></i> Tambah Bank
                         </button>
                     </div>
 
