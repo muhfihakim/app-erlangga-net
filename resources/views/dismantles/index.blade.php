@@ -116,7 +116,7 @@
                             <th style="text-align: center; width: 120px;">Status</th>
                             <th style="text-align: center;">Teknisi</th>
                             <th style="text-align: center; width: 150px;">Waktu Selesai</th>
-                            <th style="text-align: center; width: 120px;">Opsi</th>
+                            <th style="text-align: center; width: 90px;">Opsi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -146,8 +146,9 @@
                                 <td style="text-align: center;">
                                     {{ $d->completed_at ? $d->completed_at->format('d-m-Y H:i') : '-' }}</td>
                                 <td style="text-align: center;">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
+                                            title="Detail Pencabutan"
                                             onclick="openDismantleDetailModal(this)"
                                             data-nama="{{ $d->customer->nama_lengkap ?? 'N/A' }}"
                                             data-id-pel="{{ $d->customer->id_pelanggan ?? '-' }}"
@@ -157,17 +158,19 @@
                                             data-alamat="{{ $d->customer->alamat_lengkap ?? '-' }}"
                                             data-keterangan="{{ $d->keterangan_admin ?: '-' }}"
                                             data-foto="{{ $d->foto_pencabutan ? Storage::url($d->foto_pencabutan) : '' }}">
-                                            <i class="fa-solid fa-circle-info text-primary"></i>
+                                            <i class="fa-solid fa-circle-info text-slate-500"></i>
                                         </button>
                                         @if ($d->status === 'Selesai')
                                             @if (!$isTrashed)
-                                                <button type="button" class="btn-primary-admin !h-9 !px-3 !text-[11px]"
+                                                <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50"
+                                                    title="Hapus Pelanggan Permanen"
                                                     onclick="confirmGlobalDelete('{{ route('dismantles.deleteCustomer', $d->customer_id) }}', '{{ $d->customer->nama_lengkap }}')">
-                                                    Hapus
+                                                    <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i>
                                                 </button>
                                             @endif
                                         @else
                                             <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50"
+                                                title="Hapus Tugas Pencabutan"
                                                 onclick="confirmGlobalDelete('{{ route('dismantles.destroy', $d->id) }}', '{{ $d->customer->nama_lengkap ?? 'N/A' }}')">
                                                 <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i>
                                             </button>
@@ -189,7 +192,7 @@
                             <th style="text-align: center; width: 50px;">#</th>
                             <th style="text-align: center;">Pelanggan</th>
                             <th style="text-align: center;">Keterangan</th>
-                            <th style="text-align: center; width: 150px;">Opsi</th>
+                            <th style="text-align: center; width: 90px;">Opsi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -205,8 +208,9 @@
                                 </td>
                                 <td style="text-align: center;">{{ Str::limit($d->keterangan_admin ?: '-', 40) }}</td>
                                 <td style="text-align: center;">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <button type="button" class="topbar-icon-btn !w-9 !h-9 !rounded-xl"
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
+                                            title="Detail Tugas Pencabutan"
                                             onclick="openDismantleDetailModal(this)"
                                             data-nama="{{ $d->customer->nama_lengkap }}"
                                             data-id-pel="{{ $d->customer->id_pelanggan }}"
@@ -215,12 +219,13 @@
                                             data-tikor="{{ $d->customer->preOrder->titik_koordinat ?? 'N/A' }}"
                                             data-alamat="{{ $d->customer->alamat_lengkap }}"
                                             data-keterangan="{{ $d->keterangan_admin ?: '-' }}" data-foto="">
-                                            <i class="fa-solid fa-circle-info text-primary"></i>
+                                            <i class="fa-solid fa-circle-info text-slate-500"></i>
                                         </button>
-                                        <button type="button" class="btn-primary-admin !h-9 !px-3 !text-[11px]"
+                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
+                                            title="Ambil & Selesaikan Pencabutan"
                                             onclick="openCompleteDismantleModal(this)" data-id="{{ $d->id }}"
                                             data-nama="{{ $d->customer->nama_lengkap }}">
-                                            <i class="fa-solid fa-hand-holding-hand"></i> Ambil & Selesaikan
+                                            <i class="fa-solid fa-circle-check text-emerald-600"></i>
                                         </button>
                                     </div>
                                 </td>

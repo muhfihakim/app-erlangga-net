@@ -230,8 +230,8 @@
                         <th style="width: 220px; text-align: left;">Teknisi</th>
                         <th style="text-align: left;">Keterangan</th>
                         <th style="width: 170px; text-align: right; padding-right: 24px;">Nominal</th>
-                        <th style="width: 100px; text-align: center;">Bukti</th>
-                        <th style="width: 70px; text-align: center;">Aksi</th>
+                        <th style="width: 70px; text-align: center;">Bukti</th>
+                        <th style="width: 70px; text-align: center;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -256,8 +256,9 @@
                             <td style="text-align: center;">
                                 @if ($k->bukti)
                                     <a href="{{ Storage::url($k->bukti) }}" target="_blank"
-                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-sky-50 text-sky-600 hover:bg-sky-100 border border-sky-200 transition-colors">
-                                        <i class="fa-solid fa-paperclip text-[10px]"></i> Bukti
+                                        class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-sky-300 hover:!bg-sky-50 inline-flex items-center justify-center"
+                                        title="Lihat Lampiran Bukti">
+                                        <i class="fa-solid fa-paperclip text-slate-500 hover:text-sky-600"></i>
                                     </a>
                                 @else
                                     <span class="text-slate-300 text-xs font-medium">-</span>

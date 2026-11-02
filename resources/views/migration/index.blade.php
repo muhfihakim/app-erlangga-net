@@ -397,7 +397,7 @@
                             <th class="text-center" style="width: 100px;">Jumlah Baris</th>
                             <th class="text-center" style="width: 95px;">Ukuran File</th>
                             <th class="text-left" style="width: 120px;">Oleh</th>
-                            <th class="text-center" style="width: 125px;">Aksi</th>
+                            <th class="text-center" style="width: 90px;">Opsi</th>
                         </tr>
                     </thead>
                     <tbody>

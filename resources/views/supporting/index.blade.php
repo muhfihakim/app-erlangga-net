@@ -210,7 +210,7 @@
                         <th style="text-align: center;">Teknisi Utama</th>
                         <th style="text-align: center;">Partner</th>
                         <th style="text-align: center;">Keterangan</th>
-                        <th style="text-align: center; width: 150px;">Aksi</th>
+                        <th style="text-align: center; width: 110px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -242,12 +242,14 @@
                             <td style="text-align: center;">
                                 <div class="flex items-center justify-center gap-1">
                                     <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
+                                        title="Detail Catatan"
                                         onclick='showDetail(@json($act), "{{ $act->mainTechnician->nama_lengkap ?? '-' }}", "{{ implode(', ', $partners->toArray()) }}", "{{ $act->photo ? Storage::url($act->photo) : '' }}")'>
-                                        <i class="fa-solid fa-circle-info text-primary"></i>
+                                        <i class="fa-solid fa-circle-info text-slate-500"></i>
                                     </button>
                                     <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
+                                        title="Edit Catatan"
                                         onclick='editModal(@json($act))'>
-                                        <i class="fa-solid fa-pen-to-square text-amber-500"></i>
+                                        <i class="fa-solid fa-pen-to-square text-slate-500"></i>
                                     </button>
                                     <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50"
                                         onclick="confirmGlobalDelete('{{ route('supporting.destroy', $act->id) }}', 'Catatan {{ $act->activity_type }} - {{ $act->activity_date->format('d/m/Y') }}')">

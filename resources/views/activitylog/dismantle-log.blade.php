@@ -146,9 +146,9 @@
                             <td style="text-align: center;">
                                 @if ($d->foto_pencabutan)
                                     <a href="{{ Storage::url($d->foto_pencabutan) }}" target="_blank"
-                                        class="topbar-icon-btn !w-9 !h-9 !rounded-xl mx-auto flex items-center justify-center"
-                                        title="Lihat Foto">
-                                        <i class="fa-solid fa-image text-primary"></i>
+                                        class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-sky-300 hover:!bg-sky-50 mx-auto inline-flex items-center justify-center"
+                                        title="Lihat Foto Dokumentasi">
+                                        <i class="fa-solid fa-image text-slate-500 hover:text-sky-600"></i>
                                     </a>
                                 @else
                                     <span class="text-slate-300 text-[10px] font-bold">NO IMAGE</span>

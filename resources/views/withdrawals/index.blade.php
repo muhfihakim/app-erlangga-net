@@ -371,7 +371,7 @@
                         <th style="text-align: left;">Rekening Penerima</th>
                         <th style="width: 160px; text-align: right; padding-right: 24px;">Jumlah</th>
                         <th style="width: 110px; text-align: center;">Status</th>
-                        <th style="width: 90px; text-align: center;">Aksi</th>
+                        <th style="width: 70px; text-align: center;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -419,8 +419,9 @@
                             <td style="text-align: center;">
                                 @if ($wd->xendit_disbursement_id && $wd->status === 'PENDING')
                                     <button type="button" onclick="syncWithdrawalStatus({{ $wd->id }})"
-                                        class="btn-primary-admin !h-7 !px-2 text-[11px] font-semibold">
-                                        Cek Status
+                                        class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-amber-300 hover:!bg-amber-50 inline-flex items-center justify-center"
+                                        title="Cek Status Penarikan Xendit">
+                                        <i class="fa-solid fa-arrows-rotate text-amber-600"></i>
                                     </button>
                                 @else
                                     <span class="text-slate-300 text-xs">-</span>

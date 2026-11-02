@@ -92,8 +92,12 @@ class MigrationController extends Controller
                     $downloadUrl = route('migration.backup.download', $log->id);
                     $safeFileName = addslashes(htmlspecialchars($log->file_name));
                     return '<div class="flex items-center justify-center gap-1.5">
-                        <a href="' . $downloadUrl . '" class="btn-primary-admin !h-7 !px-2.5 !text-[11px] !bg-indigo-600 hover:!bg-indigo-700 font-semibold shadow-xs">Unduh</a>
-                        <button type="button" onclick="confirmDeleteBackup(' . $log->id . ', \'' . $safeFileName . '\')" class="btn-cancel !h-7 !px-2.5 !text-[11px] hover:!text-rose-600 hover:!border-rose-300 font-semibold">Hapus</button>
+                        <a href="' . $downloadUrl . '" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-indigo-300 hover:!bg-indigo-50" title="Unduh File Backup">
+                            <i class="fa-solid fa-download text-indigo-600"></i>
+                        </a>
+                        <button type="button" onclick="confirmDeleteBackup(' . $log->id . ', \'' . $safeFileName . '\')" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50" title="Hapus File Backup">
+                            <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i>
+                        </button>
                     </div>';
                 })
                 ->rawColumns(['created_at', 'backup_type', 'file_name', 'total_rows', 'formatted_size', 'user_name', 'aksi'])

@@ -131,7 +131,7 @@
                         <th style="text-align: center; width: 140px;">Tipe</th>
                         <th style="text-align: center; width: 100px;">Stok</th>
                         <th style="text-align: center; width: 100px;">Satuan</th>
-                        <th style="text-align: center; width: 130px;">Opsi</th>
+                        <th style="text-align: center; width: 110px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -166,7 +166,7 @@
                                             data-type="{{ $asset->type }}" data-unit="{{ $asset->unit }}"
                                             data-description="{{ $asset->description }}"
                                             class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-sky-300 hover:!bg-sky-50" title="Edit">
-                                            <i class="fa-solid fa-pen-to-square text-slate-600"></i>
+                                            <i class="fa-solid fa-pen-to-square text-slate-500"></i>
                                         </button>
                                         <button type="button"
                                             onclick="confirmGlobalDelete('{{ route('assets.destroy', $asset->id) }}', '{{ addslashes($asset->name) }}')"
