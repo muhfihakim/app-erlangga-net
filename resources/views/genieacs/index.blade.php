@@ -215,7 +215,7 @@
                         <th style="min-width: 140px; white-space: nowrap;">Nama Wi-Fi (SSID)</th>
                         <th class="col-rx" style="text-align: center; width: 145px; min-width: 145px; white-space: nowrap !important;">Redaman RX</th>
                         <th class="col-temp" style="text-align: center; width: 130px; min-width: 130px; white-space: nowrap !important;">Suhu ONT</th>
-                        <th style="text-align: center; width: 240px; min-width: 230px; white-space: nowrap;">Opsi</th>
+                        <th style="text-align: center; width: 120px; white-space: nowrap;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody style="border-top: none;">
@@ -345,7 +345,7 @@
                         { data: 'wifi', name: 'wifi', orderable: false, searchable: true, className: 'align-middle' },
                         { data: 'rx_power', name: 'rx_power', orderable: false, searchable: false, className: 'text-center align-middle col-rx whitespace-nowrap', width: '145px' },
                         { data: 'temperature', name: 'temperature', orderable: false, searchable: false, className: 'text-center align-middle col-temp whitespace-nowrap', width: '130px' },
-                        { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center align-middle whitespace-nowrap' }
+                        { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center align-middle whitespace-nowrap', width: '120px' }
                     ],
                     dom: 'tpir',
                     pageLength: 25,

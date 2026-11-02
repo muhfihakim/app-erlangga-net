@@ -210,24 +210,24 @@ class GenieAcsController extends Controller
         $actionHtml = '
             <div class="flex items-center justify-center gap-1.5 whitespace-nowrap flex-nowrap">
                 <a href="' . $showUrl . '"
-                    class="btn-primary-admin !h-8 !px-2.5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-sky-600 hover:!bg-sky-700"
+                    class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                     title="Detail & Diagnostik">
-                    <i class="fa-solid fa-eye text-xs"></i> Detail
+                    <i class="fa-solid fa-circle-info text-slate-500"></i>
                 </a>
                 <button type="button"
-                    class="btn-quick-wifi btn-primary-admin !h-8 !px-2.5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-emerald-600 hover:!bg-emerald-700"
+                    class="btn-quick-wifi topbar-icon-btn !w-8 !h-8 !rounded-lg"
                     data-device-id="' . $devId . '"
                     data-serial="' . $serialEsc . '"
                     data-ssid="' . $ssidEsc . '"
                     title="Ubah Nama & Password Wi-Fi">
-                    <i class="fa-solid fa-wifi text-xs"></i> Wi-Fi
+                    <i class="fa-solid fa-wifi text-emerald-600"></i>
                 </button>
                 <button type="button"
-                    class="btn-quick-reboot btn-primary-admin !h-8 !px-2.5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-rose-600 hover:!bg-rose-700 text-white"
+                    class="btn-quick-reboot topbar-icon-btn !w-8 !h-8 !rounded-lg"
                     data-device-id="' . $devId . '"
                     data-serial="' . $serialEsc . '"
                     title="Reboot ONT">
-                    <i class="fa-solid fa-power-off text-xs"></i> Reboot
+                    <i class="fa-solid fa-power-off text-rose-500"></i>
                 </button>
             </div>';
 

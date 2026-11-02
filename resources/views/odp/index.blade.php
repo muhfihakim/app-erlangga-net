@@ -191,7 +191,7 @@
                         <th>Lokasi ODP</th>
                         <th style="text-align: center; width: 180px;">Koordinat</th>
                         <th>Keterangan</th>
-                        <th style="text-align: center; width: 230px; min-width: 220px;">Opsi</th>
+                        <th style="text-align: center; width: 120px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -212,25 +212,25 @@
                             <td style="font-size: 12px; color: #64748b;">{{ $odp->keterangan ?: '-' }}</td>
                             <td class="text-center whitespace-nowrap">
                                 <div class="flex items-center justify-center gap-1.5 whitespace-nowrap flex-nowrap">
-                                    <button type="button" class="btn-primary-admin !h-8 !px-2.5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-emerald-600 hover:!bg-emerald-700"
+                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                         title="Lihat di Peta"
                                         onclick="focusOnOdp('{{ $odp->titik_koordinat }}', '{{ $odp->id }}')">
-                                        <i class="fa-solid fa-location-dot"></i> Peta
+                                        <i class="fa-solid fa-location-dot text-slate-500"></i>
                                     </button>
                                     @if ($canCrud)
-                                        <button type="button" class="btn-primary-admin !h-8 !px-2.5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-amber-500 hover:!bg-amber-600"
+                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                             title="Edit" onclick="openEditOdpModal(this)"
                                             data-id="{{ $odp->id }}" data-jenis="{{ $odp->jenis_odp }}"
                                             data-lokasi="{{ $odp->lokasi_odp }}"
                                             data-tikor="{{ $odp->titik_koordinat }}"
                                             data-keterangan="{{ $odp->keterangan }}"
                                             data-foto="{{ $odp->foto_odp ? Storage::url($odp->foto_odp) : '' }}">
-                                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                                            <i class="fa-solid fa-pen-to-square text-slate-500"></i>
                                         </button>
-                                        <button type="button" class="btn-primary-admin !h-8 !px-2.5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-rose-600 hover:!bg-rose-700 text-white"
+                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                             title="Hapus"
                                             onclick="confirmGlobalDelete('{{ route('odp.destroy', $odp->id) }}', 'ODP {{ addslashes($odp->lokasi_odp) }}')">
-                                            <i class="fa-solid fa-trash"></i> Hapus
+                                            <i class="fa-solid fa-trash text-rose-500"></i>
                                         </button>
                                     @endif
                                 </div>

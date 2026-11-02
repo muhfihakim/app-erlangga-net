@@ -405,7 +405,7 @@
                             <th style="text-align: center;">Serial Number (SN)</th>
                             <th style="text-align: center; width: 130px;">Status</th>
                             <th style="text-align: center; width: 120px;">RX Power</th>
-                            <th style="text-align: center; width: 110px; min-width: 100px;">Opsi</th>
+                            <th style="text-align: center; width: 70px;">Opsi</th>
                         </tr>
                     </thead>
                     <tbody id="dashboard-onu-body">
@@ -892,12 +892,11 @@ show gpon onu state gpon-olt_${port}`;
                                             ${onu.rx_power}
                                         </td>
                                         <td style="text-align: center;">
-                                            <div class="flex items-center justify-center gap-1.5 whitespace-nowrap">
+                                            <div class="flex items-center justify-center">
                                                 <button type="button" onclick="checkOnuStatus('${onu.port}', '${onu.onu_id}')" 
-                                                    class="btn-primary-admin !h-8 !px-2.5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5 !bg-sky-600 hover:!bg-sky-700"
+                                                    class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                                     title="Detail Status ONU">
-                                                    <i class="fa-solid fa-eye text-xs"></i>
-                                                    <span>Detail</span>
+                                                    <i class="fa-solid fa-circle-info text-slate-500"></i>
                                                 </button>
                                             </div>
                                         </td>
