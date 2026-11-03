@@ -3,7 +3,7 @@
         <style>
             .wa-workspace {
                 display: flex;
-                height: calc(100vh - 135px);
+                height: calc(100vh - 130px);
                 min-height: 520px;
                 background: #ffffff;
                 border: 1px solid #e2e8f0;
@@ -155,10 +155,10 @@
             .wa-chat-stream {
                 flex: 1;
                 overflow-y: auto;
-                padding: 12px 18px;
+                padding: 14px 18px;
                 display: flex;
                 flex-direction: column;
-                gap: 5px;
+                gap: 6px;
                 background-color: #efeae2;
                 background-image: radial-gradient(#d1d7db 0.8px, transparent 0.8px);
                 background-size: 16px 16px;
@@ -169,7 +169,7 @@
             .wa-date-divider {
                 display: flex;
                 justify-content: center;
-                margin: 8px 0 4px;
+                margin: 10px 0 6px;
                 user-select: none;
             }
 
@@ -178,7 +178,7 @@
                 color: #54656f;
                 font-size: 10.5px;
                 font-weight: 600;
-                padding: 3px 10px;
+                padding: 3px 12px;
                 border-radius: 6px;
                 box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
                 border: 1px solid #e2e8f0;
@@ -202,30 +202,28 @@
             }
 
             .wa-msg-bubble {
-                max-width: 72%;
-                min-width: 100px;
-                padding: 6px 9px 5px 10px;
+                max-width: 70%;
+                min-width: 90px;
+                padding: 6px 10px 5px;
                 border-radius: 7.5px;
-                font-size: 12.8px;
-                line-height: 1.45;
-                word-break: break-word;
-                white-space: pre-wrap;
                 position: relative;
-                box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.12);
+                box-shadow: 0 1px 0.5px rgba(11, 20, 26, 0.13);
+                display: flex;
+                flex-direction: column;
             }
 
             .wa-msg-bubble.outbound {
                 background: #d9fdd3;
                 color: #111b21;
-                border: 1px solid #bbf7d0;
-                border-top-right-radius: 2px;
+                border: 1px solid #c1f2be;
+                border-top-right-radius: 0;
             }
 
             .wa-msg-bubble.inbound {
                 background: #ffffff;
                 color: #111b21;
                 border: 1px solid #e2e8f0;
-                border-top-left-radius: 2px;
+                border-top-left-radius: 0;
             }
 
             .wa-msg-bubble.is-deleted {
@@ -233,6 +231,26 @@
                 border-color: #cbd5e1 !important;
                 color: #64748b !important;
                 font-style: italic;
+            }
+
+            .wa-msg-text {
+                font-size: 12.8px;
+                line-height: 1.45;
+                word-break: break-word;
+                white-space: pre-wrap;
+                color: #111b21;
+            }
+
+            .wa-msg-meta {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 3.5px;
+                font-size: 10px;
+                color: #667781;
+                margin-top: 3px;
+                align-self: flex-end;
+                user-select: none;
             }
 
             /* Quoted Reply inside Bubble */
@@ -266,47 +284,33 @@
             /* Invoice Preview inside Bubble */
             .wa-msg-invoice-card {
                 padding: 6px 8px;
-                background: rgba(5, 150, 105, 0.07);
+                background: rgba(5, 150, 105, 0.08);
                 border-left: 3.5px solid #059669;
                 border-radius: 4px;
-                margin-bottom: 6px;
+                margin-bottom: 5px;
                 font-size: 11.5px;
             }
 
-            .wa-msg-meta {
-                display: flex;
-                align-items: center;
-                justify-content: flex-end;
-                gap: 3.5px;
-                font-size: 10px;
-                color: #667781;
-                margin-top: 2px;
-                user-select: none;
-                float: right;
-                margin-left: 10px;
-            }
-
+            /* Message Option Hover Trigger */
             .wa-msg-action-trigger {
                 position: absolute;
-                top: 3px;
-                right: 3px;
+                top: 4px;
+                right: 4px;
                 width: 18px;
                 height: 18px;
-                display: flex;
+                display: none;
                 align-items: center;
                 justify-content: center;
                 color: #64748b;
-                opacity: 0;
-                transition: opacity 0.15s ease, background-color 0.1s;
                 background: rgba(255, 255, 255, 0.9);
                 border-radius: 50%;
                 cursor: pointer;
-                font-size: 10px;
-                border: 1px solid #cbd5e1;
+                font-size: 9px;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
             }
 
             .wa-msg-bubble:hover .wa-msg-action-trigger {
-                opacity: 1;
+                display: flex;
             }
 
             /* Floating Context Dropdown */
@@ -351,20 +355,23 @@
                 color: #b91c1c;
             }
 
-            /* Reply & Edit Bar Above Composer */
+            /* CRITICAL: Pre-composer banners MUST be hidden by default */
             .wa-pre-composer-bar {
-                padding: 6px 14px;
-                display: flex;
+                display: none !important;
+                padding: 7px 14px;
                 align-items: center;
                 justify-content: space-between;
                 gap: 8px;
                 font-size: 11.5px;
-                animation: slideDown 0.15s ease;
+            }
+
+            .wa-pre-composer-bar.is-visible {
+                display: flex !important;
             }
 
             .wa-reply-bar {
-                background: #f1f5f9;
-                border-top: 1px solid #e2e8f0;
+                background: #ecfdf5;
+                border-top: 1px solid #a7f3d0;
                 border-left: 4px solid #059669;
             }
 
@@ -504,7 +511,7 @@
                 }
 
                 .wa-msg-action-trigger {
-                    opacity: 0.8;
+                    display: flex !important;
                 }
             }
         </style>
@@ -517,7 +524,7 @@
                 WhatsApp Center
             </h1>
             <p style="font-size:11.5px;color:#64748b;margin:1px 0 0;">
-                Komunikasi chat langsung, pengiriman tagihan resmi, dan notifikasi via gateway Api.co.id.
+                Komunikasi obrolan pelanggan, pengiriman tagihan resmi, dan notifikasi via gateway Api.co.id.
             </p>
         </div>
         <div style="display:flex; gap:8px;">
@@ -635,8 +642,8 @@
 
                 <!-- Chat Footer Composer -->
                 <div class="wa-chat-footer">
-                    <!-- Reply Banner (Hidden by default) -->
-                    <div id="replyBar" class="wa-pre-composer-bar wa-reply-bar hidden">
+                    <!-- Reply Banner (Hidden by default via CSS) -->
+                    <div id="replyBar" class="wa-pre-composer-bar wa-reply-bar">
                         <div class="min-w-0 flex-1">
                             <div class="font-bold text-emerald-800 text-[11px] flex items-center gap-1">
                                 <i class="fa-solid fa-reply"></i>
@@ -644,13 +651,13 @@
                             </div>
                             <div class="text-slate-600 truncate text-[11px] mt-0.5" id="replyPreviewText">-</div>
                         </div>
-                        <button type="button" class="text-slate-400 hover:text-slate-600 p-1" onclick="cancelReply()">
+                        <button type="button" class="text-slate-400 hover:text-slate-700 p-1" onclick="cancelReply()">
                             <i class="fa-solid fa-xmark text-xs"></i>
                         </button>
                     </div>
 
-                    <!-- Edit Banner (Hidden by default) -->
-                    <div id="editBar" class="wa-pre-composer-bar wa-edit-bar hidden">
+                    <!-- Edit Banner (Hidden by default via CSS) -->
+                    <div id="editBar" class="wa-pre-composer-bar wa-edit-bar">
                         <div class="min-w-0 flex-1">
                             <div class="font-bold text-amber-800 text-[11px] flex items-center gap-1">
                                 <i class="fa-solid fa-pen"></i>
@@ -658,7 +665,7 @@
                             </div>
                             <div class="text-slate-600 truncate text-[11px] mt-0.5" id="editPreviewText">-</div>
                         </div>
-                        <button type="button" class="text-slate-400 hover:text-slate-600 p-1" onclick="cancelEdit()">
+                        <button type="button" class="text-slate-400 hover:text-slate-700 p-1" onclick="cancelEdit()">
                             <i class="fa-solid fa-xmark text-xs"></i>
                         </button>
                     </div>
@@ -800,6 +807,10 @@
             let pendingDeleteId = null; // message ID to delete
 
             document.addEventListener('DOMContentLoaded', function() {
+                // Ensure reply & edit bars are strictly hidden on start
+                cancelReply();
+                cancelEdit();
+
                 loadContacts();
 
                 // Search binding
@@ -963,7 +974,7 @@
                     tag.classList.add('hidden');
                 }
 
-                // Reset composer states
+                // Strictly reset reply and edit states
                 cancelReply();
                 cancelEdit();
 
@@ -1015,6 +1026,8 @@
 
                 activeContact = null;
                 activePhone = null;
+                cancelReply();
+                cancelEdit();
                 clearInterval(pollTimer);
             }
 
@@ -1240,10 +1253,10 @@
                 // Cancel edit if any
                 cancelEdit();
 
-                // Show reply bar
+                // Show reply bar by adding is-visible
                 document.getElementById('replySenderName').textContent = replyingMessage.sender;
                 document.getElementById('replyPreviewText').textContent = replyingMessage.text;
-                document.getElementById('replyBar').classList.remove('hidden');
+                document.getElementById('replyBar').classList.add('is-visible');
 
                 // Focus composer
                 const composer = document.getElementById('composerInput');
@@ -1252,7 +1265,8 @@
 
             function cancelReply() {
                 replyingMessage = null;
-                document.getElementById('replyBar').classList.add('hidden');
+                const el = document.getElementById('replyBar');
+                if (el) el.classList.remove('is-visible');
             }
 
             function triggerEditFromMenu() {
@@ -1268,9 +1282,9 @@
                 // Cancel reply if any
                 cancelReply();
 
-                // Show edit bar
+                // Show edit bar by adding is-visible
                 document.getElementById('editPreviewText').textContent = editingMessage.text;
-                document.getElementById('editBar').classList.remove('hidden');
+                document.getElementById('editBar').classList.add('is-visible');
 
                 // Put text in composer
                 const composer = document.getElementById('composerInput');
@@ -1281,10 +1295,13 @@
 
             function cancelEdit() {
                 editingMessage = null;
-                document.getElementById('editBar').classList.add('hidden');
+                const el = document.getElementById('editBar');
+                if (el) el.classList.remove('is-visible');
                 const composer = document.getElementById('composerInput');
-                composer.value = '';
-                composer.style.height = 'auto';
+                if (composer) {
+                    composer.value = '';
+                    composer.style.height = 'auto';
+                }
             }
 
             function triggerCopyFromMenu() {
@@ -1390,9 +1407,10 @@
                         input.value = '';
                         input.style.height = 'auto';
                         cancelReply();
+                        showToast('Pesan terkirim ke WhatsApp');
                         loadConversation(activeContact.normalized_phone);
                     } else {
-                        alert(data.message || 'Gagal mengirim pesan.');
+                        alert(data.message || 'Gagal mengirim pesan ke WhatsApp.');
                     }
                 })
                 .catch(() => {

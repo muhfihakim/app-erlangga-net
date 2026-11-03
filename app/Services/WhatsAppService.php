@@ -82,10 +82,10 @@ class WhatsAppService
         $customerName = $options['customer_name'] ?? null;
         $metadata = $options['metadata'] ?? [];
 
-        // Jika API Key atau API URL belum dikonfigurasi, jalankan mode simulasi & catat di Log
+        // Jika API Key atau API URL belum dikonfigurasi, beri peringatan jelas dan jangan kirim
         if (empty($apiKey) || empty($apiUrl)) {
-            Log::info("WhatsAppService [SIMULATION MODE - Incomplete Settings] Target: {$targetPhone} | Message:\n{$message}");
-            
+            Log::warning("WhatsAppService [API KEY EMPTY] Target: {$targetPhone} | Settings whatsapp_api_key or whatsapp_api_url is not configured!");
+
             $msgRecord = null;
             if ($recordMessage) {
                 $msgRecord = WhatsAppMessage::create([
@@ -97,15 +97,18 @@ class WhatsAppService
                     'direction' => 'outbound',
                     'type' => $type,
                     'message' => $message,
-                    'status' => 'simulated',
-                    'metadata' => array_merge($metadata, ['simulated' => true]),
+                    'status' => 'failed',
+                    'metadata' => array_merge($metadata, [
+                        'error' => 'API Key WhatsApp belum diisi di Pengaturan Gateway',
+                        'simulated' => true
+                    ]),
                 ]);
             }
 
             return [
-                'success' => true,
+                'success' => false,
                 'simulated' => true,
-                'message' => 'Pesan diproses (Mode Simulasi / API URL atau API Key belum diisi di Pengaturan Sistem).',
+                'message' => 'Gagal mengirim ke WhatsApp: API Key WhatsApp belum diisi atau disimpan di menu Pengaturan > WhatsApp Gateway.',
                 'target' => $targetPhone,
                 'record' => $msgRecord,
             ];
@@ -117,12 +120,20 @@ class WhatsAppService
 
             if ($isApiCoId) {
                 // Format spesifikasi resmi chat.api.co.id
+                // Sertakan phone_number, recipient_phone, content, dan message agar kompatibel dengan seluruh versi API
                 $payload = [
                     'phone_number' => $targetPhone,
+                    'recipient_phone' => $targetPhone,
                     'channel' => 'whatsapp',
                     'message_type' => 'text',
                     'content' => $message,
+                    'message' => $message,
                 ];
+
+                if (!empty($sender)) {
+                    $payload['phone_number_id'] = $sender;
+                    $payload['sender'] = $sender;
+                }
             } else {
                 // Payload gateway umum / webhook lain (Fonnte, Wablas, MPWA)
                 $payload = [
@@ -141,6 +152,7 @@ class WhatsAppService
                 if (!empty($sender)) {
                     $payload['sender'] = $sender;
                     $payload['device'] = $sender;
+                    $payload['phone_number_id'] = $sender;
                 }
             }
 
@@ -149,16 +161,18 @@ class WhatsAppService
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $apiKey,
-                'X-API-KEY' => $apiKey,
-                'api-key' => $apiKey,
             ];
 
-            $response = Http::timeout(12)
+            Log::info("WhatsApp API Dispatching to {$apiUrl} for {$targetPhone} | Payload: " . json_encode($payload));
+
+            $response = Http::timeout(15)
                 ->withHeaders($headers)
                 ->post($apiUrl, $payload);
 
-            $body = $response->json();
+            $body = $response->json() ?? [];
             $statusCode = $response->status();
+
+            Log::info("WhatsApp API Response ({$statusCode}): " . json_encode($body));
 
             $isSuccess = $response->successful()
                 || ($body['status'] ?? null) === 'success'
@@ -193,6 +207,15 @@ class WhatsAppService
                 ];
             }
 
+            // Tangani error dari response API
+            $errMsg = $body['message'] ?? ($body['error'] ?? ($body['meta']['message'] ?? null));
+            if (empty($errMsg)) {
+                $errMsg = "HTTP {$statusCode}: Gagal mengirim pesan ke WhatsApp.";
+            }
+            if (is_array($errMsg)) {
+                $errMsg = json_encode($errMsg);
+            }
+
             Log::warning("WhatsApp API returned error response ({$statusCode}): " . json_encode($body));
 
             if ($recordMessage) {
@@ -210,14 +233,14 @@ class WhatsAppService
                 ]);
             }
 
-            $errMsg = $body['message'] ?? ($body['error'] ?? 'Gagal mengirim pesan WhatsApp via provider API.');
             return [
                 'success' => false,
                 'message' => $errMsg,
                 'response' => $body,
+                'status_code' => $statusCode,
             ];
         } catch (\Throwable $e) {
-            Log::error("WhatsAppService Exception: " . $e->getMessage());
+            Log::error("WhatsAppService Exception: " . $e->getMessage() . "\n" . $e->getTraceAsString());
 
             if ($recordMessage) {
                 WhatsAppMessage::create([
@@ -236,7 +259,7 @@ class WhatsAppService
 
             return [
                 'success' => false,
-                'message' => 'Terjadi kendala koneksi ke server WhatsApp API: ' . $e->getMessage(),
+                'message' => 'Terjadi kesalahan sistem saat mengirim pesan: ' . $e->getMessage(),
             ];
         }
     }
