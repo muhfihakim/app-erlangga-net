@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\DeviceController;
+use App\Http\Controllers\Api\ScreenController;
 use App\Http\Controllers\XenditWebhookController;
 
 /*
@@ -27,6 +28,26 @@ Route::middleware('auth:sanctum')->group(function () {
     // Auth Session
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // --- Screen-Oriented API (1 Screen = 1 API Endpoint untuk Mobile App) ---
+    // Tab 1: Home Screen (home_screen.dart)
+    Route::get('/dashboard', [ScreenController::class, 'dashboard']);
+    Route::get('/screens/home', [ScreenController::class, 'dashboard']);
+
+    // Tab 2: Riwayat Screen (billing_history_screen.dart)
+    Route::get('/riwayat', [ScreenController::class, 'riwayat']);
+    Route::get('/screens/history', [ScreenController::class, 'riwayat']);
+
+    // Tab 3: Notifikasi Screen (notification_screen.dart)
+    Route::get('/notifications', [ScreenController::class, 'notifications']);
+    Route::get('/screens/notifications', [ScreenController::class, 'notifications']);
+
+    // Tab 4: Profil Screen (profile_screen.dart)
+    Route::get('/profile', [ScreenController::class, 'profile']);
+    Route::get('/screens/profile', [ScreenController::class, 'profile']);
+
+    // Shortcut Bayar Tagihan (Direct Checkout)
+    Route::post('/pay', [PaymentController::class, 'pay']);
 
     // --- 2. Status Pembayaran & Payment Gateway ---
     Route::prefix('payments')->group(function () {

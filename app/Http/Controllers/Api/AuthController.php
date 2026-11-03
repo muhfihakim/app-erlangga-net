@@ -6,31 +6,47 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\Pppoe;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
     /**
      * Login Pelanggan Mobile App (Android / iOS)
      * Kredensial: ID Pelanggan (atau Username PPPoE) & Password PPPoE
+     * 
+     * Catatan: Ketika login gagal/salah, respons HTTP status tetap 200 OK 
+     * dengan {"success": false, "message": "..."} agar tidak memicu 
+     * unhandled HTTP error / interceptor 401 loop pada aplikasi mobile Flutter.
      */
     public function login(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'id_pelanggan' => 'nullable|string',
             'username'     => 'nullable|string',
             'password'     => 'required|string',
             'device_name'  => 'nullable|string',
+            'token_fcm'    => 'nullable|string',
+            'fcm_token'    => 'nullable|string',
+        ], [
+            'password.required' => 'Kata sandi wajib diisi.'
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first() ?: 'Data login tidak lengkap.',
+                'errors'  => $validator->errors()
+            ], 200);
+        }
 
         $identifier = trim($request->input('id_pelanggan') ?? $request->input('username') ?? '');
 
         if (empty($identifier)) {
             return response()->json([
                 'success' => false,
-                'message' => 'ID Pelanggan wajib diisi.',
+                'message' => 'ID Pelanggan atau Username wajib diisi.',
                 'errors'  => ['id_pelanggan' => ['ID Pelanggan atau Username wajib diisi.']]
-            ], 422);
+            ], 200);
         }
 
         $password = (string) $request->input('password');
@@ -48,8 +64,8 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'ID Pelanggan atau Sandi salah.',
-                'errors'  => ['id_pelanggan' => ['Akun pelanggan tidak ditemukan.']]
-            ], 401);
+                'errors'  => ['id_pelanggan' => ['Akun pelanggan tidak ditemukan atau sandi salah.']]
+            ], 200);
         }
 
         // Verifikasi password PPPoE pelanggan
@@ -62,7 +78,7 @@ class AuthController extends Controller
                     'success' => false,
                     'message' => 'ID Pelanggan atau Sandi salah.',
                     'errors'  => ['password' => ['Sandi yang Anda masukkan salah.']]
-                ], 401);
+                ], 200);
             }
         }
 
@@ -108,7 +124,7 @@ class AuthController extends Controller
                     'has_unpaid_bill'      => $unpaidInvoicesCount > 0,
                 ]
             ]
-        ]);
+        ], 200);
     }
 
     /**
@@ -143,7 +159,7 @@ class AuthController extends Controller
                 'status_layanan' => ($pppoe && $pppoe->status_invoice === 'terbayar') ? 'Aktif' : 'Aktif',
                 'tanggal_aktif'  => ($pppoe && $pppoe->tanggal_aktif) ? ($pppoe->tanggal_aktif instanceof \DateTimeInterface ? $pppoe->tanggal_aktif->format('Y-m-d') : substr((string)$pppoe->tanggal_aktif, 0, 10)) : ($customer->created_at ? $customer->created_at->format('Y-m-d') : null),
             ]
-        ]);
+        ], 200);
     }
 
     /**
@@ -160,6 +176,6 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Logout berhasil.'
-        ]);
+        ], 200);
     }
 }

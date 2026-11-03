@@ -29,6 +29,16 @@ Authorization: Bearer <TOKEN_HASIL_LOGIN>
 
 ## 📑 Ringkasan Daftar Endpoint API
 
+### A. Screen-Oriented API (1 Screen = 1 API Endpoint — Rekomendasi Utama Mobile App)
+| No | Layar Mobile (Flutter Tab) | Method | Endpoint URL | Akses | Widget Terkait & Deskripsi |
+|:---:|---|:---:|---|:---:|---|
+| **1** | **Tab 1: Home Screen** | `GET` | `/api/dashboard`<br>`/api/screens/home` | Protected | `StatusSection`, `InfoPaketSection`, `TagihanSection`<br>Status koneksi, paket aktif, & ringkasan tagihan |
+| **2** | **Tab 2: Riwayat Screen** | `GET` | `/api/riwayat`<br>`/api/screens/history` | Protected | `BillingCard`, `BillingDetailScreen`<br>Daftar riwayat faktur tagihan lengkap |
+| **3** | **Tab 3: Notifikasi Screen** | `GET` | `/api/notifications`<br>`/api/screens/notifications` | Protected | `NotificationCard`, `NotificationDetailScreen`<br>Feed notifikasi tagihan, payment, & info |
+| **4** | **Tab 4: Profil Screen** | `GET` | `/api/profile`<br>`/api/screens/profile` | Protected | `ProfileAccordionCard`, `ProfileDetailRow`<br>Detail identitas pelanggan, teknis & kontak CS |
+| **5** | **Direct Checkout / Bayar** | `POST` | `/api/pay` | Protected | `TagihanSection`, `BillingDetailScreen`<br>Generate URL pembayaran Xendit |
+
+### B. Modular API (Fine-Grained Endpoints)
 | No | Modul | Method | Full URL (Staging) | Akses | Deskripsi |
 |:---:|---|:---:|---|:---:|---|
 | **1** | **Autentikasi** | `POST` | `https://stage.erlangga.net/api/login` | Public | Login pelanggan via ID Pelanggan / Username & Sandi |
@@ -104,7 +114,8 @@ Digunakan saat pelanggan membuka aplikasi dan memasukkan kredensial login.
   }
   ```
 
-- **Response `401 Unauthorized` (Sandi / Akun Salah)**:
+- **Response `200 OK` (Sandi / Akun Salah atau Validasi Gagal)**:
+  > *Catatan: Untuk menghindari loop logout / auto-redirect interceptor HTTP di Flutter, endpoint login mengembalikan HTTP 200 OK dengan flag `success: false`.*
   ```json
   {
     "success": false,
@@ -117,7 +128,7 @@ Digunakan saat pelanggan membuka aplikasi dan memasukkan kredensial login.
   }
   ```
 
-- **Response `422 Unprocessable Entity` (Validasi Kosong)**:
+- **Response `200 OK` (Validasi Kosong / Gagal)**:
   ```json
   {
     "success": false,
