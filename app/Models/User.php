@@ -59,6 +59,11 @@ class User extends Authenticatable
         ];
     }
 
+    public function getNameAttribute(): string
+    {
+        return $this->nama_lengkap ?? '';
+    }
+
     public function isSuperAdmin(): bool
     {
         return $this->jabatan === 'Super Admin';

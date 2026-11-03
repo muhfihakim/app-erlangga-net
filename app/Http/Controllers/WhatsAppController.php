@@ -75,6 +75,15 @@ class WhatsAppController extends Controller
      */
     public function getContacts(Request $request)
     {
+        // Pastikan tabel whatsapp_messages telah ada di database
+        if (!\Illuminate\Support\Facades\Schema::hasTable('whatsapp_messages')) {
+            try {
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            } catch (\Throwable $me) {
+                Log::error("Auto-migrate whatsapp_messages failed: " . $me->getMessage());
+            }
+        }
+
         $search = trim($request->input('search', ''));
         $filter = $request->input('filter', 'all'); // 'all', 'unpaid', 'active', 'preorder'
         $limit = min(50, max(10, (int) $request->input('limit', 30)));
@@ -235,45 +244,72 @@ class WhatsAppController extends Controller
      */
     public function getConversation(Request $request, string $phone)
     {
-        $normalized = WhatsAppService::normalizePhone($phone);
+        try {
+            $normalized = WhatsAppService::normalizePhone($phone);
 
-        if (empty($normalized)) {
-            return response()->json(['success' => false, 'message' => 'Nomor WhatsApp tidak valid.'], 400);
+            if (empty($normalized)) {
+                return response()->json(['success' => false, 'message' => 'Nomor WhatsApp tidak valid.'], 400);
+            }
+
+            // Pastikan tabel whatsapp_messages telah dimigrasikan
+            if (!\Illuminate\Support\Facades\Schema::hasTable('whatsapp_messages')) {
+                try {
+                    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+                } catch (\Throwable $me) {
+                    Log::error("Auto-migrate whatsapp_messages failed: " . $me->getMessage());
+                }
+            }
+
+            $contact = $this->resolveContactData($normalized);
+            $contact['normalized_phone'] = $normalized;
+
+            // Ambil riwayat percakapan (maksimal 150 pesan terakhir)
+            // Catatan: kolom nama di tabel users adalah 'nama_lengkap', bukan 'name'
+            $messages = WhatsAppMessage::where('phone', $normalized)
+                ->orWhere('phone', $phone)
+                ->with('sender:id,nama_lengkap')
+                ->orderBy('id', 'asc')
+                ->take(150)
+                ->get()
+                ->map(function ($msg) {
+                    $meta = [];
+                    if (is_array($msg->metadata)) {
+                        $meta = $msg->metadata;
+                    } elseif (!empty($msg->metadata) && is_string($msg->metadata)) {
+                        $meta = json_decode($msg->metadata, true) ?: [];
+                    }
+
+                    return [
+                        'id' => $msg->id,
+                        'direction' => $msg->direction,
+                        'type' => $msg->type,
+                        'message' => $msg->message,
+                        'status' => $msg->status,
+                        'sender_name' => $msg->sender->nama_lengkap ?? ($msg->direction === 'outbound' ? 'Admin' : 'Pelanggan'),
+                        'metadata' => $meta,
+                        'reply_to' => $meta['reply_to'] ?? null,
+                        'is_edited' => !empty($meta['is_edited']),
+                        'time' => $msg->created_at ? $msg->created_at->format('H:i') : '',
+                        'date' => $msg->created_at ? $msg->created_at->translatedFormat('d M Y') : '',
+                        'raw_date' => $msg->created_at ? $msg->created_at->format('Y-m-d') : '',
+                        'is_today' => $msg->created_at ? $msg->created_at->isToday() : false,
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'contact' => $contact,
+                'messages' => $messages,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error("WhatsAppController@getConversation error ({$phone}): " . $e->getMessage() . "\n" . $e->getTraceAsString());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat pesan: ' . $e->getMessage(),
+                'contact' => null,
+                'messages' => [],
+            ], 200);
         }
-
-        $contact = $this->resolveContactData($normalized);
-        $contact['normalized_phone'] = $normalized;
-
-        // Ambil riwayat percakapan (maksimal 150 pesan terakhir)
-        $messages = WhatsAppMessage::where('phone', $normalized)
-            ->orWhere('phone', $phone)
-            ->with('sender:id,name')
-            ->orderBy('id', 'asc')
-            ->take(150)
-            ->get()
-            ->map(function ($msg) {
-                return [
-                    'id' => $msg->id,
-                    'direction' => $msg->direction,
-                    'type' => $msg->type,
-                    'message' => $msg->message,
-                    'status' => $msg->status,
-                    'sender_name' => $msg->sender->name ?? ($msg->direction === 'outbound' ? 'Admin' : 'Pelanggan'),
-                    'metadata' => $msg->metadata,
-                    'reply_to' => $msg->metadata['reply_to'] ?? null,
-                    'is_edited' => !empty($msg->metadata['is_edited']),
-                    'time' => $msg->created_at ? $msg->created_at->format('H:i') : '',
-                    'date' => $msg->created_at ? $msg->created_at->translatedFormat('d M Y') : '',
-                    'raw_date' => $msg->created_at ? $msg->created_at->format('Y-m-d') : '',
-                    'is_today' => $msg->created_at ? $msg->created_at->isToday() : false,
-                ];
-            });
-
-        return response()->json([
-            'success' => true,
-            'contact' => $contact,
-            'messages' => $messages,
-        ]);
     }
 
     /**
@@ -533,15 +569,28 @@ class WhatsAppController extends Controller
                     $unpaidCount++;
                     $unpaidTotal += (float)$inv->total;
                 }
+
+                $dueDateFormatted = '-';
+                $isOverdue = false;
+                if (!empty($inv->due_date)) {
+                    try {
+                        $parsedDate = Carbon::parse($inv->due_date);
+                        $dueDateFormatted = $parsedDate->format('d/m/Y');
+                        $isOverdue = $inv->status === 'unpaid' && $parsedDate->isPast();
+                    } catch (\Throwable $de) {
+                        $dueDateFormatted = (string) $inv->due_date;
+                    }
+                }
+
                 $invoices[] = [
                     'id' => $inv->id,
                     'invoice_number' => $inv->invoice_number,
-                    'amount' => (float)$inv->amount,
+                    'amount' => (float)($inv->amount ?? $inv->total),
                     'total' => (float)$inv->total,
                     'total_formatted' => number_format($inv->total, 0, ',', '.'),
                     'status' => $inv->status,
-                    'due_date' => $inv->due_date ? Carbon::parse($inv->due_date)->format('d/m/Y') : '-',
-                    'is_overdue' => $inv->status === 'unpaid' && $inv->due_date && Carbon::parse($inv->due_date)->isPast(),
+                    'due_date' => $dueDateFormatted,
+                    'is_overdue' => $isOverdue,
                     'xendit_url' => $inv->xendit_invoice_url,
                 ];
             }
