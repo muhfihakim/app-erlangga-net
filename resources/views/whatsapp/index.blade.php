@@ -1,220 +1,214 @@
 <x-layouts.app>
     @section('Css')
         <style>
-            .wa-container {
+            .wa-workspace {
                 display: flex;
-                height: calc(100vh - 120px);
-                min-height: 580px;
+                height: calc(100vh - 135px);
+                min-height: 520px;
                 background: #ffffff;
                 border: 1px solid #e2e8f0;
-                border-radius: 16px;
+                border-radius: 8px;
                 overflow: hidden;
-                box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
             }
 
-            /* Left Sidebar: Contacts */
+            /* Left: Directory / Contact List */
             .wa-sidebar {
-                width: 380px;
-                min-width: 320px;
-                max-width: 420px;
+                width: 330px;
+                min-width: 290px;
+                max-width: 360px;
                 border-right: 1px solid #e2e8f0;
                 display: flex;
                 flex-direction: column;
                 background: #f8fafc;
-                transition: all 0.25s ease;
             }
 
-            .wa-sidebar-header {
-                padding: 1rem 1.15rem;
+            .wa-sidebar-search {
+                padding: 10px 12px;
                 background: #ffffff;
-                border-bottom: 1px solid #f1f5f9;
-            }
-
-            .wa-filter-tabs {
-                display: flex;
-                gap: 6px;
-                padding: 0.65rem 1rem;
-                background: #f8fafc;
                 border-bottom: 1px solid #e2e8f0;
-                overflow-x: auto;
             }
 
-            .wa-filter-pill {
-                padding: 4px 10px;
+            .wa-filter-row {
+                display: flex;
+                gap: 4px;
+                padding: 6px 10px;
+                background: #f1f5f9;
+                border-bottom: 1px solid #e2e8f0;
+            }
+
+            .wa-filter-btn {
+                flex: 1;
+                padding: 4px 6px;
                 font-size: 11px;
-                font-weight: 700;
-                border-radius: 20px;
-                background: #ffffff;
+                font-weight: 600;
+                border-radius: 4px;
+                background: transparent;
                 color: #64748b;
-                border: 1px solid #e2e8f0;
+                border: 1px solid transparent;
                 cursor: pointer;
-                white-space: nowrap;
+                text-align: center;
                 transition: all 0.15s;
             }
 
-            .wa-filter-pill:hover {
-                border-color: #cbd5e1;
+            .wa-filter-btn:hover {
                 color: #0f172a;
             }
 
-            .wa-filter-pill.active {
-                background: #10b981;
-                border-color: #10b981;
-                color: #ffffff;
+            .wa-filter-btn.active {
+                background: #ffffff;
+                border-color: #cbd5e1;
+                color: #0f172a;
+                font-weight: 700;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
             }
 
             .wa-contact-list {
                 flex: 1;
                 overflow-y: auto;
-                padding: 4px;
             }
 
-            .wa-contact-item {
+            .wa-contact-row {
                 display: flex;
                 align-items: center;
-                gap: 12px;
-                padding: 10px 14px;
-                border-radius: 12px;
-                margin-bottom: 2px;
+                gap: 10px;
+                padding: 9px 12px;
                 cursor: pointer;
-                transition: all 0.15s ease;
-                border: 1px solid transparent;
+                border-bottom: 1px solid #f1f5f9;
+                border-left: 3px solid transparent;
+                background: #ffffff;
+                transition: background-color 0.1s;
             }
 
-            .wa-contact-item:hover {
+            .wa-contact-row:hover {
+                background: #f8fafc;
+            }
+
+            .wa-contact-row.active {
                 background: #f1f5f9;
+                border-left-color: #059669;
             }
 
-            .wa-contact-item.active {
-                background: #ecfdf5;
-                border-color: #a7f3d0;
-            }
-
-            .wa-avatar {
-                width: 42px;
-                height: 42px;
-                border-radius: 12px;
-                background: linear-gradient(135deg, #10b981, #059669);
-                color: #ffffff;
+            .wa-contact-avatar {
+                width: 34px;
+                height: 34px;
+                border-radius: 6px;
+                background: #e2e8f0;
+                color: #334155;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-weight: 800;
-                font-size: 14px;
+                font-weight: 700;
+                font-size: 11.5px;
                 flex-shrink: 0;
-                box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
+                border: 1px solid #cbd5e1;
             }
 
-            /* Right Pane: Chat Window */
-            .wa-chat-area {
+            /* Right: Chat Panel */
+            .wa-chat-panel {
                 flex: 1;
                 display: flex;
                 flex-direction: column;
-                background: #f1f5f9;
-                position: relative;
+                background: #ffffff;
             }
 
             .wa-chat-header {
-                padding: 0.85rem 1.25rem;
+                height: 52px;
+                padding: 0 16px;
                 background: #ffffff;
                 border-bottom: 1px solid #e2e8f0;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                z-index: 10;
+                flex-shrink: 0;
             }
 
-            .wa-chat-messages {
+            .wa-chat-stream {
                 flex: 1;
                 overflow-y: auto;
-                padding: 1.25rem 1.5rem;
+                padding: 14px 18px;
                 display: flex;
                 flex-direction: column;
-                gap: 10px;
-                background-color: #efeae2;
-                background-image: radial-gradient(#cbd5e1 0.75px, transparent 0.75px);
-                background-size: 16px 16px;
+                gap: 8px;
+                background: #f8fafc;
             }
 
             /* Message Bubbles */
-            .wa-bubble-wrapper {
+            .wa-msg-row {
                 display: flex;
                 width: 100%;
             }
 
-            .wa-bubble-wrapper.outbound {
+            .wa-msg-row.outbound {
                 justify-content: flex-end;
             }
 
-            .wa-bubble-wrapper.inbound {
+            .wa-msg-row.inbound {
                 justify-content: flex-start;
             }
 
-            .wa-bubble {
-                max-width: 72%;
-                padding: 9px 13px;
-                border-radius: 12px;
-                font-size: 13px;
+            .wa-msg-bubble {
+                max-width: 68%;
+                padding: 8px 12px;
+                border-radius: 6px;
+                font-size: 12.5px;
                 line-height: 1.45;
-                position: relative;
-                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
                 word-break: break-word;
                 white-space: pre-wrap;
             }
 
-            .wa-bubble.outbound {
-                background: #d9fdd3;
-                color: #111b21;
-                border-top-right-radius: 2px;
+            .wa-msg-bubble.outbound {
+                background: #ecfdf5;
+                border: 1px solid #a7f3d0;
+                color: #064e3b;
             }
 
-            .wa-bubble.inbound {
+            .wa-msg-bubble.inbound {
                 background: #ffffff;
-                color: #111b21;
-                border-top-left-radius: 2px;
+                border: 1px solid #e2e8f0;
+                color: #0f172a;
             }
 
-            .wa-bubble.invoice-bubble {
-                border-left: 4px solid #10b981;
+            .wa-msg-bubble.invoice-type {
+                border-left: 3px solid #059669;
             }
 
-            .wa-bubble-meta {
+            .wa-msg-meta {
                 display: flex;
                 align-items: center;
                 justify-content: flex-end;
                 gap: 4px;
-                font-size: 10.5px;
+                font-size: 10px;
                 color: #64748b;
-                margin-top: 4px;
+                margin-top: 3px;
             }
 
-            /* Composer Footer */
-            .wa-composer {
-                padding: 0.85rem 1.25rem;
+            /* Composer */
+            .wa-chat-footer {
+                padding: 10px 14px;
                 background: #ffffff;
                 border-top: 1px solid #e2e8f0;
+                flex-shrink: 0;
             }
 
-            .wa-composer-input {
+            .wa-textarea {
                 width: 100%;
                 border: 1px solid #cbd5e1;
-                border-radius: 12px;
-                padding: 9px 13px;
-                font-size: 13px;
+                border-radius: 6px;
+                padding: 8px 10px;
+                font-size: 12.5px;
                 resize: none;
-                max-height: 120px;
-                min-height: 44px;
+                max-height: 100px;
+                min-height: 40px;
                 outline: none;
-                transition: border-color 0.2s;
+                font-family: inherit;
             }
 
-            .wa-composer-input:focus {
-                border-color: #10b981;
-                box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
+            .wa-textarea:focus {
+                border-color: #059669;
             }
 
-            /* Empty state placeholder */
-            .wa-empty-chat {
+            /* Empty state */
+            .wa-placeholder {
                 flex: 1;
                 display: flex;
                 flex-direction: column;
@@ -223,13 +217,12 @@
                 background: #f8fafc;
                 color: #64748b;
                 text-align: center;
-                padding: 2rem;
+                padding: 24px;
             }
 
-            /* Responsive behavior */
-            @media (max-width: 900px) {
-                .wa-container {
-                    height: calc(100vh - 150px);
+            @media (max-width: 860px) {
+                .wa-workspace {
+                    height: calc(100vh - 145px);
                 }
 
                 .wa-sidebar {
@@ -237,205 +230,168 @@
                     max-width: 100%;
                 }
 
-                .wa-container.chat-open .wa-sidebar {
+                .wa-workspace.chat-selected .wa-sidebar {
                     display: none;
                 }
 
-                .wa-container:not(.chat-open) .wa-chat-area {
+                .wa-workspace:not(.chat-selected) .wa-chat-panel {
                     display: none;
                 }
             }
         </style>
     @endsection
 
-    <!-- Page Header -->
-    <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
+    <!-- Page Header (Standard Compact) -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:0.85rem;flex-wrap:wrap;">
         <div>
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-base border border-emerald-200">
-                    <i class="fa-brands fa-whatsapp text-lg"></i>
-                </div>
-                <h1 class="text-xl font-extrabold text-slate-900 tracking-tight m-0">WhatsApp Center</h1>
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold {{ $isConfigured ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }}">
-                    <span class="w-1.5 h-1.5 rounded-full {{ $isConfigured ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500' }}"></span>
-                    {{ $isConfigured ? 'Gateway Terhubung' : 'Mode Simulasi / WA Web' }}
-                </span>
-            </div>
-            <p class="text-xs text-slate-500 mt-1">Kelola komunikasi pelanggan, kirim invoice tagihan, pesan pengingat jatuh tempo, dan informasi layanan via WhatsApp.</p>
+            <h1 style="font-size:20px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
+                WhatsApp Center
+            </h1>
+            <p style="font-size:12px;color:#64748b;margin:2px 0 0;">
+                Komunikasi dengan pelanggan, pengiriman faktur tagihan, dan notifikasi layanan pelanggan.
+            </p>
         </div>
-
-        <div class="flex items-center gap-2">
-            <a href="{{ route('settings.index') }}?tab=whatsapp" class="btn-cancel !h-8.5 !px-3 text-xs font-semibold flex items-center gap-1.5" title="Konfigurasi WhatsApp Gateway">
-                <i class="fa-solid fa-gear text-slate-500"></i> Pengaturan Gateway
+        <div style="display:flex; gap:8px;">
+            <a href="{{ route('settings.index') }}?tab=whatsapp" class="btn-cancel !h-8 !px-3 text-xs font-semibold flex items-center gap-1.5" title="Buka Pengaturan WhatsApp">
+                <i class="fa-solid fa-gear text-slate-500"></i> Pengaturan
             </a>
-            <a href="{{ route('invoices.index') }}" class="btn-cancel !h-8.5 !px-3 text-xs font-semibold flex items-center gap-1.5" title="Buka Daftar Tagihan">
-                <i class="fa-solid fa-file-invoice-dollar text-slate-500"></i> Daftar Invoice
+            <a href="{{ route('invoices.index') }}" class="btn-cancel !h-8 !px-3 text-xs font-semibold flex items-center gap-1.5" title="Daftar Invoice Tagihan">
+                <i class="fa-solid fa-file-invoice-dollar text-slate-500"></i> Tagihan
             </a>
         </div>
     </div>
 
-    @if (!$isConfigured)
-        <div class="p-3 mb-3.5 rounded-xl border border-amber-200 bg-amber-50/70 text-amber-900 text-xs flex items-center justify-between gap-3">
-            <div class="flex items-center gap-2">
-                <i class="fa-solid fa-circle-info text-amber-600 text-base shrink-0"></i>
-                <div>
-                    <strong>Pemberitahuan Gateway WhatsApp:</strong> API Key belum diisi di Pengaturan. Sistem berjalan dalam <em>Mode Simulasi</em>. Anda tetap dapat mengirimkan pesan langsung ke pelanggan menggunakan tombol <strong>Buka di WhatsApp Web (wa.me)</strong> tanpa biaya template!
-                </div>
-            </div>
-            <a href="{{ route('settings.index') }}?tab=whatsapp" class="text-xs font-bold text-amber-700 underline shrink-0 hover:text-amber-900">Isi API Key &rarr;</a>
-        </div>
-    @endif
-
-    <!-- WhatsApp Dual Pane Workspace -->
-    <div class="wa-container" id="waAppContainer">
-        <!-- 1. LEFT PANE: Contacts & Invoices Directory -->
+    <!-- Main Workspace -->
+    <div class="wa-workspace" id="waWorkspace">
+        <!-- 1. LEFT DIRECTORY -->
         <aside class="wa-sidebar">
-            <div class="wa-sidebar-header">
+            <div class="wa-sidebar-search">
                 <div class="relative">
-                    <input type="text" id="contactSearchInput" placeholder="Cari nama, nomor WA, username PPPoE..." 
-                        class="w-full pl-9 pr-8 py-2 text-xs bg-slate-100 border border-slate-200 rounded-xl focus:bg-white focus:border-emerald-500 focus:outline-none transition-all">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                    <button type="button" id="clearSearchBtn" class="hidden absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 text-xs">
+                    <input type="text" id="searchInput" placeholder="Cari nama, nomor WA, username..."
+                        class="form-input-custom !h-8 !pl-8 !pr-7 !text-xs w-full bg-slate-50">
+                    <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
+                    <button type="button" id="searchClearBtn" class="hidden absolute right-2 top-2 text-slate-400 hover:text-slate-600 text-xs">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
             </div>
 
             <!-- Filters -->
-            <div class="wa-filter-tabs">
-                <button type="button" class="wa-filter-pill active" data-filter="all">Semua Kontak</button>
-                <button type="button" class="wa-filter-pill" data-filter="unpaid">
-                    <i class="fa-solid fa-clock mr-1 text-rose-500"></i> Ada Tagihan
-                </button>
-                <button type="button" class="wa-filter-pill" data-filter="active">Pelanggan Aktif</button>
+            <div class="wa-filter-row">
+                <button type="button" class="wa-filter-btn active" data-filter="all">Semua</button>
+                <button type="button" class="wa-filter-btn" data-filter="unpaid">Belum Bayar</button>
+                <button type="button" class="wa-filter-btn" data-filter="active">Aktif</button>
             </div>
 
-            <!-- Contacts list -->
+            <!-- Contact List Items -->
             <div class="wa-contact-list" id="contactListContainer">
-                <div class="p-8 text-center text-slate-400 text-xs flex flex-col items-center justify-center">
-                    <i class="fa-solid fa-circle-notch fa-spin text-emerald-500 text-xl mb-2"></i>
-                    <span>Memuat kontak pelanggan...</span>
+                <div class="p-6 text-center text-slate-400 text-xs">
+                    <i class="fa-solid fa-circle-notch fa-spin text-slate-400 mb-1.5"></i>
+                    <div>Memuat kontak...</div>
                 </div>
             </div>
         </aside>
 
-        <!-- 2. RIGHT PANE: Conversation & Quick Actions -->
-        <main class="wa-chat-area" id="waChatArea">
-            <!-- Empty state when no contact selected -->
-            <div class="wa-empty-chat" id="waEmptyState">
-                <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-3xl mb-4 border border-emerald-200 shadow-sm">
-                    <i class="fa-brands fa-whatsapp"></i>
-                </div>
-                <h3 class="text-base font-bold text-slate-800 m-0">WhatsApp Center Erlangga Net</h3>
-                <p class="text-xs text-slate-500 max-w-sm mt-1">Pilih kontak pelanggan di panel kiri untuk membuka percakapan, mengirim rincian tagihan, atau mengirim pesan template otomatis.</p>
-                <div class="flex items-center gap-2 mt-4">
-                    <button type="button" class="btn-primary-admin !h-8 !px-3.5 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700 flex items-center gap-1.5" onclick="selectFirstUnpaidContact()">
-                        <i class="fa-solid fa-file-invoice-dollar"></i> Pilih Pelanggan Menunggak
-                    </button>
-                </div>
+        <!-- 2. RIGHT CHAT PANEL -->
+        <main class="wa-chat-panel">
+            <!-- Empty state -->
+            <div class="wa-placeholder" id="emptyPlaceholder">
+                <i class="fa-regular fa-comments text-slate-300 text-3xl mb-2"></i>
+                <div class="font-bold text-slate-700 text-xs">Pilih Kontak Pelanggan</div>
+                <p class="text-[11px] text-slate-400 max-w-xs mt-0.5">Pilih salah satu kontak di sisi kiri untuk membuka riwayat pesan atau mengirim rincian tagihan.</p>
             </div>
 
-            <!-- Active Chat Interface -->
-            <div class="flex flex-col h-full hidden" id="waActiveChat">
-                <!-- Chat Header -->
+            <!-- Active Conversation -->
+            <div class="flex flex-col h-full hidden" id="chatContainer">
+                <!-- Chat Topbar -->
                 <div class="wa-chat-header">
-                    <div class="flex items-center gap-3 min-w-0">
-                        <button type="button" class="lg:hidden text-slate-500 hover:text-slate-800 p-1" onclick="backToContacts()" title="Kembali ke Kontak">
-                            <i class="fa-solid fa-arrow-left"></i>
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <button type="button" class="lg:hidden text-slate-500 hover:text-slate-800 p-1" onclick="backToSidebar()" title="Kembali">
+                            <i class="fa-solid fa-arrow-left text-xs"></i>
                         </button>
-                        <div class="wa-avatar !w-10 !h-10 !text-sm" id="chatContactAvatar">EN</div>
+                        <div class="wa-contact-avatar !w-8 !h-8 !text-[11px]" id="headerAvatar">--</div>
                         <div class="min-w-0">
-                            <div class="flex items-center gap-2">
-                                <h3 class="text-sm font-bold text-slate-900 truncate m-0" id="chatContactName">-</h3>
-                                <span class="hidden px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200" id="chatUnpaidBadge">Tagihan Belum Bayar</span>
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-bold text-slate-900 text-xs truncate" id="headerName">-</span>
+                                <span class="hidden px-1.5 py-0.2 rounded text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200" id="headerUnpaidTag">Unpaid</span>
                             </div>
-                            <div class="text-[11px] text-slate-500 flex items-center gap-2 mt-0.5 truncate">
-                                <span class="font-mono text-emerald-700 font-semibold" id="chatContactPhone">-</span>
+                            <div class="text-[11px] text-slate-500 font-mono flex items-center gap-1.5 mt-0.5">
+                                <span id="headerPhone">-</span>
                                 <span class="text-slate-300">•</span>
-                                <span id="chatContactPaket" class="truncate">-</span>
+                                <span id="headerPaket" class="font-sans text-slate-600 truncate">-</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Header Quick Actions -->
+                    <!-- Actions -->
                     <div class="flex items-center gap-1.5 shrink-0">
-                        <!-- Direct WA Web button (100% Free wa.me) -->
-                        <a href="#" target="_blank" id="btnOpenWaWeb" class="topbar-icon-btn !w-8.5 !h-8.5 !rounded-lg hover:!border-emerald-300 hover:!bg-emerald-50 text-emerald-600" title="Buka Langsung di WhatsApp Web (wa.me)">
-                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        <!-- Direct WhatsApp Web link -->
+                        <a href="#" target="_blank" id="btnWaWebDeepLink" class="btn-cancel !h-7.5 !px-2.5 text-xs font-semibold flex items-center gap-1" title="Buka langsung di WhatsApp Web">
+                            <i class="fa-brands fa-whatsapp text-emerald-600"></i> <span class="hidden sm:inline">WA Web</span>
                         </a>
 
                         <!-- Send Invoice Button -->
-                        <button type="button" class="btn-primary-admin !h-8 !px-3 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700 flex items-center gap-1.5" onclick="openInvoiceModal()" title="Kirim Tagihan Invoice">
-                            <i class="fa-solid fa-file-invoice-dollar"></i> <span class="hidden sm:inline">Kirim Tagihan</span>
+                        <button type="button" class="btn-primary-admin !h-7.5 !px-3 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700 flex items-center gap-1.5" onclick="openInvoiceModal()">
+                            <i class="fa-solid fa-file-invoice-dollar"></i> <span>Kirim Tagihan</span>
                         </button>
 
                         <!-- Quick Template Dropdown -->
-                        <div class="relative" id="templateDropdownContainer">
-                            <button type="button" class="btn-cancel !h-8 !px-3 text-xs font-semibold flex items-center gap-1.5" onclick="toggleTemplateMenu()" title="Pilih Template Pesan">
-                                <i class="fa-solid fa-bolt text-amber-500"></i> <span class="hidden sm:inline">Template</span> <i class="fa-solid fa-chevron-down text-[10px] ml-0.5"></i>
+                        <div class="relative" id="templateMenuWrap">
+                            <button type="button" class="btn-cancel !h-7.5 !px-2.5 text-xs font-semibold flex items-center gap-1" onclick="toggleTemplateMenu()">
+                                <i class="fa-solid fa-list-check text-slate-500"></i> <span class="hidden sm:inline">Template</span>
                             </button>
-                            <div class="hidden absolute right-0 mt-1 w-64 bg-white border border-slate-200 rounded-xl shadow-xl py-1 z-30" id="templateDropdownMenu">
-                                <div class="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
-                                    Pilih Template Pesan
+                            <div class="hidden absolute right-0 mt-1 w-60 bg-white border border-slate-200 rounded-md shadow-lg py-1 z-30" id="templateDropdown">
+                                <div class="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                                    Pilih Template
                                 </div>
                                 @foreach ($templates as $t)
-                                    <button type="button" class="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 flex items-start gap-2.5 transition-colors"
+                                    <button type="button" class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 flex items-center gap-2"
                                         onclick="applyTemplate('{{ $t['id'] }}')">
-                                        <i class="fa-solid {{ $t['icon'] }} text-emerald-600 mt-0.5 text-xs"></i>
-                                        <div class="min-w-0">
-                                            <div class="font-bold text-slate-800 leading-tight">{{ $t['title'] }}</div>
-                                            <div class="text-[10.5px] text-slate-400 truncate mt-0.5">{{ $t['description'] }}</div>
-                                        </div>
+                                        <i class="fa-solid {{ $t['icon'] }} text-slate-500 text-xs w-3 text-center"></i>
+                                        <span class="font-semibold text-slate-700 truncate">{{ $t['title'] }}</span>
                                     </button>
                                 @endforeach
                             </div>
                         </div>
 
-                        <!-- Customer Details Info Toggle -->
-                        <button type="button" class="topbar-icon-btn !w-8.5 !h-8.5 !rounded-lg text-slate-500" onclick="toggleContactDrawer()" title="Lihat Rincian Akun">
-                            <i class="fa-solid fa-circle-info"></i>
+                        <!-- Customer Info Drawer -->
+                        <button type="button" class="topbar-icon-btn !w-7.5 !h-7.5 !rounded" onclick="toggleCustomerInfo()" title="Rincian Pelanggan">
+                            <i class="fa-solid fa-circle-info text-slate-500 text-xs"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- Chat Body (Messages History) -->
-                <div class="wa-chat-messages" id="chatMessagesContainer">
+                <!-- Chat Messages Stream -->
+                <div class="wa-chat-stream" id="chatStream">
                     <div class="text-center py-6 text-slate-400 text-xs">
-                        <i class="fa-solid fa-circle-notch fa-spin text-emerald-500 text-lg mb-2"></i>
-                        <div>Memuat riwayat pesan...</div>
+                        <i class="fa-solid fa-circle-notch fa-spin text-slate-400 mb-1"></i>
+                        <div>Memuat pesan...</div>
                     </div>
                 </div>
 
-                <!-- Chat Composer -->
-                <div class="wa-composer">
-                    <!-- Quick Variable Chips -->
-                    <div class="flex items-center gap-1.5 mb-2 overflow-x-auto pb-1 text-[11px]">
-                        <span class="text-slate-400 font-semibold mr-1 shrink-0 text-[10.5px]">Sisipkan variabel:</span>
-                        <button type="button" class="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 font-mono text-[11px] shrink-0" onclick="insertVariable('{nama}')">{nama}</button>
-                        <button type="button" class="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 font-mono text-[11px] shrink-0" onclick="insertVariable('{total}')">{total}</button>
-                        <button type="button" class="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 font-mono text-[11px] shrink-0" onclick="insertVariable('{nomor_invoice}')">{nomor_invoice}</button>
-                        <button type="button" class="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 font-mono text-[11px] shrink-0" onclick="insertVariable('{jatuh_tempo}')">{jatuh_tempo}</button>
-                        <button type="button" class="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 font-mono text-[11px] shrink-0" onclick="insertVariable('{paket}')">{paket}</button>
+                <!-- Chat Footer Composer -->
+                <div class="wa-chat-footer">
+                    <!-- Variable Shortcuts -->
+                    <div class="flex items-center gap-1 mb-1.5 overflow-x-auto text-[10.5px]">
+                        <span class="text-slate-400 text-[10px] mr-1 shrink-0">Variabel:</span>
+                        <button type="button" class="px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-mono text-[10.5px] border border-slate-200 shrink-0" onclick="insertTag('{nama}')">{nama}</button>
+                        <button type="button" class="px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-mono text-[10.5px] border border-slate-200 shrink-0" onclick="insertTag('{total}')">{total}</button>
+                        <button type="button" class="px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-mono text-[10.5px] border border-slate-200 shrink-0" onclick="insertTag('{nomor_invoice}')">{nomor_invoice}</button>
+                        <button type="button" class="px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-mono text-[10.5px] border border-slate-200 shrink-0" onclick="insertTag('{jatuh_tempo}')">{jatuh_tempo}</button>
                     </div>
 
                     <div class="flex items-end gap-2">
-                        <div class="flex-1 relative">
-                            <textarea id="composerInput" rows="2" class="wa-composer-input" 
-                                placeholder="Ketik pesan WhatsApp ke pelanggan (Shift+Enter untuk baris baru, Enter untuk kirim)..."></textarea>
+                        <div class="flex-1">
+                            <textarea id="composerInput" rows="2" class="wa-textarea" placeholder="Tulis pesan (Shift+Enter untuk baris baru, Enter untuk kirim)..."></textarea>
                         </div>
 
-                        <!-- Action Buttons -->
                         <div class="flex items-center gap-1.5 shrink-0">
-                            <!-- Direct send via WA Web -->
-                            <button type="button" class="btn-cancel !h-10 !px-3.5 text-xs font-semibold flex items-center gap-1.5 border-emerald-200 text-emerald-700 bg-emerald-50 hover:bg-emerald-100" 
-                                onclick="sendViaWaWeb()" title="Buka teks ini langsung di WhatsApp Web">
-                                <i class="fa-brands fa-whatsapp text-sm text-emerald-600"></i>
+                            <button type="button" class="btn-cancel !h-8.5 !px-3 text-xs font-semibold flex items-center gap-1 border-emerald-200 text-emerald-700 bg-emerald-50 hover:bg-emerald-100" onclick="sendViaWaWeb()">
+                                <i class="fa-brands fa-whatsapp text-emerald-600"></i>
                                 <span class="hidden md:inline">WA Web</span>
                             </button>
 
-                            <!-- Send via Backend API -->
-                            <button type="button" id="btnSendApi" class="btn-primary-admin !h-10 !px-4 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700 flex items-center gap-1.5 shadow-sm" 
-                                onclick="sendMessageApi()">
+                            <button type="button" id="btnSendApi" class="btn-primary-admin !h-8.5 !px-3.5 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700 flex items-center gap-1" onclick="sendMessageApi()">
                                 <i class="fa-solid fa-paper-plane text-xs"></i>
                                 <span>Kirim</span>
                             </button>
@@ -448,121 +404,103 @@
 
     <!-- Modal Kirim Tagihan Invoice -->
     <div class="modal-overlay" id="invoiceModal">
-        <div class="modal-box max-w-xl bg-white border border-slate-300 shadow-2xl">
-            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm border border-emerald-200 shrink-0">
-                        <i class="fa-solid fa-file-invoice-dollar"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-base font-bold text-slate-900 m-0">Kirim Tagihan Invoice WhatsApp</h3>
-                        <p class="text-xs text-slate-500 m-0 mt-0.5">Pilih faktur pelanggan untuk dikirimkan secara resmi.</p>
-                    </div>
+        <div class="modal-box max-w-lg bg-white border border-slate-300 shadow-xl rounded-xl">
+            <div class="modal-header border-b border-slate-200 px-5 py-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-file-invoice-dollar text-slate-600 text-sm"></i>
+                    <h3 class="text-sm font-bold text-slate-900 m-0">Kirim Tagihan Invoice</h3>
                 </div>
                 <button type="button" class="modal-close" onclick="closeInvoiceModal()">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <div class="modal-body p-6 bg-white">
-                <div class="form-group mb-4">
-                    <label class="form-label text-slate-700 font-bold text-xs mb-1.5 block">Pilih Invoice Pelanggan <span class="text-rose-500">*</span></label>
-                    <select id="selectInvoice" class="form-input-custom !h-10 !font-normal w-full bg-white text-slate-800 border-slate-300 text-xs" onchange="onSelectInvoiceChange(this.value)">
+            <div class="modal-body p-5 bg-white text-xs">
+                <div class="form-group mb-3">
+                    <label class="form-label text-slate-700 font-bold text-xs mb-1 block">Pilih Faktur Tagihan</label>
+                    <select id="selectInvoice" class="form-input-custom !h-9 text-xs w-full" onchange="onSelectInvoiceChange(this.value)">
                         <option value="">-- Pilih Faktur Pelanggan --</option>
                     </select>
                 </div>
 
                 <div class="form-group mb-0">
-                    <div class="flex items-center justify-between mb-1.5">
-                        <label class="form-label text-slate-700 font-bold text-xs block m-0">Pratinjau Pesan WhatsApp</label>
-                        <span class="text-[11px] text-slate-400">Dapat disesuaikan sebelum dikirim</span>
-                    </div>
-                    <textarea id="invoiceMessagePreview" rows="8" class="form-input-custom !font-mono text-xs w-full bg-slate-50 border-slate-300" placeholder="Pilih invoice di atas untuk membuat teks otomatis..."></textarea>
+                    <label class="form-label text-slate-700 font-bold text-xs mb-1 block">Isi Pesan WhatsApp</label>
+                    <textarea id="invoiceMessagePreview" rows="8" class="form-input-custom !font-mono text-xs w-full bg-slate-50" placeholder="Pilih faktur untuk menyusun teks..."></textarea>
                 </div>
             </div>
 
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2 rounded-b-2xl">
-                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeInvoiceModal()">
-                    <i class="fa-solid fa-xmark"></i> Batal
-                </button>
-
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-5 py-2.5 flex items-center justify-between rounded-b-xl">
+                <button type="button" class="btn-cancel !h-8 !px-3 text-xs font-semibold" onclick="closeInvoiceModal()">Batal</button>
                 <div class="flex items-center gap-2">
-                    <!-- Send via WA Web deep link -->
-                    <button type="button" class="btn-cancel !h-8.5 !px-3.5 text-xs font-semibold border-emerald-300 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 flex items-center gap-1.5" onclick="sendInvoiceViaWaWeb()">
+                    <button type="button" class="btn-cancel !h-8 !px-3 text-xs font-semibold border-emerald-300 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 flex items-center gap-1" onclick="sendInvoiceViaWaWeb()">
                         <i class="fa-brands fa-whatsapp text-emerald-600"></i> Buka di WA Web
                     </button>
-                    <!-- Send via API -->
-                    <button type="button" id="btnSendInvoiceApi" class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700 flex items-center gap-1.5" onclick="sendInvoiceApi()">
-                        <i class="fa-solid fa-paper-plane text-xs"></i> Kirim via API
+                    <button type="button" id="btnSendInvoiceApi" class="btn-primary-admin !h-8 !px-3.5 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700 flex items-center gap-1" onclick="sendInvoiceApi()">
+                        <i class="fa-solid fa-paper-plane text-xs"></i> Kirim
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Drawer Detail Akun & Pelanggan -->
-    <div class="modal-overlay hidden" id="contactDrawer">
-        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
-            <div class="modal-header border-b border-slate-200 bg-white px-5 py-3.5 flex items-center justify-between">
-                <h3 class="text-sm font-bold text-slate-900 m-0 flex items-center gap-2">
-                    <i class="fa-solid fa-id-card text-emerald-600"></i> Informasi Lengkap Pelanggan
-                </h3>
-                <button type="button" class="modal-close" onclick="toggleContactDrawer()">
+    <!-- Modal Rincian Akun Pelanggan -->
+    <div class="modal-overlay hidden" id="customerInfoModal">
+        <div class="modal-box max-w-sm bg-white border border-slate-300 shadow-xl rounded-xl">
+            <div class="modal-header border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+                <h3 class="text-xs font-bold text-slate-900 m-0">Rincian Pelanggan</h3>
+                <button type="button" class="modal-close" onclick="toggleCustomerInfo()">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="modal-body p-5 bg-white text-xs space-y-3" id="contactDrawerContent">
-                <!-- Populated dynamically via JS -->
+            <div class="modal-body p-4 bg-white text-xs space-y-2.5" id="customerInfoBody">
+                <!-- Dynamically rendered -->
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-end">
-                <button type="button" class="btn-cancel !h-8 !px-4 text-xs font-semibold" onclick="toggleContactDrawer()">Tutup</button>
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-4 py-2 flex items-center justify-end rounded-b-xl">
+                <button type="button" class="btn-cancel !h-7.5 !px-3 text-xs font-semibold" onclick="toggleCustomerInfo()">Tutup</button>
             </div>
         </div>
     </div>
 
     @section('Scripts')
         <script>
-            // State data
             const TEMPLATES = @json($templates);
             let currentContacts = [];
             let activeContact = null;
             let activePhone = '{{ $initialPhone }}';
             let initialInvoiceId = '{{ $initialInvoiceId }}';
             let currentFilter = 'all';
-            let pollInterval = null;
+            let pollTimer = null;
 
             document.addEventListener('DOMContentLoaded', function() {
                 loadContacts();
 
-                // Search binding with debounce
-                let searchTimeout = null;
-                const searchInput = document.getElementById('contactSearchInput');
-                searchInput.addEventListener('input', function(e) {
-                    const val = e.target.value.trim();
-                    document.getElementById('clearSearchBtn').classList.toggle('hidden', val.length === 0);
-                    clearTimeout(searchTimeout);
-                    searchTimeout = setTimeout(() => {
-                        loadContacts(val);
-                    }, 350);
+                // Search binding
+                let searchDebounce = null;
+                const searchEl = document.getElementById('searchInput');
+                searchEl.addEventListener('input', function(e) {
+                    const q = e.target.value.trim();
+                    document.getElementById('searchClearBtn').classList.toggle('hidden', q.length === 0);
+                    clearTimeout(searchDebounce);
+                    searchDebounce = setTimeout(() => loadContacts(q), 300);
                 });
 
-                document.getElementById('clearSearchBtn').addEventListener('click', function() {
-                    searchInput.value = '';
+                document.getElementById('searchClearBtn').addEventListener('click', function() {
+                    searchEl.value = '';
                     this.classList.add('hidden');
                     loadContacts('');
                 });
 
-                // Filter pills
-                document.querySelectorAll('.wa-filter-pill').forEach(btn => {
+                // Filter buttons
+                document.querySelectorAll('.wa-filter-btn').forEach(btn => {
                     btn.addEventListener('click', function() {
-                        document.querySelectorAll('.wa-filter-pill').forEach(p => p.classList.remove('active'));
+                        document.querySelectorAll('.wa-filter-btn').forEach(b => b.classList.remove('active'));
                         this.classList.add('active');
                         currentFilter = this.dataset.filter;
-                        loadContacts(searchInput.value.trim());
+                        loadContacts(searchEl.value.trim());
                     });
                 });
 
-                // Composer enter to send
+                // Enter to send in composer
                 const composer = document.getElementById('composerInput');
                 composer.addEventListener('keydown', function(e) {
                     if (e.key === 'Enter' && !e.shiftKey) {
@@ -571,28 +509,26 @@
                     }
                 });
 
-                // Close template dropdown when clicking outside
+                // Close template dropdown when clicking elsewhere
                 document.addEventListener('click', function(e) {
-                    const container = document.getElementById('templateDropdownContainer');
-                    const menu = document.getElementById('templateDropdownMenu');
-                    if (container && !container.contains(e.target)) {
-                        menu.classList.add('hidden');
+                    const wrap = document.getElementById('templateMenuWrap');
+                    const dropdown = document.getElementById('templateDropdown');
+                    if (wrap && !wrap.contains(e.target)) {
+                        dropdown.classList.add('hidden');
                     }
                 });
 
-                // Start active phone conversation if provided
                 if (activePhone) {
                     selectContactByPhone(activePhone);
                 }
             });
 
-            // 1. Load contacts via AJAX
             function loadContacts(search = '') {
                 const container = document.getElementById('contactListContainer');
                 container.innerHTML = `
-                    <div class="p-8 text-center text-slate-400 text-xs flex flex-col items-center justify-center">
-                        <i class="fa-solid fa-circle-notch fa-spin text-emerald-500 text-xl mb-2"></i>
-                        <span>Memuat kontak...</span>
+                    <div class="p-6 text-center text-slate-400 text-xs">
+                        <i class="fa-solid fa-circle-notch fa-spin text-slate-400 mb-1"></i>
+                        <div>Memuat kontak...</div>
                     </div>`;
 
                 const url = `{{ route('whatsapp.contacts') }}?search=${encodeURIComponent(search)}&filter=${currentFilter}`;
@@ -600,111 +536,93 @@
                     .then(res => res.json())
                     .then(data => {
                         if (!data.success || !data.contacts.length) {
-                            container.innerHTML = `
-                                <div class="p-8 text-center text-slate-400 text-xs">
-                                    <i class="fa-solid fa-address-book text-slate-300 text-2xl mb-2 block"></i>
-                                    Tidak ada kontak yang cocok dengan filter.
-                                </div>`;
+                            container.innerHTML = `<div class="p-6 text-center text-slate-400 text-xs">Tidak ada kontak ditemukan.</div>`;
                             currentContacts = [];
                             return;
                         }
 
                         currentContacts = data.contacts;
-                        renderContacts(data.contacts);
+                        renderContactList(data.contacts);
                     })
-                    .catch(err => {
-                        container.innerHTML = `<div class="p-4 text-center text-rose-500 text-xs">Gagal memuat kontak. Silakan refresh.</div>`;
+                    .catch(() => {
+                        container.innerHTML = `<div class="p-4 text-center text-rose-500 text-xs">Gagal memuat kontak.</div>`;
                     });
             }
 
-            function renderContacts(contacts) {
+            function renderContactList(contacts) {
                 const container = document.getElementById('contactListContainer');
                 container.innerHTML = '';
 
                 contacts.forEach(c => {
-                    const initials = getInitials(c.name);
                     const isActive = activeContact && activeContact.normalized_phone === c.normalized_phone;
+                    const row = document.createElement('div');
+                    row.className = `wa-contact-row ${isActive ? 'active' : ''}`;
+                    row.dataset.phone = c.normalized_phone;
+                    row.onclick = () => selectContact(c);
 
-                    const item = document.createElement('div');
-                    item.className = `wa-contact-item ${isActive ? 'active' : ''}`;
-                    item.dataset.phone = c.normalized_phone;
-                    item.onclick = () => selectContact(c);
-
-                    let unpaidBadgeHtml = '';
+                    let unpaidTag = '';
                     if (c.unpaid_count > 0) {
-                        unpaidBadgeHtml = `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700">Rp ${Number(c.unpaid_amount).toLocaleString('id-ID')}</span>`;
+                        unpaidTag = `<span class="text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-1 rounded">Rp ${Number(c.unpaid_amount).toLocaleString('id-ID')}</span>`;
                     }
 
-                    const lastMsgText = c.last_message ? escapeHtml(c.last_message.message) : (c.paket || 'Pelanggan');
-                    const lastMsgTime = c.last_message ? c.last_message.created_at : '';
+                    const subInfo = c.last_message ? escapeHtml(c.last_message.message) : (c.username || c.paket || '-');
 
-                    item.innerHTML = `
-                        <div class="wa-avatar">${initials}</div>
+                    row.innerHTML = `
+                        <div class="wa-contact-avatar">${getInitials(c.name)}</div>
                         <div class="min-w-0 flex-1">
                             <div class="flex items-center justify-between gap-1">
-                                <h4 class="text-xs font-bold text-slate-900 truncate m-0">${escapeHtml(c.name)}</h4>
-                                <span class="text-[10px] text-slate-400 shrink-0 font-medium">${lastMsgTime}</span>
+                                <span class="text-xs font-bold text-slate-800 truncate">${escapeHtml(c.name)}</span>
+                                <span class="text-[10px] text-slate-400 shrink-0">${c.last_message ? c.last_message.created_at : ''}</span>
                             </div>
                             <div class="flex items-center justify-between gap-1 mt-0.5">
-                                <div class="text-[11px] text-slate-500 truncate flex-1">${lastMsgText}</div>
-                                ${unpaidBadgeHtml}
+                                <span class="text-[11px] text-slate-500 truncate font-mono">${subInfo}</span>
+                                ${unpaidTag}
                             </div>
                         </div>
                     `;
-                    container.appendChild(item);
+                    container.appendChild(row);
                 });
             }
 
-            // 2. Select contact & load conversation
             function selectContact(contact) {
                 activeContact = contact;
                 activePhone = contact.normalized_phone;
 
-                // Update UI layout
-                document.getElementById('waAppContainer').classList.add('chat-open');
-                document.getElementById('waEmptyState').classList.add('hidden');
-                document.getElementById('waActiveChat').classList.remove('hidden');
+                document.getElementById('waWorkspace').classList.add('chat-selected');
+                document.getElementById('emptyPlaceholder').classList.add('hidden');
+                document.getElementById('chatContainer').classList.remove('hidden');
 
-                // Highlight active item
-                document.querySelectorAll('.wa-contact-item').forEach(el => {
+                document.querySelectorAll('.wa-contact-row').forEach(el => {
                     el.classList.toggle('active', el.dataset.phone === activePhone);
                 });
 
-                // Fill header
-                document.getElementById('chatContactName').textContent = contact.name;
-                document.getElementById('chatContactPhone').textContent = contact.phone || contact.normalized_phone;
-                document.getElementById('chatContactPaket').textContent = `${contact.paket || 'Paket Internet'} (${contact.username || '-'})`;
-                document.getElementById('chatContactAvatar').textContent = getInitials(contact.name);
+                document.getElementById('headerName').textContent = contact.name;
+                document.getElementById('headerPhone').textContent = contact.phone || contact.normalized_phone;
+                document.getElementById('headerPaket').textContent = `${contact.paket || 'Paket'} (${contact.username || '-'})`;
+                document.getElementById('headerAvatar').textContent = getInitials(contact.name);
 
-                // Unpaid badge in header
-                const unpaidBadge = document.getElementById('chatUnpaidBadge');
+                const tag = document.getElementById('headerUnpaidTag');
                 if (contact.unpaid_count > 0) {
-                    unpaidBadge.classList.remove('hidden');
-                    unpaidBadge.textContent = `${contact.unpaid_count} Tagihan (Rp ${Number(contact.unpaid_amount).toLocaleString('id-ID')})`;
+                    tag.classList.remove('hidden');
+                    tag.textContent = `${contact.unpaid_count} Faktur Belum Bayar`;
                 } else {
-                    unpaidBadge.classList.add('hidden');
+                    tag.classList.add('hidden');
                 }
 
-                // Setup deep link wa.me
-                updateWaWebLink();
+                document.getElementById('btnWaWebDeepLink').href = `https://wa.me/${contact.normalized_phone}`;
 
-                // Fetch conversation
                 loadConversation(activePhone);
 
-                // Auto polling for new messages every 8 seconds
-                clearInterval(pollInterval);
-                pollInterval = setInterval(() => {
-                    if (activePhone) {
-                        loadConversation(activePhone, true);
-                    }
+                clearInterval(pollTimer);
+                pollTimer = setInterval(() => {
+                    if (activePhone) loadConversation(activePhone, true);
                 }, 8000);
 
-                // If launched with an initial invoice, trigger the modal automatically
                 if (initialInvoiceId) {
                     setTimeout(() => {
                         openInvoiceModal(initialInvoiceId);
                         initialInvoiceId = null;
-                    }, 400);
+                    }, 350);
                 }
             }
 
@@ -719,23 +637,17 @@
                     });
             }
 
-            function selectFirstUnpaidContact() {
-                const btn = document.querySelector('.wa-filter-pill[data-filter="unpaid"]');
-                if (btn) btn.click();
+            function backToSidebar() {
+                document.getElementById('waWorkspace').classList.remove('chat-selected');
             }
 
-            function backToContacts() {
-                document.getElementById('waAppContainer').classList.remove('chat-open');
-            }
-
-            // 3. Load messages conversation
             function loadConversation(phone, isPolling = false) {
-                const container = document.getElementById('chatMessagesContainer');
+                const stream = document.getElementById('chatStream');
                 if (!isPolling) {
-                    container.innerHTML = `
-                        <div class="text-center py-8 text-slate-400 text-xs">
-                            <i class="fa-solid fa-circle-notch fa-spin text-emerald-500 text-lg mb-2"></i>
-                            <div>Memuat percakapan...</div>
+                    stream.innerHTML = `
+                        <div class="text-center py-6 text-slate-400 text-xs">
+                            <i class="fa-solid fa-circle-notch fa-spin text-slate-400 mb-1"></i>
+                            <div>Memuat pesan...</div>
                         </div>`;
                 }
 
@@ -743,80 +655,64 @@
                     .then(res => res.json())
                     .then(data => {
                         if (!data.success) return;
-
-                        if (data.contact) {
-                            activeContact = data.contact;
-                        }
-
-                        renderMessages(data.messages);
+                        if (data.contact) activeContact = data.contact;
+                        renderChatStream(data.messages);
                     });
             }
 
-            function renderMessages(messages) {
-                const container = document.getElementById('chatMessagesContainer');
+            function renderChatStream(messages) {
+                const stream = document.getElementById('chatStream');
 
                 if (!messages.length) {
-                    container.innerHTML = `
-                        <div class="text-center py-10 text-slate-500 text-xs max-w-sm mx-auto">
-                            <div class="w-12 h-12 rounded-xl bg-white text-emerald-600 flex items-center justify-center text-xl mx-auto mb-2.5 shadow-xs border border-slate-200">
-                                <i class="fa-regular fa-comments"></i>
-                            </div>
-                            <div class="font-bold text-slate-700">Belum ada riwayat pesan tercatat</div>
-                            <p class="text-[11px] text-slate-400 mt-1">Mulai obrolan baru dengan mengetik pesan di bawah, atau kirimkan tagihan invoice pelanggan ini.</p>
-                            <div class="flex items-center justify-center gap-2 mt-3">
-                                <button type="button" class="btn-primary-admin !h-7 !px-3 text-xs !bg-emerald-600 font-semibold" onclick="openInvoiceModal()">
-                                    <i class="fa-solid fa-file-invoice-dollar mr-1"></i> Kirim Tagihan
-                                </button>
-                                <button type="button" class="btn-cancel !h-7 !px-3 text-xs font-semibold" onclick="applyTemplate('welcome_new')">
-                                    <i class="fa-solid fa-handshake mr-1"></i> Sapa Pelanggan
-                                </button>
-                            </div>
+                    stream.innerHTML = `
+                        <div class="text-center py-8 text-slate-400 text-xs">
+                            <div class="font-semibold text-slate-600">Belum ada riwayat pesan tercatat</div>
+                            <div class="text-[11px] text-slate-400 mt-1">Gunakan formulir di bawah atau pilih Kirim Tagihan.</div>
                         </div>`;
                     return;
                 }
 
-                const shouldScroll = (container.scrollTop + container.clientHeight >= container.scrollHeight - 60);
+                const isNearBottom = (stream.scrollTop + stream.clientHeight >= stream.scrollHeight - 60);
 
-                container.innerHTML = '';
+                stream.innerHTML = '';
                 messages.forEach(m => {
                     const isOut = m.direction === 'outbound';
-                    const isInvoice = m.type === 'invoice';
-                    const wrapper = document.createElement('div');
-                    wrapper.className = `wa-bubble-wrapper ${isOut ? 'outbound' : 'inbound'}`;
+                    const isInv = m.type === 'invoice';
+                    const row = document.createElement('div');
+                    row.className = `wa-msg-row ${isOut ? 'outbound' : 'inbound'}`;
 
-                    let statusIcon = '';
+                    let statusMark = '';
                     if (isOut) {
                         if (m.status === 'simulated') {
-                            statusIcon = '<span class="text-[9px] font-bold px-1 rounded bg-amber-100 text-amber-700" title="Tercatat dalam mode simulasi">SIM</span>';
+                            statusMark = '<span class="text-[9px] font-bold text-amber-700 bg-amber-100 px-1 rounded">SIM</span>';
                         } else if (m.status === 'sent') {
-                            statusIcon = '<i class="fa-solid fa-check text-slate-400" title="Terkirim"></i>';
+                            statusMark = '<i class="fa-solid fa-check text-slate-400 text-[10px]" title="Terkirim"></i>';
                         } else if (m.status === 'delivered') {
-                            statusIcon = '<i class="fa-solid fa-check-double text-slate-400" title="Tersampaikan"></i>';
+                            statusMark = '<i class="fa-solid fa-check-double text-slate-400 text-[10px]" title="Tersampaikan"></i>';
                         } else if (m.status === 'read') {
-                            statusIcon = '<i class="fa-solid fa-check-double text-sky-500" title="Dibaca"></i>';
+                            statusMark = '<i class="fa-solid fa-check-double text-sky-600 text-[10px]" title="Dibaca"></i>';
                         } else if (m.status === 'failed') {
-                            statusIcon = '<i class="fa-solid fa-triangle-exclamation text-rose-500" title="Gagal"></i>';
+                            statusMark = '<i class="fa-solid fa-triangle-exclamation text-rose-500 text-[10px]" title="Gagal"></i>';
                         }
                     }
 
-                    wrapper.innerHTML = `
-                        <div class="wa-bubble ${isOut ? 'outbound' : 'inbound'} ${isInvoice ? 'invoice-bubble' : ''}">
-                            <div class="wa-bubble-text">${formatMessageText(m.message)}</div>
-                            <div class="wa-bubble-meta">
+                    row.innerHTML = `
+                        <div class="wa-msg-bubble ${isOut ? 'outbound' : 'inbound'} ${isInv ? 'invoice-type' : ''}">
+                            <div>${formatMsgText(m.message)}</div>
+                            <div class="wa-msg-meta">
                                 <span>${m.time}</span>
-                                ${statusIcon}
+                                ${statusMark}
                             </div>
                         </div>
                     `;
-                    container.appendChild(wrapper);
+                    stream.appendChild(row);
                 });
 
-                if (shouldScroll) {
-                    container.scrollTop = container.scrollHeight;
+                if (isNearBottom) {
+                    stream.scrollTop = stream.scrollHeight;
                 }
             }
 
-            // 4. Send message via Backend API
             function sendMessageApi() {
                 if (!activeContact) return;
                 const input = document.getElementById('composerInput');
@@ -824,9 +720,7 @@
                 if (!text) return;
 
                 const btn = document.getElementById('btnSendApi');
-                const origHtml = btn.innerHTML;
                 btn.disabled = true;
-                btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-xs"></i>`;
 
                 fetch(`{{ route('whatsapp.send') }}`, {
                     method: 'POST',
@@ -844,8 +738,6 @@
                 .then(res => res.json())
                 .then(data => {
                     btn.disabled = false;
-                    btn.innerHTML = origHtml;
-
                     if (data.success) {
                         input.value = '';
                         loadConversation(activeContact.normalized_phone);
@@ -853,40 +745,28 @@
                         alert(data.message || 'Gagal mengirim pesan.');
                     }
                 })
-                .catch(err => {
+                .catch(() => {
                     btn.disabled = false;
-                    btn.innerHTML = origHtml;
                     alert('Terjadi kesalahan jaringan.');
                 });
             }
 
-            // 5. Send directly via WhatsApp Web (wa.me)
             function sendViaWaWeb() {
                 if (!activeContact) return;
-                const input = document.getElementById('composerInput');
-                const text = input.value.trim();
-                const phone = activeContact.normalized_phone;
-
-                const url = `https://web.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(text)}`;
+                const text = document.getElementById('composerInput').value.trim();
+                const url = `https://web.whatsapp.com/send?phone=${activeContact.normalized_phone}&text=${encodeURIComponent(text)}`;
                 window.open(url, '_blank');
             }
 
-            function updateWaWebLink() {
-                if (!activeContact) return;
-                const btn = document.getElementById('btnOpenWaWeb');
-                btn.href = `https://wa.me/${activeContact.normalized_phone}`;
-            }
-
-            // 6. Template Management
             function toggleTemplateMenu() {
-                document.getElementById('templateDropdownMenu').classList.toggle('hidden');
+                document.getElementById('templateDropdown').classList.toggle('hidden');
             }
 
-            function applyTemplate(templateId) {
-                const tpl = TEMPLATES.find(t => t.id === templateId);
-                if (!tpl || !activeContact) return;
+            function applyTemplate(id) {
+                const t = TEMPLATES.find(x => x.id === id);
+                if (!t || !activeContact) return;
 
-                let body = tpl.body;
+                let body = t.body;
                 body = body.replace(/\{nama\}/g, activeContact.name || 'Pelanggan');
                 body = body.replace(/\{username\}/g, activeContact.username || '-');
                 body = body.replace(/\{paket\}/g, activeContact.paket || 'Internet');
@@ -894,26 +774,24 @@
                 body = body.replace(/\{periode\}/g, new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(new Date()));
                 body = body.replace(/\{jatuh_tempo\}/g, activeContact.invoices && activeContact.invoices.length ? activeContact.invoices[0].due_date : '-');
                 body = body.replace(/\{nomor_invoice\}/g, activeContact.invoices && activeContact.invoices.length ? activeContact.invoices[0].invoice_number : 'INV-...');
-                body = body.replace(/\{waktu_pemeliharaan\}/g, 'Malam ini pukul 23:00 - 03:00 WIB');
-                body = body.replace(/\{estimasi_durasi\}/g, '± 2-4 Jam');
+                body = body.replace(/\{waktu_pemeliharaan\}/g, 'Pukul 23:00 - 03:00 WIB');
+                body = body.replace(/\{estimasi_durasi\}/g, '2-4 Jam');
 
                 const composer = document.getElementById('composerInput');
                 composer.value = body;
                 composer.focus();
-                document.getElementById('templateDropdownMenu').classList.add('hidden');
+                document.getElementById('templateDropdown').classList.add('hidden');
             }
 
-            function insertVariable(varName) {
-                const composer = document.getElementById('composerInput');
-                const start = composer.selectionStart;
-                const end = composer.selectionEnd;
-                const text = composer.value;
-                composer.value = text.substring(0, start) + varName + text.substring(end);
-                composer.focus();
-                composer.selectionStart = composer.selectionEnd = start + varName.length;
+            function insertTag(tag) {
+                const c = document.getElementById('composerInput');
+                const start = c.selectionStart;
+                const end = c.selectionEnd;
+                c.value = c.value.substring(0, start) + tag + c.value.substring(end);
+                c.focus();
+                c.selectionStart = c.selectionEnd = start + tag.length;
             }
 
-            // 7. Invoice Modal
             function openInvoiceModal(preselectedId = null) {
                 if (!activeContact) return;
 
@@ -925,9 +803,7 @@
                         const opt = document.createElement('option');
                         opt.value = inv.id;
                         opt.textContent = `${inv.invoice_number} - Rp ${Number(inv.total).toLocaleString('id-ID')} (${inv.status.toUpperCase()}) - JT: ${inv.due_date}`;
-                        if (preselectedId && inv.id == preselectedId) {
-                            opt.selected = true;
-                        }
+                        if (preselectedId && inv.id == preselectedId) opt.selected = true;
                         select.appendChild(opt);
                     });
 
@@ -951,13 +827,12 @@
                 document.getElementById('invoiceModal').classList.remove('active');
             }
 
-            function onSelectInvoiceChange(invId) {
-                if (!invId) {
+            function onSelectInvoiceChange(id) {
+                if (!id) {
                     document.getElementById('invoiceMessagePreview').value = '';
                     return;
                 }
-
-                fetch(`{{ url('whatsapp/preview-invoice') }}/${invId}`)
+                fetch(`{{ url('whatsapp/preview-invoice') }}/${id}`)
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) {
@@ -967,17 +842,15 @@
             }
 
             function sendInvoiceApi() {
-                const invId = document.getElementById('selectInvoice').value;
-                if (!invId) {
+                const id = document.getElementById('selectInvoice').value;
+                if (!id) {
                     alert('Silakan pilih invoice terlebih dahulu.');
                     return;
                 }
 
-                const customMsg = document.getElementById('invoiceMessagePreview').value;
+                const msg = document.getElementById('invoiceMessagePreview').value;
                 const btn = document.getElementById('btnSendInvoiceApi');
-                const origHtml = btn.innerHTML;
                 btn.disabled = true;
-                btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-xs"></i> Mengirim...`;
 
                 fetch(`{{ route('whatsapp.send_invoice') }}`, {
                     method: 'POST',
@@ -986,15 +859,14 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     body: JSON.stringify({
-                        invoice_id: invId,
+                        invoice_id: id,
                         phone: activeContact.normalized_phone,
-                        custom_message: customMsg,
+                        custom_message: msg,
                     })
                 })
                 .then(res => res.json())
                 .then(data => {
                     btn.disabled = false;
-                    btn.innerHTML = origHtml;
                     if (data.success) {
                         closeInvoiceModal();
                         loadConversation(activeContact.normalized_phone);
@@ -1002,9 +874,8 @@
                         alert(data.message || 'Gagal mengirim tagihan.');
                     }
                 })
-                .catch(err => {
+                .catch(() => {
                     btn.disabled = false;
-                    btn.innerHTML = origHtml;
                     alert('Terjadi kesalahan jaringan.');
                 });
             }
@@ -1020,51 +891,47 @@
                 closeInvoiceModal();
             }
 
-            // 8. Contact Details Drawer
-            function toggleContactDrawer() {
-                const drawer = document.getElementById('contactDrawer');
-                drawer.classList.toggle('hidden');
-                if (!drawer.classList.contains('hidden') && activeContact) {
-                    const content = document.getElementById('contactDrawerContent');
-                    content.innerHTML = `
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Identitas Pelanggan</div>
-                            <div class="text-sm font-bold text-slate-900 mt-1">${escapeHtml(activeContact.name)}</div>
-                            <div class="text-slate-600 font-mono mt-0.5">${activeContact.phone}</div>
+            function toggleCustomerInfo() {
+                const modal = document.getElementById('customerInfoModal');
+                modal.classList.toggle('hidden');
+
+                if (!modal.classList.contains('hidden') && activeContact) {
+                    const body = document.getElementById('customerInfoBody');
+                    body.innerHTML = `
+                        <div class="p-2.5 bg-slate-50 border border-slate-200 rounded">
+                            <div class="text-[10px] font-bold text-slate-400 uppercase">Nama Pelanggan</div>
+                            <div class="text-xs font-bold text-slate-900 mt-0.5">${escapeHtml(activeContact.name)}</div>
+                            <div class="text-slate-500 font-mono text-[11px]">${activeContact.phone}</div>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
-                            <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
-                                <span class="text-[10px] text-slate-400 font-bold uppercase block">Akun PPPoE</span>
+                            <div class="p-2 bg-slate-50 border border-slate-200 rounded">
+                                <span class="text-[10px] text-slate-400 font-bold uppercase block">PPPoE</span>
                                 <span class="font-bold text-slate-800 text-xs">${activeContact.username || '-'}</span>
                             </div>
-                            <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
-                                <span class="text-[10px] text-slate-400 font-bold uppercase block">Paket Layanan</span>
-                                <span class="font-bold text-emerald-700 text-xs">${activeContact.paket || '-'}</span>
+                            <div class="p-2 bg-slate-50 border border-slate-200 rounded">
+                                <span class="text-[10px] text-slate-400 font-bold uppercase block">Paket</span>
+                                <span class="font-bold text-slate-800 text-xs">${activeContact.paket || '-'}</span>
                             </div>
                         </div>
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Alamat Pemasangan</div>
-                            <div class="text-slate-700 mt-1 leading-relaxed">${escapeHtml(activeContact.address || '-')}</div>
+                        <div class="p-2.5 bg-slate-50 border border-slate-200 rounded">
+                            <div class="text-[10px] font-bold text-slate-400 uppercase">Alamat</div>
+                            <div class="text-slate-700 mt-0.5">${escapeHtml(activeContact.address || '-')}</div>
                         </div>
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status Tagihan Aktif</span>
-                                <span class="font-bold text-rose-600">${activeContact.unpaid_count} Belum Bayar</span>
+                        <div class="p-2.5 bg-slate-50 border border-slate-200 rounded flex items-center justify-between">
+                            <div>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase block">Tagihan Tertunggak</span>
+                                <span class="font-bold text-rose-700 text-xs">Rp ${Number(activeContact.unpaid_total || 0).toLocaleString('id-ID')} (${activeContact.unpaid_count})</span>
                             </div>
-                            <div class="text-base font-black text-rose-700">Rp ${Number(activeContact.unpaid_total || 0).toLocaleString('id-ID')}</div>
-                            ${activeContact.pppoe_id ? `<a href="{{ url('invoices') }}/${activeContact.pppoe_id}" class="mt-2 text-xs text-sky-600 font-bold hover:underline inline-flex items-center gap-1">Buka Riwayat Invoice &rarr;</a>` : ''}
+                            ${activeContact.pppoe_id ? `<a href="{{ url('invoices') }}/${activeContact.pppoe_id}" class="text-[11px] font-bold text-sky-600 hover:underline">Riwayat &rarr;</a>` : ''}
                         </div>
                     `;
                 }
             }
 
-            // Utilities
             function getInitials(name) {
                 if (!name) return 'EN';
-                const parts = name.trim().split(' ');
-                if (parts.length >= 2) {
-                    return (parts[0][0] + parts[1][0]).toUpperCase();
-                }
+                const p = name.trim().split(' ');
+                if (p.length >= 2) return (p[0][0] + p[1][0]).toUpperCase();
                 return name.substring(0, 2).toUpperCase();
             }
 
@@ -1076,23 +943,19 @@
                 return d;
             }
 
-            function escapeHtml(text) {
-                if (!text) return '';
-                return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            function escapeHtml(t) {
+                if (!t) return '';
+                return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
             }
 
-            function formatMessageText(text) {
-                if (!text) return '';
-                let escaped = escapeHtml(text);
-                // WhatsApp bold: *text* -> <b>text</b>
-                escaped = escaped.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
-                // WhatsApp italic: _text_ -> <em>text</em>
-                escaped = escaped.replace(/_(.*?)_/g, '<em>$1</em>');
-                // WhatsApp inline code: `text` -> <code>text</code>
-                escaped = escaped.replace(/`(.*?)`/g, '<code class="bg-black/5 px-1 rounded text-xs">$1</code>');
-                // Auto linkify URLs
-                escaped = escaped.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" class="text-sky-600 underline">$1</a>');
-                return escaped;
+            function formatMsgText(t) {
+                if (!t) return '';
+                let s = escapeHtml(t);
+                s = s.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
+                s = s.replace(/_(.*?)_/g, '<em>$1</em>');
+                s = s.replace(/`(.*?)`/g, '<code class="bg-black/5 px-1 rounded text-xs">$1</code>');
+                s = s.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" class="text-sky-600 underline">$1</a>');
+                return s;
             }
         </script>
     @endsection

@@ -227,37 +227,36 @@ class WhatsAppService
         $dueDate = $invoice->due_date ? Carbon::parse($invoice->due_date)->translatedFormat('d F Y') : '-';
         $periode = Carbon::parse($invoice->created_at)->translatedFormat('F Y');
 
-        $text = "📡 *TAGIHAN INTERNET ERLANGGA NET*\n";
+        $text = "*TAGIHAN INTERNET ERLANGGA NET*\n";
         $text .= "--------------------------------------\n";
-        $text .= "Halo Bpk/Ibu *{$customerName}*,\n\n";
-        $text .= "Berikut kami sampaikan rincian tagihan layanan internet Anda:\n\n";
-        $text .= "• *No. Invoice* : `{$invoice->invoice_number}`\n";
-        $text .= "• *ID / Akun*   : `{$pppoe->username}`\n";
-        $text .= "• *Paket Layanan*: {$namaPaket}\n";
-        $text .= "• *Periode*     : {$periode}\n";
-        $text .= "• *Total Tagihan*: *Rp {$totalFormatted}*\n";
-        $text .= "• *Jatuh Tempo* : *{$dueDate}*\n\n";
+        $text .= "Yth. Bpk/Ibu *{$customerName}*,\n\n";
+        $text .= "Berikut rincian tagihan layanan internet Anda:\n";
+        $text .= "• No. Invoice : `{$invoice->invoice_number}`\n";
+        $text .= "• ID Pelanggan: `{$pppoe->username}`\n";
+        $text .= "• Paket       : {$namaPaket}\n";
+        $text .= "• Periode     : {$periode}\n";
+        $text .= "• Total       : *Rp {$totalFormatted}*\n";
+        $text .= "• Jatuh Tempo : *{$dueDate}*\n\n";
 
         // Rekening Pembayaran
         $bankAccounts = BankAccount::orderBy('is_default', 'desc')->get();
         if ($bankAccounts->isNotEmpty()) {
-            $text .= "💳 *Metode Pembayaran Transfer Bank:*\n";
+            $text .= "*Pembayaran Transfer Bank:*\n";
             foreach ($bankAccounts as $bank) {
                 $holder = $bank->account_holder_name ?: 'Erlangga Net';
-                $text .= "• *{$bank->bank_name}*: `{$bank->account_number}` a/n {$holder}\n";
+                $text .= "• {$bank->bank_name}: `{$bank->account_number}` a/n {$holder}\n";
             }
             $text .= "\n";
         }
 
         // Link Pembayaran Online Xendit jika tersedia
         if (!empty($invoice->xendit_invoice_url)) {
-            $text .= "🔗 *Link Bayar Otomatis (QRIS / VA / E-Wallet):*\n";
+            $text .= "*Pembayaran Online (QRIS / Virtual Account):*\n";
             $text .= "{$invoice->xendit_invoice_url}\n\n";
         }
 
-        $text .= "Mohon melakukan pembayaran sebelum tanggal jatuh tempo agar layanan internet Anda tetap aktif tanpa kendala.\n\n";
-        $text .= "Abaikan pesan ini jika Anda telah melakukan pembayaran.\n";
-        $text .= "Terima kasih atas kepercayaannya bersama *Erlangga Net*! 🙏";
+        $text .= "Mohon melakukan pembayaran sebelum tanggal jatuh tempo. Abaikan pesan ini jika Anda telah menyelesaikan pembayaran.\n\n";
+        $text .= "Terima kasih,\n*Erlangga Net*";
 
         return $text;
     }
@@ -272,43 +271,43 @@ class WhatsAppService
                 'id' => 'invoice_bill',
                 'title' => 'Tagihan Baru (Invoice)',
                 'icon' => 'fa-file-invoice-dollar',
-                'description' => 'Pemberitahuan invoice bulanan dan nomor rekening / link bayar',
-                'body' => "📡 *TAGIHAN INTERNET ERLANGGA NET*\n\nHalo Bpk/Ibu *{nama}*,\nTagihan internet Anda untuk periode *{periode}* telah diterbitkan:\n\n• No. Invoice: *{nomor_invoice}*\n• Total: *Rp {total}*\n• Jatuh Tempo: *{jatuh_tempo}*\n\nSilakan lakukan pembayaran sebelum tanggal jatuh tempo. Terima kasih. 🙏",
+                'description' => 'Pemberitahuan invoice bulanan dan informasi pembayaran',
+                'body' => "*TAGIHAN INTERNET ERLANGGA NET*\n\nYth. Bpk/Ibu *{nama}*,\nTagihan layanan internet Anda periode *{periode}* telah diterbitkan:\n\n• No. Invoice: *{nomor_invoice}*\n• Total: *Rp {total}*\n• Jatuh Tempo: *{jatuh_tempo}*\n\nMohon lakukan pembayaran sebelum jatuh tempo. Terima kasih.",
             ],
             [
                 'id' => 'reminder_due',
                 'title' => 'Pengingat Jatuh Tempo (H-1)',
-                'icon' => 'fa-clock-rotate-left',
-                'description' => 'Peringatan tagihan yang akan segera jatuh tempo besok',
-                'body' => "⏰ *PENGINGAT JATUH TEMPO ERLANGGA NET*\n\nYth. Bpk/Ibu *{nama}*,\nKami mengingatkan bahwa tagihan internet Anda sebesar *Rp {total}* akan jatuh tempo pada *{jatuh_tempo}*.\n\nMohon selesaikan pembayaran untuk menghindari pemutusan/isolir koneksi otomatis. Terima kasih! 🙏",
+                'icon' => 'fa-clock',
+                'description' => 'Pemberitahuan tagihan yang akan jatuh tempo',
+                'body' => "*PENGINGAT JATUH TEMPO - ERLANGGA NET*\n\nYth. Bpk/Ibu *{nama}*,\nKami mengingatkan bahwa tagihan internet Anda sebesar *Rp {total}* akan jatuh tempo pada *{jatuh_tempo}*.\n\nMohon selesaikan pembayaran untuk menjaga kelancaran koneksi internet Anda. Terima kasih.",
             ],
             [
                 'id' => 'isolated_notice',
                 'title' => 'Pemberitahuan Isolir',
                 'icon' => 'fa-ban',
-                'description' => 'Pemberitahuan penonaktifan sementara karena lewat jatuh tempo',
-                'body' => "⚠️ *PEMBERITAHUAN ISOLIR SEMENTARA*\n\nYth. Bpk/Ibu *{nama}*,\nLayanan internet Anda untuk akun *{username}* saat ini dinonaktifkan sementara (terisolir) karena telah melewati tanggal jatuh tempo ({jatuh_tempo}).\n\nTotal Tagihan: *Rp {total}*\n\nSilakan segera lakukan pembayaran untuk membuka kembali akses internet Anda secara otomatis. Terima kasih.",
+                'description' => 'Pemberitahuan penonaktifan sementara akibat lewat jatuh tempo',
+                'body' => "*PEMBERITAHUAN ISOLIR LAYANAN*\n\nYth. Bpk/Ibu *{nama}*,\nLayanan internet akun *{username}* saat ini terisolir karena melewati tanggal jatuh tempo ({jatuh_tempo}).\n\nTotal Tagihan: *Rp {total}*\n\nSilakan selesaikan pembayaran untuk mengaktifkan kembali koneksi internet Anda. Terima kasih.",
             ],
             [
                 'id' => 'payment_success',
                 'title' => 'Konfirmasi Pembayaran Lunas',
                 'icon' => 'fa-circle-check',
-                'description' => 'Kwitansi digital tanda pembayaran berhasil diterima',
-                'body' => "✅ *PEMBAYARAN DITERIMA - ERLANGGA NET*\n\nTerima kasih Bpk/Ibu *{nama}*,\nPembayaran internet Anda sebesar *Rp {total}* untuk invoice *{nomor_invoice}* telah kami terima dan diverifikasi.\n\nLayanan internet Anda berstatus *AKTIF*. Selamat menikmati layanan internet kami! 🚀",
+                'description' => 'Konfirmasi bahwa pembayaran telah diterima',
+                'body' => "*PEMBAYARAN DITERIMA - ERLANGGA NET*\n\nTerima kasih Bpk/Ibu *{nama}*,\nPembayaran tagihan internet sebesar *Rp {total}* (Invoice: *{nomor_invoice}*) telah kami terima dan diverifikasi.\n\nStatus layanan: *AKTIF*. Terima kasih.",
             ],
             [
                 'id' => 'maintenance_info',
-                'title' => 'Info Pemeliharaan Jaringan',
-                'icon' => 'fa-wrench',
-                'description' => 'Pengumuman jadwal pemeliharaan jaringan kabel/perangkat',
-                'body' => "🛠️ *INFORMASI PEMELIHARAAN JARINGAN*\n\nYth. Pelanggan Setia Erlangga Net,\nKami informasikan bahwa akan dilakukan kegiatan pemeliharaan jaringan pada:\n\n📅 Waktu: *{waktu_pemeliharaan}*\n⏳ Estimasi: *{estimasi_durasi}*\n\nSelama proses pemeliharaan, koneksi internet Anda mungkin mengalami gangguan sementara. Kami memohon maaf atas ketidaknyamanan ini.",
+                'title' => 'Informasi Pemeliharaan Jaringan',
+                'icon' => 'fa-screwdriver-wrench',
+                'description' => 'Pemberitahuan jadwal pemeliharaan jaringan',
+                'body' => "*INFORMASI PEMELIHARAAN JARINGAN*\n\nYth. Pelanggan Erlangga Net,\nKami informasikan adanya jadwal pemeliharaan jaringan pada:\n\nWaktu: *{waktu_pemeliharaan}*\nEstimasi Durasi: *{estimasi_durasi}*\n\nSelama pemeliharaan berlangsung, akses internet mungkin mengalami penurunan kualitas sementara. Kami mohon maaf atas ketidaknyamanan ini.",
             ],
             [
                 'id' => 'welcome_new',
-                'title' => 'Sambutan Pelanggan Baru',
-                'icon' => 'fa-handshake',
-                'description' => 'Pesan selamat datang setelah instalasi dan aktivasi selesai',
-                'body' => "🎉 *SELAMAT BERGABUNG DI ERLANGGA NET*\n\nHalo Bpk/Ibu *{nama}*,\nSelamat! Layanan internet Anda telah aktif dengan detail:\n\n• Username: `{username}`\n• Paket: *{paket}*\n\nJika membutuhkan bantuan teknis atau informasi layanan, silakan hubungi Customer Service kami di nomor ini. Selamat berselancar! 🌐",
+                'title' => 'Aktivasi Pelanggan Baru',
+                'icon' => 'fa-user-check',
+                'description' => 'Pemberitahuan aktivasi setelah instalasi selesai',
+                'body' => "*AKTIVASI LAYANAN - ERLANGGA NET*\n\nYth. Bpk/Ibu *{nama}*,\nLayanan internet Anda telah aktif dengan rincian:\n\n• ID Akun: `{username}`\n• Paket Layanan: *{paket}*\n\nJika membutuhkan bantuan layanan atau informasi tagihan, silakan hubungi kontak ini. Terima kasih.",
             ],
         ];
     }
