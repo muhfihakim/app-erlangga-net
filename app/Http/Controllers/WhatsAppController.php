@@ -104,16 +104,73 @@ class WhatsAppController extends Controller
             });
         }
 
+        // Ambil percakapan aktif dari tabel pesan agar pesan masuk via webhook selalu muncul di daftar teratas
+        $recentChatSub = WhatsAppMessage::select('phone', DB::raw('MAX(id) as max_id'))
+            ->groupBy('phone')
+            ->orderByDesc('max_id')
+            ->take(30);
+
+        $recentMsgs = WhatsAppMessage::joinSub($recentChatSub, 'latest', function ($join) {
+            $join->on('whatsapp_messages.id', '=', 'latest.max_id');
+        })->orderByDesc('whatsapp_messages.id')->get();
+
+        $recentPhoneMap = [];
+        $recentContacts = [];
+
+        foreach ($recentMsgs as $rm) {
+            $normalized = $rm->phone;
+            $recentPhoneMap[$normalized] = [
+                'message' => $rm->message,
+                'direction' => $rm->direction,
+                'status' => $rm->status,
+                'created_at' => $rm->created_at->diffForHumans(),
+            ];
+
+            // Resolve contact data
+            $resolved = $this->resolveContactData($normalized);
+
+            // Filter status jika aktif
+            if ($filter === 'unpaid' && ($resolved['unpaid_count'] ?? 0) === 0) {
+                continue;
+            }
+
+            // Filter search jika ada
+            if (!empty($search)) {
+                $nameMatch = str_contains(strtolower($resolved['name']), strtolower($search));
+                $phoneMatch = str_contains($normalized, $search);
+                $userMatch = str_contains(strtolower($resolved['username'] ?? ''), strtolower($search));
+                if (!$nameMatch && !$phoneMatch && !$userMatch) {
+                    continue;
+                }
+            }
+
+            $recentContacts[$normalized] = [
+                'id' => $resolved['pppoe_id'] ?? null,
+                'name' => $resolved['name'],
+                'username' => $resolved['username'] ?? '-',
+                'phone' => $resolved['display_phone'] ?? $normalized,
+                'normalized_phone' => $normalized,
+                'paket' => $resolved['paket'] ?? '-',
+                'is_isolir' => $resolved['is_isolir'] ?? false,
+                'unpaid_count' => $resolved['unpaid_count'] ?? 0,
+                'unpaid_amount' => $resolved['unpaid_total'] ?? 0,
+                'last_message' => $recentPhoneMap[$normalized],
+            ];
+        }
+
+        // Ambil daftar PPPoE untuk kontak lainnya
         $pppoeList = $query->latest('id')->paginate($limit);
 
-        // Ambil pesan terakhir untuk tiap kontak
+        // Ambil pesan terakhir untuk tiap kontak PPPoE
         $phoneList = $pppoeList->map(function ($p) {
             return WhatsAppService::normalizePhone($p->preOrder->no_whatsapp ?? '');
         })->filter()->unique()->values()->all();
 
-        $latestMessages = [];
-        if (!empty($phoneList)) {
-            $sub = WhatsAppMessage::whereIn('phone', $phoneList)
+        $latestMessages = $recentPhoneMap;
+        $unqueriedPhones = array_diff($phoneList, array_keys($recentPhoneMap));
+
+        if (!empty($unqueriedPhones)) {
+            $sub = WhatsAppMessage::whereIn('phone', $unqueriedPhones)
                 ->select('phone', DB::raw('MAX(id) as max_id'))
                 ->groupBy('phone');
 
@@ -131,14 +188,22 @@ class WhatsAppController extends Controller
             }
         }
 
-        $contacts = $pppoeList->map(function ($p) use ($latestMessages) {
+        $allContacts = array_values($recentContacts);
+        $existingPhones = array_keys($recentContacts);
+
+        foreach ($pppoeList as $p) {
             $phone = $p->preOrder->no_whatsapp ?? '';
             $normalizedPhone = WhatsAppService::normalizePhone($phone);
+
+            if (in_array($normalizedPhone, $existingPhones)) {
+                continue;
+            }
+
             $unpaidInvoices = $p->invoices;
             $unpaidCount = $unpaidInvoices->count();
             $unpaidAmount = $unpaidInvoices->sum('total');
 
-            return [
+            $allContacts[] = [
                 'id' => $p->id,
                 'name' => $p->preOrder->nama_lengkap ?? $p->username,
                 'username' => $p->username,
@@ -151,14 +216,14 @@ class WhatsAppController extends Controller
                 'unpaid_amount' => $unpaidAmount,
                 'last_message' => $latestMessages[$normalizedPhone] ?? null,
             ];
-        });
+        }
 
         return response()->json([
             'success' => true,
-            'contacts' => $contacts,
+            'contacts' => $allContacts,
             'has_more' => $pppoeList->hasMorePages(),
             'current_page' => $pppoeList->currentPage(),
-            'total' => $pppoeList->total(),
+            'total' => count($allContacts),
         ]);
     }
 
@@ -298,6 +363,19 @@ class WhatsAppController extends Controller
      */
     public function handleWebhook(Request $request)
     {
+        // 1. Handshake verification (GET) - Meta Cloud API / Api.co.id challenge
+        if ($request->isMethod('GET')) {
+            $challenge = $request->input('hub_challenge') 
+                ?? $request->input('hub.challenge') 
+                ?? $request->input('challenge');
+
+            if ($challenge) {
+                return response($challenge, 200)->header('Content-Type', 'text/plain');
+            }
+            return response('WhatsApp Webhook Endpoint Active', 200)->header('Content-Type', 'text/plain');
+        }
+
+        // 2. Incoming Event / Message (POST)
         $payload = $request->all();
         Log::info('WhatsApp Webhook Received: ' . json_encode($payload));
 
@@ -308,7 +386,7 @@ class WhatsAppController extends Controller
         $mediaUrl = $data['media_url'] ?? null;
 
         if (empty($phone) || empty($message)) {
-            return response()->json(['status' => 'ignored', 'message' => 'Data tidak lengkap.'], 200);
+            return response()->json(['status' => 'ignored', 'message' => 'Event diproses atau data pesan kosong.'], 200);
         }
 
         $normalized = WhatsAppService::normalizePhone($phone);
