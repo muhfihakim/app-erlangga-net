@@ -138,6 +138,14 @@
             </a>
         @endif
 
+        <!-- WHATSAPP CENTER (Single Link) -->
+        @if ($isAdmin)
+            <a class="sidebar-link {{ Request::is('whatsapp*') ? 'active' : '' }}" href="{{ route('whatsapp.index') }}" title="WhatsApp Center & CS">
+                <i class="fa-brands fa-whatsapp" style="color: #10b981;"></i>
+                <span>WhatsApp Center</span>
+            </a>
+        @endif
+
         <!-- 5. BILLING & KEUANGAN (Accordion) -->
         @if ($isAdmin || $isTeknisi || $isSales)
             <div class="sidebar-group">

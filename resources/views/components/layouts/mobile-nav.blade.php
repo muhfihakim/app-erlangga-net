@@ -158,6 +158,15 @@
                     <span>Pengelolaan Aset</span>
                 </a>
             </div>
+
+            {{-- WhatsApp Center --}}
+            <div class="sidebar-section-label" style="margin-top:.75rem;">Komunikasi Pelanggan</div>
+            <div class="mobile-menu-grid">
+                <a class="mobile-grid-item {{ Request::is('whatsapp*') ? 'active' : '' }}" href="{{ route('whatsapp.index') }}">
+                    <i class="fa-brands fa-whatsapp text-emerald-600"></i>
+                    <span>WhatsApp Center</span>
+                </a>
+            </div>
         @endif
 
         {{-- 4. Billing & Keuangan --}}

@@ -92,6 +92,13 @@
                 <span class="sep">/</span>
                 <span class="current">Daftar Aset</span>
 
+                {{-- WhatsApp Center --}}
+            @elseif(request()->routeIs('whatsapp.*') || request()->is('whatsapp*'))
+                <span class="cursor-pointer hover:text-slate-900 transition-colors"
+                    onclick="location.href='{{ route('whatsapp.index') }}'">Komunikasi</span>
+                <span class="sep">/</span>
+                <span class="current">WhatsApp Center</span>
+
                 {{-- Billing & Keuangan --}}
             @elseif(request()->routeIs('invoices.show', 'invoices.print'))
                 <span class="cursor-pointer hover:text-slate-900 transition-colors"

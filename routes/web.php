@@ -96,6 +96,14 @@ Route::middleware(['auth.custom'])->group(function () {
         // Transactions
         Route::get('/transactions', [\App\Http\Controllers\TransactionController::class, 'index'])->name('transactions.index');
 
+        // WhatsApp Center (Chat CS & Invoice Messaging)
+        Route::get('/whatsapp', [\App\Http\Controllers\WhatsAppController::class, 'index'])->name('whatsapp.index');
+        Route::get('/whatsapp/contacts', [\App\Http\Controllers\WhatsAppController::class, 'getContacts'])->name('whatsapp.contacts');
+        Route::get('/whatsapp/conversation/{phone}', [\App\Http\Controllers\WhatsAppController::class, 'getConversation'])->name('whatsapp.conversation');
+        Route::post('/whatsapp/send', [\App\Http\Controllers\WhatsAppController::class, 'sendMessage'])->name('whatsapp.send');
+        Route::post('/whatsapp/send-invoice', [\App\Http\Controllers\WhatsAppController::class, 'sendInvoice'])->name('whatsapp.send_invoice');
+        Route::get('/whatsapp/preview-invoice/{invoice}', [\App\Http\Controllers\WhatsAppController::class, 'previewInvoiceText'])->name('whatsapp.preview_invoice');
+
         // Super Admin - Xendit XenPlatform Disbursements / Withdrawal
         Route::get('/withdrawals', [\App\Http\Controllers\WithdrawalController::class, 'index'])->name('withdrawals.index');
         Route::post('/withdrawals/send-otp', [\App\Http\Controllers\WithdrawalController::class, 'sendOtp'])->name('withdrawals.send_otp');

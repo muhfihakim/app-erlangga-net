@@ -52,6 +52,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
-// --- Webhooks Payment Gateway (Public Callback) ---
+// --- Webhooks Payment Gateway & WhatsApp (Public Callback) ---
 Route::post('/webhooks/xendit', [XenditWebhookController::class, 'handleInvoice']);
 Route::post('/webhooks/xendit/disbursements', [XenditWebhookController::class, 'handleDisbursement']);
+Route::post('/webhooks/whatsapp', [\App\Http\Controllers\WhatsAppController::class, 'handleWebhook']);

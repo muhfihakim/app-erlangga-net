@@ -99,10 +99,17 @@ class InvoiceController extends Controller
                     return '<div style="text-align: center;"><span class="badge badge-published" style="font-size:10.5px; padding:2.5px 8px;"><i class="fa-solid fa-check mr-1"></i> LUNAS</span></div>';
                 })
                 ->addColumn('opsi', function ($pppoe) {
+                    $phone = $pppoe->preOrder->no_whatsapp ?? '';
+                    $waBtn = '';
+                    if (!empty($phone)) {
+                        $waBtn = '<a href="' . route('whatsapp.index', ['pppoe_id' => $pppoe->id]) . '" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-emerald-300 hover:!bg-emerald-50 ml-1" title="Kirim Tagihan via WhatsApp Center">
+                            <i class="fa-brands fa-whatsapp text-emerald-600"></i>
+                        </a>';
+                    }
                     return '<div class="flex items-center justify-center">
                         <a href="' . route('invoices.show', $pppoe->id) . '" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" title="Detail Tagihan & Riwayat Invoice">
                             <i class="fa-solid fa-file-invoice-dollar text-slate-500"></i>
-                        </a>
+                        </a>' . $waBtn . '
                     </div>';
                 })
                 ->filter(function ($query) use ($request) {

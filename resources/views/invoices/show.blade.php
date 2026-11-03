@@ -302,6 +302,13 @@
                                         title="Unduh & Cetak PDF Faktur">
                                         <i class="fa-solid fa-file-pdf text-slate-500 hover:text-sky-600"></i>
                                     </a>
+                                    @if (!empty($pppoe->preOrder->no_whatsapp ?? ''))
+                                        <a href="{{ route('whatsapp.index', ['pppoe_id' => $pppoe->id, 'invoice_id' => $invoice->id]) }}"
+                                            class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-emerald-300 hover:!bg-emerald-50"
+                                            title="Kirim Tagihan via WhatsApp Center">
+                                            <i class="fa-brands fa-whatsapp text-emerald-600"></i>
+                                        </a>
+                                    @endif
                                     @if ($invoice->status == 'unpaid')
                                         <form action="{{ route('invoices.pay_xendit', $invoice->id) }}" method="POST"
                                             class="inline-flex items-center m-0 p-0 no-loader shrink-0" data-no-validation="true"
