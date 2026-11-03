@@ -308,7 +308,7 @@ class WhatsAppService
                 'title' => 'Sambutan Pelanggan Baru',
                 'icon' => 'fa-handshake',
                 'description' => 'Pesan selamat datang setelah instalasi dan aktivasi selesai',
-                'body' => "🎉 *SELAMAT BERGABUNG DI ERLANGGA NET*\n\nHalo Bpk/Ibu *{nama}*,\nSelamat! Layanan internet Anda telah aktif dengan detail:\n\n• Username: `{$username}`\n• Paket: *{paket}*\n\nJika membutuhkan bantuan teknis atau informasi layanan, silakan hubungi Customer Service kami di nomor ini. Selamat berselancar! 🌐",
+                'body' => "🎉 *SELAMAT BERGABUNG DI ERLANGGA NET*\n\nHalo Bpk/Ibu *{nama}*,\nSelamat! Layanan internet Anda telah aktif dengan detail:\n\n• Username: `{username}`\n• Paket: *{paket}*\n\nJika membutuhkan bantuan teknis atau informasi layanan, silakan hubungi Customer Service kami di nomor ini. Selamat berselancar! 🌐",
             ],
         ];
     }
