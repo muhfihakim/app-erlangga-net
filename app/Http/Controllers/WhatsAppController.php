@@ -294,16 +294,18 @@ class WhatsAppController extends Controller
     }
 
     /**
-     * Webhook publik untuk menerima pesan masuk dari WhatsApp Gateway / Provider API
+     * Webhook publik untuk menerima pesan masuk dari WhatsApp Gateway / Provider API (termasuk api.co.id)
      */
     public function handleWebhook(Request $request)
     {
         $payload = $request->all();
         Log::info('WhatsApp Webhook Received: ' . json_encode($payload));
 
-        // Format umum payload gateway WhatsApp (mendukung Fonnte, Wablas, api.co.id, Baileys, dsb.)
-        $phone = $payload['sender'] ?? ($payload['from'] ?? ($payload['phone'] ?? null));
-        $message = $payload['message'] ?? ($payload['text'] ?? ($payload['body'] ?? null));
+        // Ekstraksi data pesan (mendukung payload api.co.id {event: "message.received", data: {...}} dan gateway umum)
+        $data = $payload['data'] ?? $payload;
+        $phone = $data['customer_phone'] ?? ($data['phone_number'] ?? ($data['sender'] ?? ($data['from'] ?? ($data['phone'] ?? null))));
+        $message = $data['content'] ?? ($data['message'] ?? ($data['text'] ?? ($data['body'] ?? null)));
+        $mediaUrl = $data['media_url'] ?? null;
 
         if (empty($phone) || empty($message)) {
             return response()->json(['status' => 'ignored', 'message' => 'Data tidak lengkap.'], 200);
@@ -320,6 +322,7 @@ class WhatsAppController extends Controller
             'direction' => 'inbound',
             'type' => 'text',
             'message' => $message,
+            'media_url' => $mediaUrl,
             'status' => 'delivered',
             'metadata' => ['raw_payload' => $payload],
         ]);

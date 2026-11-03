@@ -755,20 +755,19 @@
                         URL <span class="text-rose-500">*</span></label>
                     <input type="text" name="whatsapp_api_url" id="whatsapp_api_url"
                         class="form-input font-mono text-xs"
-                        value="{{ old('whatsapp_api_url', $settings['whatsapp']['api_url']) }}"
-                        placeholder="https://your-domain.com/api/v1/send-message" required>
-                    <small class="text-slate-500 text-xs mt-1 block">Endpoint URL provider gateway WhatsApp
-                        API.</small>
+                        value="{{ old('whatsapp_api_url', $settings['whatsapp']['api_url'] ?: 'https://chat.api.co.id/api/v1/public/messages/send') }}"
+                        placeholder="https://chat.api.co.id/api/v1/public/messages/send" required>
+                    <small class="text-slate-500 text-xs mt-1 block">Endpoint URL gateway WhatsApp (Contoh resmi Api.co.id: <code>https://chat.api.co.id/api/v1/public/messages/send</code>).</small>
                 </div>
 
                 <div class="form-group mb-3.5">
-                    <label for="whatsapp_api_key" class="form-label font-bold text-slate-700">API Key / Token
+                    <label for="whatsapp_api_key" class="form-label font-bold text-slate-700">API Key / Bearer Token
                         Authorization</label>
                     <div class="relative">
                         <input type="password" name="whatsapp_api_key" id="whatsapp_api_key"
                             class="form-input !pr-10 font-mono"
                             value="{{ old('whatsapp_api_key', $settings['whatsapp']['api_key']) }}"
-                            placeholder="API Key atau Bearer Token Authorization">
+                            placeholder="Bearer Token API dari api.co.id">
                         <button type="button"
                             class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
                             aria-label="Tampilkan atau sembunyikan API key WhatsApp" title="Tampilkan API key"
@@ -776,8 +775,7 @@
                             <i class="fa-solid fa-eye" aria-hidden="true"></i>
                         </button>
                     </div>
-                    <small class="text-slate-500 text-xs mt-1 block">API Key atau Token gateway WhatsApp. Jika
-                        dikosongkan, sistem berjalan dalam mode simulasi.</small>
+                    <small class="text-slate-500 text-xs mt-1 block">API Key atau Bearer Token dari akun Api.co.id (Chat API > API Keys). Webhook URL pesan masuk: <code>{{ url('/api/webhooks/whatsapp') }}</code></small>
                 </div>
 
                 <div class="form-group mb-3.5">

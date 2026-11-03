@@ -109,6 +109,34 @@
                 display: flex;
                 flex-direction: column;
                 background: #ffffff;
+                position: relative;
+            }
+
+            .wa-placeholder {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: #f8fafc;
+                color: #64748b;
+                text-align: center;
+                padding: 24px;
+            }
+
+            .wa-placeholder.is-hidden {
+                display: none !important;
+            }
+
+            .wa-chat-view {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                width: 100%;
+            }
+
+            .wa-chat-view.is-hidden {
+                display: none !important;
             }
 
             .wa-chat-header {
@@ -207,19 +235,6 @@
                 border-color: #059669;
             }
 
-            /* Empty state */
-            .wa-placeholder {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                background: #f8fafc;
-                color: #64748b;
-                text-align: center;
-                padding: 24px;
-            }
-
             @media (max-width: 860px) {
                 .wa-workspace {
                     height: calc(100vh - 145px);
@@ -248,7 +263,7 @@
                 WhatsApp Center
             </h1>
             <p style="font-size:12px;color:#64748b;margin:2px 0 0;">
-                Komunikasi dengan pelanggan, pengiriman faktur tagihan, dan notifikasi layanan pelanggan.
+                Komunikasi dengan pelanggan, pengiriman faktur tagihan, dan notifikasi layanan via gateway Api.co.id.
             </p>
         </div>
         <div style="display:flex; gap:8px;">
@@ -302,7 +317,7 @@
             </div>
 
             <!-- Active Conversation -->
-            <div class="flex flex-col h-full hidden" id="chatContainer">
+            <div class="wa-chat-view is-hidden" id="chatContainer">
                 <!-- Chat Topbar -->
                 <div class="wa-chat-header">
                     <div class="flex items-center gap-2.5 min-w-0">
@@ -325,11 +340,6 @@
 
                     <!-- Actions -->
                     <div class="flex items-center gap-1.5 shrink-0">
-                        <!-- Direct WhatsApp Web link -->
-                        <a href="#" target="_blank" id="btnWaWebDeepLink" class="btn-cancel !h-7.5 !px-2.5 text-xs font-semibold flex items-center gap-1" title="Buka langsung di WhatsApp Web">
-                            <i class="fa-brands fa-whatsapp text-emerald-600"></i> <span class="hidden sm:inline">WA Web</span>
-                        </a>
-
                         <!-- Send Invoice Button -->
                         <button type="button" class="btn-primary-admin !h-7.5 !px-3 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700 flex items-center gap-1.5" onclick="openInvoiceModal()">
                             <i class="fa-solid fa-file-invoice-dollar"></i> <span>Kirim Tagihan</span>
@@ -386,12 +396,7 @@
                         </div>
 
                         <div class="flex items-center gap-1.5 shrink-0">
-                            <button type="button" class="btn-cancel !h-8.5 !px-3 text-xs font-semibold flex items-center gap-1 border-emerald-200 text-emerald-700 bg-emerald-50 hover:bg-emerald-100" onclick="sendViaWaWeb()">
-                                <i class="fa-brands fa-whatsapp text-emerald-600"></i>
-                                <span class="hidden md:inline">WA Web</span>
-                            </button>
-
-                            <button type="button" id="btnSendApi" class="btn-primary-admin !h-8.5 !px-3.5 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700 flex items-center gap-1" onclick="sendMessageApi()">
+                            <button type="button" id="btnSendApi" class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700 flex items-center gap-1" onclick="sendMessageApi()">
                                 <i class="fa-solid fa-paper-plane text-xs"></i>
                                 <span>Kirim</span>
                             </button>
@@ -432,11 +437,8 @@
             <div class="modal-footer border-t border-slate-200 bg-slate-50 px-5 py-2.5 flex items-center justify-between rounded-b-xl">
                 <button type="button" class="btn-cancel !h-8 !px-3 text-xs font-semibold" onclick="closeInvoiceModal()">Batal</button>
                 <div class="flex items-center gap-2">
-                    <button type="button" class="btn-cancel !h-8 !px-3 text-xs font-semibold border-emerald-300 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 flex items-center gap-1" onclick="sendInvoiceViaWaWeb()">
-                        <i class="fa-brands fa-whatsapp text-emerald-600"></i> Buka di WA Web
-                    </button>
-                    <button type="button" id="btnSendInvoiceApi" class="btn-primary-admin !h-8 !px-3.5 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700 flex items-center gap-1" onclick="sendInvoiceApi()">
-                        <i class="fa-solid fa-paper-plane text-xs"></i> Kirim
+                    <button type="button" id="btnSendInvoiceApi" class="btn-primary-admin !h-8 !px-4 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700 flex items-center gap-1" onclick="sendInvoiceApi()">
+                        <i class="fa-solid fa-paper-plane text-xs"></i> Kirim Tagihan
                     </button>
                 </div>
             </div>
@@ -589,8 +591,14 @@
                 activePhone = contact.normalized_phone;
 
                 document.getElementById('waWorkspace').classList.add('chat-selected');
-                document.getElementById('emptyPlaceholder').classList.add('hidden');
-                document.getElementById('chatContainer').classList.remove('hidden');
+
+                // Explicitly toggle placeholder vs active chat view
+                const placeholder = document.getElementById('emptyPlaceholder');
+                const chatBox = document.getElementById('chatContainer');
+                placeholder.classList.add('is-hidden');
+                placeholder.style.display = 'none';
+                chatBox.classList.remove('is-hidden');
+                chatBox.style.display = 'flex';
 
                 document.querySelectorAll('.wa-contact-row').forEach(el => {
                     el.classList.toggle('active', el.dataset.phone === activePhone);
@@ -608,8 +616,6 @@
                 } else {
                     tag.classList.add('hidden');
                 }
-
-                document.getElementById('btnWaWebDeepLink').href = `https://wa.me/${contact.normalized_phone}`;
 
                 loadConversation(activePhone);
 
@@ -639,6 +645,12 @@
 
             function backToSidebar() {
                 document.getElementById('waWorkspace').classList.remove('chat-selected');
+                const placeholder = document.getElementById('emptyPlaceholder');
+                const chatBox = document.getElementById('chatContainer');
+                placeholder.classList.remove('is-hidden');
+                placeholder.style.display = 'flex';
+                chatBox.classList.add('is-hidden');
+                chatBox.style.display = 'none';
             }
 
             function loadConversation(phone, isPolling = false) {
@@ -749,13 +761,6 @@
                     btn.disabled = false;
                     alert('Terjadi kesalahan jaringan.');
                 });
-            }
-
-            function sendViaWaWeb() {
-                if (!activeContact) return;
-                const text = document.getElementById('composerInput').value.trim();
-                const url = `https://web.whatsapp.com/send?phone=${activeContact.normalized_phone}&text=${encodeURIComponent(text)}`;
-                window.open(url, '_blank');
             }
 
             function toggleTemplateMenu() {
@@ -878,17 +883,6 @@
                     btn.disabled = false;
                     alert('Terjadi kesalahan jaringan.');
                 });
-            }
-
-            function sendInvoiceViaWaWeb() {
-                const text = document.getElementById('invoiceMessagePreview').value;
-                if (!text || !activeContact) {
-                    alert('Pilih invoice terlebih dahulu.');
-                    return;
-                }
-                const url = `https://web.whatsapp.com/send?phone=${activeContact.normalized_phone}&text=${encodeURIComponent(text)}`;
-                window.open(url, '_blank');
-                closeInvoiceModal();
             }
 
             function toggleCustomerInfo() {

@@ -64,10 +64,15 @@ class WhatsAppService
             ];
         }
 
-        // Ambil konfigurasi dari database Setting (fallback ke env)
-        $apiUrl = Setting::get('whatsapp_api_url', env('WHATSAPP_API_URL', ''));
-        $apiKey = Setting::get('whatsapp_api_key', env('WHATSAPP_API_KEY', ''));
-        $sender = Setting::get('whatsapp_sender', env('WHATSAPP_SENDER', ''));
+        // Ambil konfigurasi dari database Setting (fallback ke env atau default api.co.id)
+        $apiUrl = trim(Setting::get('whatsapp_api_url', env('WHATSAPP_API_URL', 'https://chat.api.co.id/api/v1/public/messages/send')));
+        $apiKey = trim(Setting::get('whatsapp_api_key', env('WHATSAPP_API_KEY', '')));
+        $sender = trim(Setting::get('whatsapp_sender', env('WHATSAPP_SENDER', '')));
+
+        // Normalisasi URL jika menggunakan api.co.id
+        if (str_contains($apiUrl, 'api.co.id') && !str_ends_with($apiUrl, '/messages/send')) {
+            $apiUrl = rtrim($apiUrl, '/') . '/messages/send';
+        }
 
         $recordMessage = $options['record'] ?? true;
         $type = $options['type'] ?? 'text';
@@ -107,38 +112,61 @@ class WhatsAppService
         }
 
         try {
-            // Payload standar yang kompatibel dengan berbagai webhook gateway WhatsApp
-            $payload = [
-                'phone' => $targetPhone,
-                'to' => $targetPhone,
-                'target' => $targetPhone,
-                'recipient' => $targetPhone,
-                'message' => $message,
-                'text' => $message,
-            ];
+            // Deteksi provider api.co.id Chat API
+            $isApiCoId = str_contains($apiUrl, 'api.co.id');
 
-            if (!empty($sender)) {
-                $payload['sender'] = $sender;
-                $payload['device'] = $sender;
+            if ($isApiCoId) {
+                // Format spesifikasi resmi chat.api.co.id
+                $payload = [
+                    'phone_number' => $targetPhone,
+                    'channel' => 'whatsapp',
+                    'message_type' => 'text',
+                    'content' => $message,
+                ];
+            } else {
+                // Payload gateway umum / webhook lain (Fonnte, Wablas, MPWA)
+                $payload = [
+                    'phone_number' => $targetPhone,
+                    'phone' => $targetPhone,
+                    'to' => $targetPhone,
+                    'target' => $targetPhone,
+                    'recipient' => $targetPhone,
+                    'channel' => 'whatsapp',
+                    'message_type' => 'text',
+                    'content' => $message,
+                    'message' => $message,
+                    'text' => $message,
+                ];
+
+                if (!empty($sender)) {
+                    $payload['sender'] = $sender;
+                    $payload['device'] = $sender;
+                }
             }
 
             // Headers request
             $headers = [
                 'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $apiKey,
                 'X-API-KEY' => $apiKey,
                 'api-key' => $apiKey,
             ];
 
-            $response = Http::timeout(10)
+            $response = Http::timeout(12)
                 ->withHeaders($headers)
                 ->post($apiUrl, $payload);
 
             $body = $response->json();
             $statusCode = $response->status();
 
-            if ($response->successful() || ($body['status'] ?? null) === true || ($body['success'] ?? null) === true) {
-                Log::info("WhatsApp message sent successfully to {$targetPhone}");
+            $isSuccess = $response->successful()
+                || ($body['status'] ?? null) === 'success'
+                || ($body['status'] ?? null) === true
+                || ($body['success'] ?? null) === true;
+
+            if ($isSuccess) {
+                Log::info("WhatsApp message sent successfully to {$targetPhone} via {$apiUrl}");
 
                 $msgRecord = null;
                 if ($recordMessage) {
@@ -182,9 +210,10 @@ class WhatsAppService
                 ]);
             }
 
+            $errMsg = $body['message'] ?? ($body['error'] ?? 'Gagal mengirim pesan WhatsApp via provider API.');
             return [
                 'success' => false,
-                'message' => $body['message'] ?? 'Gagal mengirim pesan WhatsApp via provider API.',
+                'message' => $errMsg,
                 'response' => $body,
             ];
         } catch (\Throwable $e) {
