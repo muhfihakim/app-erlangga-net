@@ -193,9 +193,12 @@ class WhatsAppController extends Controller
 
         foreach ($pppoeList as $p) {
             $phone = $p->preOrder->no_whatsapp ?? '';
+            if (empty($phone)) {
+                $phone = Customer::where('pppoe_username', $p->username)->value('no_whatsapp') ?? '';
+            }
             $normalizedPhone = WhatsAppService::normalizePhone($phone);
 
-            if (in_array($normalizedPhone, $existingPhones)) {
+            if (empty($normalizedPhone) || in_array($normalizedPhone, $existingPhones)) {
                 continue;
             }
 
@@ -239,13 +242,14 @@ class WhatsAppController extends Controller
         }
 
         $contact = $this->resolveContactData($normalized);
+        $contact['normalized_phone'] = $normalized;
 
-        // Ambil riwayat percakapan (maksimal 100 pesan terakhir)
+        // Ambil riwayat percakapan (maksimal 150 pesan terakhir)
         $messages = WhatsAppMessage::where('phone', $normalized)
             ->orWhere('phone', $phone)
             ->with('sender:id,name')
             ->orderBy('id', 'asc')
-            ->take(100)
+            ->take(150)
             ->get()
             ->map(function ($msg) {
                 return [
@@ -256,9 +260,12 @@ class WhatsAppController extends Controller
                     'status' => $msg->status,
                     'sender_name' => $msg->sender->name ?? ($msg->direction === 'outbound' ? 'Admin' : 'Pelanggan'),
                     'metadata' => $msg->metadata,
-                    'time' => $msg->created_at->format('H:i'),
-                    'date' => $msg->created_at->translatedFormat('d M Y'),
-                    'is_today' => $msg->created_at->isToday(),
+                    'reply_to' => $msg->metadata['reply_to'] ?? null,
+                    'is_edited' => !empty($msg->metadata['is_edited']),
+                    'time' => $msg->created_at ? $msg->created_at->format('H:i') : '',
+                    'date' => $msg->created_at ? $msg->created_at->translatedFormat('d M Y') : '',
+                    'raw_date' => $msg->created_at ? $msg->created_at->format('Y-m-d') : '',
+                    'is_today' => $msg->created_at ? $msg->created_at->isToday() : false,
                 ];
             });
 
@@ -279,6 +286,7 @@ class WhatsAppController extends Controller
             'message' => 'required|string',
             'pppoe_id' => 'nullable|integer',
             'customer_id' => 'nullable|integer',
+            'reply_to_id' => 'nullable|integer',
         ]);
 
         $phone = $request->phone;
@@ -288,7 +296,20 @@ class WhatsAppController extends Controller
             return response()->json(['success' => false, 'message' => 'Isi pesan tidak boleh kosong.'], 422);
         }
 
-        $contact = $this->resolveContactData(WhatsAppService::normalizePhone($phone));
+        $normalized = WhatsAppService::normalizePhone($phone);
+        $contact = $this->resolveContactData($normalized);
+
+        $metadata = [];
+        if ($request->filled('reply_to_id')) {
+            $replyMsg = WhatsAppMessage::find($request->reply_to_id);
+            if ($replyMsg) {
+                $metadata['reply_to'] = [
+                    'id' => $replyMsg->id,
+                    'sender' => $replyMsg->direction === 'outbound' ? 'Admin' : ($replyMsg->customer_name ?: 'Pelanggan'),
+                    'message' => \Illuminate\Support\Str::limit($replyMsg->message, 120),
+                ];
+            }
+        }
 
         $result = WhatsAppService::sendMessage($phone, $message, [
             'type' => 'text',
@@ -296,9 +317,72 @@ class WhatsAppController extends Controller
             'customer_id' => $request->customer_id ?? ($contact['customer_id'] ?? null),
             'customer_name' => $contact['name'] ?? null,
             'sender_id' => auth()->id(),
+            'metadata' => $metadata,
         ]);
 
         return response()->json($result);
+    }
+
+    /**
+     * Edit / perbarui isi pesan teks outbound
+     */
+    public function updateMessage(Request $request, WhatsAppMessage $message)
+    {
+        $request->validate([
+            'message' => 'required|string',
+        ]);
+
+        $newText = trim($request->message);
+        if (empty($newText)) {
+            return response()->json(['success' => false, 'message' => 'Pesan tidak boleh kosong.'], 422);
+        }
+
+        $metadata = $message->metadata ?? [];
+        $metadata['is_edited'] = true;
+        $metadata['edited_at'] = now()->toIso8601String();
+        $metadata['original_message'] = $message->message;
+
+        $message->update([
+            'message' => $newText,
+            'metadata' => $metadata,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pesan berhasil diperbarui.',
+            'data' => [
+                'id' => $message->id,
+                'message' => $message->message,
+                'is_edited' => true,
+            ],
+        ]);
+    }
+
+    /**
+     * Hapus pesan WhatsApp dari riwayat sistem
+     */
+    public function deleteMessage(Request $request, WhatsAppMessage $message)
+    {
+        $permanent = $request->boolean('permanent', true);
+
+        if ($permanent) {
+            $message->delete();
+        } else {
+            $metadata = $message->metadata ?? [];
+            $metadata['deleted'] = true;
+            $metadata['deleted_at'] = now()->toIso8601String();
+
+            $message->update([
+                'message' => '🚫 Pesan ini telah dihapus',
+                'status' => 'deleted',
+                'metadata' => $metadata,
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pesan berhasil dihapus.',
+        ]);
     }
 
     /**
@@ -466,6 +550,7 @@ class WhatsAppController extends Controller
         return [
             'name' => $name,
             'phone' => $normalizedPhone,
+            'normalized_phone' => $normalizedPhone,
             'display_phone' => $customer->no_whatsapp ?? ($preOrder->no_whatsapp ?? $normalizedPhone),
             'username' => $username,
             'paket' => $paketName,

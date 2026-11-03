@@ -23,7 +23,7 @@ return new class extends Migration
             $table->enum('type', ['text', 'invoice', 'template', 'system', 'otp'])->default('text');
             $table->text('message');
             $table->string('media_url')->nullable();
-            $table->enum('status', ['pending', 'sent', 'delivered', 'read', 'failed', 'simulated'])->default('sent');
+            $table->string('status', 30)->default('sent');
             $table->json('metadata')->nullable(); // Untuk invoice_id, detail respon provider, dsb.
             $table->timestamps();
 

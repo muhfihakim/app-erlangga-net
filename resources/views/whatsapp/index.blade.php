@@ -140,7 +140,7 @@
             }
 
             .wa-chat-header {
-                height: 52px;
+                height: 54px;
                 padding: 0 16px;
                 background: #ffffff;
                 border-bottom: 1px solid #e2e8f0;
@@ -148,22 +148,49 @@
                 align-items: center;
                 justify-content: space-between;
                 flex-shrink: 0;
+                z-index: 10;
             }
 
+            /* WhatsApp Web Styled Message Stream */
             .wa-chat-stream {
                 flex: 1;
                 overflow-y: auto;
-                padding: 14px 18px;
+                padding: 12px 18px;
                 display: flex;
                 flex-direction: column;
-                gap: 8px;
-                background: #f8fafc;
+                gap: 5px;
+                background-color: #efeae2;
+                background-image: radial-gradient(#d1d7db 0.8px, transparent 0.8px);
+                background-size: 16px 16px;
+                scroll-behavior: smooth;
             }
 
-            /* Message Bubbles */
+            /* Date Divider Badge */
+            .wa-date-divider {
+                display: flex;
+                justify-content: center;
+                margin: 8px 0 4px;
+                user-select: none;
+            }
+
+            .wa-date-pill {
+                background: #ffffff;
+                color: #54656f;
+                font-size: 10.5px;
+                font-weight: 600;
+                padding: 3px 10px;
+                border-radius: 6px;
+                box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+                border: 1px solid #e2e8f0;
+                text-transform: uppercase;
+                letter-spacing: 0.02em;
+            }
+
+            /* Message Row & Bubbles */
             .wa-msg-row {
                 display: flex;
                 width: 100%;
+                position: relative;
             }
 
             .wa-msg-row.outbound {
@@ -175,69 +202,288 @@
             }
 
             .wa-msg-bubble {
-                max-width: 68%;
-                padding: 8px 12px;
-                border-radius: 6px;
-                font-size: 12.5px;
+                max-width: 72%;
+                min-width: 100px;
+                padding: 6px 9px 5px 10px;
+                border-radius: 7.5px;
+                font-size: 12.8px;
                 line-height: 1.45;
                 word-break: break-word;
                 white-space: pre-wrap;
+                position: relative;
+                box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.12);
             }
 
             .wa-msg-bubble.outbound {
-                background: #ecfdf5;
-                border: 1px solid #a7f3d0;
-                color: #064e3b;
+                background: #d9fdd3;
+                color: #111b21;
+                border: 1px solid #bbf7d0;
+                border-top-right-radius: 2px;
             }
 
             .wa-msg-bubble.inbound {
                 background: #ffffff;
+                color: #111b21;
                 border: 1px solid #e2e8f0;
-                color: #0f172a;
+                border-top-left-radius: 2px;
             }
 
-            .wa-msg-bubble.invoice-type {
-                border-left: 3px solid #059669;
+            .wa-msg-bubble.is-deleted {
+                background: #f1f5f9 !important;
+                border-color: #cbd5e1 !important;
+                color: #64748b !important;
+                font-style: italic;
+            }
+
+            /* Quoted Reply inside Bubble */
+            .wa-msg-quote {
+                padding: 4px 8px;
+                border-left: 3.5px solid #059669;
+                background: rgba(0, 0, 0, 0.04);
+                border-radius: 4px;
+                margin-bottom: 5px;
+                font-size: 11px;
+                cursor: default;
+            }
+
+            .wa-msg-quote.inbound-accent {
+                border-left-color: #2563eb;
+            }
+
+            .wa-msg-quote-sender {
+                font-weight: 700;
+                font-size: 10.5px;
+                margin-bottom: 1px;
+            }
+
+            .wa-msg-quote-text {
+                color: #475569;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            /* Invoice Preview inside Bubble */
+            .wa-msg-invoice-card {
+                padding: 6px 8px;
+                background: rgba(5, 150, 105, 0.07);
+                border-left: 3.5px solid #059669;
+                border-radius: 4px;
+                margin-bottom: 6px;
+                font-size: 11.5px;
             }
 
             .wa-msg-meta {
                 display: flex;
                 align-items: center;
                 justify-content: flex-end;
-                gap: 4px;
+                gap: 3.5px;
                 font-size: 10px;
-                color: #64748b;
-                margin-top: 3px;
+                color: #667781;
+                margin-top: 2px;
+                user-select: none;
+                float: right;
+                margin-left: 10px;
             }
 
-            /* Composer */
-            .wa-chat-footer {
-                padding: 10px 14px;
+            .wa-msg-action-trigger {
+                position: absolute;
+                top: 3px;
+                right: 3px;
+                width: 18px;
+                height: 18px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #64748b;
+                opacity: 0;
+                transition: opacity 0.15s ease, background-color 0.1s;
+                background: rgba(255, 255, 255, 0.9);
+                border-radius: 50%;
+                cursor: pointer;
+                font-size: 10px;
+                border: 1px solid #cbd5e1;
+            }
+
+            .wa-msg-bubble:hover .wa-msg-action-trigger {
+                opacity: 1;
+            }
+
+            /* Floating Context Dropdown */
+            .wa-context-menu {
+                position: fixed;
                 background: #ffffff;
+                border: 1px solid #cbd5e1;
+                border-radius: 6px;
+                box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+                padding: 4px 0;
+                min-width: 130px;
+                z-index: 100;
+            }
+
+            .wa-context-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 6px 12px;
+                font-size: 11.5px;
+                font-weight: 500;
+                color: #334155;
+                cursor: pointer;
+                transition: background-color 0.1s;
+                width: 100%;
+                text-align: left;
+                border: none;
+                background: transparent;
+            }
+
+            .wa-context-item:hover {
+                background: #f1f5f9;
+                color: #0f172a;
+            }
+
+            .wa-context-item.danger {
+                color: #dc2626;
+            }
+
+            .wa-context-item.danger:hover {
+                background: #fef2f2;
+                color: #b91c1c;
+            }
+
+            /* Reply & Edit Bar Above Composer */
+            .wa-pre-composer-bar {
+                padding: 6px 14px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                font-size: 11.5px;
+                animation: slideDown 0.15s ease;
+            }
+
+            .wa-reply-bar {
+                background: #f1f5f9;
+                border-top: 1px solid #e2e8f0;
+                border-left: 4px solid #059669;
+            }
+
+            .wa-edit-bar {
+                background: #fffbeb;
+                border-top: 1px solid #fde68a;
+                border-left: 4px solid #d97706;
+            }
+
+            /* Composer Footer */
+            .wa-chat-footer {
+                background: #f0f2f5;
                 border-top: 1px solid #e2e8f0;
                 flex-shrink: 0;
             }
 
-            .wa-textarea {
-                width: 100%;
+            .wa-chips-row {
+                padding: 6px 14px 2px;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                overflow-x: auto;
+                scrollbar-width: none;
+            }
+
+            .wa-chips-row::-webkit-scrollbar {
+                display: none;
+            }
+
+            .wa-chip {
+                padding: 2.5px 7px;
+                font-size: 10.5px;
+                font-family: ui-monospace, monospace;
+                color: #334155;
+                background: #ffffff;
                 border: 1px solid #cbd5e1;
-                border-radius: 6px;
-                padding: 8px 10px;
-                font-size: 12.5px;
-                resize: none;
-                max-height: 100px;
-                min-height: 40px;
-                outline: none;
-                font-family: inherit;
+                border-radius: 4px;
+                cursor: pointer;
+                white-space: nowrap;
+                transition: all 0.12s;
             }
 
-            .wa-textarea:focus {
+            .wa-chip:hover {
+                background: #e2e8f0;
+                color: #0f172a;
+            }
+
+            .wa-composer-inner {
+                display: flex;
+                align-items: flex-end;
+                gap: 8px;
+                padding: 6px 14px 10px;
+            }
+
+            .wa-composer-input-box {
+                flex: 1;
+                background: #ffffff;
+                border: 1px solid #cbd5e1;
+                border-radius: 8px;
+                padding: 6px 10px;
+                display: flex;
+                align-items: center;
+                transition: border-color 0.15s, box-shadow 0.15s;
+                min-height: 38px;
+            }
+
+            .wa-composer-input-box:focus-within {
                 border-color: #059669;
+                box-shadow: 0 0 0 1px #059669;
             }
 
+            .wa-composer-textarea {
+                width: 100%;
+                border: none;
+                outline: none;
+                resize: none;
+                font-size: 12.5px;
+                line-height: 1.45;
+                min-height: 22px;
+                max-height: 110px;
+                font-family: inherit;
+                background: transparent;
+                padding: 0;
+                color: #0f172a;
+            }
+
+            .wa-btn-send {
+                width: 38px;
+                height: 38px;
+                border-radius: 8px;
+                background: #059669;
+                color: #ffffff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                border: none;
+                transition: background-color 0.15s, transform 0.1s;
+                flex-shrink: 0;
+            }
+
+            .wa-btn-send:hover {
+                background: #047857;
+            }
+
+            .wa-btn-send:active {
+                transform: scale(0.96);
+            }
+
+            .wa-btn-send:disabled {
+                background: #94a3b8;
+                cursor: not-allowed;
+            }
+
+            /* Responsive Mobile */
             @media (max-width: 860px) {
                 .wa-workspace {
-                    height: calc(100vh - 145px);
+                    height: calc(100dvh - 130px);
+                    border-radius: 6px;
                 }
 
                 .wa-sidebar {
@@ -246,31 +492,39 @@
                 }
 
                 .wa-workspace.chat-selected .wa-sidebar {
-                    display: none;
+                    display: none !important;
                 }
 
                 .wa-workspace:not(.chat-selected) .wa-chat-panel {
-                    display: none;
+                    display: none !important;
+                }
+
+                .wa-msg-bubble {
+                    max-width: 86%;
+                }
+
+                .wa-msg-action-trigger {
+                    opacity: 0.8;
                 }
             }
         </style>
     @endsection
 
     <!-- Page Header (Standard Compact) -->
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:0.85rem;flex-wrap:wrap;">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:0.75rem;flex-wrap:wrap;">
         <div>
-            <h1 style="font-size:20px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <h1 style="font-size:19px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
                 WhatsApp Center
             </h1>
-            <p style="font-size:12px;color:#64748b;margin:2px 0 0;">
-                Komunikasi dengan pelanggan, pengiriman faktur tagihan, dan notifikasi layanan via gateway Api.co.id.
+            <p style="font-size:11.5px;color:#64748b;margin:1px 0 0;">
+                Komunikasi chat langsung, pengiriman tagihan resmi, dan notifikasi via gateway Api.co.id.
             </p>
         </div>
         <div style="display:flex; gap:8px;">
-            <a href="{{ route('settings.index') }}?tab=whatsapp" class="btn-cancel !h-8 !px-3 text-xs font-semibold flex items-center gap-1.5" title="Buka Pengaturan WhatsApp">
+            <a href="{{ route('settings.index') }}?tab=whatsapp" class="btn-cancel !h-7.5 !px-3 text-xs font-semibold flex items-center gap-1.5" title="Buka Pengaturan WhatsApp">
                 <i class="fa-solid fa-gear text-slate-500"></i> Pengaturan
             </a>
-            <a href="{{ route('invoices.index') }}" class="btn-cancel !h-8 !px-3 text-xs font-semibold flex items-center gap-1.5" title="Daftar Invoice Tagihan">
+            <a href="{{ route('invoices.index') }}" class="btn-cancel !h-7.5 !px-3 text-xs font-semibold flex items-center gap-1.5" title="Daftar Invoice Tagihan">
                 <i class="fa-solid fa-file-invoice-dollar text-slate-500"></i> Tagihan
             </a>
         </div>
@@ -321,7 +575,7 @@
                 <!-- Chat Topbar -->
                 <div class="wa-chat-header">
                     <div class="flex items-center gap-2.5 min-w-0">
-                        <button type="button" class="lg:hidden text-slate-500 hover:text-slate-800 p-1" onclick="backToSidebar()" title="Kembali">
+                        <button type="button" class="md:hidden text-slate-600 hover:text-slate-900 p-1.5 rounded hover:bg-slate-100" onclick="backToSidebar()" title="Kembali ke Kontak">
                             <i class="fa-solid fa-arrow-left text-xs"></i>
                         </button>
                         <div class="wa-contact-avatar !w-8 !h-8 !text-[11px]" id="headerAvatar">--</div>
@@ -341,14 +595,14 @@
                     <!-- Actions -->
                     <div class="flex items-center gap-1.5 shrink-0">
                         <!-- Send Invoice Button -->
-                        <button type="button" class="btn-primary-admin !h-7.5 !px-3 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700 flex items-center gap-1.5" onclick="openInvoiceModal()">
-                            <i class="fa-solid fa-file-invoice-dollar"></i> <span>Kirim Tagihan</span>
+                        <button type="button" class="btn-primary-admin !h-7.5 !px-2.5 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700 flex items-center gap-1.5" onclick="openInvoiceModal()">
+                            <i class="fa-solid fa-file-invoice-dollar"></i> <span class="hidden sm:inline">Kirim Tagihan</span>
                         </button>
 
                         <!-- Quick Template Dropdown -->
                         <div class="relative" id="templateMenuWrap">
-                            <button type="button" class="btn-cancel !h-7.5 !px-2.5 text-xs font-semibold flex items-center gap-1" onclick="toggleTemplateMenu()">
-                                <i class="fa-solid fa-list-check text-slate-500"></i> <span class="hidden sm:inline">Template</span>
+                            <button type="button" class="btn-cancel !h-7.5 !px-2 text-xs font-semibold flex items-center gap-1" onclick="toggleTemplateMenu()">
+                                <i class="fa-solid fa-list-check text-slate-500"></i> <span class="hidden md:inline">Template</span>
                             </button>
                             <div class="hidden absolute right-0 mt-1 w-60 bg-white border border-slate-200 rounded-md shadow-lg py-1 z-30" id="templateDropdown">
                                 <div class="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
@@ -381,30 +635,73 @@
 
                 <!-- Chat Footer Composer -->
                 <div class="wa-chat-footer">
-                    <!-- Variable Shortcuts -->
-                    <div class="flex items-center gap-1 mb-1.5 overflow-x-auto text-[10.5px]">
-                        <span class="text-slate-400 text-[10px] mr-1 shrink-0">Variabel:</span>
-                        <button type="button" class="px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-mono text-[10.5px] border border-slate-200 shrink-0" onclick="insertTag('{nama}')">{nama}</button>
-                        <button type="button" class="px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-mono text-[10.5px] border border-slate-200 shrink-0" onclick="insertTag('{total}')">{total}</button>
-                        <button type="button" class="px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-mono text-[10.5px] border border-slate-200 shrink-0" onclick="insertTag('{nomor_invoice}')">{nomor_invoice}</button>
-                        <button type="button" class="px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-mono text-[10.5px] border border-slate-200 shrink-0" onclick="insertTag('{jatuh_tempo}')">{jatuh_tempo}</button>
+                    <!-- Reply Banner (Hidden by default) -->
+                    <div id="replyBar" class="wa-pre-composer-bar wa-reply-bar hidden">
+                        <div class="min-w-0 flex-1">
+                            <div class="font-bold text-emerald-800 text-[11px] flex items-center gap-1">
+                                <i class="fa-solid fa-reply"></i>
+                                <span>Membalas <span id="replySenderName">-</span></span>
+                            </div>
+                            <div class="text-slate-600 truncate text-[11px] mt-0.5" id="replyPreviewText">-</div>
+                        </div>
+                        <button type="button" class="text-slate-400 hover:text-slate-600 p-1" onclick="cancelReply()">
+                            <i class="fa-solid fa-xmark text-xs"></i>
+                        </button>
                     </div>
 
-                    <div class="flex items-end gap-2">
-                        <div class="flex-1">
-                            <textarea id="composerInput" rows="2" class="wa-textarea" placeholder="Tulis pesan (Shift+Enter untuk baris baru, Enter untuk kirim)..."></textarea>
+                    <!-- Edit Banner (Hidden by default) -->
+                    <div id="editBar" class="wa-pre-composer-bar wa-edit-bar hidden">
+                        <div class="min-w-0 flex-1">
+                            <div class="font-bold text-amber-800 text-[11px] flex items-center gap-1">
+                                <i class="fa-solid fa-pen"></i>
+                                <span>Mengedit Pesan</span>
+                            </div>
+                            <div class="text-slate-600 truncate text-[11px] mt-0.5" id="editPreviewText">-</div>
+                        </div>
+                        <button type="button" class="text-slate-400 hover:text-slate-600 p-1" onclick="cancelEdit()">
+                            <i class="fa-solid fa-xmark text-xs"></i>
+                        </button>
+                    </div>
+
+                    <!-- Variable Shortcuts -->
+                    <div class="wa-chips-row">
+                        <span class="text-slate-400 text-[10px] mr-1 shrink-0 font-medium">Variabel:</span>
+                        <button type="button" class="wa-chip" onclick="insertTag('{nama}')">{nama}</button>
+                        <button type="button" class="wa-chip" onclick="insertTag('{total}')">{total}</button>
+                        <button type="button" class="wa-chip" onclick="insertTag('{nomor_invoice}')">{nomor_invoice}</button>
+                        <button type="button" class="wa-chip" onclick="insertTag('{jatuh_tempo}')">{jatuh_tempo}</button>
+                    </div>
+
+                    <!-- Input & Send Button Row -->
+                    <div class="wa-composer-inner">
+                        <div class="wa-composer-input-box">
+                            <textarea id="composerInput" rows="1" class="wa-composer-textarea"
+                                placeholder="Ketik pesan (Enter untuk kirim, Shift+Enter untuk baris baru)..."></textarea>
                         </div>
 
-                        <div class="flex items-center gap-1.5 shrink-0">
-                            <button type="button" id="btnSendApi" class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700 flex items-center gap-1" onclick="sendMessageApi()">
-                                <i class="fa-solid fa-paper-plane text-xs"></i>
-                                <span>Kirim</span>
-                            </button>
-                        </div>
+                        <button type="button" id="btnSendApi" class="wa-btn-send" onclick="submitComposer()" title="Kirim Pesan">
+                            <i class="fa-solid fa-paper-plane text-xs" id="btnSendIcon"></i>
+                        </button>
                     </div>
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Floating Context Menu (Actions on Bubble) -->
+    <div id="msgContextMenu" class="wa-context-menu hidden">
+        <button type="button" class="wa-context-item" id="menuActionReply" onclick="triggerReplyFromMenu()">
+            <i class="fa-solid fa-reply text-slate-500 w-3.5 text-center"></i> <span>Balas</span>
+        </button>
+        <button type="button" class="wa-context-item" id="menuActionEdit" onclick="triggerEditFromMenu()">
+            <i class="fa-solid fa-pen text-slate-500 w-3.5 text-center"></i> <span>Edit Pesan</span>
+        </button>
+        <button type="button" class="wa-context-item" id="menuActionCopy" onclick="triggerCopyFromMenu()">
+            <i class="fa-regular fa-copy text-slate-500 w-3.5 text-center"></i> <span>Salin Teks</span>
+        </button>
+        <button type="button" class="wa-context-item danger" id="menuActionDelete" onclick="triggerDeleteFromMenu()">
+            <i class="fa-regular fa-trash-can w-3.5 text-center"></i> <span>Hapus Pesan</span>
+        </button>
     </div>
 
     <!-- Modal Kirim Tagihan Invoice -->
@@ -463,6 +760,29 @@
         </div>
     </div>
 
+    <!-- Modal Konfirmasi Hapus Pesan -->
+    <div class="modal-overlay hidden" id="deleteMsgModal">
+        <div class="modal-box max-w-xs bg-white border border-slate-300 shadow-xl rounded-xl">
+            <div class="modal-header border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+                <h3 class="text-xs font-bold text-rose-700 m-0 flex items-center gap-1.5">
+                    <i class="fa-regular fa-trash-can"></i> Hapus Pesan
+                </h3>
+                <button type="button" class="modal-close" onclick="closeDeleteModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body p-4 bg-white text-xs text-slate-700">
+                <p class="m-0">Apakah Anda yakin ingin menghapus pesan ini dari riwayat percakapan?</p>
+            </div>
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-4 py-2 flex items-center justify-end gap-2 rounded-b-xl">
+                <button type="button" class="btn-cancel !h-7.5 !px-3 text-xs font-semibold" onclick="closeDeleteModal()">Batal</button>
+                <button type="button" id="btnConfirmDelete" class="btn-primary-admin !h-7.5 !px-3 text-xs font-semibold !bg-rose-600 hover:!bg-rose-700" onclick="confirmDeleteMessage()">
+                    Hapus
+                </button>
+            </div>
+        </div>
+    </div>
+
     @section('Scripts')
         <script>
             const TEMPLATES = @json($templates);
@@ -472,6 +792,12 @@
             let initialInvoiceId = '{{ $initialInvoiceId }}';
             let currentFilter = 'all';
             let pollTimer = null;
+
+            // Interactive States
+            let replyingMessage = null; // { id, sender, text }
+            let editingMessage = null;  // { id, text }
+            let activeMenuMsg = null;   // message object for context menu
+            let pendingDeleteId = null; // message ID to delete
 
             document.addEventListener('DOMContentLoaded', function() {
                 loadContacts();
@@ -502,21 +828,35 @@
                     });
                 });
 
-                // Enter to send in composer
+                // Composer: Enter to send, Shift+Enter for newline
                 const composer = document.getElementById('composerInput');
                 composer.addEventListener('keydown', function(e) {
                     if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
-                        sendMessageApi();
+                        submitComposer();
                     }
                 });
 
-                // Close template dropdown when clicking elsewhere
+                // Auto-growing textarea
+                composer.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                });
+
+                // Close menus when clicking outside
                 document.addEventListener('click', function(e) {
-                    const wrap = document.getElementById('templateMenuWrap');
-                    const dropdown = document.getElementById('templateDropdown');
-                    if (wrap && !wrap.contains(e.target)) {
-                        dropdown.classList.add('hidden');
+                    // Close template dropdown
+                    const templateWrap = document.getElementById('templateMenuWrap');
+                    const templateDropdown = document.getElementById('templateDropdown');
+                    if (templateWrap && !templateWrap.contains(e.target)) {
+                        templateDropdown.classList.add('hidden');
+                    }
+
+                    // Close context menu
+                    const menu = document.getElementById('msgContextMenu');
+                    if (menu && !menu.contains(e.target) && !e.target.closest('.wa-msg-action-trigger')) {
+                        menu.classList.add('hidden');
+                        activeMenuMsg = null;
                     }
                 });
 
@@ -535,7 +875,10 @@
 
                 const url = `{{ route('whatsapp.contacts') }}?search=${encodeURIComponent(search)}&filter=${currentFilter}`;
                 fetch(url)
-                    .then(res => res.json())
+                    .then(res => {
+                        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                        return res.json();
+                    })
                     .then(data => {
                         if (!data.success || !data.contacts.length) {
                             container.innerHTML = `<div class="p-6 text-center text-slate-400 text-xs">Tidak ada kontak ditemukan.</div>`;
@@ -556,10 +899,11 @@
                 container.innerHTML = '';
 
                 contacts.forEach(c => {
-                    const isActive = activeContact && activeContact.normalized_phone === c.normalized_phone;
+                    const cleanPhone = normalizePhone(c.normalized_phone || c.phone || '');
+                    const isActive = activeContact && normalizePhone(activeContact.normalized_phone || activeContact.phone || '') === cleanPhone;
                     const row = document.createElement('div');
                     row.className = `wa-contact-row ${isActive ? 'active' : ''}`;
-                    row.dataset.phone = c.normalized_phone;
+                    row.dataset.phone = cleanPhone;
                     row.onclick = () => selectContact(c);
 
                     let unpaidTag = '';
@@ -588,7 +932,9 @@
 
             function selectContact(contact) {
                 activeContact = contact;
-                activePhone = contact.normalized_phone;
+                const cleanPhone = normalizePhone(contact.normalized_phone || contact.phone || '');
+                activeContact.normalized_phone = cleanPhone;
+                activePhone = cleanPhone;
 
                 document.getElementById('waWorkspace').classList.add('chat-selected');
 
@@ -604,8 +950,8 @@
                     el.classList.toggle('active', el.dataset.phone === activePhone);
                 });
 
-                document.getElementById('headerName').textContent = contact.name;
-                document.getElementById('headerPhone').textContent = contact.phone || contact.normalized_phone;
+                document.getElementById('headerName').textContent = contact.name || 'Pelanggan';
+                document.getElementById('headerPhone').textContent = contact.phone || contact.display_phone || cleanPhone || '-';
                 document.getElementById('headerPaket').textContent = `${contact.paket || 'Paket'} (${contact.username || '-'})`;
                 document.getElementById('headerAvatar').textContent = getInitials(contact.name);
 
@@ -617,12 +963,18 @@
                     tag.classList.add('hidden');
                 }
 
+                // Reset composer states
+                cancelReply();
+                cancelEdit();
+
                 loadConversation(activePhone);
 
                 clearInterval(pollTimer);
                 pollTimer = setInterval(() => {
-                    if (activePhone) loadConversation(activePhone, true);
-                }, 8000);
+                    if (activePhone && !editingMessage) {
+                        loadConversation(activePhone, true);
+                    }
+                }, 7000);
 
                 if (initialInvoiceId) {
                     setTimeout(() => {
@@ -634,12 +986,21 @@
 
             function selectContactByPhone(phone) {
                 const norm = normalizePhone(phone);
+                if (!norm) return;
+
                 fetch(`{{ url('whatsapp/conversation') }}/${norm}`)
-                    .then(res => res.json())
+                    .then(res => {
+                        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                        return res.json();
+                    })
                     .then(data => {
                         if (data.success && data.contact) {
+                            data.contact.normalized_phone = norm;
                             selectContact(data.contact);
                         }
+                    })
+                    .catch(err => {
+                        console.error('selectContactByPhone error:', err);
                     });
             }
 
@@ -651,24 +1012,78 @@
                 placeholder.style.display = 'flex';
                 chatBox.classList.add('is-hidden');
                 chatBox.style.display = 'none';
+
+                activeContact = null;
+                activePhone = null;
+                clearInterval(pollTimer);
             }
 
             function loadConversation(phone, isPolling = false) {
+                const cleanPhone = normalizePhone(phone);
                 const stream = document.getElementById('chatStream');
+
+                if (!cleanPhone) {
+                    if (!isPolling) {
+                        stream.innerHTML = `
+                            <div class="text-center py-8 text-slate-500 text-xs">
+                                <i class="fa-solid fa-circle-exclamation text-amber-500 text-2xl mb-2 block"></i>
+                                <div class="font-bold text-slate-700">Nomor WhatsApp Tidak Tersedia</div>
+                                <div class="text-[11px] text-slate-400 mt-1">Kontak ini belum memiliki nomor telepon WhatsApp yang valid.</div>
+                            </div>`;
+                    }
+                    return;
+                }
+
                 if (!isPolling) {
                     stream.innerHTML = `
-                        <div class="text-center py-6 text-slate-400 text-xs">
-                            <i class="fa-solid fa-circle-notch fa-spin text-slate-400 mb-1"></i>
+                        <div class="text-center py-8 text-slate-400 text-xs">
+                            <i class="fa-solid fa-circle-notch fa-spin text-slate-400 mb-1.5 text-base block"></i>
                             <div>Memuat pesan...</div>
                         </div>`;
                 }
 
-                fetch(`{{ url('whatsapp/conversation') }}/${phone}`)
-                    .then(res => res.json())
+                fetch(`{{ url('whatsapp/conversation') }}/${cleanPhone}`)
+                    .then(res => {
+                        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                        return res.json();
+                    })
                     .then(data => {
-                        if (!data.success) return;
-                        if (data.contact) activeContact = data.contact;
-                        renderChatStream(data.messages);
+                        if (!data.success) {
+                            if (!isPolling) {
+                                stream.innerHTML = `
+                                    <div class="text-center py-8 text-rose-500 text-xs">
+                                        <i class="fa-solid fa-triangle-exclamation text-rose-500 text-2xl mb-2 block"></i>
+                                        <div class="font-bold">${escapeHtml(data.message || 'Gagal memuat percakapan.')}</div>
+                                        <button type="button" class="btn-cancel !h-7.5 !px-3 text-xs mt-3 inline-flex items-center gap-1.5" onclick="loadConversation('${cleanPhone}')">
+                                            <i class="fa-solid fa-rotate-right"></i> Coba Lagi
+                                        </button>
+                                    </div>`;
+                            }
+                            return;
+                        }
+
+                        if (data.contact) {
+                            activeContact = data.contact;
+                            if (!activeContact.normalized_phone) {
+                                activeContact.normalized_phone = cleanPhone;
+                            }
+                        }
+
+                        renderChatStream(data.messages || []);
+                    })
+                    .catch(err => {
+                        console.error('loadConversation error:', err);
+                        if (!isPolling) {
+                            stream.innerHTML = `
+                                <div class="text-center py-8 text-rose-500 text-xs">
+                                    <i class="fa-solid fa-triangle-exclamation text-rose-500 text-2xl mb-2 block"></i>
+                                    <div class="font-bold text-slate-800">Gagal Memuat Pesan</div>
+                                    <div class="text-[11px] text-slate-500 mt-1 mb-3">Terjadi kendala saat memuat riwayat pesan (${escapeHtml(err.message)}).</div>
+                                    <button type="button" class="btn-cancel !h-7.5 !px-3 text-xs inline-flex items-center gap-1.5" onclick="loadConversation('${cleanPhone}')">
+                                        <i class="fa-solid fa-rotate-right"></i> Coba Lagi
+                                    </button>
+                                </div>`;
+                        }
                     });
             }
 
@@ -677,46 +1092,102 @@
 
                 if (!messages.length) {
                     stream.innerHTML = `
-                        <div class="text-center py-8 text-slate-400 text-xs">
-                            <div class="font-semibold text-slate-600">Belum ada riwayat pesan tercatat</div>
-                            <div class="text-[11px] text-slate-400 mt-1">Gunakan formulir di bawah atau pilih Kirim Tagihan.</div>
+                        <div class="text-center py-10 text-slate-400 text-xs">
+                            <i class="fa-regular fa-comments text-slate-300 text-3xl mb-2 block"></i>
+                            <div class="font-bold text-slate-700">Belum Ada Percakapan</div>
+                            <div class="text-[11px] text-slate-400 mt-1">Ketik pesan di bawah atau gunakan tombol Kirim Tagihan.</div>
                         </div>`;
                     return;
                 }
 
-                const isNearBottom = (stream.scrollTop + stream.clientHeight >= stream.scrollHeight - 60);
+                const isNearBottom = (stream.scrollTop + stream.clientHeight >= stream.scrollHeight - 70);
 
                 stream.innerHTML = '';
+                let lastDate = null;
+
                 messages.forEach(m => {
+                    // Date Divider
+                    const msgDate = m.date || 'Hari ini';
+                    if (msgDate !== lastDate) {
+                        const dateRow = document.createElement('div');
+                        dateRow.className = 'wa-date-divider';
+                        dateRow.innerHTML = `<span class="wa-date-pill">${m.is_today ? 'Hari Ini' : msgDate}</span>`;
+                        stream.appendChild(dateRow);
+                        lastDate = msgDate;
+                    }
+
                     const isOut = m.direction === 'outbound';
                     const isInv = m.type === 'invoice';
+                    const isDeleted = m.status === 'deleted';
+
                     const row = document.createElement('div');
                     row.className = `wa-msg-row ${isOut ? 'outbound' : 'inbound'}`;
+                    row.id = `msg-row-${m.id}`;
 
                     let statusMark = '';
-                    if (isOut) {
+                    if (isOut && !isDeleted) {
                         if (m.status === 'simulated') {
                             statusMark = '<span class="text-[9px] font-bold text-amber-700 bg-amber-100 px-1 rounded">SIM</span>';
                         } else if (m.status === 'sent') {
-                            statusMark = '<i class="fa-solid fa-check text-slate-400 text-[10px]" title="Terkirim"></i>';
+                            statusMark = '<i class="fa-solid fa-check text-slate-400 text-[10px]" title="Terkirim ke server"></i>';
                         } else if (m.status === 'delivered') {
                             statusMark = '<i class="fa-solid fa-check-double text-slate-400 text-[10px]" title="Tersampaikan"></i>';
                         } else if (m.status === 'read') {
-                            statusMark = '<i class="fa-solid fa-check-double text-sky-600 text-[10px]" title="Dibaca"></i>';
+                            statusMark = '<i class="fa-solid fa-check-double text-[#53bdeb] text-[10px]" title="Dibaca"></i>';
                         } else if (m.status === 'failed') {
-                            statusMark = '<i class="fa-solid fa-triangle-exclamation text-rose-500 text-[10px]" title="Gagal"></i>';
+                            statusMark = '<i class="fa-solid fa-triangle-exclamation text-rose-500 text-[10px]" title="Gagal terkirim"></i>';
                         }
                     }
 
+                    // Quoted preview inside bubble
+                    let quoteHtml = '';
+                    if (m.reply_to && !isDeleted) {
+                        const quoteSender = escapeHtml(m.reply_to.sender || 'Pesan');
+                        const quoteText = escapeHtml(m.reply_to.message || '');
+                        const accentClass = m.reply_to.sender === 'Admin' || m.reply_to.sender === 'Anda' ? '' : 'inbound-accent';
+                        quoteHtml = `
+                            <div class="wa-msg-quote ${accentClass}">
+                                <div class="wa-msg-quote-sender">${quoteSender}</div>
+                                <div class="wa-msg-quote-text">${quoteText}</div>
+                            </div>`;
+                    }
+
+                    // Invoice tag header
+                    let invoiceHtml = '';
+                    if (isInv && !isDeleted) {
+                        const invNo = m.metadata && m.metadata.invoice_number ? m.metadata.invoice_number : 'FAKTUR RESMI';
+                        invoiceHtml = `
+                            <div class="wa-msg-invoice-card flex items-center justify-between gap-2">
+                                <span class="font-bold text-emerald-800 flex items-center gap-1">
+                                    <i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i> ${escapeHtml(invNo)}
+                                </span>
+                                <span class="text-[10px] font-semibold text-emerald-700">TAGIHAN INTERNET</span>
+                            </div>`;
+                    }
+
+                    // Edited tag
+                    const editedMark = m.is_edited && !isDeleted ? '<span class="italic text-[9.5px] text-slate-400 mr-0.5">(diedit)</span>' : '';
+
+                    // Action chevron button
+                    const actionBtn = !isDeleted ? `
+                        <button type="button" class="wa-msg-action-trigger" onclick="openMsgMenu(event, ${JSON.stringify(m).replace(/"/g, '&quot;')})" title="Opsi Pesan">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>` : '';
+
                     row.innerHTML = `
-                        <div class="wa-msg-bubble ${isOut ? 'outbound' : 'inbound'} ${isInv ? 'invoice-type' : ''}">
-                            <div>${formatMsgText(m.message)}</div>
+                        <div class="wa-msg-bubble ${isOut ? 'outbound' : 'inbound'} ${isDeleted ? 'is-deleted' : ''}">
+                            ${actionBtn}
+                            ${quoteHtml}
+                            ${invoiceHtml}
+                            <div class="wa-msg-text">${formatMsgText(m.message)}</div>
                             <div class="wa-msg-meta">
+                                ${editedMark}
                                 <span>${m.time}</span>
                                 ${statusMark}
                             </div>
                         </div>
                     `;
+
                     stream.appendChild(row);
                 });
 
@@ -725,14 +1196,184 @@
                 }
             }
 
-            function sendMessageApi() {
-                if (!activeContact) return;
+            // Message Action Menu Handling
+            function openMsgMenu(e, msg) {
+                e.stopPropagation();
+                activeMenuMsg = msg;
+
+                const menu = document.getElementById('msgContextMenu');
+                const btnEdit = document.getElementById('menuActionEdit');
+                const btnDelete = document.getElementById('menuActionDelete');
+
+                // Edit is only allowed for outbound non-deleted messages
+                if (msg.direction === 'outbound' && msg.status !== 'deleted') {
+                    btnEdit.classList.remove('hidden');
+                } else {
+                    btnEdit.classList.add('hidden');
+                }
+
+                // Delete is allowed for any non-deleted message
+                if (msg.status !== 'deleted') {
+                    btnDelete.classList.remove('hidden');
+                } else {
+                    btnDelete.classList.add('hidden');
+                }
+
+                // Position menu near the click target
+                const rect = e.currentTarget.getBoundingClientRect();
+                menu.style.top = `${rect.bottom + 4}px`;
+                menu.style.left = `${Math.min(window.innerWidth - 150, Math.max(10, rect.left - 100))}px`;
+                menu.classList.remove('hidden');
+            }
+
+            function triggerReplyFromMenu() {
+                if (!activeMenuMsg) return;
+                const menu = document.getElementById('msgContextMenu');
+                menu.classList.add('hidden');
+
+                replyingMessage = {
+                    id: activeMenuMsg.id,
+                    sender: activeMenuMsg.direction === 'outbound' ? 'Anda' : (activeMenuMsg.customer_name || 'Pelanggan'),
+                    text: activeMenuMsg.message
+                };
+
+                // Cancel edit if any
+                cancelEdit();
+
+                // Show reply bar
+                document.getElementById('replySenderName').textContent = replyingMessage.sender;
+                document.getElementById('replyPreviewText').textContent = replyingMessage.text;
+                document.getElementById('replyBar').classList.remove('hidden');
+
+                // Focus composer
+                const composer = document.getElementById('composerInput');
+                composer.focus();
+            }
+
+            function cancelReply() {
+                replyingMessage = null;
+                document.getElementById('replyBar').classList.add('hidden');
+            }
+
+            function triggerEditFromMenu() {
+                if (!activeMenuMsg) return;
+                const menu = document.getElementById('msgContextMenu');
+                menu.classList.add('hidden');
+
+                editingMessage = {
+                    id: activeMenuMsg.id,
+                    text: activeMenuMsg.message
+                };
+
+                // Cancel reply if any
+                cancelReply();
+
+                // Show edit bar
+                document.getElementById('editPreviewText').textContent = editingMessage.text;
+                document.getElementById('editBar').classList.remove('hidden');
+
+                // Put text in composer
+                const composer = document.getElementById('composerInput');
+                composer.value = editingMessage.text;
+                composer.focus();
+                composer.dispatchEvent(new Event('input'));
+            }
+
+            function cancelEdit() {
+                editingMessage = null;
+                document.getElementById('editBar').classList.add('hidden');
+                const composer = document.getElementById('composerInput');
+                composer.value = '';
+                composer.style.height = 'auto';
+            }
+
+            function triggerCopyFromMenu() {
+                if (!activeMenuMsg) return;
+                const menu = document.getElementById('msgContextMenu');
+                menu.classList.add('hidden');
+
+                navigator.clipboard.writeText(activeMenuMsg.message).then(() => {
+                    showToast('Teks pesan berhasil disalin');
+                }).catch(() => {
+                    alert('Gagal menyalin teks ke clipboard.');
+                });
+            }
+
+            function triggerDeleteFromMenu() {
+                if (!activeMenuMsg) return;
+                const menu = document.getElementById('msgContextMenu');
+                menu.classList.add('hidden');
+
+                pendingDeleteId = activeMenuMsg.id;
+                document.getElementById('deleteMsgModal').classList.remove('hidden');
+            }
+
+            function closeDeleteModal() {
+                pendingDeleteId = null;
+                document.getElementById('deleteMsgModal').classList.add('hidden');
+            }
+
+            function confirmDeleteMessage() {
+                if (!pendingDeleteId) return;
+
+                const btn = document.getElementById('btnConfirmDelete');
+                btn.disabled = true;
+
+                fetch(`{{ url('whatsapp/messages') }}/${pendingDeleteId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ permanent: true })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    btn.disabled = false;
+                    closeDeleteModal();
+                    if (data.success) {
+                        if (activePhone) loadConversation(activePhone);
+                    } else {
+                        alert(data.message || 'Gagal menghapus pesan.');
+                    }
+                })
+                .catch(() => {
+                    btn.disabled = false;
+                    closeDeleteModal();
+                    alert('Terjadi kesalahan jaringan.');
+                });
+            }
+
+            // Unified Submit Composer (Send or Update)
+            function submitComposer() {
+                if (!activeContact) {
+                    alert('Silakan pilih kontak terlebih dahulu.');
+                    return;
+                }
+
                 const input = document.getElementById('composerInput');
                 const text = input.value.trim();
                 if (!text) return;
 
+                if (editingMessage) {
+                    updateMessageApi(editingMessage.id, text);
+                } else {
+                    sendMessageApi(text);
+                }
+            }
+
+            function sendMessageApi(text) {
                 const btn = document.getElementById('btnSendApi');
+                const input = document.getElementById('composerInput');
                 btn.disabled = true;
+
+                const payload = {
+                    phone: activeContact.normalized_phone,
+                    message: text,
+                    pppoe_id: activeContact.pppoe_id,
+                    customer_id: activeContact.customer_id,
+                    reply_to_id: replyingMessage ? replyingMessage.id : null
+                };
 
                 fetch(`{{ route('whatsapp.send') }}`, {
                     method: 'POST',
@@ -740,18 +1381,15 @@
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                    body: JSON.stringify({
-                        phone: activeContact.normalized_phone,
-                        message: text,
-                        pppoe_id: activeContact.pppoe_id,
-                        customer_id: activeContact.customer_id,
-                    })
+                    body: JSON.stringify(payload)
                 })
                 .then(res => res.json())
                 .then(data => {
                     btn.disabled = false;
                     if (data.success) {
                         input.value = '';
+                        input.style.height = 'auto';
+                        cancelReply();
                         loadConversation(activeContact.normalized_phone);
                     } else {
                         alert(data.message || 'Gagal mengirim pesan.');
@@ -759,7 +1397,38 @@
                 })
                 .catch(() => {
                     btn.disabled = false;
-                    alert('Terjadi kesalahan jaringan.');
+                    alert('Terjadi kesalahan jaringan saat mengirim pesan.');
+                });
+            }
+
+            function updateMessageApi(msgId, newText) {
+                const btn = document.getElementById('btnSendApi');
+                const input = document.getElementById('composerInput');
+                btn.disabled = true;
+
+                fetch(`{{ url('whatsapp/messages') }}/${msgId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ message: newText })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    btn.disabled = false;
+                    if (data.success) {
+                        input.value = '';
+                        input.style.height = 'auto';
+                        cancelEdit();
+                        loadConversation(activeContact.normalized_phone);
+                    } else {
+                        alert(data.message || 'Gagal memperbarui pesan.');
+                    }
+                })
+                .catch(() => {
+                    btn.disabled = false;
+                    alert('Terjadi kesalahan jaringan saat mengedit pesan.');
                 });
             }
 
@@ -785,6 +1454,7 @@
                 const composer = document.getElementById('composerInput');
                 composer.value = body;
                 composer.focus();
+                composer.dispatchEvent(new Event('input'));
                 document.getElementById('templateDropdown').classList.add('hidden');
             }
 
@@ -795,6 +1465,7 @@
                 c.value = c.value.substring(0, start) + tag + c.value.substring(end);
                 c.focus();
                 c.selectionStart = c.selectionEnd = start + tag.length;
+                c.dispatchEvent(new Event('input'));
             }
 
             function openInvoiceModal(preselectedId = null) {
@@ -895,7 +1566,7 @@
                         <div class="p-2.5 bg-slate-50 border border-slate-200 rounded">
                             <div class="text-[10px] font-bold text-slate-400 uppercase">Nama Pelanggan</div>
                             <div class="text-xs font-bold text-slate-900 mt-0.5">${escapeHtml(activeContact.name)}</div>
-                            <div class="text-slate-500 font-mono text-[11px]">${activeContact.phone}</div>
+                            <div class="text-slate-500 font-mono text-[11px]">${activeContact.phone || activeContact.normalized_phone}</div>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <div class="p-2 bg-slate-50 border border-slate-200 rounded">
@@ -931,7 +1602,7 @@
 
             function normalizePhone(p) {
                 if (!p) return '';
-                let d = p.replace(/[^0-9]/g, '');
+                let d = String(p).replace(/[^0-9]/g, '');
                 if (d.startsWith('08')) d = '62' + d.substring(1);
                 else if (d.startsWith('8')) d = '62' + d;
                 return d;
@@ -939,7 +1610,7 @@
 
             function escapeHtml(t) {
                 if (!t) return '';
-                return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+                return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
             }
 
             function formatMsgText(t) {
@@ -947,9 +1618,20 @@
                 let s = escapeHtml(t);
                 s = s.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
                 s = s.replace(/_(.*?)_/g, '<em>$1</em>');
-                s = s.replace(/`(.*?)`/g, '<code class="bg-black/5 px-1 rounded text-xs">$1</code>');
-                s = s.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" class="text-sky-600 underline">$1</a>');
+                s = s.replace(/`(.*?)`/g, '<code class="bg-black/5 px-1 rounded text-xs font-mono">$1</code>');
+                s = s.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-sky-600 hover:underline">$1</a>');
                 return s;
+            }
+
+            function showToast(msg) {
+                const toast = document.createElement('div');
+                toast.className = 'fixed bottom-5 right-5 bg-slate-900 text-white text-xs font-semibold px-3 py-2 rounded-lg shadow-lg z-50 transition-opacity';
+                toast.textContent = msg;
+                document.body.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 200);
+                }, 2200);
             }
         </script>
     @endsection
