@@ -42,7 +42,7 @@ class BroadcastNotificationController extends Controller
             'total_customers'  => Customer::count(),
         ];
 
-        $pakets = Paket::orderBy('nama_paket')->get(['id', 'nama_paket', 'kecepatan', 'harga']);
+        $pakets = Paket::orderBy('nama_paket')->get(['id', 'nama_paket', 'rate_limit', 'harga']);
         $customers = Customer::orderBy('nama_lengkap')->get(['id', 'id_pelanggan', 'nama_lengkap', 'fcm_token']);
 
         return view('notifications.broadcast', compact('broadcasts', 'stats', 'pakets', 'customers', 'search', 'typeFilter'));

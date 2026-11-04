@@ -357,7 +357,7 @@
                         <select name="target_id" id="target_package_id" class="form-input-custom !h-8.5 !text-xs w-full" disabled>
                             <option value="">-- Pilih Paket Target --</option>
                             @foreach ($pakets as $p)
-                                <option value="{{ $p->id }}">{{ $p->nama_paket }} ({{ $p->kecepatan ?? '-' }}) - Rp {{ number_format($p->harga, 0, ',', '.') }}</option>
+                                <option value="{{ $p->id }}">{{ $p->nama_paket }} ({{ $p->rate_limit ?? '-' }}) - Rp {{ number_format($p->harga, 0, ',', '.') }}</option>
                             @endforeach
                         </select>
                     </div>

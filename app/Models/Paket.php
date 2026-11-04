@@ -23,6 +23,14 @@ class Paket extends Model
         return max(0, (float)$this->harga + (float)($this->pajak ?? 0) - (float)($this->diskon ?? 0));
     }
 
+    /**
+     * Alias kecepatan untuk rate_limit
+     */
+    public function getKecepatanAttribute(): ?string
+    {
+        return $this->rate_limit;
+    }
+
     public function customers()
     {
         return $this->hasMany(Customer::class, 'paket_id');
