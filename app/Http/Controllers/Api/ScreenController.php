@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Models\CustomerNotification;
 use App\Models\Invoice;
 use App\Models\Setting;
 use App\Services\GenieAcsService;
@@ -320,71 +321,140 @@ class ScreenController extends Controller
 
         Carbon::setLocale('id');
 
-        $notifications = [];
-        $idCounter = 1;
+        // 1. Ambil notifikasi tersimpan dari tabel customer_notifications
+        $dbNotifications = CustomerNotification::where('customer_id', $customer->id)
+            ->latest('id')
+            ->limit(50)
+            ->get();
 
-        $pppoe = $customer->pppoe;
+        // 2. Jika pelanggan belum memiliki riwayat notifikasi, inisialisasi default
+        if ($dbNotifications->isEmpty()) {
+            $pppoe = $customer->pppoe;
 
-        if ($pppoe) {
-            // 1. Tagihan belum bayar
-            $unpaid = Invoice::where('pppoe_id', $pppoe->id)
-                ->where('status', 'unpaid')
-                ->orderBy('due_date', 'asc')
-                ->get();
+            // Inisialisasi notifikasi sambutan
+            $namaLengkap = $customer->nama_lengkap ?? 'Pelanggan';
+            CustomerNotification::create([
+                'customer_id' => $customer->id,
+                'title'       => "Selamat Datang di BBS Mobile, {$namaLengkap}!",
+                'body'        => 'Kelola tagihan, cek status perangkat ONT, dan nikmati koneksi internet super cepat tanpa hambatan bersama Erlangga Network.',
+                'type'        => 'general',
+                'data'        => ['action_url' => '/dashboard'],
+                'is_read'     => true,
+                'read_at'     => now(),
+            ]);
 
-            foreach ($unpaid as $inv) {
-                $dueDate = $inv->due_date ? Carbon::parse($inv->due_date)->translatedFormat('d F Y') : '-';
-                $isOverdue = $inv->due_date && Carbon::parse($inv->due_date)->isPast();
+            // Inisialisasi tagihan belum bayar jika ada
+            if ($pppoe) {
+                $unpaid = Invoice::where('pppoe_id', $pppoe->id)
+                    ->where('status', 'unpaid')
+                    ->orderBy('due_date', 'asc')
+                    ->get();
 
-                $notifications[] = [
-                    'id'         => $idCounter++,
-                    'type'       => 'billing',
-                    'title'      => $isOverdue ? 'Peringatan: Tagihan Jatuh Tempo' : 'Tagihan Internet Baru',
-                    'message'    => "Tagihan nomor {$inv->invoice_number} sebesar Rp " . number_format($inv->total, 0, ',', '.') . " jatuh tempo pada {$dueDate}. Segera lakukan pembayaran untuk kelancaran internet Anda.",
-                    'is_read'    => false,
-                    'created_at' => $inv->created_at->format('Y-m-d H:i:s'),
-                    'action_url' => '/riwayat',
-                    'invoice_id' => $inv->id,
-                ];
+                foreach ($unpaid as $inv) {
+                    $dueDate = $inv->due_date ? Carbon::parse($inv->due_date)->translatedFormat('d F Y') : '-';
+                    $isOverdue = $inv->due_date && Carbon::parse($inv->due_date)->isPast();
+                    CustomerNotification::create([
+                        'customer_id' => $customer->id,
+                        'title'       => $isOverdue ? 'Peringatan: Tagihan Jatuh Tempo' : 'Tagihan Internet Baru',
+                        'body'        => "Tagihan #{$inv->invoice_number} sebesar Rp " . number_format($inv->total, 0, ',', '.') . " jatuh tempo pada {$dueDate}. Segera lakukan pembayaran.",
+                        'type'        => 'billing',
+                        'data'        => [
+                            'invoice_id' => $inv->id,
+                            'action_url' => '/riwayat',
+                        ],
+                        'is_read'     => false,
+                    ]);
+                }
             }
 
-            // 2. Tagihan lunas terbaru
-            $latestPaid = Invoice::where('pppoe_id', $pppoe->id)
-                ->where('status', 'paid')
-                ->latest('updated_at')
-                ->limit(3)
+            // Ambil ulang setelah diinisialisasi
+            $dbNotifications = CustomerNotification::where('customer_id', $customer->id)
+                ->latest('id')
+                ->limit(50)
                 ->get();
-
-            foreach ($latestPaid as $inv) {
-                $notifications[] = [
-                    'id'         => $idCounter++,
-                    'type'       => 'payment_success',
-                    'title'      => 'Pembayaran Berhasil Diterima',
-                    'message'    => "Terima kasih! Pembayaran tagihan {$inv->invoice_number} sebesar Rp " . number_format($inv->total, 0, ',', '.') . " telah berhasil diverifikasi.",
-                    'is_read'    => true,
-                    'created_at' => $inv->updated_at->format('Y-m-d H:i:s'),
-                    'action_url' => '/riwayat',
-                    'invoice_id' => $inv->id,
-                ];
-            }
         }
 
-        // 3. Notifikasi Status Layanan / Sambutan
-        $namaLengkap = $customer->nama_lengkap ?? 'Pelanggan';
-        $notifications[] = [
-            'id'         => $idCounter++,
-            'type'       => 'info',
-            'title'      => "Selamat Datang di BBS Mobile, {$namaLengkap}!",
-            'message'    => 'Kelola tagihan, cek status perangkat ONT, dan nikmati koneksi internet super cepat tanpa hambatan bersama Erlangga Network.',
-            'is_read'    => true,
-            'created_at' => $customer->created_at ? $customer->created_at->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s'),
-            'action_url' => '/dashboard',
-        ];
+        $formatted = $dbNotifications->map(function ($notif) {
+            $data = is_array($notif->data) ? $notif->data : [];
+            $actionUrl = $data['action_url'] ?? ($notif->type === 'billing' || $notif->type === 'payment' ? '/riwayat' : '/dashboard');
+            $invoiceId = $data['invoice_id'] ?? null;
+
+            return [
+                'id'         => $notif->id,
+                'type'       => $notif->type ?? 'general',
+                'title'      => $notif->title,
+                'message'    => $notif->body,
+                'body'       => $notif->body,
+                'data'       => $data,
+                'is_read'    => (bool) $notif->is_read,
+                'created_at' => $notif->created_at ? $notif->created_at->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s'),
+                'action_url' => $actionUrl,
+                'invoice_id' => $invoiceId,
+            ];
+        });
+
+        $unreadCount = $dbNotifications->where('is_read', false)->count();
+
+        return response()->json([
+            'success'      => true,
+            'message'      => 'Daftar notifikasi berhasil dimuat.',
+            'unread_count' => $unreadCount,
+            'data'         => $formatted,
+        ]);
+    }
+
+    /**
+     * Tandai notifikasi tertentu sebagai telah dibaca
+     */
+    public function markAsRead(Request $request, $id)
+    {
+        $customer = $request->user();
+
+        if (!$customer instanceof Customer) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+
+        $notif = CustomerNotification::where('customer_id', $customer->id)
+            ->where('id', $id)
+            ->first();
+
+        if (!$notif) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Notifikasi tidak ditemukan.',
+            ], 404);
+        }
+
+        $notif->markAsRead();
 
         return response()->json([
             'success' => true,
-            'message' => 'Daftar notifikasi berhasil dimuat.',
-            'data'    => $notifications,
+            'message' => 'Notifikasi ditandai telah dibaca.',
+            'id'      => $notif->id,
+        ]);
+    }
+
+    /**
+     * Tandai seluruh notifikasi pelanggan sebagai telah dibaca
+     */
+    public function markAllAsRead(Request $request)
+    {
+        $customer = $request->user();
+
+        if (!$customer instanceof Customer) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+
+        CustomerNotification::where('customer_id', $customer->id)
+            ->where('is_read', false)
+            ->update([
+                'is_read' => true,
+                'read_at' => now(),
+            ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Seluruh notifikasi berhasil ditandai telah dibaca.',
         ]);
     }
 

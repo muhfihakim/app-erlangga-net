@@ -64,6 +64,12 @@ class SettingController extends Controller
                 'password' => Setting::get('genieacs_password', env('GENIEACS_PASSWORD', 'admin')),
                 'timeout' => Setting::get('genieacs_timeout', env('GENIEACS_TIMEOUT', 10)),
             ],
+            'firebase' => [
+                'enabled' => Setting::get('firebase_enabled', '1'),
+                'project_id' => Setting::get('firebase_project_id', env('FIREBASE_PROJECT_ID', '')),
+                'service_account' => Setting::get('firebase_service_account', ''),
+                'server_key' => Setting::get('firebase_server_key', env('FCM_SERVER_KEY', '')),
+            ],
         ];
 
         $pakets = \App\Models\Paket::all();
@@ -198,6 +204,39 @@ class SettingController extends Controller
             Setting::set('genieacs_username', $request->genieacs_username, 'genieacs');
             Setting::set('genieacs_password', $request->genieacs_password ?? '', 'genieacs');
             Setting::set('genieacs_timeout', $request->genieacs_timeout ?? 10, 'genieacs');
+        } elseif ($tab === 'firebase') {
+            $request->validate([
+                'firebase_enabled'          => 'nullable|string',
+                'firebase_project_id'       => 'nullable|string',
+                'firebase_service_account'  => 'nullable|string',
+                'firebase_server_key'       => 'nullable|string',
+                'firebase_credentials_file' => 'nullable|file|mimes:json,txt|max:2048',
+            ]);
+
+            $enabled = $request->has('firebase_enabled') ? '1' : '0';
+            Setting::set('firebase_enabled', $enabled, 'firebase');
+
+            $projectId = trim($request->input('firebase_project_id') ?? '');
+            $serviceAccount = trim($request->input('firebase_service_account') ?? '');
+
+            // Jika mengunggah file JSON service account Google Firebase
+            if ($request->hasFile('firebase_credentials_file') && $request->file('firebase_credentials_file')->isValid()) {
+                $fileContent = file_get_contents($request->file('firebase_credentials_file')->getRealPath());
+                $json = json_decode($fileContent, true);
+                if (is_array($json)) {
+                    $serviceAccount = $fileContent;
+                    if (empty($projectId) && !empty($json['project_id'])) {
+                        $projectId = $json['project_id'];
+                    }
+                }
+            }
+
+            Setting::set('firebase_project_id', $projectId, 'firebase');
+            Setting::set('firebase_service_account', $serviceAccount, 'firebase');
+            Setting::set('firebase_server_key', trim($request->input('firebase_server_key') ?? ''), 'firebase');
+
+            // Hapus cache token access OAuth2 agar regenerate kredensial baru
+            \Illuminate\Support\Facades\Cache::forget('fcm_oauth2_access_token');
         }
 
         return redirect()->route('settings.index', ['tab' => $tab])->with('success', 'Pengaturan ' . strtoupper($tab) . ' berhasil disimpan ke Database!');
@@ -337,6 +376,51 @@ class SettingController extends Controller
                 } else {
                     throw new \Exception($res['message']);
                 }
+            }
+
+            if ($type === 'firebase') {
+                $fcm = app(\App\Services\FcmService::class);
+                $targetToken = trim($request->input('target_token') ?? '');
+
+                if (!empty($targetToken)) {
+                    $testRes = $fcm->sendToToken(
+                        $targetToken,
+                        'Tes Push Notifikasi Firebase',
+                        'Integrasi push notification Erlangga Net berhasil terkirim ke perangkat mobile Anda.'
+                    );
+
+                    $elapsed = round((microtime(true) - $startTime) * 1000, 2);
+                    if ($testRes['success']) {
+                        return response()->json([
+                            'success' => true,
+                            'message' => "Push notifikasi FCM berhasil terkirim ke perangkat tujuan! [{$elapsed}ms]",
+                        ]);
+                    } else {
+                        throw new \Exception($testRes['message'] ?? 'Gagal mengirim push notifikasi.');
+                    }
+                }
+
+                // Cek otentikasi Google OAuth2 (HTTP v1) atau Server Key
+                $accessToken = $fcm->getOAuth2AccessToken();
+                $projectId = $fcm->getProjectId();
+                $elapsed = round((microtime(true) - $startTime) * 1000, 2);
+
+                if ($accessToken && $projectId) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => "Kredensial Firebase HTTP v1 Sukses! OAuth2 token valid untuk project: {$projectId} [{$elapsed}ms]",
+                    ]);
+                }
+
+                $serverKey = Setting::get('firebase_server_key', env('FCM_SERVER_KEY'));
+                if (!empty($serverKey)) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => "Firebase Legacy Server Key terkonfigurasi. [{$elapsed}ms]",
+                    ]);
+                }
+
+                throw new \Exception("Kredensial Service Account JSON atau Project ID Firebase belum terisi atau tidak valid.");
             }
 
             throw new \Exception("Tipe pengujian tidak dikenal.");

@@ -10,7 +10,7 @@
         Request::is('olt*') ||
         Request::is('odp*') ||
         Request::is('genieacs*');
-    $isCustActive = Request::is('pre-orders*') || Request::is('customers*') || Request::is('maintenances*');
+    $isCustActive = Request::is('pre-orders*') || Request::is('customers*') || Request::is('maintenances*') || Request::is('broadcasts*');
     $isFinActive =
         Request::is('invoices*') ||
         Request::is('transactions*') ||
@@ -130,6 +130,13 @@
                         href="{{ route('maintenances.index') }}">
                         <i class="fa-solid fa-circle-dot"></i>
                         <span>Tiket Pemeliharaan</span>
+                    </a>
+                @endif
+                @if ($isAdmin)
+                    <a class="sidebar-sublink {{ Request::is('broadcasts*') ? 'active' : '' }}"
+                        href="{{ route('broadcasts.index') }}">
+                        <i class="fa-solid fa-circle-dot"></i>
+                        <span>Broadcast & Pengumuman</span>
                     </a>
                 @endif
             </div>

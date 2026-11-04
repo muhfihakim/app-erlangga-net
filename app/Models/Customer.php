@@ -31,12 +31,30 @@ class Customer extends Model
         'foto_petugas',
         'foto_terpasang',
         'foto_speedtest',
+        'fcm_token',
+        'fcm_updated_at',
     ];
 
     protected $casts = [
-        'partner_ids' => 'array',
-        'deleted_at'  => 'datetime',
+        'partner_ids'    => 'array',
+        'deleted_at'     => 'datetime',
+        'fcm_updated_at' => 'datetime',
     ];
+
+    public function notifications()
+    {
+        return $this->hasMany(CustomerNotification::class, 'customer_id');
+    }
+
+    public function getTokenFcmAttribute()
+    {
+        return $this->fcm_token;
+    }
+
+    public function setTokenFcmAttribute($value)
+    {
+        $this->attributes['fcm_token'] = $value;
+    }
 
     // public function preorder()
     // {

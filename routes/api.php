@@ -28,6 +28,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Auth Session
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/fcm-token', [AuthController::class, 'updateFcmToken']);
+    Route::post('/update-fcm-token', [AuthController::class, 'updateFcmToken']);
 
     // --- Screen-Oriented API (1 Screen = 1 API Endpoint untuk Mobile App) ---
     // Tab 1: Home Screen (home_screen.dart)
@@ -41,6 +43,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Tab 3: Notifikasi Screen (notification_screen.dart)
     Route::get('/notifications', [ScreenController::class, 'notifications']);
     Route::get('/screens/notifications', [ScreenController::class, 'notifications']);
+    Route::post('/notifications/{id}/read', [ScreenController::class, 'markAsRead']);
+    Route::post('/notifications/read-all', [ScreenController::class, 'markAllAsRead']);
 
     // Tab 4: Profil Screen (profile_screen.dart)
     Route::get('/profile', [ScreenController::class, 'profile']);

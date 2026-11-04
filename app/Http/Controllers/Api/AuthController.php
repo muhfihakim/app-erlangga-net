@@ -85,6 +85,15 @@ class AuthController extends Controller
         // Buat Sanctum API Token
         $token = $customer->createToken($deviceName)->plainTextToken;
 
+        // Simpan token FCM jika disertakan saat login
+        $fcmToken = trim($request->input('token_fcm') ?? $request->input('fcm_token') ?? '');
+        if (!empty($fcmToken)) {
+            $customer->update([
+                'fcm_token'      => $fcmToken,
+                'fcm_updated_at' => now(),
+            ]);
+        }
+
         $pppoe = $customer->pppoe;
         $unpaidInvoicesCount = 0;
         $latestUnpaidInvoice = null;
@@ -176,6 +185,46 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Logout berhasil.'
+        ], 200);
+    }
+
+    /**
+     * Update Token FCM Pelanggan dari Mobile App (Android / iOS)
+     */
+    public function updateFcmToken(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'token_fcm' => 'nullable|string',
+            'fcm_token' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first() ?: 'Data token tidak valid.',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        $fcmToken = trim($request->input('token_fcm') ?? $request->input('fcm_token') ?? '');
+        $customer = $request->user();
+
+        if (!$customer instanceof Customer) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized / Sesi tidak valid.',
+            ], 401);
+        }
+
+        $customer->update([
+            'fcm_token'      => !empty($fcmToken) ? $fcmToken : null,
+            'fcm_updated_at' => !empty($fcmToken) ? now() : null,
+        ]);
+
+        return response()->json([
+            'success'   => true,
+            'message'   => !empty($fcmToken) ? 'Token FCM berhasil diperbarui.' : 'Token FCM berhasil dihapus.',
+            'fcm_token' => $customer->fcm_token,
         ], 200);
     }
 }

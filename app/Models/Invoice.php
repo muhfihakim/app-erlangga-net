@@ -83,6 +83,13 @@ class Invoice extends Model
             } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::warning("Gagal unIsolate di Invoice ({$pppoe->username}): " . $e->getMessage());
             }
+
+            // Kirim Notifikasi Push FCM & In-App Pembayaran Berhasil ke Pelanggan
+            try {
+                app(\App\Services\FcmService::class)->sendInvoicePaidNotification($this);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning("Gagal kirim FCM Invoice Paid (#{$this->invoice_number}): " . $e->getMessage());
+            }
         }
 
         return true;

@@ -105,7 +105,7 @@ class ProcessBillingCommand extends Command
                     $invoiceNumber = 'INV-' . date('Ymd') . '-' . str_pad($pppoe->id, 4, '0', STR_PAD_LEFT) . '-' . rand(100, 999);
 
                     if (!$isDryRun) {
-                        Invoice::create([
+                        $newInvoice = Invoice::create([
                             'pppoe_id' => $pppoe->id,
                             'invoice_number' => $invoiceNumber,
                             'amount' => $amount,
@@ -117,6 +117,13 @@ class ProcessBillingCommand extends Command
                         ]);
 
                         $pppoe->update(['status_invoice' => 'belum_bayar']);
+
+                        // Kirim push notifikasi faktur baru / jatuh tempo
+                        try {
+                            app(\App\Services\FcmService::class)->sendInvoiceDueReminder($newInvoice);
+                        } catch (\Throwable $e) {
+                            Log::warning("Gagal kirim notifikasi FCM faktur baru ({$invoiceNumber}): " . $e->getMessage());
+                        }
                     }
 
                     $generatedCount++;

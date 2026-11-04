@@ -135,6 +135,9 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::get('/settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
         Route::post('/settings', [\App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
         Route::post('/settings/test-connection', [\App\Http\Controllers\SettingController::class, 'testConnection'])->name('settings.test_connection');
+
+        // Broadcast & Pemberitahuan Pelanggan (Firebase FCM & In-App)
+        Route::resource('broadcasts', \App\Http\Controllers\BroadcastNotificationController::class)->only(['index', 'store', 'destroy']);
     });
 
     // Keuangan Teknisi

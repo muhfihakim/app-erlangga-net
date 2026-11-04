@@ -48,6 +48,12 @@
             aria-selected="{{ $activeTab === 'genieacs' ? 'true' : 'false' }}" aria-controls="tab-genieacs">
             <i class="fa-solid fa-satellite-dish mr-1.5 text-rose-500" aria-hidden="true"></i> GenieACS (TR-069)
         </button>
+        <button type="button"
+            class="modal-tab {{ $activeTab === 'firebase' ? 'active' : '' }} !rounded-lg !py-1.5 !px-3.5 !text-xs font-semibold"
+            data-tab="tab-firebase" id="tab-btn-firebase" role="tab"
+            aria-selected="{{ $activeTab === 'firebase' ? 'true' : 'false' }}" aria-controls="tab-firebase">
+            <i class="fa-solid fa-fire mr-1.5 text-amber-500" aria-hidden="true"></i> Firebase FCM
+        </button>
     </div>
 
     <!-- Tab 1: MikroTik -->
@@ -889,6 +895,104 @@
         </div>
     </div>
 
+    <!-- Tab 7: Firebase Cloud Messaging (FCM) -->
+    <div class="tab-panel {{ $activeTab === 'firebase' ? 'active' : '' }}" id="tab-firebase" role="tabpanel"
+        aria-labelledby="tab-btn-firebase" tabindex="0">
+        <div class="table-card p-4 sm:p-5">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                <div>
+                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-fire text-amber-500" aria-hidden="true"></i> Konfigurasi Firebase Cloud Messaging (FCM)
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Digunakan untuk mengirim notifikasi push ke aplikasi mobile pelanggan (Android & iOS): tagihan jatuh tempo, konfirmasi pembayaran, dan pengumuman pemeliharaan.
+                    </p>
+                </div>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                    FCM HTTP v1 (OAuth2) & Legacy
+                </span>
+            </div>
+
+            <form action="{{ route('settings.update') }}" method="POST" enctype="multipart/form-data" id="form-firebase">
+                @csrf
+                <input type="hidden" name="tab" value="firebase">
+
+                <div class="bg-amber-50/50 border border-amber-200/80 rounded-xl p-3.5 mb-4 text-xs text-slate-700">
+                    <div class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-circle-info text-amber-600 mt-0.5 text-sm"></i>
+                        <div>
+                            <span class="font-bold text-slate-800">Petunjuk Konfigurasi Firebase HTTP v1:</span>
+                            <ol class="list-decimal ml-4 mt-1 space-y-1 text-slate-600">
+                                <li>Buka <a href="https://console.firebase.google.com" target="_blank" class="text-amber-700 font-semibold underline">Firebase Console</a> &gt; Project Settings &gt; <strong>Service Accounts</strong>.</li>
+                                <li>Klik <strong>"Generate New Private Key"</strong> untuk mendownload file credentials JSON.</li>
+                                <li>Unggah file JSON tersebut melalui tombol di bawah atau copy-paste isinya ke kolom JSON.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 mb-3.5">
+                    <div class="form-group !mb-0">
+                        <label for="firebase_enabled" class="form-label font-bold text-slate-700">Status Push Notification</label>
+                        <div class="flex items-center gap-3 mt-2">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="firebase_enabled" id="firebase_enabled" value="1"
+                                    {{ old('firebase_enabled', $settings['firebase']['enabled']) == '1' ? 'checked' : '' }}
+                                    class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                                <span class="ml-3 text-xs font-semibold text-slate-700">Aktifkan Notifikasi Firebase FCM</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group !mb-0">
+                        <label for="firebase_project_id" class="form-label font-bold text-slate-700">Firebase Project ID</label>
+                        <input type="text" name="firebase_project_id" id="firebase_project_id" class="form-input font-mono text-xs"
+                            value="{{ old('firebase_project_id', $settings['firebase']['project_id']) }}"
+                            placeholder="misal: erlangga-net-app">
+                        <small class="text-slate-500 text-xs mt-1 block">Otomatis terisi jika mengunggah file JSON Service Account.</small>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 mb-3.5">
+                    <div class="form-group !mb-0">
+                        <label for="firebase_credentials_file" class="form-label font-bold text-slate-700">Unggah File Credentials (JSON)</label>
+                        <input type="file" name="firebase_credentials_file" id="firebase_credentials_file"
+                            accept=".json,application/json,text/plain"
+                            class="form-input text-xs file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-amber-100 file:text-amber-800 hover:file:bg-amber-200">
+                        <small class="text-slate-500 text-xs mt-1 block">File service account private key yang di-download dari Firebase Console.</small>
+                    </div>
+
+                    <div class="form-group !mb-0">
+                        <label for="firebase_server_key" class="form-label font-bold text-slate-700">Legacy Server Key <span class="text-slate-400 font-normal">(Opsional Fallback)</span></label>
+                        <input type="text" name="firebase_server_key" id="firebase_server_key" class="form-input font-mono text-xs"
+                            value="{{ old('firebase_server_key', $settings['firebase']['server_key']) }}"
+                            placeholder="AAAA... (Cloud Messaging Legacy Server Key)">
+                        <small class="text-slate-500 text-xs mt-1 block">Digunakan sebagai cadangan jika HTTP v1 API tidak diatur.</small>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3.5">
+                    <label for="firebase_service_account" class="form-label font-bold text-slate-700">Konten Service Account JSON <span class="text-slate-400 font-normal">(Otomatis Terisi saat Upload)</span></label>
+                    <textarea name="firebase_service_account" id="firebase_service_account" rows="4"
+                        class="form-input font-mono text-xs leading-relaxed"
+                        placeholder='{"type": "service_account", "project_id": "...", "private_key": "-----BEGIN PRIVATE KEY-----\n..."}'>{{ old('firebase_service_account', $settings['firebase']['service_account']) }}</textarea>
+                    <small class="text-slate-500 text-xs mt-1 block">Tersimpan dengan aman di database server dan digunakan untuk otentikasi OAuth2 HTTP v1.</small>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-3.5 mt-3.5 border-t border-slate-100">
+                    <button type="button" onclick="testConnectionAjax('firebase')"
+                        class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-paper-plane text-amber-400"></i> <span id="btn-test-firebase-text">Uji Notifikasi FCM</span>
+                    </button>
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     @section('Scripts')
         <script>
             // Debounce helper to optimize input performance and INP
@@ -1221,6 +1325,13 @@ ${scriptIsolir}`;
                     payload.url = document.getElementById('genieacs_url')?.value || '';
                     payload.username = document.getElementById('genieacs_username')?.value || '';
                     payload.password = document.getElementById('genieacs_password')?.value || '';
+                } else if (type === 'firebase') {
+                    const testToken = window.prompt('Masukkan FCM Device Token perangkat mobile tujuan (opsional, kosongkan untuk menguji kredensial Service Account):', '');
+                    if (testToken === null) {
+                        if (btnText) btnText.innerHTML = originalBtnText;
+                        return;
+                    }
+                    payload.target_token = testToken.trim();
                 }
 
                 fetch('{{ route('settings.test_connection') }}', {
