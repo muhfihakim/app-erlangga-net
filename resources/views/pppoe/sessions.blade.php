@@ -9,6 +9,7 @@
 
             #session-table tbody td, #modalHistoryTable tbody td {
                 font-size: 12px;
+                white-space: nowrap;
             }
 
             .pppoe-username-val {
@@ -78,6 +79,13 @@
                 opacity: 0.4;
                 cursor: not-allowed;
             }
+
+            .modal-scrollable-table {
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch;
+                width: 100%;
+                display: block;
+            }
         </style>
     @endsection
 
@@ -88,7 +96,7 @@
                 Monitoring Sesi PPPoE
             </h1>
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">
-                Status online/offline real-time akun PPPoE dan riwayat koneksi sesi dari FreeRADIUS.
+                Status online/offline real-time dan riwayat koneksi sesi akun PPPoE.
             </p>
         </div>
         <div class="flex items-center gap-2">
@@ -195,7 +203,7 @@
         </div>
     </div>
 
-    <!-- Modal Detail Lengkap & Riwayat Sesi (FreeRADIUS) -->
+    <!-- Modal Detail Lengkap & Riwayat Sesi -->
     <div class="modal-overlay" id="accountDetailModal">
         <div class="modal-box max-w-4xl bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
             <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
@@ -217,7 +225,7 @@
                 <!-- Loading State -->
                 <div id="modalDetailLoading" class="py-12 text-center text-slate-400">
                     <i class="fa-solid fa-circle-notch fa-spin text-2xl text-sky-500 mb-2"></i>
-                    <p class="text-xs font-semibold text-slate-600">Mengambil data sesi dan riwayat dari FreeRADIUS...</p>
+                    <p class="text-xs font-semibold text-slate-600">Mengambil data sesi dan riwayat koneksi...</p>
                 </div>
 
                 <!-- Content Container -->
@@ -252,11 +260,11 @@
                         </div>
                     </div>
 
-                    <!-- 2. Session Accounting Telemetry (Detail Sesi Terkini) -->
+                    <!-- 2. Session Telemetry (Detail Sesi Terkini) -->
                     <div class="border border-slate-200 rounded-xl p-4" id="sessionTelemetryCard">
                         <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
                             <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                                Telemetri Sesi Terkini (FreeRADIUS radacct)
+                                Telemetri Sesi Terkini
                             </span>
                             <span id="modalSessionStatusBadge"></span>
                         </div>
@@ -337,7 +345,7 @@
                         <p class="text-slate-600 m-0" id="modalCauseDesc">-</p>
                     </div>
 
-                    <!-- 5. Bagian Riwayat Sesi PPPoE (Di Bawah Detail) -->
+                    <!-- 5. Bagian Riwayat Sesi PPPoE (Scrollable Horizontal) -->
                     <div class="space-y-2.5 pt-2 border-t border-slate-200">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
@@ -345,25 +353,25 @@
                                     <i class="fa-solid fa-clock-rotate-left"></i>
                                 </div>
                                 <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider m-0">
-                                    Riwayat Sesi PPPoE (FreeRADIUS)
+                                    Riwayat Sesi PPPoE
                                 </h4>
                             </div>
                             <span class="text-xs text-slate-500" id="histCountLabel"></span>
                         </div>
 
-                        <!-- History Table: NO STATUS, NO ALASAN PUTUS, INCLUDES TOTAL DL/UL -->
-                        <div class="table-responsive border border-slate-200 rounded-xl overflow-hidden" id="historyTableContainer">
-                            <table class="admin-table w-full" id="modalHistoryTable">
+                        <!-- History Table Container dengan Dukungan Geser Horizontal -->
+                        <div class="modal-scrollable-table border border-slate-200 rounded-xl" id="historyTableContainer">
+                            <table class="admin-table w-full" id="modalHistoryTable" style="min-width: 820px;">
                                 <thead>
                                     <tr class="bg-slate-50">
                                         <th style="text-align: center; width: 45px;">#</th>
                                         <th style="text-align: center; width: 140px;">Waktu Mulai</th>
                                         <th style="text-align: center; width: 140px;">Waktu Berhenti</th>
-                                        <th style="text-align: center; width: 90px;">Durasi Sesi</th>
-                                        <th style="text-align: center; width: 100px;">Download (DL)</th>
-                                        <th style="text-align: center; width: 100px;">Upload (UL)</th>
-                                        <th style="text-align: center; width: 110px;">Total DL/UL</th>
-                                        <th style="text-align: center; width: 120px;">IP Address</th>
+                                        <th style="text-align: center; width: 95px;">Durasi Sesi</th>
+                                        <th style="text-align: center; width: 110px;">Download (DL)</th>
+                                        <th style="text-align: center; width: 110px;">Upload (UL)</th>
+                                        <th style="text-align: center; width: 120px;">Total DL/UL</th>
+                                        <th style="text-align: center; width: 130px;">IP Address</th>
                                     </tr>
                                 </thead>
                                 <tbody id="modalHistoryTbody">
@@ -374,7 +382,7 @@
 
                         <div id="modalHistoryEmpty" class="py-8 text-center text-slate-400 hidden bg-slate-50 border border-slate-200 rounded-xl">
                             <i class="fa-solid fa-inbox text-xl mb-1.5 text-slate-300"></i>
-                            <p class="text-xs text-slate-500 m-0">Belum ada riwayat sesi tercatat untuk akun PPPoE ini.</p>
+                            <p class="text-xs text-slate-500 m-0">Belum ada riwayat sesi koneksi tercatat untuk akun PPPoE ini.</p>
                         </div>
                     </div>
                 </div>
@@ -648,7 +656,7 @@
                                 causeDesc.innerText = 'Sesi diputus oleh MikroTik (kick sesi, pergantian isolir, atau limit waktu).';
                             } else {
                                 causeHeading.innerText = `Penyebab Terminasi: ${cause}`;
-                                causeDesc.innerText = `Sesi terakhir selesai dengan kode status RADIUS: ${cause}.`;
+                                causeDesc.innerText = `Sesi terakhir selesai dengan kode status: ${cause}.`;
                             }
                         }
                     } else {
@@ -668,12 +676,12 @@
                         document.getElementById('modalTotalTraffic').innerText = '-';
                         document.getElementById('modalCauseTitle').innerText = 'Belum Ada Sesi';
                         document.getElementById('modalCauseHeading').innerText = 'Tidak Ada Sesi Aktif';
-                        document.getElementById('modalCauseDesc').innerText = 'Belum ada log sesi accounting tercatat di FreeRADIUS untuk akun ini.';
+                        document.getElementById('modalCauseDesc').innerText = 'Belum ada log sesi koneksi tercatat untuk akun ini.';
                     }
 
                     // 5. Riwayat Sesi (Di Bawah Detail)
                     const histCount = history.length;
-                    document.getElementById('histCountLabel').innerText = histCount > 0 ? `${histCount} sesi terakhir tercatat` : '';
+                    document.getElementById('histCountLabel').innerText = histCount > 0 ? `${histCount} sesi terakhir` : '';
 
                     const tbody = document.getElementById('modalHistoryTbody');
                     const emptyBox = document.getElementById('modalHistoryEmpty');
@@ -731,7 +739,7 @@
                 const s = currentLoadedData.latest_session;
                 const c = currentLoadedData.customer;
                 const u = currentLoadedData.username;
-                const text = `[DETAIL SESI RADIUS PPPoE]\n` +
+                const text = `[DETAIL SESI PPPoE]\n` +
                     `Username: ${u}\n` +
                     `Pelanggan: ${c ? c.nama_lengkap : 'Mandiri'} (${c ? c.no_whatsapp : '-'})\n` +
                     `IP Address: ${s ? s.framedipaddress : '-'}\n` +
