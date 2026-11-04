@@ -17,37 +17,37 @@ class PppoeSessionController extends Controller
      */
     public function index(Request $request)
     {
-        $statusFilter = $request->input('status', '');
-        $causeFilter = $request->input('cause', '');
-        $dateFilter = $request->input('date_range', '');
-        $usernameFilter = $request->input('username', '');
+        $filterStatus = $request->input('status', '');
+        $filterCause = $request->input('cause', '');
+        $filterDate = $request->input('date_range', '');
+        $filterUsername = $request->input('username', '');
 
         if ($request->ajax()) {
             $query = Radacct::query();
 
             // Filter Status
-            if ($statusFilter === 'online') {
+            if ($filterStatus === 'online') {
                 $query->whereNull('acctstoptime');
-            } elseif ($statusFilter === 'offline') {
+            } elseif ($filterStatus === 'offline') {
                 $query->whereNotNull('acctstoptime');
             }
 
             // Filter Disconnect Cause
-            if (!empty($causeFilter)) {
-                $query->where('acctterminatecause', $causeFilter);
+            if (!empty($filterCause)) {
+                $query->where('acctterminatecause', $filterCause);
             }
 
             // Filter Username
-            if (!empty($usernameFilter)) {
-                $query->where('username', 'like', '%' . trim($usernameFilter) . '%');
+            if (!empty($filterUsername)) {
+                $query->where('username', 'like', '%' . trim($filterUsername) . '%');
             }
 
             // Filter Date Range
-            if ($dateFilter === 'today') {
+            if ($filterDate === 'today') {
                 $query->where('acctstarttime', '>=', now()->startOfDay());
-            } elseif ($dateFilter === '7d') {
+            } elseif ($filterDate === '7d') {
                 $query->where('acctstarttime', '>=', now()->subDays(7)->startOfDay());
-            } elseif ($dateFilter === '30d') {
+            } elseif ($filterDate === '30d') {
                 $query->where('acctstarttime', '>=', now()->subDays(30)->startOfDay());
             }
 
@@ -98,73 +98,48 @@ class PppoeSessionController extends Controller
 
                     $customer = $customerCache[$rawUsername];
 
-                    $nameHtml = '';
                     if ($customer && !empty($customer->nama_lengkap)) {
-                        $nameHtml = '<div style="font-weight: 600; color: #1e293b; font-size: 12.5px; text-transform: none !important;">'
+                        return '<div><div style="font-weight: 600; color: #1e293b; font-size: 12.5px; text-transform: none !important;">'
                             . e($customer->nama_lengkap) . '</div>'
-                            . ($customer->no_whatsapp ? '<div style="font-size: 11px; color: #64748b; font-weight: 500;">' . e($customer->no_whatsapp) . '</div>' : '');
-                    } else {
-                        $nameHtml = '<div style="font-weight: 600; color: #475569; font-size: 12px; font-style: italic;">Profil Belum Ditautkan</div>';
+                            . ($customer->no_whatsapp ? '<span style="font-size: 11px; color: #64748b; font-weight: 500;">' . e($customer->no_whatsapp) . '</span>' : '') . '</div>';
                     }
 
-                    $usernameHtml = '<div class="flex items-center gap-1.5 mt-0.5">'
-                        . '<span class="font-mono text-xs font-semibold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200" title="' . e($rawUsername) . '">'
-                        . e($rawUsername)
-                        . '</span>'
-                        . '</div>';
-
-                    return '<div>' . $nameHtml . $usernameHtml . '</div>';
+                    return '<div><span style="font-size: 11px; color: #94a3b8; font-style: italic; font-weight: 500;">Akun Mandiri / Luar</span></div>';
+                })
+                ->addColumn('username_col', function ($radacct) {
+                    return '<div class="pppoe-username"><div class="pppoe-username-val" style="font-weight: 600; color: #0f172a; font-family: monospace; font-size: 12px; text-transform: none !important;">'
+                        . e($radacct->username)
+                        . '</div></div>';
                 })
                 ->addColumn('status_badge', function ($radacct) {
                     if ($radacct->is_online) {
-                        return '<div class="text-center">'
-                            . '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">'
-                            . '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>'
-                            . 'ONLINE'
-                            . '</span>'
-                            . '</div>';
+                        return '<div style="text-align: center;"><span class="badge" style="background:#dcfce7; color:#15803d; border:1px solid #bbf7d0; font-size:11px; padding:2px 8px; border-radius:6px; font-weight:700;"><i class="fa-solid fa-circle text-[7px] mr-1 text-emerald-500"></i> ONLINE</span></div>';
                     }
 
-                    return '<div class="text-center">'
-                        . '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">'
-                        . '<i class="fa-solid fa-circle-stop text-[10px] text-slate-400"></i>'
-                        . 'OFFLINE'
-                        . '</span>'
-                        . '</div>';
+                    return '<div style="text-align: center;"><span class="badge" style="background:#f1f5f9; color:#64748b; border:1px solid #e2e8f0; font-size:11px; padding:2px 8px; border-radius:6px; font-weight:600;">OFFLINE</span></div>';
                 })
-                ->addColumn('ip_mac', function ($radacct) {
-                    $ip = $radacct->framedipaddress ?: '-';
-                    $mac = $radacct->callingstationid ?: '-';
-
-                    return '<div class="text-center">'
-                        . '<div class="font-mono text-xs font-bold text-slate-800">' . e($ip) . '</div>'
-                        . '<div class="font-mono text-[11px] text-slate-500 mt-0.5" title="MAC ONT / Router">' . e($mac) . '</div>'
-                        . '</div>';
+                ->addColumn('ip_address', function ($radacct) {
+                    return '<div style="text-align: center; font-family: monospace; font-size: 11.5px; color: #334155; font-weight: 600;">' . e($radacct->framedipaddress ?: '-') . '</div>';
+                })
+                ->addColumn('mac_address', function ($radacct) {
+                    return '<div style="text-align: center; font-family: monospace; font-size: 11px; color: #64748b;">' . e($radacct->callingstationid ?: '-') . '</div>';
                 })
                 ->addColumn('waktu_mulai', function ($radacct) {
                     if (!$radacct->acctstarttime) {
-                        return '<div class="text-center text-slate-400">-</div>';
+                        return '<div style="text-align: center; color: #94a3b8;">-</div>';
                     }
                     $start = Carbon::parse($radacct->acctstarttime)->setTimezone(config('app.timezone', 'Asia/Jakarta'));
-                    return '<div class="text-center">'
-                        . '<div class="text-xs font-semibold text-slate-800">' . $start->format('d M Y') . '</div>'
-                        . '<div class="text-[11px] text-slate-500 font-mono">' . $start->format('H:i:s') . ' WIB</div>'
-                        . '</div>';
+                    return '<div style="text-align: center;"><div style="font-size: 11.5px; font-weight: 600; color: #334155;">' . $start->format('d/m/Y') . '</div><div style="font-size: 10.5px; color: #64748b; font-family: monospace;">' . $start->format('H:i:s') . '</div></div>';
                 })
                 ->addColumn('waktu_selesai', function ($radacct) {
                     if ($radacct->is_online) {
-                        return '<div class="text-center">'
-                            . '<span class="text-xs font-semibold text-emerald-600 italic">Sedang Aktif</span>'
-                            . '</div>';
+                        return '<div style="text-align: center;"><span style="font-size: 11px; color: #16a34a; font-weight: 600; font-style: italic;">Sedang Aktif</span></div>';
                     }
                     if (!$radacct->acctstoptime) {
-                        return '<div class="text-center text-slate-400">-</div>';
+                        return '<div style="text-align: center; color: #94a3b8;">-</div>';
                     }
                     $stop = Carbon::parse($radacct->acctstoptime)->setTimezone(config('app.timezone', 'Asia/Jakarta'));
-                    return '<div class="text-center">'
-                        . '<div class="text-xs font-semibold text-slate-700">' . $stop->format('d M Y') . '</div>'
-                        . '<div class="text-[11px] text-slate-500 font-mono">' . $stop->format('H:i:s') . ' WIB</div>'
-                        . '</div>';
+                    return '<div style="text-align: center;"><div style="font-size: 11.5px; font-weight: 600; color: #475569;">' . $stop->format('d/m/Y') . '</div><div style="font-size: 10.5px; color: #64748b; font-family: monospace;">' . $stop->format('H:i:s') . '</div></div>';
                 })
                 ->addColumn('durasi', function ($radacct) {
                     $seconds = (int) $radacct->acctsessiontime;
@@ -185,59 +160,44 @@ class PppoeSessionController extends Controller
                         $durationParts[] = "{$secs}d";
                     }
 
-                    $badgeClass = $radacct->is_online
-                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                        : 'bg-slate-50 text-slate-700 border-slate-200';
-
-                    return '<div class="text-center">'
-                        . '<span class="inline-block px-2 py-0.5 rounded border text-xs font-semibold font-mono ' . $badgeClass . '">'
+                    return '<div style="text-align: center;"><span style="font-family: monospace; font-size: 11px; font-weight: 600; color: #475569; background: #f8fafc; border: 1px solid #e2e8f0; padding: 2px 6px; border-radius: 4px;">'
                         . implode(' ', $durationParts)
-                        . '</span>'
-                        . '</div>';
+                        . '</span></div>';
                 })
                 ->addColumn('traffic', function ($radacct) {
-                    // acctoutputoctets = download to client, acctinputoctets = upload from client
                     $download = Radacct::formatBytes($radacct->acctoutputoctets ?? 0);
                     $upload = Radacct::formatBytes($radacct->acctinputoctets ?? 0);
 
-                    return '<div class="text-center font-mono text-[11px] leading-tight">'
-                        . '<div class="text-emerald-600 font-semibold" title="Download"><i class="fa-solid fa-arrow-down text-[10px] mr-1"></i>' . $download . '</div>'
-                        . '<div class="text-sky-600 font-semibold mt-0.5" title="Upload"><i class="fa-solid fa-arrow-up text-[10px] mr-1"></i>' . $upload . '</div>'
+                    return '<div style="text-align: center; font-family: monospace; font-size: 11px; line-height: 1.3;">'
+                        . '<div style="color: #166534;"><i class="fa-solid fa-arrow-down text-[9px]"></i> ' . $download . '</div>'
+                        . '<div style="color: #0369a1;"><i class="fa-solid fa-arrow-up text-[9px]"></i> ' . $upload . '</div>'
                         . '</div>';
                 })
                 ->addColumn('alasan_putus', function ($radacct) {
                     if ($radacct->is_online) {
-                        return '<div class="text-center">'
-                            . '<span class="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">'
-                            . '<i class="fa-solid fa-bolt mr-1"></i> Terhubung'
-                            . '</span>'
-                            . '</div>';
+                        return '<div style="text-align: center;"><span class="badge" style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; font-size:10.5px; padding:2px 7px; border-radius:5px; font-weight:600;"><i class="fa-solid fa-bolt text-[9px] mr-1"></i> Terhubung</span></div>';
                     }
 
                     $cause = $radacct->acctterminatecause ?: 'Unknown';
-                    $style = match ($cause) {
-                        'User-Request' => ['bg' => '#eff6ff', 'text' => '#1d4ed8', 'border' => '#bfdbfe', 'icon' => 'fa-power-off', 'label' => 'User Request (Modem Off)'],
-                        'Lost-Carrier' => ['bg' => '#fef2f2', 'text' => '#b91c1c', 'border' => '#fecaca', 'icon' => 'fa-triangle-exclamation', 'label' => 'Lost Carrier (LOS/Kabel Putus)'],
-                        'NAS-Reboot' => ['bg' => '#fffbeb', 'text' => '#b45309', 'border' => '#fde68a', 'icon' => 'fa-rotate-right', 'label' => 'NAS Reboot'],
-                        'NAS-Request' => ['bg' => '#f8fafc', 'text' => '#475569', 'border' => '#cbd5e1', 'icon' => 'fa-shield-halved', 'label' => 'Kicked by NAS / Admin'],
-                        'Admin-Reboot', 'Admin-Reset' => ['bg' => '#faf5ff', 'text' => '#7e22ce', 'border' => '#e9d5ff', 'icon' => 'fa-user-gear', 'label' => 'Admin Reset'],
-                        default => ['bg' => '#f8fafc', 'text' => '#64748b', 'border' => '#e2e8f0', 'icon' => 'fa-circle-info', 'label' => $cause],
+                    $badge = match ($cause) {
+                        'User-Request' => '<span class="badge" style="background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; font-size:10.5px; padding:2px 7px; border-radius:5px; font-weight:600;" title="User Request / Modem Off"><i class="fa-solid fa-power-off text-[9px] mr-1"></i> User-Request</span>',
+                        'Lost-Carrier' => '<span class="badge" style="background:#fef2f2; color:#be123c; border:1px solid #fecdd3; font-size:10.5px; padding:2px 7px; border-radius:5px; font-weight:600;" title="Kabel Putus / LOS Merah"><i class="fa-solid fa-triangle-exclamation text-[9px] mr-1"></i> Lost-Carrier</span>',
+                        'NAS-Reboot' => '<span class="badge" style="background:#fffbeb; color:#b45309; border:1px solid #fde68a; font-size:10.5px; padding:2px 7px; border-radius:5px; font-weight:600;"><i class="fa-solid fa-rotate text-[9px] mr-1"></i> NAS-Reboot</span>',
+                        'NAS-Request' => '<span class="badge" style="background:#f8fafc; color:#475569; border:1px solid #cbd5e1; font-size:10.5px; padding:2px 7px; border-radius:5px; font-weight:600;"><i class="fa-solid fa-shield-halved text-[9px] mr-1"></i> NAS-Request</span>',
+                        'Admin-Reset', 'Admin-Reboot' => '<span class="badge" style="background:#faf5ff; color:#7e22ce; border:1px solid #e9d5ff; font-size:10.5px; padding:2px 7px; border-radius:5px; font-weight:600;">Admin-Reset</span>',
+                        default => '<span class="badge" style="background:#f8fafc; color:#64748b; border:1px solid #e2e8f0; font-size:10.5px; padding:2px 7px; border-radius:5px; font-weight:600;">' . e($cause) . '</span>',
                     };
 
-                    return '<div class="text-center">'
-                        . '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold border" style="background:' . $style['bg'] . '; color:' . $style['text'] . '; border-color:' . $style['border'] . ';" title="' . e($cause) . '">'
-                        . '<i class="fa-solid ' . $style['icon'] . ' text-[10px]"></i> ' . e($style['label'])
-                        . '</span>'
-                        . '</div>';
+                    return '<div style="text-align: center;">' . $badge . '</div>';
                 })
                 ->addColumn('opsi', function ($radacct) {
                     return '<div class="flex items-center justify-center">'
-                        . '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!bg-sky-50 hover:!border-sky-300" onclick="showSessionDetail(' . $radacct->radacctid . ')" title="Lihat Detail Sesi Accounting">'
-                        . '<i class="fa-solid fa-circle-info text-sky-600"></i>'
+                        . '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" onclick="showSessionDetail(' . $radacct->radacctid . ')" title="Detail Sesi">'
+                        . '<i class="fa-solid fa-circle-info text-slate-500"></i>'
                         . '</button>'
                         . '</div>';
                 })
-                ->rawColumns(['pelanggan', 'status_badge', 'ip_mac', 'waktu_mulai', 'waktu_selesai', 'durasi', 'traffic', 'alasan_putus', 'opsi'])
+                ->rawColumns(['pelanggan', 'username_col', 'status_badge', 'ip_address', 'mac_address', 'waktu_mulai', 'waktu_selesai', 'durasi', 'traffic', 'alasan_putus', 'opsi'])
                 ->make(true);
         }
 
@@ -272,7 +232,7 @@ class PppoeSessionController extends Controller
             'active24h' => $active24h,
         ];
 
-        return view('pppoe.sessions', compact('stats', 'causes', 'statusFilter', 'causeFilter', 'usernameFilter'));
+        return view('pppoe.sessions', compact('stats', 'causes', 'filterStatus', 'filterCause', 'filterDate', 'filterUsername'));
     }
 
     /**
@@ -299,9 +259,9 @@ class PppoeSessionController extends Controller
         $sessionData['download_formatted'] = Radacct::formatBytes($session->acctoutputoctets ?? 0);
         $sessionData['upload_formatted'] = Radacct::formatBytes($session->acctinputoctets ?? 0);
 
-        $start = $session->acctstarttime ? Carbon::parse($session->acctstarttime)->setTimezone(config('app.timezone', 'Asia/Jakarta'))->format('d M Y, H:i:s') . ' WIB' : '-';
-        $update = $session->acctupdatetime ? Carbon::parse($session->acctupdatetime)->setTimezone(config('app.timezone', 'Asia/Jakarta'))->format('d M Y, H:i:s') . ' WIB' : '-';
-        $stop = $session->acctstoptime ? Carbon::parse($session->acctstoptime)->setTimezone(config('app.timezone', 'Asia/Jakarta'))->format('d M Y, H:i:s') . ' WIB' : ($session->is_online ? 'Sedang Aktif (Online)' : '-');
+        $start = $session->acctstarttime ? Carbon::parse($session->acctstarttime)->setTimezone(config('app.timezone', 'Asia/Jakarta'))->format('d/m/Y H:i:s') . ' WIB' : '-';
+        $update = $session->acctupdatetime ? Carbon::parse($session->acctupdatetime)->setTimezone(config('app.timezone', 'Asia/Jakarta'))->format('d/m/Y H:i:s') . ' WIB' : '-';
+        $stop = $session->acctstoptime ? Carbon::parse($session->acctstoptime)->setTimezone(config('app.timezone', 'Asia/Jakarta'))->format('d/m/Y H:i:s') . ' WIB' : ($session->is_online ? 'Sedang Aktif (Online)' : '-');
 
         $sessionData['start_formatted'] = $start;
         $sessionData['update_formatted'] = $update;
