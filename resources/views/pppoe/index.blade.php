@@ -79,6 +79,9 @@
                 dan status billing.</p>
         </div>
         <div class="flex items-center gap-2">
+            <button type="button" onclick="openCreateModal()" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-3.5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                <i class="fa-solid fa-plus"></i> Tambah Akun PPPoE
+            </button>
             <form action="{{ route('pppoe_accounts.sync_radius') }}" method="POST"
                 onsubmit="return confirm('Mulai sinkronisasi data dari server RADIUS?');">
                 @csrf
@@ -90,7 +93,7 @@
     </div>
 
     <!-- Stats Cards Grid -->
-    <div class="stats-grid mb-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+    <div class="stats-grid mb-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
         <div class="stat-card">
             <div class="stat-icon" style="background:#e0e7ff;color:#4338ca;">
                 <i class="fa-solid fa-users-gear"></i>
@@ -119,6 +122,15 @@
             </div>
         </div>
         <div class="stat-card">
+            <div class="stat-icon" style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+                <div class="stat-val text-slate-700">{{ number_format($totalNonBillingCount ?? 0, 0, ',', '.') }}</div>
+                <div class="stat-lbl">Non-Billing / Khusus</div>
+            </div>
+        </div>
+        <div class="stat-card">
             <div class="stat-icon" style="background:#fef2f2;color:#b91c1c;border:1px solid #fecdd3;">
                 <i class="fa-solid fa-ban"></i>
             </div>
@@ -139,6 +151,7 @@
                         <option value="">Semua Status</option>
                         <option value="terbayar" {{ $filterStatus === 'terbayar' ? 'selected' : '' }}>Terbayar</option>
                         <option value="belum_bayar" {{ $filterStatus === 'belum_bayar' ? 'selected' : '' }}>Belum Bayar</option>
+                        <option value="non_billing" {{ $filterStatus === 'non_billing' ? 'selected' : '' }}>Non-Billing (Tanpa Tagihan)</option>
                         <option value="isolir" {{ $filterStatus === 'isolir' ? 'selected' : '' }}>Terisolir</option>
                     </select>
                 </div>
@@ -214,6 +227,189 @@
         </div>
     </div>
 
+    <!-- Create Modal (Standalone / Direct PPPoE Creation) -->
+    <div class="modal-overlay" id="createPppoeModal">
+        <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-200 shrink-0">
+                        <i class="fa-solid fa-plus"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Tambah Akun PPPoE</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Buat akun PPPoE langsung atau hubungkan dengan calon pelanggan dari Pre-Order.</p>
+                    </div>
+                </div>
+                <button type="button" class="modal-close" onclick="closeCustomModal('createPppoeModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="modal-tabs bg-white border-b border-slate-200 px-6">
+                <button type="button" class="modal-tab !py-2.5 !text-xs active" data-tab="create-pppoe-tab-akun">
+                    <i class="fa-regular fa-user text-xs"></i> Akun PPPoE
+                </button>
+                <button type="button" class="modal-tab !py-2.5 !text-xs" data-tab="create-pppoe-tab-pembayaran">
+                    <i class="fa-regular fa-credit-card text-xs"></i> Billing & Pembayaran
+                </button>
+            </div>
+
+            <form id="createPppoeForm" action="{{ route('pppoe_accounts.store') }}" method="POST">
+                @csrf
+
+                <div class="modal-body p-5 bg-white space-y-4">
+                    <!-- Tab Akun PPPoE -->
+                    <div class="tab-panel active" id="create-pppoe-tab-akun">
+                        <!-- Pre-Order Linkage (Optional) -->
+                        <div class="form-group mb-3.5">
+                            <label class="form-label text-slate-700 font-medium text-xs">Tautkan ke Pre-Order / Calon Pelanggan (Opsional)</label>
+                            <select class="form-input-custom !font-normal !h-8.5 !text-xs w-full bg-white text-slate-800 border-slate-300" id="create_pre_order_id" name="pre_order_id">
+                                <option value="">-- Tanpa Pre-Order (Akun Mandiri / Khusus) --</option>
+                                @if(isset($unlinkedPreOrders) && count($unlinkedPreOrders) > 0)
+                                    @foreach ($unlinkedPreOrders as $upo)
+                                        <option value="{{ $upo->id }}" data-nama="{{ $upo->nama_lengkap }}" data-wa="{{ $upo->no_whatsapp }}" data-paket="{{ $upo->paket_id }}">
+                                            {{ $upo->nama_lengkap }} ({{ $upo->no_whatsapp ?: 'No WA -' }})
+                                        </option>
+                                    @endforeach
+                                @endif
+                            </select>
+                            <span class="text-[11px] text-slate-400 mt-1 block">Pilih calon pelanggan dari Pre-Order jika ada, atau biarkan kosong untuk membuat akun PPPoE mandiri.</span>
+                        </div>
+
+                        <!-- Keterangan / Nama Pemilik -->
+                        <div class="form-group mb-3.5">
+                            <label class="form-label text-slate-700 font-medium text-xs">Keterangan / Nama Pemilik (Opsional)</label>
+                            <input type="text" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300" id="create_keterangan" name="keterangan" placeholder="Contoh: Fasilitas Masjid Jamie, WiFi Balai RW, Akun Testing NOC">
+                        </div>
+
+                        <div class="form-grid-2 mb-3.5">
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-700 font-medium text-xs">Username PPPoE <span class="text-rose-500">*</span></label>
+                                <input type="text" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono" id="create_username" name="username" placeholder="user@erlangga.net" required>
+                            </div>
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-700 font-medium text-xs">Password PPPoE <span class="text-rose-500">*</span></label>
+                                <input type="text" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono" id="create_password" name="password" value="123" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3.5">
+                            <label class="form-label text-slate-700 font-medium text-xs">Profile / Paket Layanan <span class="text-rose-500">*</span></label>
+                            <select class="form-input-custom !font-normal !h-8.5 !text-xs w-full bg-white text-slate-800 border-slate-300" id="create_paket_id" name="paket_id" required>
+                                <option value="">-- Pilih Paket Layanan --</option>
+                                @foreach ($pakets as $paket)
+                                    <option value="{{ $paket->id }}">{{ $paket->nama_paket }} - Rp {{ number_format($paket->harga, 0, ',', '.') }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="form-grid-2">
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-700 font-medium text-xs">Router / NAS</label>
+                                <select class="form-input-custom !font-normal !h-8.5 !text-xs w-full bg-white text-slate-800 border-slate-300" id="create_router" name="router">
+                                    <option value="All">Semua Router (ALL)</option>
+                                    @foreach ($routers as $r)
+                                        <option value="{{ $r->shortname }}">{{ $r->shortname }} ({{ $r->nasname }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group !mb-0">
+                                <label class="form-label text-slate-700 font-medium text-xs">IP Address (Opsional)</label>
+                                <input type="text" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono" id="create_ip_address" name="ip_address" placeholder="Contoh: 182.10.0.10">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Pembayaran -->
+                    <div class="tab-panel" id="create-pppoe-tab-pembayaran">
+                        <!-- Toggle Status Penagihan -->
+                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 mb-3.5 flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-bold text-slate-800 block">Status Penagihan & Pembayaran (Billing)</span>
+                                <span class="text-[11px] text-slate-500 block">Aktifkan untuk memproses tagihan, faktur bulanan, dan status bayar.</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer m-0">
+                                <input type="checkbox" id="create_is_billing_active" name="is_billing_active" value="1" checked class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                            </label>
+                        </div>
+
+                        <!-- Notice jika Non-Billing -->
+                        <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl text-center space-y-1 hidden" id="create_non_billing_notice">
+                            <i class="fa-solid fa-shield-halved text-slate-400 text-xl mb-1"></i>
+                            <div class="text-xs font-bold text-slate-700">Akun Bebas Tagihan (Non-Billing)</div>
+                            <p class="text-[11px] text-slate-500 m-0 leading-relaxed max-w-sm mx-auto">
+                                Akun PPPoE ini dibuat murni untuk koneksi jaringan tanpa penagihan faktur bulanan, tagihan kas, ataupun auto-isolir jatuh tempo.
+                            </p>
+                        </div>
+
+                        <!-- Fields jika Billing Aktif -->
+                        <div id="create_billing_fields" class="space-y-3.5">
+                            <div class="form-grid-2">
+                                <div class="form-group !mb-0">
+                                    <label class="form-label text-slate-700 font-medium text-xs">Tipe Pembayaran</label>
+                                    <select class="form-input-custom !font-normal !h-8.5 !text-xs w-full bg-white text-slate-800 border-slate-300" id="create_tipe_pembayaran" name="tipe_pembayaran">
+                                        <option value="prepaid">Prepaid (Pra Bayar)</option>
+                                        <option value="postpaid">Postpaid (Pasca Bayar)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group !mb-0">
+                                    <label class="form-label text-slate-700 font-medium text-xs">Tanggal Aktif</label>
+                                    <input type="date" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300" id="create_tanggal_aktif" name="tanggal_aktif" value="{{ date('Y-m-d') }}">
+                                </div>
+                            </div>
+                            <div class="form-grid-2">
+                                <div class="form-group !mb-0">
+                                    <label class="form-label text-slate-700 font-medium text-xs">Periode Billing</label>
+                                    <select class="form-input-custom !font-normal !h-8.5 !text-xs w-full bg-white text-slate-800 border-slate-300" id="create_periode_billing" name="periode_billing">
+                                        <option value="fixed">Fixed (Setiap Awal Bulan)</option>
+                                        <option value="renewal">Renewal (Sesuai Tgl Aktif)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group !mb-0">
+                                    <label class="form-label text-slate-700 font-medium text-xs">Status Invoice</label>
+                                    <select class="form-input-custom !font-normal !h-8.5 !text-xs w-full bg-white text-slate-800 border-slate-300" id="create_status_invoice" name="status_invoice">
+                                        <option value="belum_bayar">Belum Bayar (Unpaid)</option>
+                                        <option value="terbayar">Terbayar (Paid)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-grid-2">
+                                <div class="form-group !mb-0">
+                                    <label class="form-label text-slate-700 font-medium text-xs">Pajak (Rp)</label>
+                                    <input type="number" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono" id="create_pajak" name="pajak" value="0">
+                                </div>
+                                <div class="form-group !mb-0">
+                                    <label class="form-label text-slate-700 font-medium text-xs">Diskon (Rp)</label>
+                                    <input type="number" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono" id="create_diskon" name="diskon" value="0">
+                                </div>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 mt-2">
+                                <label class="flex items-center gap-2.5 cursor-pointer m-0">
+                                    <input type="checkbox" id="create_generate_invoice" name="generate_invoice" value="1" checked
+                                        class="w-4 h-4 text-sky-600 border-slate-300 rounded focus:ring-sky-500">
+                                    <div>
+                                        <span class="text-xs font-semibold text-slate-800 block">Generate Invoice Otomatis</span>
+                                        <span class="text-[11px] text-slate-500 block">Buat tagihan faktur pertama langsung saat akun PPPoE disimpan.</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('createPppoeModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
+                    </button>
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold !bg-sky-600 hover:!bg-sky-700 shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan PPPoE
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Edit Modal -->
     <div class="modal-overlay" id="editPppoeModal">
         <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
@@ -248,6 +444,12 @@
                 <div class="modal-body p-5 bg-white space-y-4">
                     <!-- Tab Akun PPPoE -->
                     <div class="tab-panel active" id="edit-pppoe-tab-akun">
+                        <!-- Keterangan / Catatan -->
+                        <div class="form-group mb-3.5">
+                            <label class="form-label text-slate-700 font-medium text-xs">Keterangan / Nama Pemilik (Opsional)</label>
+                            <input type="text" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300" id="edit_keterangan" name="keterangan" placeholder="Contoh: Fasilitas Masjid Jamie, WiFi Balai RW, Testing NOC">
+                        </div>
+
                         <div class="form-grid-2 mb-3.5">
                             <div class="form-group !mb-0">
                                 <label class="form-label text-slate-700 font-medium text-xs">Username <span class="text-rose-500">*</span></label>
@@ -285,54 +487,78 @@
 
                     <!-- Tab Pembayaran -->
                     <div class="tab-panel" id="edit-pppoe-tab-pembayaran">
-                        <div class="form-grid-2 mb-3.5">
-                            <div class="form-group !mb-0">
-                                <label class="form-label text-slate-700 font-medium text-xs">Tipe Pembayaran</label>
-                                <select class="form-input-custom !font-normal !h-8.5 !text-xs w-full bg-white text-slate-800 border-slate-300" id="edit_tipe_pembayaran" name="tipe_pembayaran">
-                                    <option value="postpaid">Postpaid (Pasca Bayar)</option>
-                                    <option value="prepaid">Prepaid (Pra Bayar)</option>
-                                </select>
+                        <!-- Toggle Status Penagihan -->
+                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 mb-3.5 flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-bold text-slate-800 block">Status Penagihan & Pembayaran (Billing)</span>
+                                <span class="text-[11px] text-slate-500 block">Aktifkan untuk memproses tagihan, faktur bulanan, dan status bayar.</span>
                             </div>
-                            <div class="form-group !mb-0">
-                                <label class="form-label text-slate-700 font-medium text-xs">Tanggal Aktif</label>
-                                <input type="date" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300" id="edit_tanggal_aktif" name="tanggal_aktif">
-                            </div>
-                        </div>
-                        <div class="form-grid-2 mb-3.5">
-                            <div class="form-group !mb-0">
-                                <label class="form-label text-slate-700 font-medium text-xs">Periode Billing</label>
-                                <select class="form-input-custom !font-normal !h-8.5 !text-xs w-full bg-white text-slate-800 border-slate-300" id="edit_periode_billing" name="periode_billing">
-                                    <option value="fixed">Fixed (Setiap Awal Bulan)</option>
-                                    <option value="renewal">Renewal (Sesuai Tgl Aktif)</option>
-                                </select>
-                            </div>
-                            <div class="form-group !mb-0">
-                                <label class="form-label text-slate-700 font-medium text-xs">Status Invoice</label>
-                                <select class="form-input-custom !font-normal !h-8.5 !text-xs w-full bg-white text-slate-800 border-slate-300" id="edit_status_invoice" name="status_invoice">
-                                    <option value="belum_bayar">Belum Bayar (Unpaid)</option>
-                                    <option value="terbayar">Terbayar (Paid)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-grid-2 mb-3.5">
-                            <div class="form-group !mb-0">
-                                <label class="form-label text-slate-700 font-medium text-xs">Pajak (Rp)</label>
-                                <input type="number" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono" id="edit_pajak" name="pajak">
-                            </div>
-                            <div class="form-group !mb-0">
-                                <label class="form-label text-slate-700 font-medium text-xs">Diskon (Rp)</label>
-                                <input type="number" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono" id="edit_diskon" name="diskon">
-                            </div>
-                        </div>
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 mt-2">
-                            <label class="flex items-center gap-2.5 cursor-pointer m-0">
-                                <input type="checkbox" id="edit_generate_invoice" name="generate_invoice"
-                                    class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
-                                <div>
-                                    <span class="text-xs font-semibold text-slate-800 block">Generate Invoice Otomatis</span>
-                                    <span class="text-[11px] text-slate-500 block">Buat tagihan faktur pertama langsung saat akun PPPoE disimpan.</span>
-                                </div>
+                            <label class="relative inline-flex items-center cursor-pointer m-0">
+                                <input type="checkbox" id="edit_is_billing_active" name="is_billing_active" value="1" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
                             </label>
+                        </div>
+
+                        <!-- Notice jika Non-Billing -->
+                        <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl text-center space-y-1 hidden" id="edit_non_billing_notice">
+                            <i class="fa-solid fa-shield-halved text-slate-400 text-xl mb-1"></i>
+                            <div class="text-xs font-bold text-slate-700">Akun Bebas Tagihan (Non-Billing)</div>
+                            <p class="text-[11px] text-slate-500 m-0 leading-relaxed max-w-sm mx-auto">
+                                Akun PPPoE ini beroperasi secara mandiri tanpa penagihan faktur bulanan, tagihan kas, ataupun auto-isolir jatuh tempo.
+                            </p>
+                        </div>
+
+                        <!-- Fields jika Billing Aktif -->
+                        <div id="edit_billing_fields" class="space-y-3.5">
+                            <div class="form-grid-2">
+                                <div class="form-group !mb-0">
+                                    <label class="form-label text-slate-700 font-medium text-xs">Tipe Pembayaran</label>
+                                    <select class="form-input-custom !font-normal !h-8.5 !text-xs w-full bg-white text-slate-800 border-slate-300" id="edit_tipe_pembayaran" name="tipe_pembayaran">
+                                        <option value="postpaid">Postpaid (Pasca Bayar)</option>
+                                        <option value="prepaid">Prepaid (Pra Bayar)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group !mb-0">
+                                    <label class="form-label text-slate-700 font-medium text-xs">Tanggal Aktif</label>
+                                    <input type="date" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300" id="edit_tanggal_aktif" name="tanggal_aktif">
+                                </div>
+                            </div>
+                            <div class="form-grid-2">
+                                <div class="form-group !mb-0">
+                                    <label class="form-label text-slate-700 font-medium text-xs">Periode Billing</label>
+                                    <select class="form-input-custom !font-normal !h-8.5 !text-xs w-full bg-white text-slate-800 border-slate-300" id="edit_periode_billing" name="periode_billing">
+                                        <option value="fixed">Fixed (Setiap Awal Bulan)</option>
+                                        <option value="renewal">Renewal (Sesuai Tgl Aktif)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group !mb-0">
+                                    <label class="form-label text-slate-700 font-medium text-xs">Status Invoice</label>
+                                    <select class="form-input-custom !font-normal !h-8.5 !text-xs w-full bg-white text-slate-800 border-slate-300" id="edit_status_invoice" name="status_invoice">
+                                        <option value="belum_bayar">Belum Bayar (Unpaid)</option>
+                                        <option value="terbayar">Terbayar (Paid)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-grid-2">
+                                <div class="form-group !mb-0">
+                                    <label class="form-label text-slate-700 font-medium text-xs">Pajak (Rp)</label>
+                                    <input type="number" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono" id="edit_pajak" name="pajak">
+                                </div>
+                                <div class="form-group !mb-0">
+                                    <label class="form-label text-slate-700 font-medium text-xs">Diskon (Rp)</label>
+                                    <input type="number" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono" id="edit_diskon" name="diskon">
+                                </div>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 mt-2">
+                                <label class="flex items-center gap-2.5 cursor-pointer m-0">
+                                    <input type="checkbox" id="edit_generate_invoice" name="generate_invoice" value="1"
+                                        class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
+                                    <div>
+                                        <span class="text-xs font-semibold text-slate-800 block">Generate Invoice Otomatis</span>
+                                        <span class="text-[11px] text-slate-500 block">Buat tagihan faktur pertama langsung saat akun PPPoE disimpan.</span>
+                                    </div>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -539,21 +765,92 @@
                 });
             });
 
+            function updateBillingVisibility(toggleElem, fieldsElem, noticeElem) {
+                if (toggleElem.checked) {
+                    fieldsElem.classList.remove('hidden');
+                    noticeElem.classList.add('hidden');
+                } else {
+                    fieldsElem.classList.add('hidden');
+                    noticeElem.classList.remove('hidden');
+                }
+            }
+
+            $('#create_is_billing_active').on('change', function() {
+                updateBillingVisibility(
+                    this,
+                    document.getElementById('create_billing_fields'),
+                    document.getElementById('create_non_billing_notice')
+                );
+            });
+
+            $('#edit_is_billing_active').on('change', function() {
+                updateBillingVisibility(
+                    this,
+                    document.getElementById('edit_billing_fields'),
+                    document.getElementById('edit_non_billing_notice')
+                );
+            });
+
+            $('#create_pre_order_id').on('change', function() {
+                const selected = $(this).find(':selected');
+                const nama = selected.data('nama');
+                const paketId = selected.data('paket');
+
+                if (nama) {
+                    if (!$('#create_keterangan').val()) {
+                        $('#create_keterangan').val(nama);
+                    }
+                    if (!$('#create_username').val()) {
+                        const cleanUser = nama.toLowerCase().replace(/[^a-z0-9]/g, '') + '@erlangga.net';
+                        $('#create_username').val(cleanUser);
+                    }
+                }
+                if (paketId && $('#create_paket_id').val() !== paketId) {
+                    $('#create_paket_id').val(paketId);
+                }
+            });
+
+            function openCreateModal() {
+                document.getElementById('createPppoeForm').reset();
+                document.getElementById('create_password').value = '123';
+                document.getElementById('create_is_billing_active').checked = true;
+                updateBillingVisibility(
+                    document.getElementById('create_is_billing_active'),
+                    document.getElementById('create_billing_fields'),
+                    document.getElementById('create_non_billing_notice')
+                );
+
+                $('#createPppoeModal .modal-tab').first().trigger('click');
+                const modal = document.getElementById('createPppoeModal');
+                modal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }
+
             function openEditModal(id, username, password, paket_id, router, ip_address, tipe, tgl, periode, pajak, diskon,
-                status, gen) {
+                status, gen, keterangan) {
                 document.getElementById('editPppoeForm').action = `/pppoe-accounts/${id}`;
                 document.getElementById('edit_username').value = username;
                 document.getElementById('edit_password').value = password;
                 document.getElementById('edit_paket_id').value = paket_id;
                 document.getElementById('edit_router').value = (router || 'All');
-                document.getElementById('edit_ip_address').value = ip_address;
-                document.getElementById('edit_tipe_pembayaran').value = tipe;
-                document.getElementById('edit_tanggal_aktif').value = tgl;
-                document.getElementById('edit_periode_billing').value = periode;
-                document.getElementById('edit_pajak').value = pajak;
-                document.getElementById('edit_diskon').value = diskon;
-                document.getElementById('edit_status_invoice').value = status;
+                document.getElementById('edit_ip_address').value = ip_address || '';
+                document.getElementById('edit_keterangan').value = keterangan || '';
+                document.getElementById('edit_tipe_pembayaran').value = tipe || 'prepaid';
+                document.getElementById('edit_tanggal_aktif').value = tgl || '';
+                document.getElementById('edit_periode_billing').value = periode || 'fixed';
+                document.getElementById('edit_pajak').value = pajak || 0;
+                document.getElementById('edit_diskon').value = diskon || 0;
+                document.getElementById('edit_status_invoice').value = (status === 'non_billing' ? 'belum_bayar' : (status || 'belum_bayar'));
                 document.getElementById('edit_generate_invoice').checked = (gen == '1');
+
+                const isBilling = (gen == '1' || (status !== 'non_billing' && gen !== '0'));
+                const billingToggle = document.getElementById('edit_is_billing_active');
+                billingToggle.checked = isBilling;
+                updateBillingVisibility(
+                    billingToggle,
+                    document.getElementById('edit_billing_fields'),
+                    document.getElementById('edit_non_billing_notice')
+                );
 
                 $('#editPppoeModal .modal-tab').first().trigger('click');
                 const modal = document.getElementById('editPppoeModal');

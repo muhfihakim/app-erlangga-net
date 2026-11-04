@@ -33,4 +33,5 @@ auth.json
 /backup/
 *.xlsx
 *.rsc
+radboox_backup_*.csv
 /.agents/

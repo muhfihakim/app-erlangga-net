@@ -11,6 +11,7 @@ class Pppoe extends Model
         'username',
         'password',
         'paket_id',
+        'keterangan',
         'router',
         'ip_address',
         'tipe_pembayaran',
@@ -35,6 +36,11 @@ class Pppoe extends Model
     public function preOrder()
     {
         return $this->belongsTo(PreOrder::class, 'pre_order_id');
+    }
+
+    public function customer()
+    {
+        return $this->hasOne(Customer::class, 'pppoe_username', 'username');
     }
 
     public function paket()

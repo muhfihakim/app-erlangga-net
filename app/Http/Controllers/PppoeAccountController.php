@@ -14,7 +14,7 @@ class PppoeAccountController extends Controller
         $filterRouter = $request->input('router', '');
 
         if ($request->ajax()) {
-            $query = \App\Models\Pppoe::with(['preOrder', 'paket'])
+            $query = \App\Models\Pppoe::with(['preOrder', 'paket', 'customer'])
                 ->latest()
                 ->select('pppoes.*');
 
@@ -25,6 +25,19 @@ class PppoeAccountController extends Controller
             if (!empty($filterStatus)) {
                 if ($filterStatus === 'isolir') {
                     $query->where('pppoes.is_isolir', true);
+                } elseif ($filterStatus === 'non_billing') {
+                    $query->where(function($q) {
+                        $q->where('pppoes.generate_invoice', false)
+                          ->orWhere('pppoes.status_invoice', 'non_billing');
+                    });
+                } elseif ($filterStatus === 'terbayar') {
+                    $query->where('pppoes.status_invoice', 'terbayar')
+                          ->where('pppoes.generate_invoice', true);
+                } elseif ($filterStatus === 'belum_bayar') {
+                    $query->where(function($q) {
+                        $q->where('pppoes.status_invoice', 'belum_bayar')
+                          ->orWhereNull('pppoes.status_invoice');
+                    })->where('pppoes.generate_invoice', true);
                 } else {
                     $query->where('pppoes.status_invoice', $filterStatus);
                 }
@@ -49,9 +62,18 @@ class PppoeAccountController extends Controller
                     return ''; // Handled by DataTables render
                 })
                 ->addColumn('pelanggan', function ($pppoe) {
-                    $name = $pppoe->preOrder->nama_lengkap ?? '-';
-                    $phone = $pppoe->preOrder->no_whatsapp ?? '';
-                    return '<div><div style="font-weight: 600; color: #1e293b; font-size: 12.5px; text-transform: none !important;">' . htmlspecialchars($name) . '</div>' . ($phone ? '<span style="font-size: 11px; color: #64748b; font-weight: 500;">' . htmlspecialchars($phone) . '</span>' : '') . '</div>';
+                    $name = $pppoe->preOrder->nama_lengkap ?? ($pppoe->customer->nama_lengkap ?? null);
+                    $phone = $pppoe->preOrder->no_whatsapp ?? ($pppoe->customer->no_whatsapp ?? '');
+                    
+                    if ($name) {
+                        return '<div><div style="font-weight: 600; color: #1e293b; font-size: 12.5px; text-transform: none !important;">' . htmlspecialchars($name) . '</div>' . ($phone ? '<span style="font-size: 11px; color: #64748b; font-weight: 500;">' . htmlspecialchars($phone) . '</span>' : '') . '</div>';
+                    }
+
+                    if (!empty($pppoe->keterangan)) {
+                        return '<div><div style="font-weight: 600; color: #1e293b; font-size: 12.5px; text-transform: none !important;">' . htmlspecialchars($pppoe->keterangan) . '</div><span style="font-size: 10px; color: #64748b; background: #f1f5f9; padding: 1px 6px; border-radius: 4px; font-weight: 600;">PPPoE Mandiri</span></div>';
+                    }
+
+                    return '<div><span style="font-size: 11px; color: #94a3b8; font-style: italic; font-weight: 500;">Tanpa Pre-Order</span></div>';
                 })
                 ->addColumn('username_col', function ($pppoe) {
                     return '<div class="pppoe-username"><div class="pppoe-username-val" style="font-weight: 600; color: #0f172a; font-family: monospace; font-size: 12px; text-transform: none !important;">' . htmlspecialchars($pppoe->username) . '</div><span style="font-size: 11px; color: #94a3b8; font-family: monospace; text-transform: none !important;">Pass: ' . htmlspecialchars($pppoe->password) . '</span></div>';
@@ -68,6 +90,9 @@ class PppoeAccountController extends Controller
                     return '<div style="text-align: center; font-family: monospace; font-size: 11.5px; color: #334155; font-weight: 600;">' . htmlspecialchars($pppoe->ip_address ?: '-') . '</div>';
                 })
                 ->addColumn('tipe_pembayaran_badge', function ($pppoe) {
+                    if (!$pppoe->generate_invoice || $pppoe->status_invoice === 'non_billing') {
+                        return '<div style="text-align: center;"><span class="badge" style="background:#f8fafc; color:#94a3b8; border:1px solid #e2e8f0; font-size:11px; padding:2px 7px; border-radius:6px; font-weight:600;">-</span></div>';
+                    }
                     $tipe = strtolower($pppoe->tipe_pembayaran ?: 'prepaid');
                     if ($tipe === 'prepaid') {
                         return '<div style="text-align: center;"><span class="badge" style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; font-size:11px; padding:2px 7px; border-radius:6px; font-weight:700;">PREPAID</span></div>';
@@ -77,6 +102,9 @@ class PppoeAccountController extends Controller
                 ->addColumn('status_invoice_badge', function ($pppoe) {
                     if ($pppoe->is_isolir) {
                         return '<div style="text-align: center;"><span class="badge" style="background:#fee2e2; color:#be123c; border:1px solid #fecdd3; font-size:11px; padding:3px 8px; border-radius:6px; font-weight:800;" title="' . htmlspecialchars($pppoe->isolir_reason ?? 'Isolir manual', ENT_QUOTES) . '"><i class="fa-solid fa-ban mr-1"></i> TERISOLIR</span></div>';
+                    }
+                    if (!$pppoe->generate_invoice || $pppoe->status_invoice === 'non_billing') {
+                        return '<div style="text-align: center;"><span class="badge" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; font-size:11px; padding:3px 8px; border-radius:6px; font-weight:700;" title="Tidak ada penagihan atau invoice otomatis"><i class="fa-solid fa-shield-halved mr-1 text-slate-400"></i> NON-BILLING</span></div>';
                     }
                     if ($pppoe->status_invoice === 'terbayar') {
                         return '<div style="text-align: center;"><span class="badge badge-published" style="font-size:11px; padding:3px 8px;"><i class="fa-solid fa-check mr-1"></i> TERBAYAR</span></div>';
@@ -96,7 +124,7 @@ class PppoeAccountController extends Controller
                         $btnIsolir = '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" onclick="openIsolirPppoeModal(\'' . route('pppoe_accounts.isolir', $pppoe->id) . '\', \'' . addslashes($pppoe->username) . '\')" title="Isolir Akun PPPoE"><i class="fa-solid fa-ban text-rose-500"></i></button>';
                     }
 
-                    $btnEdit = '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" onclick="openEditModal(' . $pppoe->id . ', \'' . addslashes($pppoe->username) . '\', \'' . addslashes($pppoe->password) . '\', \'' . $pppoe->paket_id . '\', \'' . addslashes($pppoe->router ?? 'All') . '\', \'' . addslashes($pppoe->ip_address ?? '') . '\', \'' . addslashes($pppoe->tipe_pembayaran ?? 'prepaid') . '\', \'' . $tgl . '\', \'' . addslashes($pppoe->periode_billing ?? 'fixed') . '\', \'' . ($pppoe->pajak ?? 0) . '\', \'' . ($pppoe->diskon ?? 0) . '\', \'' . addslashes($pppoe->status_invoice ?? 'belum_bayar') . '\', \'' . $gen . '\')" title="Edit"><i class="fa-solid fa-pen-to-square text-slate-500"></i></button>';
+                    $btnEdit = '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" onclick="openEditModal(' . $pppoe->id . ', \'' . addslashes($pppoe->username) . '\', \'' . addslashes($pppoe->password) . '\', \'' . $pppoe->paket_id . '\', \'' . addslashes($pppoe->router ?? 'All') . '\', \'' . addslashes($pppoe->ip_address ?? '') . '\', \'' . addslashes($pppoe->tipe_pembayaran ?? 'prepaid') . '\', \'' . $tgl . '\', \'' . addslashes($pppoe->periode_billing ?? 'fixed') . '\', \'' . ($pppoe->pajak ?? 0) . '\', \'' . ($pppoe->diskon ?? 0) . '\', \'' . addslashes($pppoe->status_invoice ?? 'belum_bayar') . '\', \'' . $gen . '\', \'' . addslashes($pppoe->keterangan ?? '') . '\')" title="Edit"><i class="fa-solid fa-pen-to-square text-slate-500"></i></button>';
                     $btnDelete = '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50" onclick="confirmGlobalDelete(\'' . route('pppoe_accounts.destroy', $pppoe->id) . '\', \'PPPoE ' . addslashes($pppoe->username) . '\')" title="Hapus"><i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i></button>';
                     return '<div class="flex items-center justify-center gap-1.5 whitespace-nowrap flex-nowrap">' . $btnInvoice . $btnIsolir . $btnEdit . $btnDelete . '</div>';
                 })
@@ -106,8 +134,13 @@ class PppoeAccountController extends Controller
                             $q->where('pppoes.username', 'LIKE', "%{$search}%")
                               ->orWhere('pppoes.ip_address', 'LIKE', "%{$search}%")
                               ->orWhere('pppoes.router', 'LIKE', "%{$search}%")
+                              ->orWhere('pppoes.keterangan', 'LIKE', "%{$search}%")
                               ->orWhereHas('preOrder', function ($poq) use ($search) {
                                   $poq->where('nama_lengkap', 'LIKE', "%{$search}%")
+                                      ->orWhere('no_whatsapp', 'LIKE', "%{$search}%");
+                              })
+                              ->orWhereHas('customer', function ($cq) use ($search) {
+                                  $cq->where('nama_lengkap', 'LIKE', "%{$search}%")
                                       ->orWhere('no_whatsapp', 'LIKE', "%{$search}%");
                               })
                               ->orWhereHas('paket', function ($pq) use ($search) {
@@ -122,8 +155,13 @@ class PppoeAccountController extends Controller
 
         // Stats calculation for the top cards
         $totalPppoeCount = \App\Models\Pppoe::count();
-        $totalPaidCount = \App\Models\Pppoe::where('status_invoice', 'terbayar')->where('is_isolir', false)->count();
-        $totalUnpaidCount = \App\Models\Pppoe::where('status_invoice', '!=', 'terbayar')->orWhereNull('status_invoice')->count();
+        $totalPaidCount = \App\Models\Pppoe::where('status_invoice', 'terbayar')->where('is_isolir', false)->where('generate_invoice', true)->count();
+        $totalUnpaidCount = \App\Models\Pppoe::where(function($q) {
+            $q->where('status_invoice', '!=', 'terbayar')->orWhereNull('status_invoice');
+        })->where('generate_invoice', true)->count();
+        $totalNonBillingCount = \App\Models\Pppoe::where(function($q) {
+            $q->where('generate_invoice', false)->orWhere('status_invoice', 'non_billing');
+        })->count();
         $totalIsolirCount = \App\Models\Pppoe::where('is_isolir', true)->count();
 
         $pakets = \App\Models\Paket::orderBy('harga', 'asc')->get();
@@ -134,13 +172,20 @@ class PppoeAccountController extends Controller
             $routers = collect();
         }
 
+        $existingPoIds = \App\Models\Pppoe::whereNotNull('pre_order_id')->pluck('pre_order_id')->toArray();
+        $unlinkedPreOrders = \App\Models\PreOrder::whereNotIn('id', $existingPoIds)
+            ->orderBy('nama_lengkap')
+            ->get(['id', 'nama_lengkap', 'no_whatsapp', 'alamat_lengkap', 'paket_id']);
+
         return view('pppoe.index', compact(
             'totalPppoeCount',
             'totalPaidCount',
             'totalUnpaidCount',
+            'totalNonBillingCount',
             'totalIsolirCount',
             'pakets',
             'routers',
+            'unlinkedPreOrders',
             'filterPaket',
             'filterStatus',
             'filterTipe',
@@ -162,21 +207,38 @@ class PppoeAccountController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'pre_order_id' => 'required|exists:pre_orders,id',
-            'username' => 'required|string|max:255',
+            'pre_order_id' => 'nullable|exists:pre_orders,id',
+            'keterangan' => 'nullable|string|max:255',
+            'username' => 'required|string|max:255|unique:pppoes,username',
             'password' => 'required|string|max:255',
             'paket_id' => 'required|exists:pakets,id',
             'router' => 'nullable|string|max:255',
             'ip_address' => 'nullable|string|max:255',
+            'is_billing_active' => 'nullable',
             'tipe_pembayaran' => 'nullable|string',
             'tanggal_aktif' => 'nullable|date',
             'periode_billing' => 'nullable|string',
             'pajak' => 'nullable|numeric',
             'diskon' => 'nullable|numeric',
             'status_invoice' => 'nullable|string',
+            'generate_invoice' => 'nullable',
+        ], [
+            'username.unique' => 'Username PPPoE ini sudah digunakan oleh akun lain.',
         ]);
 
-        $validated['generate_invoice'] = $request->has('generate_invoice');
+        $isBillingActive = $request->boolean('is_billing_active', false);
+        if ($isBillingActive) {
+            $validated['generate_invoice'] = $request->has('generate_invoice');
+            $validated['status_invoice'] = $request->input('status_invoice', 'belum_bayar');
+            $validated['tipe_pembayaran'] = $request->input('tipe_pembayaran', 'prepaid');
+        } else {
+            $validated['generate_invoice'] = false;
+            $validated['status_invoice'] = 'non_billing';
+            $validated['tipe_pembayaran'] = null;
+            $validated['pajak'] = 0;
+            $validated['diskon'] = 0;
+        }
+        unset($validated['is_billing_active']);
 
         $pppoe = \App\Models\Pppoe::create($validated);
 
@@ -206,13 +268,19 @@ class PppoeAccountController extends Controller
                 'priority' => 1,
             ]);
 
+            $ownerName = $pppoe->preOrder->nama_lengkap 
+                ?? ($request->input('keterangan') ?: $pppoe->username);
+            $email = $pppoe->preOrder->alamat_email ?? ($pppoe->username . '@erlangga.net');
+            $address = $pppoe->preOrder->alamat_lengkap ?? ($request->input('keterangan') ?: '');
+            $phone = $pppoe->preOrder->no_whatsapp ?? '';
+
             \App\Models\Userinfo::create([
                 'username' => $pppoe->username,
-                'firstname' => $pppoe->preOrder->nama_lengkap ?? 'Pelanggan',
+                'firstname' => $ownerName,
                 'lastname' => '',
-                'email' => $pppoe->preOrder->alamat_email ?? '',
-                'address' => $pppoe->preOrder->alamat_lengkap ?? ($pppoe->preOrder->alamat ?? ''),
-                'mobilephone' => $pppoe->preOrder->no_whatsapp ?? '',
+                'email' => $email,
+                'address' => $address,
+                'mobilephone' => $phone,
                 'creationdate' => date('Y-m-d H:i:s'),
                 'updatedate' => date('Y-m-d H:i:s'),
                 'creationby' => 'administrator',
@@ -259,8 +327,8 @@ class PppoeAccountController extends Controller
         }
 
         $successMessage = $radiusSynced 
-            ? 'PPPoE berhasil dibuat & Tersinkronisasi dengan Radius.' 
-            : 'PPPoE berhasil disimpan. (Catatan: Database RADIUS belum terhubung/dikonfigurasi).';
+            ? 'Akun PPPoE berhasil dibuat & Tersinkronisasi dengan Radius.' 
+            : 'Akun PPPoE berhasil disimpan. (Catatan: Database RADIUS belum terhubung/dikonfigurasi).';
 
         return redirect()->back()->with('success', $successMessage);
     }
@@ -268,28 +336,44 @@ class PppoeAccountController extends Controller
     public function update(Request $request, \App\Models\Pppoe $pppoe)
     {
         $validated = $request->validate([
-            'username' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:pppoes,username,' . $pppoe->id,
             'password' => 'required|string|max:255',
             'paket_id' => 'required|exists:pakets,id',
+            'keterangan' => 'nullable|string|max:255',
             'router' => 'nullable|string|max:255',
             'ip_address' => 'nullable|string|max:255',
+            'is_billing_active' => 'nullable',
             'tipe_pembayaran' => 'nullable|string',
             'tanggal_aktif' => 'nullable|date',
             'periode_billing' => 'nullable|string',
             'pajak' => 'nullable|numeric',
             'diskon' => 'nullable|numeric',
             'status_invoice' => 'nullable|string',
+            'generate_invoice' => 'nullable',
+        ], [
+            'username.unique' => 'Username PPPoE ini sudah digunakan oleh akun lain.',
         ]);
 
-        $oldStatusInvoice = $pppoe->status_invoice;
-        $validated['generate_invoice'] = $request->has('generate_invoice');
+        $isBillingActive = $request->boolean('is_billing_active', false);
+        if ($isBillingActive) {
+            $validated['generate_invoice'] = $request->has('generate_invoice');
+            $validated['status_invoice'] = $request->input('status_invoice', 'belum_bayar');
+        } else {
+            $validated['generate_invoice'] = false;
+            $validated['status_invoice'] = 'non_billing';
+            $validated['tipe_pembayaran'] = null;
+            $validated['pajak'] = 0;
+            $validated['diskon'] = 0;
+        }
+        unset($validated['is_billing_active']);
 
+        $oldStatusInvoice = $pppoe->status_invoice;
         $oldUsername = $pppoe->username;
 
         $pppoe->update($validated);
 
         // Sync Invoice Status if status_invoice changed
-        if ($oldStatusInvoice !== $pppoe->status_invoice) {
+        if ($oldStatusInvoice !== $pppoe->status_invoice && $isBillingActive) {
             $latestInvoice = \App\Models\Invoice::where('pppoe_id', $pppoe->id)->latest()->first();
             if ($latestInvoice) {
                 if ($pppoe->status_invoice === 'terbayar') {
@@ -339,7 +423,7 @@ class PppoeAccountController extends Controller
             \App\Models\Radusergroup::where('username', $oldUsername)->delete();
             \App\Models\Userinfo::where('username', $oldUsername)->delete();
 
-            $pppoe->load(['preOrder', 'paket']);
+            $pppoe->load(['preOrder', 'paket', 'customer']);
 
             \App\Models\Radusergroup::create([
                 'username' => $pppoe->username,
@@ -347,13 +431,22 @@ class PppoeAccountController extends Controller
                 'priority' => 1,
             ]);
 
+            $ownerName = $pppoe->preOrder->nama_lengkap 
+                ?? ($pppoe->customer->nama_lengkap ?? ($pppoe->keterangan ?: $pppoe->username));
+            $email = $pppoe->preOrder->alamat_email 
+                ?? ($pppoe->customer->alamat_email ?? ($pppoe->username . '@erlangga.net'));
+            $address = $pppoe->preOrder->alamat_lengkap 
+                ?? ($pppoe->customer->alamat_lengkap ?? ($pppoe->keterangan ?: ''));
+            $phone = $pppoe->preOrder->no_whatsapp 
+                ?? ($pppoe->customer->no_whatsapp ?? '');
+
             \App\Models\Userinfo::create([
                 'username' => $pppoe->username,
-                'firstname' => $pppoe->preOrder->nama_lengkap ?? 'Pelanggan',
+                'firstname' => $ownerName,
                 'lastname' => '',
-                'email' => $pppoe->preOrder->alamat_email ?? '',
-                'address' => $pppoe->preOrder->alamat_lengkap ?? '',
-                'mobilephone' => $pppoe->preOrder->no_whatsapp ?? '',
+                'email' => $email,
+                'address' => $address,
+                'mobilephone' => $phone,
                 'creationdate' => date('Y-m-d H:i:s'),
                 'updatedate' => date('Y-m-d H:i:s'),
                 'creationby' => 'administrator',

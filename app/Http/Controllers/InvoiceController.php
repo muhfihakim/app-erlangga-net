@@ -40,9 +40,9 @@ class InvoiceController extends Controller
                     return ''; // Handled by DataTables render
                 })
                 ->addColumn('pelanggan', function ($pppoe) {
-                    $name = $pppoe->preOrder->nama_lengkap ?? '-';
+                    $name = $pppoe->preOrder->nama_lengkap ?? ($pppoe->customer->nama_lengkap ?? ($pppoe->keterangan ?: '-'));
                     $user = $pppoe->username;
-                    $phone = $pppoe->preOrder->no_whatsapp ?? '';
+                    $phone = $pppoe->preOrder->no_whatsapp ?? ($pppoe->customer->no_whatsapp ?? '');
                     return '<div><div style="font-weight: 700; color: #1e293b; font-size: 12.5px;">' . htmlspecialchars($name) . '</div><span style="font-size: 11px; color: #64748b; font-weight: 500;">' . htmlspecialchars($user) . ($phone ? ' • ' . htmlspecialchars($phone) : '') . '</span></div>';
                 })
                 ->addColumn('paket', function ($pppoe) {
@@ -51,6 +51,10 @@ class InvoiceController extends Controller
                     return '<div><span class="badge" style="background:#eef2ff; color:#4338ca; font-weight:700; font-size:11px; padding:3px 8px; border-radius:6px; border:1px solid #c7d2fe;">' . htmlspecialchars($namaPaket) . '</span><div style="font-size: 11px; color: #64748b; margin-top:2px; font-weight:600;">Rp ' . number_format($totalHarga, 0, ',', '.') . '</div></div>';
                 })
                 ->addColumn('tagihan_selanjutnya', function ($pppoe) {
+                    if (!$pppoe->generate_invoice || $pppoe->status_invoice === 'non_billing') {
+                        return '<div style="text-align: center;"><span class="badge" style="background:#f1f5f9; color:#64748b; font-size:10px; padding:2px 7px; border-radius:4px; font-weight:700; border:1px solid #e2e8f0;">Non-Billing</span></div>';
+                    }
+
                     $unpaidInv = $pppoe->invoices->where('status', 'unpaid')->sortBy('due_date')->first();
 
                     if ($unpaidInv && $unpaidInv->due_date) {
@@ -92,6 +96,10 @@ class InvoiceController extends Controller
                     return '<div class="text-center text-slate-400 font-semibold">-</div>';
                 })
                 ->addColumn('status_tagihan', function ($pppoe) {
+                    if (!$pppoe->generate_invoice || $pppoe->status_invoice === 'non_billing') {
+                        return '<div style="text-align: center;"><span class="badge" style="background:#f1f5f9; color:#475569; font-size:10.5px; padding:2.5px 8px; border:1px solid #cbd5e1; border-radius:6px; font-weight:700;"><i class="fa-solid fa-shield-halved mr-1 text-slate-400"></i> NON-BILLING</span></div>';
+                    }
+
                     $unpaidCount = $pppoe->invoices->where('status', 'unpaid')->count();
                     if ($unpaidCount > 0) {
                         return '<div style="text-align: center;"><span class="badge" style="background:#fef2f2; color:#be123c; font-size:10.5px; padding:2.5px 8px; border:1px solid #fecdd3; border-radius:6px; font-weight:700;"><i class="fa-solid fa-clock mr-1"></i> ' . $unpaidCount . ' BELUM LUNAS</span></div>';

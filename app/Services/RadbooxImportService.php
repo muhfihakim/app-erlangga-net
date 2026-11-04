@@ -769,6 +769,7 @@ class RadbooxImportService
                 $createdAt = !empty($row[10]) ? Carbon::parse($row[10]) : now();
 
                 $isFullRow = count($row) >= 27;
+                $isBillingActive = $isFullRow && (trim($row[11] ?? '1') !== '0');
                 $radbooxCustId = $isFullRow ? trim($row[12] ?? '') : '';
                 $name = $isFullRow ? trim($row[13] ?? '') : $username;
                 if (!$name) $name = $username;
@@ -785,127 +786,131 @@ class RadbooxImportService
                 $cleanName = $this->cleanStr($name);
                 $cleanPhone = $phone ? $this->cleanPhone($phone) : '';
 
-                // SMART MULTI-TIER MATCHING to existing records
-                $existingCustomer = null;
-                // Tier 1: ID Pelanggan (most accurate)
-                if ($idPelanggan && isset($customersByIdPelanggan[$idPelanggan])) {
-                    $existingCustomer = $customersByIdPelanggan[$idPelanggan];
-                }
-                // Tier 2: Username
-                if (!$existingCustomer && isset($customersByUsername[$userKey])) {
-                    $existingCustomer = $customersByUsername[$userKey];
-                }
-                // Tier 3: Phone
-                if (!$existingCustomer && $cleanPhone && isset($customersByPhone[$cleanPhone])) {
-                    $existingCustomer = $customersByPhone[$cleanPhone];
-                }
-                // Tier 4: Name
-                if (!$existingCustomer && $cleanName && isset($customersByName[$cleanName])) {
-                    $existingCustomer = $customersByName[$cleanName];
-                }
+                $preOrderId = null;
 
-                $existingPreOrder = null;
-                if ($existingCustomer && $existingCustomer->pre_order_id && isset($preOrdersById[$existingCustomer->pre_order_id])) {
-                    $existingPreOrder = $preOrdersById[$existingCustomer->pre_order_id];
-                }
-                if (!$existingPreOrder && $nik && isset($preOrdersByNik[$nik])) {
-                    $existingPreOrder = $preOrdersByNik[$nik];
-                }
-                if (!$existingPreOrder && $cleanPhone && isset($preOrdersByPhone[$cleanPhone])) {
-                    $existingPreOrder = $preOrdersByPhone[$cleanPhone];
-                }
-                if (!$existingPreOrder && $cleanName && isset($preOrdersByName[$cleanName])) {
-                    $existingPreOrder = $preOrdersByName[$cleanName];
-                }
-
-                // Link to PreOrder or create new
-                if ($existingPreOrder) {
-                    $preOrderId = $existingPreOrder->id;
-                    $existingPreOrder->update([
-                        'paket_id' => $paketId ?: $existingPreOrder->paket_id,
-                        'no_identitas' => $nik ?: $existingPreOrder->no_identitas,
-                        'titik_koordinat' => $tikor ?: $existingPreOrder->titik_koordinat,
-                    ]);
-                } else {
-                    $preOrder = PreOrder::create([
-                        'id_sales' => 1,
-                        'nama_sales' => 'Administrator',
-                        'nama_lengkap' => $name,
-                        'no_identitas' => $nik ?: null,
-                        'no_whatsapp' => $phone ?: '081234567890',
-                        'alamat_email' => $email ?: ($username . '@erlangga.net'),
-                        'alamat_lengkap' => $address ?: 'Alamat belum diisi',
-                        'titik_koordinat' => $tikor,
-                        'paket_id' => $paketId,
-                        'created_at' => $createdAt,
-                        'updated_at' => $createdAt,
-                    ]);
-                    $preOrderId = $preOrder->id;
-                    $preOrdersById[$preOrderId] = $preOrder;
-                    if ($nik) $preOrdersByNik[$nik] = $preOrder;
-                    if ($cleanName) $preOrdersByName[$cleanName] = $preOrder;
-                    if ($cleanPhone) $preOrdersByPhone[$cleanPhone] = $preOrder;
-                    $results['preorders_created']++;
-                }
-
-                // Re-check customer by pre_order_id to guarantee no duplicate constraint
-                if (!$existingCustomer && isset($customersByPreOrderId[$preOrderId])) {
-                    $existingCustomer = $customersByPreOrderId[$preOrderId];
-                }
-                if (!$existingCustomer) {
-                    $existingCustomer = Customer::withTrashed()->where('pre_order_id', $preOrderId)->first();
-                    if ($existingCustomer) {
-                        if ($existingCustomer->trashed()) $existingCustomer->restore();
-                        $customersByPreOrderId[$preOrderId] = $existingCustomer;
+                if ($isBillingActive) {
+                    // SMART MULTI-TIER MATCHING to existing records
+                    $existingCustomer = null;
+                    // Tier 1: ID Pelanggan (most accurate)
+                    if ($idPelanggan && isset($customersByIdPelanggan[$idPelanggan])) {
+                        $existingCustomer = $customersByIdPelanggan[$idPelanggan];
                     }
-                }
+                    // Tier 2: Username
+                    if (!$existingCustomer && isset($customersByUsername[$userKey])) {
+                        $existingCustomer = $customersByUsername[$userKey];
+                    }
+                    // Tier 3: Phone
+                    if (!$existingCustomer && $cleanPhone && isset($customersByPhone[$cleanPhone])) {
+                        $existingCustomer = $customersByPhone[$cleanPhone];
+                    }
+                    // Tier 4: Name
+                    if (!$existingCustomer && $cleanName && isset($customersByName[$cleanName])) {
+                        $existingCustomer = $customersByName[$cleanName];
+                    }
 
-                // Link to Customer or create new with safe unique constraint handling
-                if ($existingCustomer) {
-                    $updateCust = [
-                        'pppoe_username' => $username,
-                        'pppoe_password' => $password,
-                        'paket_id' => $paketId ?: $existingCustomer->paket_id,
-                    ];
+                    $existingPreOrder = null;
+                    if ($existingCustomer && $existingCustomer->pre_order_id && isset($preOrdersById[$existingCustomer->pre_order_id])) {
+                        $existingPreOrder = $preOrdersById[$existingCustomer->pre_order_id];
+                    }
+                    if (!$existingPreOrder && $nik && isset($preOrdersByNik[$nik])) {
+                        $existingPreOrder = $preOrdersByNik[$nik];
+                    }
+                    if (!$existingPreOrder && $cleanPhone && isset($preOrdersByPhone[$cleanPhone])) {
+                        $existingPreOrder = $preOrdersByPhone[$cleanPhone];
+                    }
+                    if (!$existingPreOrder && $cleanName && isset($preOrdersByName[$cleanName])) {
+                        $existingPreOrder = $preOrdersByName[$cleanName];
+                    }
 
-                    // Safely check if id_pelanggan can be updated without duplicate error
-                    if ($idPelanggan && $existingCustomer->id_pelanggan !== $idPelanggan) {
-                        if (!isset($customersByIdPelanggan[$idPelanggan])) {
-                            $updateCust['id_pelanggan'] = $idPelanggan;
-                            $customersByIdPelanggan[$idPelanggan] = $existingCustomer;
+                    // Link to PreOrder or create new
+                    if ($existingPreOrder) {
+                        $preOrderId = $existingPreOrder->id;
+                        $existingPreOrder->update([
+                            'paket_id' => $paketId ?: $existingPreOrder->paket_id,
+                            'no_identitas' => $nik ?: $existingPreOrder->no_identitas,
+                            'titik_koordinat' => $tikor ?: $existingPreOrder->titik_koordinat,
+                        ]);
+                    } else {
+                        $preOrder = PreOrder::create([
+                            'id_sales' => 1,
+                            'nama_sales' => 'Administrator',
+                            'nama_lengkap' => $name,
+                            'no_identitas' => $nik ?: null,
+                            'no_whatsapp' => $phone ?: '081234567890',
+                            'alamat_email' => $email ?: ($username . '@erlangga.net'),
+                            'alamat_lengkap' => $address ?: 'Alamat belum diisi',
+                            'titik_koordinat' => $tikor,
+                            'paket_id' => $paketId,
+                            'created_at' => $createdAt,
+                            'updated_at' => $createdAt,
+                        ]);
+                        $preOrderId = $preOrder->id;
+                        $preOrdersById[$preOrderId] = $preOrder;
+                        if ($nik) $preOrdersByNik[$nik] = $preOrder;
+                        if ($cleanName) $preOrdersByName[$cleanName] = $preOrder;
+                        if ($cleanPhone) $preOrdersByPhone[$cleanPhone] = $preOrder;
+                        $results['preorders_created']++;
+                    }
+
+                    // Re-check customer by pre_order_id to guarantee no duplicate constraint
+                    if (!$existingCustomer && isset($customersByPreOrderId[$preOrderId])) {
+                        $existingCustomer = $customersByPreOrderId[$preOrderId];
+                    }
+                    if (!$existingCustomer) {
+                        $existingCustomer = Customer::withTrashed()->where('pre_order_id', $preOrderId)->first();
+                        if ($existingCustomer) {
+                            if ($existingCustomer->trashed()) $existingCustomer->restore();
+                            $customersByPreOrderId[$preOrderId] = $existingCustomer;
                         }
                     }
 
-                    $existingCustomer->update($updateCust);
-                    $customersByUsername[$userKey] = $existingCustomer;
-                    $customersByPreOrderId[$existingCustomer->pre_order_id] = $existingCustomer;
-                    $results['customers_linked']++;
-                } else {
-                    // Safe ID Pelanggan for new customer
-                    $assignedIdPelanggan = ($idPelanggan && !isset($customersByIdPelanggan[$idPelanggan])) ? $idPelanggan : null;
+                    // Link to Customer or create new with safe unique constraint handling
+                    if ($existingCustomer) {
+                        $updateCust = [
+                            'pppoe_username' => $username,
+                            'pppoe_password' => $password,
+                            'paket_id' => $paketId ?: $existingCustomer->paket_id,
+                        ];
 
-                    $cust = Customer::create([
-                        'pre_order_id' => $preOrderId,
-                        'id_sales' => 1,
-                        'id_teknisi' => 3,
-                        'pembayaran' => 'Cash',
-                        'nama_lengkap' => $name,
-                        'alamat_lengkap' => $address ?: 'Alamat belum diisi',
-                        'no_whatsapp' => $phone ?: '',
-                        'id_pelanggan' => $assignedIdPelanggan,
-                        'pppoe_username' => $username,
-                        'pppoe_password' => $password,
-                        'paket_id' => $paketId,
-                        'created_at' => $createdAt,
-                        'updated_at' => $createdAt,
-                    ]);
-                    $customersById[$cust->id] = $cust;
-                    $customersByUsername[$userKey] = $cust;
-                    $customersByPreOrderId[$preOrderId] = $cust;
-                    if ($assignedIdPelanggan) $customersByIdPelanggan[$assignedIdPelanggan] = $cust;
-                    if ($cleanName) $customersByName[$cleanName] = $cust;
-                    if ($cleanPhone) $customersByPhone[$cleanPhone] = $cust;
-                    $results['customers_created']++;
+                        // Safely check if id_pelanggan can be updated without duplicate error
+                        if ($idPelanggan && $existingCustomer->id_pelanggan !== $idPelanggan) {
+                            if (!isset($customersByIdPelanggan[$idPelanggan])) {
+                                $updateCust['id_pelanggan'] = $idPelanggan;
+                                $customersByIdPelanggan[$idPelanggan] = $existingCustomer;
+                            }
+                        }
+
+                        $existingCustomer->update($updateCust);
+                        $customersByUsername[$userKey] = $existingCustomer;
+                        $customersByPreOrderId[$existingCustomer->pre_order_id] = $existingCustomer;
+                        $results['customers_linked']++;
+                    } else {
+                        // Safe ID Pelanggan for new customer
+                        $assignedIdPelanggan = ($idPelanggan && !isset($customersByIdPelanggan[$idPelanggan])) ? $idPelanggan : null;
+
+                        $cust = Customer::create([
+                            'pre_order_id' => $preOrderId,
+                            'id_sales' => 1,
+                            'id_teknisi' => 3,
+                            'pembayaran' => 'Cash',
+                            'nama_lengkap' => $name,
+                            'alamat_lengkap' => $address ?: 'Alamat belum diisi',
+                            'no_whatsapp' => $phone ?: '',
+                            'id_pelanggan' => $assignedIdPelanggan,
+                            'pppoe_username' => $username,
+                            'pppoe_password' => $password,
+                            'paket_id' => $paketId,
+                            'created_at' => $createdAt,
+                            'updated_at' => $createdAt,
+                        ]);
+                        $customersById[$cust->id] = $cust;
+                        $customersByUsername[$userKey] = $cust;
+                        $customersByPreOrderId[$preOrderId] = $cust;
+                        if ($assignedIdPelanggan) $customersByIdPelanggan[$assignedIdPelanggan] = $cust;
+                        if ($cleanName) $customersByName[$cleanName] = $cust;
+                        if ($cleanPhone) $customersByPhone[$cleanPhone] = $cust;
+                        $results['customers_created']++;
+                    }
                 }
 
                 // PPPoE record
@@ -915,13 +920,14 @@ class RadbooxImportService
                     'username' => $username,
                     'password' => $password,
                     'ip_address' => $ipAddress ?: null,
-                    'tipe_pembayaran' => 'prepaid',
+                    'tipe_pembayaran' => $isBillingActive ? 'prepaid' : null,
                     'tanggal_aktif' => $activeDate,
-                    'periode_billing' => 'fixed',
+                    'periode_billing' => $isBillingActive ? 'fixed' : null,
                     'pajak' => 0,
                     'diskon' => 0,
-                    'status_invoice' => 'terbayar',
-                    'generate_invoice' => true,
+                    'status_invoice' => $isBillingActive ? 'terbayar' : 'non_billing',
+                    'generate_invoice' => $isBillingActive,
+                    'keterangan' => !$isBillingActive ? ($name ?: 'PPPoE Mandiri (Non-Billing)') : null,
                     'created_at' => $createdAt,
                     'updated_at' => $createdAt,
                 ];

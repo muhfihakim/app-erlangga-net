@@ -66,7 +66,7 @@ class ProcessBillingCommand extends Command
             $pppoeAccounts = Pppoe::with('paket', 'invoices')->get();
 
             foreach ($pppoeAccounts as $pppoe) {
-                if (!$pppoe->paket) {
+                if (!$pppoe->paket || !$pppoe->generate_invoice || $pppoe->status_invoice === 'non_billing') {
                     continue;
                 }
 

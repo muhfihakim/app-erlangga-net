@@ -124,6 +124,11 @@
                     $('#create_pppoe_po_nama_akun, #create_pppoe_po_nama_pembayaran').text($btn.data('po-nama'));
                     $('#create_pppoe_po_alamat_akun, #create_pppoe_po_alamat_pembayaran').text($btn.data('po-alamat') || '-');
                     $('#create_pppoe_paket_id').val($btn.data('po-paket'));
+                    const poBillingToggle = document.getElementById('po_is_billing_active');
+                    if (poBillingToggle) {
+                        poBillingToggle.checked = true;
+                        togglePoBilling(poBillingToggle);
+                    }
                     $(`#${modalId} .modal-tab`).first().trigger('click');
                 }
             }
@@ -134,6 +139,20 @@
 
             modal.classList.add('open');
             document.body.style.overflow = 'hidden';
+        }
+
+        function togglePoBilling(checkbox) {
+            const fields = document.getElementById('po_billing_fields');
+            const notice = document.getElementById('po_non_billing_notice');
+            if (fields && notice) {
+                if (checkbox.checked) {
+                    fields.classList.remove('hidden');
+                    notice.classList.add('hidden');
+                } else {
+                    fields.classList.add('hidden');
+                    notice.classList.remove('hidden');
+                }
+            }
         }
 
         function closeCustomModal(modalId) {

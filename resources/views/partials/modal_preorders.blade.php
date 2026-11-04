@@ -562,60 +562,83 @@
                             <span id="create_pppoe_po_alamat_pembayaran" class="text-xs text-slate-500 max-w-[260px] text-right truncate shrink-0"></span>
                         </div>
 
-                        <div class="form-grid-2 mb-3.5">
-                            <div class="form-group !mb-0">
-                                <label class="form-label text-slate-700 font-medium text-xs">Tipe Pembayaran</label>
-                                <select class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300"
-                                    name="tipe_pembayaran">
-                                    <option value="postpaid">Postpaid (Pasca Bayar)</option>
-                                    <option value="prepaid">Prepaid (Pra Bayar)</option>
-                                </select>
+                        <!-- Toggle Status Penagihan -->
+                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 mb-3.5 flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-bold text-slate-800 block">Status Penagihan & Pembayaran (Billing)</span>
+                                <span class="text-[11px] text-slate-500 block">Aktifkan untuk memproses tagihan, faktur bulanan, dan status bayar.</span>
                             </div>
-                            <div class="form-group !mb-0">
-                                <label class="form-label text-slate-700 font-medium text-xs">Tanggal Aktif</label>
-                                <input type="date" class="form-input bg-white text-slate-900 border-slate-300"
-                                    name="tanggal_aktif" value="{{ date('Y-m-d') }}">
-                            </div>
-                        </div>
-                        <div class="form-grid-2 mb-3.5">
-                            <div class="form-group !mb-0">
-                                <label class="form-label text-slate-700 font-medium text-xs">Periode Billing</label>
-                                <select class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300"
-                                    name="periode_billing">
-                                    <option value="fixed">Fixed (Setiap Awal Bulan)</option>
-                                    <option value="renewal">Renewal (Sesuai Tgl Aktif)</option>
-                                </select>
-                            </div>
-                            <div class="form-group !mb-0">
-                                <label class="form-label text-slate-700 font-medium text-xs">Status Invoice</label>
-                                <select class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300"
-                                    name="status_invoice">
-                                    <option value="belum_bayar">Belum Bayar (Unpaid)</option>
-                                    <option value="terbayar">Terbayar (Paid)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-grid-2 mb-3.5">
-                            <div class="form-group !mb-0">
-                                <label class="form-label text-slate-700 font-medium text-xs">Pajak (Rp)</label>
-                                <input type="number" class="form-input bg-white text-slate-900 border-slate-300 font-mono"
-                                    name="pajak" value="0">
-                            </div>
-                            <div class="form-group !mb-0">
-                                <label class="form-label text-slate-700 font-medium text-xs">Diskon (Rp)</label>
-                                <input type="number" class="form-input bg-white text-slate-900 border-slate-300 font-mono"
-                                    name="diskon" value="0">
-                            </div>
-                        </div>
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 mt-2">
-                            <label class="flex items-center gap-2.5 cursor-pointer m-0">
-                                <input type="checkbox" name="generate_invoice" checked
-                                    class="w-4 h-4 text-sky-600 border-slate-300 rounded focus:ring-sky-500">
-                                <div>
-                                    <span class="text-xs font-semibold text-slate-800 block">Generate Invoice Otomatis</span>
-                                    <span class="text-[11px] text-slate-500 block">Buat tagihan faktur pertama langsung saat akun PPPoE disimpan.</span>
-                                </div>
+                            <label class="relative inline-flex items-center cursor-pointer m-0">
+                                <input type="checkbox" id="po_is_billing_active" name="is_billing_active" value="1" checked class="sr-only peer" onchange="togglePoBilling(this)">
+                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
                             </label>
+                        </div>
+
+                        <!-- Notice jika Non-Billing -->
+                        <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl text-center space-y-1 hidden" id="po_non_billing_notice">
+                            <i class="fa-solid fa-shield-halved text-slate-400 text-xl mb-1"></i>
+                            <div class="text-xs font-bold text-slate-700">Akun Bebas Tagihan (Non-Billing)</div>
+                            <p class="text-[11px] text-slate-500 m-0 leading-relaxed max-w-sm mx-auto">
+                                Akun PPPoE ini dibuat tanpa penagihan faktur bulanan ataupun auto-isolir jatuh tempo.
+                            </p>
+                        </div>
+
+                        <div id="po_billing_fields" class="space-y-3.5">
+                            <div class="form-grid-2">
+                                <div class="form-group !mb-0">
+                                    <label class="form-label text-slate-700 font-medium text-xs">Tipe Pembayaran</label>
+                                    <select class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300"
+                                        name="tipe_pembayaran">
+                                        <option value="postpaid">Postpaid (Pasca Bayar)</option>
+                                        <option value="prepaid">Prepaid (Pra Bayar)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group !mb-0">
+                                    <label class="form-label text-slate-700 font-medium text-xs">Tanggal Aktif</label>
+                                    <input type="date" class="form-input bg-white text-slate-900 border-slate-300"
+                                        name="tanggal_aktif" value="{{ date('Y-m-d') }}">
+                                </div>
+                            </div>
+                            <div class="form-grid-2">
+                                <div class="form-group !mb-0">
+                                    <label class="form-label text-slate-700 font-medium text-xs">Periode Billing</label>
+                                    <select class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300"
+                                        name="periode_billing">
+                                        <option value="fixed">Fixed (Setiap Awal Bulan)</option>
+                                        <option value="renewal">Renewal (Sesuai Tgl Aktif)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group !mb-0">
+                                    <label class="form-label text-slate-700 font-medium text-xs">Status Invoice</label>
+                                    <select class="form-input-custom !font-normal w-full bg-white text-slate-800 border-slate-300"
+                                        name="status_invoice">
+                                        <option value="belum_bayar">Belum Bayar (Unpaid)</option>
+                                        <option value="terbayar">Terbayar (Paid)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-grid-2">
+                                <div class="form-group !mb-0">
+                                    <label class="form-label text-slate-700 font-medium text-xs">Pajak (Rp)</label>
+                                    <input type="number" class="form-input bg-white text-slate-900 border-slate-300 font-mono"
+                                        name="pajak" value="0">
+                                </div>
+                                <div class="form-group !mb-0">
+                                    <label class="form-label text-slate-700 font-medium text-xs">Diskon (Rp)</label>
+                                    <input type="number" class="form-input bg-white text-slate-900 border-slate-300 font-mono"
+                                        name="diskon" value="0">
+                                </div>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 mt-2">
+                                <label class="flex items-center gap-2.5 cursor-pointer m-0">
+                                    <input type="checkbox" name="generate_invoice" checked
+                                        class="w-4 h-4 text-sky-600 border-slate-300 rounded focus:ring-sky-500">
+                                    <div>
+                                        <span class="text-xs font-semibold text-slate-800 block">Generate Invoice Otomatis</span>
+                                        <span class="text-[11px] text-slate-500 block">Buat tagihan faktur pertama langsung saat akun PPPoE disimpan.</span>
+                                    </div>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
