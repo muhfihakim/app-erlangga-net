@@ -35,15 +35,18 @@ Authorization: Bearer <TOKEN_HASIL_LOGIN>
 | **1** | **Tab 1: Home Screen** | `GET` | `/api/dashboard`<br>`/api/screens/home` | Protected | `StatusSection`, `InfoPaketSection`, `TagihanSection`<br>Status koneksi, paket aktif, & ringkasan tagihan |
 | **2** | **Tab 2: Riwayat Screen** | `GET` | `/api/riwayat`<br>`/api/screens/history` | Protected | `BillingCard`, `BillingDetailScreen`<br>Daftar riwayat faktur tagihan lengkap |
 | **3** | **Tab 3: Notifikasi Screen** | `GET` | `/api/notifications`<br>`/api/screens/notifications` | Protected | `NotificationCard`, `NotificationDetailScreen`<br>Feed notifikasi tagihan, payment, & info |
+| | **Action Notifikasi** | `POST` | `/api/notifications/{id}/read` | Protected | Tandai 1 notifikasi tertentu telah dibaca |
+| | | `POST` | `/api/notifications/read-all` | Protected | Tandai seluruh notifikasi telah dibaca |
 | **4** | **Tab 4: Profil Screen** | `GET` | `/api/profile`<br>`/api/screens/profile` | Protected | `ProfileAccordionCard`, `ProfileDetailRow`<br>Detail identitas pelanggan, teknis & kontak CS |
 | **5** | **Direct Checkout / Bayar** | `POST` | `/api/pay` | Protected | `TagihanSection`, `BillingDetailScreen`<br>Generate URL pembayaran Xendit |
 
 ### B. Modular API (Fine-Grained Endpoints)
 | No | Modul | Method | Full URL (Staging) | Akses | Deskripsi |
 |:---:|---|:---:|---|:---:|---|
-| **1** | **Autentikasi** | `POST` | `https://stage.erlangga.net/api/login` | Public | Login pelanggan via ID Pelanggan / Username & Sandi |
+| **1** | **Autentikasi & Push Token** | `POST` | `https://stage.erlangga.net/api/login` | Public | Login pelanggan via ID Pelanggan / Username & Sandi (bisa sertakan `token_fcm`) |
 | | | `GET` | `https://stage.erlangga.net/api/me` | Protected | Cek profil & masa aktif sesi login saat ini |
 | | | `POST` | `https://stage.erlangga.net/api/logout` | Protected | Logout & hapus token akses |
+| | | `POST` | `https://stage.erlangga.net/api/fcm-token` | Protected | Daftarkan / perbarui token FCM perangkat Android & iOS |
 | **2** | **Pembayaran & Tagihan** | `GET` | `https://stage.erlangga.net/api/payments/status` | Protected | Ringkasan billing, status isolir, jatuh tempo & total tunggakan |
 | | | `GET` | `https://stage.erlangga.net/api/payments/invoices` | Protected | Riwayat & daftar tagihan (`?status=unpaid` / `paid`) |
 | | | `GET` | `https://stage.erlangga.net/api/payments/invoices/{id}` | Protected | Detail item rincian faktur tagihan |
@@ -55,6 +58,9 @@ Authorization: Bearer <TOKEN_HASIL_LOGIN>
 | | | `GET` | `https://stage.erlangga.net/api/device/hosts` | Protected | Daftar HP / Laptop yang sedang terhubung ke Wi-Fi |
 | | | `POST` | `https://stage.erlangga.net/api/device/wifi` | Protected | Ganti SSID dan Password Wi-Fi langsung ke ONT |
 | | | `POST` | `https://stage.erlangga.net/api/device/reboot` | Protected | Perintah restart / reboot modem ONT jarak jauh |
+| **5** | **Notifikasi & FCM** | `GET` | `https://stage.erlangga.net/api/notifications` | Protected | Feed riwayat notifikasi tagihan, bayar, & pemeliharaan |
+| | | `POST` | `https://stage.erlangga.net/api/notifications/{id}/read` | Protected | Tandai 1 notifikasi tertentu sebagai telah dibaca |
+| | | `POST` | `https://stage.erlangga.net/api/notifications/read-all` | Protected | Tandai semua notifikasi pelanggan sebagai telah dibaca |
 
 ---
 
@@ -75,10 +81,11 @@ Digunakan saat pelanggan membuka aplikasi dan memasukkan kredensial login.
   {
     "id_pelanggan": "23114957687",
     "password": "password_pppoe_pelanggan",
-    "device_name": "Flutter Android - Xiaomi 13"
+    "device_name": "Flutter Android - Xiaomi 13",
+    "token_fcm": "dZxyz...token_fcm_dari_hp_opsional..."
   }
   ```
-  *(Catatan: Field `id_pelanggan` juga dapat diisi dengan username PPPoE pelanggan).*
+  *(Catatan: Field `id_pelanggan` juga dapat diisi dengan username PPPoE pelanggan. Parameter `token_fcm` atau `fcm_token` bersifat opsional dan jika dikirim akan langsung menautkan token FCM perangkat ke akun pelanggan).*
 
 - **Response `200 OK` (Berhasil)**:
   ```json
@@ -200,6 +207,59 @@ Menghapus token sesi aktif di database saat pelanggan menekan tombol Logout.
   {
     "success": true,
     "message": "Logout berhasil."
+  }
+  ```
+
+---
+
+### 1.4 Registrasi & Update Token FCM Pelanggan (`/fcm-token`)
+Digunakan oleh aplikasi mobile (Android / iOS) untuk mendaftarkan atau memperbarui token Firebase Cloud Messaging (FCM) perangkat ke server. Endpoint ini dipanggil ketika aplikasi mobile mendapatkan device token dari Firebase SDK (misal saat inisialisasi aplikasi atau saat token FCM di-refresh).
+
+- **Method**: `POST`
+- **URL Staging**: `https://stage.erlangga.net/api/fcm-token` *(Alias: `https://stage.erlangga.net/api/update-fcm-token`)*
+- **Headers**:
+  ```http
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer <TOKEN_PELANGGAN>
+  ```
+- **Request Body (JSON)**:
+  ```json
+  {
+    "token_fcm": "f5kL9_xYz1234567890abcdefghijklmnopqrstuvwxyz..."
+  }
+  ```
+  *(Catatan: Anda juga bisa menggunakan key `"fcm_token"`, keduanya diterima oleh server).*
+
+- **Response `200 OK` (Berhasil Disimpan)**:
+  ```json
+  {
+    "success": true,
+    "message": "Token FCM berhasil diperbarui.",
+    "fcm_token": "f5kL9_xYz1234567890abcdefghijklmnopqrstuvwxyz..."
+  }
+  ```
+
+- **Menghapus Token FCM (Misal saat User Opt-Out / Logout Bersih)**:
+  Kirim body kosong atau string kosong:
+  ```json
+  {
+    "token_fcm": ""
+  }
+  ```
+  Response `200 OK`:
+  ```json
+  {
+    "success": true,
+    "message": "Token FCM berhasil dihapus.",
+    "fcm_token": null
+  }
+  ```
+
+- **Response `401 Unauthorized` (Sesi Kadaluarsa)**:
+  ```json
+  {
+    "message": "Unauthenticated."
   }
   ```
 
@@ -740,7 +800,104 @@ Mengirimkan perintah `reboot` jarak jauh ke modem ONT via TR-069 ketika pelangga
 
 ---
 
-## 5️⃣ Contoh Perintah Pengujian (cURL)
+## 5️⃣ Modul Notifikasi & Riwayat Pemberitahuan
+
+### 5.1 Riwayat Feed Notifikasi Pelanggan
+Mengambil daftar riwayat notifikasi pelanggan (tagihan baru terbit, konfirmasi pembayaran invoice, pengumuman pemeliharaan jaringan, dan sambutan selamat datang). Endpoint ini digunakan langsung untuk Tab Notifikasi di Flutter.
+
+- **Method**: `GET`
+- **URL**: `https://stage.erlangga.net/api/notifications` *(Alias: `https://stage.erlangga.net/api/screens/notifications`)*
+- **Headers**:
+  ```http
+  Accept: application/json
+  Authorization: Bearer <TOKEN_PELANGGAN>
+  ```
+- **Response `200 OK` (Berhasil)**:
+  ```json
+  {
+    "success": true,
+    "message": "Daftar notifikasi berhasil dimuat.",
+    "unread_count": 1,
+    "data": [
+      {
+        "id": 12,
+        "type": "invoice_unpaid",
+        "title": "Tagihan November 2026 Siap Dibayar",
+        "message": "Tagihan internet periode November 2026 sebesar Rp 166.500 telah terbit. Jatuh tempo pada 20 November 2026.",
+        "body": "Tagihan internet periode November 2026 sebesar Rp 166.500 telah terbit. Jatuh tempo pada 20 November 2026.",
+        "data": {
+          "invoice_id": 105,
+          "action_url": "/billing/105"
+        },
+        "is_read": false,
+        "created_at": "2026-11-01 08:00:00",
+        "action_url": "/billing/105",
+        "invoice_id": 105
+      },
+      {
+        "id": 1,
+        "type": "general",
+        "title": "Selamat Datang di BBS Mobile, Nurul Adhira!",
+        "message": "Kelola tagihan, cek status perangkat ONT, dan nikmati koneksi internet super cepat tanpa hambatan bersama Erlangga Network.",
+        "body": "Kelola tagihan, cek status perangkat ONT, dan nikmati koneksi internet super cepat tanpa hambatan bersama Erlangga Network.",
+        "data": {
+          "action_url": "/dashboard"
+        },
+        "is_read": true,
+        "created_at": "2026-09-20 10:00:00",
+        "action_url": "/dashboard",
+        "invoice_id": null
+      }
+    ]
+  }
+  ```
+
+---
+
+### 5.2 Tandai Notifikasi Tertentu Telah Dibaca
+Memperbarui status `is_read = true` saat item notifikasi tertentu dibuka atau ditekan oleh pelanggan di aplikasi.
+
+- **Method**: `POST`
+- **URL**: `https://stage.erlangga.net/api/notifications/{id}/read`
+- **Headers**:
+  ```http
+  Accept: application/json
+  Authorization: Bearer <TOKEN_PELANGGAN>
+  ```
+- **Request Body**: Kosong `{}`
+- **Response `200 OK`**:
+  ```json
+  {
+    "success": true,
+    "message": "Notifikasi ditandai telah dibaca.",
+    "id": 12
+  }
+  ```
+
+---
+
+### 5.3 Tandai Seluruh Notifikasi Telah Dibaca
+Menandai seluruh notifikasi pelanggan yang belum dibaca menjadi sudah dibaca.
+
+- **Method**: `POST`
+- **URL**: `https://stage.erlangga.net/api/notifications/read-all`
+- **Headers**:
+  ```http
+  Accept: application/json
+  Authorization: Bearer <TOKEN_PELANGGAN>
+  ```
+- **Request Body**: Kosong `{}`
+- **Response `200 OK`**:
+  ```json
+  {
+    "success": true,
+    "message": "Seluruh notifikasi berhasil ditandai telah dibaca."
+  }
+  ```
+
+---
+
+## 6️⃣ Contoh Perintah Pengujian (cURL)
 
 Berikut cURL template cepat untuk pengujian di terminal atau diimpor ke Postman / Bruno / Insomnia:
 
@@ -752,18 +909,37 @@ curl -X POST "https://stage.erlangga.net/api/login" \
   -d '{
     "id_pelanggan": "23114957687",
     "password": "123",
-    "device_name": "Test Terminal"
+    "device_name": "Test Terminal",
+    "token_fcm": "fcm_token_sample_123"
   }'
 ```
 
-### Step 2: Cek Status Billing & Tagihan
+### Step 2: Daftarkan / Perbarui Token FCM
+```bash
+curl -X POST "https://stage.erlangga.net/api/fcm-token" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <GANTI_DENGAN_TOKEN>" \
+  -d '{
+    "token_fcm": "f5kL9_xYz1234567890abcdefghijklmnopqrstuvwxyz"
+  }'
+```
+
+### Step 3: Cek Feed Notifikasi Pelanggan
+```bash
+curl -X GET "https://stage.erlangga.net/api/notifications" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer <GANTI_DENGAN_TOKEN>"
+```
+
+### Step 4: Cek Status Billing & Tagihan
 ```bash
 curl -X GET "https://stage.erlangga.net/api/payments/status" \
   -H "Accept: application/json" \
   -H "Authorization: Bearer <GANTI_DENGAN_TOKEN>"
 ```
 
-### Step 3: Dapatkan URL Pembayaran Xendit
+### Step 5: Dapatkan URL Pembayaran Xendit
 ```bash
 curl -X POST "https://stage.erlangga.net/api/payments/pay" \
   -H "Accept: application/json" \
@@ -772,14 +948,14 @@ curl -X POST "https://stage.erlangga.net/api/payments/pay" \
   -d '{}'
 ```
 
-### Step 4: Cek Informasi Wi-Fi & Sinyal Optik
+### Step 6: Cek Informasi Wi-Fi & Sinyal Optik
 ```bash
 curl -X GET "https://stage.erlangga.net/api/device/wifi" \
   -H "Accept: application/json" \
   -H "Authorization: Bearer <GANTI_DENGAN_TOKEN>"
 ```
 
-### Step 5: Ganti Password Wi-Fi
+### Step 7: Ganti Password Wi-Fi
 ```bash
 curl -X POST "https://stage.erlangga.net/api/device/wifi" \
   -H "Accept: application/json" \

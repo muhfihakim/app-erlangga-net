@@ -1,818 +1,949 @@
 {
-    "info": {
-        "_postman_id": "8e3c12a4-b01f-4cb1-93da-189fec0e3861",
-        "name": "Erlangga Net - Mobile Pelanggan API",
-        "description": "Koleksi Postman API Mobile Pelanggan (Android & iOS) Erlangga Net untuk environment Staging & Produksi.\n\n### 🚀 Arsitektur Screen-Oriented API (1 Screen = 1 Endpoint):\n1. **Screen 1: Home / Dashboard** -> `GET /api/dashboard`\n2. **Screen 2: Riwayat Tagihan** -> `GET /api/riwayat`\n3. **Screen 3: Notifikasi** -> `GET /api/notifications`\n4. **Screen 4: Profil & Bantuan** -> `GET /api/profile`\n5. **Action: Bayar Tagihan** -> `POST /api/pay`\n\n### ⚠️ Penanganan Autentikasi:\n- Kredensial salah / validasi gagal pada `POST /api/login` mengembalikan status **HTTP 200 OK** dengan `{ \"success\": false, \"message\": \"...\" }` untuk menghindari loop unauthorized / logout otomatis pada interceptor Flutter.\n\n### 💡 Cara Pakai:\n1. Jalankan request **1.1 Login Pelanggan (Sukses)**.\n2. Token akan otomatis tersimpan ke variabel `{{token}}`.\n3. Request lainnya sudah terkonfigurasi otomatis menggunakan Bearer Token tersebut.",
-        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-    },
-    "auth": {
-        "type": "bearer",
-        "bearer": [
-            {
-                "key": "token",
-                "value": "{{token}}",
-                "type": "string"
-            }
-        ]
-    },
-    "event": [
-        {
-            "listen": "prerequest",
-            "script": {
-                "type": "text/javascript",
-                "exec": [
-                    ""
-                ]
-            }
-        },
-        {
-            "listen": "test",
-            "script": {
-                "type": "text/javascript",
-                "exec": [
-                    ""
-                ]
-            }
-        }
-    ],
-    "variable": [
-        {
-            "key": "base_url",
-            "value": "https://stage.erlangga.net/api",
-            "type": "string"
-        },
-        {
-            "key": "token",
-            "value": "",
-            "type": "string"
-        }
-    ],
-    "item": [
-        {
-            "name": "1. Autentikasi",
-            "item": [
-                {
-                    "name": "1.1 Login Pelanggan (Sukses - HTTP 200)",
-                    "event": [
-                        {
-                            "listen": "test",
-                            "script": {
-                                "exec": [
-                                    "if (pm.response.code === 200) {",
-                                    "    var jsonData = pm.response.json();",
-                                    "    if (jsonData.success && jsonData.token) {",
-                                    "        pm.collectionVariables.set(\"token\", jsonData.token);",
-                                    "        console.log(\"Token berhasil disimpan ke variabel: \" + jsonData.token);",
-                                    "    } else {",
-                                    "        console.warn(\"Login tidak sukses:\", jsonData.message);",
-                                    "    }",
-                                    "}"
-                                ],
-                                "type": "text/javascript"
-                            }
-                        }
-                    ],
-                    "request": {
-                        "auth": {
-                            "type": "noauth"
-                        },
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"id_pelanggan\": \"23114957687\",\n  \"password\": \"123\",\n  \"device_name\": \"Flutter Android - Xiaomi 13\",\n  \"token_fcm\": \"fcm_device_token_sample_123\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{base_url}}/login",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "login"
-                            ]
-                        },
-                        "description": "Login menggunakan ID Pelanggan atau Username PPPoE. Jika sukses mengembalikan HTTP 200 OK dengan token Bearer Sanctum."
-                    },
-                    "response": [
-                        {
-                            "name": "200 OK - Login Sukses",
-                            "originalRequest": {
-                                "method": "POST",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    },
-                                    {
-                                        "key": "Content-Type",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n  \"id_pelanggan\": \"23114957687\",\n  \"password\": \"123\"\n}"
-                                },
-                                "url": {
-                                    "raw": "{{base_url}}/login",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "login"
-                                    ]
-                                }
-                            },
-                            "status": "OK",
-                            "code": 200,
-                            "_postman_previewlanguage": "json",
-                            "header": [
-                                {
-                                    "key": "Content-Type",
-                                    "value": "application/json"
-                                }
-                            ],
-                            "body": "{\n  \"success\": true,\n  \"message\": \"Login berhasil.\",\n  \"token\": \"86|ebNoPomYpZclQbfHhXWuG5pfzPKkuhgIDA7qMbNOd3239cb9\",\n  \"data\": {\n    \"customer\": {\n      \"id\": 1,\n      \"id_pelanggan\": \"23114957687\",\n      \"nama_lengkap\": \"Nurul Adhira\",\n      \"no_whatsapp\": \"082191285271\",\n      \"alamat_lengkap\": \"Blok Tegal Kalapa RT. 14 RW 10 Dangdeur Subang\",\n      \"jenis_modem\": \"EPON\",\n      \"sn_perangkat\": \"ZTEGC1234567\"\n    },\n    \"paket\": {\n      \"id\": 1,\n      \"nama_paket\": \"Paket Home 20 Mbps\",\n      \"kecepatan\": \"20 Mbps\",\n      \"harga\": 150000,\n      \"total_harga\": 166500\n    },\n    \"layanan\": {\n      \"pppoe_username\": \"nurul_tegal\",\n      \"status_invoice\": \"unpaid\",\n      \"tanggal_aktif\": \"2026-09-20\",\n      \"unpaid_invoices_count\": 1,\n      \"has_unpaid_bill\": true\n    }\n  }\n}"
-                        }
-                    ]
-                },
-                {
-                    "name": "1.2 Login Pelanggan (Gagal Kredensial - HTTP 200)",
-                    "request": {
-                        "auth": {
-                            "type": "noauth"
-                        },
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"id_pelanggan\": \"23114957687\",\n  \"password\": \"sandi_salah_123\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{base_url}}/login",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "login"
-                            ]
-                        },
-                        "description": "Jika ID Pelanggan atau kata sandi tidak cocok, API tetap mengembalikan HTTP 200 OK dengan success: false agar Flutter tidak memicu unhandled 401 redirect loop."
-                    },
-                    "response": [
-                        {
-                            "name": "200 OK - Kredensial Salah",
-                            "status": "OK",
-                            "code": 200,
-                            "_postman_previewlanguage": "json",
-                            "header": [
-                                {
-                                    "key": "Content-Type",
-                                    "value": "application/json"
-                                }
-                            ],
-                            "body": "{\n  \"success\": false,\n  \"message\": \"ID Pelanggan atau Sandi salah.\",\n  \"errors\": {\n    \"id_pelanggan\": [\n      \"ID Pelanggan atau Sandi yang Anda masukkan tidak sesuai.\"\n    ]\n  }\n}"
-                        }
-                    ]
-                },
-                {
-                    "name": "1.3 Profil Sesi Aktif (/me)",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/me",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "me"
-                            ]
-                        },
-                        "description": "Mengecek apakah sesi token masih aktif dan mengambil ringkasan akun pelanggan saat ini."
-                    },
-                    "response": []
-                },
-                {
-                    "name": "1.4 Logout",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/logout",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "logout"
-                            ]
-                        },
-                        "description": "Menghapus token akses sesi aktif dari server."
-                    },
-                    "response": []
-                }
-            ]
-        },
-        {
-            "name": "2. Mobile Screens (1 Screen = 1 API)",
-            "item": [
-                {
-                    "name": "2.1 Screen 1: Home / Dashboard",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/dashboard",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "dashboard"
-                            ]
-                        },
-                        "description": "Endpoint agregasi untuk Screen 1 (Home). Menyajikan status koneksi & redaman ONT, paket aktif, serta ringkasan tagihan (termasuk invoice_url)."
-                    },
-                    "response": [
-                        {
-                            "name": "200 OK - Dashboard Data",
-                            "status": "OK",
-                            "code": 200,
-                            "_postman_previewlanguage": "json",
-                            "header": [
-                                {
-                                    "key": "Content-Type",
-                                    "value": "application/json"
-                                }
-                            ],
-                            "body": "{\n  \"success\": true,\n  \"message\": \"Dashboard data retrieved successfully.\",\n  \"data\": {\n    \"id_pelanggan\": \"23114957687\",\n    \"nama_lengkap\": \"Nurul Adhira\",\n    \"nama_paket\": \"Paket Home 20 Mbps\",\n    \"kecepatan\": \"20 Mbps\",\n    \"total_harga\": 166500,\n    \"status_layanan\": \"aktif\",\n    \"status_invoice\": \"unpaid\",\n    \"status_koneksi\": \"Online\",\n    \"ip_address\": \"10.10.20.45\",\n    \"rx_power\": \"-19.45 dBm\",\n    \"redaman\": \"-19.45 dBm\",\n    \"unpaid_invoices_count\": 1,\n    \"has_unpaid_bill\": true,\n    \"total_unpaid_amount\": 166500,\n    \"invoice_terdekat\": {\n      \"id\": 105,\n      \"external_id\": \"INV-2026-11-001\",\n      \"periode\": \"November 2026\",\n      \"jatuh_tempo\": \"2026-11-20\",\n      \"total_bayar\": 166500,\n      \"invoice_url\": \"https://checkout-staging.xendit.co/web/6727c9b83f4d\"\n    },\n    \"customer\": {\n      \"id\": 1,\n      \"id_pelanggan\": \"23114957687\",\n      \"nama_lengkap\": \"Nurul Adhira\",\n      \"no_whatsapp\": \"082191285271\",\n      \"alamat_lengkap\": \"Blok Tegal Kalapa RT. 14 RW 10 Dangdeur Subang\",\n      \"jenis_modem\": \"EPON\",\n      \"sn_perangkat\": \"ZTEGC1234567\"\n    },\n    \"koneksi\": {\n      \"status\": \"Online\",\n      \"ip_address\": \"10.10.20.45\",\n      \"mac_address\": \"AA:BB:CC:DD:EE:FF\",\n      \"uptime\": \"2d 4h 12m\",\n      \"rx_power\": \"-19.45 dBm\",\n      \"pon_mode\": \"EPON\",\n      \"last_inform\": \"2026-11-03 21:58:30\"\n    },\n    \"paket\": {\n      \"id\": 1,\n      \"nama_paket\": \"Paket Home 20 Mbps\",\n      \"kecepatan\": \"20 Mbps\",\n      \"harga\": 150000,\n      \"ppn\": 16500,\n      \"total_harga\": 166500\n    },\n    \"tagihan\": {\n      \"status_layanan\": \"aktif\",\n      \"status_invoice\": \"unpaid\",\n      \"unpaid_invoices_count\": 1,\n      \"has_unpaid_bill\": true,\n      \"total_unpaid_amount\": 166500,\n      \"invoice_terdekat\": {\n        \"id\": 105,\n        \"external_id\": \"INV-2026-11-001\",\n        \"periode\": \"November 2026\",\n        \"jatuh_tempo\": \"2026-11-20\",\n        \"total_bayar\": 166500,\n        \"invoice_url\": \"https://checkout-staging.xendit.co/web/6727c9b83f4d\"\n      }\n    }\n  }\n}"
-                        }
-                    ]
-                },
-                {
-                    "name": "2.2 Screen 2: Riwayat Tagihan",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/riwayat?status=all",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "riwayat"
-                            ],
-                            "query": [
-                                {
-                                    "key": "status",
-                                    "value": "all",
-                                    "description": "Filter: all, unpaid, paid (opsional)"
-                                }
-                            ]
-                        },
-                        "description": "Menampilkan daftar seluruh invoice siap pakai untuk widget BillingCard di Flutter, mencakup sn_perangkat, periode, status_invoice, harga, total_harga, invoice_url, dan invoice_duration."
-                    },
-                    "response": [
-                        {
-                            "name": "200 OK - Daftar Riwayat Tagihan",
-                            "status": "OK",
-                            "code": 200,
-                            "_postman_previewlanguage": "json",
-                            "header": [
-                                {
-                                    "key": "Content-Type",
-                                    "value": "application/json"
-                                }
-                            ],
-                            "body": "{\n  \"success\": true,\n  \"message\": \"Billing history retrieved successfully.\",\n  \"data\": [\n    {\n      \"id\": 105,\n      \"external_id\": \"INV-2026-11-001\",\n      \"no_invoice\": \"INV-2026-11-001\",\n      \"periode\": \"November 2026\",\n      \"periode_pemakaian\": \"November 2026\",\n      \"tanggal_invoice\": \"2026-11-01\",\n      \"jatuh_tempo\": \"2026-11-20\",\n      \"status_invoice\": \"unpaid\",\n      \"status_badge\": \"Belum Bayar\",\n      \"harga\": 150000,\n      \"ppn\": 16500,\n      \"total_harga\": 166500,\n      \"total_bayar\": 166500,\n      \"metode_pembayaran\": \"Xendit VA / QRIS\",\n      \"tanggal_pembayaran\": null,\n      \"invoice_url\": \"https://checkout-staging.xendit.co/web/6727c9b83f4d\",\n      \"sn_perangkat\": \"ZTEGC1234567\",\n      \"paket_langganan\": \"Paket Home 20 Mbps\",\n      \"kecepatan\": \"20 Mbps\",\n      \"invoice_duration\": \"2026-11-01 s/d 2026-11-30\"\n    },\n    {\n      \"id\": 88,\n      \"external_id\": \"INV-2026-10-001\",\n      \"no_invoice\": \"INV-2026-10-001\",\n      \"periode\": \"Oktober 2026\",\n      \"periode_pemakaian\": \"Oktober 2026\",\n      \"tanggal_invoice\": \"2026-10-01\",\n      \"jatuh_tempo\": \"2026-10-20\",\n      \"status_invoice\": \"paid\",\n      \"status_badge\": \"Lunas\",\n      \"harga\": 150000,\n      \"ppn\": 16500,\n      \"total_harga\": 166500,\n      \"total_bayar\": 166500,\n      \"metode_pembayaran\": \"BCA Virtual Account\",\n      \"tanggal_pembayaran\": \"2026-10-18 14:22:10\",\n      \"invoice_url\": null,\n      \"sn_perangkat\": \"ZTEGC1234567\",\n      \"paket_langganan\": \"Paket Home 20 Mbps\",\n      \"kecepatan\": \"20 Mbps\",\n      \"invoice_duration\": \"2026-10-01 s/d 2026-10-31\"\n    }\n  ]\n}"
-                        }
-                    ]
-                },
-                {
-                    "name": "2.3 Screen 3: Notifikasi",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/notifications",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "notifications"
-                            ]
-                        },
-                        "description": "Feed notifikasi pelanggan komprehensif untuk Screen Notifikasi di Flutter: Tagihan jatuh tempo, konfirmasi pembayaran, info pemeliharaan jaringan, dan sambutan."
-                    },
-                    "response": [
-                        {
-                            "name": "200 OK - Feed Notifikasi",
-                            "status": "OK",
-                            "code": 200,
-                            "_postman_previewlanguage": "json",
-                            "header": [
-                                {
-                                    "key": "Content-Type",
-                                    "value": "application/json"
-                                }
-                            ],
-                            "body": "{\n  \"success\": true,\n  \"message\": \"Notifications retrieved successfully.\",\n  \"unread_count\": 1,\n  \"data\": [\n    {\n      \"id\": \"notif-bill-105\",\n      \"title\": \"Tagihan November 2026 Siap Dibayar\",\n      \"message\": \"Tagihan internet periode November 2026 sebesar Rp 166.500 telah terbit. Jatuh tempo pada 20 November 2026.\",\n      \"type\": \"billing_due\",\n      \"category\": \"tagihan\",\n      \"icon\": \"receipt_long\",\n      \"date\": \"2026-11-01 08:00:00\",\n      \"time_ago\": \"2 hari yang lalu\",\n      \"is_read\": false,\n      \"action_url\": \"/billing/105\",\n      \"action_label\": \"Bayar Sekarang\",\n      \"invoice_id\": 105,\n      \"invoice_url\": \"https://checkout-staging.xendit.co/web/6727c9b83f4d\"\n    },\n    {\n      \"id\": \"notif-welcome-1\",\n      \"title\": \"Selamat Datang di Erlangga Net!\",\n      \"message\": \"Terima kasih telah berlangganan Erlangga Net. Nikmati koneksi internet cepat dan stabil bersama keluarga Anda.\",\n      \"type\": \"welcome\",\n      \"category\": \"info\",\n      \"icon\": \"celebration\",\n      \"date\": \"2026-09-20 10:00:00\",\n      \"time_ago\": \"1 bulan yang lalu\",\n      \"is_read\": true,\n      \"action_url\": null,\n      \"action_label\": null\n    }\n  ]\n}"
-                        }
-                    ]
-                },
-                {
-                    "name": "2.4 Screen 4: Profil & Bantuan",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/profile",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "profile"
-                            ]
-                        },
-                        "description": "Menampilkan seluruh data Screen Profil Flutter: Informasi data pelanggan, spesifikasi perangkat modem ONT, paket berlangganan, serta direct intent WhatsApp CS & email bantuan."
-                    },
-                    "response": [
-                        {
-                            "name": "200 OK - Data Profil & Bantuan",
-                            "status": "OK",
-                            "code": 200,
-                            "_postman_previewlanguage": "json",
-                            "header": [
-                                {
-                                    "key": "Content-Type",
-                                    "value": "application/json"
-                                }
-                            ],
-                            "body": "{\n  \"success\": true,\n  \"message\": \"Profile data retrieved successfully.\",\n  \"data\": {\n    \"customer\": {\n      \"id\": 1,\n      \"id_pelanggan\": \"23114957687\",\n      \"nama_lengkap\": \"Nurul Adhira\",\n      \"username_pppoe\": \"nurul_tegal\",\n      \"email\": \"nurul@example.com\",\n      \"no_whatsapp\": \"082191285271\",\n      \"alamat_lengkap\": \"Blok Tegal Kalapa RT. 14 RW 10 Dangdeur Subang\",\n      \"tanggal_pemasangan\": \"2026-09-20\",\n      \"status_berlangganan\": \"aktif\",\n      \"odp_name\": \"ODP-SUBANG-01\"\n    },\n    \"ont\": {\n      \"sn_perangkat\": \"ZTEGC1234567\",\n      \"jenis_modem\": \"EPON\",\n      \"brand\": \"ZTE\",\n      \"model\": \"F609\",\n      \"mac_address\": \"AA:BB:CC:DD:EE:FF\",\n      \"status_koneksi\": \"Online\",\n      \"rx_power\": \"-19.45 dBm\",\n      \"ip_address\": \"10.10.20.45\"\n    },\n    \"paket\": {\n      \"id\": 1,\n      \"nama_paket\": \"Paket Home 20 Mbps\",\n      \"kecepatan\": \"20 Mbps\",\n      \"harga\": 150000,\n      \"ppn\": 16500,\n      \"total_harga\": 166500,\n      \"tipe\": \"unlimited\"\n    },\n    \"dukungan_bantuan\": {\n      \"call_center\": \"081234567890\",\n      \"whatsapp_cs\": \"081234567890\",\n      \"whatsapp_url\": \"https://wa.me/6281234567890?text=Halo%20Admin%20Erlangga%20Net%2C%20saya%20pelanggan%20Nurul%20Adhira%20(ID%3A%2023114957687)%20ingin%20bertanya...\",\n      \"email_support\": \"bantuan@erlangga.net\",\n      \"jam_operasional\": \"Setiap Hari (08:00 - 22:00 WIB)\"\n    }\n  }\n}"
-                        }
-                    ]
-                },
-                {
-                    "name": "2.5 Action: Bayar Sekarang (Direct Checkout)",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"invoice_id\": 105\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{base_url}}/pay",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "pay"
-                            ]
-                        },
-                        "description": "Endpoint checkout satu pintu untuk tombol 'Bayar Sekarang' di Flutter. Mengembalikan link invoice pembayaran Xendit siap buka di browser / WebView."
-                    },
-                    "response": [
-                        {
-                            "name": "200 OK - URL Pembayaran Xendit",
-                            "status": "OK",
-                            "code": 200,
-                            "_postman_previewlanguage": "json",
-                            "header": [
-                                {
-                                    "key": "Content-Type",
-                                    "value": "application/json"
-                                }
-                            ],
-                            "body": "{\n  \"success\": true,\n  \"message\": \"Checkout payment session created successfully.\",\n  \"data\": {\n    \"invoice_id\": 105,\n    \"external_id\": \"INV-2026-11-001\",\n    \"amount\": 166500,\n    \"payment_url\": \"https://checkout-staging.xendit.co/web/6727c9b83f4d\"\n  }\n}"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "3. Pembayaran & Tagihan (Granular)",
-            "item": [
-                {
-                    "name": "3.1 Ringkasan Status Tagihan",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/payments/status",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "payments",
-                                "status"
-                            ]
-                        },
-                        "description": "Melihat status layanan (aktif/isolir), sisa hari jatuh tempo, dan tagihan tertunggak aktif."
-                    },
-                    "response": []
-                },
-                {
-                    "name": "3.2 Riwayat & Daftar Faktur",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/payments/invoices?status=unpaid",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "payments",
-                                "invoices"
-                            ],
-                            "query": [
-                                {
-                                    "key": "status",
-                                    "value": "unpaid",
-                                    "description": "Filter: unpaid, paid, expired, failed (opsional)"
-                                }
-                            ]
-                        },
-                        "description": "Daftar seluruh invoice pelanggan."
-                    },
-                    "response": []
-                },
-                {
-                    "name": "3.3 Detail Faktur Tertentu",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/payments/invoices/1",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "payments",
-                                "invoices",
-                                "1"
-                            ]
-                        },
-                        "description": "Detail rincian faktur tertentu berdasarkan ID faktur."
-                    },
-                    "response": []
-                },
-                {
-                    "name": "3.4 Melakukan Pembayaran (Xendit URL)",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"invoice_id\": 1\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{base_url}}/payments/pay",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "payments",
-                                "pay"
-                            ]
-                        },
-                        "description": "Membuat sesi payment gateway Xendit dan mengembalikan URL checkout (VA/QRIS/E-Wallet)."
-                    },
-                    "response": []
-                },
-                {
-                    "name": "3.5 Cek Status Pembayaran Real-Time",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/payments/invoices/1/check-status",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "payments",
-                                "invoices",
-                                "1",
-                                "check-status"
-                            ]
-                        },
-                        "description": "Sinkronisasi status lunas secara real-time dari Xendit paska pelanggan selesai membayar di WebView."
-                    },
-                    "response": []
-                }
-            ]
-        },
-        {
-            "name": "4. Akun & Pemakaian",
-            "item": [
-                {
-                    "name": "4.1 Informasi Akun & Layanan",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/account/info",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "account",
-                                "info"
-                            ]
-                        },
-                        "description": "Informasi profil, rincian paket berlangganan, IP address, dan parameter teknis."
-                    },
-                    "response": []
-                },
-                {
-                    "name": "4.2 Informasi Penggunaan & Kuota",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/account/usage",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "account",
-                                "usage"
-                            ]
-                        },
-                        "description": "Status koneksi online/offline, uptime perangkat, total kuota pemakaian download/upload, serta log sesi."
-                    },
-                    "response": []
-                }
-            ]
-        },
-        {
-            "name": "5. Kontrol Perangkat (TR-069 ACS)",
-            "item": [
-                {
-                    "name": "5.1 Status ONT, Sinyal Optik & Wi-Fi",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/device/wifi",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "device",
-                                "wifi"
-                            ]
-                        },
-                        "description": "Status modem ONT pelanggan, redaman optik (RX Power dBm), suhu, serta nama & kata sandi Wi-Fi saat ini."
-                    },
-                    "response": []
-                },
-                {
-                    "name": "5.2 Daftar Perangkat Terhubung (Hosts)",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/device/hosts",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "device",
-                                "hosts"
-                            ]
-                        },
-                        "description": "Melihat daftar gadget (HP, Laptop, Smart TV) yang sedang terhubung ke router Wi-Fi ONT pelanggan."
-                    },
-                    "response": []
-                },
-                {
-                    "name": "5.3 Ganti Nama SSID & Password Wi-Fi",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"ssid\": \"ERLANGGA-WIFI-BARU\",\n  \"password\": \"sandiBaruMinimal8\",\n  \"wlan_index\": 1\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{base_url}}/device/wifi",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "device",
-                                "wifi"
-                            ]
-                        },
-                        "description": "Mengirimkan konfigurasi SSID & Sandi baru ke modem ONT pelanggan via TR-069 GenieACS."
-                    },
-                    "response": []
-                },
-                {
-                    "name": "5.4 Reboot ONT Jarak Jauh",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json",
-                                "type": "text"
-                            },
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{base_url}}/device/reboot",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "device",
-                                "reboot"
-                            ]
-                        },
-                        "description": "Mengirim perintah restart / reboot modem ONT jarak jauh via TR-069."
-                    },
-                    "response": []
-                }
-            ]
-        }
+  "info": {
+    "_postman_id": "8e3c12a4-b01f-4cb1-93da-189fec0e3861",
+    "name": "Erlangga Net - Mobile Pelanggan API",
+    "description": "Koleksi Postman API Mobile Pelanggan (Android & iOS) Erlangga Net untuk environment Staging & Produksi.\n\n### 🚀 Arsitektur Screen-Oriented API (1 Screen = 1 Endpoint):\n1. **Screen 1: Home / Dashboard** -> `GET /api/dashboard`\n2. **Screen 2: Riwayat Tagihan** -> `GET /api/riwayat`\n3. **Screen 3: Notifikasi** -> `GET /api/notifications`\n4. **Screen 4: Profil & Bantuan** -> `GET /api/profile`\n5. **Action: Bayar Tagihan** -> `POST /api/pay`\n\n### ⚠️ Penanganan Autentikasi:\n- Kredensial salah / validasi gagal pada `POST /api/login` mengembalikan status **HTTP 200 OK** dengan `{ \"success\": false, \"message\": \"...\" }` untuk menghindari loop unauthorized / logout otomatis pada interceptor Flutter.\n\n### 💡 Cara Pakai:\n1. Jalankan request **1.1 Login Pelanggan (Sukses)**.\n2. Token akan otomatis tersimpan ke variabel `{{token}}`.\n3. Request lainnya sudah terkonfigurasi otomatis menggunakan Bearer Token tersebut.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
     ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://stage.erlangga.net/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Autentikasi",
+      "item": [
+        {
+          "name": "1.1 Login Pelanggan (Sukses - HTTP 200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.success && jsonData.token) {",
+                  "        pm.collectionVariables.set(\"token\", jsonData.token);",
+                  "        console.log(\"Token berhasil disimpan ke variabel: \" + jsonData.token);",
+                  "    } else {",
+                  "        console.warn(\"Login tidak sukses:\", jsonData.message);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_pelanggan\": \"23114957687\",\n  \"password\": \"123\",\n  \"device_name\": \"Flutter Android - Xiaomi 13\",\n  \"token_fcm\": \"fcm_device_token_sample_123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "login"
+              ]
+            },
+            "description": "Login menggunakan ID Pelanggan atau Username PPPoE. Jika sukses mengembalikan HTTP 200 OK dengan token Bearer Sanctum."
+          },
+          "response": [
+            {
+              "name": "200 OK - Login Sukses",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id_pelanggan\": \"23114957687\",\n  \"password\": \"123\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/login",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "login"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Login berhasil.\",\n  \"token\": \"86|ebNoPomYpZclQbfHhXWuG5pfzPKkuhgIDA7qMbNOd3239cb9\",\n  \"data\": {\n    \"customer\": {\n      \"id\": 1,\n      \"id_pelanggan\": \"23114957687\",\n      \"nama_lengkap\": \"Nurul Adhira\",\n      \"no_whatsapp\": \"082191285271\",\n      \"alamat_lengkap\": \"Blok Tegal Kalapa RT. 14 RW 10 Dangdeur Subang\",\n      \"jenis_modem\": \"EPON\",\n      \"sn_perangkat\": \"ZTEGC1234567\"\n    },\n    \"paket\": {\n      \"id\": 1,\n      \"nama_paket\": \"Paket Home 20 Mbps\",\n      \"kecepatan\": \"20 Mbps\",\n      \"harga\": 150000,\n      \"total_harga\": 166500\n    },\n    \"layanan\": {\n      \"pppoe_username\": \"nurul_tegal\",\n      \"status_invoice\": \"unpaid\",\n      \"tanggal_aktif\": \"2026-09-20\",\n      \"unpaid_invoices_count\": 1,\n      \"has_unpaid_bill\": true\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "1.2 Login Pelanggan (Gagal Kredensial - HTTP 200)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_pelanggan\": \"23114957687\",\n  \"password\": \"sandi_salah_123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "login"
+              ]
+            },
+            "description": "Jika ID Pelanggan atau kata sandi tidak cocok, API tetap mengembalikan HTTP 200 OK dengan success: false agar Flutter tidak memicu unhandled 401 redirect loop."
+          },
+          "response": [
+            {
+              "name": "200 OK - Kredensial Salah",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": false,\n  \"message\": \"ID Pelanggan atau Sandi salah.\",\n  \"errors\": {\n    \"id_pelanggan\": [\n      \"ID Pelanggan atau Sandi yang Anda masukkan tidak sesuai.\"\n    ]\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "1.3 Profil Sesi Aktif (/me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "me"
+              ]
+            },
+            "description": "Mengecek apakah sesi token masih aktif dan mengambil ringkasan akun pelanggan saat ini."
+          },
+          "response": []
+        },
+        {
+          "name": "1.4 Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "logout"
+              ]
+            },
+            "description": "Menghapus token akses sesi aktif dari server."
+          },
+          "response": []
+        },
+        {
+          "name": "1.5 Update Token FCM Pelanggan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token_fcm\": \"fcm_device_token_sample_12345abcdef\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/fcm-token",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "fcm-token"
+              ]
+            },
+            "description": "Mendaftarkan atau memperbarui token FCM (Firebase Cloud Messaging) perangkat mobile Android/iOS ke akun pelanggan untuk menerima notifikasi push tagihan jatuh tempo, konfirmasi bayar, dan broadcast maintenance."
+          },
+          "response": [
+            {
+              "name": "200 OK - Token FCM Berhasil Disimpan",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Token FCM berhasil diperbarui.\",\n  \"fcm_token\": \"fcm_device_token_sample_12345abcdef\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Mobile Screens (1 Screen = 1 API)",
+      "item": [
+        {
+          "name": "2.1 Screen 1: Home / Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/dashboard",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "dashboard"
+              ]
+            },
+            "description": "Endpoint agregasi untuk Screen 1 (Home). Menyajikan status koneksi & redaman ONT, paket aktif, serta ringkasan tagihan (termasuk invoice_url)."
+          },
+          "response": [
+            {
+              "name": "200 OK - Dashboard Data",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Dashboard data retrieved successfully.\",\n  \"data\": {\n    \"id_pelanggan\": \"23114957687\",\n    \"nama_lengkap\": \"Nurul Adhira\",\n    \"nama_paket\": \"Paket Home 20 Mbps\",\n    \"kecepatan\": \"20 Mbps\",\n    \"total_harga\": 166500,\n    \"status_layanan\": \"aktif\",\n    \"status_invoice\": \"unpaid\",\n    \"status_koneksi\": \"Online\",\n    \"ip_address\": \"10.10.20.45\",\n    \"rx_power\": \"-19.45 dBm\",\n    \"redaman\": \"-19.45 dBm\",\n    \"unpaid_invoices_count\": 1,\n    \"has_unpaid_bill\": true,\n    \"total_unpaid_amount\": 166500,\n    \"invoice_terdekat\": {\n      \"id\": 105,\n      \"external_id\": \"INV-2026-11-001\",\n      \"periode\": \"November 2026\",\n      \"jatuh_tempo\": \"2026-11-20\",\n      \"total_bayar\": 166500,\n      \"invoice_url\": \"https://checkout-staging.xendit.co/web/6727c9b83f4d\"\n    },\n    \"customer\": {\n      \"id\": 1,\n      \"id_pelanggan\": \"23114957687\",\n      \"nama_lengkap\": \"Nurul Adhira\",\n      \"no_whatsapp\": \"082191285271\",\n      \"alamat_lengkap\": \"Blok Tegal Kalapa RT. 14 RW 10 Dangdeur Subang\",\n      \"jenis_modem\": \"EPON\",\n      \"sn_perangkat\": \"ZTEGC1234567\"\n    },\n    \"koneksi\": {\n      \"status\": \"Online\",\n      \"ip_address\": \"10.10.20.45\",\n      \"mac_address\": \"AA:BB:CC:DD:EE:FF\",\n      \"uptime\": \"2d 4h 12m\",\n      \"rx_power\": \"-19.45 dBm\",\n      \"pon_mode\": \"EPON\",\n      \"last_inform\": \"2026-11-03 21:58:30\"\n    },\n    \"paket\": {\n      \"id\": 1,\n      \"nama_paket\": \"Paket Home 20 Mbps\",\n      \"kecepatan\": \"20 Mbps\",\n      \"harga\": 150000,\n      \"ppn\": 16500,\n      \"total_harga\": 166500\n    },\n    \"tagihan\": {\n      \"status_layanan\": \"aktif\",\n      \"status_invoice\": \"unpaid\",\n      \"unpaid_invoices_count\": 1,\n      \"has_unpaid_bill\": true,\n      \"total_unpaid_amount\": 166500,\n      \"invoice_terdekat\": {\n        \"id\": 105,\n        \"external_id\": \"INV-2026-11-001\",\n        \"periode\": \"November 2026\",\n        \"jatuh_tempo\": \"2026-11-20\",\n        \"total_bayar\": 166500,\n        \"invoice_url\": \"https://checkout-staging.xendit.co/web/6727c9b83f4d\"\n      }\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "2.2 Screen 2: Riwayat Tagihan",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/riwayat?status=all",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "riwayat"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "all",
+                  "description": "Filter: all, unpaid, paid (opsional)"
+                }
+              ]
+            },
+            "description": "Menampilkan daftar seluruh invoice siap pakai untuk widget BillingCard di Flutter, mencakup sn_perangkat, periode, status_invoice, harga, total_harga, invoice_url, dan invoice_duration."
+          },
+          "response": [
+            {
+              "name": "200 OK - Daftar Riwayat Tagihan",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Billing history retrieved successfully.\",\n  \"data\": [\n    {\n      \"id\": 105,\n      \"external_id\": \"INV-2026-11-001\",\n      \"no_invoice\": \"INV-2026-11-001\",\n      \"periode\": \"November 2026\",\n      \"periode_pemakaian\": \"November 2026\",\n      \"tanggal_invoice\": \"2026-11-01\",\n      \"jatuh_tempo\": \"2026-11-20\",\n      \"status_invoice\": \"unpaid\",\n      \"status_badge\": \"Belum Bayar\",\n      \"harga\": 150000,\n      \"ppn\": 16500,\n      \"total_harga\": 166500,\n      \"total_bayar\": 166500,\n      \"metode_pembayaran\": \"Xendit VA / QRIS\",\n      \"tanggal_pembayaran\": null,\n      \"invoice_url\": \"https://checkout-staging.xendit.co/web/6727c9b83f4d\",\n      \"sn_perangkat\": \"ZTEGC1234567\",\n      \"paket_langganan\": \"Paket Home 20 Mbps\",\n      \"kecepatan\": \"20 Mbps\",\n      \"invoice_duration\": \"2026-11-01 s/d 2026-11-30\"\n    },\n    {\n      \"id\": 88,\n      \"external_id\": \"INV-2026-10-001\",\n      \"no_invoice\": \"INV-2026-10-001\",\n      \"periode\": \"Oktober 2026\",\n      \"periode_pemakaian\": \"Oktober 2026\",\n      \"tanggal_invoice\": \"2026-10-01\",\n      \"jatuh_tempo\": \"2026-10-20\",\n      \"status_invoice\": \"paid\",\n      \"status_badge\": \"Lunas\",\n      \"harga\": 150000,\n      \"ppn\": 16500,\n      \"total_harga\": 166500,\n      \"total_bayar\": 166500,\n      \"metode_pembayaran\": \"BCA Virtual Account\",\n      \"tanggal_pembayaran\": \"2026-10-18 14:22:10\",\n      \"invoice_url\": null,\n      \"sn_perangkat\": \"ZTEGC1234567\",\n      \"paket_langganan\": \"Paket Home 20 Mbps\",\n      \"kecepatan\": \"20 Mbps\",\n      \"invoice_duration\": \"2026-10-01 s/d 2026-10-31\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "2.3 Screen 3: Notifikasi",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/notifications",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notifications"
+              ]
+            },
+            "description": "Feed notifikasi pelanggan komprehensif untuk Screen Notifikasi di Flutter: Tagihan jatuh tempo, konfirmasi pembayaran, info pemeliharaan jaringan, dan sambutan."
+          },
+          "response": [
+            {
+              "name": "200 OK - Feed Notifikasi",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Notifications retrieved successfully.\",\n  \"unread_count\": 1,\n  \"data\": [\n    {\n      \"id\": \"notif-bill-105\",\n      \"title\": \"Tagihan November 2026 Siap Dibayar\",\n      \"message\": \"Tagihan internet periode November 2026 sebesar Rp 166.500 telah terbit. Jatuh tempo pada 20 November 2026.\",\n      \"type\": \"billing_due\",\n      \"category\": \"tagihan\",\n      \"icon\": \"receipt_long\",\n      \"date\": \"2026-11-01 08:00:00\",\n      \"time_ago\": \"2 hari yang lalu\",\n      \"is_read\": false,\n      \"action_url\": \"/billing/105\",\n      \"action_label\": \"Bayar Sekarang\",\n      \"invoice_id\": 105,\n      \"invoice_url\": \"https://checkout-staging.xendit.co/web/6727c9b83f4d\"\n    },\n    {\n      \"id\": \"notif-welcome-1\",\n      \"title\": \"Selamat Datang di Erlangga Net!\",\n      \"message\": \"Terima kasih telah berlangganan Erlangga Net. Nikmati koneksi internet cepat dan stabil bersama keluarga Anda.\",\n      \"type\": \"welcome\",\n      \"category\": \"info\",\n      \"icon\": \"celebration\",\n      \"date\": \"2026-09-20 10:00:00\",\n      \"time_ago\": \"1 bulan yang lalu\",\n      \"is_read\": true,\n      \"action_url\": null,\n      \"action_label\": null\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "2.3.1 Tandai Notifikasi Dibaca",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/notifications/1/read",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notifications",
+                "1",
+                "read"
+              ]
+            },
+            "description": "Menandai satu notifikasi tertentu sebagai telah dibaca saat dibuka oleh pelanggan."
+          },
+          "response": [
+            {
+              "name": "200 OK - Notifikasi Ditandai Dibaca",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Notifikasi ditandai telah dibaca.\",\n  \"id\": 1\n}"
+            }
+          ]
+        },
+        {
+          "name": "2.3.2 Tandai Semua Notifikasi Dibaca",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/notifications/read-all",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "notifications",
+                "read-all"
+              ]
+            },
+            "description": "Menandai seluruh notifikasi pelanggan yang belum dibaca menjadi sudah dibaca sekaligus."
+          },
+          "response": [
+            {
+              "name": "200 OK - Seluruh Notifikasi Dibaca",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Seluruh notifikasi berhasil ditandai telah dibaca.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "2.4 Screen 4: Profil & Bantuan",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "profile"
+              ]
+            },
+            "description": "Menampilkan seluruh data Screen Profil Flutter: Informasi data pelanggan, spesifikasi perangkat modem ONT, paket berlangganan, serta direct intent WhatsApp CS & email bantuan."
+          },
+          "response": [
+            {
+              "name": "200 OK - Data Profil & Bantuan",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Profile data retrieved successfully.\",\n  \"data\": {\n    \"customer\": {\n      \"id\": 1,\n      \"id_pelanggan\": \"23114957687\",\n      \"nama_lengkap\": \"Nurul Adhira\",\n      \"username_pppoe\": \"nurul_tegal\",\n      \"email\": \"nurul@example.com\",\n      \"no_whatsapp\": \"082191285271\",\n      \"alamat_lengkap\": \"Blok Tegal Kalapa RT. 14 RW 10 Dangdeur Subang\",\n      \"tanggal_pemasangan\": \"2026-09-20\",\n      \"status_berlangganan\": \"aktif\",\n      \"odp_name\": \"ODP-SUBANG-01\"\n    },\n    \"ont\": {\n      \"sn_perangkat\": \"ZTEGC1234567\",\n      \"jenis_modem\": \"EPON\",\n      \"brand\": \"ZTE\",\n      \"model\": \"F609\",\n      \"mac_address\": \"AA:BB:CC:DD:EE:FF\",\n      \"status_koneksi\": \"Online\",\n      \"rx_power\": \"-19.45 dBm\",\n      \"ip_address\": \"10.10.20.45\"\n    },\n    \"paket\": {\n      \"id\": 1,\n      \"nama_paket\": \"Paket Home 20 Mbps\",\n      \"kecepatan\": \"20 Mbps\",\n      \"harga\": 150000,\n      \"ppn\": 16500,\n      \"total_harga\": 166500,\n      \"tipe\": \"unlimited\"\n    },\n    \"dukungan_bantuan\": {\n      \"call_center\": \"081234567890\",\n      \"whatsapp_cs\": \"081234567890\",\n      \"whatsapp_url\": \"https://wa.me/6281234567890?text=Halo%20Admin%20Erlangga%20Net%2C%20saya%20pelanggan%20Nurul%20Adhira%20(ID%3A%2023114957687)%20ingin%20bertanya...\",\n      \"email_support\": \"bantuan@erlangga.net\",\n      \"jam_operasional\": \"Setiap Hari (08:00 - 22:00 WIB)\"\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "2.5 Action: Bayar Sekarang (Direct Checkout)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invoice_id\": 105\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/pay",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pay"
+              ]
+            },
+            "description": "Endpoint checkout satu pintu untuk tombol 'Bayar Sekarang' di Flutter. Mengembalikan link invoice pembayaran Xendit siap buka di browser / WebView."
+          },
+          "response": [
+            {
+              "name": "200 OK - URL Pembayaran Xendit",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Checkout payment session created successfully.\",\n  \"data\": {\n    \"invoice_id\": 105,\n    \"external_id\": \"INV-2026-11-001\",\n    \"amount\": 166500,\n    \"payment_url\": \"https://checkout-staging.xendit.co/web/6727c9b83f4d\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Pembayaran & Tagihan (Granular)",
+      "item": [
+        {
+          "name": "3.1 Ringkasan Status Tagihan",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/payments/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "payments",
+                "status"
+              ]
+            },
+            "description": "Melihat status layanan (aktif/isolir), sisa hari jatuh tempo, dan tagihan tertunggak aktif."
+          },
+          "response": []
+        },
+        {
+          "name": "3.2 Riwayat & Daftar Faktur",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/payments/invoices?status=unpaid",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "payments",
+                "invoices"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "unpaid",
+                  "description": "Filter: unpaid, paid, expired, failed (opsional)"
+                }
+              ]
+            },
+            "description": "Daftar seluruh invoice pelanggan."
+          },
+          "response": []
+        },
+        {
+          "name": "3.3 Detail Faktur Tertentu",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/payments/invoices/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "payments",
+                "invoices",
+                "1"
+              ]
+            },
+            "description": "Detail rincian faktur tertentu berdasarkan ID faktur."
+          },
+          "response": []
+        },
+        {
+          "name": "3.4 Melakukan Pembayaran (Xendit URL)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invoice_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/payments/pay",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "payments",
+                "pay"
+              ]
+            },
+            "description": "Membuat sesi payment gateway Xendit dan mengembalikan URL checkout (VA/QRIS/E-Wallet)."
+          },
+          "response": []
+        },
+        {
+          "name": "3.5 Cek Status Pembayaran Real-Time",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/payments/invoices/1/check-status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "payments",
+                "invoices",
+                "1",
+                "check-status"
+              ]
+            },
+            "description": "Sinkronisasi status lunas secara real-time dari Xendit paska pelanggan selesai membayar di WebView."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. Akun & Pemakaian",
+      "item": [
+        {
+          "name": "4.1 Informasi Akun & Layanan",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/account/info",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "account",
+                "info"
+              ]
+            },
+            "description": "Informasi profil, rincian paket berlangganan, IP address, dan parameter teknis."
+          },
+          "response": []
+        },
+        {
+          "name": "4.2 Informasi Penggunaan & Kuota",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/account/usage",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "account",
+                "usage"
+              ]
+            },
+            "description": "Status koneksi online/offline, uptime perangkat, total kuota pemakaian download/upload, serta log sesi."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Kontrol Perangkat (TR-069 ACS)",
+      "item": [
+        {
+          "name": "5.1 Status ONT, Sinyal Optik & Wi-Fi",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/device/wifi",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "device",
+                "wifi"
+              ]
+            },
+            "description": "Status modem ONT pelanggan, redaman optik (RX Power dBm), suhu, serta nama & kata sandi Wi-Fi saat ini."
+          },
+          "response": []
+        },
+        {
+          "name": "5.2 Daftar Perangkat Terhubung (Hosts)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/device/hosts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "device",
+                "hosts"
+              ]
+            },
+            "description": "Melihat daftar gadget (HP, Laptop, Smart TV) yang sedang terhubung ke router Wi-Fi ONT pelanggan."
+          },
+          "response": []
+        },
+        {
+          "name": "5.3 Ganti Nama SSID & Password Wi-Fi",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ssid\": \"ERLANGGA-WIFI-BARU\",\n  \"password\": \"sandiBaruMinimal8\",\n  \"wlan_index\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/device/wifi",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "device",
+                "wifi"
+              ]
+            },
+            "description": "Mengirimkan konfigurasi SSID & Sandi baru ke modem ONT pelanggan via TR-069 GenieACS."
+          },
+          "response": []
+        },
+        {
+          "name": "5.4 Reboot ONT Jarak Jauh",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/device/reboot",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "device",
+                "reboot"
+              ]
+            },
+            "description": "Mengirim perintah restart / reboot modem ONT jarak jauh via TR-069."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
 }

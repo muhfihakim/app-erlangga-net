@@ -319,16 +319,24 @@
     </thead>
     <tbody>
       <tr>
-        <td><code>token_fcm</code> (during <code>POST /api/login</code>)</td>
-        <td>Push Notification</td>
-        <td>Firebase Cloud Messaging device push token registered with backend to receive billing &amp; broadcast alerts.</td>
+        <td><code>POST /api/fcm-token</code></td>
+        <td><span class="badge badge-post">POST</span></td>
+        <td>Register or update device FCM push notification token with server backend.</td>
       </tr>
       <tr>
-        <td><strong>Recommended New API:</strong><br><code>GET /api/notifications</code></td>
+        <td><code>GET /api/notifications</code></td>
         <td><span class="badge badge-get">GET</span></td>
-        <td>
-          <em>Implementation Note:</em> The current APK uses static billing broadcast cards and fallback empty state (<code>"Belum Ada Notifikasi"</code>). A dedicated <code>GET /api/notifications</code> endpoint should be implemented for dynamic notification feeds.
-        </td>
+        <td>Dynamic customer notification feed (invoices due, payment receipt, network maintenance, and welcome greetings) with unread count.</td>
+      </tr>
+      <tr>
+        <td><code>POST /api/notifications/{id}/read</code></td>
+        <td><span class="badge badge-post">POST</span></td>
+        <td>Mark specific notification item as read.</td>
+      </tr>
+      <tr>
+        <td><code>POST /api/notifications/read-all</code></td>
+        <td><span class="badge badge-post">POST</span></td>
+        <td>Mark all customer notifications as read.</td>
       </tr>
     </tbody>
   </table>
