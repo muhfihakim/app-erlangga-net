@@ -138,9 +138,6 @@
             </p>
         </div>
         <div class="flex items-center gap-2">
-            <button type="button" onclick="reloadTable()" class="btn-cancel !h-8.5 !px-3.5 text-xs font-semibold flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs">
-                <i class="fa-solid fa-arrows-rotate text-slate-500" id="refreshIcon"></i> Refresh
-            </button>
             <button type="button" onclick="openCustomModal('createBroadcastModal')" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-3.5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
                 <i class="fa-solid fa-paper-plane"></i> Tambah Pemberitahuan
             </button>
@@ -221,8 +218,8 @@
                 </div>
             </div>
 
-            <button type="button" onclick="resetFilters()" class="btn-cancel !h-8.5 !px-3.5 text-xs font-semibold flex items-center gap-1 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 shadow-xs" title="Reset Filter">
-                <i class="fa-solid fa-arrow-rotate-left"></i> Reset
+            <button type="button" onclick="broadcastTable.draw()" class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                <i class="fa-solid fa-filter"></i> Filter
             </button>
         </div>
     </div>
@@ -588,12 +585,8 @@
             });
 
             function reloadTable() {
-                const icon = document.getElementById('refreshIcon');
-                if (icon) icon.classList.add('fa-spin');
                 if (broadcastTable) {
-                    broadcastTable.ajax.reload(function() {
-                        if (icon) icon.classList.remove('fa-spin');
-                    }, false);
+                    broadcastTable.ajax.reload(null, false);
                 }
             }
 
