@@ -52,7 +52,7 @@
             class="modal-tab {{ $activeTab === 'firebase' ? 'active' : '' }} !rounded-lg !py-1.5 !px-3.5 !text-xs font-semibold"
             data-tab="tab-firebase" id="tab-btn-firebase" role="tab"
             aria-selected="{{ $activeTab === 'firebase' ? 'true' : 'false' }}" aria-controls="tab-firebase">
-            <i class="fa-solid fa-fire mr-1.5 text-amber-500" aria-hidden="true"></i> Firebase FCM
+            <i class="fa-solid fa-bell mr-1.5 text-amber-500" aria-hidden="true"></i> Firebase FCM
         </button>
     </div>
 
@@ -902,7 +902,7 @@
             <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
                 <div>
                     <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-fire text-amber-500" aria-hidden="true"></i> Konfigurasi Firebase Cloud Messaging (FCM)
+                        <i class="fa-solid fa-bell text-amber-500" aria-hidden="true"></i> Konfigurasi Firebase Cloud Messaging (FCM)
                     </h2>
                     <p class="text-xs text-slate-500 mt-1">
                         Digunakan untuk mengirim notifikasi push ke aplikasi mobile pelanggan (Android & iOS): tagihan jatuh tempo, konfirmasi pembayaran, dan pengumuman pemeliharaan.
@@ -983,7 +983,7 @@
                 <div class="flex items-center justify-end gap-2 pt-3.5 mt-3.5 border-t border-slate-100">
                     <button type="button" onclick="testConnectionAjax('firebase')"
                         class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5">
-                        <i class="fa-solid fa-paper-plane text-amber-400"></i> <span id="btn-test-firebase-text">Uji Notifikasi FCM</span>
+                        <i class="fa-solid fa-bolt"></i> <span id="btn-test-firebase-text">Uji Koneksi</span>
                     </button>
                     <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
@@ -1326,12 +1326,9 @@ ${scriptIsolir}`;
                     payload.username = document.getElementById('genieacs_username')?.value || '';
                     payload.password = document.getElementById('genieacs_password')?.value || '';
                 } else if (type === 'firebase') {
-                    const testToken = window.prompt('Masukkan FCM Device Token perangkat mobile tujuan (opsional, kosongkan untuk menguji kredensial Service Account):', '');
-                    if (testToken === null) {
-                        if (btnText) btnText.innerHTML = originalBtnText;
-                        return;
-                    }
-                    payload.target_token = testToken.trim();
+                    payload.project_id = document.getElementById('firebase_project_id')?.value || '';
+                    payload.service_account = document.getElementById('firebase_service_account')?.value || '';
+                    payload.server_key = document.getElementById('firebase_server_key')?.value || '';
                 }
 
                 fetch('{{ route('settings.test_connection') }}', {
@@ -1361,6 +1358,28 @@ ${scriptIsolir}`;
                         showToast('Network error / endpoint gagal dihubungi.', 'error');
                     });
             }
+
+            // Auto-parse uploaded Firebase Service Account JSON file ke form
+            document.getElementById('firebase_credentials_file')?.addEventListener('change', function(e) {
+                const file = e.target.files && e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        try {
+                            const content = event.target.result;
+                            const parsed = JSON.parse(content);
+                            document.getElementById('firebase_service_account').value = content;
+                            if (parsed.project_id) {
+                                document.getElementById('firebase_project_id').value = parsed.project_id;
+                            }
+                            showToast('File JSON Service Account berhasil dimuat ke form.', 'info');
+                        } catch (err) {
+                            showToast('Format file bukan JSON yang valid.', 'error');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            });
         </script>
     @endsection
 </x-layouts.app>

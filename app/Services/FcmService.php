@@ -69,14 +69,16 @@ class FcmService
     /**
      * Ambil Google OAuth2 Access Token untuk FCM HTTP v1 API.
      */
-    public function getOAuth2AccessToken(): ?string
+    public function getOAuth2AccessToken(?array $customSa = null): ?string
     {
-        $cachedToken = Cache::get('fcm_oauth2_access_token');
-        if (!empty($cachedToken)) {
-            return $cachedToken;
+        if ($customSa === null) {
+            $cachedToken = Cache::get('fcm_oauth2_access_token');
+            if (!empty($cachedToken)) {
+                return $cachedToken;
+            }
         }
 
-        $sa = $this->getServiceAccount();
+        $sa = $customSa ?? $this->getServiceAccount();
         if (!$sa || empty($sa['client_email']) || empty($sa['private_key'])) {
             return null;
         }

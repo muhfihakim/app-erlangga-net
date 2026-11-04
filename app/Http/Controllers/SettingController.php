@@ -345,7 +345,7 @@ class SettingController extends Controller
                     ?: Setting::get('company_phone') 
                     ?: '081234567890';
 
-                $msg = "🔔 *Tes Notifikasi WhatsApp Gateway*\n\nIntegrasi API WhatsApp Erlangga Net berhasil terhubung dengan sukses pada " . date('d/m/Y H:i:s') . " WIB.";
+                $msg = "*Tes Notifikasi WhatsApp Gateway*\n\nIntegrasi API WhatsApp Erlangga Net berhasil terhubung dengan sukses pada " . date('d/m/Y H:i:s') . " WIB.";
                 $result = \App\Services\WhatsAppService::sendMessage($target, $msg);
 
                 $elapsed = round((microtime(true) - $startTime) * 1000, 2);
@@ -380,47 +380,47 @@ class SettingController extends Controller
 
             if ($type === 'firebase') {
                 $fcm = app(\App\Services\FcmService::class);
-                $targetToken = trim($request->input('target_token') ?? '');
-
-                if (!empty($targetToken)) {
-                    $testRes = $fcm->sendToToken(
-                        $targetToken,
-                        'Tes Push Notifikasi Firebase',
-                        'Integrasi push notification Erlangga Net berhasil terkirim ke perangkat mobile Anda.'
-                    );
-
-                    $elapsed = round((microtime(true) - $startTime) * 1000, 2);
-                    if ($testRes['success']) {
-                        return response()->json([
-                            'success' => true,
-                            'message' => "Push notifikasi FCM berhasil terkirim ke perangkat tujuan! [{$elapsed}ms]",
-                        ]);
-                    } else {
-                        throw new \Exception($testRes['message'] ?? 'Gagal mengirim push notifikasi.');
+                
+                // Ambil data service account dari input form (atau fallback ke database setting)
+                $saInput = trim($request->input('service_account') ?? '');
+                $customSa = null;
+                if (!empty($saInput)) {
+                    $decoded = json_decode($saInput, true);
+                    if (is_array($decoded)) {
+                        $customSa = $decoded;
                     }
                 }
 
-                // Cek otentikasi Google OAuth2 (HTTP v1) atau Server Key
-                $accessToken = $fcm->getOAuth2AccessToken();
-                $projectId = $fcm->getProjectId();
+                $projectId = trim($request->input('project_id') ?? '');
+                if (empty($projectId) && $customSa && !empty($customSa['project_id'])) {
+                    $projectId = $customSa['project_id'];
+                }
+                if (empty($projectId)) {
+                    $projectId = $fcm->getProjectId();
+                }
+
+                // Uji otentikasi Google OAuth2 (FCM HTTP v1)
+                $accessToken = $fcm->getOAuth2AccessToken($customSa);
                 $elapsed = round((microtime(true) - $startTime) * 1000, 2);
 
-                if ($accessToken && $projectId) {
+                if ($accessToken) {
+                    $projTxt = $projectId ? " (Project: {$projectId})" : "";
                     return response()->json([
                         'success' => true,
-                        'message' => "Kredensial Firebase HTTP v1 Sukses! OAuth2 token valid untuk project: {$projectId} [{$elapsed}ms]",
+                        'message' => "Koneksi Firebase HTTP v1 Sukses! Service Account & OAuth2 Token Valid{$projTxt} [{$elapsed}ms]",
                     ]);
                 }
 
-                $serverKey = Setting::get('firebase_server_key', env('FCM_SERVER_KEY'));
+                // Cek fallback legacy server key jika ada
+                $serverKey = trim($request->input('server_key') ?? Setting::get('firebase_server_key', env('FCM_SERVER_KEY', '')));
                 if (!empty($serverKey)) {
                     return response()->json([
                         'success' => true,
-                        'message' => "Firebase Legacy Server Key terkonfigurasi. [{$elapsed}ms]",
+                        'message' => "Firebase Legacy Server Key Terkonfigurasi [{$elapsed}ms]",
                     ]);
                 }
 
-                throw new \Exception("Kredensial Service Account JSON atau Project ID Firebase belum terisi atau tidak valid.");
+                throw new \Exception("Kredensial Service Account JSON atau Project ID Firebase belum diisi atau format JSON tidak valid.");
             }
 
             throw new \Exception("Tipe pengujian tidak dikenal.");
