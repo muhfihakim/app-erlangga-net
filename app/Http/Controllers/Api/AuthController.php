@@ -127,7 +127,7 @@ class AuthController extends Controller
                 ] : null,
                 'layanan' => [
                     'pppoe_username'       => $customer->pppoe_username,
-                    'status_invoice'       => $pppoe?->status_invoice ?? 'terbayar',
+                    'status_invoice'       => ($unpaidInvoicesCount > 0) ? 'belum_bayar' : 'terbayar',
                     'tanggal_aktif'        => ($pppoe && $pppoe->tanggal_aktif) ? ($pppoe->tanggal_aktif instanceof \DateTimeInterface ? $pppoe->tanggal_aktif->format('Y-m-d') : substr((string)$pppoe->tanggal_aktif, 0, 10)) : ($customer->created_at ? $customer->created_at->format('Y-m-d') : null),
                     'unpaid_invoices_count'=> $unpaidInvoicesCount,
                     'has_unpaid_bill'      => $unpaidInvoicesCount > 0,

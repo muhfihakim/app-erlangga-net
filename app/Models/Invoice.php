@@ -72,8 +72,13 @@ class Invoice extends Model
                 }
             }
 
+            $hasRemainingUnpaid = static::where('pppoe_id', $pppoe->id)
+                ->where('id', '!=', $this->id)
+                ->where('status', 'unpaid')
+                ->exists();
+
             $pppoe->update([
-                'status_invoice' => 'terbayar',
+                'status_invoice' => $hasRemainingUnpaid ? 'belum_bayar' : 'terbayar',
                 'tanggal_aktif' => $newAktif,
             ]);
 

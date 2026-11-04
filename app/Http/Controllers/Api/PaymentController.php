@@ -79,7 +79,8 @@ class PaymentController extends Controller
             'success' => true,
             'data' => [
                 'status_layanan'       => $statusLayanan,
-                'status_invoice'       => $pppoe->status_invoice ?? ($unpaidInvoices->count() > 0 ? 'belum_bayar' : 'terbayar'),
+                'status_invoice'       => ($unpaidInvoices->count() > 0) ? 'belum_bayar' : 'terbayar',
+                'status_badge'         => ($unpaidInvoices->count() > 0) ? 'Belum Bayar' : 'Lunas',
                 'tanggal_jatuh_tempo'  => $dueDateStr,
                 'sisa_hari'            => $sisaHari,
                 'is_overdue'           => $isOverdue,

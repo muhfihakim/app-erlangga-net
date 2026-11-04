@@ -86,7 +86,17 @@ class ScreenController extends Controller
         $totalTunggakan = (float) $unpaidInvoices->sum('total');
         $earliestUnpaid = $unpaidInvoices->first();
 
-        $statusInvoice = $pppoe?->status_invoice ?? ($hasUnpaidBill ? 'belum_bayar' : 'terbayar');
+        // Status invoice dihitung langsung dari ada/tidaknya tagihan yang belum terbayar di database invoices
+        $statusInvoice = $hasUnpaidBill ? 'belum_bayar' : 'terbayar';
+
+        // Sinkronkan status_invoice pada model pppoe jika tidak sesuai
+        if ($pppoe && $pppoe->status_invoice !== $statusInvoice) {
+            try {
+                $pppoe->update(['status_invoice' => $statusInvoice]);
+            } catch (\Throwable $e) {
+                // Non-blocking bypass
+            }
+        }
 
         // Periode tagihan & jatuh tempo
         $dueDateStr = null;
@@ -201,6 +211,8 @@ class ScreenController extends Controller
             ],
             'tagihan' => [
                 'status_invoice'        => $statusInvoice,
+                'status'                => $hasUnpaidBill ? ($earliestUnpaid?->status ?? 'unpaid') : 'paid',
+                'status_badge'          => $hasUnpaidBill ? 'Belum Bayar' : 'Lunas',
                 'has_unpaid_bill'       => $hasUnpaidBill,
                 'unpaid_invoices_count' => $unpaidCount,
                 'total_harga'           => $hasUnpaidBill ? $totalTunggakan : $totalHargaPaket,
@@ -276,6 +288,7 @@ class ScreenController extends Controller
                 'periode'          => $periode,
                 'status_invoice'   => $statusInvoice,
                 'status'           => $inv->status,
+                'status_badge'     => ($inv->status === 'paid') ? 'Lunas' : 'Belum Bayar',
                 'harga'            => (float) $inv->amount,
                 'tax'              => (float) $inv->tax,
                 'discount'         => (float) $inv->discount,

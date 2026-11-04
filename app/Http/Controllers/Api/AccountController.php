@@ -23,7 +23,9 @@ class AccountController extends Controller
 
         $statusLayanan = 'Belum Aktif';
         if ($pppoe) {
-            $statusLayanan = ($pppoe->status_invoice === 'terbayar') ? 'Aktif' : 'Menunggu Pembayaran';
+            $hasUnpaid = \App\Models\Invoice::where('pppoe_id', $pppoe->id)->where('status', 'unpaid')->exists();
+            $statusInvoice = $hasUnpaid ? 'belum_bayar' : 'terbayar';
+            $statusLayanan = $hasUnpaid ? 'Menunggu Pembayaran' : 'Aktif';
         }
 
         return response()->json([
@@ -56,7 +58,7 @@ class AccountController extends Controller
                 ],
                 'layanan' => [
                     'status_layanan' => $statusLayanan,
-                    'status_invoice' => $pppoe?->status_invoice ?? 'terbayar',
+                    'status_invoice' => $statusInvoice ?? 'terbayar',
                     'tanggal_aktif'  => ($pppoe && $pppoe->tanggal_aktif) ? ($pppoe->tanggal_aktif instanceof \DateTimeInterface ? $pppoe->tanggal_aktif->format('Y-m-d') : substr((string)$pppoe->tanggal_aktif, 0, 10)) : ($customer->created_at ? $customer->created_at->format('Y-m-d') : null),
                     'tipe_pembayaran'=> $pppoe?->tipe_pembayaran ?? 'prepaid',
                     'periode_billing'=> $pppoe?->periode_billing ?? 'fixed',

@@ -226,6 +226,8 @@ class InvoiceController extends Controller
             'due_date' => $dueDate
         ]);
 
+        $pppoe->update(['status_invoice' => 'belum_bayar']);
+
         return redirect()->back()->with('success', 'Berhasil generate tagihan manual untuk pelanggan ini.');
     }
 
