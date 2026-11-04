@@ -376,11 +376,13 @@
                     </div>
                 </div>
 
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3.5 flex items-center justify-end gap-2">
-                    <button type="button" onclick="closeCustomModal('createBroadcastModal')" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold">
-                        Batal
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between items-center gap-2">
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
+                        onclick="closeCustomModal('createBroadcastModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" id="btnSubmitBroadcast" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-4.5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" id="btnSubmitBroadcast"
+                        class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
                         <i class="fa-solid fa-paper-plane"></i> Kirim Broadcast
                     </button>
                 </div>
@@ -441,9 +443,10 @@
                 </div>
             </div>
 
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3.5 flex justify-end">
-                <button type="button" onclick="closeCustomModal('detailBroadcastModal')" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold">
-                    Tutup
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-end">
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
+                    onclick="closeCustomModal('detailBroadcastModal')">
+                    <i class="fa-solid fa-xmark"></i> Tutup
                 </button>
             </div>
         </div>
@@ -459,12 +462,14 @@
                 <h3 class="text-base font-bold text-slate-900 m-0">Hapus Riwayat Pemberitahuan?</h3>
                 <p class="text-xs text-slate-500 m-0">Log pengiriman ini akan dihapus permanen dari sistem. Tindakan ini tidak dapat dibatalkan.</p>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-center gap-2">
-                <button type="button" onclick="closeCustomModal('deleteBroadcastModal')" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold">
-                    Batal
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between items-center gap-2">
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
+                    onclick="closeCustomModal('deleteBroadcastModal')">
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
-                <button type="button" id="btnConfirmDelete" onclick="executeDeleteBroadcast()" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !h-8.5 !px-4.5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
-                    <i class="fa-solid fa-trash-can"></i> Hapus
+                <button type="button" id="btnConfirmDelete" onclick="executeDeleteBroadcast()"
+                    class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <i class="fa-solid fa-trash"></i> Hapus
                 </button>
             </div>
         </div>
