@@ -5,7 +5,7 @@
                 Pengaturan Sistem & Integrasi Server
             </h1>
             <p class="text-xs text-slate-500 mt-1">
-                Kelola konfigurasi parameter MikroTik, OLT, database RADIUS, dan Xendit yang tersimpan aman di Database.
+                Kelola konfigurasi parameter MikroTik, OLT, FreeRADIUS, Xendit, WhatsApp Gateway, GenieACS, dan Firebase FCM.
             </p>
         </div>
     </div>
@@ -20,6 +20,11 @@
             data-tab="tab-mikrotik" id="tab-btn-mikrotik" role="tab"
             aria-selected="{{ $activeTab === 'mikrotik' ? 'true' : 'false' }}" aria-controls="tab-mikrotik">
             <i class="fa-solid fa-microchip mr-1.5 text-indigo-500" aria-hidden="true"></i> MikroTik RouterOS
+        </button>
+        <button type="button" class="modal-tab {{ $activeTab === 'script-mikrotik' ? 'active' : '' }} !rounded-lg !py-1.5 !px-3.5 !text-xs font-semibold"
+            data-tab="tab-script-mikrotik" id="tab-btn-script-mikrotik" role="tab"
+            aria-selected="{{ $activeTab === 'script-mikrotik' ? 'true' : 'false' }}" aria-controls="tab-script-mikrotik">
+            <i class="fa-solid fa-terminal mr-1.5 text-indigo-500" aria-hidden="true"></i> Script MikroTik
         </button>
         <button type="button" class="modal-tab {{ $activeTab === 'olt' ? 'active' : '' }} !rounded-lg !py-1.5 !px-3.5 !text-xs font-semibold"
             data-tab="tab-olt" id="tab-btn-olt" role="tab"
@@ -73,6 +78,22 @@
                     class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
                     Port Default: 8728 (API)
                 </span>
+            </div>
+
+            <!-- Petunjuk Konfigurasi MikroTik RouterOS -->
+            <div class="bg-indigo-50/50 border border-indigo-200/80 rounded-xl p-3.5 mb-4 text-xs text-slate-700">
+                <div class="flex items-start gap-2.5">
+                    <i class="fa-solid fa-circle-info text-indigo-600 mt-0.5 text-sm"></i>
+                    <div>
+                        <span class="font-bold text-slate-800">Petunjuk Konfigurasi API MikroTik RouterOS:</span>
+                        <ol class="list-decimal ml-4 mt-1 space-y-1 text-slate-600">
+                            <li>Pastikan service API MikroTik aktif di Winbox: menu <strong>IP &gt; Services</strong>, aktifkan service <strong>api</strong> (port default <strong>8728</strong>) atau <strong>api-ssl</strong> (port 8729).</li>
+                            <li>Buat user khusus aplikasi di menu <strong>System &gt; Users</strong> dengan grup permission <strong>full</strong> atau <strong>write</strong>.</li>
+                            <li>Pastikan IP Server web aplikasi Laravel dapat menjangkau IP router MikroTik tanpa terhalang firewall/NAT.</li>
+                            <li>Isi parameter koneksi API dan rentang IP Pool PPPoE di bawah, lalu klik <strong>Uji Koneksi</strong> dan <strong>Simpan</strong>.</li>
+                        </ol>
+                    </div>
+                </div>
             </div>
 
             <form action="{{ route('settings.update') }}" method="POST" id="form-mikrotik">
@@ -295,9 +316,12 @@
                 </div>
             </form>
         </div>
+    </div>
 
-        <!-- MikroTik RouterOS CLI Script Generator & Guide Card -->
-        <div class="table-card p-4 sm:p-5 mt-5">
+    <!-- Tab 2: Script MikroTik -->
+    <div class="tab-panel {{ $activeTab === 'script-mikrotik' ? 'active' : '' }}" id="tab-script-mikrotik" role="tabpanel"
+        aria-labelledby="tab-btn-script-mikrotik" tabindex="0">
+        <div class="table-card p-4 sm:p-5">
             <div
                 class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3 mb-4 gap-3">
                 <div>
@@ -306,7 +330,7 @@
                         Script Terminal MikroTik
                     </h2>
                     <p class="text-xs text-slate-500 mt-1">
-                        Script PNP (Plug & Play) RouterOS sesuai dengan database di atas. Cukup salin dan jalankan
+                        Script PNP (Plug & Play) RouterOS sesuai dengan parameter di tab MikroTik. Cukup salin dan jalankan
                         langsung di New Terminal WinBox.
                     </p>
                 </div>
@@ -315,6 +339,23 @@
                         class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
                         <i class="fa-solid fa-code mr-1.5" aria-hidden="true"></i> RouterOS v6 / v7 CLI
                     </span>
+                </div>
+            </div>
+
+            <!-- Petunjuk Menjalankan Script Terminal MikroTik -->
+            <div class="bg-indigo-50/50 border border-indigo-200/80 rounded-xl p-3.5 mb-4 text-xs text-slate-700">
+                <div class="flex items-start gap-2.5">
+                    <i class="fa-solid fa-circle-info text-indigo-600 mt-0.5 text-sm"></i>
+                    <div>
+                        <span class="font-bold text-slate-800">Petunjuk Menjalankan Script Terminal MikroTik:</span>
+                        <ol class="list-decimal ml-4 mt-1 space-y-1 text-slate-600">
+                            <li>Script di bawah otomatis mengompilasi parameter dari tab <strong>MikroTik RouterOS</strong> dan paket layanan aktif.</li>
+                            <li>Buka aplikasi <strong>Winbox</strong> lalu login ke router MikroTik Anda.</li>
+                            <li>Buka menu <strong>New Terminal</strong> pada panel sebelah kiri Winbox.</li>
+                            <li>Pilih tab <strong>5. Script Lengkap (All-in-One)</strong> (atau bagian yang dibutuhkan) di bawah, lalu klik tombol <strong>Salin Semua Script PNP</strong>.</li>
+                            <li>Klik kanan di jendela terminal Winbox &gt; pilih <strong>Paste</strong>, lalu tekan <strong>Enter</strong>. Seluruh konfigurasi otomatis aktif!</li>
+                        </ol>
+                    </div>
                 </div>
             </div>
 
@@ -456,26 +497,10 @@
                         class="overflow-x-auto text-emerald-400 font-mono text-xs leading-relaxed min-h-[160px] max-h-96 selection:bg-rose-500 selection:text-white"><code id="code-script-all"></code></pre>
                 </div>
             </div>
-
-            <!-- Step by step instructions box -->
-            <div class="mt-6 p-4 rounded-xl bg-blue-50/70 border border-blue-200 text-xs text-slate-700 space-y-2">
-                <div class="font-bold text-blue-900 flex items-center gap-2 text-sm">
-                    <i class="fa-solid fa-circle-info text-blue-600" aria-hidden="true"></i> Langkah Menjalankan
-                    Script di MikroTik
-                </div>
-                <ol class="list-decimal list-inside space-y-1 text-slate-600 pl-1 leading-relaxed">
-                    <li>Buka aplikasi <strong>Winbox</strong> dan login ke router MikroTik CHR Server Anda.</li>
-                    <li>Buka menu <strong>New Terminal</strong> di sisi kiri Winbox.</li>
-                    <li>Pilih tab <strong>"5. Script Lengkap (All-in-One PNP)"</strong> di atas, klik tombol
-                        <strong>Salin Semua Script PNP</strong>.</li>
-                    <li><strong>Paste (Klik Kanan -> Paste)</strong> ke terminal MikroTik dan tekan
-                        <strong>Enter</strong>. Seluruh konfigurasi otomatis aktif seketika!</li>
-                </ol>
-            </div>
         </div>
     </div>
 
-    <!-- Tab 2: OLT -->
+    <!-- Tab 3: OLT -->
     <div class="tab-panel {{ $activeTab === 'olt' ? 'active' : '' }}" id="tab-olt" role="tabpanel"
         aria-labelledby="tab-btn-olt" tabindex="0">
         <div class="table-card p-4 sm:p-5">
@@ -492,6 +517,22 @@
                     class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-sky-50 text-sky-700 border border-sky-100">
                     Port Default: 23 (Telnet)
                 </span>
+            </div>
+
+            <!-- Petunjuk Konfigurasi Telnet OLT -->
+            <div class="bg-sky-50/50 border border-sky-200/80 rounded-xl p-3.5 mb-4 text-xs text-slate-700">
+                <div class="flex items-start gap-2.5">
+                    <i class="fa-solid fa-circle-info text-sky-600 mt-0.5 text-sm"></i>
+                    <div>
+                        <span class="font-bold text-slate-800">Petunjuk Konfigurasi Telnet OLT:</span>
+                        <ol class="list-decimal ml-4 mt-1 space-y-1 text-slate-600">
+                            <li>Pastikan service <strong>Telnet</strong> (port 23) aktif pada perangkat OLT dan dapat dijangkau dari server aplikasi.</li>
+                            <li>Gunakan user kredensial administrator OLT yang memiliki izin membaca data ONU/ONT dan status redaman optik (RX Power).</li>
+                            <li>Untuk OLT ZTE, Fiberhome, atau HSGQ, pastikan jalur routing atau VPN antara server Laravel dan IP OLT telah terhubung.</li>
+                            <li>Klik tombol <strong>Uji Koneksi</strong> untuk memverifikasi handshake Telnet sebelum menyimpan konfigurasi.</li>
+                        </ol>
+                    </div>
+                </div>
             </div>
 
             <form action="{{ route('settings.update') }}" method="POST" id="form-olt">
@@ -552,7 +593,7 @@
         </div>
     </div>
 
-    <!-- Tab 3: RADIUS -->
+    <!-- Tab 4: RADIUS -->
     <div class="tab-panel {{ $activeTab === 'radius' ? 'active' : '' }}" id="tab-radius" role="tabpanel"
         aria-labelledby="tab-btn-radius" tabindex="0">
         <div class="table-card p-4 sm:p-5">
@@ -569,6 +610,22 @@
                     class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
                     Koneksi DB Terpisah
                 </span>
+            </div>
+
+            <!-- Petunjuk Konfigurasi Database RADIUS -->
+            <div class="bg-emerald-50/50 border border-emerald-200/80 rounded-xl p-3.5 mb-4 text-xs text-slate-700">
+                <div class="flex items-start gap-2.5">
+                    <i class="fa-solid fa-circle-info text-emerald-600 mt-0.5 text-sm"></i>
+                    <div>
+                        <span class="font-bold text-slate-800">Petunjuk Konfigurasi Database FreeRADIUS:</span>
+                        <ol class="list-decimal ml-4 mt-1 space-y-1 text-slate-600">
+                            <li>Pastikan service MySQL / MariaDB FreeRADIUS mengizinkan remote connection (cek <code>bind-address = 0.0.0.0</code> di file <code>my.cnf</code>).</li>
+                            <li>Beri hak akses user database MySQL untuk remote IP server aplikasi (<code>GRANT ALL ON radius.* TO 'user'@'%'</code>).</li>
+                            <li>Pastikan skema tabel FreeRADIUS standar telah dibuat (<code>radcheck</code>, <code>radreply</code>, <code>radacct</code>, <code>nas</code>).</li>
+                            <li>Klik tombol <strong>Uji Koneksi</strong> untuk memverifikasi respon koneksi database MySQL RADIUS sebelum menyimpan.</li>
+                        </ol>
+                    </div>
+                </div>
             </div>
 
             <form action="{{ route('settings.update') }}" method="POST" id="form-radius">
@@ -639,7 +696,7 @@
         </div>
     </div>
 
-    <!-- Tab 4: Xendit Payment Gateway -->
+    <!-- Tab 5: Xendit Payment Gateway -->
     <div class="tab-panel {{ $activeTab === 'xendit' ? 'active' : '' }}" id="tab-xendit" role="tabpanel"
         aria-labelledby="tab-btn-xendit" tabindex="0">
         <div class="table-card p-4 sm:p-5">
@@ -656,6 +713,23 @@
                     class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100">
                     API v7 Ready
                 </span>
+            </div>
+
+            <!-- Petunjuk Konfigurasi Xendit -->
+            <div class="bg-amber-50/50 border border-amber-200/80 rounded-xl p-3.5 mb-4 text-xs text-slate-700">
+                <div class="flex items-start gap-2.5">
+                    <i class="fa-solid fa-circle-info text-amber-600 mt-0.5 text-sm"></i>
+                    <div>
+                        <span class="font-bold text-slate-800">Petunjuk Konfigurasi Payment Gateway Xendit:</span>
+                        <ol class="list-decimal ml-4 mt-1 space-y-1 text-slate-600">
+                            <li>Buka <a href="https://dashboard.xendit.co" target="_blank" class="text-amber-700 font-semibold underline">Dashboard Xendit</a> &gt; <strong>Settings &gt; Developers &gt; API Keys</strong>.</li>
+                            <li>Buat atau salin <strong>Secret API Key</strong> (berawalan <code>xnd_production_</code> atau <code>xnd_development_</code>) dengan hak akses <i>Money-in Write</i>.</li>
+                            <li>Salin <strong>Webhook Callback URL</strong> di bawah, lalu buka menu <strong>Settings &gt; Webhooks &gt; Invoices (Paid)</strong> di Xendit dan tempelkan URL tersebut.</li>
+                            <li>Salin <strong>Webhook Verification Token</strong> dari dashboard Xendit dan masukkan ke kolom form di bawah.</li>
+                            <li>Klik tombol <strong>Uji Koneksi</strong> untuk memverifikasi Secret Key Xendit.</li>
+                        </ol>
+                    </div>
+                </div>
             </div>
 
             <form action="{{ route('settings.update') }}" method="POST" id="form-xendit">
@@ -733,7 +807,7 @@
         </div>
     </div>
 
-    <!-- Tab 5: WhatsApp Gateway -->
+    <!-- Tab 6: WhatsApp Gateway -->
     <div class="tab-panel {{ $activeTab === 'whatsapp' ? 'active' : '' }}" id="tab-whatsapp" role="tabpanel"
         aria-labelledby="tab-btn-whatsapp" tabindex="0">
         <div class="table-card p-4 sm:p-5">
@@ -750,6 +824,23 @@
                     class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
                     WhatsApp Gateway
                 </span>
+            </div>
+
+            <!-- Petunjuk Konfigurasi WhatsApp Gateway -->
+            <div class="bg-emerald-50/50 border border-emerald-200/80 rounded-xl p-3.5 mb-4 text-xs text-slate-700">
+                <div class="flex items-start gap-2.5">
+                    <i class="fa-solid fa-circle-info text-emerald-600 mt-0.5 text-sm"></i>
+                    <div>
+                        <span class="font-bold text-slate-800">Petunjuk Konfigurasi WhatsApp Gateway &amp; OTP:</span>
+                        <ol class="list-decimal ml-4 mt-1 space-y-1 text-slate-600">
+                            <li>Daftar akun gateway WhatsApp (contoh: <a href="https://api.co.id" target="_blank" class="text-emerald-700 font-semibold underline">Api.co.id</a> atau self-hosted WAHA / Fonnte).</li>
+                            <li>Masukkan <strong>Endpoint URL</strong> pesan keluar (default Api.co.id: <code>https://chat.api.co.id/api/v1/public/messages/send</code>).</li>
+                            <li>Salin <strong>API Key / Bearer Token</strong> dari dashboard penyedia gateway lalu tempelkan ke kolom form di bawah.</li>
+                            <li>Jika menggunakan webhook pesan masuk / status pesan, daftarkan URL: <code>{{ url('/api/webhooks/whatsapp') }}</code>.</li>
+                            <li>Klik tombol <strong>Uji Koneksi</strong> untuk mencoba mengirim pesan tes WhatsApp langsung ke nomor Anda.</li>
+                        </ol>
+                    </div>
+                </div>
             </div>
 
             <form action="{{ route('settings.update') }}" method="POST" id="form-whatsapp">
@@ -807,7 +898,7 @@
         </div>
     </div>
 
-    <!-- Tab 6: GenieACS (TR-069) -->
+    <!-- Tab 7: GenieACS (TR-069) -->
     <div class="tab-panel {{ $activeTab === 'genieacs' ? 'active' : '' }}" id="tab-genieacs" role="tabpanel"
         aria-labelledby="tab-btn-genieacs" tabindex="0">
         <div class="table-card p-4 sm:p-5">
@@ -824,6 +915,23 @@
                     class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-50 text-rose-700 border border-rose-100">
                     Port Default: 3000 (UI API) / 7557 (NBI)
                 </span>
+            </div>
+
+            <!-- Petunjuk Konfigurasi GenieACS -->
+            <div class="bg-rose-50/50 border border-rose-200/80 rounded-xl p-3.5 mb-4 text-xs text-slate-700">
+                <div class="flex items-start gap-2.5">
+                    <i class="fa-solid fa-circle-info text-rose-600 mt-0.5 text-sm"></i>
+                    <div>
+                        <span class="font-bold text-slate-800">Petunjuk Konfigurasi Server GenieACS (TR-069):</span>
+                        <ol class="list-decimal ml-4 mt-1 space-y-1 text-slate-600">
+                            <li>Pastikan service GenieACS berjalan pada server (port default <strong>3000</strong> untuk UI API dan <strong>7557</strong> untuk NBI REST API).</li>
+                            <li>Masukkan URL lengkap server GenieACS (contoh: <code>http://203.2.151.130:3000</code>).</li>
+                            <li>Masukkan kredensial akun administrator GenieACS (username dan password).</li>
+                            <li>Pastikan konfigurasi CWMP URL pada modem ONT/CPE pelanggan mengarah ke port ACS (default: <code>http://[ip-genieacs]:7547/</code>).</li>
+                            <li>Klik tombol <strong>Uji Koneksi</strong> untuk memverifikasi respon REST API server GenieACS.</li>
+                        </ol>
+                    </div>
+                </div>
             </div>
 
             <form action="{{ route('settings.update') }}" method="POST" id="form-genieacs">
@@ -895,7 +1003,7 @@
         </div>
     </div>
 
-    <!-- Tab 7: Firebase Cloud Messaging (FCM) -->
+    <!-- Tab 8: Firebase Cloud Messaging (FCM) -->
     <div class="tab-panel {{ $activeTab === 'firebase' ? 'active' : '' }}" id="tab-firebase" role="tabpanel"
         aria-labelledby="tab-btn-firebase" tabindex="0">
         <div class="table-card p-4 sm:p-5">
@@ -926,6 +1034,7 @@
                                 <li>Buka <a href="https://console.firebase.google.com" target="_blank" class="text-amber-700 font-semibold underline">Firebase Console</a> &gt; Project Settings &gt; <strong>Service Accounts</strong>.</li>
                                 <li>Klik <strong>"Generate New Private Key"</strong> untuk mendownload file credentials JSON.</li>
                                 <li>Unggah file JSON tersebut melalui tombol di bawah atau copy-paste isinya ke kolom JSON.</li>
+                                <li>Klik tombol <strong>Uji Koneksi</strong> untuk memvalidasi kredensial Google Service Account sebelum menyimpan.</li>
                             </ol>
                         </div>
                     </div>
