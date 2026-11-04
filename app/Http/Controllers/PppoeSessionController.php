@@ -107,11 +107,6 @@ class PppoeSessionController extends Controller
                     $ip = $session?->framedipaddress ?: ($pppoe->ip_address ?: '-');
                     return '<div style="text-align: center; font-family: monospace; font-size: 11.5px; color: #334155; font-weight: 600;">' . e($ip) . '</div>';
                 })
-                ->addColumn('mac_address', function ($pppoe) use ($onlineSessions) {
-                    $session = $onlineSessions->get($pppoe->username);
-                    $mac = $session?->callingstationid ?: '-';
-                    return '<div style="text-align: center; font-family: monospace; font-size: 11px; color: #64748b;">' . e($mac) . '</div>';
-                })
                 ->addColumn('uptime', function ($pppoe) use ($onlineSessions) {
                     $session = $onlineSessions->get($pppoe->username);
                     if (!$session || !$session->acctstarttime) {
@@ -147,12 +142,12 @@ class PppoeSessionController extends Controller
                 ->addColumn('opsi', function ($pppoe) {
                     $custName = $pppoe->customer->nama_lengkap ?? '';
                     return '<div class="flex items-center justify-center">'
-                        . '<button type="button" class="btn-cancel !h-7.5 !px-2.5 text-xs font-semibold flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50" onclick="showUserHistory(\'' . addslashes($pppoe->username) . '\', \'' . addslashes($custName) . '\')" title="Lihat Riwayat Sesi Akun Ini">'
-                        . '<i class="fa-solid fa-clock-rotate-left text-sky-600"></i> Riwayat'
+                        . '<button type="button" class="btn-cancel !h-7.5 !px-2.5 text-xs font-semibold flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50" onclick="showAccountDetail(\'' . addslashes($pppoe->username) . '\', \'' . addslashes($custName) . '\')" title="Detail Sesi Lengkap & Riwayat">'
+                        . '<i class="fa-solid fa-circle-info text-sky-600"></i> Detail'
                         . '</button>'
                         . '</div>';
                 })
-                ->rawColumns(['pelanggan', 'username_col', 'paket', 'status_badge', 'ip_address', 'mac_address', 'uptime', 'traffic', 'opsi'])
+                ->rawColumns(['pelanggan', 'username_col', 'paket', 'status_badge', 'ip_address', 'uptime', 'traffic', 'opsi'])
                 ->make(true);
         }
 
@@ -183,9 +178,9 @@ class PppoeSessionController extends Controller
     }
 
     /**
-     * Ambil seluruh riwayat sesi FreeRADIUS khusus untuk 1 user PPPoE.
+     * Ambil data detail lengkap sesi terbaru serta riwayat sesi untuk 1 user PPPoE.
      */
-    public function userHistory(Request $request)
+    public function userDetail(Request $request)
     {
         $username = trim($request->input('username', ''));
         if (empty($username)) {
@@ -200,7 +195,7 @@ class PppoeSessionController extends Controller
 
         $pppoe = Pppoe::where('username', $username)
             ->orWhere('username', $cleanUsername)
-            ->with('paket')
+            ->with(['paket', 'customer'])
             ->first();
 
         $sessions = Radacct::where('username', $username)
@@ -209,21 +204,62 @@ class PppoeSessionController extends Controller
             ->take(50)
             ->get();
 
-        $sessionList = $sessions->map(function ($s) {
+        $latestSession = $sessions->first();
+        $latestData = null;
+
+        if ($latestSession) {
+            $dlLatest = (int) ($latestSession->acctoutputoctets ?? 0);
+            $ulLatest = (int) ($latestSession->acctinputoctets ?? 0);
+            $totalLatest = $dlLatest + $ulLatest;
+
+            $start = $latestSession->acctstarttime ? Carbon::parse($latestSession->acctstarttime)->setTimezone(config('app.timezone', 'Asia/Jakarta'))->format('d/m/Y H:i:s') . ' WIB' : '-';
+            $update = $latestSession->acctupdatetime ? Carbon::parse($latestSession->acctupdatetime)->setTimezone(config('app.timezone', 'Asia/Jakarta'))->format('d/m/Y H:i:s') . ' WIB' : '-';
+            $stop = $latestSession->acctstoptime ? Carbon::parse($latestSession->acctstoptime)->setTimezone(config('app.timezone', 'Asia/Jakarta'))->format('d/m/Y H:i:s') . ' WIB' : ($latestSession->is_online ? 'Sedang Aktif (Online)' : '-');
+
+            $latestData = [
+                'radacctid' => $latestSession->radacctid,
+                'acctsessionid' => $latestSession->acctsessionid ?: '-',
+                'acctuniqueid' => $latestSession->acctuniqueid ?: '-',
+                'username' => $latestSession->username,
+                'is_online' => $latestSession->is_online,
+                'framedipaddress' => $latestSession->framedipaddress ?: ($pppoe->ip_address ?? '-'),
+                'callingstationid' => $latestSession->callingstationid ?: '-',
+                'nasipaddress' => $latestSession->nasipaddress ?: '-',
+                'nasportid' => $latestSession->nasportid ?: '-',
+                'nasporttype' => $latestSession->nasporttype ?: 'Ethernet',
+                'calledstationid' => $latestSession->calledstationid ?: '-',
+                'servicetype' => $latestSession->servicetype ?: 'Framed-User',
+                'framedprotocol' => $latestSession->framedprotocol ?: 'PPP',
+                'start_formatted' => $start,
+                'update_formatted' => $update,
+                'stop_formatted' => $stop,
+                'formatted_duration' => $latestSession->formatted_session_time,
+                'download_formatted' => Radacct::formatBytes($dlLatest),
+                'upload_formatted' => Radacct::formatBytes($ulLatest),
+                'total_formatted' => Radacct::formatBytes($totalLatest),
+                'acctterminatecause' => $latestSession->acctterminatecause ?: ($latestSession->is_online ? 'Sedang Aktif' : 'Tidak Tercatat'),
+            ];
+        }
+
+        // Format history list (tanpa Status dan Alasan Putus, dengan Total DL/UL)
+        $historyList = $sessions->map(function ($s) {
+            $dl = (int) ($s->acctoutputoctets ?? 0);
+            $ul = (int) ($s->acctinputoctets ?? 0);
+            $total = $dl + $ul;
+
             $start = $s->acctstarttime ? Carbon::parse($s->acctstarttime)->setTimezone(config('app.timezone', 'Asia/Jakarta'))->format('d/m/Y H:i:s') : '-';
             $stop = $s->acctstoptime ? Carbon::parse($s->acctstoptime)->setTimezone(config('app.timezone', 'Asia/Jakarta'))->format('d/m/Y H:i:s') : ($s->is_online ? 'Sedang Aktif' : '-');
 
             return [
                 'radacctid' => $s->radacctid,
                 'is_online' => $s->is_online,
-                'framedipaddress' => $s->framedipaddress ?: '-',
-                'callingstationid' => $s->callingstationid ?: '-',
                 'start' => $start,
                 'stop' => $stop,
                 'duration' => $s->formatted_session_time,
-                'download' => Radacct::formatBytes($s->acctoutputoctets ?? 0),
-                'upload' => Radacct::formatBytes($s->acctinputoctets ?? 0),
-                'terminate_cause' => $s->acctterminatecause ?: ($s->is_online ? 'Terhubung' : '-'),
+                'download' => Radacct::formatBytes($dl),
+                'upload' => Radacct::formatBytes($ul),
+                'total_traffic' => Radacct::formatBytes($total),
+                'ip' => $s->framedipaddress ?: '-',
             ];
         });
 
@@ -241,9 +277,22 @@ class PppoeSessionController extends Controller
                 'paket' => $pppoe->paket->nama_paket ?? '-',
                 'id_pelanggan' => '-',
             ] : null),
-            'sessions' => $sessionList,
-            'total_sessions_found' => $sessions->count(),
+            'pppoe' => $pppoe ? [
+                'ip_address' => $pppoe->ip_address,
+                'router' => $pppoe->router,
+            ] : null,
+            'latest_session' => $latestData,
+            'history' => $historyList,
+            'total_history' => $sessions->count(),
         ]);
+    }
+
+    /**
+     * Ambil seluruh riwayat sesi FreeRADIUS (backward compatibility).
+     */
+    public function userHistory(Request $request)
+    {
+        return $this->userDetail($request);
     }
 
     /**

@@ -1,13 +1,13 @@
 <x-layouts.app>
     @section('Css')
         <style>
-            #session-table thead th, #user-history-table thead th {
+            #session-table thead th, #modalHistoryTable thead th {
                 text-transform: uppercase !important;
                 font-weight: 600;
                 font-size: 12px;
             }
 
-            #session-table tbody td, #user-history-table tbody td {
+            #session-table tbody td, #modalHistoryTable tbody td {
                 font-size: 12px;
             }
 
@@ -106,7 +106,7 @@
         </div>
     </div>
 
-    <!-- Stats Cards Grid (Kompak 3 Kartu) -->
+    <!-- Stats Cards Grid (3 Kartu Kompak) -->
     <div class="stats-grid mb-5 grid grid-cols-1 sm:grid-cols-3 gap-3.5">
         <div class="stat-card">
             <div class="stat-icon" style="background:#e0e7ff;color:#4338ca;">
@@ -173,21 +173,20 @@
         </div>
     </div>
 
-    <!-- Table Card -->
+    <!-- Table Card (Tanpa Kolom MAC ONT di Halaman Utama) -->
     <div class="table-card">
         <div class="table-responsive">
             <table id="session-table" class="admin-table w-full">
                 <thead>
                     <tr>
-                        <th style="text-align: center; width: 45px;">#</th>
+                        <th style="text-align: center; width: 50px;">#</th>
                         <th style="text-align: left;">Pelanggan</th>
-                        <th style="text-align: left; width: 180px;">Username</th>
-                        <th style="text-align: left; width: 140px;">Paket</th>
-                        <th style="text-align: center; width: 95px;">Status Sesi</th>
-                        <th style="text-align: center; width: 120px;">IP Address</th>
-                        <th style="text-align: center; width: 130px;">MAC (ONT)</th>
-                        <th style="text-align: center; width: 110px;">Uptime</th>
-                        <th style="text-align: center; width: 110px;">Traffic (DL/UL)</th>
+                        <th style="text-align: left; width: 190px;">Username</th>
+                        <th style="text-align: left; width: 150px;">Paket</th>
+                        <th style="text-align: center; width: 100px;">Status Sesi</th>
+                        <th style="text-align: center; width: 130px;">IP Address</th>
+                        <th style="text-align: center; width: 120px;">Uptime</th>
+                        <th style="text-align: center; width: 120px;">Traffic (DL/UL)</th>
                         <th style="text-align: center; width: 95px;">Opsi</th>
                     </tr>
                 </thead>
@@ -196,121 +195,72 @@
         </div>
     </div>
 
-    <!-- Modal Riwayat Sesi Per User (FreeRADIUS radacct) -->
-    <div class="modal-overlay" id="userHistoryModal">
+    <!-- Modal Detail Lengkap & Riwayat Sesi (FreeRADIUS) -->
+    <div class="modal-overlay" id="accountDetailModal">
         <div class="modal-box max-w-4xl bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
-            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-200 shrink-0">
-                        <i class="fa-solid fa-clock-rotate-left"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-base font-bold text-slate-900 m-0">Riwayat Sesi PPPoE</h3>
-                        <p class="text-xs text-slate-500 m-0 mt-0.5" id="historyModalSubtitle">Memuat riwayat sesi...</p>
-                    </div>
-                </div>
-                <button type="button" class="modal-close" onclick="closeCustomModal('userHistoryModal')">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
-                <!-- User Profile Box -->
-                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                    <div>
-                        <span class="text-slate-400 block text-[11px]">Nama Pelanggan</span>
-                        <span class="font-bold text-slate-800 text-sm" id="histCustomerName">-</span>
-                        <span class="text-slate-500 ml-2" id="histCustomerPhone"></span>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div>
-                            <span class="text-slate-400 block text-[11px]">Username</span>
-                            <span class="font-mono font-semibold text-slate-800" id="histUsername">-</span>
-                        </div>
-                        <div>
-                            <span class="text-slate-400 block text-[11px]">Paket</span>
-                            <span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700; font-size:11px; padding:2px 8px; border-radius:6px;" id="histCustomerPaket">-</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Loading State -->
-                <div id="historyLoading" class="py-10 text-center text-slate-400">
-                    <i class="fa-solid fa-circle-notch fa-spin text-2xl text-sky-500 mb-2"></i>
-                    <p class="text-xs font-semibold text-slate-600">Mengambil data riwayat sesi dari FreeRADIUS...</p>
-                </div>
-
-                <!-- History Table Container -->
-                <div id="historyContent" class="table-responsive hidden border border-slate-200 rounded-xl overflow-hidden">
-                    <table id="user-history-table" class="admin-table w-full">
-                        <thead>
-                            <tr class="bg-slate-50">
-                                <th style="text-align: center; width: 45px;">#</th>
-                                <th style="text-align: center; width: 90px;">Status</th>
-                                <th style="text-align: center; width: 130px;">Waktu Mulai</th>
-                                <th style="text-align: center; width: 130px;">Waktu Berhenti</th>
-                                <th style="text-align: center; width: 85px;">Durasi</th>
-                                <th style="text-align: center; width: 110px;">Traffic (DL/UL)</th>
-                                <th style="text-align: center; width: 140px;">Alasan Putus</th>
-                                <th style="text-align: center; width: 115px;">IP & MAC</th>
-                                <th style="text-align: center; width: 50px;">Detail</th>
-                            </tr>
-                        </thead>
-                        <tbody id="userHistoryTbody">
-                            <!-- Populated via JS -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <div id="historyEmpty" class="py-10 text-center text-slate-400 hidden">
-                    <i class="fa-solid fa-inbox text-2xl mb-2 text-slate-300"></i>
-                    <p class="text-xs text-slate-500 m-0">Belum ada riwayat sesi tercatat untuk akun PPPoE ini.</p>
-                </div>
-            </div>
-
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
-                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('userHistoryModal')">
-                    <i class="fa-solid fa-xmark"></i> Tutup
-                </button>
-                <span class="text-xs text-slate-500" id="histTotalCountText"></span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Detail Parameter Sesi Spesifik (RADIUS) -->
-    <div class="modal-overlay" id="sessionDetailModal">
-        <div class="modal-box max-w-xl bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
             <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-200 shrink-0">
                         <i class="fa-solid fa-circle-info"></i>
                     </div>
                     <div>
-                        <h3 class="text-base font-bold text-slate-900 m-0">Detail Parameter Sesi</h3>
-                        <p class="text-xs text-slate-500 m-0 mt-0.5" id="modalSessionSubtitle">Memuat parameter telemetri...</p>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Detail Sesi & Riwayat PPPoE</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5" id="modalAccountSubtitle">Memuat parameter sesi dan riwayat...</p>
                     </div>
                 </div>
-                <button type="button" class="modal-close" onclick="closeCustomModal('sessionDetailModal')">
+                <button type="button" class="modal-close" onclick="closeCustomModal('accountDetailModal')">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
-                <div id="modalLoading" class="py-10 text-center text-slate-400">
+            <div class="p-6 space-y-5 max-h-[80vh] overflow-y-auto">
+                <!-- Loading State -->
+                <div id="modalDetailLoading" class="py-12 text-center text-slate-400">
                     <i class="fa-solid fa-circle-notch fa-spin text-2xl text-sky-500 mb-2"></i>
-                    <p class="text-xs font-semibold text-slate-600">Mengambil data sesi...</p>
+                    <p class="text-xs font-semibold text-slate-600">Mengambil data sesi dan riwayat dari FreeRADIUS...</p>
                 </div>
 
-                <div id="modalContent" class="space-y-4 hidden">
-                    <!-- Telemetry Parameters -->
-                    <div class="border border-slate-200 rounded-xl p-4">
+                <!-- Content Container -->
+                <div id="modalDetailContent" class="space-y-5 hidden">
+                    <!-- 1. Customer Information Box -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                                Profil Pelanggan
+                            </span>
+                            <span id="modalCustomerPaket" class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700; font-size:11px; padding:2px 8px; border-radius:6px;">
+                                -
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                            <div>
+                                <span class="text-slate-400 block text-[11px]">Nama Pelanggan</span>
+                                <span class="font-bold text-slate-800 text-sm" id="modalCustomerName">-</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[11px]">ID Pelanggan</span>
+                                <span class="font-mono font-semibold text-slate-800" id="modalCustomerId">-</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[11px]">No WhatsApp</span>
+                                <span class="font-medium text-slate-800" id="modalCustomerPhone">-</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[11px]">Username PPPoE</span>
+                                <span class="font-mono font-semibold text-slate-800" id="modalPppoeUsername">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Session Accounting Telemetry (Detail Sesi Terkini) -->
+                    <div class="border border-slate-200 rounded-xl p-4" id="sessionTelemetryCard">
                         <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
                             <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                                Parameter Accounting RADIUS
+                                Telemetri Sesi Terkini (FreeRADIUS radacct)
                             </span>
                             <span id="modalSessionStatusBadge"></span>
                         </div>
-                        <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
                             <div>
                                 <span class="text-slate-400 block text-[11px]">Acct-Session-Id</span>
                                 <span class="font-mono text-slate-700 font-semibold" id="modalSessionId">-</span>
@@ -328,7 +278,7 @@
                                 <span class="font-mono text-slate-700 font-semibold" id="modalNasIp">-</span>
                             </div>
                             <div>
-                                <span class="text-slate-400 block text-[11px]">NAS Port</span>
+                                <span class="text-slate-400 block text-[11px]">NAS Port & Tipe</span>
                                 <span class="text-slate-700 font-medium" id="modalNasPort">-</span>
                             </div>
                             <div>
@@ -338,16 +288,16 @@
                         </div>
                     </div>
 
-                    <!-- Timestamps & Traffic -->
-                    <div class="grid grid-cols-2 gap-3">
+                    <!-- 3. Timestamps & Traffic Volume -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="sessionMetricsCard">
                         <div class="border border-slate-200 rounded-xl p-3.5 space-y-1.5 text-xs">
-                            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Waktu Sesi</span>
+                            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Waktu Sesi Terkini</span>
                             <div class="flex justify-between items-center py-0.5 border-b border-slate-100">
                                 <span class="text-slate-500">Mulai:</span>
                                 <span class="font-semibold text-slate-800" id="modalStartTime">-</span>
                             </div>
                             <div class="flex justify-between items-center py-0.5 border-b border-slate-100">
-                                <span class="text-slate-500">Update:</span>
+                                <span class="text-slate-500">Update Terakhir:</span>
                                 <span class="font-semibold text-slate-800" id="modalUpdateTime">-</span>
                             </div>
                             <div class="flex justify-between items-center py-0.5 border-b border-slate-100">
@@ -355,20 +305,24 @@
                                 <span class="font-semibold text-slate-800" id="modalStopTime">-</span>
                             </div>
                             <div class="flex justify-between items-center pt-1">
-                                <span class="text-slate-500 font-semibold">Durasi:</span>
+                                <span class="text-slate-500 font-semibold">Durasi Sesi:</span>
                                 <span class="font-bold text-sky-700 font-mono" id="modalDuration">-</span>
                             </div>
                         </div>
 
                         <div class="border border-slate-200 rounded-xl p-3.5 space-y-1.5 text-xs">
-                            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Volume Data</span>
+                            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Volume Data Sesi Terkini</span>
                             <div class="flex justify-between items-center py-0.5 border-b border-slate-100">
-                                <span class="text-slate-500 text-emerald-700 font-semibold"><i class="fa-solid fa-arrow-down text-xs"></i> Download:</span>
+                                <span class="text-slate-500 text-emerald-700 font-semibold"><i class="fa-solid fa-arrow-down text-xs"></i> Download (DL):</span>
                                 <span class="font-bold font-mono text-emerald-700" id="modalDownload">-</span>
                             </div>
                             <div class="flex justify-between items-center py-0.5 border-b border-slate-100">
-                                <span class="text-slate-500 text-sky-700 font-semibold"><i class="fa-solid fa-arrow-up text-xs"></i> Upload:</span>
+                                <span class="text-slate-500 text-sky-700 font-semibold"><i class="fa-solid fa-arrow-up text-xs"></i> Upload (UL):</span>
                                 <span class="font-bold font-mono text-sky-700" id="modalUpload">-</span>
+                            </div>
+                            <div class="flex justify-between items-center py-0.5 border-b border-slate-100">
+                                <span class="text-slate-500 font-semibold"><i class="fa-solid fa-right-left text-xs text-indigo-600"></i> Total DL/UL:</span>
+                                <span class="font-bold font-mono text-indigo-700" id="modalTotalTraffic">-</span>
                             </div>
                             <div class="flex justify-between items-center pt-1">
                                 <span class="text-slate-500 font-semibold">Alasan Putus:</span>
@@ -376,12 +330,62 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- 4. Disconnect Explanation Notice -->
+                    <div class="border border-slate-200 bg-slate-50 rounded-xl p-3 text-xs" id="modalCauseBox">
+                        <div class="font-semibold text-slate-700 mb-0.5" id="modalCauseHeading">Keterangan Terminasi Sesi</div>
+                        <p class="text-slate-600 m-0" id="modalCauseDesc">-</p>
+                    </div>
+
+                    <!-- 5. Bagian Riwayat Sesi PPPoE (Di Bawah Detail) -->
+                    <div class="space-y-2.5 pt-2 border-t border-slate-200">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-md bg-sky-50 text-sky-600 flex items-center justify-center text-xs border border-sky-100">
+                                    <i class="fa-solid fa-clock-rotate-left"></i>
+                                </div>
+                                <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider m-0">
+                                    Riwayat Sesi PPPoE (FreeRADIUS)
+                                </h4>
+                            </div>
+                            <span class="text-xs text-slate-500" id="histCountLabel"></span>
+                        </div>
+
+                        <!-- History Table: NO STATUS, NO ALASAN PUTUS, INCLUDES TOTAL DL/UL -->
+                        <div class="table-responsive border border-slate-200 rounded-xl overflow-hidden" id="historyTableContainer">
+                            <table class="admin-table w-full" id="modalHistoryTable">
+                                <thead>
+                                    <tr class="bg-slate-50">
+                                        <th style="text-align: center; width: 45px;">#</th>
+                                        <th style="text-align: center; width: 140px;">Waktu Mulai</th>
+                                        <th style="text-align: center; width: 140px;">Waktu Berhenti</th>
+                                        <th style="text-align: center; width: 90px;">Durasi Sesi</th>
+                                        <th style="text-align: center; width: 100px;">Download (DL)</th>
+                                        <th style="text-align: center; width: 100px;">Upload (UL)</th>
+                                        <th style="text-align: center; width: 110px;">Total DL/UL</th>
+                                        <th style="text-align: center; width: 120px;">IP Address</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modalHistoryTbody">
+                                    <!-- Populated via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="modalHistoryEmpty" class="py-8 text-center text-slate-400 hidden bg-slate-50 border border-slate-200 rounded-xl">
+                            <i class="fa-solid fa-inbox text-xl mb-1.5 text-slate-300"></i>
+                            <p class="text-xs text-slate-500 m-0">Belum ada riwayat sesi tercatat untuk akun PPPoE ini.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
-                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('sessionDetailModal')">
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('accountDetailModal')">
                     <i class="fa-solid fa-xmark"></i> Tutup
+                </button>
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5 border border-slate-300 bg-white hover:bg-slate-50" onclick="copyDetailSummary()">
+                    <i class="fa-regular fa-copy text-slate-500"></i> Salin Ringkasan
                 </button>
             </div>
         </div>
@@ -391,6 +395,7 @@
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
         <script>
             let sessionTable;
+            let currentLoadedData = null;
 
             $(document).ready(function() {
                 sessionTable = $('#session-table').DataTable({
@@ -450,13 +455,6 @@
                             name: 'ip_address',
                             orderable: false,
                             searchable: true,
-                            className: 'text-center'
-                        },
-                        {
-                            data: 'mac_address',
-                            name: 'mac_address',
-                            orderable: false,
-                            searchable: false,
                             className: 'text-center'
                         },
                         {
@@ -545,182 +543,209 @@
             // Close on overlay click or Escape key
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
-                    closeCustomModal('userHistoryModal');
-                    closeCustomModal('sessionDetailModal');
+                    closeCustomModal('accountDetailModal');
                 }
             });
 
-            ['userHistoryModal', 'sessionDetailModal'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    el.addEventListener('click', function(e) {
-                        if (e.target === this) {
-                            closeCustomModal(id);
-                        }
-                    });
-                }
-            });
+            const accountModalEl = document.getElementById('accountDetailModal');
+            if (accountModalEl) {
+                accountModalEl.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeCustomModal('accountDetailModal');
+                    }
+                });
+            }
 
-            // Tampilkan riwayat sesi khusus 1 PPPoE account
-            function showUserHistory(username, customerName) {
-                openCustomModal('userHistoryModal');
-                const loading = document.getElementById('historyLoading');
-                const content = document.getElementById('historyContent');
-                const empty = document.getElementById('historyEmpty');
-                const tbody = document.getElementById('userHistoryTbody');
-
+            // Buka Modal Detail Lengkap & Riwayat Sesi
+            function showAccountDetail(username, customerName) {
+                openCustomModal('accountDetailModal');
+                const loading = document.getElementById('modalDetailLoading');
+                const content = document.getElementById('modalDetailContent');
                 loading.classList.remove('hidden');
                 content.classList.add('hidden');
-                empty.classList.add('hidden');
-                tbody.innerHTML = '';
+                currentLoadedData = null;
 
-                document.getElementById('historyModalSubtitle').innerText = `${username} • ${customerName || 'PPPoE'}`;
-                document.getElementById('histUsername').innerText = username;
-                document.getElementById('histCustomerName').innerText = customerName || 'Akun Mandiri';
-                document.getElementById('histCustomerPhone').innerText = '';
-                document.getElementById('histCustomerPaket').innerText = '-';
-                document.getElementById('histTotalCountText').innerText = '';
+                document.getElementById('modalAccountSubtitle').innerText = `${username} • ${customerName || 'PPPoE'}`;
+                document.getElementById('modalPppoeUsername').innerText = username;
+                document.getElementById('modalCustomerName').innerText = customerName || 'Akun Mandiri';
+                document.getElementById('modalCustomerPhone').innerText = '-';
+                document.getElementById('modalCustomerId').innerText = '-';
+                document.getElementById('modalCustomerPaket').innerText = '-';
 
-                fetch(`/pppoe-sessions/user-history?username=${encodeURIComponent(username)}`, {
+                fetch(`/pppoe-sessions/user-detail?username=${encodeURIComponent(username)}`, {
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 })
                 .then(res => {
-                    if (!res.ok) throw new Error('Gagal memuat riwayat sesi');
+                    if (!res.ok) throw new Error('Gagal memuat detail akun');
                     return res.json();
                 })
                 .then(data => {
                     if (!data.success) throw new Error(data.message || 'Respon tidak valid');
+                    currentLoadedData = data;
 
                     const c = data.customer;
+                    const p = data.pppoe;
+                    const s = data.latest_session;
+                    const history = data.history || [];
+
+                    // Profil Pelanggan
                     if (c) {
-                        document.getElementById('histCustomerName').innerText = c.nama_lengkap || 'Akun Mandiri';
-                        document.getElementById('histCustomerPhone').innerText = c.no_whatsapp ? `(${c.no_whatsapp})` : '';
-                        document.getElementById('histCustomerPaket').innerText = c.paket || '-';
+                        document.getElementById('modalCustomerName').innerText = c.nama_lengkap || 'Akun Mandiri';
+                        document.getElementById('modalCustomerPhone').innerText = c.no_whatsapp || '-';
+                        document.getElementById('modalCustomerId').innerText = c.id_pelanggan || '-';
+                        document.getElementById('modalCustomerPaket').innerText = c.paket || '-';
                     }
 
-                    const sessions = data.sessions || [];
-                    document.getElementById('histTotalCountText').innerText = `Menampilkan ${sessions.length} riwayat sesi terakhir`;
+                    // Telemetri Sesi Terkini
+                    if (s) {
+                        document.getElementById('modalSessionId').innerText = s.acctsessionid || '-';
+                        document.getElementById('modalFramedIp').innerText = s.framedipaddress || (p ? p.ip_address : '-');
+                        document.getElementById('modalMac').innerText = s.callingstationid || '-';
+                        document.getElementById('modalNasIp').innerText = s.nasipaddress || '-';
+                        document.getElementById('modalNasPort').innerText = `${s.nasportid || '-'} (${s.nasporttype || 'Ethernet'})`;
+                        document.getElementById('modalCalledStation').innerText = s.calledstationid || '-';
 
-                    if (sessions.length === 0) {
-                        loading.classList.add('hidden');
-                        empty.classList.remove('hidden');
-                        return;
-                    }
+                        document.getElementById('modalStartTime').innerText = s.start_formatted || '-';
+                        document.getElementById('modalUpdateTime').innerText = s.update_formatted || '-';
+                        document.getElementById('modalStopTime').innerText = s.stop_formatted || '-';
+                        document.getElementById('modalDuration').innerText = s.formatted_duration || '0 detik';
 
-                    let rowsHtml = '';
-                    sessions.forEach((s, idx) => {
-                        const statusBadge = s.is_online
-                            ? '<span class="badge" style="background:#dcfce7; color:#15803d; border:1px solid #bbf7d0; font-size:10.5px; padding:2px 7px; border-radius:5px; font-weight:700;"><i class="fa-solid fa-circle text-[7px] mr-1 text-emerald-500"></i> ONLINE</span>'
-                            : '<span class="badge" style="background:#f1f5f9; color:#64748b; border:1px solid #e2e8f0; font-size:10.5px; padding:2px 7px; border-radius:5px; font-weight:600;">OFFLINE</span>';
+                        document.getElementById('modalDownload').innerText = s.download_formatted || '0 B';
+                        document.getElementById('modalUpload').innerText = s.upload_formatted || '0 B';
+                        document.getElementById('modalTotalTraffic').innerText = s.total_formatted || '0 B';
 
-                        const cause = s.terminate_cause || '-';
-                        let causeBadge = `<span class="badge" style="background:#f8fafc; color:#64748b; border:1px solid #e2e8f0; font-size:10px; padding:2px 6px; border-radius:4px;">${cause}</span>`;
-                        if (cause === 'User-Request') {
-                            causeBadge = '<span class="badge" style="background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:600;"><i class="fa-solid fa-power-off text-[8px] mr-1"></i> User-Request</span>';
-                        } else if (cause === 'Lost-Carrier') {
-                            causeBadge = '<span class="badge" style="background:#fef2f2; color:#be123c; border:1px solid #fecdd3; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:600;"><i class="fa-solid fa-triangle-exclamation text-[8px] mr-1"></i> Lost-Carrier</span>';
-                        } else if (cause === 'NAS-Reboot') {
-                            causeBadge = '<span class="badge" style="background:#fffbeb; color:#b45309; border:1px solid #fde68a; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:600;"><i class="fa-solid fa-rotate text-[8px] mr-1"></i> NAS-Reboot</span>';
-                        } else if (s.is_online) {
-                            causeBadge = '<span class="badge" style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:600;">Aktif</span>';
+                        const statusBadge = document.getElementById('modalSessionStatusBadge');
+                        if (s.is_online) {
+                            statusBadge.innerHTML = '<span class="badge" style="background:#dcfce7; color:#15803d; border:1px solid #bbf7d0; font-size:11px; padding:2px 8px; border-radius:6px; font-weight:700;"><i class="fa-solid fa-circle text-[7px] mr-1 text-emerald-500"></i> ONLINE</span>';
+                        } else {
+                            statusBadge.innerHTML = '<span class="badge" style="background:#f1f5f9; color:#64748b; border:1px solid #e2e8f0; font-size:11px; padding:2px 8px; border-radius:6px; font-weight:600;">OFFLINE</span>';
                         }
 
-                        rowsHtml += `
-                            <tr>
-                                <td style="text-align: center; color: #94a3b8; font-family: monospace;">${idx + 1}</td>
-                                <td style="text-align: center;">${statusBadge}</td>
-                                <td style="text-align: center; font-size: 11.5px; font-weight: 500;">${s.start}</td>
-                                <td style="text-align: center; font-size: 11.5px; font-weight: 500;">${s.stop}</td>
-                                <td style="text-align: center; font-family: monospace; font-size: 11px;">${s.duration}</td>
-                                <td style="text-align: center; font-family: monospace; font-size: 10.5px;">
-                                    <div style="color: #166534;"><i class="fa-solid fa-arrow-down text-[8px]"></i> ${s.download}</div>
-                                    <div style="color: #0369a1;"><i class="fa-solid fa-arrow-up text-[8px]"></i> ${s.upload}</div>
-                                </td>
-                                <td style="text-align: center;">${causeBadge}</td>
-                                <td style="text-align: center; font-family: monospace; font-size: 10.5px;">
-                                    <div style="font-weight: 600; color: #334155;">${s.framedipaddress}</div>
-                                    <div style="color: #94a3b8;">${s.callingstationid}</div>
-                                </td>
-                                <td style="text-align: center;">
-                                    <button type="button" class="topbar-icon-btn !w-7 !h-7 !rounded-lg" onclick="showSessionDetail(${s.radacctid})" title="Detail Telemetri">
-                                        <i class="fa-solid fa-circle-info text-slate-500"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                    });
+                        document.getElementById('modalCauseTitle').innerText = s.acctterminatecause || (s.is_online ? 'Sedang Aktif' : '-');
 
-                    tbody.innerHTML = rowsHtml;
+                        const causeHeading = document.getElementById('modalCauseHeading');
+                        const causeDesc = document.getElementById('modalCauseDesc');
+
+                        if (s.is_online) {
+                            causeHeading.innerText = 'Sesi Sedang Berlangsung (Online)';
+                            causeDesc.innerText = 'Akun PPPoE saat ini sedang terhubung aktif ke internet.';
+                        } else {
+                            const cause = s.acctterminatecause || 'Tidak Tercatat';
+                            if (cause === 'User-Request') {
+                                causeHeading.innerText = 'User-Request (Koneksi Diputus Normal)';
+                                causeDesc.innerText = 'Pelanggan mematikan router/modem atau merestart perangkat ONT secara mandiri.';
+                            } else if (cause === 'Lost-Carrier') {
+                                causeHeading.innerText = 'Lost-Carrier (Sinyal Terputus / LOS)';
+                                causeDesc.innerText = 'Indikasi LOS merah: kabel fiber optik terputus, redaman drop, atau modem mati mendadak tanpa sinyal disconnect.';
+                            } else if (cause === 'NAS-Reboot') {
+                                causeHeading.innerText = 'NAS-Reboot (Router MikroTik Mulai Ulang)';
+                                causeDesc.innerText = 'Router server MikroTik / BRAS reboot sehingga seluruh sesi dial ulang.';
+                            } else if (cause === 'NAS-Request') {
+                                causeHeading.innerText = 'NAS-Request (Diputus oleh Router)';
+                                causeDesc.innerText = 'Sesi diputus oleh MikroTik (kick sesi, pergantian isolir, atau limit waktu).';
+                            } else {
+                                causeHeading.innerText = `Penyebab Terminasi: ${cause}`;
+                                causeDesc.innerText = `Sesi terakhir selesai dengan kode status RADIUS: ${cause}.`;
+                            }
+                        }
+                    } else {
+                        document.getElementById('modalSessionStatusBadge').innerHTML = '<span class="badge" style="background:#f1f5f9; color:#64748b; border:1px solid #e2e8f0; font-size:11px; padding:2px 8px; border-radius:6px; font-weight:600;">OFFLINE</span>';
+                        document.getElementById('modalFramedIp').innerText = p ? (p.ip_address || '-') : '-';
+                        document.getElementById('modalSessionId').innerText = '-';
+                        document.getElementById('modalMac').innerText = '-';
+                        document.getElementById('modalNasIp').innerText = '-';
+                        document.getElementById('modalNasPort').innerText = '-';
+                        document.getElementById('modalCalledStation').innerText = '-';
+                        document.getElementById('modalStartTime').innerText = '-';
+                        document.getElementById('modalUpdateTime').innerText = '-';
+                        document.getElementById('modalStopTime').innerText = '-';
+                        document.getElementById('modalDuration').innerText = '-';
+                        document.getElementById('modalDownload').innerText = '-';
+                        document.getElementById('modalUpload').innerText = '-';
+                        document.getElementById('modalTotalTraffic').innerText = '-';
+                        document.getElementById('modalCauseTitle').innerText = 'Belum Ada Sesi';
+                        document.getElementById('modalCauseHeading').innerText = 'Tidak Ada Sesi Aktif';
+                        document.getElementById('modalCauseDesc').innerText = 'Belum ada log sesi accounting tercatat di FreeRADIUS untuk akun ini.';
+                    }
+
+                    // 5. Riwayat Sesi (Di Bawah Detail)
+                    const histCount = history.length;
+                    document.getElementById('histCountLabel').innerText = histCount > 0 ? `${histCount} sesi terakhir tercatat` : '';
+
+                    const tbody = document.getElementById('modalHistoryTbody');
+                    const emptyBox = document.getElementById('modalHistoryEmpty');
+                    const tableContainer = document.getElementById('historyTableContainer');
+
+                    if (histCount === 0) {
+                        tableContainer.classList.add('hidden');
+                        emptyBox.classList.remove('hidden');
+                    } else {
+                        emptyBox.classList.add('hidden');
+                        tableContainer.classList.remove('hidden');
+
+                        let rows = '';
+                        history.forEach((h, idx) => {
+                            rows += `
+                                <tr>
+                                    <td style="text-align: center; color: #94a3b8; font-family: monospace;">${idx + 1}</td>
+                                    <td style="text-align: center; font-size: 11.5px; font-weight: 500;">${h.start}</td>
+                                    <td style="text-align: center; font-size: 11.5px; font-weight: 500;">${h.stop}</td>
+                                    <td style="text-align: center; font-family: monospace; font-size: 11px;">${h.duration}</td>
+                                    <td style="text-align: center; font-family: monospace; font-size: 11px; color: #166534;">
+                                        <i class="fa-solid fa-arrow-down text-[8px] mr-1"></i>${h.download}
+                                    </td>
+                                    <td style="text-align: center; font-family: monospace; font-size: 11px; color: #0369a1;">
+                                        <i class="fa-solid fa-arrow-up text-[8px] mr-1"></i>${h.upload}
+                                    </td>
+                                    <td style="text-align: center; font-family: monospace; font-size: 11px; font-weight: 700; color: #4338ca;">
+                                        ${h.total_traffic}
+                                    </td>
+                                    <td style="text-align: center; font-family: monospace; font-size: 11px; font-weight: 600; color: #334155;">
+                                        ${h.ip}
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                        tbody.innerHTML = rows;
+                    }
+
                     loading.classList.add('hidden');
                     content.classList.remove('hidden');
                 })
                 .catch(err => {
                     loading.innerHTML = `
-                        <div class="text-rose-500 font-semibold mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Gagal Memuat Riwayat Sesi</div>
+                        <div class="text-rose-500 font-semibold mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Gagal Memuat Data</div>
                         <p class="text-xs text-slate-500">${err.message}</p>
                     `;
                 });
             }
 
-            // Tampilkan parameter spesifik 1 session id
-            function showSessionDetail(radacctid) {
-                openCustomModal('sessionDetailModal');
-                const loading = document.getElementById('modalLoading');
-                const content = document.getElementById('modalContent');
-                loading.classList.remove('hidden');
-                content.classList.add('hidden');
+            function copyDetailSummary() {
+                if (!currentLoadedData) {
+                    alert('Data belum selesai dimuat.');
+                    return;
+                }
+                const s = currentLoadedData.latest_session;
+                const c = currentLoadedData.customer;
+                const u = currentLoadedData.username;
+                const text = `[DETAIL SESI RADIUS PPPoE]\n` +
+                    `Username: ${u}\n` +
+                    `Pelanggan: ${c ? c.nama_lengkap : 'Mandiri'} (${c ? c.no_whatsapp : '-'})\n` +
+                    `IP Address: ${s ? s.framedipaddress : '-'}\n` +
+                    `MAC ONT: ${s ? s.callingstationid : '-'}\n` +
+                    `Status: ${s ? (s.is_online ? 'ONLINE' : 'OFFLINE') : '-'}\n` +
+                    `Mulai: ${s ? s.start_formatted : '-'}\n` +
+                    `Durasi: ${s ? s.formatted_duration : '-'}\n` +
+                    `Traffic: DL ${s ? s.download_formatted : '-'} / UL ${s ? s.upload_formatted : '-'} (Total: ${s ? s.total_formatted : '-'})\n` +
+                    `Penyebab Putus: ${s ? s.acctterminatecause : '-'}`;
 
-                fetch(`/pppoe-sessions/${radacctid}`, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(res => {
-                    if (!res.ok) throw new Error('Gagal memuat detail');
-                    return res.json();
-                })
-                .then(data => {
-                    if (!data.success) throw new Error('Respon tidak valid');
-
-                    const s = data.session;
-                    document.getElementById('modalSessionSubtitle').innerText = `ID Sesi #${s.radacctid} • ${s.username}`;
-
-                    document.getElementById('modalSessionId').innerText = s.acctsessionid || '-';
-                    document.getElementById('modalFramedIp').innerText = s.framedipaddress || '-';
-                    document.getElementById('modalMac').innerText = s.callingstationid || '-';
-                    document.getElementById('modalNasIp').innerText = s.nasipaddress || '-';
-                    document.getElementById('modalNasPort').innerText = `${s.nasportid || '-'} (${s.nasporttype || 'Ethernet'})`;
-                    document.getElementById('modalCalledStation').innerText = s.calledstationid || '-';
-
-                    document.getElementById('modalStartTime').innerText = s.start_formatted || '-';
-                    document.getElementById('modalUpdateTime').innerText = s.update_formatted || '-';
-                    document.getElementById('modalStopTime').innerText = s.stop_formatted || '-';
-                    document.getElementById('modalDuration').innerText = s.formatted_duration || '0 detik';
-
-                    document.getElementById('modalDownload').innerText = s.download_formatted || '0 B';
-                    document.getElementById('modalUpload').innerText = s.upload_formatted || '0 B';
-
-                    const statusBadge = document.getElementById('modalSessionStatusBadge');
-                    if (s.is_online) {
-                        statusBadge.innerHTML = '<span class="badge" style="background:#dcfce7; color:#15803d; border:1px solid #bbf7d0; font-size:11px; padding:2px 8px; border-radius:6px; font-weight:700;"><i class="fa-solid fa-circle text-[7px] mr-1 text-emerald-500"></i> ONLINE</span>';
-                    } else {
-                        statusBadge.innerHTML = '<span class="badge" style="background:#f1f5f9; color:#64748b; border:1px solid #e2e8f0; font-size:11px; padding:2px 8px; border-radius:6px; font-weight:600;">OFFLINE</span>';
-                    }
-
-                    document.getElementById('modalCauseTitle').innerText = s.acctterminatecause || (s.is_online ? 'Sedang Aktif' : '-');
-
-                    loading.classList.add('hidden');
-                    content.classList.remove('hidden');
-                })
-                .catch(err => {
-                    loading.innerHTML = `
-                        <div class="text-rose-500 font-semibold mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Gagal Memuat Detail Sesi</div>
-                        <p class="text-xs text-slate-500">${err.message}</p>
-                    `;
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Ringkasan sesi berhasil disalin ke clipboard!');
+                }).catch(() => {
+                    alert('Gagal menyalin ke clipboard.');
                 });
             }
         </script>
