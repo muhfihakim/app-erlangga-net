@@ -25,6 +25,11 @@
                 <span class="current">Overview</span>
 
                 {{-- Jaringan & Router --}}
+            @elseif(request()->routeIs('pppoe_sessions.*') || request()->is('pppoe-sessions*'))
+                <span class="cursor-pointer hover:text-slate-900 transition-colors"
+                    onclick="toggleSidebarGroup('group-jaringan')">Jaringan & Router</span>
+                <span class="sep">/</span>
+                <span class="current">Sesi PPPoE (RADIUS)</span>
             @elseif(request()->routeIs('pppoe_accounts.*') || request()->is('pppoe-accounts*'))
                 <span class="cursor-pointer hover:text-slate-900 transition-colors"
                     onclick="toggleSidebarGroup('group-jaringan')">Jaringan & Router</span>

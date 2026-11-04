@@ -107,6 +107,10 @@
                         <span>Akun PPPoE</span>
                     </a>
                 @endif
+                <a class="mobile-grid-item {{ Request::is('pppoe-sessions*') ? 'active' : '' }}" href="{{ route('pppoe_sessions.index') }}">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>Sesi PPPoE</span>
+                </a>
                 <a class="mobile-grid-item {{ Request::is('olt*') ? 'active' : '' }}" href="{{ route('olt.index') }}">
                     <i class="fa-solid fa-server"></i>
                     <span>Manajemen OLT</span>

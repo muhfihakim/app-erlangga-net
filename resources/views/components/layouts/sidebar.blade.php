@@ -71,6 +71,11 @@
                             <span>Daftar Akun PPPoE</span>
                         </a>
                     @endif
+                    <a class="sidebar-sublink {{ Request::is('pppoe-sessions*') ? 'active' : '' }}"
+                        href="{{ route('pppoe_sessions.index') }}">
+                        <i class="fa-solid fa-circle-dot"></i>
+                        <span>Sesi PPPoE</span>
+                    </a>
                     <a class="sidebar-sublink {{ Request::is('olt*') ? 'active' : '' }}"
                         href="{{ route('olt.index') }}">
                         <i class="fa-solid fa-circle-dot"></i>
