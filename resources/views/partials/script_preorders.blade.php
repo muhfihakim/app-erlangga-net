@@ -124,6 +124,7 @@
                     $('#create_pppoe_po_nama_akun, #create_pppoe_po_nama_pembayaran').text($btn.data('po-nama'));
                     $('#create_pppoe_po_alamat_akun, #create_pppoe_po_alamat_pembayaran').text($btn.data('po-alamat') || '-');
                     $('#create_pppoe_paket_id').val($btn.data('po-paket'));
+                    autoFillPoIp(true);
                     const poBillingToggle = document.getElementById('po_is_billing_active');
                     if (poBillingToggle) {
                         poBillingToggle.checked = true;
@@ -140,6 +141,26 @@
             modal.classList.add('open');
             document.body.style.overflow = 'hidden';
         }
+
+        function autoFillPoIp(force = true) {
+            const paketId = $('#create_pppoe_paket_id').val();
+            const $ipInput = $('#create_pppoe_ip_address');
+            if (!paketId) return;
+
+            if (!force && $ipInput.val().trim() !== '') {
+                return;
+            }
+
+            $.get("{{ route('pppoe_accounts.next_ip') }}", { paket_id: paketId }, function(res) {
+                if (res && res.success && res.ip) {
+                    $ipInput.val(res.ip);
+                }
+            });
+        }
+
+        $(document).on('change', '#create_pppoe_paket_id', function() {
+            autoFillPoIp(true);
+        });
 
         function togglePoBilling(checkbox) {
             const fields = document.getElementById('po_billing_fields');

@@ -545,9 +545,15 @@
                                 </select>
                             </div>
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-700 font-medium text-xs">IP Address (Opsional)</label>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="form-label text-slate-700 font-medium text-xs !mb-0">IP Address (Opsional)</label>
+                                    <button type="button" onclick="autoFillPoIp()" class="text-[11px] font-semibold text-sky-600 hover:text-sky-700 flex items-center gap-1 cursor-pointer" title="Generate IP Address Selanjutnya">
+                                        <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i> Auto IP
+                                    </button>
+                                </div>
                                 <input type="text" class="form-input bg-white text-slate-900 border-slate-300 font-mono"
-                                    name="ip_address" placeholder="192.168.x.x">
+                                    id="create_pppoe_ip_address" name="ip_address" placeholder="Contoh: 182.10.0.10">
+                                <span class="text-[10.5px] text-slate-400 mt-1 block">Otomatis terisi host .2 s/d .253 sesuai paket, dapat disesuaikan manual.</span>
                             </div>
                         </div>
                     </div>

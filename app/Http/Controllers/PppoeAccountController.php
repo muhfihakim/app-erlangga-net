@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Services\PppoeIpService;
 
 class PppoeAccountController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, PppoeIpService $ipService)
     {
         $filterPaket = $request->input('paket_id', '');
         $filterStatus = $request->input('status_invoice', '');
@@ -177,6 +178,8 @@ class PppoeAccountController extends Controller
             ->orderBy('nama_lengkap')
             ->get(['id', 'nama_lengkap', 'no_whatsapp', 'alamat_lengkap', 'paket_id']);
 
+        $nextIps = $ipService->getAllNextIps();
+
         return view('pppoe.index', compact(
             'totalPppoeCount',
             'totalPaidCount',
@@ -186,11 +189,22 @@ class PppoeAccountController extends Controller
             'pakets',
             'routers',
             'unlinkedPreOrders',
+            'nextIps',
             'filterPaket',
             'filterStatus',
             'filterTipe',
             'filterRouter'
         ));
+    }
+
+    public function getNextIp(Request $request, PppoeIpService $ipService)
+    {
+        $paketId = (int) $request->input('paket_id');
+        $nextIp = $ipService->getNextIp($paketId);
+        return response()->json([
+            'success' => !empty($nextIp),
+            'ip' => $nextIp,
+        ]);
     }
 
     public function syncRadius()
@@ -204,7 +218,7 @@ class PppoeAccountController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function store(Request $request, PppoeIpService $ipService)
     {
         $validated = $request->validate([
             'pre_order_id' => 'nullable|exists:pre_orders,id',
@@ -225,6 +239,10 @@ class PppoeAccountController extends Controller
         ], [
             'username.unique' => 'Username PPPoE ini sudah digunakan oleh akun lain.',
         ]);
+
+        if (empty($validated['ip_address'])) {
+            $validated['ip_address'] = $ipService->getNextIp($validated['paket_id']);
+        }
 
         $isBillingActive = $request->boolean('is_billing_active', false);
         if ($isBillingActive) {

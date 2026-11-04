@@ -314,8 +314,14 @@
                                 </select>
                             </div>
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-700 font-medium text-xs">IP Address (Opsional)</label>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="form-label text-slate-700 font-medium text-xs !mb-0">IP Address (Opsional)</label>
+                                    <button type="button" onclick="autoFillIp('create')" class="text-[11px] font-semibold text-sky-600 hover:text-sky-700 flex items-center gap-1 cursor-pointer" title="Generate IP Address Selanjutnya">
+                                        <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i> Auto IP
+                                    </button>
+                                </div>
                                 <input type="text" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono" id="create_ip_address" name="ip_address" placeholder="Contoh: 182.10.0.10">
+                                <span class="text-[10.5px] text-slate-400 mt-1 block">Otomatis terisi host .2 s/d .253 sesuai paket, tetap dapat diedit manual.</span>
                             </div>
                         </div>
                     </div>
@@ -479,8 +485,14 @@
                                 </select>
                             </div>
                             <div class="form-group !mb-0">
-                                <label class="form-label text-slate-700 font-medium text-xs">IP Address (Opsional)</label>
-                                <input type="text" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono" id="edit_ip_address" name="ip_address" placeholder="Contoh: 10.10.10.2">
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="form-label text-slate-700 font-medium text-xs !mb-0">IP Address (Opsional)</label>
+                                    <button type="button" onclick="autoFillIp('edit')" class="text-[11px] font-semibold text-amber-600 hover:text-amber-700 flex items-center gap-1 cursor-pointer" title="Generate IP Address Selanjutnya">
+                                        <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i> Auto IP
+                                    </button>
+                                </div>
+                                <input type="text" class="form-input !h-8.5 !text-xs bg-white text-slate-900 border-slate-300 font-mono" id="edit_ip_address" name="ip_address" placeholder="Contoh: 182.10.0.10">
+                                <span class="text-[10.5px] text-slate-400 mt-1 block">Klik Auto IP untuk mengambil IP berikutnya jika ingin mengganti alamat.</span>
                             </div>
                         </div>
                     </div>
@@ -791,6 +803,35 @@
                 );
             });
 
+            const nextIpsMap = @json($nextIps ?? []);
+
+            function autoFillIp(target, force = true) {
+                const paketId = $('#' + target + '_paket_id').val();
+                const $ipInput = $('#' + target + '_ip_address');
+
+                if (!paketId) return;
+
+                if (!force && $ipInput.val().trim() !== '') {
+                    return;
+                }
+
+                if (nextIpsMap[paketId]) {
+                    $ipInput.val(nextIpsMap[paketId]);
+                }
+
+                // AJAX fetch untuk memastikan paling mutakhir
+                $.get("{{ route('pppoe_accounts.next_ip') }}", { paket_id: paketId }, function(res) {
+                    if (res && res.success && res.ip) {
+                        nextIpsMap[paketId] = res.ip;
+                        $ipInput.val(res.ip);
+                    }
+                });
+            }
+
+            $('#create_paket_id').on('change', function() {
+                autoFillIp('create', true);
+            });
+
             $('#create_pre_order_id').on('change', function() {
                 const selected = $(this).find(':selected');
                 const nama = selected.data('nama');
@@ -805,8 +846,8 @@
                         $('#create_username').val(cleanUser);
                     }
                 }
-                if (paketId && $('#create_paket_id').val() !== paketId) {
-                    $('#create_paket_id').val(paketId);
+                if (paketId && $('#create_paket_id').val() !== String(paketId)) {
+                    $('#create_paket_id').val(paketId).trigger('change');
                 }
             });
 
@@ -819,6 +860,11 @@
                     document.getElementById('create_billing_fields'),
                     document.getElementById('create_non_billing_notice')
                 );
+
+                const firstPaket = $('#create_paket_id').val();
+                if (firstPaket) {
+                    autoFillIp('create', true);
+                }
 
                 $('#createPppoeModal .modal-tab').first().trigger('click');
                 const modal = document.getElementById('createPppoeModal');

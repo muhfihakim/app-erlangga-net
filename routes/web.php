@@ -59,6 +59,7 @@ Route::middleware(['auth.custom'])->group(function () {
 
         // Manage PPPoE Accounts
         Route::get('/pppoe-accounts', [\App\Http\Controllers\PppoeAccountController::class, 'index'])->name('pppoe_accounts.index');
+        Route::get('/pppoe-accounts/next-ip', [\App\Http\Controllers\PppoeAccountController::class, 'getNextIp'])->name('pppoe_accounts.next_ip');
         Route::post('/pppoe-accounts/sync-radius', [\App\Http\Controllers\PppoeAccountController::class, 'syncRadius'])->name('pppoe_accounts.sync_radius');
         Route::post('/pppoe-accounts', [\App\Http\Controllers\PppoeAccountController::class, 'store'])->name('pppoe_accounts.store');
         Route::put('/pppoe-accounts/{pppoe}', [\App\Http\Controllers\PppoeAccountController::class, 'update'])->name('pppoe_accounts.update');
