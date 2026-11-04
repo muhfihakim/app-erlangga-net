@@ -1,13 +1,13 @@
 <x-layouts.app>
     @section('Css')
         <style>
-            #session-table thead th {
+            #session-table thead th, #user-history-table thead th {
                 text-transform: uppercase !important;
                 font-weight: 600;
                 font-size: 12px;
             }
 
-            #session-table tbody td {
+            #session-table tbody td, #user-history-table tbody td {
                 font-size: 12px;
             }
 
@@ -36,9 +36,6 @@
                 width: auto !important;
                 height: auto !important;
                 text-align: center;
-                font-size: 12px;
-                font-weight: 600;
-                color: #0284c7;
             }
 
             .dataTables_paginate {
@@ -88,10 +85,10 @@
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
             <h1 style="font-size:22px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
-                Riwayat Sesi PPPoE
+                Monitoring Sesi PPPoE
             </h1>
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">
-                Log accounting RADIUS, durasi koneksi online/offline, dan riwayat terminasi sesi pelanggan.
+                Status online/offline real-time akun PPPoE dan riwayat koneksi sesi dari FreeRADIUS.
             </p>
         </div>
         <div class="flex items-center gap-2">
@@ -109,15 +106,15 @@
         </div>
     </div>
 
-    <!-- Stats Cards Grid -->
-    <div class="stats-grid mb-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+    <!-- Stats Cards Grid (Kompak 3 Kartu) -->
+    <div class="stats-grid mb-5 grid grid-cols-1 sm:grid-cols-3 gap-3.5">
         <div class="stat-card">
             <div class="stat-icon" style="background:#e0e7ff;color:#4338ca;">
-                <i class="fa-solid fa-database"></i>
+                <i class="fa-solid fa-users-gear"></i>
             </div>
             <div>
-                <div class="stat-val">{{ number_format($stats['total'], 0, ',', '.') }}</div>
-                <div class="stat-lbl">Total Riwayat Sesi</div>
+                <div class="stat-val">{{ number_format($stats['total_pppoe'], 0, ',', '.') }}</div>
+                <div class="stat-lbl">Total Akun PPPoE</div>
             </div>
         </div>
         <div class="stat-card">
@@ -127,15 +124,6 @@
             <div>
                 <div class="stat-val text-emerald-600">{{ number_format($stats['online'], 0, ',', '.') }}</div>
                 <div class="stat-lbl">Sesi Online Aktif</div>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#fee2e2;color:#be123c;">
-                <i class="fa-solid fa-clock-rotate-left"></i>
-            </div>
-            <div>
-                <div class="stat-val text-slate-800">{{ number_format($stats['offline'], 0, ',', '.') }}</div>
-                <div class="stat-lbl">Sesi Selesai (Offline)</div>
             </div>
         </div>
         <div class="stat-card">
@@ -152,40 +140,31 @@
     <!-- Table Toolbar -->
     <div class="table-toolbar">
         <div class="filter-group">
-            <div style="flex: 1; min-width: 150px;">
+            <div style="flex: 1; min-width: 160px;">
                 <label class="form-label-custom">Status Sesi</label>
                 <select class="form-input-custom !h-8.5 !text-xs" id="filter-status">
                     <option value="">Semua Status</option>
                     <option value="online" {{ ($filterStatus ?? '') === 'online' ? 'selected' : '' }}>Online (Aktif)</option>
-                    <option value="offline" {{ ($filterStatus ?? '') === 'offline' ? 'selected' : '' }}>Offline (Selesai)</option>
-                </select>
-            </div>
-            <div style="flex: 1; min-width: 160px;">
-                <label class="form-label-custom">Rentang Waktu</label>
-                <select class="form-input-custom !h-8.5 !text-xs" id="filter-date">
-                    <option value="">Semua Waktu</option>
-                    <option value="today">Hari Ini</option>
-                    <option value="7d">7 Hari Terakhir</option>
-                    <option value="30d">30 Hari Terakhir</option>
+                    <option value="offline" {{ ($filterStatus ?? '') === 'offline' ? 'selected' : '' }}>Offline</option>
                 </select>
             </div>
             <div style="flex: 1.5; min-width: 200px;">
-                <label class="form-label-custom">Alasan Putus (Cause)</label>
-                <select class="form-input-custom !h-8.5 !text-xs" id="filter-cause">
-                    <option value="">Semua Alasan</option>
-                    @foreach ($causes as $c)
-                        <option value="{{ $c }}" {{ ($filterCause ?? '') === $c ? 'selected' : '' }}>
-                            {{ $c }}
+                <label class="form-label-custom">Paket Layanan</label>
+                <select class="form-input-custom !h-8.5 !text-xs" id="filter-paket">
+                    <option value="">Semua Paket</option>
+                    @foreach ($pakets as $p)
+                        <option value="{{ $p->id }}" {{ ($filterPaket ?? '') == $p->id ? 'selected' : '' }}>
+                            {{ $p->nama_paket }} (Rp {{ number_format($p->harga, 0, ',', '.') }})
                         </option>
                     @endforeach
                 </select>
             </div>
-            <div style="flex: 2; min-width: 220px;">
+            <div style="flex: 2; min-width: 240px;">
                 <label class="form-label-custom">Pencarian</label>
                 <div class="search-wrap !max-w-full">
                     <i class="fa-solid fa-magnifying-glass search-icon"></i>
                     <input type="search" class="search-input custom-search !h-8.5 !text-xs" id="custom-search"
-                        placeholder="Cari username, IP, MAC..." autocomplete="off" />
+                        placeholder="Cari username, nama, no WA, IP..." autocomplete="off" />
                 </div>
             </div>
             <button type="button" onclick="resetFilters()" class="btn-cancel !h-8.5 !px-3.5 text-xs font-semibold flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 shadow-xs" title="Reset Filter">
@@ -200,18 +179,16 @@
             <table id="session-table" class="admin-table w-full">
                 <thead>
                     <tr>
-                        <th style="text-align: center; width: 50px;">#</th>
+                        <th style="text-align: center; width: 45px;">#</th>
                         <th style="text-align: left;">Pelanggan</th>
-                        <th style="text-align: left; width: 170px;">Username</th>
-                        <th style="text-align: center; width: 95px;">Status</th>
+                        <th style="text-align: left; width: 180px;">Username</th>
+                        <th style="text-align: left; width: 140px;">Paket</th>
+                        <th style="text-align: center; width: 95px;">Status Sesi</th>
                         <th style="text-align: center; width: 120px;">IP Address</th>
                         <th style="text-align: center; width: 130px;">MAC (ONT)</th>
-                        <th style="text-align: center; width: 110px;">Mulai</th>
-                        <th style="text-align: center; width: 110px;">Berhenti</th>
-                        <th style="text-align: center; width: 85px;">Durasi</th>
-                        <th style="text-align: center; width: 105px;">Traffic (DL/UL)</th>
-                        <th style="text-align: center; width: 135px;">Alasan Putus</th>
-                        <th style="text-align: center; width: 55px;">Opsi</th>
+                        <th style="text-align: center; width: 110px;">Uptime</th>
+                        <th style="text-align: center; width: 110px;">Traffic (DL/UL)</th>
+                        <th style="text-align: center; width: 95px;">Opsi</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -219,7 +196,88 @@
         </div>
     </div>
 
-    <!-- Modal Detail Sesi PPPoE (RADIUS) -->
+    <!-- Modal Riwayat Sesi Per User (FreeRADIUS radacct) -->
+    <div class="modal-overlay" id="userHistoryModal">
+        <div class="modal-box max-w-4xl bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-200 shrink-0">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Riwayat Sesi PPPoE</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5" id="historyModalSubtitle">Memuat riwayat sesi...</p>
+                    </div>
+                </div>
+                <button type="button" class="modal-close" onclick="closeCustomModal('userHistoryModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                <!-- User Profile Box -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                    <div>
+                        <span class="text-slate-400 block text-[11px]">Nama Pelanggan</span>
+                        <span class="font-bold text-slate-800 text-sm" id="histCustomerName">-</span>
+                        <span class="text-slate-500 ml-2" id="histCustomerPhone"></span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div>
+                            <span class="text-slate-400 block text-[11px]">Username</span>
+                            <span class="font-mono font-semibold text-slate-800" id="histUsername">-</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[11px]">Paket</span>
+                            <span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700; font-size:11px; padding:2px 8px; border-radius:6px;" id="histCustomerPaket">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="historyLoading" class="py-10 text-center text-slate-400">
+                    <i class="fa-solid fa-circle-notch fa-spin text-2xl text-sky-500 mb-2"></i>
+                    <p class="text-xs font-semibold text-slate-600">Mengambil data riwayat sesi dari FreeRADIUS...</p>
+                </div>
+
+                <!-- History Table Container -->
+                <div id="historyContent" class="table-responsive hidden border border-slate-200 rounded-xl overflow-hidden">
+                    <table id="user-history-table" class="admin-table w-full">
+                        <thead>
+                            <tr class="bg-slate-50">
+                                <th style="text-align: center; width: 45px;">#</th>
+                                <th style="text-align: center; width: 90px;">Status</th>
+                                <th style="text-align: center; width: 130px;">Waktu Mulai</th>
+                                <th style="text-align: center; width: 130px;">Waktu Berhenti</th>
+                                <th style="text-align: center; width: 85px;">Durasi</th>
+                                <th style="text-align: center; width: 110px;">Traffic (DL/UL)</th>
+                                <th style="text-align: center; width: 140px;">Alasan Putus</th>
+                                <th style="text-align: center; width: 115px;">IP & MAC</th>
+                                <th style="text-align: center; width: 50px;">Detail</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userHistoryTbody">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="historyEmpty" class="py-10 text-center text-slate-400 hidden">
+                    <i class="fa-solid fa-inbox text-2xl mb-2 text-slate-300"></i>
+                    <p class="text-xs text-slate-500 m-0">Belum ada riwayat sesi tercatat untuk akun PPPoE ini.</p>
+                </div>
+            </div>
+
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('userHistoryModal')">
+                    <i class="fa-solid fa-xmark"></i> Tutup
+                </button>
+                <span class="text-xs text-slate-500" id="histTotalCountText"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detail Parameter Sesi Spesifik (RADIUS) -->
     <div class="modal-overlay" id="sessionDetailModal">
         <div class="modal-box max-w-xl bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
             <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
@@ -228,8 +286,8 @@
                         <i class="fa-solid fa-circle-info"></i>
                     </div>
                     <div>
-                        <h3 class="text-base font-bold text-slate-900 m-0">Detail Sesi RADIUS</h3>
-                        <p class="text-xs text-slate-500 m-0 mt-0.5" id="modalSessionSubtitle">Memuat detail sesi...</p>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Detail Parameter Sesi</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5" id="modalSessionSubtitle">Memuat parameter telemetri...</p>
                     </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('sessionDetailModal')">
@@ -238,49 +296,17 @@
             </div>
 
             <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
-                <!-- Loading State -->
                 <div id="modalLoading" class="py-10 text-center text-slate-400">
-                    <i class="fa-solid fa-circle-notch fa-spin text-2xl text-sky-600 mb-2"></i>
-                    <p class="text-xs font-semibold text-slate-600">Mengambil data sesi dari FreeRADIUS...</p>
+                    <i class="fa-solid fa-circle-notch fa-spin text-2xl text-sky-500 mb-2"></i>
+                    <p class="text-xs font-semibold text-slate-600">Mengambil data sesi...</p>
                 </div>
 
-                <!-- Content State -->
                 <div id="modalContent" class="space-y-4 hidden">
-                    <!-- Customer Information Box -->
-                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                                Profil Pelanggan
-                            </span>
-                            <span id="modalCustomerPaket" class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700; font-size:11px; padding:2px 8px; border-radius:6px;">
-                                -
-                            </span>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3 text-xs">
-                            <div>
-                                <span class="text-slate-400 block text-[11px]">Nama Lengkap</span>
-                                <span class="font-bold text-slate-800" id="modalCustomerName">-</span>
-                            </div>
-                            <div>
-                                <span class="text-slate-400 block text-[11px]">ID Pelanggan</span>
-                                <span class="font-mono font-semibold text-slate-800" id="modalCustomerId">-</span>
-                            </div>
-                            <div>
-                                <span class="text-slate-400 block text-[11px]">No WhatsApp</span>
-                                <span class="font-medium text-slate-800" id="modalCustomerPhone">-</span>
-                            </div>
-                            <div>
-                                <span class="text-slate-400 block text-[11px]">Username PPPoE</span>
-                                <span class="font-mono font-semibold text-slate-800" id="modalPppoeUsername">-</span>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Telemetry Parameters -->
                     <div class="border border-slate-200 rounded-xl p-4">
                         <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
                             <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                                Telemetri Koneksi (radacct)
+                                Parameter Accounting RADIUS
                             </span>
                             <span id="modalSessionStatusBadge"></span>
                         </div>
@@ -345,16 +371,10 @@
                                 <span class="font-bold font-mono text-sky-700" id="modalUpload">-</span>
                             </div>
                             <div class="flex justify-between items-center pt-1">
-                                <span class="text-slate-500 font-semibold">Penyebab:</span>
+                                <span class="text-slate-500 font-semibold">Alasan Putus:</span>
                                 <span class="font-bold text-slate-700" id="modalCauseTitle">-</span>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Disconnect Explanation Box -->
-                    <div class="border border-slate-200 bg-slate-50 rounded-xl p-3 text-xs" id="modalCauseBox">
-                        <div class="font-semibold text-slate-700 mb-0.5" id="modalCauseHeading">Keterangan Terminasi Sesi</div>
-                        <p class="text-slate-600 m-0" id="modalCauseDesc">-</p>
                     </div>
                 </div>
             </div>
@@ -362,9 +382,6 @@
             <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
                 <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('sessionDetailModal')">
                     <i class="fa-solid fa-xmark"></i> Tutup
-                </button>
-                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5 border border-slate-300 bg-white hover:bg-slate-50" onclick="copySessionDetails()">
-                    <i class="fa-regular fa-copy text-slate-500"></i> Salin Ringkasan
                 </button>
             </div>
         </div>
@@ -374,97 +391,86 @@
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
         <script>
             let sessionTable;
-            let currentLoadedSession = null;
 
             $(document).ready(function() {
                 sessionTable = $('#session-table').DataTable({
                     processing: true,
                     serverSide: true,
                     pageLength: 25,
-                    lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
-                    order: [[0, 'desc']],
+                    lengthChange: false,
+                    ordering: false,
+                    info: false,
+                    responsive: true,
+                    dom: 'tpir',
                     ajax: {
                         url: "{{ route('pppoe_sessions.index') }}",
                         data: function(d) {
                             d.status = $('#filter-status').val();
-                            d.date_range = $('#filter-date').val();
-                            d.cause = $('#filter-cause').val();
+                            d.paket_id = $('#filter-paket').val();
                         }
                     },
                     columns: [
                         {
-                            data: 'radacctid',
-                            name: 'radacctid',
-                            orderable: true,
+                            data: 'no',
+                            name: 'no',
+                            orderable: false,
                             searchable: false,
-                            className: 'text-center font-mono text-xs text-slate-400'
+                            className: 'text-center font-mono text-xs text-slate-400',
+                            render: function(data, type, row, meta) {
+                                return meta.row + meta.settings._iDisplayStart + 1;
+                            }
                         },
                         {
                             data: 'pelanggan',
-                            name: 'username',
-                            orderable: true,
+                            name: 'pelanggan',
+                            orderable: false,
                             searchable: true
                         },
                         {
                             data: 'username_col',
                             name: 'username',
-                            orderable: true,
+                            orderable: false,
                             searchable: true
                         },
                         {
+                            data: 'paket',
+                            name: 'paket_id',
+                            orderable: false,
+                            searchable: false
+                        },
+                        {
                             data: 'status_badge',
-                            name: 'acctstoptime',
-                            orderable: true,
+                            name: 'status_badge',
+                            orderable: false,
                             searchable: false,
                             className: 'text-center'
                         },
                         {
                             data: 'ip_address',
-                            name: 'framedipaddress',
-                            orderable: true,
+                            name: 'ip_address',
+                            orderable: false,
                             searchable: true,
                             className: 'text-center'
                         },
                         {
                             data: 'mac_address',
-                            name: 'callingstationid',
-                            orderable: true,
-                            searchable: true,
-                            className: 'text-center'
-                        },
-                        {
-                            data: 'waktu_mulai',
-                            name: 'acctstarttime',
-                            orderable: true,
+                            name: 'mac_address',
+                            orderable: false,
                             searchable: false,
                             className: 'text-center'
                         },
                         {
-                            data: 'waktu_selesai',
-                            name: 'acctstoptime',
-                            orderable: true,
-                            searchable: false,
-                            className: 'text-center'
-                        },
-                        {
-                            data: 'durasi',
-                            name: 'acctsessiontime',
-                            orderable: true,
+                            data: 'uptime',
+                            name: 'uptime',
+                            orderable: false,
                             searchable: false,
                             className: 'text-center'
                         },
                         {
                             data: 'traffic',
-                            name: 'acctoutputoctets',
-                            orderable: true,
+                            name: 'traffic',
+                            orderable: false,
                             searchable: false,
-                            className: 'text-center'
-                        },
-                        {
-                            data: 'alasan_putus',
-                            name: 'acctterminatecause',
-                            orderable: true,
-                            searchable: true,
                             className: 'text-center'
                         },
                         {
@@ -476,12 +482,8 @@
                         }
                     ],
                     language: {
-                        processing: '<div class="flex items-center gap-2"><i class="fa-solid fa-circle-notch fa-spin text-sky-600"></i> Memuat data...</div>',
-                        lengthMenu: "Tampilkan _MENU_ data",
+                        processing: "<i class='fa-solid fa-circle-notch fa-spin text-sky-500 text-2xl'></i>",
                         zeroRecords: "Data tidak ditemukan",
-                        info: "Menampilkan _START_ - _END_ dari _TOTAL_ data",
-                        infoEmpty: "Menampilkan 0 data",
-                        infoFiltered: "(disaring dari _MAX_ total)",
                         paginate: {
                             previous: '<i class="fa-solid fa-chevron-left"></i>',
                             next: '<i class="fa-solid fa-chevron-right"></i>'
@@ -500,7 +502,7 @@
                 });
 
                 // Filter on select change
-                $('#filter-status, #filter-date, #filter-cause').on('change', function() {
+                $('#filter-status, #filter-paket').on('change', function() {
                     sessionTable.draw();
                 });
             });
@@ -517,8 +519,7 @@
 
             function resetFilters() {
                 $('#filter-status').val('');
-                $('#filter-date').val('');
-                $('#filter-cause').val('');
+                $('#filter-paket').val('');
                 $('#custom-search').val('');
                 if (sessionTable) {
                     sessionTable.search('').draw();
@@ -544,26 +545,133 @@
             // Close on overlay click or Escape key
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
+                    closeCustomModal('userHistoryModal');
                     closeCustomModal('sessionDetailModal');
                 }
             });
 
-            const modalOverlay = document.getElementById('sessionDetailModal');
-            if (modalOverlay) {
-                modalOverlay.addEventListener('click', function(e) {
-                    if (e.target === this) {
-                        closeCustomModal('sessionDetailModal');
+            ['userHistoryModal', 'sessionDetailModal'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('click', function(e) {
+                        if (e.target === this) {
+                            closeCustomModal(id);
+                        }
+                    });
+                }
+            });
+
+            // Tampilkan riwayat sesi khusus 1 PPPoE account
+            function showUserHistory(username, customerName) {
+                openCustomModal('userHistoryModal');
+                const loading = document.getElementById('historyLoading');
+                const content = document.getElementById('historyContent');
+                const empty = document.getElementById('historyEmpty');
+                const tbody = document.getElementById('userHistoryTbody');
+
+                loading.classList.remove('hidden');
+                content.classList.add('hidden');
+                empty.classList.add('hidden');
+                tbody.innerHTML = '';
+
+                document.getElementById('historyModalSubtitle').innerText = `${username} • ${customerName || 'PPPoE'}`;
+                document.getElementById('histUsername').innerText = username;
+                document.getElementById('histCustomerName').innerText = customerName || 'Akun Mandiri';
+                document.getElementById('histCustomerPhone').innerText = '';
+                document.getElementById('histCustomerPaket').innerText = '-';
+                document.getElementById('histTotalCountText').innerText = '';
+
+                fetch(`/pppoe-sessions/user-history?username=${encodeURIComponent(username)}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error('Gagal memuat riwayat sesi');
+                    return res.json();
+                })
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Respon tidak valid');
+
+                    const c = data.customer;
+                    if (c) {
+                        document.getElementById('histCustomerName').innerText = c.nama_lengkap || 'Akun Mandiri';
+                        document.getElementById('histCustomerPhone').innerText = c.no_whatsapp ? `(${c.no_whatsapp})` : '';
+                        document.getElementById('histCustomerPaket').innerText = c.paket || '-';
+                    }
+
+                    const sessions = data.sessions || [];
+                    document.getElementById('histTotalCountText').innerText = `Menampilkan ${sessions.length} riwayat sesi terakhir`;
+
+                    if (sessions.length === 0) {
+                        loading.classList.add('hidden');
+                        empty.classList.remove('hidden');
+                        return;
+                    }
+
+                    let rowsHtml = '';
+                    sessions.forEach((s, idx) => {
+                        const statusBadge = s.is_online
+                            ? '<span class="badge" style="background:#dcfce7; color:#15803d; border:1px solid #bbf7d0; font-size:10.5px; padding:2px 7px; border-radius:5px; font-weight:700;"><i class="fa-solid fa-circle text-[7px] mr-1 text-emerald-500"></i> ONLINE</span>'
+                            : '<span class="badge" style="background:#f1f5f9; color:#64748b; border:1px solid #e2e8f0; font-size:10.5px; padding:2px 7px; border-radius:5px; font-weight:600;">OFFLINE</span>';
+
+                        const cause = s.terminate_cause || '-';
+                        let causeBadge = `<span class="badge" style="background:#f8fafc; color:#64748b; border:1px solid #e2e8f0; font-size:10px; padding:2px 6px; border-radius:4px;">${cause}</span>`;
+                        if (cause === 'User-Request') {
+                            causeBadge = '<span class="badge" style="background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:600;"><i class="fa-solid fa-power-off text-[8px] mr-1"></i> User-Request</span>';
+                        } else if (cause === 'Lost-Carrier') {
+                            causeBadge = '<span class="badge" style="background:#fef2f2; color:#be123c; border:1px solid #fecdd3; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:600;"><i class="fa-solid fa-triangle-exclamation text-[8px] mr-1"></i> Lost-Carrier</span>';
+                        } else if (cause === 'NAS-Reboot') {
+                            causeBadge = '<span class="badge" style="background:#fffbeb; color:#b45309; border:1px solid #fde68a; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:600;"><i class="fa-solid fa-rotate text-[8px] mr-1"></i> NAS-Reboot</span>';
+                        } else if (s.is_online) {
+                            causeBadge = '<span class="badge" style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:600;">Aktif</span>';
+                        }
+
+                        rowsHtml += `
+                            <tr>
+                                <td style="text-align: center; color: #94a3b8; font-family: monospace;">${idx + 1}</td>
+                                <td style="text-align: center;">${statusBadge}</td>
+                                <td style="text-align: center; font-size: 11.5px; font-weight: 500;">${s.start}</td>
+                                <td style="text-align: center; font-size: 11.5px; font-weight: 500;">${s.stop}</td>
+                                <td style="text-align: center; font-family: monospace; font-size: 11px;">${s.duration}</td>
+                                <td style="text-align: center; font-family: monospace; font-size: 10.5px;">
+                                    <div style="color: #166534;"><i class="fa-solid fa-arrow-down text-[8px]"></i> ${s.download}</div>
+                                    <div style="color: #0369a1;"><i class="fa-solid fa-arrow-up text-[8px]"></i> ${s.upload}</div>
+                                </td>
+                                <td style="text-align: center;">${causeBadge}</td>
+                                <td style="text-align: center; font-family: monospace; font-size: 10.5px;">
+                                    <div style="font-weight: 600; color: #334155;">${s.framedipaddress}</div>
+                                    <div style="color: #94a3b8;">${s.callingstationid}</div>
+                                </td>
+                                <td style="text-align: center;">
+                                    <button type="button" class="topbar-icon-btn !w-7 !h-7 !rounded-lg" onclick="showSessionDetail(${s.radacctid})" title="Detail Telemetri">
+                                        <i class="fa-solid fa-circle-info text-slate-500"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    tbody.innerHTML = rowsHtml;
+                    loading.classList.add('hidden');
+                    content.classList.remove('hidden');
+                })
+                .catch(err => {
+                    loading.innerHTML = `
+                        <div class="text-rose-500 font-semibold mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Gagal Memuat Riwayat Sesi</div>
+                        <p class="text-xs text-slate-500">${err.message}</p>
+                    `;
                 });
             }
 
+            // Tampilkan parameter spesifik 1 session id
             function showSessionDetail(radacctid) {
                 openCustomModal('sessionDetailModal');
                 const loading = document.getElementById('modalLoading');
                 const content = document.getElementById('modalContent');
                 loading.classList.remove('hidden');
                 content.classList.add('hidden');
-                currentLoadedSession = null;
 
                 fetch(`/pppoe-sessions/${radacctid}`, {
                     headers: {
@@ -572,34 +680,15 @@
                     }
                 })
                 .then(res => {
-                    if (!res.ok) throw new Error('Gagal memuat detail sesi');
+                    if (!res.ok) throw new Error('Gagal memuat detail');
                     return res.json();
                 })
                 .then(data => {
                     if (!data.success) throw new Error('Respon tidak valid');
-                    currentLoadedSession = data;
 
                     const s = data.session;
-                    const c = data.customer;
-                    const p = data.pppoe;
+                    document.getElementById('modalSessionSubtitle').innerText = `ID Sesi #${s.radacctid} • ${s.username}`;
 
-                    document.getElementById('modalSessionSubtitle').innerText = `ID #${s.radacctid} • ${s.username}`;
-
-                    // Customer section
-                    if (c) {
-                        document.getElementById('modalCustomerName').innerText = c.nama_lengkap || '-';
-                        document.getElementById('modalCustomerId').innerText = c.id_pelanggan || '-';
-                        document.getElementById('modalCustomerPhone').innerText = c.no_whatsapp || '-';
-                        document.getElementById('modalCustomerPaket').innerText = c.paket || 'Paket Default';
-                    } else {
-                        document.getElementById('modalCustomerName').innerText = 'Akun Mandiri / Profil Belum Ditautkan';
-                        document.getElementById('modalCustomerId').innerText = '-';
-                        document.getElementById('modalCustomerPhone').innerText = '-';
-                        document.getElementById('modalCustomerPaket').innerText = p && p.paket ? p.paket : 'Tanpa Paket';
-                    }
-                    document.getElementById('modalPppoeUsername').innerText = s.username;
-
-                    // Telemetry
                     document.getElementById('modalSessionId').innerText = s.acctsessionid || '-';
                     document.getElementById('modalFramedIp').innerText = s.framedipaddress || '-';
                     document.getElementById('modalMac').innerText = s.callingstationid || '-';
@@ -607,17 +696,14 @@
                     document.getElementById('modalNasPort').innerText = `${s.nasportid || '-'} (${s.nasporttype || 'Ethernet'})`;
                     document.getElementById('modalCalledStation').innerText = s.calledstationid || '-';
 
-                    // Timestamps & Duration
                     document.getElementById('modalStartTime').innerText = s.start_formatted || '-';
                     document.getElementById('modalUpdateTime').innerText = s.update_formatted || '-';
                     document.getElementById('modalStopTime').innerText = s.stop_formatted || '-';
                     document.getElementById('modalDuration').innerText = s.formatted_duration || '0 detik';
 
-                    // Traffic
                     document.getElementById('modalDownload').innerText = s.download_formatted || '0 B';
                     document.getElementById('modalUpload').innerText = s.upload_formatted || '0 B';
 
-                    // Status Badge
                     const statusBadge = document.getElementById('modalSessionStatusBadge');
                     if (s.is_online) {
                         statusBadge.innerHTML = '<span class="badge" style="background:#dcfce7; color:#15803d; border:1px solid #bbf7d0; font-size:11px; padding:2px 8px; border-radius:6px; font-weight:700;"><i class="fa-solid fa-circle text-[7px] mr-1 text-emerald-500"></i> ONLINE</span>';
@@ -625,70 +711,16 @@
                         statusBadge.innerHTML = '<span class="badge" style="background:#f1f5f9; color:#64748b; border:1px solid #e2e8f0; font-size:11px; padding:2px 8px; border-radius:6px; font-weight:600;">OFFLINE</span>';
                     }
 
-                    // Cause box
-                    const causeHeading = document.getElementById('modalCauseHeading');
-                    const causeDesc = document.getElementById('modalCauseDesc');
-                    const causeTitle = document.getElementById('modalCauseTitle');
-
-                    if (s.is_online) {
-                        causeTitle.innerText = 'Online Aktif';
-                        causeHeading.innerText = 'Sesi Sedang Berlangsung';
-                        causeDesc.innerText = 'Akun PPPoE saat ini sedang terhubung aktif ke internet.';
-                    } else {
-                        const cause = s.acctterminatecause || 'Tidak Tercatat';
-                        causeTitle.innerText = cause;
-                        if (cause === 'User-Request') {
-                            causeHeading.innerText = 'User-Request (Koneksi Diputus Normal)';
-                            causeDesc.innerText = 'Pelanggan mematikan router/modem atau merestart perangkat ONT secara mandiri.';
-                        } else if (cause === 'Lost-Carrier') {
-                            causeHeading.innerText = 'Lost-Carrier (Sinyal Terputus / LOS)';
-                            causeDesc.innerText = 'Indikasi LOS merah: kabel fiber optik terputus, redaman drop, atau modem mati mendadak tanpa sinyal disconnect.';
-                        } else if (cause === 'NAS-Reboot') {
-                            causeHeading.innerText = 'NAS-Reboot (Router MikroTik Mulai Ulang)';
-                            causeDesc.innerText = 'Router server MikroTik / BRAS reboot sehingga seluruh sesi dial ulang.';
-                        } else if (cause === 'NAS-Request') {
-                            causeHeading.innerText = 'NAS-Request (Diputus oleh Router)';
-                            causeDesc.innerText = 'Sesi diputus oleh MikroTik (kick sesi, pergantian isolir, atau limit waktu).';
-                        } else {
-                            causeHeading.innerText = `Penyebab Terminasi: ${cause}`;
-                            causeDesc.innerText = `Sesi selesai dengan kode status RADIUS: ${cause}.`;
-                        }
-                    }
+                    document.getElementById('modalCauseTitle').innerText = s.acctterminatecause || (s.is_online ? 'Sedang Aktif' : '-');
 
                     loading.classList.add('hidden');
                     content.classList.remove('hidden');
                 })
                 .catch(err => {
                     loading.innerHTML = `
-                        <div class="text-rose-500 font-semibold mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Gagal Memuat Data Sesi</div>
+                        <div class="text-rose-500 font-semibold mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Gagal Memuat Detail Sesi</div>
                         <p class="text-xs text-slate-500">${err.message}</p>
                     `;
-                });
-            }
-
-            function copySessionDetails() {
-                if (!currentLoadedSession || !currentLoadedSession.session) {
-                    alert('Data sesi belum dimuat.');
-                    return;
-                }
-                const s = currentLoadedSession.session;
-                const c = currentLoadedSession.customer;
-                const text = `[DETAIL SESI RADIUS PPPoE]\n` +
-                    `ID Sesi: ${s.radacctid}\n` +
-                    `Username: ${s.username}\n` +
-                    `Pelanggan: ${c ? c.nama_lengkap : 'Mandiri'} (${c ? c.no_whatsapp : '-'})\n` +
-                    `IP Address: ${s.framedipaddress || '-'}\n` +
-                    `MAC ONT: ${s.callingstationid || '-'}\n` +
-                    `Mulai: ${s.start_formatted || '-'}\n` +
-                    `Selesai: ${s.stop_formatted || '-'}\n` +
-                    `Durasi: ${s.formatted_duration || '-'}\n` +
-                    `Traffic: DL ${s.download_formatted} / UL ${s.upload_formatted}\n` +
-                    `Penyebab Putus: ${s.acctterminatecause || (s.is_online ? 'Sedang Aktif' : '-')}`;
-
-                navigator.clipboard.writeText(text).then(() => {
-                    alert('Ringkasan sesi berhasil disalin ke clipboard!');
-                }).catch(() => {
-                    alert('Gagal menyalin ke clipboard.');
                 });
             }
         </script>

@@ -44,6 +44,7 @@ Route::middleware(['auth.custom'])->group(function () {
     // Routes accessible by Admin and Teknisi
     Route::get('/pppoe', [PppoeController::class, 'index'])->name('pppoe.index');
     Route::get('/pppoe-sessions', [\App\Http\Controllers\PppoeSessionController::class, 'index'])->name('pppoe_sessions.index');
+    Route::get('/pppoe-sessions/user-history', [\App\Http\Controllers\PppoeSessionController::class, 'userHistory'])->name('pppoe_sessions.user_history');
     Route::get('/pppoe-sessions/{id}', [\App\Http\Controllers\PppoeSessionController::class, 'show'])->name('pppoe_sessions.show');
 
     // Routes only for Administrator

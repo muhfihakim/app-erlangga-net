@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\Paket;
 use App\Models\Pppoe;
 use App\Models\Radacct;
 use Carbon\Carbon;
@@ -13,201 +14,156 @@ use Yajra\DataTables\Facades\DataTables;
 class PppoeSessionController extends Controller
 {
     /**
-     * Tampilkan riwayat dan sesi aktif PPPoE dari FreeRADIUS accounting (radacct).
+     * Tampilkan daftar akun PPPoE dengan status sesi real-time dari RADIUS.
      */
     public function index(Request $request)
     {
         $filterStatus = $request->input('status', '');
-        $filterCause = $request->input('cause', '');
-        $filterDate = $request->input('date_range', '');
-        $filterUsername = $request->input('username', '');
+        $filterPaket = $request->input('paket_id', '');
 
         if ($request->ajax()) {
-            $query = Radacct::query();
+            // Ambil session online dari FreeRADIUS (cache 30 detik untuk performa)
+            $onlineSessions = Cache::remember('radius_online_sessions_map', 30, function () {
+                return Radacct::whereNull('acctstoptime')
+                    ->select(
+                        'radacctid',
+                        'username',
+                        'framedipaddress',
+                        'callingstationid',
+                        'acctstarttime',
+                        'acctsessiontime',
+                        'acctoutputoctets',
+                        'acctinputoctets'
+                    )
+                    ->get()
+                    ->keyBy('username');
+            });
+
+            $onlineUsernames = $onlineSessions->keys()->all();
+
+            $query = Pppoe::with(['customer', 'paket'])->select('pppoes.*');
 
             // Filter Status
             if ($filterStatus === 'online') {
-                $query->whereNull('acctstoptime');
+                $query->whereIn('pppoes.username', $onlineUsernames);
             } elseif ($filterStatus === 'offline') {
-                $query->whereNotNull('acctstoptime');
+                $query->whereNotIn('pppoes.username', $onlineUsernames);
             }
 
-            // Filter Disconnect Cause
-            if (!empty($filterCause)) {
-                $query->where('acctterminatecause', $filterCause);
+            // Filter Paket
+            if (!empty($filterPaket)) {
+                $query->where('pppoes.paket_id', $filterPaket);
             }
 
-            // Filter Username
-            if (!empty($filterUsername)) {
-                $query->where('username', 'like', '%' . trim($filterUsername) . '%');
-            }
-
-            // Filter Date Range
-            if ($filterDate === 'today') {
-                $query->where('acctstarttime', '>=', now()->startOfDay());
-            } elseif ($filterDate === '7d') {
-                $query->where('acctstarttime', '>=', now()->subDays(7)->startOfDay());
-            } elseif ($filterDate === '30d') {
-                $query->where('acctstarttime', '>=', now()->subDays(30)->startOfDay());
-            }
-
-            // Search box filter
+            // Live Search
             if ($search = $request->input('search.value')) {
                 $cleanSearch = trim($search);
                 $query->where(function ($q) use ($cleanSearch) {
-                    $q->where('username', 'like', "%{$cleanSearch}%")
-                        ->orWhere('framedipaddress', 'like', "%{$cleanSearch}%")
-                        ->orWhere('callingstationid', 'like', "%{$cleanSearch}%")
-                        ->orWhere('acctterminatecause', 'like', "%{$cleanSearch}%");
+                    $q->where('pppoes.username', 'like', "%{$cleanSearch}%")
+                        ->orWhere('pppoes.ip_address', 'like', "%{$cleanSearch}%")
+                        ->orWhereHas('customer', function ($cq) use ($cleanSearch) {
+                            $cq->where('nama_lengkap', 'like', "%{$cleanSearch}%")
+                                ->orWhere('no_whatsapp', 'like', "%{$cleanSearch}%")
+                                ->orWhere('id_pelanggan', 'like', "%{$cleanSearch}%");
+                        });
                 });
             }
 
-            // Default sorting by radacctid DESC
-            if (!$request->has('order')) {
-                $query->orderByDesc('radacctid');
-            }
-
-            $customerCache = [];
-
             return DataTables::eloquent($query)
                 ->addColumn('no', function () {
-                    return ''; // Diisi oleh render DataTables
+                    return ''; // Diisi oleh JS render DataTables
                 })
-                ->addColumn('pelanggan', function ($radacct) use (&$customerCache) {
-                    $rawUsername = $radacct->username;
-                    if (!isset($customerCache[$rawUsername])) {
-                        $cleanUsername = explode('@', $rawUsername)[0];
-                        $cust = Customer::where('pppoe_username', $rawUsername)
-                            ->orWhere('pppoe_username', $cleanUsername)
-                            ->with('paket')
-                            ->first();
-
-                        if (!$cust) {
-                            $pppoe = Pppoe::where('username', $rawUsername)
-                                ->orWhere('username', $cleanUsername)
-                                ->with(['paket', 'customer'])
-                                ->first();
-
-                            if ($pppoe && $pppoe->customer) {
-                                $cust = $pppoe->customer;
-                            }
-                        }
-
-                        $customerCache[$rawUsername] = $cust;
+                ->addColumn('pelanggan', function ($pppoe) {
+                    $cust = $pppoe->customer;
+                    if ($cust && !empty($cust->nama_lengkap)) {
+                        $phone = $cust->no_whatsapp ? '<span style="font-size: 11px; color: #64748b; font-weight: 500;">' . e($cust->no_whatsapp) . '</span>' : '';
+                        return '<div><div style="font-weight: 600; color: #1e293b; font-size: 12.5px; text-transform: none !important;">' . e($cust->nama_lengkap) . '</div>' . $phone . '</div>';
                     }
 
-                    $customer = $customerCache[$rawUsername];
-
-                    if ($customer && !empty($customer->nama_lengkap)) {
-                        return '<div><div style="font-weight: 600; color: #1e293b; font-size: 12.5px; text-transform: none !important;">'
-                            . e($customer->nama_lengkap) . '</div>'
-                            . ($customer->no_whatsapp ? '<span style="font-size: 11px; color: #64748b; font-weight: 500;">' . e($customer->no_whatsapp) . '</span>' : '') . '</div>';
+                    if (!empty($pppoe->keterangan)) {
+                        return '<div><div style="font-weight: 600; color: #1e293b; font-size: 12.5px;">' . e($pppoe->keterangan) . '</div><span style="font-size: 10px; color: #64748b; background: #f1f5f9; padding: 1px 6px; border-radius: 4px; font-weight: 600;">PPPoE Mandiri</span></div>';
                     }
 
-                    return '<div><span style="font-size: 11px; color: #94a3b8; font-style: italic; font-weight: 500;">Akun Mandiri / Luar</span></div>';
+                    return '<div><span style="font-size: 11px; color: #94a3b8; font-style: italic; font-weight: 500;">Tanpa Profil</span></div>';
                 })
-                ->addColumn('username_col', function ($radacct) {
+                ->addColumn('username_col', function ($pppoe) {
                     return '<div class="pppoe-username"><div class="pppoe-username-val" style="font-weight: 600; color: #0f172a; font-family: monospace; font-size: 12px; text-transform: none !important;">'
-                        . e($radacct->username)
+                        . e($pppoe->username)
                         . '</div></div>';
                 })
-                ->addColumn('status_badge', function ($radacct) {
-                    if ($radacct->is_online) {
+                ->addColumn('paket', function ($pppoe) {
+                    $namaPaket = $pppoe->paket->nama_paket ?? '-';
+                    return '<div><span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700; font-size:11px; padding:2px 8px; border-radius:6px;">' . e($namaPaket) . '</span></div>';
+                })
+                ->addColumn('status_badge', function ($pppoe) use ($onlineSessions) {
+                    $isOnline = $onlineSessions->has($pppoe->username);
+                    if ($isOnline) {
                         return '<div style="text-align: center;"><span class="badge" style="background:#dcfce7; color:#15803d; border:1px solid #bbf7d0; font-size:11px; padding:2px 8px; border-radius:6px; font-weight:700;"><i class="fa-solid fa-circle text-[7px] mr-1 text-emerald-500"></i> ONLINE</span></div>';
                     }
-
                     return '<div style="text-align: center;"><span class="badge" style="background:#f1f5f9; color:#64748b; border:1px solid #e2e8f0; font-size:11px; padding:2px 8px; border-radius:6px; font-weight:600;">OFFLINE</span></div>';
                 })
-                ->addColumn('ip_address', function ($radacct) {
-                    return '<div style="text-align: center; font-family: monospace; font-size: 11.5px; color: #334155; font-weight: 600;">' . e($radacct->framedipaddress ?: '-') . '</div>';
+                ->addColumn('ip_address', function ($pppoe) use ($onlineSessions) {
+                    $session = $onlineSessions->get($pppoe->username);
+                    $ip = $session?->framedipaddress ?: ($pppoe->ip_address ?: '-');
+                    return '<div style="text-align: center; font-family: monospace; font-size: 11.5px; color: #334155; font-weight: 600;">' . e($ip) . '</div>';
                 })
-                ->addColumn('mac_address', function ($radacct) {
-                    return '<div style="text-align: center; font-family: monospace; font-size: 11px; color: #64748b;">' . e($radacct->callingstationid ?: '-') . '</div>';
+                ->addColumn('mac_address', function ($pppoe) use ($onlineSessions) {
+                    $session = $onlineSessions->get($pppoe->username);
+                    $mac = $session?->callingstationid ?: '-';
+                    return '<div style="text-align: center; font-family: monospace; font-size: 11px; color: #64748b;">' . e($mac) . '</div>';
                 })
-                ->addColumn('waktu_mulai', function ($radacct) {
-                    if (!$radacct->acctstarttime) {
-                        return '<div style="text-align: center; color: #94a3b8;">-</div>';
+                ->addColumn('uptime', function ($pppoe) use ($onlineSessions) {
+                    $session = $onlineSessions->get($pppoe->username);
+                    if (!$session || !$session->acctstarttime) {
+                        return '<div style="text-align: center; color: #94a3b8; font-size: 11px;">-</div>';
                     }
-                    $start = Carbon::parse($radacct->acctstarttime)->setTimezone(config('app.timezone', 'Asia/Jakarta'));
-                    return '<div style="text-align: center;"><div style="font-size: 11.5px; font-weight: 600; color: #334155;">' . $start->format('d/m/Y') . '</div><div style="font-size: 10.5px; color: #64748b; font-family: monospace;">' . $start->format('H:i:s') . '</div></div>';
-                })
-                ->addColumn('waktu_selesai', function ($radacct) {
-                    if ($radacct->is_online) {
-                        return '<div style="text-align: center;"><span style="font-size: 11px; color: #16a34a; font-weight: 600; font-style: italic;">Sedang Aktif</span></div>';
-                    }
-                    if (!$radacct->acctstoptime) {
-                        return '<div style="text-align: center; color: #94a3b8;">-</div>';
-                    }
-                    $stop = Carbon::parse($radacct->acctstoptime)->setTimezone(config('app.timezone', 'Asia/Jakarta'));
-                    return '<div style="text-align: center;"><div style="font-size: 11.5px; font-weight: 600; color: #475569;">' . $stop->format('d/m/Y') . '</div><div style="font-size: 10.5px; color: #64748b; font-family: monospace;">' . $stop->format('H:i:s') . '</div></div>';
-                })
-                ->addColumn('durasi', function ($radacct) {
-                    $seconds = (int) $radacct->acctsessiontime;
-                    if ($radacct->is_online && $radacct->acctstarttime) {
-                        $seconds = max($seconds, Carbon::parse($radacct->acctstarttime)->diffInSeconds(now()));
-                    }
-
+                    $start = Carbon::parse($session->acctstarttime)->setTimezone(config('app.timezone', 'Asia/Jakarta'));
+                    $seconds = max(0, Carbon::parse($session->acctstarttime)->diffInSeconds(now()));
                     $days = floor($seconds / 86400);
                     $hours = floor(($seconds % 86400) / 3600);
                     $mins = floor(($seconds % 3600) / 60);
-                    $secs = $seconds % 60;
 
-                    $durationParts = [];
-                    if ($days > 0) $durationParts[] = "{$days}h";
-                    if ($hours > 0) $durationParts[] = "{$hours}j";
-                    if ($mins > 0) $durationParts[] = "{$mins}m";
-                    if (empty($durationParts) || ($days == 0 && count($durationParts) < 2)) {
-                        $durationParts[] = "{$secs}d";
-                    }
+                    $parts = [];
+                    if ($days > 0) $parts[] = "{$days}h";
+                    if ($hours > 0) $parts[] = "{$hours}j";
+                    if ($mins > 0 || empty($parts)) $parts[] = "{$mins}m";
+                    $duration = implode(' ', $parts);
 
-                    return '<div style="text-align: center;"><span style="font-family: monospace; font-size: 11px; font-weight: 600; color: #475569; background: #f8fafc; border: 1px solid #e2e8f0; padding: 2px 6px; border-radius: 4px;">'
-                        . implode(' ', $durationParts)
-                        . '</span></div>';
+                    return '<div style="text-align: center;"><div style="font-size: 11px; font-weight: 600; color: #15803d; font-family: monospace;">' . $duration . '</div><div style="font-size: 10px; color: #94a3b8;">sejak ' . $start->format('d/m H:i') . '</div></div>';
                 })
-                ->addColumn('traffic', function ($radacct) {
-                    $download = Radacct::formatBytes($radacct->acctoutputoctets ?? 0);
-                    $upload = Radacct::formatBytes($radacct->acctinputoctets ?? 0);
+                ->addColumn('traffic', function ($pppoe) use ($onlineSessions) {
+                    $session = $onlineSessions->get($pppoe->username);
+                    if (!$session) {
+                        return '<div style="text-align: center; color: #94a3b8; font-size: 11px;">-</div>';
+                    }
+                    $download = Radacct::formatBytes($session->acctoutputoctets ?? 0);
+                    $upload = Radacct::formatBytes($session->acctinputoctets ?? 0);
 
                     return '<div style="text-align: center; font-family: monospace; font-size: 11px; line-height: 1.3;">'
                         . '<div style="color: #166534;"><i class="fa-solid fa-arrow-down text-[9px]"></i> ' . $download . '</div>'
                         . '<div style="color: #0369a1;"><i class="fa-solid fa-arrow-up text-[9px]"></i> ' . $upload . '</div>'
                         . '</div>';
                 })
-                ->addColumn('alasan_putus', function ($radacct) {
-                    if ($radacct->is_online) {
-                        return '<div style="text-align: center;"><span class="badge" style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; font-size:10.5px; padding:2px 7px; border-radius:5px; font-weight:600;"><i class="fa-solid fa-bolt text-[9px] mr-1"></i> Terhubung</span></div>';
-                    }
-
-                    $cause = $radacct->acctterminatecause ?: 'Unknown';
-                    $badge = match ($cause) {
-                        'User-Request' => '<span class="badge" style="background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; font-size:10.5px; padding:2px 7px; border-radius:5px; font-weight:600;" title="User Request / Modem Off"><i class="fa-solid fa-power-off text-[9px] mr-1"></i> User-Request</span>',
-                        'Lost-Carrier' => '<span class="badge" style="background:#fef2f2; color:#be123c; border:1px solid #fecdd3; font-size:10.5px; padding:2px 7px; border-radius:5px; font-weight:600;" title="Kabel Putus / LOS Merah"><i class="fa-solid fa-triangle-exclamation text-[9px] mr-1"></i> Lost-Carrier</span>',
-                        'NAS-Reboot' => '<span class="badge" style="background:#fffbeb; color:#b45309; border:1px solid #fde68a; font-size:10.5px; padding:2px 7px; border-radius:5px; font-weight:600;"><i class="fa-solid fa-rotate text-[9px] mr-1"></i> NAS-Reboot</span>',
-                        'NAS-Request' => '<span class="badge" style="background:#f8fafc; color:#475569; border:1px solid #cbd5e1; font-size:10.5px; padding:2px 7px; border-radius:5px; font-weight:600;"><i class="fa-solid fa-shield-halved text-[9px] mr-1"></i> NAS-Request</span>',
-                        'Admin-Reset', 'Admin-Reboot' => '<span class="badge" style="background:#faf5ff; color:#7e22ce; border:1px solid #e9d5ff; font-size:10.5px; padding:2px 7px; border-radius:5px; font-weight:600;">Admin-Reset</span>',
-                        default => '<span class="badge" style="background:#f8fafc; color:#64748b; border:1px solid #e2e8f0; font-size:10.5px; padding:2px 7px; border-radius:5px; font-weight:600;">' . e($cause) . '</span>',
-                    };
-
-                    return '<div style="text-align: center;">' . $badge . '</div>';
-                })
-                ->addColumn('opsi', function ($radacct) {
+                ->addColumn('opsi', function ($pppoe) {
+                    $custName = $pppoe->customer->nama_lengkap ?? '';
                     return '<div class="flex items-center justify-center">'
-                        . '<button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg" onclick="showSessionDetail(' . $radacct->radacctid . ')" title="Detail Sesi">'
-                        . '<i class="fa-solid fa-circle-info text-slate-500"></i>'
+                        . '<button type="button" class="btn-cancel !h-7.5 !px-2.5 text-xs font-semibold flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50" onclick="showUserHistory(\'' . addslashes($pppoe->username) . '\', \'' . addslashes($custName) . '\')" title="Lihat Riwayat Sesi Akun Ini">'
+                        . '<i class="fa-solid fa-clock-rotate-left text-sky-600"></i> Riwayat'
                         . '</button>'
                         . '</div>';
                 })
-                ->rawColumns(['pelanggan', 'username_col', 'status_badge', 'ip_address', 'mac_address', 'waktu_mulai', 'waktu_selesai', 'durasi', 'traffic', 'alasan_putus', 'opsi'])
+                ->rawColumns(['pelanggan', 'username_col', 'paket', 'status_badge', 'ip_address', 'mac_address', 'uptime', 'traffic', 'opsi'])
                 ->make(true);
         }
 
-        // Cache statistical queries
-        $totalSessions = Cache::remember('radacct_total_count', 60, function () {
-            return Radacct::count();
+        // Statistik ringkas (Total Akun PPPoE, Sesi Online Aktif, Aktivitas 24 Jam)
+        $totalPppoeCount = Cache::remember('pppoe_total_count', 60, function () {
+            return Pppoe::count();
         });
 
-        $onlineSessions = Radacct::whereNull('acctstoptime')->count();
-        $offlineSessions = max(0, $totalSessions - $onlineSessions);
+        $onlineSessionsCount = Cache::remember('radius_online_count', 30, function () {
+            return Radacct::whereNull('acctstoptime')->count();
+        });
 
         $active24h = Cache::remember('radacct_active_24h_count', 60, function () {
             return Radacct::where('acctupdatetime', '>=', now()->subHours(24))
@@ -215,28 +171,83 @@ class PppoeSessionController extends Controller
                 ->count();
         });
 
-        $causes = Cache::remember('radacct_distinct_causes', 300, function () {
-            return Radacct::whereNotNull('acctterminatecause')
-                ->where('acctterminatecause', '!=', '')
-                ->distinct()
-                ->pluck('acctterminatecause')
-                ->filter()
-                ->values()
-                ->all();
-        });
+        $pakets = Paket::orderBy('nama_paket')->get();
 
         $stats = [
-            'total' => $totalSessions,
-            'online' => $onlineSessions,
-            'offline' => $offlineSessions,
+            'total_pppoe' => $totalPppoeCount,
+            'online' => $onlineSessionsCount,
             'active24h' => $active24h,
         ];
 
-        return view('pppoe.sessions', compact('stats', 'causes', 'filterStatus', 'filterCause', 'filterDate', 'filterUsername'));
+        return view('pppoe.sessions', compact('stats', 'pakets', 'filterStatus', 'filterPaket'));
     }
 
     /**
-     * Ambil data lengkap satu sesi accounting untuk modal detail.
+     * Ambil seluruh riwayat sesi FreeRADIUS khusus untuk 1 user PPPoE.
+     */
+    public function userHistory(Request $request)
+    {
+        $username = trim($request->input('username', ''));
+        if (empty($username)) {
+            return response()->json(['success' => false, 'message' => 'Username tidak valid'], 400);
+        }
+
+        $cleanUsername = explode('@', $username)[0];
+        $customer = Customer::where('pppoe_username', $username)
+            ->orWhere('pppoe_username', $cleanUsername)
+            ->with('paket')
+            ->first();
+
+        $pppoe = Pppoe::where('username', $username)
+            ->orWhere('username', $cleanUsername)
+            ->with('paket')
+            ->first();
+
+        $sessions = Radacct::where('username', $username)
+            ->orWhere('username', $cleanUsername)
+            ->orderByDesc('radacctid')
+            ->take(50)
+            ->get();
+
+        $sessionList = $sessions->map(function ($s) {
+            $start = $s->acctstarttime ? Carbon::parse($s->acctstarttime)->setTimezone(config('app.timezone', 'Asia/Jakarta'))->format('d/m/Y H:i:s') : '-';
+            $stop = $s->acctstoptime ? Carbon::parse($s->acctstoptime)->setTimezone(config('app.timezone', 'Asia/Jakarta'))->format('d/m/Y H:i:s') : ($s->is_online ? 'Sedang Aktif' : '-');
+
+            return [
+                'radacctid' => $s->radacctid,
+                'is_online' => $s->is_online,
+                'framedipaddress' => $s->framedipaddress ?: '-',
+                'callingstationid' => $s->callingstationid ?: '-',
+                'start' => $start,
+                'stop' => $stop,
+                'duration' => $s->formatted_session_time,
+                'download' => Radacct::formatBytes($s->acctoutputoctets ?? 0),
+                'upload' => Radacct::formatBytes($s->acctinputoctets ?? 0),
+                'terminate_cause' => $s->acctterminatecause ?: ($s->is_online ? 'Terhubung' : '-'),
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'username' => $username,
+            'customer' => $customer ? [
+                'nama_lengkap' => $customer->nama_lengkap,
+                'no_whatsapp' => $customer->no_whatsapp,
+                'paket' => $customer->paket->nama_paket ?? ($pppoe->paket->nama_paket ?? '-'),
+                'id_pelanggan' => $customer->id_pelanggan ?? '-',
+            ] : ($pppoe ? [
+                'nama_lengkap' => $pppoe->keterangan ?: 'Akun Mandiri',
+                'no_whatsapp' => '-',
+                'paket' => $pppoe->paket->nama_paket ?? '-',
+                'id_pelanggan' => '-',
+            ] : null),
+            'sessions' => $sessionList,
+            'total_sessions_found' => $sessions->count(),
+        ]);
+    }
+
+    /**
+     * Ambil data lengkap satu sesi accounting untuk modal detail parameter.
      */
     public function show($id)
     {
