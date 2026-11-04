@@ -4,7 +4,7 @@
             #broadcast-table thead th {
                 text-transform: uppercase !important;
                 font-weight: 600;
-                font-size: 11.5px;
+                font-size: 12px;
             }
 
             #broadcast-table tbody td {
@@ -15,7 +15,7 @@
                 display: inline-flex;
                 align-items: center;
                 gap: 5px;
-                padding: 3px 8px;
+                padding: 2.5px 8px;
                 border-radius: 6px;
                 font-size: 11px;
                 font-weight: 600;
@@ -52,12 +52,76 @@
                 border: 1px solid #e2e8f0;
             }
 
+            .dataTables_wrapper {
+                position: relative;
+                min-height: 200px;
+                padding: 0;
+            }
+
+            .dataTables_wrapper .dataTables_processing {
+                position: absolute !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                background: rgba(255, 255, 255, 0.95) !important;
+                padding: 15px 25px !important;
+                border-radius: 12px !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+                z-index: 50 !important;
+                margin: 0 !important;
+                border: 1px solid #e2e8f0 !important;
+                width: auto !important;
+                height: auto !important;
+                text-align: center;
+            }
+
+            .dataTables_paginate {
+                display: flex;
+                justify-content: flex-end;
+                padding: 1.25rem 1.5rem;
+                gap: 4px;
+                border-top: 1px solid #f1f5f9;
+            }
+
+            .paginate_button {
+                width: 34px;
+                height: 34px;
+                border-radius: 8px;
+                border: 1.5px solid #e2e8f0;
+                background: #fff;
+                color: #64748b !important;
+                font-size: 13px;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                text-decoration: none !important;
+            }
+
+            .paginate_button:hover:not(.disabled) {
+                background: #f8fafc;
+                border-color: #cbd5e1;
+                color: #0f172a !important;
+            }
+
+            .paginate_button.current {
+                background: #0ea5e9 !important;
+                border-color: #0ea5e9 !important;
+                color: #fff !important;
+            }
+
+            .paginate_button.disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+            }
+
             .mobile-preview-box {
                 background: #ffffff;
-                border-radius: 14px;
-                box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+                border-radius: 12px;
+                box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
                 border: 1px solid #e2e8f0;
-                padding: 12px 14px;
+                padding: 10px 12px;
                 position: relative;
             }
         </style>
@@ -74,16 +138,16 @@
             </p>
         </div>
         <div class="flex items-center gap-2">
-            <a href="{{ route('settings.index', ['tab' => 'firebase']) }}" class="btn-cancel !h-8.5 !px-3.5 text-xs font-semibold flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs">
-                <i class="fa-solid fa-fire text-amber-500"></i> Pengaturan Firebase FCM
-            </a>
-            <button type="button" onclick="openCreateModal()" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-3.5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
-                <i class="fa-solid fa-paper-plane"></i> Kirim Pemberitahuan Baru
+            <button type="button" onclick="reloadTable()" class="btn-cancel !h-8.5 !px-3.5 text-xs font-semibold flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs">
+                <i class="fa-solid fa-arrows-rotate text-slate-500" id="refreshIcon"></i> Refresh
+            </button>
+            <button type="button" onclick="openCustomModal('createBroadcastModal')" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-3.5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                <i class="fa-solid fa-paper-plane"></i> Tambah Pemberitahuan
             </button>
         </div>
     </div>
 
-    <!-- Stats Cards Grid -->
+    <!-- Stats Cards Grid (4 Kartu Kompak) -->
     <div class="stats-grid mb-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         <div class="stat-card">
             <div class="stat-icon" style="background:#e0e7ff;color:#4338ca;">
@@ -109,7 +173,7 @@
             </div>
             <div>
                 <div class="stat-val text-amber-700">{{ number_format($stats['fcm_registered'], 0, ',', '.') }}</div>
-                <div class="stat-lbl">Pelanggan Mobile Aktif (FCM)</div>
+                <div class="stat-lbl">Pelanggan Mobile (FCM)</div>
             </div>
         </div>
         <div class="stat-card">
@@ -123,207 +187,107 @@
         </div>
     </div>
 
-    <!-- Table Toolbar & Filters -->
-    <div class="table-toolbar mb-4">
-        <form method="GET" action="{{ route('broadcasts.index') }}" class="w-full flex flex-wrap items-center gap-3" id="filterForm">
+    <!-- Table Toolbar & Filters (Seragam) -->
+    <div class="table-toolbar">
+        <div class="filter-group">
             <div style="flex: 1; min-width: 170px;">
                 <label class="form-label-custom">Kategori Pemberitahuan</label>
-                <select name="type" class="form-input-custom !h-8.5 !text-xs" onchange="document.getElementById('filterForm').submit()">
+                <select id="filter-type" class="form-input-custom !h-8.5 !text-xs">
                     <option value="">Semua Kategori</option>
-                    <option value="maintenance" {{ $typeFilter === 'maintenance' ? 'selected' : '' }}>Pemeliharaan (Maintenance)</option>
-                    <option value="announcement" {{ $typeFilter === 'announcement' ? 'selected' : '' }}>Pengumuman Resmi</option>
-                    <option value="promo" {{ $typeFilter === 'promo' ? 'selected' : '' }}>Promo & Penawaran</option>
-                    <option value="billing" {{ $typeFilter === 'billing' ? 'selected' : '' }}>Tagihan / Billing</option>
-                    <option value="general" {{ $typeFilter === 'general' ? 'selected' : '' }}>Informasi Umum</option>
+                    <option value="maintenance">Pemeliharaan (Maintenance)</option>
+                    <option value="announcement">Pengumuman Resmi</option>
+                    <option value="promo">Promo & Penawaran</option>
+                    <option value="billing">Tagihan / Billing</option>
+                    <option value="general">Informasi Umum</option>
                 </select>
             </div>
 
-            <div style="flex: 2; min-width: 250px;">
-                <label class="form-label-custom">Pencarian Pesan</label>
+            <div style="flex: 1; min-width: 170px;">
+                <label class="form-label-custom">Target Penerima</label>
+                <select id="filter-target" class="form-input-custom !h-8.5 !text-xs">
+                    <option value="">Semua Target</option>
+                    <option value="all">Semua Pelanggan</option>
+                    <option value="package">Berdasarkan Paket</option>
+                    <option value="customer">Pelanggan Tertentu</option>
+                </select>
+            </div>
+
+            <div style="flex: 2; min-width: 230px;">
+                <label class="form-label-custom">Pencarian</label>
                 <div class="search-wrap !max-w-full">
                     <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                    <input type="search" name="search" class="search-input custom-search !h-8.5 !text-xs"
-                        value="{{ $search }}" placeholder="Cari berdasarkan judul atau isi notifikasi..." />
+                    <input type="search" id="custom-search" class="search-input custom-search !h-8.5 !text-xs"
+                        placeholder="Cari judul, isi pengumuman, atau pesan..." autocomplete="off" />
                 </div>
             </div>
 
-            <div style="margin-top: 18px; display: flex; gap: 8px;">
-                <button type="submit" class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold shadow-xs flex items-center gap-1.5">
-                    <i class="fa-solid fa-filter"></i> Filter
-                </button>
-                @if (!empty($search) || !empty($typeFilter))
-                    <a href="{{ route('broadcasts.index') }}" class="btn-cancel !h-8.5 !px-3 text-xs font-semibold flex items-center gap-1 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">
-                        <i class="fa-solid fa-xmark"></i> Reset
-                    </a>
-                @endif
-            </div>
-        </form>
+            <button type="button" onclick="resetFilters()" class="btn-cancel !h-8.5 !px-3.5 text-xs font-semibold flex items-center gap-1 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 shadow-xs" title="Reset Filter">
+                <i class="fa-solid fa-arrow-rotate-left"></i> Reset
+            </button>
+        </div>
     </div>
 
-    <!-- Table Card -->
+    <!-- Table Card (DataTables Server-Side) -->
     <div class="table-card">
         <div class="table-responsive">
             <table id="broadcast-table" class="admin-table w-full">
                 <thead>
                     <tr>
-                        <th style="width: 150px;">Waktu Kirim</th>
+                        <th style="text-align: center; width: 45px;">#</th>
+                        <th style="width: 135px;">Waktu Kirim</th>
                         <th style="width: 140px;">Kategori</th>
                         <th>Judul & Isi Pesan</th>
-                        <th style="width: 160px;">Target Pelanggan</th>
-                        <th style="width: 140px;" class="text-center">Status Push FCM</th>
+                        <th style="width: 170px;">Target Pelanggan</th>
+                        <th style="text-align: center; width: 130px;">Status Push FCM</th>
                         <th style="width: 120px;">Dibuat Oleh</th>
-                        <th style="width: 80px;" class="text-center">Aksi</th>
+                        <th style="text-align: center; width: 85px;">Opsi</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @forelse ($broadcasts as $item)
-                        @php
-                            $badgeClass = match ($item->type) {
-                                'maintenance' => 'badge-maintenance',
-                                'announcement' => 'badge-announcement',
-                                'promo' => 'badge-promo',
-                                'billing' => 'badge-billing',
-                                default => 'badge-general',
-                            };
-
-                            $typeLabel = match ($item->type) {
-                                'maintenance' => 'Pemeliharaan',
-                                'announcement' => 'Pengumuman',
-                                'promo' => 'Promo',
-                                'billing' => 'Tagihan',
-                                default => 'Umum',
-                            };
-
-                            $typeIcon = match ($item->type) {
-                                'maintenance' => 'fa-screwdriver-wrench',
-                                'announcement' => 'fa-bullhorn',
-                                'promo' => 'fa-gift',
-                                'billing' => 'fa-file-invoice-dollar',
-                                default => 'fa-bell',
-                            };
-
-                            $targetLabel = match ($item->target_type) {
-                                'package' => 'Paket: ' . ($pakets->firstWhere('id', $item->target_id)->nama_paket ?? 'ID #' . $item->target_id),
-                                'customer' => 'Pelanggan: ' . ($customers->firstWhere('id', $item->target_id)->nama_lengkap ?? 'ID #' . $item->target_id),
-                                default => 'Semua Pelanggan',
-                            };
-                        @endphp
-                        <tr>
-                            <td class="text-slate-600 font-mono text-[11px] whitespace-nowrap">
-                                <div>{{ $item->created_at->format('d M Y') }}</div>
-                                <div class="text-slate-400 text-[10.5px]">{{ $item->created_at->format('H:i:s') }} WIB</div>
-                            </td>
-                            <td>
-                                <span class="badge-type {{ $badgeClass }}">
-                                    <i class="fa-solid {{ $typeIcon }}"></i>
-                                    <span>{{ $typeLabel }}</span>
-                                </span>
-                            </td>
-                            <td>
-                                <div class="font-bold text-slate-800 text-xs mb-0.5">{{ $item->title }}</div>
-                                <div class="text-slate-500 text-[11px] line-clamp-2 leading-relaxed" title="{{ $item->body }}">
-                                    {{ Str::limit($item->body, 110) }}
-                                </div>
-                            </td>
-                            <td>
-                                <span class="inline-flex items-center gap-1.5 text-xs text-slate-700 font-medium">
-                                    <i class="fa-solid {{ $item->target_type === 'all' ? 'fa-globe text-sky-500' : ($item->target_type === 'package' ? 'fa-box text-indigo-500' : 'fa-user text-amber-500') }} text-[11px]"></i>
-                                    <span>{{ $targetLabel }}</span>
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <div class="inline-flex items-center gap-2">
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100" title="Push Notifikasi Berhasil Dikirim">
-                                        <i class="fa-solid fa-paper-plane text-[9px]"></i> {{ $item->total_sent }}
-                                    </span>
-                                    <span class="text-slate-400 text-[11px]">/</span>
-                                    <span class="text-slate-600 text-[11px]" title="Total Pelanggan Target">{{ $item->total_targeted }}</span>
-                                </div>
-                            </td>
-                            <td class="text-xs text-slate-600 whitespace-nowrap">
-                                {{ $item->creator->name ?? 'Sistem' }}
-                            </td>
-                            <td class="text-center">
-                                <div class="flex items-center justify-center gap-1.5">
-                                    <button type="button" class="btn-cancel !p-1.5 !h-7 !w-7 text-xs text-slate-500 hover:text-sky-600"
-                                        title="Lihat Detail Pesan"
-                                        onclick="showDetailModal({{ json_encode($item) }}, '{{ $typeLabel }}', '{{ $targetLabel }}')">
-                                        <i class="fa-solid fa-eye"></i>
-                                    </button>
-                                    <form action="{{ route('broadcasts.destroy', $item->id) }}" method="POST"
-                                        onsubmit="return confirm('Hapus riwayat log pemberitahuan ini?');" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn-cancel !p-1.5 !h-7 !w-7 text-xs text-slate-400 hover:text-rose-600"
-                                            title="Hapus Log">
-                                            <i class="fa-solid fa-trash-can"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="text-center py-10 text-slate-400">
-                                <div class="flex flex-col items-center justify-center">
-                                    <i class="fa-solid fa-bullhorn text-4xl text-slate-300 mb-2"></i>
-                                    <span class="text-sm font-semibold text-slate-600">Belum Ada Riwayat Pemberitahuan</span>
-                                    <span class="text-xs text-slate-400 mt-0.5">Klik tombol "Kirim Pemberitahuan Baru" untuk mulai broadcast pengumuman.</span>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
+                <tbody></tbody>
             </table>
         </div>
-
-        @if ($broadcasts->hasPages())
-            <div class="p-3 border-t border-slate-100 flex justify-end">
-                {{ $broadcasts->links() }}
-            </div>
-        @endif
     </div>
 
-    <!-- MODAL: Buat Pemberitahuan Baru -->
-    <div id="modalCreateBroadcast" class="modal-backdrop hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-        <div class="modal-container bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden border border-slate-200">
-            <div class="modal-header px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center text-sm font-bold">
+    <!-- MODAL: Tambah Pemberitahuan Baru (Seragam modal-overlay) -->
+    <div class="modal-overlay" id="createBroadcastModal">
+        <div class="modal-box max-w-2xl bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-200 shrink-0">
                         <i class="fa-solid fa-paper-plane"></i>
                     </div>
                     <div>
-                        <h3 class="text-sm font-bold text-slate-800">Kirim Pemberitahuan & Broadcast Baru</h3>
-                        <p class="text-[11px] text-slate-500 m-0">Kirim notifikasi push real-time & simpan di feed notifikasi mobile pelanggan.</p>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Kirim Pemberitahuan & Broadcast Baru</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Kirim push notifikasi real-time & simpan di feed mobile pelanggan.</p>
                     </div>
                 </div>
-                <button type="button" onclick="closeCreateModal()" class="text-slate-400 hover:text-slate-600 focus:outline-none text-base">
+                <button type="button" class="modal-close" onclick="closeCustomModal('createBroadcastModal')">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
             <form action="{{ route('broadcasts.store') }}" method="POST" id="formCreateBroadcast" onsubmit="return confirmSubmitBroadcast()">
                 @csrf
-                <div class="modal-body p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+                <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
                     <!-- Template Cepat -->
-                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                            <span class="text-[11px] font-bold text-slate-700 flex items-center gap-1.5 uppercase tracking-wider">
                                 <i class="fa-solid fa-bolt text-amber-500 text-[11px]"></i> Template Cepat (Isi Otomatis):
                             </span>
                         </div>
                         <div class="flex flex-wrap gap-1.5">
-                            <button type="button" onclick="applyTemplate('maintenance')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 hover:border-amber-300 hover:bg-amber-50 text-slate-700 transition">
+                            <button type="button" onclick="applyTemplate('maintenance')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 hover:border-amber-300 hover:bg-amber-50 text-slate-700 transition shadow-2xs">
                                 <i class="fa-solid fa-screwdriver-wrench text-amber-600 mr-1"></i> Pemeliharaan Jaringan
                             </button>
-                            <button type="button" onclick="applyTemplate('gangguan')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 hover:border-rose-300 hover:bg-rose-50 text-slate-700 transition">
+                            <button type="button" onclick="applyTemplate('gangguan')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 hover:border-rose-300 hover:bg-rose-50 text-slate-700 transition shadow-2xs">
                                 <i class="fa-solid fa-triangle-exclamation text-rose-600 mr-1"></i> Info Gangguan
                             </button>
-                            <button type="button" onclick="applyTemplate('tagihan')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 transition">
+                            <button type="button" onclick="applyTemplate('tagihan')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 transition shadow-2xs">
                                 <i class="fa-solid fa-file-invoice-dollar text-emerald-600 mr-1"></i> Pengingat Tagihan
                             </button>
-                            <button type="button" onclick="applyTemplate('promo')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 hover:border-purple-300 hover:bg-purple-50 text-slate-700 transition">
-                                <i class="fa-solid fa-gift text-purple-600 mr-1"></i> Info Promo & Diskon
+                            <button type="button" onclick="applyTemplate('promo')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white border border-slate-200 hover:border-purple-300 hover:bg-purple-50 text-slate-700 transition shadow-2xs">
+                                <i class="fa-solid fa-gift text-purple-600 mr-1"></i> Promo Upgrade
                             </button>
                         </div>
                     </div>
@@ -388,13 +352,13 @@
                             <span class="text-[10.5px] text-slate-400" id="char_counter">0 / 2000 karakter</span>
                         </div>
                         <textarea name="body" id="input_body" rows="4" class="form-input !text-xs leading-relaxed" required
-                            maxlength="2000" placeholder="Tuliskan detail pesan pengumuman atau informasi secara jelas..." oninput="updatePreview()"></textarea>
+                            maxlength="2000" placeholder="Tuliskan detail pesan pengumuman secara jelas..." oninput="updatePreview()"></textarea>
                     </div>
 
-                    <!-- Live Preview Card Tampilan Mobile -->
+                    <!-- Live Mobile Preview Card -->
                     <div>
-                        <span class="text-[11px] font-bold text-slate-500 block mb-1.5 uppercase tracking-wide">
-                            <i class="fa-solid fa-mobile-screen mr-1"></i> Preview Notifikasi di HP Pelanggan:
+                        <span class="text-[11px] font-bold text-slate-500 block mb-1.5 uppercase tracking-wider">
+                            <i class="fa-solid fa-mobile-screen mr-1 text-slate-400"></i> Preview Notifikasi di HP Pelanggan:
                         </span>
                         <div class="mobile-preview-box">
                             <div class="flex items-center justify-between text-[10.5px] text-slate-400 mb-1.5">
@@ -412,73 +376,245 @@
                     </div>
                 </div>
 
-                <div class="modal-footer px-5 py-3 border-t border-slate-100 flex items-center justify-end gap-2 bg-slate-50/50">
-                    <button type="button" onclick="closeCreateModal()" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold">
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3.5 flex items-center justify-end gap-2">
+                    <button type="button" onclick="closeCustomModal('createBroadcastModal')" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold">
                         Batal
                     </button>
-                    <button type="submit" id="btnSubmitBroadcast" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
-                        <i class="fa-solid fa-paper-plane"></i> Kirim Broadcast Sekarang
+                    <button type="submit" id="btnSubmitBroadcast" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-4.5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-paper-plane"></i> Kirim Broadcast
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL: Detail Broadcast -->
-    <div id="modalDetailBroadcast" class="modal-backdrop hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-        <div class="modal-container bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border border-slate-200">
-            <div class="modal-header px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                    <i class="fa-solid fa-circle-info text-sky-600"></i> Detail Riwayat Pemberitahuan
-                </h3>
-                <button type="button" onclick="closeDetailModal()" class="text-slate-400 hover:text-slate-600 focus:outline-none text-base">
+    <!-- MODAL: Detail Riwayat Pemberitahuan (Seragam modal-overlay) -->
+    <div class="modal-overlay" id="detailBroadcastModal">
+        <div class="modal-box max-w-lg bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-200 shrink-0">
+                        <i class="fa-solid fa-circle-info"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Detail Riwayat Pemberitahuan</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Informasi konten dan statistik pengiriman notifikasi.</p>
+                    </div>
+                </div>
+                <button type="button" class="modal-close" onclick="closeCustomModal('detailBroadcastModal')">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="modal-body p-5 space-y-3.5">
-                <div>
-                    <span class="text-[11px] text-slate-400 block mb-0.5">Kategori & Target</span>
-                    <div class="flex items-center gap-2">
+
+            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5">
+                    <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Kategori & Target</div>
+                    <div class="flex items-center gap-2 flex-wrap">
                         <span id="detail_type_badge" class="badge-type"></span>
-                        <span id="detail_target" class="text-xs font-semibold text-slate-700"></span>
+                        <span id="detail_target" class="text-xs font-bold text-slate-700"></span>
                     </div>
                 </div>
+
                 <div>
-                    <span class="text-[11px] text-slate-400 block mb-0.5">Judul</span>
-                    <div id="detail_title" class="text-sm font-bold text-slate-800"></div>
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Judul</span>
+                    <div id="detail_title" class="text-sm font-bold text-slate-900 leading-snug"></div>
                 </div>
+
                 <div>
-                    <span class="text-[11px] text-slate-400 block mb-0.5">Isi Pesan</span>
-                    <div id="detail_body" class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 leading-relaxed whitespace-pre-wrap"></div>
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Isi Pesan Notifikasi</span>
+                    <div id="detail_body" class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 leading-relaxed whitespace-pre-wrap font-sans"></div>
                 </div>
-                <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100 text-xs">
+
+                <div class="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100 text-xs">
                     <div>
-                        <span class="text-[11px] text-slate-400 block">Waktu Pengiriman</span>
-                        <span id="detail_time" class="font-medium text-slate-700 font-mono"></span>
+                        <span class="text-[11px] text-slate-400 block mb-0.5">Waktu Pengiriman</span>
+                        <span id="detail_time" class="font-semibold text-slate-800 font-mono text-[11.5px]"></span>
                     </div>
                     <div>
-                        <span class="text-[11px] text-slate-400 block">Status Pengiriman FCM</span>
-                        <span id="detail_stats" class="font-medium text-emerald-600"></span>
+                        <span class="text-[11px] text-slate-400 block mb-0.5">Status Pengiriman Push FCM</span>
+                        <span id="detail_stats" class="font-bold text-emerald-600"></span>
                     </div>
+                </div>
+
+                <div class="pt-2 text-xs text-slate-500">
+                    <span>Pengirim: </span><strong id="detail_creator" class="text-slate-800"></strong>
                 </div>
             </div>
-            <div class="modal-footer px-5 py-3 border-t border-slate-100 flex justify-end bg-slate-50/50">
-                <button type="button" onclick="closeDetailModal()" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold">
+
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3.5 flex justify-end">
+                <button type="button" onclick="closeCustomModal('detailBroadcastModal')" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold">
                     Tutup
                 </button>
             </div>
         </div>
     </div>
 
+    <!-- MODAL: Konfirmasi Hapus (Seragam modal-overlay) -->
+    <div class="modal-overlay" id="deleteBroadcastModal">
+        <div class="modal-box max-w-sm bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="p-6 text-center space-y-3">
+                <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-xl mx-auto">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h3 class="text-base font-bold text-slate-900 m-0">Hapus Riwayat Pemberitahuan?</h3>
+                <p class="text-xs text-slate-500 m-0">Log pengiriman ini akan dihapus permanen dari sistem. Tindakan ini tidak dapat dibatalkan.</p>
+            </div>
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-center gap-2">
+                <button type="button" onclick="closeCustomModal('deleteBroadcastModal')" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold">
+                    Batal
+                </button>
+                <button type="button" id="btnConfirmDelete" onclick="executeDeleteBroadcast()" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !h-8.5 !px-4.5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <i class="fa-solid fa-trash-can"></i> Hapus
+                </button>
+            </div>
+        </div>
+    </div>
+
     @section('Scripts')
+        <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
         <script>
-            function openCreateModal() {
-                document.getElementById('modalCreateBroadcast').classList.remove('hidden');
-                document.getElementById('input_title').focus();
+            let broadcastTable;
+            let pendingDeleteId = null;
+
+            $(document).ready(function() {
+                broadcastTable = $('#broadcast-table').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    pageLength: 25,
+                    lengthChange: false,
+                    ordering: false,
+                    info: false,
+                    responsive: true,
+                    dom: 'tpir',
+                    ajax: {
+                        url: "{{ route('broadcasts.index') }}",
+                        data: function(d) {
+                            d.type = $('#filter-type').val();
+                            d.target_type = $('#filter-target').val();
+                        }
+                    },
+                    columns: [
+                        {
+                            data: 'no',
+                            name: 'no',
+                            orderable: false,
+                            searchable: false,
+                            className: 'text-center font-mono text-xs text-slate-400',
+                            render: function(data, type, row, meta) {
+                                return meta.row + meta.settings._iDisplayStart + 1;
+                            }
+                        },
+                        {
+                            data: 'waktu',
+                            name: 'created_at',
+                            orderable: false,
+                            searchable: false
+                        },
+                        {
+                            data: 'kategori',
+                            name: 'type',
+                            orderable: false,
+                            searchable: false
+                        },
+                        {
+                            data: 'pesan',
+                            name: 'title',
+                            orderable: false,
+                            searchable: true
+                        },
+                        {
+                            data: 'target',
+                            name: 'target_type',
+                            orderable: false,
+                            searchable: false
+                        },
+                        {
+                            data: 'status_fcm',
+                            name: 'total_sent',
+                            orderable: false,
+                            searchable: false,
+                            className: 'text-center'
+                        },
+                        {
+                            data: 'creator',
+                            name: 'created_by',
+                            orderable: false,
+                            searchable: false
+                        },
+                        {
+                            data: 'opsi',
+                            name: 'opsi',
+                            orderable: false,
+                            searchable: false,
+                            className: 'text-center'
+                        }
+                    ],
+                    language: {
+                        processing: "<i class='fa-solid fa-circle-notch fa-spin text-sky-500 text-2xl'></i>",
+                        zeroRecords: "<div class='py-8 text-center text-slate-400'><i class='fa-solid fa-bullhorn text-3xl mb-2 text-slate-300 block'></i>Belum ada data pemberitahuan</div>",
+                        paginate: {
+                            previous: '<i class="fa-solid fa-chevron-left"></i>',
+                            next: '<i class="fa-solid fa-chevron-right"></i>'
+                        }
+                    }
+                });
+
+                // Debounced Live Search
+                let searchTimeout;
+                $('#custom-search').on('keyup input', function() {
+                    const val = this.value;
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(function() {
+                        broadcastTable.search(val).draw();
+                    }, 350);
+                });
+
+                // Filter on select change
+                $('#filter-type, #filter-target').on('change', function() {
+                    broadcastTable.draw();
+                });
+
+                // Close modal on backdrop click
+                $(document).on('click', '.modal-overlay', function(e) {
+                    if (e.target === this) {
+                        closeCustomModal(this.id);
+                    }
+                });
+            });
+
+            function reloadTable() {
+                const icon = document.getElementById('refreshIcon');
+                if (icon) icon.classList.add('fa-spin');
+                if (broadcastTable) {
+                    broadcastTable.ajax.reload(function() {
+                        if (icon) icon.classList.remove('fa-spin');
+                    }, false);
+                }
             }
 
-            function closeCreateModal() {
-                document.getElementById('modalCreateBroadcast').classList.add('hidden');
+            function resetFilters() {
+                $('#filter-type').val('');
+                $('#filter-target').val('');
+                $('#custom-search').val('');
+                if (broadcastTable) {
+                    broadcastTable.search('').draw();
+                }
+            }
+
+            function openCustomModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.add('open');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            function closeCustomModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove('open');
+                    document.body.style.overflow = '';
+                }
             }
 
             function toggleTargetDropdown() {
@@ -551,19 +687,66 @@
                 return confirm(`Apakah Anda yakin ingin mengirim pemberitahuan ini ke ${targetText}? Notifikasi akan langsung terkirim ke perangkat HP pelanggan.`);
             }
 
-            function showDetailModal(item, typeLabel, targetLabel) {
+            function showDetailModal(item) {
                 document.getElementById('detail_title').textContent = item.title;
                 document.getElementById('detail_body').textContent = item.body;
-                document.getElementById('detail_type_badge').textContent = typeLabel;
-                document.getElementById('detail_target').textContent = 'Target: ' + targetLabel;
-                document.getElementById('detail_time').textContent = new Date(item.created_at).toLocaleString('id-ID');
-                document.getElementById('detail_stats').textContent = `${item.total_sent} Terkirim dari ${item.total_targeted} Target`;
+                
+                const badgeClass = item.type === 'maintenance' ? 'badge-maintenance' :
+                                   item.type === 'announcement' ? 'badge-announcement' :
+                                   item.type === 'promo' ? 'badge-promo' :
+                                   item.type === 'billing' ? 'badge-billing' : 'badge-general';
+                const badgeEl = document.getElementById('detail_type_badge');
+                badgeEl.className = 'badge-type ' + badgeClass;
+                badgeEl.textContent = item.type_label || item.type;
 
-                document.getElementById('modalDetailBroadcast').classList.remove('hidden');
+                document.getElementById('detail_target').textContent = item.target_label || 'Semua Pelanggan';
+                document.getElementById('detail_time').textContent = item.created_at;
+                document.getElementById('detail_stats').textContent = `${item.total_sent} Terkirim (${item.total_targeted} Target)`;
+                document.getElementById('detail_creator').textContent = item.creator || 'Sistem';
+
+                openCustomModal('detailBroadcastModal');
             }
 
-            function closeDetailModal() {
-                document.getElementById('modalDetailBroadcast').classList.add('hidden');
+            function confirmDeleteBroadcast(id) {
+                pendingDeleteId = id;
+                openCustomModal('deleteBroadcastModal');
+            }
+
+            function executeDeleteBroadcast() {
+                if (!pendingDeleteId) return;
+
+                const btn = document.getElementById('btnConfirmDelete');
+                const origHtml = btn.innerHTML;
+                btn.innerHTML = "<i class='fa-solid fa-circle-notch fa-spin'></i> Menghapus...";
+                btn.disabled = true;
+
+                fetch(`/broadcasts/${pendingDeleteId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    btn.innerHTML = origHtml;
+                    btn.disabled = false;
+                    closeCustomModal('deleteBroadcastModal');
+
+                    if (data.success) {
+                        showToast(data.message, 'success');
+                        reloadTable();
+                    } else {
+                        showToast(data.message || 'Gagal menghapus riwayat pemberitahuan.', 'error');
+                    }
+                })
+                .catch(err => {
+                    btn.innerHTML = origHtml;
+                    btn.disabled = false;
+                    closeCustomModal('deleteBroadcastModal');
+                    showToast('Terjadi kesalahan jaringan.', 'error');
+                });
             }
         </script>
     @endsection
