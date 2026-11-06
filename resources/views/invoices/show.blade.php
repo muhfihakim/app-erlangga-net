@@ -144,13 +144,60 @@
                 </p>
             </div>
         </div>
-        <div class="flex items-center gap-2 ml-auto">
-            <button type="button" onclick="openCustomModal('generateSingleModal')"
-                class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-2 !bg-sky-600 hover:!bg-sky-700">
-                <i class="fa-solid fa-plus"></i> Buat Tagihan Manual
+        <div class="flex items-center gap-2 ml-auto flex-wrap">
+            <button type="button" onclick="openNextAdjustmentModal()"
+                class="btn-secondary !h-9 !px-3.5 text-xs font-semibold !flex !items-center !justify-center gap-2 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 rounded-xl transition-all shadow-xs"
+                title="Atur Kenaikan/Tambahan Tagihan Bulan Depan (BOD)">
+                <i class="fa-solid fa-sliders text-sky-600"></i>
+                <span>Penyesuaian Siklus Berikutnya</span>
+                @if((float)($pppoe->penyesuaian_tagihan ?? 0) != 0)
+                    <span class="badge" style="background:#e0f2fe; color:#0369a1; font-size:9.5px; padding:1px 6px; border-radius:4px; font-weight:700;">
+                        {{ ($pppoe->penyesuaian_tagihan > 0 ? '+' : '') . number_format($pppoe->penyesuaian_tagihan, 0, ',', '.') }}
+                    </span>
+                @endif
+            </button>
+            <button type="button" onclick="openGenerateModal()"
+                class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-2 !bg-sky-600 hover:!bg-sky-700 shadow-xs">
+                <i class="fa-solid fa-plus"></i> Buat Tagihan Baru
             </button>
         </div>
     </div>
+
+    @if((float)($pppoe->penyesuaian_tagihan ?? 0) != 0)
+        <!-- Scheduled Next Bill Adjustment Banner -->
+        <div class="bg-gradient-to-r from-sky-50 to-indigo-50/50 border border-sky-200/80 rounded-xl p-3.5 mb-5 flex items-center justify-between gap-3 shadow-xs">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center shrink-0 border border-sky-200">
+                    <i class="fa-solid fa-sliders text-sm"></i>
+                </div>
+                <div>
+                    <div class="text-xs font-bold text-sky-950 flex items-center gap-2 flex-wrap">
+                        <span>Penyesuaian Siklus Tagihan Berikutnya:</span>
+                        <span class="badge" style="background:#0284c7; color:#fff; font-size:10.5px; padding:2px 8px; border-radius:6px; font-weight:800;">
+                            {{ ($pppoe->penyesuaian_tagihan > 0 ? '+ Rp ' : '- Rp ') . number_format(abs($pppoe->penyesuaian_tagihan), 0, ',', '.') }}
+                        </span>
+                        <span class="badge" style="background:#e0f2fe; color:#0369a1; font-size:10px; padding:1px 6px; border-radius:4px; font-weight:700;">
+                            {{ ($pppoe->penyesuaian_tipe ?? 'sekali') === 'sekali' ? '1x Siklus Berikutnya' : 'Berulang Tiap Bulan' }}
+                        </span>
+                    </div>
+                    <div class="text-xs text-slate-600 mt-0.5">
+                        Keterangan: <strong class="text-slate-800">{{ $pppoe->keterangan_penyesuaian ?: 'Kenaikan Bandwidth Sementara (BOD) / Tambahan Tagihan' }}</strong>. Penyesuaian ini akan otomatis diikutsertakan saat tagihan diterbitkan.
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <button type="button" onclick="openNextAdjustmentModal()" class="topbar-icon-btn !h-8 !px-3 text-xs font-semibold bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 !w-auto !rounded-lg" title="Edit Penyesuaian">
+                    <i class="fa-solid fa-pen-to-square mr-1"></i> Ubah
+                </button>
+                <form action="{{ route('invoices.clear_next_adjustment', $pppoe->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan penyesuaian tagihan berikutnya?');" class="m-0 p-0">
+                    @csrf
+                    <button type="submit" class="topbar-icon-btn !w-8 !h-8 text-xs font-semibold text-rose-600 hover:bg-rose-50 border border-rose-200 !rounded-lg" title="Hapus Penyesuaian">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    @endif
 
     <!-- Summary Stats Grid -->
     <div class="stats-grid mb-6">
@@ -250,7 +297,18 @@
                             <td class="text-center font-bold text-slate-400">{{ $loop->iteration }}</td>
                             <td class="text-left font-mono font-bold text-slate-800 text-xs">{{ $invoice->invoice_number }}</td>
                             <td class="text-right font-mono font-bold text-slate-900 text-xs">
-                                Rp {{ number_format($invoice->total, 0, ',', '.') }}</td>
+                                <div>Rp {{ number_format($invoice->total, 0, ',', '.') }}</div>
+                                @if((float)($invoice->penyesuaian ?? 0) != 0)
+                                    <div class="mt-0.5">
+                                        <span class="badge" style="{{ $invoice->penyesuaian > 0 ? 'background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd;' : 'background:#ecfdf5; color:#047857; border:1px solid #a7f3d0;' }} font-size:9.5px; padding:1px 5px; border-radius:4px; font-weight:700;" title="{{ $invoice->catatan_penyesuaian ?: 'Penyesuaian' }}">
+                                            {{ ($invoice->penyesuaian > 0 ? '+' : '') . number_format($invoice->penyesuaian, 0, ',', '.') }}
+                                            @if($invoice->catatan_penyesuaian)
+                                                <span class="font-normal font-sans text-[9px] opacity-90">({{ \Illuminate\Support\Str::limit($invoice->catatan_penyesuaian, 14) }})</span>
+                                            @endif
+                                        </span>
+                                    </div>
+                                @endif
+                            </td>
                             <td class="text-center text-slate-600 font-medium text-xs">{{ $invoice->created_at->format('d/m/Y') }}</td>
                             <td class="text-center font-medium text-xs {{ $invoice->status == 'unpaid' && \Carbon\Carbon::parse($invoice->due_date)->isPast() && !\Carbon\Carbon::parse($invoice->due_date)->isToday() ? 'text-rose-600 font-bold' : 'text-slate-600' }}">
                                 {{ $invoice->due_date ? \Carbon\Carbon::parse($invoice->due_date)->format('d/m/Y') : '-' }}
@@ -328,6 +386,12 @@
                                                 <i class="fa-solid fa-arrows-rotate text-amber-600"></i>
                                             </button>
                                         @endif
+                                        <button type="button"
+                                            class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-sky-300 hover:!bg-sky-50"
+                                            onclick="openAdjustModal({{ $invoice->id }}, '{{ $invoice->invoice_number }}', {{ (float)$invoice->amount }}, {{ (float)($invoice->penyesuaian ?? 0) }}, '{{ addslashes($invoice->catatan_penyesuaian ?? '') }}', {{ (float)$invoice->tax }}, {{ (float)$invoice->discount }}, '{{ $invoice->due_date ? \Carbon\Carbon::parse($invoice->due_date)->format('Y-m-d') : '' }}')"
+                                            title="Sesuaikan Tagihan (BOD / Biaya Tambahan / Diskon)">
+                                            <i class="fa-solid fa-sliders text-sky-600"></i>
+                                        </button>
                                         <button type="button"
                                             class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-emerald-300 hover:!bg-emerald-50"
                                             onclick="openPayModal({{ $invoice->id }}, '{{ $invoice->invoice_number }}', '{{ number_format($invoice->total, 0, ',', '.') }}')"
@@ -438,9 +502,9 @@
         </div>
     </div>
 
-    <!-- Modal Konfirmasi Buat Tagihan Baru -->
+    <!-- 1. Modal Buat Tagihan Baru (Custom / With Adjustments) -->
     <div class="modal-overlay" id="generateSingleModal">
-        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
+        <div class="modal-box max-w-lg bg-white border border-slate-300 shadow-2xl">
             <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-200 shrink-0">
@@ -448,7 +512,7 @@
                     </div>
                     <div>
                         <h3 class="text-base font-bold text-slate-900 m-0">Buat Tagihan Baru</h3>
-                        <p class="text-xs text-slate-500 m-0 mt-0.5">Terbitkan invoice manual untuk pelanggan ini.</p>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Terbitkan invoice dengan penyesuaian kustom (BOD / Biaya Tambahan).</p>
                     </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('generateSingleModal')">
@@ -457,16 +521,77 @@
             </div>
             <form action="{{ route('invoices.generate_single', $pppoe->id) }}" method="POST" class="m-0" novalidate>
                 @csrf
-                <div class="modal-body p-6 bg-white">
-                    <div class="bg-sky-50 p-4 rounded-xl border border-sky-200 flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center text-sm shrink-0 mt-0.5">
-                            <i class="fa-solid fa-file-invoice"></i>
-                        </div>
+                <div class="modal-body p-6 bg-white space-y-4">
+                    <!-- Paket Langganan Info Card -->
+                    <div class="p-3 rounded-xl border border-sky-200 bg-sky-50/70 flex items-center justify-between">
                         <div>
-                            <span class="text-xs font-bold text-sky-900 block">Konfirmasi Tagihan Baru</span>
-                            <p class="text-xs text-slate-600 m-0 mt-1 leading-relaxed">
-                                Apakah Anda yakin ingin membuat tagihan faktur baru untuk pelanggan <span class="font-semibold text-sky-700">{{ $pppoe->preOrder->nama_lengkap ?? $pppoe->username }}</span>?
-                            </p>
+                            <span class="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider block">Paket Internet</span>
+                            <span class="text-sm font-black text-slate-800 block mt-0.5">{{ $pppoe->paket->nama_paket ?? 'Paket Broadband' }}</span>
+                            <span class="text-xs text-slate-500 mt-0.5 block">Pelanggan: <strong class="text-slate-700">{{ $pppoe->preOrder->nama_lengkap ?? $pppoe->username }}</strong></span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider block">Harga Pokok</span>
+                            <span class="text-sm font-bold text-slate-800 font-mono block mt-0.5">Rp {{ number_format($pppoe->paket->harga ?? 0, 0, ',', '.') }}</span>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="amount" id="genAmount" value="{{ (float)($pppoe->paket->harga ?? 0) }}" oninput="updateGenTotal()">
+
+                    <!-- Row Penyesuaian / BOD -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="form-group mb-0">
+                            <label class="form-label text-slate-700 font-semibold text-xs mb-1 block">
+                                Penyesuaian / Tambahan (Rp)
+                                <span class="text-slate-400 font-normal">(BOD dll)</span>
+                            </label>
+                            <input type="number" step="any" name="penyesuaian" id="genPenyesuaian"
+                                value="{{ (float)($pppoe->penyesuaian_tagihan ?? 0) }}"
+                                oninput="updateGenTotal()"
+                                class="form-input !h-9 text-xs w-full font-mono bg-white border-slate-300"
+                                placeholder="0">
+                        </div>
+                        <div class="form-group mb-0">
+                            <label class="form-label text-slate-700 font-semibold text-xs mb-1 block">Tanggal Jatuh Tempo</label>
+                            <input type="date" name="due_date" id="genDueDate"
+                                value="{{ now()->addDays(7)->format('Y-m-d') }}"
+                                class="form-input !h-9 text-xs w-full bg-white border-slate-300" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label class="form-label text-slate-700 font-semibold text-xs mb-1 block">Keterangan Penyesuaian</label>
+                        <input type="text" name="catatan_penyesuaian" id="genCatatan"
+                            value="{{ $pppoe->keterangan_penyesuaian ?? '' }}"
+                            class="form-input !h-9 text-xs w-full bg-white border-slate-300"
+                            placeholder="Misal: BOD Kenaikan Bandwidth 50 Mbps s/d 15 Nov">
+                    </div>
+
+                    <!-- Row Pajak & Diskon -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="form-group mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1 block">Pajak / PPN (Rp)</label>
+                            <input type="number" step="any" name="tax" id="genTax"
+                                value="{{ (float)($pppoe->pajak ?? ($pppoe->paket->pajak ?? 0)) }}"
+                                oninput="updateGenTotal()"
+                                class="form-input !h-9 text-xs w-full font-mono bg-white border-slate-300">
+                        </div>
+                        <div class="form-group mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1 block">Potongan Diskon (Rp)</label>
+                            <input type="number" step="any" name="discount" id="genDiscount"
+                                value="{{ (float)($pppoe->diskon ?? ($pppoe->paket->diskon ?? 0)) }}"
+                                oninput="updateGenTotal()"
+                                class="form-input !h-9 text-xs w-full font-mono bg-white border-slate-300">
+                        </div>
+                    </div>
+
+                    <!-- Live Total Card -->
+                    <div class="p-3.5 rounded-xl border border-sky-300 bg-sky-50 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-sky-800 uppercase tracking-wider block">Total Tagihan Diterbitkan</span>
+                            <span class="text-xs text-sky-600 block mt-0.5">Pokok + Penyesuaian + Pajak - Diskon</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-lg font-black text-sky-700 font-mono block" id="genModalTotal">Rp 0</span>
                         </div>
                     </div>
                 </div>
@@ -474,7 +599,175 @@
                     <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                         onclick="closeCustomModal('generateSingleModal')"><i class="fa-solid fa-xmark"></i> Batal</button>
                     <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-sky-600 hover:!bg-sky-700">
-                        <i class="fa-solid fa-plus"></i> Ya, Buat Tagihan
+                        <i class="fa-solid fa-check"></i> Terbitkan Tagihan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Modal Sesuaikan Tagihan Berjalan (Adjust Unpaid Invoice) -->
+    <div class="modal-overlay" id="adjustInvoiceModal">
+        <div class="modal-box max-w-lg bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-200 shrink-0">
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Sesuaikan Tagihan Berjalan</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Faktur: <span id="adjustModalInvNumber" class="font-mono font-bold text-sky-600">-</span></p>
+                    </div>
+                </div>
+                <button type="button" class="modal-close" onclick="closeCustomModal('adjustInvoiceModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="adjustInvoiceForm" method="POST" class="m-0" novalidate>
+                @csrf
+                <div class="modal-body p-6 bg-white space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="form-group mb-0">
+                            <label class="form-label text-slate-700 font-semibold text-xs mb-1 block">Harga Pokok (Rp)</label>
+                            <input type="number" step="any" name="amount" id="adjustAmount" oninput="updateAdjustTotal()"
+                                class="form-input !h-9 text-xs w-full font-mono bg-white border-slate-300" required>
+                        </div>
+                        <div class="form-group mb-0">
+                            <label class="form-label text-slate-700 font-semibold text-xs mb-1 block">
+                                Penyesuaian / Tambahan (Rp)
+                                <span class="text-sky-600 font-semibold">(BOD / Fee)</span>
+                            </label>
+                            <input type="number" step="any" name="penyesuaian" id="adjustPenyesuaian" oninput="updateAdjustTotal()"
+                                class="form-input !h-9 text-xs w-full font-mono bg-white border-slate-300" placeholder="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label class="form-label text-slate-700 font-semibold text-xs mb-1 block">Keterangan Penyesuaian (BOD / Kenaikan Bandwidth)</label>
+                        <input type="text" name="catatan_penyesuaian" id="adjustCatatan"
+                            class="form-input !h-9 text-xs w-full bg-white border-slate-300"
+                            placeholder="Misal: Tambahan BOD 50 Mbps periode 01-15 Nov">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="form-group mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1 block">Pajak (Rp)</label>
+                            <input type="number" step="any" name="tax" id="adjustTax" oninput="updateAdjustTotal()"
+                                class="form-input !h-9 text-xs w-full font-mono bg-white border-slate-300">
+                        </div>
+                        <div class="form-group mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1 block">Diskon (Rp)</label>
+                            <input type="number" step="any" name="discount" id="adjustDiscount" oninput="updateAdjustTotal()"
+                                class="form-input !h-9 text-xs w-full font-mono bg-white border-slate-300">
+                        </div>
+                        <div class="form-group mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1 block">Jatuh Tempo</label>
+                            <input type="date" name="due_date" id="adjustDueDate"
+                                class="form-input !h-9 text-xs w-full bg-white border-slate-300">
+                        </div>
+                    </div>
+
+                    <!-- Total Live Preview -->
+                    <div class="p-3.5 rounded-xl border border-emerald-300 bg-emerald-50/80 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-emerald-800 uppercase tracking-wider block">Total Tagihan Baru</span>
+                            <span class="text-xs text-emerald-600 block mt-0.5">Nominal yang akan ditagihkan ke pelanggan</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-lg font-black text-emerald-700 font-mono block" id="adjustModalTotal">Rp 0</span>
+                        </div>
+                    </div>
+
+                    <p class="text-[11px] text-slate-500 m-0 leading-relaxed bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                        <i class="fa-solid fa-circle-info text-sky-500 mr-1"></i> Jika invoice ini telah memiliki link pembayaran Xendit online, link akan di-reset otomatis agar checkout menggunakan nominal baru yang telah disesuaikan.
+                    </p>
+                </div>
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
+                        onclick="closeCustomModal('adjustInvoiceModal')"><i class="fa-solid fa-xmark"></i> Batal</button>
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-sky-600 hover:!bg-sky-700">
+                        <i class="fa-solid fa-check"></i> Simpan Penyesuaian
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. Modal Atur Penyesuaian Siklus Berikutnya (Next Bill Adjustment) -->
+    <div class="modal-overlay" id="nextAdjustmentModal">
+        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-200 shrink-0">
+                        <i class="fa-solid fa-calendar-plus"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Penyesuaian Siklus Berikutnya</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Atur tambahan BOD / biaya untuk tagihan mendatang.</p>
+                    </div>
+                </div>
+                <button type="button" class="modal-close" onclick="closeCustomModal('nextAdjustmentModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form action="{{ route('invoices.set_next_adjustment', $pppoe->id) }}" method="POST" class="m-0" novalidate>
+                @csrf
+                <div class="modal-body p-6 bg-white space-y-4">
+                    <div class="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Pelanggan</span>
+                            <span class="text-xs font-bold text-slate-800 block mt-0.5">{{ $pppoe->preOrder->nama_lengkap ?? $pppoe->username }}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Paket Normal</span>
+                            <span class="text-xs font-semibold text-slate-700 block mt-0.5">{{ $pppoe->paket->nama_paket ?? '-' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label class="form-label text-slate-700 font-semibold text-xs mb-1 block">
+                            Nominal Penyesuaian (Rp) <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="number" step="any" name="penyesuaian_tagihan"
+                            value="{{ (float)($pppoe->penyesuaian_tagihan ?? 0) }}"
+                            class="form-input !h-10 text-xs w-full font-mono bg-white border-slate-300"
+                            placeholder="Misal: 50000" required>
+                        <span class="text-[11px] text-slate-400 mt-1 block">Masukkan angka positif untuk biaya tambahan/BOD, atau angka negatif untuk potongan.</span>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label class="form-label text-slate-700 font-semibold text-xs mb-1 block">Keterangan / Alasan Penyesuaian</label>
+                        <input type="text" name="keterangan_penyesuaian"
+                            value="{{ $pppoe->keterangan_penyesuaian ?? '' }}"
+                            class="form-input !h-10 text-xs w-full bg-white border-slate-300"
+                            placeholder="Misal: Kenaikan Bandwidth BOD 50 Mbps">
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label class="form-label text-slate-700 font-semibold text-xs mb-1.5 block">Masa Berlaku Penyesuaian <span class="text-rose-500">*</span></label>
+                        <div class="space-y-2">
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-xs">
+                                <input type="radio" name="penyesuaian_tipe" value="sekali" {{ ($pppoe->penyesuaian_tipe ?? 'sekali') === 'sekali' ? 'checked' : '' }} class="mt-0.5 text-sky-600 focus:ring-sky-500">
+                                <div>
+                                    <strong class="text-slate-800 block">1x (Hanya untuk 1 tagihan berikutnya)</strong>
+                                    <span class="text-slate-500 text-[11px]">Setelah faktur siklus berikutnya terbit, penyesuaian otomatis di-reset ke 0.</span>
+                                </div>
+                            </label>
+                            <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-xs">
+                                <input type="radio" name="penyesuaian_tipe" value="berulang" {{ ($pppoe->penyesuaian_tipe ?? '') === 'berulang' ? 'checked' : '' }} class="mt-0.5 text-sky-600 focus:ring-sky-500">
+                                <div>
+                                    <strong class="text-slate-800 block">Berulang Setiap Bulan</strong>
+                                    <span class="text-slate-500 text-[11px]">Penyesuaian berlaku untuk seluruh tagihan bulanan sampai dinonaktifkan.</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
+                        onclick="closeCustomModal('nextAdjustmentModal')"><i class="fa-solid fa-xmark"></i> Batal</button>
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-sky-600 hover:!bg-sky-700">
+                        <i class="fa-solid fa-check"></i> Simpan Pengaturan
                     </button>
                 </div>
             </form>
@@ -483,6 +776,48 @@
 
     @section('Scripts')
         <script>
+            function updateGenTotal() {
+                const amount = parseFloat(document.getElementById('genAmount')?.value || 0);
+                const penyesuaian = parseFloat(document.getElementById('genPenyesuaian')?.value || 0);
+                const tax = parseFloat(document.getElementById('genTax')?.value || 0);
+                const discount = parseFloat(document.getElementById('genDiscount')?.value || 0);
+                const total = Math.max(0, amount + penyesuaian + tax - discount);
+                const totalEl = document.getElementById('genModalTotal');
+                if (totalEl) totalEl.innerText = 'Rp ' + total.toLocaleString('id-ID');
+            }
+
+            function updateAdjustTotal() {
+                const amount = parseFloat(document.getElementById('adjustAmount')?.value || 0);
+                const penyesuaian = parseFloat(document.getElementById('adjustPenyesuaian')?.value || 0);
+                const tax = parseFloat(document.getElementById('adjustTax')?.value || 0);
+                const discount = parseFloat(document.getElementById('adjustDiscount')?.value || 0);
+                const total = Math.max(0, amount + penyesuaian + tax - discount);
+                const totalEl = document.getElementById('adjustModalTotal');
+                if (totalEl) totalEl.innerText = 'Rp ' + total.toLocaleString('id-ID');
+            }
+
+            function openGenerateModal() {
+                updateGenTotal();
+                openCustomModal('generateSingleModal');
+            }
+
+            function openNextAdjustmentModal() {
+                openCustomModal('nextAdjustmentModal');
+            }
+
+            function openAdjustModal(invoiceId, invoiceNumber, amount, penyesuaian, catatan, tax, discount, dueDate) {
+                document.getElementById('adjustInvoiceForm').action = `/invoices/${invoiceId}/adjust`;
+                document.getElementById('adjustModalInvNumber').innerText = invoiceNumber;
+                document.getElementById('adjustAmount').value = amount;
+                document.getElementById('adjustPenyesuaian').value = penyesuaian;
+                document.getElementById('adjustCatatan').value = catatan || '';
+                document.getElementById('adjustTax').value = tax;
+                document.getElementById('adjustDiscount').value = discount;
+                if (dueDate) document.getElementById('adjustDueDate').value = dueDate;
+                updateAdjustTotal();
+                openCustomModal('adjustInvoiceModal');
+            }
+
             function openPayModal(invoiceId, invoiceNumber, totalFormatted) {
                 document.getElementById('payForm').action = `/invoices/${invoiceId}/pay-manual`;
                 if (invoiceNumber) document.getElementById('payModalInvNum').innerText = invoiceNumber;

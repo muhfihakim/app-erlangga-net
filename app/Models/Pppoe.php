@@ -19,6 +19,9 @@ class Pppoe extends Model
         'periode_billing',
         'pajak',
         'diskon',
+        'penyesuaian_tagihan',
+        'keterangan_penyesuaian',
+        'penyesuaian_tipe',
         'status_invoice',
         'generate_invoice',
         'is_isolir',
@@ -31,6 +34,7 @@ class Pppoe extends Model
         'generate_invoice' => 'boolean',
         'is_isolir' => 'boolean',
         'isolir_at' => 'datetime',
+        'penyesuaian_tagihan' => 'decimal:2',
     ];
 
     public function preOrder()

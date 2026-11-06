@@ -10,6 +10,8 @@ class Invoice extends Model
         'pppoe_id',
         'invoice_number',
         'amount',
+        'penyesuaian',
+        'catatan_penyesuaian',
         'tax',
         'discount',
         'total',
@@ -18,6 +20,14 @@ class Invoice extends Model
         'payment_method',
         'xendit_invoice_id',
         'xendit_invoice_url',
+    ];
+
+    protected $casts = [
+        'amount' => 'decimal:2',
+        'penyesuaian' => 'decimal:2',
+        'tax' => 'decimal:2',
+        'discount' => 'decimal:2',
+        'total' => 'decimal:2',
     ];
 
     public function pppoe()

@@ -48,7 +48,12 @@ class InvoiceController extends Controller
                 ->addColumn('paket', function ($pppoe) {
                     $namaPaket = $pppoe->paket->nama_paket ?? '-';
                     $totalHarga = $pppoe->paket ? $pppoe->paket->total_harga : 0;
-                    return '<div><span class="badge" style="background:#eef2ff; color:#4338ca; font-weight:700; font-size:11px; padding:3px 8px; border-radius:6px; border:1px solid #c7d2fe;">' . htmlspecialchars($namaPaket) . '</span><div style="font-size: 11px; color: #64748b; margin-top:2px; font-weight:600;">Rp ' . number_format($totalHarga, 0, ',', '.') . '</div></div>';
+                    $adjBadge = '';
+                    if ((float)($pppoe->penyesuaian_tagihan ?? 0) != 0) {
+                        $adjPrefix = $pppoe->penyesuaian_tagihan > 0 ? '+' : '';
+                        $adjBadge = '<div class="mt-1"><span class="badge" style="background:#e0f2fe; color:#0369a1; font-size:9.5px; padding:1px 5px; border-radius:4px; font-weight:700; border:1px solid #bae6fd;" title="' . htmlspecialchars($pppoe->keterangan_penyesuaian ?: 'Penyesuaian Siklus Berikutnya') . '"><i class="fa-solid fa-sliders text-[9px] mr-1"></i> ' . $adjPrefix . number_format($pppoe->penyesuaian_tagihan, 0, ',', '.') . '</span></div>';
+                    }
+                    return '<div><span class="badge" style="background:#eef2ff; color:#4338ca; font-weight:700; font-size:11px; padding:3px 8px; border-radius:6px; border:1px solid #c7d2fe;">' . htmlspecialchars($namaPaket) . '</span><div style="font-size: 11px; color: #64748b; margin-top:2px; font-weight:600;">Rp ' . number_format($totalHarga, 0, ',', '.') . '</div>' . $adjBadge . '</div>';
                 })
                 ->addColumn('tagihan_selanjutnya', function ($pppoe) {
                     if (!$pppoe->generate_invoice || $pppoe->status_invoice === 'non_billing') {
@@ -201,34 +206,128 @@ class InvoiceController extends Controller
         return $pdf->download($invoice->invoice_number . '.pdf');
     }
 
-    public function generateSingle(Pppoe $pppoe)
+    public function generateSingle(Request $request, Pppoe $pppoe)
     {
         $pppoe->load('paket');
         if (!$pppoe->paket) {
             return redirect()->back()->with('error', 'Gagal generate: Pelanggan belum memiliki paket.');
         }
 
-        $amount = (float) $pppoe->paket->harga;
-        $tax = ($pppoe->pajak !== null && (float)$pppoe->pajak > 0) ? (float)$pppoe->pajak : (float)($pppoe->paket->pajak ?? 0);
-        $discount = ($pppoe->diskon !== null && (float)$pppoe->diskon > 0) ? (float)$pppoe->diskon : (float)($pppoe->paket->diskon ?? 0);
-        $total = max(0, $amount + $tax - $discount);
-        $dueDate = Carbon::now()->addDays(7);
+        $amount = $request->filled('amount') ? (float)$request->amount : (float)$pppoe->paket->harga;
+        $penyesuaian = $request->filled('penyesuaian') ? (float)$request->penyesuaian : (float)($pppoe->penyesuaian_tagihan ?? 0);
+        $catatanPenyesuaian = $request->filled('catatan_penyesuaian') ? $request->catatan_penyesuaian : ($pppoe->keterangan_penyesuaian ?? null);
+
+        $tax = $request->filled('tax') ? (float)$request->tax : (($pppoe->pajak !== null && (float)$pppoe->pajak > 0) ? (float)$pppoe->pajak : (float)($pppoe->paket->pajak ?? 0));
+        $discount = $request->filled('discount') ? (float)$request->discount : (($pppoe->diskon !== null && (float)$pppoe->diskon > 0) ? (float)$pppoe->diskon : (float)($pppoe->paket->diskon ?? 0));
+        $total = max(0, $amount + $penyesuaian + $tax - $discount);
+
+        $dueDate = $request->filled('due_date') ? Carbon::parse($request->due_date) : Carbon::now()->addDays(7);
         $invoiceNumber = 'INV-' . date('Ymd') . '-' . str_pad($pppoe->id, 4, '0', STR_PAD_LEFT) . '-' . rand(100, 999);
 
         Invoice::create([
             'pppoe_id' => $pppoe->id,
             'invoice_number' => $invoiceNumber,
             'amount' => $amount,
+            'penyesuaian' => $penyesuaian,
+            'catatan_penyesuaian' => $catatanPenyesuaian,
             'tax' => $tax,
             'discount' => $discount,
             'total' => $total,
             'status' => 'unpaid',
-            'due_date' => $dueDate
+            'due_date' => $dueDate->format('Y-m-d'),
         ]);
 
-        $pppoe->update(['status_invoice' => 'belum_bayar']);
+        $pppoeUpdates = ['status_invoice' => 'belum_bayar'];
+        if (($pppoe->penyesuaian_tipe ?? 'sekali') === 'sekali' && $penyesuaian != 0) {
+            $pppoeUpdates['penyesuaian_tagihan'] = 0;
+            $pppoeUpdates['keterangan_penyesuaian'] = null;
+        }
+        $pppoe->update($pppoeUpdates);
 
-        return redirect()->back()->with('success', 'Berhasil generate tagihan manual untuk pelanggan ini.');
+        return redirect()->back()->with('success', 'Berhasil generate tagihan faktur untuk pelanggan ini.');
+    }
+
+    /**
+     * Penyesuaian tagihan berjalan (Custom Invoice: BOD, Biaya Tambahan, dsb.)
+     */
+    public function adjustInvoice(Request $request, Invoice $invoice)
+    {
+        if ($invoice->status === 'paid') {
+            return redirect()->back()->with('error', 'Faktur yang sudah lunas tidak dapat disesuaikan lagi.');
+        }
+
+        $request->validate([
+            'amount' => 'nullable|numeric|min:0',
+            'penyesuaian' => 'nullable|numeric',
+            'catatan_penyesuaian' => 'nullable|string|max:255',
+            'tax' => 'nullable|numeric|min:0',
+            'discount' => 'nullable|numeric|min:0',
+            'due_date' => 'nullable|date',
+        ]);
+
+        $amount = $request->filled('amount') ? (float)$request->amount : (float)$invoice->amount;
+        $penyesuaian = $request->filled('penyesuaian') ? (float)$request->penyesuaian : (float)($invoice->penyesuaian ?? 0);
+        $catatanPenyesuaian = $request->catatan_penyesuaian;
+        $tax = $request->filled('tax') ? (float)$request->tax : (float)$invoice->tax;
+        $discount = $request->filled('discount') ? (float)$request->discount : (float)$invoice->discount;
+        $dueDate = $request->filled('due_date') ? $request->due_date : $invoice->due_date;
+
+        $newTotal = max(0, $amount + $penyesuaian + $tax - $discount);
+
+        $updates = [
+            'amount' => $amount,
+            'penyesuaian' => $penyesuaian,
+            'catatan_penyesuaian' => $catatanPenyesuaian,
+            'tax' => $tax,
+            'discount' => $discount,
+            'total' => $newTotal,
+            'due_date' => $dueDate,
+        ];
+
+        // Jika total tagihan berubah, reset link Xendit agar pelanggan tidak membayar nominal lama
+        if (abs($newTotal - (float)$invoice->total) > 0.01) {
+            $updates['xendit_invoice_id'] = null;
+            $updates['xendit_invoice_url'] = null;
+        }
+
+        $invoice->update($updates);
+
+        return redirect()->back()->with('success', "Penyesuaian faktur #{$invoice->invoice_number} berhasil disimpan. Total tagihan baru: Rp " . number_format($newTotal, 0, ',', '.'));
+    }
+
+    /**
+     * Atur penyesuaian untuk tagihan berikutnya (upcoming billing)
+     */
+    public function setNextAdjustment(Request $request, Pppoe $pppoe)
+    {
+        $request->validate([
+            'penyesuaian_tagihan' => 'required|numeric',
+            'keterangan_penyesuaian' => 'nullable|string|max:255',
+            'penyesuaian_tipe' => 'required|in:sekali,berulang',
+        ]);
+
+        $pppoe->update([
+            'penyesuaian_tagihan' => (float)$request->penyesuaian_tagihan,
+            'keterangan_penyesuaian' => $request->keterangan_penyesuaian,
+            'penyesuaian_tipe' => $request->penyesuaian_tipe,
+        ]);
+
+        $tipeStr = $request->penyesuaian_tipe === 'sekali' ? '1x (Tagihan Berikutnya)' : 'Berulang Setiap Bulan';
+        return redirect()->back()->with('success', "Pengaturan penyesuaian tagihan berikutnya berhasil disimpan (Nominal: Rp " . number_format($request->penyesuaian_tagihan, 0, ',', '.') . " - {$tipeStr}).");
+    }
+
+    /**
+     * Hapus penyesuaian tagihan berikutnya
+     */
+    public function clearNextAdjustment(Pppoe $pppoe)
+    {
+        $pppoe->update([
+            'penyesuaian_tagihan' => 0,
+            'keterangan_penyesuaian' => null,
+            'penyesuaian_tipe' => 'sekali',
+        ]);
+
+        return redirect()->back()->with('success', 'Penyesuaian tagihan berikutnya berhasil dinonaktifkan.');
     }
 
     public function payManual(Request $request, Invoice $invoice)

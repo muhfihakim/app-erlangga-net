@@ -98,9 +98,11 @@ class ProcessBillingCommand extends Command
 
                 if ($shouldGenerate) {
                     $amount = (float) $pppoe->paket->harga;
+                    $penyesuaian = (float) ($pppoe->penyesuaian_tagihan ?? 0);
+                    $catatanPenyesuaian = $pppoe->keterangan_penyesuaian ?? null;
                     $tax = ($pppoe->pajak !== null && (float)$pppoe->pajak > 0) ? (float)$pppoe->pajak : (float)($pppoe->paket->pajak ?? 0);
                     $discount = ($pppoe->diskon !== null && (float)$pppoe->diskon > 0) ? (float)$pppoe->diskon : (float)($pppoe->paket->diskon ?? 0);
-                    $total = max(0, $amount + $tax - $discount);
+                    $total = max(0, $amount + $penyesuaian + $tax - $discount);
 
                     $invoiceNumber = 'INV-' . date('Ymd') . '-' . str_pad($pppoe->id, 4, '0', STR_PAD_LEFT) . '-' . rand(100, 999);
 
@@ -109,6 +111,8 @@ class ProcessBillingCommand extends Command
                             'pppoe_id' => $pppoe->id,
                             'invoice_number' => $invoiceNumber,
                             'amount' => $amount,
+                            'penyesuaian' => $penyesuaian,
+                            'catatan_penyesuaian' => $catatanPenyesuaian,
                             'tax' => $tax,
                             'discount' => $discount,
                             'total' => $total,
@@ -116,7 +120,13 @@ class ProcessBillingCommand extends Command
                             'status' => 'unpaid',
                         ]);
 
-                        $pppoe->update(['status_invoice' => 'belum_bayar']);
+                        $pppoeUpdates = ['status_invoice' => 'belum_bayar'];
+                        // Jika penyesuaian hanya untuk 1x siklus berikutnya, bersihkan setelah faktur terbit
+                        if (($pppoe->penyesuaian_tipe ?? 'sekali') === 'sekali' && $penyesuaian != 0) {
+                            $pppoeUpdates['penyesuaian_tagihan'] = 0;
+                            $pppoeUpdates['keterangan_penyesuaian'] = null;
+                        }
+                        $pppoe->update($pppoeUpdates);
 
                         // Kirim push notifikasi faktur baru / jatuh tempo
                         try {

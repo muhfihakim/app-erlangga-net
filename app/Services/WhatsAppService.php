@@ -286,6 +286,11 @@ class WhatsAppService
         $text .= "• No. Invoice : `{$invoice->invoice_number}`\n";
         $text .= "• ID Pelanggan: `{$pppoe->username}`\n";
         $text .= "• Paket       : {$namaPaket}\n";
+        if ((float)($invoice->penyesuaian ?? 0) != 0) {
+            $prefixPenyesuaian = ((float)$invoice->penyesuaian > 0) ? '+Rp ' : '-Rp ';
+            $catatanStr = !empty($invoice->catatan_penyesuaian) ? " ({$invoice->catatan_penyesuaian})" : "";
+            $text .= "• Penyesuaian : {$prefixPenyesuaian}" . number_format(abs($invoice->penyesuaian), 0, ',', '.') . "{$catatanStr}\n";
+        }
         $text .= "• Periode     : {$periode}\n";
         $text .= "• Total       : *Rp {$totalFormatted}*\n";
         $text .= "• Jatuh Tempo : *{$dueDate}*\n\n";

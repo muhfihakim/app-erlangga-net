@@ -234,6 +234,8 @@ class ScreenController extends Controller
                 'invoice_id'            => $earliestUnpaid?->id,
                 'periode'               => $periodeStr,
                 'due_date'              => $dueDateStr,
+                'penyesuaian'           => (float) ($earliestUnpaid?->penyesuaian ?? 0),
+                'catatan_penyesuaian'   => $earliestUnpaid?->catatan_penyesuaian ?? null,
                 'invoice_url'           => ($earliestUnpaid && !$isEarliestExpired) ? (string) ($earliestUnpaid->xendit_invoice_url ?? '') : '',
             ],
         ];
@@ -304,6 +306,8 @@ class ScreenController extends Controller
                 'status_badge'     => $statusBadge,
                 'is_expired'       => $isExpired,
                 'harga'            => (float) $inv->amount,
+                'penyesuaian'      => (float) ($inv->penyesuaian ?? 0),
+                'catatan_penyesuaian' => $inv->catatan_penyesuaian,
                 'tax'              => (float) $inv->tax,
                 'discount'         => (float) $inv->discount,
                 'total_harga'      => (float) $inv->total,

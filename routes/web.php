@@ -116,6 +116,9 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::get('/invoices/{pppoe}', [\App\Http\Controllers\InvoiceController::class, 'show'])->name('invoices.show');
         Route::get('/invoices/{invoice}/print', [\App\Http\Controllers\InvoiceController::class, 'print'])->name('invoices.print');
         Route::post('/invoices/{pppoe}/generate-single', [\App\Http\Controllers\InvoiceController::class, 'generateSingle'])->name('invoices.generate_single');
+        Route::post('/invoices/{invoice}/adjust', [\App\Http\Controllers\InvoiceController::class, 'adjustInvoice'])->name('invoices.adjust');
+        Route::post('/invoices/{pppoe}/set-next-adjustment', [\App\Http\Controllers\InvoiceController::class, 'setNextAdjustment'])->name('invoices.set_next_adjustment');
+        Route::post('/invoices/{pppoe}/clear-next-adjustment', [\App\Http\Controllers\InvoiceController::class, 'clearNextAdjustment'])->name('invoices.clear_next_adjustment');
         Route::post('/invoices/{invoice}/pay-manual', [\App\Http\Controllers\InvoiceController::class, 'payManual'])->name('invoices.pay_manual');
         Route::post('/invoices/{invoice}/pay-xendit', [\App\Http\Controllers\InvoiceController::class, 'payXendit'])->name('invoices.pay_xendit');
         Route::post('/invoices/{invoice}/sync-xendit', [\App\Http\Controllers\InvoiceController::class, 'syncXendit'])->name('invoices.sync_xendit');

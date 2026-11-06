@@ -299,6 +299,21 @@
                         Rp {{ number_format($invoice->amount, 0, ',', '.') }}
                     </td>
                 </tr>
+                @if((float)($invoice->penyesuaian ?? 0) != 0)
+                <tr>
+                    <td class="text-center" style="font-weight: bold; color: #94a3b8;">2</td>
+                    <td>
+                        <strong style="color: #0f172a; font-size: 12px;">Penyesuaian Layanan / Biaya Tambahan</strong>
+                        <div style="font-size: 10.5px; color: #64748b; margin-top: 2px;">{{ $invoice->catatan_penyesuaian ?: 'Kenaikan Bandwidth Sementara (BOD) / Penyesuaian Tagihan' }}</div>
+                    </td>
+                    <td class="text-center" style="font-weight: bold; color: #475569;">
+                        {{ $invoice->created_at->translatedFormat('F Y') }}
+                    </td>
+                    <td class="text-right" style="font-weight: bold; color: {{ $invoice->penyesuaian > 0 ? '#0284c7' : '#16a34a' }};">
+                        {{ ($invoice->penyesuaian > 0 ? '+ ' : '- ') }}Rp {{ number_format(abs($invoice->penyesuaian), 0, ',', '.') }}
+                    </td>
+                </tr>
+                @endif
             </tbody>
         </table>
 
@@ -309,6 +324,14 @@
                     <td class="summary-lbl">Harga Pokok</td>
                     <td class="text-right summary-val">Rp {{ number_format($invoice->amount, 0, ',', '.') }}</td>
                 </tr>
+                @if((float)($invoice->penyesuaian ?? 0) != 0)
+                <tr>
+                    <td class="summary-lbl">Penyesuaian {{ $invoice->penyesuaian > 0 ? '(BOD / Tambahan)' : '(Potongan)' }}</td>
+                    <td class="text-right summary-val" style="color: {{ $invoice->penyesuaian > 0 ? '#0284c7' : '#16a34a' }};">
+                        {{ ($invoice->penyesuaian > 0 ? '+ ' : '- ') }}Rp {{ number_format(abs($invoice->penyesuaian), 0, ',', '.') }}
+                    </td>
+                </tr>
+                @endif
                 @if($invoice->tax > 0)
                 <tr>
                     <td class="summary-lbl">Pajak / PPN / Fee</td>
