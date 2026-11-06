@@ -222,7 +222,7 @@ class ScreenController extends Controller
                 'invoice_id'            => $earliestUnpaid?->id,
                 'periode'               => $periodeStr,
                 'due_date'              => $dueDateStr,
-                'invoice_url'           => ($earliestUnpaid && !$isEarliestExpired) ? $earliestUnpaid->xendit_invoice_url : null,
+                'invoice_url'           => ($earliestUnpaid && !$isEarliestExpired) ? (string) ($earliestUnpaid->xendit_invoice_url ?? '') : '',
             ],
         ];
 

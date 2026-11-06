@@ -99,7 +99,8 @@ class PaymentController extends Controller
                     'status_badge'       => $isEarliestExpired ? 'Kedaluwarsa' : 'Belum Bayar',
                     'is_expired'         => $isEarliestExpired,
                     'due_date'           => $earliestUnpaid->due_date,
-                    'xendit_invoice_url' => $isEarliestExpired ? null : $earliestUnpaid->xendit_invoice_url,
+                    'xendit_invoice_url' => ($isEarliestExpired || empty($earliestUnpaid->xendit_invoice_url)) ? '' : (string) $earliestUnpaid->xendit_invoice_url,
+                    'invoice_url'        => ($isEarliestExpired || empty($earliestUnpaid->xendit_invoice_url)) ? '' : (string) $earliestUnpaid->xendit_invoice_url,
                 ] : null,
             ]
         ]);
@@ -146,7 +147,8 @@ class PaymentController extends Controller
                 'is_expired'         => $isExpired,
                 'due_date'           => $inv->due_date,
                 'payment_method'     => $inv->payment_method ?? ($lastTx ? $lastTx->payment_method : null),
-                'xendit_invoice_url' => $isExpired ? null : $inv->xendit_invoice_url,
+                'xendit_invoice_url' => ($isExpired || empty($inv->xendit_invoice_url)) ? '' : (string) $inv->xendit_invoice_url,
+                'invoice_url'        => ($isExpired || empty($inv->xendit_invoice_url)) ? '' : (string) $inv->xendit_invoice_url,
                 'paid_at'            => ($inv->status === 'paid' && $lastTx) ? $lastTx->payment_date : ($inv->status === 'paid' ? $inv->updated_at->format('Y-m-d H:i:s') : null),
                 'created_at'         => $inv->created_at->format('Y-m-d H:i:s'),
             ];
@@ -180,6 +182,11 @@ class PaymentController extends Controller
             return response()->json(['success' => false, 'message' => 'Faktur tagihan tidak ditemukan.'], 404);
         }
 
+        $isExpired = $invoice->isExpired();
+        $status = ($invoice->status === 'paid') ? 'paid' : ($isExpired ? 'expired' : $invoice->status);
+        $statusBadge = ($invoice->status === 'paid') ? 'Lunas' : ($isExpired ? 'Kedaluwarsa' : 'Belum Bayar');
+        $invoiceUrl = ($isExpired || empty($invoice->xendit_invoice_url)) ? '' : (string) $invoice->xendit_invoice_url;
+
         return response()->json([
             'success' => true,
             'data'    => [
@@ -190,10 +197,13 @@ class PaymentController extends Controller
                 'tax'                => (float) $invoice->tax,
                 'discount'           => (float) $invoice->discount,
                 'total'              => (float) $invoice->total,
-                'status'             => $invoice->status,
+                'status'             => $status,
+                'status_badge'       => $statusBadge,
+                'is_expired'         => $isExpired,
                 'due_date'           => $invoice->due_date,
                 'payment_method'     => $invoice->payment_method,
-                'xendit_invoice_url' => $invoice->xendit_invoice_url,
+                'xendit_invoice_url' => $invoiceUrl,
+                'invoice_url'        => $invoiceUrl,
                 'created_at'         => $invoice->created_at->format('Y-m-d H:i:s'),
                 'transactions'       => $invoice->transactions->map(function ($tx) {
                     return [
