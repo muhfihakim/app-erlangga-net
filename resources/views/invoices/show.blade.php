@@ -147,7 +147,7 @@
         <div class="flex items-center gap-2 ml-auto flex-wrap">
             <button type="button" onclick="openNextAdjustmentModal()"
                 class="btn-secondary !h-9 !px-3.5 text-xs font-semibold !flex !items-center !justify-center gap-2 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 rounded-xl transition-all shadow-xs"
-                title="Atur Kenaikan/Tambahan Tagihan Bulan Depan (BOD)">
+                title="Atur Penyesuaian Tagihan Siklus Berikutnya">
                 <i class="fa-solid fa-sliders text-sky-600"></i>
                 <span>Penyesuaian Siklus Berikutnya</span>
                 @if((float)($pppoe->penyesuaian_tagihan ?? 0) != 0)
@@ -181,7 +181,7 @@
                         </span>
                     </div>
                     <div class="text-xs text-slate-600 mt-0.5">
-                        Keterangan: <strong class="text-slate-800">{{ $pppoe->keterangan_penyesuaian ?: 'Kenaikan Bandwidth Sementara (BOD) / Tambahan Tagihan' }}</strong>. Penyesuaian ini akan otomatis diikutsertakan saat tagihan diterbitkan.
+                        Keterangan: <strong class="text-slate-800">{{ $pppoe->keterangan_penyesuaian ?: 'Penyesuaian Tagihan' }}</strong>. Penyesuaian ini akan otomatis diikutsertakan saat tagihan diterbitkan.
                     </div>
                 </div>
             </div>
@@ -389,7 +389,7 @@
                                         <button type="button"
                                             class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-sky-300 hover:!bg-sky-50"
                                             onclick="openAdjustModal({{ $invoice->id }}, '{{ $invoice->invoice_number }}', {{ (float)$invoice->amount }}, {{ (float)($invoice->penyesuaian ?? 0) }}, '{{ addslashes($invoice->catatan_penyesuaian ?? '') }}', {{ (float)$invoice->tax }}, {{ (float)$invoice->discount }}, '{{ $invoice->due_date ? \Carbon\Carbon::parse($invoice->due_date)->format('Y-m-d') : '' }}')"
-                                            title="Sesuaikan Tagihan (BOD / Biaya Tambahan / Diskon)">
+                                            title="Sesuaikan Tagihan">
                                             <i class="fa-solid fa-sliders text-sky-600"></i>
                                         </button>
                                         <button type="button"
@@ -504,7 +504,7 @@
 
     <!-- 1. Modal Buat Tagihan Baru (Custom / With Adjustments) -->
     <div class="modal-overlay" id="generateSingleModal">
-        <div class="modal-box max-w-lg bg-white border border-slate-300 shadow-2xl">
+        <div class="modal-box max-w-lg bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
             <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-200 shrink-0">
@@ -512,7 +512,7 @@
                     </div>
                     <div>
                         <h3 class="text-base font-bold text-slate-900 m-0">Buat Tagihan Baru</h3>
-                        <p class="text-xs text-slate-500 m-0 mt-0.5">Terbitkan invoice dengan penyesuaian kustom (BOD / Biaya Tambahan).</p>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Terbitkan invoice tagihan untuk pelanggan ini.</p>
                     </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('generateSingleModal')">
@@ -537,50 +537,47 @@
 
                     <input type="hidden" name="amount" id="genAmount" value="{{ (float)($pppoe->paket->harga ?? 0) }}" oninput="updateGenTotal()">
 
-                    <!-- Row Penyesuaian / BOD -->
+                    <!-- Row Penyesuaian -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div class="form-group mb-0">
-                            <label class="form-label text-slate-700 font-semibold text-xs mb-1 block">
-                                Penyesuaian / Tambahan (Rp)
-                                <span class="text-slate-400 font-normal">(BOD dll)</span>
-                            </label>
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Penyesuaian Tagihan (Rp)</label>
                             <input type="number" step="any" name="penyesuaian" id="genPenyesuaian"
                                 value="{{ (float)($pppoe->penyesuaian_tagihan ?? 0) }}"
                                 oninput="updateGenTotal()"
-                                class="form-input !h-9 text-xs w-full font-mono bg-white border-slate-300"
+                                class="form-input !h-9 text-xs w-full font-mono bg-white text-slate-800 border-slate-300"
                                 placeholder="0">
                         </div>
                         <div class="form-group mb-0">
-                            <label class="form-label text-slate-700 font-semibold text-xs mb-1 block">Tanggal Jatuh Tempo</label>
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Tanggal Jatuh Tempo</label>
                             <input type="date" name="due_date" id="genDueDate"
                                 value="{{ now()->addDays(7)->format('Y-m-d') }}"
-                                class="form-input !h-9 text-xs w-full bg-white border-slate-300" required>
+                                class="form-input !h-9 text-xs w-full bg-white text-slate-800 border-slate-300" required>
                         </div>
                     </div>
 
                     <div class="form-group mb-0">
-                        <label class="form-label text-slate-700 font-semibold text-xs mb-1 block">Keterangan Penyesuaian</label>
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Keterangan Penyesuaian</label>
                         <input type="text" name="catatan_penyesuaian" id="genCatatan"
                             value="{{ $pppoe->keterangan_penyesuaian ?? '' }}"
-                            class="form-input !h-9 text-xs w-full bg-white border-slate-300"
-                            placeholder="Misal: BOD Kenaikan Bandwidth 50 Mbps s/d 15 Nov">
+                            class="form-input !h-9 text-xs w-full bg-white text-slate-800 border-slate-300"
+                            placeholder="Misal: Penyesuaian biaya, penambahan layanan, dsb.">
                     </div>
 
                     <!-- Row Pajak & Diskon -->
                     <div class="grid grid-cols-2 gap-3">
                         <div class="form-group mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs mb-1 block">Pajak / PPN (Rp)</label>
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Pajak / PPN (Rp)</label>
                             <input type="number" step="any" name="tax" id="genTax"
                                 value="{{ (float)($pppoe->pajak ?? ($pppoe->paket->pajak ?? 0)) }}"
                                 oninput="updateGenTotal()"
-                                class="form-input !h-9 text-xs w-full font-mono bg-white border-slate-300">
+                                class="form-input !h-9 text-xs w-full font-mono bg-white text-slate-800 border-slate-300">
                         </div>
                         <div class="form-group mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs mb-1 block">Potongan Diskon (Rp)</label>
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Potongan Diskon (Rp)</label>
                             <input type="number" step="any" name="discount" id="genDiscount"
                                 value="{{ (float)($pppoe->diskon ?? ($pppoe->paket->diskon ?? 0)) }}"
                                 oninput="updateGenTotal()"
-                                class="form-input !h-9 text-xs w-full font-mono bg-white border-slate-300">
+                                class="form-input !h-9 text-xs w-full font-mono bg-white text-slate-800 border-slate-300">
                         </div>
                     </div>
 
@@ -595,11 +592,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2">
                     <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                         onclick="closeCustomModal('generateSingleModal')"><i class="fa-solid fa-xmark"></i> Batal</button>
                     <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-sky-600 hover:!bg-sky-700">
-                        <i class="fa-solid fa-check"></i> Terbitkan Tagihan
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>
@@ -608,14 +605,14 @@
 
     <!-- 2. Modal Sesuaikan Tagihan Berjalan (Adjust Unpaid Invoice) -->
     <div class="modal-overlay" id="adjustInvoiceModal">
-        <div class="modal-box max-w-lg bg-white border border-slate-300 shadow-2xl">
+        <div class="modal-box max-w-lg bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
             <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-200 shrink-0">
                         <i class="fa-solid fa-sliders"></i>
                     </div>
                     <div>
-                        <h3 class="text-base font-bold text-slate-900 m-0">Sesuaikan Tagihan Berjalan</h3>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Sesuaikan Tagihan</h3>
                         <p class="text-xs text-slate-500 m-0 mt-0.5">Faktur: <span id="adjustModalInvNumber" class="font-mono font-bold text-sky-600">-</span></p>
                     </div>
                 </div>
@@ -628,42 +625,39 @@
                 <div class="modal-body p-6 bg-white space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div class="form-group mb-0">
-                            <label class="form-label text-slate-700 font-semibold text-xs mb-1 block">Harga Pokok (Rp)</label>
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Harga Pokok (Rp)</label>
                             <input type="number" step="any" name="amount" id="adjustAmount" oninput="updateAdjustTotal()"
-                                class="form-input !h-9 text-xs w-full font-mono bg-white border-slate-300" required>
+                                class="form-input !h-9 text-xs w-full font-mono bg-white text-slate-800 border-slate-300" required>
                         </div>
                         <div class="form-group mb-0">
-                            <label class="form-label text-slate-700 font-semibold text-xs mb-1 block">
-                                Penyesuaian / Tambahan (Rp)
-                                <span class="text-sky-600 font-semibold">(BOD / Fee)</span>
-                            </label>
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Penyesuaian Tagihan (Rp)</label>
                             <input type="number" step="any" name="penyesuaian" id="adjustPenyesuaian" oninput="updateAdjustTotal()"
-                                class="form-input !h-9 text-xs w-full font-mono bg-white border-slate-300" placeholder="0">
+                                class="form-input !h-9 text-xs w-full font-mono bg-white text-slate-800 border-slate-300" placeholder="0">
                         </div>
                     </div>
 
                     <div class="form-group mb-0">
-                        <label class="form-label text-slate-700 font-semibold text-xs mb-1 block">Keterangan Penyesuaian (BOD / Kenaikan Bandwidth)</label>
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Keterangan Penyesuaian</label>
                         <input type="text" name="catatan_penyesuaian" id="adjustCatatan"
-                            class="form-input !h-9 text-xs w-full bg-white border-slate-300"
-                            placeholder="Misal: Tambahan BOD 50 Mbps periode 01-15 Nov">
+                            class="form-input !h-9 text-xs w-full bg-white text-slate-800 border-slate-300"
+                            placeholder="Misal: Penyesuaian biaya, penambahan layanan, dsb.">
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div class="form-group mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs mb-1 block">Pajak (Rp)</label>
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Pajak (Rp)</label>
                             <input type="number" step="any" name="tax" id="adjustTax" oninput="updateAdjustTotal()"
-                                class="form-input !h-9 text-xs w-full font-mono bg-white border-slate-300">
+                                class="form-input !h-9 text-xs w-full font-mono bg-white text-slate-800 border-slate-300">
                         </div>
                         <div class="form-group mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs mb-1 block">Diskon (Rp)</label>
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Diskon (Rp)</label>
                             <input type="number" step="any" name="discount" id="adjustDiscount" oninput="updateAdjustTotal()"
-                                class="form-input !h-9 text-xs w-full font-mono bg-white border-slate-300">
+                                class="form-input !h-9 text-xs w-full font-mono bg-white text-slate-800 border-slate-300">
                         </div>
                         <div class="form-group mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs mb-1 block">Jatuh Tempo</label>
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Jatuh Tempo</label>
                             <input type="date" name="due_date" id="adjustDueDate"
-                                class="form-input !h-9 text-xs w-full bg-white border-slate-300">
+                                class="form-input !h-9 text-xs w-full bg-white text-slate-800 border-slate-300">
                         </div>
                     </div>
 
@@ -682,11 +676,11 @@
                         <i class="fa-solid fa-circle-info text-sky-500 mr-1"></i> Jika invoice ini telah memiliki link pembayaran Xendit online, link akan di-reset otomatis agar checkout menggunakan nominal baru yang telah disesuaikan.
                     </p>
                 </div>
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2">
                     <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                         onclick="closeCustomModal('adjustInvoiceModal')"><i class="fa-solid fa-xmark"></i> Batal</button>
                     <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-sky-600 hover:!bg-sky-700">
-                        <i class="fa-solid fa-check"></i> Simpan Penyesuaian
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>
@@ -695,7 +689,7 @@
 
     <!-- 3. Modal Atur Penyesuaian Siklus Berikutnya (Next Bill Adjustment) -->
     <div class="modal-overlay" id="nextAdjustmentModal">
-        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
+        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
             <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-200 shrink-0">
@@ -703,7 +697,7 @@
                     </div>
                     <div>
                         <h3 class="text-base font-bold text-slate-900 m-0">Penyesuaian Siklus Berikutnya</h3>
-                        <p class="text-xs text-slate-500 m-0 mt-0.5">Atur tambahan BOD / biaya untuk tagihan mendatang.</p>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Atur penyesuaian biaya untuk tagihan mendatang.</p>
                     </div>
                 </div>
                 <button type="button" class="modal-close" onclick="closeCustomModal('nextAdjustmentModal')">
@@ -725,26 +719,26 @@
                     </div>
 
                     <div class="form-group mb-0">
-                        <label class="form-label text-slate-700 font-semibold text-xs mb-1 block">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
                             Nominal Penyesuaian (Rp) <span class="text-rose-500">*</span>
                         </label>
                         <input type="number" step="any" name="penyesuaian_tagihan"
                             value="{{ (float)($pppoe->penyesuaian_tagihan ?? 0) }}"
-                            class="form-input !h-10 text-xs w-full font-mono bg-white border-slate-300"
+                            class="form-input !h-9 text-xs w-full font-mono bg-white text-slate-800 border-slate-300"
                             placeholder="Misal: 50000" required>
-                        <span class="text-[11px] text-slate-400 mt-1 block">Masukkan angka positif untuk biaya tambahan/BOD, atau angka negatif untuk potongan.</span>
+                        <span class="text-[11px] text-slate-400 mt-1 block">Masukkan angka positif untuk penambahan biaya, atau angka negatif untuk potongan.</span>
                     </div>
 
                     <div class="form-group mb-0">
-                        <label class="form-label text-slate-700 font-semibold text-xs mb-1 block">Keterangan / Alasan Penyesuaian</label>
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Keterangan Penyesuaian</label>
                         <input type="text" name="keterangan_penyesuaian"
                             value="{{ $pppoe->keterangan_penyesuaian ?? '' }}"
-                            class="form-input !h-10 text-xs w-full bg-white border-slate-300"
-                            placeholder="Misal: Kenaikan Bandwidth BOD 50 Mbps">
+                            class="form-input !h-9 text-xs w-full bg-white text-slate-800 border-slate-300"
+                            placeholder="Misal: Penyesuaian biaya, penambahan layanan, dsb.">
                     </div>
 
                     <div class="form-group mb-0">
-                        <label class="form-label text-slate-700 font-semibold text-xs mb-1.5 block">Masa Berlaku Penyesuaian <span class="text-rose-500">*</span></label>
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Masa Berlaku Penyesuaian <span class="text-rose-500">*</span></label>
                         <div class="space-y-2">
                             <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-xs">
                                 <input type="radio" name="penyesuaian_tipe" value="sekali" {{ ($pppoe->penyesuaian_tipe ?? 'sekali') === 'sekali' ? 'checked' : '' }} class="mt-0.5 text-sky-600 focus:ring-sky-500">
@@ -763,11 +757,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2">
                     <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                         onclick="closeCustomModal('nextAdjustmentModal')"><i class="fa-solid fa-xmark"></i> Batal</button>
                     <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-sky-600 hover:!bg-sky-700">
-                        <i class="fa-solid fa-check"></i> Simpan Pengaturan
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>
