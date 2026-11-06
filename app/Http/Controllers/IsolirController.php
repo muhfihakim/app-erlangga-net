@@ -187,8 +187,8 @@ class IsolirController extends Controller
                     'mobile_number' => $customerPhone,
                 ],
                 'items' => $items,
-                'success_redirect_url' => $redirectUrl,
-                'failure_redirect_url' => $redirectUrl,
+                'success_redirect_url' => $redirectUrl . '?status=success',
+                'failure_redirect_url' => $redirectUrl . '?status=failed',
             ]);
 
             $result = $apiInstance->createInvoice($createInvoiceRequest);

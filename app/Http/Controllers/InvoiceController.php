@@ -317,8 +317,8 @@ class InvoiceController extends Controller
                 'invoice_duration' => (int) $durationSeconds,
                 'customer' => $customer,
                 'items' => $items,
-                'success_redirect_url' => $redirectUrl,
-                'failure_redirect_url' => $redirectUrl,
+                'success_redirect_url' => $redirectUrl . '?status=success',
+                'failure_redirect_url' => $redirectUrl . '?status=failed',
             ]);
 
             $result = $apiInstance->createInvoice($createInvoiceRequest);

@@ -332,14 +332,23 @@ class PaymentController extends Controller
                 'mobile_number' => $customer->no_whatsapp ?: null,
             ];
 
+            $baseUrl = $request->getSchemeAndHttpHost();
+            if (empty($baseUrl) || str_contains($baseUrl, 'localhost')) {
+                $baseUrl = config('app.url', 'https://stage.erlangga.net');
+            }
+            $successUrl = rtrim($baseUrl, '/') . '/payment/success?status=success&invoice_id=' . $invoice->id;
+            $failureUrl = rtrim($baseUrl, '/') . '/payment/failure?status=failed&invoice_id=' . $invoice->id;
+
             $createInvoiceRequest = new \Xendit\Invoice\CreateInvoiceRequest([
-                'external_id'      => $externalId,
-                'amount'           => (float) $invoice->total,
-                'payer_email'      => $payerEmail,
-                'description'      => 'Tagihan Internet ' . $invoice->invoice_number . ' - ' . $customer->id_pelanggan,
-                'invoice_duration' => (int) $durationSeconds,
-                'customer'         => $customerPayload,
-                'items'            => $items,
+                'external_id'          => $externalId,
+                'amount'               => (float) $invoice->total,
+                'payer_email'          => $payerEmail,
+                'description'          => 'Tagihan Internet ' . $invoice->invoice_number . ' - ' . $customer->id_pelanggan,
+                'invoice_duration'     => (int) $durationSeconds,
+                'customer'             => $customerPayload,
+                'items'                => $items,
+                'success_redirect_url' => $successUrl,
+                'failure_redirect_url' => $failureUrl,
             ]);
 
             $result = $apiInstance->createInvoice($createInvoiceRequest);

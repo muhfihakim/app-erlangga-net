@@ -25,6 +25,27 @@ Route::post('/isolir/search', [IsolirController::class, 'search'])->name('isolir
 Route::post('/isolir/{invoice}/pay', [IsolirController::class, 'payXendit'])->name('isolir.pay');
 Route::get('/isolir/{invoice}/status', [IsolirController::class, 'checkStatus'])->name('isolir.status');
 
+// Halaman Callback Redirect Pembayaran Xendit (Mobile WebView & Web)
+Route::get('/payment/success', function (\Illuminate\Http\Request $request) {
+    return view('payments.finish', [
+        'isSuccess' => true,
+        'status'    => 'success',
+        'title'     => 'Pembayaran Berhasil!',
+        'message'   => 'Terima kasih. Pembayaran tagihan internet Anda telah kami terima dan diverifikasi.',
+        'invoiceId' => $request->query('invoice_id'),
+    ]);
+})->name('payment.success');
+
+Route::get('/payment/failure', function (\Illuminate\Http\Request $request) {
+    return view('payments.finish', [
+        'isSuccess' => false,
+        'status'    => 'failed',
+        'title'     => 'Pembayaran Belum Berhasil',
+        'message'   => 'Sesi pembayaran telah berakhir, dibatalkan, atau gagal diproses.',
+        'invoiceId' => $request->query('invoice_id'),
+    ]);
+})->name('payment.failure');
+
 Route::get('/', function (\Illuminate\Http\Request $request) {
     if (str_starts_with($request->getHost(), 'isolir.') || $request->getHost() === 'isolir.erlangga.net') {
         return app(IsolirController::class)->index($request);

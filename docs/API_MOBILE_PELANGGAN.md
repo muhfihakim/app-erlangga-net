@@ -459,7 +459,14 @@ Mengambil link checkout pembayaran aktif atau membuat sesi invoice baru di Payme
     "payment_url": "https://checkout.xendit.co/web/6725ec389140ab12"
   }
   ```
-  > **Panduan Mobile App:** Buka nilai `payment_url` menggunakan **In-App WebView** atau browser sistem bawaan perangkat.
+  > **Panduan Integrasi WebView Mobile (Flutter / Android / iOS):**
+  > Backend telah mengonfigurasi callback redirect URL otomatis pada checkout Xendit:
+  > - **URL Sukses:** `https://stage.erlangga.net/payment/success?status=success&invoice_id={id}`
+  >   *(Memenuhi kondisi interceptor: `lowerUrl.contains('/success')` dan `lowerUrl.contains('status=success')`)*
+  > - **URL Gagal / Dibatalkan:** `https://stage.erlangga.net/payment/failure?status=failed&invoice_id={id}`
+  >   *(Memenuhi kondisi interceptor: `lowerUrl.contains('/failure')` dan `lowerUrl.contains('status=failed')`)*
+  > 
+  > Begitu pelanggan selesai membayar di WebView, Xendit otomatis me-redirect ke URL sukses di atas sehingga WebView dapat langsung dideteksi oleh aplikasi, ditutup otomatis, dan memicu `_handleSuccessProcess()` secara instan.
 
 - **Response `400 Bad Request` (Sudah Lunas)**:
   ```json
