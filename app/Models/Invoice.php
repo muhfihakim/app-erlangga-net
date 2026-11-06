@@ -31,6 +31,20 @@ class Invoice extends Model
     }
 
     /**
+     * Cek apakah faktur ini telah melewati tanggal jatuh tempo dan belum terbayar
+     */
+    public function isExpired(): bool
+    {
+        if ($this->status === 'paid') {
+            return false;
+        }
+
+        return !empty($this->due_date)
+            && \Carbon\Carbon::parse($this->due_date)->isPast()
+            && !\Carbon\Carbon::parse($this->due_date)->isToday();
+    }
+
+    /**
      * Mark invoice as paid, update transaction, extend PPPoE active date, and restore FreeRADIUS package profile
      */
     public function markAsPaid(string $paymentMethod, $amountPaid = null, ?string $xenditPaymentId = null): bool

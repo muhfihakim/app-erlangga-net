@@ -75,6 +75,8 @@ class PaymentController extends Controller
             $statusLayanan = 'menunggu_pembayaran';
         }
 
+        $isEarliestExpired = $earliestUnpaid ? $earliestUnpaid->isExpired() : false;
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -93,9 +95,11 @@ class PaymentController extends Controller
                     'tax'                => (float) $earliestUnpaid->tax,
                     'discount'           => (float) $earliestUnpaid->discount,
                     'total'              => (float) $earliestUnpaid->total,
-                    'status'             => $earliestUnpaid->status,
+                    'status'             => $isEarliestExpired ? 'expired' : $earliestUnpaid->status,
+                    'status_badge'       => $isEarliestExpired ? 'Kedaluwarsa' : 'Belum Bayar',
+                    'is_expired'         => $isEarliestExpired,
                     'due_date'           => $earliestUnpaid->due_date,
-                    'xendit_invoice_url' => $earliestUnpaid->xendit_invoice_url,
+                    'xendit_invoice_url' => $isEarliestExpired ? null : $earliestUnpaid->xendit_invoice_url,
                 ] : null,
             ]
         ]);
@@ -127,6 +131,9 @@ class PaymentController extends Controller
 
         $invoices = $query->get()->map(function ($inv) {
             $lastTx = $inv->transactions->first();
+            $isExpired = $inv->isExpired();
+            $status = ($inv->status === 'paid') ? 'paid' : ($isExpired ? 'expired' : $inv->status);
+            $statusBadge = ($inv->status === 'paid') ? 'Lunas' : ($isExpired ? 'Kedaluwarsa' : 'Belum Bayar');
             return [
                 'id'                 => $inv->id,
                 'invoice_number'     => $inv->invoice_number,
@@ -134,10 +141,12 @@ class PaymentController extends Controller
                 'tax'                => (float) $inv->tax,
                 'discount'           => (float) $inv->discount,
                 'total'              => (float) $inv->total,
-                'status'             => $inv->status,
+                'status'             => $status,
+                'status_badge'       => $statusBadge,
+                'is_expired'         => $isExpired,
                 'due_date'           => $inv->due_date,
                 'payment_method'     => $inv->payment_method ?? ($lastTx ? $lastTx->payment_method : null),
-                'xendit_invoice_url' => $inv->xendit_invoice_url,
+                'xendit_invoice_url' => $isExpired ? null : $inv->xendit_invoice_url,
                 'paid_at'            => ($inv->status === 'paid' && $lastTx) ? $lastTx->payment_date : ($inv->status === 'paid' ? $inv->updated_at->format('Y-m-d H:i:s') : null),
                 'created_at'         => $inv->created_at->format('Y-m-d H:i:s'),
             ];
@@ -234,8 +243,11 @@ class PaymentController extends Controller
             return response()->json(['success' => false, 'message' => 'Tagihan ini sudah lunas terbayar.'], 400);
         }
 
-        // Jika invoice Xendit sudah ada dan masih aktif
-        if (!empty($invoice->xendit_invoice_url) && !empty($invoice->xendit_invoice_id)) {
+        // Cek apakah tagihan sudah expired
+        $isInvoiceExpired = $invoice->isExpired();
+
+        // Jika invoice Xendit sudah ada dan faktur BELUM expired
+        if (!empty($invoice->xendit_invoice_url) && !empty($invoice->xendit_invoice_id) && !$isInvoiceExpired) {
             return response()->json([
                 'success'        => true,
                 'message'        => 'Checkout payment gateway siap digunakan.',
@@ -266,6 +278,16 @@ class PaymentController extends Controller
 
             $dueDate = $invoice->due_date ? Carbon::parse($invoice->due_date)->endOfDay() : now()->addDays(7);
             $durationSeconds = max(86400, $dueDate->diffInSeconds(now()));
+
+            // Jika invoice sudah expired dari jadwal due_date aslinya, berikan grace period checkout 24 jam (86400 detik)
+            if ($isInvoiceExpired || $durationSeconds <= 0) {
+                $durationSeconds = 86400;
+            }
+
+            // External ID untuk Xendit: jika sebelumnya pernah dibuat dan expired, tambahkan sufiks unik agar tidak ditolak duplikat
+            $externalId = (!empty($invoice->xendit_invoice_id) && $isInvoiceExpired)
+                ? ($invoice->invoice_number . '-R' . time())
+                : $invoice->invoice_number;
 
             $items = [
                 [
@@ -301,7 +323,7 @@ class PaymentController extends Controller
             ];
 
             $createInvoiceRequest = new \Xendit\Invoice\CreateInvoiceRequest([
-                'external_id'      => $invoice->invoice_number,
+                'external_id'      => $externalId,
                 'amount'           => (float) $invoice->total,
                 'payer_email'      => $payerEmail,
                 'description'      => 'Tagihan Internet ' . $invoice->invoice_number . ' - ' . $customer->id_pelanggan,

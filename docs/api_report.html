@@ -286,7 +286,7 @@
             <li>Billing period name (<code>periode</code>, e.g., "Tagihan Agustus").</li>
             <li>Payment status (<code>status_invoice</code>: paid / unpaid / expired).</li>
             <li>Amount charged (<code>harga</code> / <code>total_harga</code>).</li>
-            <li>Direct checkout URL (<code>invoice_url</code>) and validity period (<code>invoice_duration</code>).</li>
+            <li>Direct checkout URL (<code>invoice_url</code>) and validity period (<code>invoice_duration</code>). <em>Note: When status is <code>expired</code>, <code>invoice_url</code> is cleared (empty string) to prevent loading stale checkouts; invoking checkout automatically generates a fresh 24h gateway link.</em></li>
           </ul>
         </td>
       </tr>

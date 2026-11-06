@@ -30,13 +30,16 @@ class XenditWebhookController extends Controller
 
         Log::info("Xendit Webhook Received: {$externalId} | Status: {$status} | Amount: " . ($data['paid_amount'] ?? ($data['amount'] ?? 0)));
 
-        // Lookup invoice by number or Xendit ID
+        // Lookup invoice by number, Xendit ID, or sanitized base external_id (e.g. without -R timestamp)
         $invoice = null;
-        if ($externalId) {
-            $invoice = Invoice::where('invoice_number', $externalId)->first();
-        }
-        if (!$invoice && $xenditId) {
+        if ($xenditId) {
             $invoice = Invoice::where('xendit_invoice_id', $xenditId)->first();
+        }
+        if (!$invoice && $externalId) {
+            $cleanInvNum = preg_replace('/-R\d+$/', '', (string)$externalId);
+            $invoice = Invoice::where('invoice_number', $externalId)
+                ->orWhere('invoice_number', $cleanInvNum)
+                ->first();
         }
 
         // Recovery fallback for unrecorded invoice IDs
@@ -118,6 +121,12 @@ class XenditWebhookController extends Controller
                     'trace' => $e->getTraceAsString()
                 ]);
             }
+        } elseif ($status === 'EXPIRED') {
+            $invoice->update([
+                'xendit_invoice_url' => null,
+                'xendit_invoice_id'  => null,
+            ]);
+            Log::info("Xendit Webhook Expired: Invoice {$invoice->invoice_number} expired, reset xendit_invoice_url agar siap dibuat ulang saat checkout.");
         }
 
         return response()->json(['message' => 'Success', 'status' => $status]);

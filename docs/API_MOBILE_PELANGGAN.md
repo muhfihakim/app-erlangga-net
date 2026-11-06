@@ -267,6 +267,23 @@ Digunakan oleh aplikasi mobile (Android / iOS) untuk mendaftarkan atau memperbar
 
 ## 2️⃣ Modul Pembayaran & Payment Gateway
 
+### 💡 Panduan Siklus Status Tagihan & Link Pembayaran (Mobile Best Practice)
+Untuk memastikan UX aplikasi mobile mulus tanpa kendala link kedaluwarsa atau error di halaman payment gateway:
+- **Nilai `status_invoice` (Level Akun/Ringkasan):**
+  - `"belum_bayar"`: Pelanggan memiliki minimal 1 faktur aktif yang belum dilunasi.
+  - `"terbayar"`: Pelanggan tidak memiliki tunggakan tagihan.
+  - `"non_billing"`: Pelanggan dibebaskan dari penagihan (misal: koneksi internal/kantor).
+- **Nilai `status` & `status_invoice` (Level Item Faktur di Riwayat):**
+  - `"unpaid"` (`status_badge: "Belum Bayar"`): Faktur belum dibayar dan belum melewati jatuh tempo.
+  - `"expired"` (`status_badge: "Kedaluwarsa"`, `is_expired: true`): Faktur belum dibayar dan telah melewati tanggal jatuh tempo (`due_date`).
+  - `"paid"` (`status_badge: "Lunas"`): Faktur telah lunas terbayar.
+- **Perilaku `invoice_url` / `xendit_invoice_url` saat Expired:**
+  - Jika faktur masih aktif (`unpaid`), `invoice_url` berisi URL checkout Xendit aktif (atau `null` jika belum dibuat).
+  - Jika faktur sudah kedaluwarsa (`is_expired: true`), `invoice_url` **secara otomatis dikosongkan (`null` atau `""`)** agar aplikasi mobile tidak membuka tautan kedaluwarsa di Xendit.
+  - Saat pelanggan menekan tombol **"Bayar Sekarang"** pada faktur kedaluwarsa, aplikasi cukup memanggil `POST /api/pay` atau `POST /api/payments/pay`. Backend secara otomatis akan menerbitkan link checkout Xendit baru dengan masa aktif baru (grace period 24 jam).
+
+---
+
 ### 2.1 Ringkasan Billing & Tagihan Aktif
 Menampilkan widget kartu status tagihan di dashboard utama aplikasi. Memberikan informasi apakah status koneksi aktif, isolir, atau menunggu pembayaran.
 

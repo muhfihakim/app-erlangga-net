@@ -70,7 +70,7 @@ class ScreenController extends Controller
         $kecepatan = $paket->kecepatan ?? '-';
         $harga = (float) ($paket->harga ?? 0);
         $totalHargaPaket = (float) ($paket->total_harga ?? $harga);
-        $deskripsiPaket = $paket->deskripsi ?? 'Akses internet unlimited 24 jam tanpa FUP.';
+        $deskripsiPaket = $paket->keterangan ?? ($paket->deskripsi ?? 'Akses internet unlimited 24 jam tanpa FUP.');
 
         // 2. Data Tagihan & Faktur Berjalan
         $unpaidInvoices = collect();
@@ -85,6 +85,7 @@ class ScreenController extends Controller
         $hasUnpaidBill = $unpaidCount > 0;
         $totalTunggakan = (float) $unpaidInvoices->sum('total');
         $earliestUnpaid = $unpaidInvoices->first();
+        $isEarliestExpired = $earliestUnpaid ? $earliestUnpaid->isExpired() : false;
 
         // Status invoice dihitung langsung dari ada/tidaknya tagihan yang belum terbayar di database invoices
         $statusInvoice = $hasUnpaidBill ? 'belum_bayar' : 'terbayar';
@@ -211,8 +212,9 @@ class ScreenController extends Controller
             ],
             'tagihan' => [
                 'status_invoice'        => $statusInvoice,
-                'status'                => $hasUnpaidBill ? ($earliestUnpaid?->status ?? 'unpaid') : 'paid',
-                'status_badge'          => $hasUnpaidBill ? 'Belum Bayar' : 'Lunas',
+                'status'                => $hasUnpaidBill ? ($isEarliestExpired ? 'expired' : ($earliestUnpaid?->status ?? 'unpaid')) : 'paid',
+                'status_badge'          => $hasUnpaidBill ? ($isEarliestExpired ? 'Kedaluwarsa' : 'Belum Bayar') : 'Lunas',
+                'is_expired'            => $isEarliestExpired,
                 'has_unpaid_bill'       => $hasUnpaidBill,
                 'unpaid_invoices_count' => $unpaidCount,
                 'total_harga'           => $hasUnpaidBill ? $totalTunggakan : $totalHargaPaket,
@@ -220,7 +222,7 @@ class ScreenController extends Controller
                 'invoice_id'            => $earliestUnpaid?->id,
                 'periode'               => $periodeStr,
                 'due_date'              => $dueDateStr,
-                'invoice_url'           => $earliestUnpaid?->xendit_invoice_url,
+                'invoice_url'           => ($earliestUnpaid && !$isEarliestExpired) ? $earliestUnpaid->xendit_invoice_url : null,
             ],
         ];
 
@@ -275,10 +277,9 @@ class ScreenController extends Controller
             $dateForPeriod = $inv->due_date ? Carbon::parse($inv->due_date) : $inv->created_at;
             $periode = 'Tagihan ' . $dateForPeriod->translatedFormat('F Y');
 
-            $statusInvoice = strtolower((string) $inv->status);
-            if ($statusInvoice === 'unpaid' && $inv->due_date && Carbon::parse($inv->due_date)->isPast() && !Carbon::parse($inv->due_date)->isToday()) {
-                $statusInvoice = 'expired';
-            }
+            $isExpired = $inv->isExpired();
+            $statusInvoice = ($inv->status === 'paid') ? 'paid' : ($isExpired ? 'expired' : 'unpaid');
+            $statusBadge = ($inv->status === 'paid') ? 'Lunas' : ($isExpired ? 'Kedaluwarsa' : 'Belum Bayar');
 
             return [
                 'id'               => $inv->id,
@@ -287,14 +288,15 @@ class ScreenController extends Controller
                 'sn_perangkat'     => $snPerangkat,
                 'periode'          => $periode,
                 'status_invoice'   => $statusInvoice,
-                'status'           => $inv->status,
-                'status_badge'     => ($inv->status === 'paid') ? 'Lunas' : 'Belum Bayar',
+                'status'           => ($inv->status === 'paid') ? 'paid' : ($isExpired ? 'expired' : $inv->status),
+                'status_badge'     => $statusBadge,
+                'is_expired'       => $isExpired,
                 'harga'            => (float) $inv->amount,
                 'tax'              => (float) $inv->tax,
                 'discount'         => (float) $inv->discount,
                 'total_harga'      => (float) $inv->total,
                 'total'            => (float) $inv->total,
-                'invoice_url'      => (string) ($inv->xendit_invoice_url ?? ''),
+                'invoice_url'      => $isExpired ? '' : (string) ($inv->xendit_invoice_url ?? ''),
                 'invoice_duration' => 86400, // Valid 24 jam checkout link
                 'due_date'         => $inv->due_date ? Carbon::parse($inv->due_date)->format('Y-m-d') : null,
                 'created_at'       => $inv->created_at->format('Y-m-d H:i:s'),
