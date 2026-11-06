@@ -162,14 +162,13 @@ class ScreenController extends Controller
 
         $statusKoneksi = $isOnline ? 'Online' : 'Offline';
 
-        // 4. Status Akun & Layanan Pelanggan (Aktif / Terisolir / Non-Aktif)
+        // 4. Status Akun Pelanggan (aktif / isolir / non_aktif)
         $isIsolir = (bool) ($pppoe && $pppoe->is_isolir);
         if ($hasUnpaidBill && $isEarliestExpired) {
             $isIsolir = true;
         }
 
         $statusAkun = $isIsolir ? 'isolir' : ($customer->trashed() ? 'non_aktif' : 'aktif');
-        $statusAkunBadge = $isIsolir ? 'Terisolir' : ($customer->trashed() ? 'Non-Aktif' : 'Aktif');
 
         $tanggalAktifStr = ($pppoe && $pppoe->tanggal_aktif)
             ? ($pppoe->tanggal_aktif instanceof \DateTimeInterface ? $pppoe->tanggal_aktif->format('Y-m-d') : substr((string)$pppoe->tanggal_aktif, 0, 10))
@@ -190,42 +189,29 @@ class ScreenController extends Controller
             'harga'                 => $harga,
             'total_harga'           => $hasUnpaidBill ? $totalTunggakan : $totalHargaPaket,
             'status'                => $statusKoneksi,
-            'status_koneksi'        => $statusKoneksi,
-            'status_internet'       => $statusKoneksi,
             'status_akun'           => $statusAkun,
-            'status_akun_badge'     => $statusAkunBadge,
-            'status_layanan'        => $statusAkun,
-            'is_isolir'             => $isIsolir,
             'status_invoice'        => $statusInvoice,
             'has_unpaid_bill'       => $hasUnpaidBill,
             'unpaid_invoices_count' => $unpaidCount,
 
             // Nested categories untuk widget modular (StatusSection, InfoPaketSection, TagihanSection)
             'customer' => [
-                'id'                => $customer->id,
-                'id_pelanggan'      => $customer->id_pelanggan,
-                'nama_lengkap'      => $customer->nama_lengkap,
-                'no_whatsapp'       => $customer->no_whatsapp,
-                'alamat_lengkap'    => $customer->alamat_lengkap,
-                'sn_perangkat'      => $customer->sn_perangkat,
-                'jenis_modem'       => $customer->jenis_modem,
-                'status_akun'       => $statusAkun,
-                'status_akun_badge' => $statusAkunBadge,
-                'status_layanan'    => $statusAkun,
-                'is_isolir'         => $isIsolir,
+                'id'             => $customer->id,
+                'id_pelanggan'   => $customer->id_pelanggan,
+                'nama_lengkap'   => $customer->nama_lengkap,
+                'no_whatsapp'    => $customer->no_whatsapp,
+                'alamat_lengkap' => $customer->alamat_lengkap,
+                'sn_perangkat'   => $customer->sn_perangkat,
+                'jenis_modem'    => $customer->jenis_modem,
+                'status_akun'    => $statusAkun,
             ],
             'koneksi' => [
-                'pppoe_username'    => $customer->pppoe_username,
-                'status'            => $statusKoneksi,
-                'status_koneksi'    => $statusKoneksi,
-                'status_internet'   => $statusKoneksi,
-                'status_akun'       => $statusAkun,
-                'status_akun_badge' => $statusAkunBadge,
-                'is_isolir'         => $isIsolir,
-                'is_online'         => $isOnline,
-                'ip_address'        => $ipAddress,
-                'uptime'            => $uptime,
-                'rx_power'          => $rxPower,
+                'pppoe_username' => $customer->pppoe_username,
+                'status'         => $statusKoneksi,
+                'is_online'      => $isOnline,
+                'ip_address'     => $ipAddress,
+                'uptime'         => $uptime,
+                'rx_power'       => $rxPower,
             ],
             'paket' => [
                 'id'          => $paket?->id,
@@ -237,9 +223,6 @@ class ScreenController extends Controller
             ],
             'tagihan' => [
                 'status_akun'           => $statusAkun,
-                'status_akun_badge'     => $statusAkunBadge,
-                'status_layanan'        => $statusAkun,
-                'is_isolir'             => $isIsolir,
                 'status_invoice'        => $statusInvoice,
                 'status'                => $hasUnpaidBill ? ($isEarliestExpired ? 'expired' : ($earliestUnpaid?->status ?? 'unpaid')) : 'paid',
                 'status_badge'          => $hasUnpaidBill ? ($isEarliestExpired ? 'Kedaluwarsa' : 'Belum Bayar') : 'Lunas',
@@ -553,14 +536,11 @@ class ScreenController extends Controller
                 'alamat_lengkap' => (string) ($customer->alamat_lengkap ?? '-'),
 
                 // Field teknis perangkat & status akun
-                'pppoe_username'    => (string) ($customer->pppoe_username ?? '-'),
-                'sn_perangkat'      => (string) ($customer->sn_perangkat ?? '-'),
-                'jenis_modem'       => (string) ($customer->jenis_modem ?? '-'),
-                'tanggal_aktif'     => $tanggalAktifStr,
-                'status_akun'       => $statusAkun,
-                'status_akun_badge' => $statusAkunBadge,
-                'status_layanan'    => $statusAkunBadge,
-                'is_isolir'         => $isIsolir,
+                'pppoe_username' => (string) ($customer->pppoe_username ?? '-'),
+                'sn_perangkat'   => (string) ($customer->sn_perangkat ?? '-'),
+                'jenis_modem'    => (string) ($customer->jenis_modem ?? '-'),
+                'tanggal_aktif'  => $tanggalAktifStr,
+                'status_akun'    => $statusAkun,
 
                 // Field paket langganan
                 'nama_paket'     => (string) ($paket->nama_paket ?? 'Paket Internet Unlimited'),

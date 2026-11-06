@@ -164,12 +164,9 @@ class AuthController extends Controller
                     'harga'       => (float) $customer->paket->harga,
                     'total_harga' => (float) $customer->paket->total_harga,
                 ] : null,
-                'pppoe_username'    => $customer->pppoe_username,
-                'status_layanan'    => ($pppoe && $pppoe->is_isolir) ? 'Terisolir' : 'Aktif',
-                'status_akun'       => ($pppoe && $pppoe->is_isolir) ? 'isolir' : 'aktif',
-                'status_akun_badge' => ($pppoe && $pppoe->is_isolir) ? 'Terisolir' : 'Aktif',
-                'is_isolir'         => (bool) ($pppoe && $pppoe->is_isolir),
-                'tanggal_aktif'     => ($pppoe && $pppoe->tanggal_aktif) ? ($pppoe->tanggal_aktif instanceof \DateTimeInterface ? $pppoe->tanggal_aktif->format('Y-m-d') : substr((string)$pppoe->tanggal_aktif, 0, 10)) : ($customer->created_at ? $customer->created_at->format('Y-m-d') : null),
+                'pppoe_username' => $customer->pppoe_username,
+                'status_akun'    => ($pppoe && $pppoe->is_isolir) ? 'isolir' : 'aktif',
+                'tanggal_aktif'  => ($pppoe && $pppoe->tanggal_aktif) ? ($pppoe->tanggal_aktif instanceof \DateTimeInterface ? $pppoe->tanggal_aktif->format('Y-m-d') : substr((string)$pppoe->tanggal_aktif, 0, 10)) : ($customer->created_at ? $customer->created_at->format('Y-m-d') : null),
             ]
         ], 200);
     }
