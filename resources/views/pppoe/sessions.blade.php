@@ -100,9 +100,6 @@
             </p>
         </div>
         <div class="flex items-center gap-2">
-            <button type="button" onclick="reloadTable()" class="btn-cancel !h-8.5 !px-3.5 text-xs font-semibold flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs">
-                <i class="fa-solid fa-arrows-rotate text-slate-500" id="refreshIcon"></i> Refresh
-            </button>
             <a href="{{ route('pppoe.index') }}" class="btn-cancel !h-8.5 !px-3.5 text-xs font-semibold flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs">
                 <i class="fa-solid fa-network-wired text-emerald-600"></i> PPPoE Aktif
             </a>
@@ -388,12 +385,9 @@
                 </div>
             </div>
 
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end">
                 <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('accountDetailModal')">
                     <i class="fa-solid fa-xmark"></i> Tutup
-                </button>
-                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5 border border-slate-300 bg-white hover:bg-slate-50" onclick="copyDetailSummary()">
-                    <i class="fa-regular fa-copy text-slate-500"></i> Salin Ringkasan
                 </button>
             </div>
         </div>
@@ -728,32 +722,6 @@
                         <div class="text-rose-500 font-semibold mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Gagal Memuat Data</div>
                         <p class="text-xs text-slate-500">${err.message}</p>
                     `;
-                });
-            }
-
-            function copyDetailSummary() {
-                if (!currentLoadedData) {
-                    alert('Data belum selesai dimuat.');
-                    return;
-                }
-                const s = currentLoadedData.latest_session;
-                const c = currentLoadedData.customer;
-                const u = currentLoadedData.username;
-                const text = `[DETAIL SESI PPPoE]\n` +
-                    `Username: ${u}\n` +
-                    `Pelanggan: ${c ? c.nama_lengkap : 'Mandiri'} (${c ? c.no_whatsapp : '-'})\n` +
-                    `IP Address: ${s ? s.framedipaddress : '-'}\n` +
-                    `MAC ONT: ${s ? s.callingstationid : '-'}\n` +
-                    `Status: ${s ? (s.is_online ? 'ONLINE' : 'OFFLINE') : '-'}\n` +
-                    `Mulai: ${s ? s.start_formatted : '-'}\n` +
-                    `Durasi: ${s ? s.formatted_duration : '-'}\n` +
-                    `Traffic: DL ${s ? s.download_formatted : '-'} / UL ${s ? s.upload_formatted : '-'} (Total: ${s ? s.total_formatted : '-'})\n` +
-                    `Penyebab Putus: ${s ? s.acctterminatecause : '-'}`;
-
-                navigator.clipboard.writeText(text).then(() => {
-                    alert('Ringkasan sesi berhasil disalin ke clipboard!');
-                }).catch(() => {
-                    alert('Gagal menyalin ke clipboard.');
                 });
             }
         </script>
