@@ -80,7 +80,7 @@
     <div id="toast-container" class="toast-container" style="z-index: 999999;"></div>
 
     <!-- Global Page Loader Skeleton -->
-    <div id="page-skeleton" class="page-skeleton-overlay">
+    <div id="page-skeleton" class="page-skeleton-overlay hidden">
         <div class="skeleton-header">
             <div class="skeleton-title"></div>
             <div class="skeleton-btn"></div>

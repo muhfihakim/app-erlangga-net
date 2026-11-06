@@ -1,6 +1,14 @@
 <x-layouts.app>
     @section('Css')
         <style>
+            @keyframes indeterminateProgress {
+                0% { transform: translateX(-100%); width: 35%; }
+                50% { transform: translateX(60%); width: 55%; }
+                100% { transform: translateX(250%); width: 35%; }
+            }
+            .animate-indeterminate {
+                animation: indeterminateProgress 1.4s ease-in-out infinite;
+            }
             .admin-table td {
                 padding: 10px 14px;
                 font-size: 13px;
@@ -267,16 +275,6 @@
         </div>
     </div>
 
-    @if (session('success'))
-        <div class="bg-emerald-50 text-emerald-700 p-4 rounded-xl border border-emerald-200 mb-6 flex items-start gap-3 shadow-sm">
-            <i class="fa-solid fa-circle-check text-emerald-500 text-lg mt-0.5"></i>
-            <div>
-                <strong class="font-bold">Berhasil!</strong>
-                <p class="text-sm mt-0.5">{{ session('success') }}</p>
-            </div>
-        </div>
-    @endif
-
     <div class="table-card mt-4">
         <div class="table-responsive">
             <table class="admin-table w-full">
@@ -492,12 +490,28 @@
                         <i class="fa-solid fa-copy"></i> Salin Link
                     </button>
                 </div>
-                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm" style="height: 480px; background: #f8fafc;">
+                <div class="relative border border-slate-200 rounded-xl overflow-hidden shadow-sm" style="height: 480px; background: #f8fafc;">
+                    <!-- Loading Bar / State -->
+                    <div id="xenditLoadingState" class="absolute inset-0 flex flex-col items-center justify-center bg-white z-20">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl mb-3 shadow-xs border border-indigo-100">
+                            <i class="fa-solid fa-credit-card animate-pulse"></i>
+                        </div>
+                        <h4 class="text-sm font-bold text-slate-800 m-0">Menyiapkan Checkout Xendit...</h4>
+                        <p class="text-xs text-slate-500 m-0 mt-1 text-center max-w-xs">
+                            Menghubungkan ke gateway pembayaran dan memuat metode checkout aman.
+                        </p>
+                        <!-- Neat, centered progress bar -->
+                        <div class="w-64 bg-slate-100 rounded-full h-1.5 overflow-hidden shadow-inner mt-4">
+                            <div class="h-full bg-indigo-600 rounded-full animate-indeterminate"></div>
+                        </div>
+                        <span class="text-[11px] text-slate-400 font-medium mt-2.5">Mohon tunggu sebentar...</span>
+                    </div>
+
                     <iframe id="xenditIframe" src="" width="100%" height="100%" frameborder="0"></iframe>
                 </div>
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2">
-                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeXenditModal()"><i class="fa-solid fa-xmark"></i> Batal</button>
+                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeXenditModal()"><i class="fa-solid fa-xmark"></i> Tutup</button>
             </div>
         </div>
     </div>
@@ -834,8 +848,17 @@
 
                 const btn = form.querySelector('button[type="submit"]');
                 const originalHtml = btn.innerHTML;
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading...';
+                
+                // Rapi & pas pada tombol icon 32x32px tanpa overflow text
+                btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-indigo-600 text-sm"></i>';
                 btn.disabled = true;
+
+                // Tampilkan modal langsung dengan loading state modern
+                document.getElementById('xenditLink').value = 'Menghubungkan ke gateway Xendit...';
+                document.getElementById('xenditIframe').src = '';
+                const loadingEl = document.getElementById('xenditLoadingState');
+                if (loadingEl) loadingEl.style.display = 'flex';
+                openCustomModal('xenditModal');
 
                 fetch(form.action, {
                         method: 'POST',
@@ -860,15 +883,25 @@
 
                         if (data && data.url) {
                             document.getElementById('xenditLink').value = data.url;
-                            document.getElementById('xenditIframe').src = data.url;
-                            openCustomModal('xenditModal');
+                            const iframe = document.getElementById('xenditIframe');
+                            iframe.src = data.url;
+                            
+                            iframe.onload = function() {
+                                if (loadingEl) $(loadingEl).fadeOut(250);
+                            };
+                            // Fallback jika event onload iframe cross-origin dibatasi browser
+                            setTimeout(() => {
+                                if (loadingEl) $(loadingEl).fadeOut(250);
+                            }, 2000);
                         } else if (data && data.error) {
+                            closeCustomModal('xenditModal');
                             showToast(data.error, 'error');
                         }
                     })
                     .catch(err => {
                         btn.innerHTML = originalHtml;
                         btn.disabled = false;
+                        closeCustomModal('xenditModal');
                         showToast(err.message || 'Gagal mengambil URL pembayaran Xendit. Cek koneksi.', 'error');
                     });
             }
@@ -911,6 +944,8 @@
             function closeXenditModal() {
                 closeCustomModal('xenditModal');
                 document.getElementById('xenditIframe').src = "";
+                const loadingEl = document.getElementById('xenditLoadingState');
+                if (loadingEl) loadingEl.style.display = 'flex';
                 window.location.reload();
             }
 

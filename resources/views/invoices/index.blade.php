@@ -119,16 +119,6 @@
         </div>
     </div>
 
-    @if(session('success'))
-        <div class="bg-emerald-50 text-emerald-700 p-4 rounded-xl border border-emerald-200 mb-6 flex items-start gap-3 shadow-sm">
-            <i class="fa-solid fa-circle-check text-emerald-500 text-lg mt-0.5"></i>
-            <div>
-                <strong class="font-bold">Berhasil!</strong>
-                <p class="text-sm mt-0.5">{{ session('success') }}</p>
-            </div>
-        </div>
-    @endif
-
     <!-- Stats Cards Grid -->
     <div class="stats-grid mb-6">
         <div class="stat-card">

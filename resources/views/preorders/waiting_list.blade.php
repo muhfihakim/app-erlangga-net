@@ -55,26 +55,6 @@
         </div>
     </div>
 
-    @if (session('success'))
-        <div class="bg-emerald-50 text-emerald-700 p-3.5 rounded-xl border border-emerald-200 mb-4 flex items-start gap-3 shadow-xs">
-            <i class="fa-solid fa-circle-check text-emerald-500 text-base mt-0.5"></i>
-            <div>
-                <strong class="font-bold text-xs">Berhasil!</strong>
-                <p class="text-xs mt-0.5">{{ session('success') }}</p>
-            </div>
-        </div>
-    @endif
-
-    @if (session('error'))
-        <div class="bg-rose-50 text-rose-700 p-3.5 rounded-xl border border-rose-200 mb-4 flex items-start gap-3 shadow-xs">
-            <i class="fa-solid fa-circle-exclamation text-rose-500 text-base mt-0.5"></i>
-            <div>
-                <strong class="font-bold text-xs">Terjadi Kesalahan!</strong>
-                <p class="text-xs mt-0.5">{{ session('error') }}</p>
-            </div>
-        </div>
-    @endif
-
     <!-- Stats Grid -->
     <div class="stats-grid mb-5">
         <div class="stat-card">
