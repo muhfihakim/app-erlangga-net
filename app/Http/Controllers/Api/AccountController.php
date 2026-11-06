@@ -22,10 +22,17 @@ class AccountController extends Controller
         $pppoe = $customer->pppoe;
 
         $statusLayanan = 'Belum Aktif';
+        $statusAkun = 'non_aktif';
+        $statusAkunBadge = 'Non-Aktif';
+        $isIsolir = false;
+
         if ($pppoe) {
+            $isIsolir = (bool) $pppoe->is_isolir;
             $hasUnpaid = \App\Models\Invoice::where('pppoe_id', $pppoe->id)->where('status', 'unpaid')->exists();
             $statusInvoice = $hasUnpaid ? 'belum_bayar' : 'terbayar';
-            $statusLayanan = $hasUnpaid ? 'Menunggu Pembayaran' : 'Aktif';
+            $statusAkun = $isIsolir ? 'isolir' : ($customer->trashed() ? 'non_aktif' : 'aktif');
+            $statusAkunBadge = $isIsolir ? 'Terisolir' : ($customer->trashed() ? 'Non-Aktif' : 'Aktif');
+            $statusLayanan = $isIsolir ? 'Terisolir' : ($hasUnpaid ? 'Menunggu Pembayaran' : 'Aktif');
         }
 
         return response()->json([
@@ -57,11 +64,14 @@ class AccountController extends Controller
                     'router'         => $pppoe?->router ?? 'MikroTik Gateway',
                 ],
                 'layanan' => [
-                    'status_layanan' => $statusLayanan,
-                    'status_invoice' => $statusInvoice ?? 'terbayar',
-                    'tanggal_aktif'  => ($pppoe && $pppoe->tanggal_aktif) ? ($pppoe->tanggal_aktif instanceof \DateTimeInterface ? $pppoe->tanggal_aktif->format('Y-m-d') : substr((string)$pppoe->tanggal_aktif, 0, 10)) : ($customer->created_at ? $customer->created_at->format('Y-m-d') : null),
-                    'tipe_pembayaran'=> $pppoe?->tipe_pembayaran ?? 'prepaid',
-                    'periode_billing'=> $pppoe?->periode_billing ?? 'fixed',
+                    'status_layanan'    => $statusLayanan,
+                    'status_akun'       => $statusAkun,
+                    'status_akun_badge' => $statusAkunBadge,
+                    'is_isolir'         => $isIsolir,
+                    'status_invoice'    => $statusInvoice ?? 'terbayar',
+                    'tanggal_aktif'     => ($pppoe && $pppoe->tanggal_aktif) ? ($pppoe->tanggal_aktif instanceof \DateTimeInterface ? $pppoe->tanggal_aktif->format('Y-m-d') : substr((string)$pppoe->tanggal_aktif, 0, 10)) : ($customer->created_at ? $customer->created_at->format('Y-m-d') : null),
+                    'tipe_pembayaran'   => $pppoe?->tipe_pembayaran ?? 'prepaid',
+                    'periode_billing'   => $pppoe?->periode_billing ?? 'fixed',
                 ]
             ]
         ]);

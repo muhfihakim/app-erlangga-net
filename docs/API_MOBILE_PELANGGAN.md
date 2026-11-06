@@ -32,7 +32,7 @@ Authorization: Bearer <TOKEN_HASIL_LOGIN>
 ### A. Screen-Oriented API (1 Screen = 1 API Endpoint — Rekomendasi Utama Mobile App)
 | No | Layar Mobile (Flutter Tab) | Method | Endpoint URL | Akses | Widget Terkait & Deskripsi |
 |:---:|---|:---:|---|:---:|---|
-| **1** | **Tab 1: Home Screen** | `GET` | `/api/dashboard`<br>`/api/screens/home` | Protected | `StatusSection`, `InfoPaketSection`, `TagihanSection`<br>Status koneksi, paket aktif, & ringkasan tagihan |
+| **1** | **Tab 1: Home Screen** | `GET` | `/api/dashboard`<br>`/api/screens/home` | Protected | `StatusSection`, `InfoPaketSection`, `TagihanSection`<br>Status akun (Aktif/Terisolir), status internet (Online/Offline), paket aktif, & ringkasan tagihan |
 | **2** | **Tab 2: Riwayat Screen** | `GET` | `/api/riwayat`<br>`/api/screens/history` | Protected | `BillingCard`, `BillingDetailScreen`<br>Daftar riwayat faktur tagihan lengkap |
 | **3** | **Tab 3: Notifikasi Screen** | `GET` | `/api/notifications`<br>`/api/screens/notifications` | Protected | `NotificationCard`, `NotificationDetailScreen`<br>Feed notifikasi tagihan, payment, & info |
 | | **Action Notifikasi** | `POST` | `/api/notifications/{id}/read` | Protected | Tandai 1 notifikasi tertentu telah dibaca |
