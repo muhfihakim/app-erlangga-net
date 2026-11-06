@@ -294,8 +294,8 @@
                             @endforeach
                         </select>
                     @endif
-                    <button type="submit" class="btn-primary-admin !h-8 !px-4 !text-xs !bg-slate-800 hover:!bg-slate-900 !text-white flex items-center gap-1.5">
-                        <i class="fa-solid fa-file-pdf text-[11px]"></i> Export PDF
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold !bg-rose-600 hover:!bg-rose-700 !text-white flex items-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-file-pdf"></i> Export PDF
                     </button>
                 </form>
             </div>

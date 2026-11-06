@@ -131,11 +131,13 @@ class TransactionController extends Controller
                         'xendit_id' => $xenditId,
                     ]), ENT_QUOTES, 'UTF-8');
 
+                    $printBtn = $printUrl ? '<a href="' . $printUrl . '" target="_blank" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 ml-1.5" title="Cetak Faktur (PDF)"><i class="fa-solid fa-print text-slate-500 hover:text-rose-600"></i></a>' : '';
+
                     return '<div class="flex items-center justify-center">
                         <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                             onclick="showTransactionDetail(' . $payload . ')" title="Lihat Detail Transaksi">
                             <i class="fa-solid fa-circle-info text-slate-500"></i>
-                        </button>
+                        </button>' . $printBtn . '
                     </div>';
                 })
                 ->filter(function ($query) use ($request) {

@@ -340,7 +340,7 @@
                         <i class="fa-solid fa-file-invoice"></i> Lihat Invoice
                     </a>
                     <a id="detailModalPrintBtn" href="#" target="_blank" class="btn-primary-admin !h-8.5 !px-3.5 text-xs font-semibold !bg-rose-600 hover:!bg-rose-700 !flex items-center gap-1.5 shadow-sm">
-                        <i class="fa-solid fa-file-pdf"></i> Cetak PDF
+                        <i class="fa-solid fa-print"></i> Cetak PDF
                     </a>
                 </div>
                 <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('detailTransactionModal')">

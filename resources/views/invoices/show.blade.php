@@ -354,9 +354,9 @@
                             <td class="text-center" style="white-space: nowrap;">
                                 <div class="flex items-center justify-center gap-1.5 flex-nowrap">
                                     <a href="{{ route('invoices.print', $invoice->id) }}" target="_blank"
-                                        class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-sky-300 hover:!bg-sky-50"
-                                        title="Unduh & Cetak PDF Faktur">
-                                        <i class="fa-solid fa-file-pdf text-slate-500 hover:text-sky-600"></i>
+                                        class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50"
+                                        title="Cetak Faktur (PDF)">
+                                        <i class="fa-solid fa-print text-slate-500 hover:text-rose-600"></i>
                                     </a>
                                     @if (!empty($pppoe->preOrder->no_whatsapp ?? ''))
                                         <a href="{{ route('whatsapp.index', ['pppoe_id' => $pppoe->id, 'invoice_id' => $invoice->id]) }}"

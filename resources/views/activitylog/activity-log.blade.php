@@ -45,9 +45,9 @@
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Riwayat tindakan pengguna dan perubahan sistem.</p>
         </div>
         <div style="display:flex; gap:8px;">
-            <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold"
+            <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-1.5 !bg-rose-600 hover:!bg-rose-700 shadow-sm"
                 onclick="openCustomModal('exportLogModal')">
-                Export PDF
+                <i class="fa-solid fa-file-pdf"></i> Export PDF
             </button>
         </div>
     </div>
