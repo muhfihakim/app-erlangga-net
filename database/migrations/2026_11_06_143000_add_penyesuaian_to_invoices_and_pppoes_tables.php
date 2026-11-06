@@ -12,14 +12,24 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('invoices', function (Blueprint $table) {
-            $table->decimal('penyesuaian', 10, 2)->default(0)->after('amount');
-            $table->string('catatan_penyesuaian', 255)->nullable()->after('penyesuaian');
+            if (!Schema::hasColumn('invoices', 'penyesuaian')) {
+                $table->decimal('penyesuaian', 10, 2)->default(0)->after('amount');
+            }
+            if (!Schema::hasColumn('invoices', 'catatan_penyesuaian')) {
+                $table->string('catatan_penyesuaian', 255)->nullable()->after('penyesuaian');
+            }
         });
 
         Schema::table('pppoes', function (Blueprint $table) {
-            $table->decimal('penyesuaian_tagihan', 10, 2)->default(0)->after('diskon');
-            $table->string('keterangan_penyesuaian', 255)->nullable()->after('penyesuaian_tagihan');
-            $table->string('penyesuaian_tipe', 20)->default('sekali')->after('keterangan_penyesuaian');
+            if (!Schema::hasColumn('pppoes', 'penyesuaian_tagihan')) {
+                $table->decimal('penyesuaian_tagihan', 10, 2)->default(0)->after('diskon');
+            }
+            if (!Schema::hasColumn('pppoes', 'keterangan_penyesuaian')) {
+                $table->string('keterangan_penyesuaian', 255)->nullable()->after('penyesuaian_tagihan');
+            }
+            if (!Schema::hasColumn('pppoes', 'penyesuaian_tipe')) {
+                $table->string('penyesuaian_tipe', 20)->default('sekali')->after('keterangan_penyesuaian');
+            }
         });
     }
 

@@ -8,6 +8,9 @@ use App\Models\Transaction;
 use App\Models\Pppoe;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 
 class InvoiceController extends Controller
 {
@@ -206,8 +209,24 @@ class InvoiceController extends Controller
         return $pdf->download($invoice->invoice_number . '.pdf');
     }
 
+    /**
+     * Pastikan kolom penyesuaian sudah ada pada database schema (auto-migrate fallback)
+     */
+    protected function ensurePenyesuaianColumnsExist(): void
+    {
+        if (!Schema::hasColumn('invoices', 'penyesuaian') || !Schema::hasColumn('pppoes', 'penyesuaian_tagihan')) {
+            try {
+                Artisan::call('migrate', ['--force' => true]);
+            } catch (\Throwable $e) {
+                Log::warning('Auto-migration error on InvoiceController: ' . $e->getMessage());
+            }
+        }
+    }
+
     public function generateSingle(Request $request, Pppoe $pppoe)
     {
+        $this->ensurePenyesuaianColumnsExist();
+
         $pppoe->load('paket');
         if (!$pppoe->paket) {
             return redirect()->back()->with('error', 'Gagal generate: Pelanggan belum memiliki paket.');
@@ -224,21 +243,26 @@ class InvoiceController extends Controller
         $dueDate = $request->filled('due_date') ? Carbon::parse($request->due_date) : Carbon::now()->addDays(7);
         $invoiceNumber = 'INV-' . date('Ymd') . '-' . str_pad($pppoe->id, 4, '0', STR_PAD_LEFT) . '-' . rand(100, 999);
 
-        Invoice::create([
+        $invoiceData = [
             'pppoe_id' => $pppoe->id,
             'invoice_number' => $invoiceNumber,
             'amount' => $amount,
-            'penyesuaian' => $penyesuaian,
-            'catatan_penyesuaian' => $catatanPenyesuaian,
             'tax' => $tax,
             'discount' => $discount,
             'total' => $total,
             'status' => 'unpaid',
             'due_date' => $dueDate->format('Y-m-d'),
-        ]);
+        ];
+
+        if (Schema::hasColumn('invoices', 'penyesuaian')) {
+            $invoiceData['penyesuaian'] = $penyesuaian;
+            $invoiceData['catatan_penyesuaian'] = $catatanPenyesuaian;
+        }
+
+        Invoice::create($invoiceData);
 
         $pppoeUpdates = ['status_invoice' => 'belum_bayar'];
-        if (($pppoe->penyesuaian_tipe ?? 'sekali') === 'sekali' && $penyesuaian != 0) {
+        if (Schema::hasColumn('pppoes', 'penyesuaian_tipe') && ($pppoe->penyesuaian_tipe ?? 'sekali') === 'sekali' && $penyesuaian != 0) {
             $pppoeUpdates['penyesuaian_tagihan'] = 0;
             $pppoeUpdates['keterangan_penyesuaian'] = null;
         }
@@ -248,10 +272,12 @@ class InvoiceController extends Controller
     }
 
     /**
-     * Penyesuaian tagihan berjalan (Custom Invoice: BOD, Biaya Tambahan, dsb.)
+     * Penyesuaian tagihan berjalan (Custom Invoice: Penyesuaian, Biaya Tambahan, dsb.)
      */
     public function adjustInvoice(Request $request, Invoice $invoice)
     {
+        $this->ensurePenyesuaianColumnsExist();
+
         if ($invoice->status === 'paid') {
             return redirect()->back()->with('error', 'Faktur yang sudah lunas tidak dapat disesuaikan lagi.');
         }
@@ -276,16 +302,28 @@ class InvoiceController extends Controller
 
         $updates = [
             'amount' => $amount,
-            'penyesuaian' => $penyesuaian,
-            'catatan_penyesuaian' => $catatanPenyesuaian,
             'tax' => $tax,
             'discount' => $discount,
             'total' => $newTotal,
             'due_date' => $dueDate,
         ];
 
-        // Jika total tagihan berubah, reset link Xendit agar pelanggan tidak membayar nominal lama
+        if (Schema::hasColumn('invoices', 'penyesuaian')) {
+            $updates['penyesuaian'] = $penyesuaian;
+            $updates['catatan_penyesuaian'] = $catatanPenyesuaian;
+        }
+
+        // Jika total tagihan berubah, kedaluwarsa & reset link Xendit agar pelanggan tidak membayar nominal lama
         if (abs($newTotal - (float)$invoice->total) > 0.01) {
+            if (!empty($invoice->xendit_invoice_id)) {
+                try {
+                    \Xendit\Configuration::setXenditKey(\App\Models\Setting::get('xendit_secret_key', config('services.xendit.secret_key')));
+                    $apiInstance = new \Xendit\Invoice\InvoiceApi();
+                    $apiInstance->expireInvoice($invoice->xendit_invoice_id);
+                } catch (\Throwable $e) {
+                    Log::info("Xendit Expire Previous Invoice ({$invoice->xendit_invoice_id}): " . $e->getMessage());
+                }
+            }
             $updates['xendit_invoice_id'] = null;
             $updates['xendit_invoice_url'] = null;
         }
@@ -300,17 +338,23 @@ class InvoiceController extends Controller
      */
     public function setNextAdjustment(Request $request, Pppoe $pppoe)
     {
+        $this->ensurePenyesuaianColumnsExist();
+
         $request->validate([
             'penyesuaian_tagihan' => 'required|numeric',
             'keterangan_penyesuaian' => 'nullable|string|max:255',
             'penyesuaian_tipe' => 'required|in:sekali,berulang',
         ]);
 
-        $pppoe->update([
-            'penyesuaian_tagihan' => (float)$request->penyesuaian_tagihan,
-            'keterangan_penyesuaian' => $request->keterangan_penyesuaian,
-            'penyesuaian_tipe' => $request->penyesuaian_tipe,
-        ]);
+        $updates = [];
+        if (Schema::hasColumn('pppoes', 'penyesuaian_tagihan')) {
+            $updates['penyesuaian_tagihan'] = (float)$request->penyesuaian_tagihan;
+            $updates['keterangan_penyesuaian'] = $request->keterangan_penyesuaian;
+            $updates['penyesuaian_tipe'] = $request->penyesuaian_tipe;
+            $pppoe->update($updates);
+        } else {
+            return redirect()->back()->with('error', 'Kolom penyesuaian tagihan belum tersedia di database. Jalankan migrasi database terlebih dahulu.');
+        }
 
         $tipeStr = $request->penyesuaian_tipe === 'sekali' ? '1x (Tagihan Berikutnya)' : 'Berulang Setiap Bulan';
         return redirect()->back()->with('success', "Pengaturan penyesuaian tagihan berikutnya berhasil disimpan (Nominal: Rp " . number_format($request->penyesuaian_tagihan, 0, ',', '.') . " - {$tipeStr}).");
@@ -372,6 +416,9 @@ class InvoiceController extends Controller
             $dueDate = $invoice->due_date ? Carbon::parse($invoice->due_date)->endOfDay() : now()->addDays(7);
             $durationSeconds = max(86400, $dueDate->diffInSeconds(now()));
 
+            $isRevised = (!empty($invoice->xendit_invoice_id) || $invoice->isExpired() || (float)($invoice->penyesuaian ?? 0) != 0);
+            $externalId = $isRevised ? ($invoice->invoice_number . '-R' . time()) : $invoice->invoice_number;
+
             // Build detailed items breakdown for checkout screen
             $items = [];
             $items[] = [
@@ -380,6 +427,16 @@ class InvoiceController extends Controller
                 'price' => (float) $invoice->amount,
                 'category' => 'INTERNET_SERVICE',
             ];
+
+            if (!empty($invoice->penyesuaian) && (float)$invoice->penyesuaian != 0) {
+                $penyesuaianVal = (float)$invoice->penyesuaian;
+                $items[] = [
+                    'name' => !empty($invoice->catatan_penyesuaian) ? ('Penyesuaian: ' . $invoice->catatan_penyesuaian) : 'Penyesuaian Tagihan',
+                    'quantity' => 1,
+                    'price' => $penyesuaianVal,
+                    'category' => $penyesuaianVal < 0 ? 'DISCOUNT' : 'OTHER',
+                ];
+            }
 
             if ($invoice->tax > 0) {
                 $items[] = [
@@ -399,6 +456,19 @@ class InvoiceController extends Controller
                 ];
             }
 
+            // Pastikan akumulasi items sama persis dengan total tagihan agar Xendit tidak menolak
+            $itemsSum = array_sum(array_map(fn($it) => $it['price'] * $it['quantity'], $items));
+            if (abs($itemsSum - (float)$invoice->total) > 0.01) {
+                $items = [
+                    [
+                        'name' => 'Tagihan Internet ' . $invoice->invoice_number,
+                        'quantity' => 1,
+                        'price' => (float) $invoice->total,
+                        'category' => 'INTERNET_SERVICE',
+                    ]
+                ];
+            }
+
             $customer = [
                 'given_names' => $preOrder ? ($preOrder->nama_lengkap ?? $pppoe->username) : ($pppoe->username ?? 'Pelanggan'),
                 'email' => $payerEmail,
@@ -409,7 +479,7 @@ class InvoiceController extends Controller
             $redirectUrl = $baseUrl . '/invoices/' . $invoice->pppoe_id;
 
             $createInvoiceRequest = new \Xendit\Invoice\CreateInvoiceRequest([
-                'external_id' => $invoice->invoice_number,
+                'external_id' => $externalId,
                 'amount' => (float) $invoice->total,
                 'payer_email' => $payerEmail,
                 'description' => 'Tagihan Internet ' . $invoice->invoice_number . ' - ' . ($pppoe ? $pppoe->username : ''),

@@ -298,8 +298,9 @@ class PaymentController extends Controller
                 $durationSeconds = 86400;
             }
 
-            // External ID untuk Xendit: jika sebelumnya pernah dibuat dan expired, tambahkan sufiks unik agar tidak ditolak duplikat
-            $externalId = (!empty($invoice->xendit_invoice_id) && $isInvoiceExpired)
+            // External ID untuk Xendit: jika sebelumnya pernah dibuat, expired, atau disesuaikan, gunakan format -R unik
+            $isRevised = (!empty($invoice->xendit_invoice_id) && $isInvoiceExpired) || (float)($invoice->penyesuaian ?? 0) != 0;
+            $externalId = $isRevised
                 ? ($invoice->invoice_number . '-R' . time())
                 : $invoice->invoice_number;
 
@@ -311,6 +312,16 @@ class PaymentController extends Controller
                     'category' => 'INTERNET_SERVICE',
                 ]
             ];
+
+            if (!empty($invoice->penyesuaian) && (float)$invoice->penyesuaian != 0) {
+                $penyesuaianVal = (float)$invoice->penyesuaian;
+                $items[] = [
+                    'name'     => !empty($invoice->catatan_penyesuaian) ? ('Penyesuaian: ' . $invoice->catatan_penyesuaian) : 'Penyesuaian Tagihan',
+                    'quantity' => 1,
+                    'price'    => $penyesuaianVal,
+                    'category' => $penyesuaianVal < 0 ? 'DISCOUNT' : 'OTHER',
+                ];
+            }
 
             if ($invoice->tax > 0) {
                 $items[] = [
@@ -327,6 +338,19 @@ class PaymentController extends Controller
                     'quantity' => 1,
                     'price'    => -1 * (float) $invoice->discount,
                     'category' => 'DISCOUNT',
+                ];
+            }
+
+            // Pastikan akumulasi items sama persis dengan total tagihan agar Xendit tidak menolak
+            $itemsSum = array_sum(array_map(fn($it) => $it['price'] * $it['quantity'], $items));
+            if (abs($itemsSum - (float)$invoice->total) > 0.01) {
+                $items = [
+                    [
+                        'name'     => 'Tagihan Internet ' . $invoice->invoice_number,
+                        'quantity' => 1,
+                        'price'    => (float) $invoice->total,
+                        'category' => 'INTERNET_SERVICE',
+                    ]
                 ];
             }
 
