@@ -418,7 +418,7 @@
 
     <!-- Modal Bayar Manual -->
     <div class="modal-overlay" id="payModal">
-        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl">
+        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
             <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm border border-emerald-200 shrink-0">
@@ -435,9 +435,9 @@
             </div>
             <form id="payForm" method="POST" novalidate>
                 @csrf
-                <div class="modal-body p-6 bg-white">
+                <div class="modal-body p-6 bg-white space-y-4">
                     <!-- Invoice Summary Card -->
-                    <div class="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/70 flex items-center justify-between mb-3.5">
+                    <div class="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/70 flex items-center justify-between">
                         <div>
                             <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Nomor Invoice</span>
                             <span class="text-sm font-black text-slate-800 font-mono block mt-0.5" id="payModalInvNum">-</span>
@@ -457,10 +457,10 @@
                         </select>
                     </div>
                 </div>
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2">
                     <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closePayModal()"><i class="fa-solid fa-xmark"></i> Batal</button>
                     <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-emerald-600 hover:!bg-emerald-700">
-                        <i class="fa-solid fa-circle-check"></i> Konfirmasi Lunas
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>
@@ -469,7 +469,7 @@
 
     <!-- Modal Link Xendit -->
     <div class="modal-overlay" id="xenditModal">
-        <div class="modal-box max-w-3xl bg-white border border-slate-300 shadow-2xl">
+        <div class="modal-box max-w-3xl bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
             <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm border border-indigo-200 shrink-0">
@@ -496,7 +496,7 @@
                     <iframe id="xenditIframe" src="" width="100%" height="100%" frameborder="0"></iframe>
                 </div>
             </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2 rounded-b-2xl">
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2">
                 <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeXenditModal()"><i class="fa-solid fa-xmark"></i> Batal</button>
             </div>
         </div>
@@ -504,7 +504,7 @@
 
     <!-- 1. Modal Buat Tagihan Baru (Custom / With Adjustments) -->
     <div class="modal-overlay" id="generateSingleModal">
-        <div class="modal-box max-w-lg bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+        <div class="modal-box max-w-xl bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
             <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-200 shrink-0">
@@ -523,7 +523,7 @@
                 @csrf
                 <div class="modal-body p-6 bg-white space-y-4">
                     <!-- Paket Langganan Info Card -->
-                    <div class="p-3 rounded-xl border border-sky-200 bg-sky-50/70 flex items-center justify-between">
+                    <div class="p-3.5 rounded-xl border border-sky-200 bg-sky-50/70 flex items-center justify-between">
                         <div>
                             <span class="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider block">Paket Internet</span>
                             <span class="text-sm font-black text-slate-800 block mt-0.5">{{ $pppoe->paket->nama_paket ?? 'Paket Broadband' }}</span>
@@ -537,8 +537,8 @@
 
                     <input type="hidden" name="amount" id="genAmount" value="{{ (float)($pppoe->paket->harga ?? 0) }}" oninput="updateGenTotal()">
 
-                    <!-- Row Penyesuaian -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <!-- Row Penyesuaian & Jatuh Tempo (2 Kolom Lega) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="form-group mb-0">
                             <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Penyesuaian Tagihan (Rp)</label>
                             <input type="number" step="any" name="penyesuaian" id="genPenyesuaian"
@@ -563,17 +563,17 @@
                             placeholder="Misal: Penyesuaian biaya, penambahan layanan, dsb.">
                     </div>
 
-                    <!-- Row Pajak & Diskon -->
-                    <div class="grid grid-cols-2 gap-3">
+                    <!-- Row Pajak & Diskon (2 Kolom Lega) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="form-group mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Pajak / PPN (Rp)</label>
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Pajak (Rp)</label>
                             <input type="number" step="any" name="tax" id="genTax"
                                 value="{{ (float)($pppoe->pajak ?? ($pppoe->paket->pajak ?? 0)) }}"
                                 oninput="updateGenTotal()"
                                 class="form-input !h-9 text-xs w-full font-mono bg-white text-slate-800 border-slate-300">
                         </div>
                         <div class="form-group mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Potongan Diskon (Rp)</label>
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Diskon (Rp)</label>
                             <input type="number" step="any" name="discount" id="genDiscount"
                                 value="{{ (float)($pppoe->diskon ?? ($pppoe->paket->diskon ?? 0)) }}"
                                 oninput="updateGenTotal()"
@@ -605,7 +605,7 @@
 
     <!-- 2. Modal Sesuaikan Tagihan Berjalan (Adjust Unpaid Invoice) -->
     <div class="modal-overlay" id="adjustInvoiceModal">
-        <div class="modal-box max-w-lg bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+        <div class="modal-box max-w-xl bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
             <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-200 shrink-0">
@@ -623,27 +623,37 @@
             <form id="adjustInvoiceForm" method="POST" class="m-0" novalidate>
                 @csrf
                 <div class="modal-body p-6 bg-white space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <!-- Row 1: Harga Pokok & Jatuh Tempo (2 Kolom Lega) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="form-group mb-0">
                             <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Harga Pokok (Rp)</label>
                             <input type="number" step="any" name="amount" id="adjustAmount" oninput="updateAdjustTotal()"
                                 class="form-input !h-9 text-xs w-full font-mono bg-white text-slate-800 border-slate-300" required>
                         </div>
                         <div class="form-group mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Tanggal Jatuh Tempo</label>
+                            <input type="date" name="due_date" id="adjustDueDate"
+                                class="form-input !h-9 text-xs w-full bg-white text-slate-800 border-slate-300">
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Penyesuaian & Keterangan (2 Kolom Lega) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-group mb-0">
                             <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Penyesuaian Tagihan (Rp)</label>
                             <input type="number" step="any" name="penyesuaian" id="adjustPenyesuaian" oninput="updateAdjustTotal()"
                                 class="form-input !h-9 text-xs w-full font-mono bg-white text-slate-800 border-slate-300" placeholder="0">
                         </div>
+                        <div class="form-group mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Keterangan Penyesuaian</label>
+                            <input type="text" name="catatan_penyesuaian" id="adjustCatatan"
+                                class="form-input !h-9 text-xs w-full bg-white text-slate-800 border-slate-300"
+                                placeholder="Misal: Penyesuaian biaya, penambahan layanan, dsb.">
+                        </div>
                     </div>
 
-                    <div class="form-group mb-0">
-                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Keterangan Penyesuaian</label>
-                        <input type="text" name="catatan_penyesuaian" id="adjustCatatan"
-                            class="form-input !h-9 text-xs w-full bg-white text-slate-800 border-slate-300"
-                            placeholder="Misal: Penyesuaian biaya, penambahan layanan, dsb.">
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <!-- Row 3: Pajak & Diskon (2 Kolom Lega) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="form-group mb-0">
                             <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Pajak (Rp)</label>
                             <input type="number" step="any" name="tax" id="adjustTax" oninput="updateAdjustTotal()"
@@ -653,11 +663,6 @@
                             <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Diskon (Rp)</label>
                             <input type="number" step="any" name="discount" id="adjustDiscount" oninput="updateAdjustTotal()"
                                 class="form-input !h-9 text-xs w-full font-mono bg-white text-slate-800 border-slate-300">
-                        </div>
-                        <div class="form-group mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Jatuh Tempo</label>
-                            <input type="date" name="due_date" id="adjustDueDate"
-                                class="form-input !h-9 text-xs w-full bg-white text-slate-800 border-slate-300">
                         </div>
                     </div>
 
@@ -689,7 +694,7 @@
 
     <!-- 3. Modal Atur Penyesuaian Siklus Berikutnya (Next Bill Adjustment) -->
     <div class="modal-overlay" id="nextAdjustmentModal">
-        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+        <div class="modal-box max-w-lg bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
             <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm border border-sky-200 shrink-0">
