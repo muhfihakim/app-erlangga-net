@@ -413,6 +413,16 @@ class OltSnmpService
      */
     public function parseZteSn(string $val): string
     {
+        // 1. Raw 8-byte SNMP Octet String (e.g. 4 bytes ASCII vendor + 4 bytes binary serial)
+        if (strlen($val) === 8) {
+            $vendor = substr($val, 0, 4);
+            $serialHex = strtoupper(bin2hex(substr($val, 4, 4)));
+            if (ctype_print($vendor)) {
+                return $vendor . $serialHex;
+            }
+            return strtoupper(bin2hex($val));
+        }
+
         $val = trim($val);
         $val = trim($val, "\"'\t\n\r\0\x0B");
 
@@ -440,6 +450,11 @@ class OltSnmpService
         // String ASCII biasa: "ZTEGC1234567"
         if (preg_match('/^[A-Za-z0-9]{8,16}$/', $val)) {
             return strtoupper($val);
+        }
+
+        // Fallback jika masih mengandung karakter non-printable / binary bytes
+        if (!mb_check_encoding($val, 'UTF-8') || preg_match('/[^\x20-\x7E]/', $val)) {
+            return strtoupper(bin2hex($val));
         }
 
         return $val;

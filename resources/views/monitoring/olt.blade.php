@@ -971,8 +971,10 @@ show gpon onu state gpon-olt_${port}`;
                                 showToast(res.error || 'Gagal mengambil data OLT.', 'error');
                             }
                         },
-                        error: function() {
-                            showToast('Koneksi OLT bermasalah.', 'error');
+                        error: function(xhr) {
+                            const errDetail = xhr.responseJSON?.message || xhr.responseJSON?.error || (xhr.status ? `HTTP ${xhr.status}: ${xhr.statusText}` : 'Koneksi OLT bermasalah / Timeout');
+                            showToast(`Gagal memuat data OLT: ${errDetail}`, 'error');
+                            console.error('OLT Dashboard Error:', xhr);
                         },
                         complete: function() {
                             $btn.html(originalHtml).prop('disabled', false);
