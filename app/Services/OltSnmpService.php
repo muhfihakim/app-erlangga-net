@@ -548,7 +548,7 @@ class OltSnmpService
     }
 
     /**
-     * Dapatkan statistik trafik ONU (FreeRADIUS radacct & SNMP IF-MIB)
+     * Dapatkan statistik trafik ONU (FreeRADIUS radacct - Instan & Ringan)
      */
     public function getOnuTrafficStats(string $port, int $onuId, ?string $wanUser = null): array
     {
@@ -559,7 +559,7 @@ class OltSnmpService
             'output_total' => '0 Bytes',
         ];
 
-        // 1. Ambil dari FreeRADIUS radacct jika wanUser tersedia
+        // Ambil dari FreeRADIUS radacct jika wanUser tersedia (Super Cepat < 2ms)
         if ($wanUser && $wanUser !== '-') {
             try {
                 $session = DB::connection('radius')
@@ -579,48 +579,6 @@ class OltSnmpService
             } catch (\Throwable $e) {
                 // ignore
             }
-        }
-
-        // 2. Cek apakah ada data IF-MIB untuk port ONU ini
-        try {
-            $targetIfName = "gpon-onu_{$port}:{$onuId}";
-            $onuIfIndex = Cache::remember("olt_snmp_ifidx_" . md5($targetIfName), 1800, function () use ($targetIfName) {
-                $target = "{$this->host}:{$this->port}";
-                $walk = @snmp2_real_walk($target, $this->communityRo, self::OID_IF_NAME, 2000000, 1);
-                if (is_array($walk)) {
-                    foreach ($walk as $k => $v) {
-                        $clean = trim(str_replace(['STRING:', '"'], '', (string) $v));
-                        if ($clean === $targetIfName) {
-                            if (preg_match('/\.(\d+)$/', (string) $k, $m)) {
-                                return (int) $m[1];
-                            }
-                        }
-                    }
-                }
-                return null;
-            });
-
-            if ($onuIfIndex) {
-                $inOctets = $this->getScalar(self::OID_IF_HC_IN_OCTETS . ".{$onuIfIndex}")
-                    ?: $this->getScalar(self::OID_IF_IN_OCTETS . ".{$onuIfIndex}");
-                $outOctets = $this->getScalar(self::OID_IF_HC_OUT_OCTETS . ".{$onuIfIndex}")
-                    ?: $this->getScalar(self::OID_IF_OUT_OCTETS . ".{$onuIfIndex}");
-
-                if ($inOctets) {
-                    $rawIn = (float) preg_replace('/\D/', '', $inOctets);
-                    if ($rawIn > 0 && $stats['input_total'] === '0 Bytes') {
-                        $stats['input_total'] = $this->formatBytes($rawIn);
-                    }
-                }
-                if ($outOctets) {
-                    $rawOut = (float) preg_replace('/\D/', '', $outOctets);
-                    if ($rawOut > 0 && $stats['output_total'] === '0 Bytes') {
-                        $stats['output_total'] = $this->formatBytes($rawOut);
-                    }
-                }
-            }
-        } catch (\Throwable $e) {
-            // ignore
         }
 
         return $stats;

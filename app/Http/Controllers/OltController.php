@@ -315,6 +315,11 @@ class OltController extends Controller
             return response()->json(['success' => false, 'error' => 'Port dan ONU ID harus diisi'], 400);
         }
 
+        $cacheKey = "olt_onu_detail_{$port}_{$onuId}";
+        if (Cache::has($cacheKey)) {
+            return response()->json(Cache::get($cacheKey));
+        }
+
         $onuIndex = "gpon-onu_{$port}:{$onuId}";
         $rawLogs = [];
 
@@ -346,10 +351,8 @@ class OltController extends Controller
 
         $rxPower = $snmpDetail['rx_power'] ?? '-';
 
-        // 2. HYBRID: Eksekusi Telnet CLI khusus 1 ONU ini (Sangat cepat < 1 detik)
-        // Telnet memberikan rincian live interface WAN dan counter traffic resmi ZTE
+        // 2. HYBRID: Eksekusi 1 Telnet command cepat khusus WAN IP untuk ONU ini (< 1s)
         try {
-            // A. Ambil WAN IP & PPPoE Info via Telnet CLI
             $wanRaw = $this->oltService->execute("show gpon remote-onu wan-ip {$onuIndex}");
             if ($wanRaw) {
                 $rawLogs[] = "--- TELNET CLI (WAN INFO) ---\n" . $wanRaw;
@@ -369,40 +372,6 @@ class OltController extends Controller
                     $wanInfo['status'] = 'CONNECTED';
                 }
             }
-
-            usleep(100000); // 100ms jeda buffer
-
-            // B. Ambil Traffic Statistics via Telnet CLI
-            $statsRaw = $this->oltService->execute("show interface {$onuIndex}");
-            if ($statsRaw) {
-                $rawLogs[] = "--- TELNET CLI (INTERFACE STATS) ---\n" . $statsRaw;
-                $telnetStats = $this->parseInterfaceStats($statsRaw);
-
-                if ($telnetStats['input_rate'] !== '0 Bps') {
-                    $stats['input_rate'] = $telnetStats['input_rate'];
-                }
-                if ($telnetStats['output_rate'] !== '0 Bps') {
-                    $stats['output_rate'] = $telnetStats['output_rate'];
-                }
-                if ($telnetStats['input_total'] !== '0 Bytes') {
-                    $stats['input_total'] = $telnetStats['input_total'];
-                }
-                if ($telnetStats['output_total'] !== '0 Bytes') {
-                    $stats['output_total'] = $telnetStats['output_total'];
-                }
-            }
-
-            // C. Ambil Rx Power via Telnet jika belum didapatkan
-            if ($rxPower === '-' || $rxPower === 'No Signal') {
-                $powerRaw = $this->oltService->execute("show pon power olt-rx {$onuIndex}");
-                if ($powerRaw) {
-                    $rawLogs[] = "--- TELNET CLI (OPTICAL POWER) ---\n" . $powerRaw;
-                    $powerMap = $this->parseOnuPower($powerRaw);
-                    if (!empty($powerMap[$port . ":" . $onuId])) {
-                        $rxPower = $powerMap[$port . ":" . $onuId];
-                    }
-                }
-            }
         } catch (\Throwable $e) {
             Log::warning("Telnet hybrid detail error: " . $e->getMessage());
             $rawLogs[] = "--- TELNET NOTICE ---\n" . $e->getMessage();
@@ -420,7 +389,7 @@ class OltController extends Controller
             }
         }
 
-        return response()->json([
+        $result = [
             'success' => true,
             'mode' => 'hybrid',
             'onu_index' => $onuIndex,
@@ -428,7 +397,12 @@ class OltController extends Controller
             'stats' => $stats,
             'rx_power' => $rxPower,
             'raw_output' => implode("\n\n", $rawLogs)
-        ]);
+        ];
+
+        // Cache 60 detik agar klik berulang pada ONU yang sama terbuka instan 0ms
+        Cache::put($cacheKey, $result, 60);
+
+        return response()->json($result);
     }
 
     private function parseOnuPower($output)
