@@ -687,8 +687,18 @@ show gpon onu state gpon-olt_${port}`;
             }
 
             function checkOnuStatus(port, onuId, sn) {
-                // Show loading state in modal or toast
-                showToast('Mengambil data detail ONU...', 'success');
+                // Reset placeholder modal dan buka modal langsung dengan visual loading instan
+                $('#det_wan_user').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
+                $('#det_wan_ip').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
+                $('#det_wan_user_vlan').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
+                $('#det_rx_power').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
+                $('#det_wan_status').text('MEMUAT...').removeClass('bg-emerald-100 text-emerald-700 bg-rose-100 text-rose-700').addClass('bg-slate-100 text-slate-600');
+                $('#det_stat_in_rate').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
+                $('#det_stat_out_rate').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
+                $('#det_stat_in_total').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
+                $('#det_stat_out_total').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
+                $('#terminal_output').val('Menghubungkan ke OLT via Telnet CLI untuk mengambil data detail gpon-onu_' + port + ':' + onuId + '...');
+                openCustomModal('onuDetailModal');
 
                 $.ajax({
                     url: '/api/olt/onu-details',
@@ -722,17 +732,17 @@ show gpon onu state gpon-olt_${port}`;
                             $('#det_stat_in_total').text(res.stats.input_total || '0 Bytes');
                             $('#det_stat_out_total').text(res.stats.output_total || '0 Bytes');
 
-                            // Open Modal
-                            openCustomModal('onuDetailModal');
                             $('#terminal_output').val(res.raw_output);
                             $('#terminal_output').scrollTop($('#terminal_output')[0].scrollHeight);
                         } else {
                             showToast(res.error || 'Gagal mengambil detail ONU.', 'error');
+                            $('#terminal_output').val('Gagal mengambil data detail: ' + (res.error || 'Unknown error'));
                         }
                     },
                     error: function(xhr) {
                         const err = xhr.responseJSON?.error || 'Gagal menghubungi OLT.';
                         showToast(err, 'error');
+                        $('#terminal_output').val('Gagal menghubungi OLT: ' + err);
                     }
                 });
             }
