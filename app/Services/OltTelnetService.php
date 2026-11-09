@@ -13,7 +13,7 @@ class OltTelnetService
     private $port;
     private $username;
     private $password;
-    private $timeout = 30; // Increased timeout
+    private $timeout = 15;
 
     public function __construct()
     {
@@ -103,28 +103,37 @@ class OltTelnetService
 
     public function execute(string $command)
     {
-        if (!$this->connection) {
+        if (!$this->connection || !is_resource($this->connection) || @feof($this->connection)) {
+            $this->disconnect();
             $this->connect();
         }
 
-        // 1. Clear any leftover data in the buffer
-        stream_set_blocking($this->connection, false);
-        while (fread($this->connection, 1024) !== "");
-        stream_set_blocking($this->connection, true);
+        try {
+            // 1. Clear any leftover data in the buffer safely
+            stream_set_blocking($this->connection, false);
+            while (($d = fread($this->connection, 1024)) !== false && $d !== "") {}
+            stream_set_blocking($this->connection, true);
 
-        // 2. Send command
-        $this->write($command);
-        
-        // 3. Read response until prompt
-        $output = $this->readUntil(['>', '#']);
-        
-        // Remove echo of the command from output
-        return $this->cleanOutput($output, $command);
+            // 2. Send command
+            $this->write($command);
+            
+            // 3. Read response until prompt
+            $output = $this->readUntil(['>', '#']);
+            
+            // Remove echo of the command from output
+            return $this->cleanOutput($output, $command);
+        } catch (\Throwable $e) {
+            $this->disconnect();
+            throw $e;
+        }
     }
 
     public function disconnect()
     {
         if ($this->connection) {
+            try {
+                @fputs($this->connection, "exit\r\n");
+            } catch (\Throwable $e) {}
             @fclose($this->connection);
             $this->connection = null;
         }

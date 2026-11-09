@@ -717,7 +717,7 @@ show gpon onu state gpon-olt_${port}`;
                 $('#det_stat_in_total').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
                 $('#det_stat_out_total').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
                 $('#det_mac_session').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
-                $('#terminal_output').val('Menghubungkan ke OLT untuk mengambil data detail gpon-onu_' + port + ':' + onuId + '...');
+                $('#terminal_output').val('Menghubungkan ke OLT via Telnet untuk mengambil data detail gpon-onu_' + port + ':' + onuId + '...');
                 openCustomModal('onuDetailModal');
 
                 $.ajax({
