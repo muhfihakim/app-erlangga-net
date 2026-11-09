@@ -517,7 +517,10 @@ Dipanggil setelah pelanggan selesai membayar di WebView / In-App Browser untuk m
 ## 3️⃣ Modul Informasi Akun, Profil Screen & Sesi Aktif
 
 ### 3.0 Data Profil Lengkap & Sesi Aktif (Screen 4: `/api/profile`)
-Endpoint utama 1 Screen 1 URL untuk **Tab Profil** (`profile_screen.dart`). Menyajikan identitas pelanggan, detail paket, kontak CS, serta **Sesi Aktif real-time** dari FreeRADIUS (`radacct`) dengan informasi 8 parameter: **ID Sesi, Sesi Dimulai, Pembaruan Terakhir, Alamat IP, Alamat MAC, Unggah, Unduh, dan Durasi Aktif**.
+Endpoint utama 1 Screen 1 URL untuk **Tab Profil** (`profile_screen.dart`), terstruktur khusus sesuai tampilan 3 card UI mobile:
+1. **Card Profil Saya**: `nama_lengkap`, `nomor_telepon`, `alamat`, `alamat_email`, `status_akun`
+2. **Card Akun Internet**: `nama_pengguna`, `tanggal_aktif`, `paket_layanan`
+3. **Card Sesi Aktif**: `id_sesi`, `sesi_dimulai`, `pembaruan_terakhir`, `alamat_ip`, `alamat_mac`, `unggah`, `unduh`, `durasi_aktif`
 
 - **Method**: `GET`
 - **URL**: `https://stage.erlangga.net/api/profile` *(Alias: `/api/screens/profile`)*
@@ -532,22 +535,19 @@ Endpoint utama 1 Screen 1 URL untuk **Tab Profil** (`profile_screen.dart`). Meny
     "success": true,
     "message": "Data profil pelanggan berhasil dimuat.",
     "data": {
-      "id": 1,
-      "id_pelanggan": "23114957687",
-      "nama_lengkap": "Nurul Adhira",
-      "no_whatsapp": "082191285271",
-      "email": "nuruladhira@gmail.com",
-      "alamat_lengkap": "Blok Tegal Kalapa RT. 14 RW 10 Dangdeur Subang",
-      "pppoe_username": "nurul_tegal",
-      "sn_perangkat": "ZTEGC1234567",
-      "jenis_modem": "EPON",
-      "tanggal_aktif": "2026-09-20",
-      "status_akun": "aktif",
-      "status_akun_badge": "Aktif",
-
+      "profil_saya": {
+        "nama_lengkap": "Nurul Adhira",
+        "nomor_telepon": "082191285271",
+        "alamat": "Blok Tegal Kalapa RT. 14 RW 10 Dangdeur Subang",
+        "alamat_email": "nuruladhira@gmail.com",
+        "status_akun": "Aktif"
+      },
+      "akun_internet": {
+        "nama_pengguna": "nurul_tegal",
+        "tanggal_aktif": "20 September 2026",
+        "paket_layanan": "Paket Home 20 Mbps"
+      },
       "sesi_aktif": {
-        "is_online": true,
-        "status": "Online",
         "id_sesi": "82a1bc40",
         "sesi_dimulai": "09 November 2026, 08:15:30 WIB",
         "pembaruan_terakhir": "09 November 2026, 18:25:00 WIB",
@@ -555,22 +555,18 @@ Endpoint utama 1 Screen 1 URL untuk **Tab Profil** (`profile_screen.dart`). Meny
         "alamat_mac": "AA:BB:CC:DD:EE:FF",
         "unggah": "145,20 MB",
         "unduh": "1,85 GB",
-        "durasi_aktif": "10j 9m",
-        "session_id": "82a1bc40",
-        "start_time": "2026-11-09 08:15:30",
-        "last_update": "2026-11-09 18:25:00",
-        "ip_address": "10.10.20.45",
-        "mac_address": "AA:BB:CC:DD:EE:FF",
-        "upload": "145,20 MB",
-        "download": "1,85 GB",
-        "upload_bytes": 152253440,
-        "download_bytes": 1986422374,
-        "total_bytes": 2138675814,
-        "total_traffic": "1,99 GB",
-        "uptime_seconds": 36570,
-        "uptime": "10j 9m"
+        "durasi_aktif": "10j 9m"
       },
-
+      "id": 1,
+      "id_pelanggan": "23114957687",
+      "nama_lengkap": "Nurul Adhira",
+      "nomor_telepon": "082191285271",
+      "alamat": "Blok Tegal Kalapa RT. 14 RW 10 Dangdeur Subang",
+      "alamat_email": "nuruladhira@gmail.com",
+      "status_akun": "Aktif",
+      "nama_pengguna": "nurul_tegal",
+      "tanggal_aktif": "20 September 2026",
+      "paket_layanan": "Paket Home 20 Mbps",
       "id_sesi": "82a1bc40",
       "sesi_dimulai": "09 November 2026, 08:15:30 WIB",
       "pembaruan_terakhir": "09 November 2026, 18:25:00 WIB",
@@ -580,11 +576,7 @@ Endpoint utama 1 Screen 1 URL untuk **Tab Profil** (`profile_screen.dart`). Meny
       "unduh": "1,85 GB",
       "durasi_aktif": "10j 9m",
       "status_koneksi": "Online",
-
-      "nama_paket": "Paket Home 20 Mbps",
-      "kecepatan": "20 Mbps",
-      "harga": 150000,
-      "total_harga": 166500
+      "is_online": true
     }
   }
   ```

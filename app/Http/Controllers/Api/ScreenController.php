@@ -644,30 +644,70 @@ class ScreenController extends Controller
             }
         }
 
+        // 3. Format Data untuk 3 Card Mobile Screen Profil (Profil Saya, Akun Internet, Sesi Aktif)
+        $namaLengkap = (string) ($customer->nama_lengkap ?? '-');
+        $nomorTelepon = (string) ($customer->no_whatsapp ?: ($customer->preOrder?->nomor_telepon ?: '-'));
+        $alamat = (string) ($customer->alamat_lengkap ?: ($customer->preOrder?->alamat_pemasangan ?: '-'));
+        $alamatEmail = (string) ($customer->preOrder?->alamat_email ?: ($customer->email ?: '-'));
+        $statusAkun = $statusAkunBadge;
+
+        $namaPengguna = (string) ($customer->pppoe_username ?: ($pppoe?->username ?: '-'));
+        $tanggalAktif = ($pppoe && $pppoe->tanggal_aktif)
+            ? Carbon::parse($pppoe->tanggal_aktif)->translatedFormat('d F Y')
+            : ($customer->created_at ? $customer->created_at->translatedFormat('d F Y') : '-');
+        $paketLayanan = (string) ($paket->nama_paket ?? 'Paket Internet Unlimited');
+
         return response()->json([
             'success' => true,
             'message' => 'Data profil pelanggan berhasil dimuat.',
             'data'    => [
-                // Field identitas pelanggan
-                'id'             => $customer->id,
-                'id_pelanggan'   => (string) $customer->id_pelanggan,
-                'nama_lengkap'   => (string) $customer->nama_lengkap,
-                'no_whatsapp'    => (string) ($customer->no_whatsapp ?? '-'),
-                'email'          => (string) ($customer->preOrder?->alamat_email ?? '-'),
-                'alamat_lengkap' => (string) ($customer->alamat_lengkap ?? '-'),
+                // Card 1: Profil Saya (Sesuai image.png)
+                'profil_saya' => [
+                    'nama_lengkap'  => $namaLengkap,
+                    'nomor_telepon' => $nomorTelepon,
+                    'alamat'        => $alamat,
+                    'alamat_email'  => $alamatEmail,
+                    'status_akun'   => $statusAkun,
+                ],
 
-                // Field teknis perangkat & status akun
-                'pppoe_username' => (string) ($customer->pppoe_username ?? '-'),
-                'sn_perangkat'   => (string) ($customer->sn_perangkat ?? '-'),
-                'jenis_modem'    => (string) ($customer->jenis_modem ?? '-'),
-                'tanggal_aktif'  => $tanggalAktifStr,
-                'status_akun'    => $statusAkun,
-                'status_akun_badge' => $statusAkunBadge,
+                // Card 2: Akun Internet (Sesuai image.png)
+                'akun_internet' => [
+                    'nama_pengguna' => $namaPengguna,
+                    'tanggal_aktif' => $tanggalAktif,
+                    'paket_layanan' => $paketLayanan,
+                ],
 
-                // Sesi Aktif (Objek Terstruktur sesuai spesifikasi Screen Profil)
-                'sesi_aktif'     => $sessionData,
+                // Card 3: Sesi Aktif (Sesuai image.png)
+                'sesi_aktif' => [
+                    'id_sesi'            => $sessionData['id_sesi'],
+                    'sesi_dimulai'       => $sessionData['sesi_dimulai'],
+                    'pembaruan_terakhir' => $sessionData['pembaruan_terakhir'],
+                    'alamat_ip'          => $sessionData['alamat_ip'],
+                    'alamat_mac'         => $sessionData['alamat_mac'],
+                    'unggah'             => $sessionData['unggah'],
+                    'unduh'              => $sessionData['unduh'],
+                    'durasi_aktif'       => $sessionData['durasi_aktif'],
+                ],
 
-                // Field Sesi Aktif Flat (Direct access untuk widget/UI mobile)
+                // Flat keys & identifier agar kompatibel 100% jika mobile parser membaca root fields
+                'id'                 => $customer->id,
+                'id_pelanggan'       => (string) $customer->id_pelanggan,
+                'nama_lengkap'       => $namaLengkap,
+                'nomor_telepon'      => $nomorTelepon,
+                'no_whatsapp'        => $nomorTelepon,
+                'alamat'             => $alamat,
+                'alamat_lengkap'     => $alamat,
+                'alamat_email'       => $alamatEmail,
+                'email'              => $alamatEmail,
+                'status_akun'        => $statusAkun,
+                'status_akun_badge'  => $statusAkun,
+
+                'nama_pengguna'      => $namaPengguna,
+                'pppoe_username'     => $namaPengguna,
+                'tanggal_aktif'      => $tanggalAktif,
+                'paket_layanan'      => $paketLayanan,
+                'nama_paket'         => $paketLayanan,
+
                 'id_sesi'            => $sessionData['id_sesi'],
                 'sesi_dimulai'       => $sessionData['sesi_dimulai'],
                 'pembaruan_terakhir' => $sessionData['pembaruan_terakhir'],
@@ -677,12 +717,7 @@ class ScreenController extends Controller
                 'unduh'              => $sessionData['unduh'],
                 'durasi_aktif'       => $sessionData['durasi_aktif'],
                 'status_koneksi'     => $sessionData['status'],
-
-                // Field paket langganan
-                'nama_paket'     => (string) ($paket->nama_paket ?? 'Paket Internet Unlimited'),
-                'kecepatan'      => (string) ($paket->kecepatan ?? '-'),
-                'harga'          => (float) ($paket->harga ?? 0),
-                'total_harga'    => (float) ($paket->total_harga ?? $paket->harga ?? 0),
+                'is_online'          => $sessionData['is_online'],
             ],
         ]);
     }
