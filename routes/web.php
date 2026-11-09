@@ -161,7 +161,9 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::post('/settings/test-connection', [\App\Http\Controllers\SettingController::class, 'testConnection'])->name('settings.test_connection');
 
         // Broadcast & Pemberitahuan Pelanggan (Firebase FCM & In-App)
-        Route::resource('broadcasts', \App\Http\Controllers\BroadcastNotificationController::class)->only(['index', 'store', 'destroy']);
+        Route::delete('broadcasts/{broadcast}', [\App\Http\Controllers\BroadcastNotificationController::class, 'destroy'])->name('broadcasts.destroy');
+        Route::delete('broadcasts', [\App\Http\Controllers\BroadcastNotificationController::class, 'destroy'])->name('broadcasts.destroy.direct');
+        Route::resource('broadcasts', \App\Http\Controllers\BroadcastNotificationController::class)->only(['index', 'store']);
     });
 
     // Keuangan Teknisi

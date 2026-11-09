@@ -200,9 +200,24 @@ class BroadcastNotificationController extends Controller
     /**
      * Hapus riwayat log broadcast
      */
-    public function destroy(BroadcastNotification $broadcast, Request $request)
+    public function destroy(Request $request, $broadcast = null)
     {
-        $broadcast->delete();
+        $id = null;
+        if ($broadcast instanceof BroadcastNotification) {
+            $id = $broadcast->id;
+        } elseif (!empty($broadcast) && is_numeric($broadcast)) {
+            $id = (int) $broadcast;
+        } elseif ($request->filled('id')) {
+            $id = (int) $request->input('id');
+        } elseif ($request->route('broadcast')) {
+            $r = $request->route('broadcast');
+            $id = $r instanceof BroadcastNotification ? $r->id : (int) $r;
+        }
+
+        if ($id) {
+            BroadcastNotification::where('id', $id)->delete();
+        }
+
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,

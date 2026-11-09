@@ -290,65 +290,67 @@
                     </div>
 
                     <!-- Kategori & Target -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                        <div class="form-group !mb-0">
-                            <label class="form-label text-slate-700 font-semibold text-xs">Kategori Pemberitahuan <span class="text-rose-500">*</span></label>
-                            <select name="type" id="input_type" class="form-input-custom !h-8.5 !text-xs w-full" required onchange="updatePreview()">
-                                <option value="maintenance">Pemeliharaan (Maintenance)</option>
-                                <option value="announcement">Pengumuman Resmi</option>
-                                <option value="promo">Promo & Penawaran</option>
-                                <option value="billing">Tagihan / Billing</option>
-                                <option value="general">Informasi Umum</option>
+                    <div class="space-y-3.5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                            <div class="form-group !mb-0 space-y-1.5">
+                                <label class="form-label text-slate-700 font-semibold text-xs block mb-1">Kategori Pemberitahuan <span class="text-rose-500">*</span></label>
+                                <select name="type" id="input_type" class="form-input-custom !h-8.5 !text-xs w-full" required onchange="updatePreview()">
+                                    <option value="maintenance">Pemeliharaan (Maintenance)</option>
+                                    <option value="announcement">Pengumuman Resmi</option>
+                                    <option value="promo">Promo & Penawaran</option>
+                                    <option value="billing">Tagihan / Billing</option>
+                                    <option value="general">Informasi Umum</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group !mb-0 space-y-1.5">
+                                <label class="form-label text-slate-700 font-semibold text-xs block mb-1">Target Penerima <span class="text-rose-500">*</span></label>
+                                <select name="target_type" id="input_target_type" class="form-input-custom !h-8.5 !text-xs w-full" required onchange="toggleTargetDropdown()">
+                                    <option value="all">Semua Pelanggan (Broadcast)</option>
+                                    <option value="package">Berdasarkan Paket Layanan Tertentu</option>
+                                    <option value="customer">1 Pelanggan Tertentu</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Pilihan Target Dinamis -->
+                        <div id="target_package_wrap" class="hidden form-group !mb-0 space-y-1.5">
+                            <label class="form-label text-slate-700 font-semibold text-xs block mb-1">Pilih Paket Layanan <span class="text-rose-500">*</span></label>
+                            <select name="target_id" id="target_package_id" class="form-input-custom !h-8.5 !text-xs w-full" disabled>
+                                <option value="">-- Pilih Paket Target --</option>
+                                @foreach ($pakets as $p)
+                                    <option value="{{ $p->id }}">{{ $p->nama_paket }} ({{ $p->rate_limit ?? '-' }}) - Rp {{ number_format($p->harga, 0, ',', '.') }}</option>
+                                @endforeach
                             </select>
                         </div>
 
-                        <div class="form-group !mb-0">
-                            <label class="form-label text-slate-700 font-semibold text-xs">Target Penerima <span class="text-rose-500">*</span></label>
-                            <select name="target_type" id="input_target_type" class="form-input-custom !h-8.5 !text-xs w-full" required onchange="toggleTargetDropdown()">
-                                <option value="all">Semua Pelanggan (Broadcast)</option>
-                                <option value="package">Berdasarkan Paket Layanan Tertentu</option>
-                                <option value="customer">1 Pelanggan Tertentu</option>
+                        <div id="target_customer_wrap" class="hidden form-group !mb-0 space-y-1.5">
+                            <label class="form-label text-slate-700 font-semibold text-xs block mb-1">Pilih Pelanggan <span class="text-rose-500">*</span></label>
+                            <select name="target_id" id="target_customer_id" class="form-input-custom !h-8.5 !text-xs w-full" disabled>
+                                <option value="">-- Pilih Pelanggan Target --</option>
+                                @foreach ($customers as $c)
+                                    <option value="{{ $c->id }}">
+                                        {{ $c->id_pelanggan }} - {{ $c->nama_lengkap }} {{ !empty($c->fcm_token) ? ' [FCM Terhubung]' : ' [Belum Login Mobile]' }}
+                                    </option>
+                                @endforeach
                             </select>
                         </div>
-                    </div>
-
-                    <!-- Pilihan Target Dinamis -->
-                    <div id="target_package_wrap" class="hidden">
-                        <label class="form-label text-slate-700 font-semibold text-xs">Pilih Paket Layanan <span class="text-rose-500">*</span></label>
-                        <select name="target_id" id="target_package_id" class="form-input-custom !h-8.5 !text-xs w-full" disabled>
-                            <option value="">-- Pilih Paket Target --</option>
-                            @foreach ($pakets as $p)
-                                <option value="{{ $p->id }}">{{ $p->nama_paket }} ({{ $p->rate_limit ?? '-' }}) - Rp {{ number_format($p->harga, 0, ',', '.') }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div id="target_customer_wrap" class="hidden">
-                        <label class="form-label text-slate-700 font-semibold text-xs">Pilih Pelanggan <span class="text-rose-500">*</span></label>
-                        <select name="target_id" id="target_customer_id" class="form-input-custom !h-8.5 !text-xs w-full" disabled>
-                            <option value="">-- Pilih Pelanggan Target --</option>
-                            @foreach ($customers as $c)
-                                <option value="{{ $c->id }}">
-                                    {{ $c->id_pelanggan }} - {{ $c->nama_lengkap }} {{ !empty($c->fcm_token) ? ' [FCM Terhubung]' : ' [Belum Login Mobile]' }}
-                                </option>
-                            @endforeach
-                        </select>
                     </div>
 
                     <!-- Judul Notifikasi -->
-                    <div class="form-group !mb-0">
-                        <label class="form-label text-slate-700 font-semibold text-xs">Judul Pemberitahuan <span class="text-rose-500">*</span></label>
-                        <input type="text" name="title" id="input_title" class="form-input !h-8.5 !text-xs" required
+                    <div class="form-group !mb-0 space-y-1.5">
+                        <label class="form-label text-slate-700 font-semibold text-xs block mb-1">Judul Pemberitahuan <span class="text-rose-500">*</span></label>
+                        <input type="text" name="title" id="input_title" class="form-input !h-8.5 !text-xs w-full" required
                             maxlength="150" placeholder="Contoh: Pemeliharaan Jaringan Terjadwal Area Timur" oninput="updatePreview()">
                     </div>
 
                     <!-- Isi Pesan -->
-                    <div class="form-group !mb-0">
+                    <div class="form-group !mb-0 space-y-1.5">
                         <div class="flex items-center justify-between mb-1">
                             <label class="form-label text-slate-700 font-semibold text-xs !mb-0">Isi Pesan Notifikasi <span class="text-rose-500">*</span></label>
                             <span class="text-[10.5px] text-slate-400" id="char_counter">0 / 2000 karakter</span>
                         </div>
-                        <textarea name="body" id="input_body" rows="4" class="form-input !text-xs leading-relaxed" required
+                        <textarea name="body" id="input_body" rows="4" class="form-input !text-xs leading-relaxed w-full" required
                             maxlength="2000" placeholder="Tuliskan detail pesan pengumuman secara jelas..." oninput="updatePreview()"></textarea>
                     </div>
 
@@ -440,7 +442,11 @@
                 </div>
             </div>
 
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-end">
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between items-center">
+                <button type="button" class="btn-cancel !h-8.5 !px-3.5 text-xs font-semibold !text-rose-600 hover:!bg-rose-50 border-rose-200 flex items-center gap-1.5"
+                    onclick="deleteFromDetail()">
+                    <i class="fa-solid fa-trash-can"></i> Hapus Riwayat
+                </button>
                 <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                     onclick="closeCustomModal('detailBroadcastModal')">
                     <i class="fa-solid fa-xmark"></i> Tutup
@@ -685,7 +691,10 @@
                 return confirm(`Apakah Anda yakin ingin mengirim pemberitahuan ini ke ${targetText}? Notifikasi akan langsung terkirim ke perangkat HP pelanggan.`);
             }
 
+            let currentDetailId = null;
+
             function showDetailModal(item) {
+                currentDetailId = item.id;
                 document.getElementById('detail_title').textContent = item.title;
                 document.getElementById('detail_body').textContent = item.body;
                 
@@ -705,35 +714,63 @@
                 openCustomModal('detailBroadcastModal');
             }
 
+            function deleteFromDetail() {
+                if (!currentDetailId) return;
+                const idToDelete = currentDetailId;
+                closeCustomModal('detailBroadcastModal');
+                confirmDeleteBroadcast(idToDelete);
+            }
+
             function confirmDeleteBroadcast(id) {
                 pendingDeleteId = id;
                 openCustomModal('deleteBroadcastModal');
             }
 
             function executeDeleteBroadcast() {
-                if (!pendingDeleteId) return;
+                if (!pendingDeleteId) {
+                    showToast('Pilih riwayat pemberitahuan yang ingin dihapus.', 'error');
+                    return;
+                }
 
                 const btn = document.getElementById('btnConfirmDelete');
                 const origHtml = btn.innerHTML;
                 btn.innerHTML = "<i class='fa-solid fa-circle-notch fa-spin'></i> Menghapus...";
                 btn.disabled = true;
 
-                fetch(`/broadcasts/${pendingDeleteId}`, {
+                const targetUrl = `{{ url('broadcasts') }}/${pendingDeleteId}`;
+
+                fetch(targetUrl, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify({
+                        _method: 'DELETE',
+                        id: pendingDeleteId
+                    })
                 })
-                .then(res => res.json())
+                .then(res => {
+                    return res.json().then(data => {
+                        if (!res.ok) {
+                            throw new Error(data.message || `Gagal menghapus (HTTP ${res.status})`);
+                        }
+                        return data;
+                    }).catch(e => {
+                        if (!res.ok) throw new Error(`HTTP ${res.status}: Gagal memproses permintaan`);
+                        return { success: true, message: 'Riwayat pemberitahuan berhasil dihapus.' };
+                    });
+                })
                 .then(data => {
                     btn.innerHTML = origHtml;
                     btn.disabled = false;
                     closeCustomModal('deleteBroadcastModal');
 
                     if (data.success) {
-                        showToast(data.message, 'success');
+                        showToast(data.message || 'Riwayat pemberitahuan berhasil dihapus.', 'success');
+                        pendingDeleteId = null;
+                        currentDetailId = null;
                         reloadTable();
                     } else {
                         showToast(data.message || 'Gagal menghapus riwayat pemberitahuan.', 'error');
@@ -743,7 +780,7 @@
                     btn.innerHTML = origHtml;
                     btn.disabled = false;
                     closeCustomModal('deleteBroadcastModal');
-                    showToast('Terjadi kesalahan jaringan.', 'error');
+                    showToast(err.message || 'Terjadi kesalahan jaringan.', 'error');
                 });
             }
         </script>
