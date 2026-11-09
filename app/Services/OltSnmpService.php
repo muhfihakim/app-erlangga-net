@@ -56,6 +56,7 @@ class OltSnmpService
     const OID_RM_WAN_PPPOE_USER  = '.1.3.6.1.4.1.3902.1082.500.20.2.17.2.1.10';
 
     // ONU Name, Description & Distance
+    const OID_ONU_TYPE_NAME = '.1.3.6.1.4.1.3902.1012.3.28.1.1.1';
     const OID_ONU_NAME     = '.1.3.6.1.4.1.3902.1012.3.28.1.1.2';
     const OID_ONU_DESC     = '.1.3.6.1.4.1.3902.1012.3.28.1.1.3';
     const OID_ONU_DISTANCE = '.1.3.6.1.4.1.3902.1012.3.28.2.1.8';
@@ -416,6 +417,7 @@ class OltSnmpService
         $rxPower = '-';
         $distance = '-';
         $onuSn = $hintSn ?: '-';
+        $onuType = '-';
 
         // 2. Ambil dari cache dashboard (instan & akurat)
         $cachedDashboard = Cache::get('olt_snmp_dashboard_data');
@@ -500,6 +502,15 @@ class OltSnmpService
                     $distance = $distVal . ' m';
                 }
             }
+
+            // Tipe ONT (zxGponOntDevMgmtTypeName)
+            $rawType = $this->getScalar(self::OID_ONU_TYPE_NAME . $prefixSuffix);
+            if ($rawType) {
+                $cleanedType = $this->cleanString($rawType);
+                if ($cleanedType !== '-' && !in_array(strtolower($cleanedType), ['sn', 'password'])) {
+                    $onuType = $cleanedType;
+                }
+            }
         }
 
         // 4. Smart Matching dengan Database Customer & FreeRADIUS
@@ -512,6 +523,9 @@ class OltSnmpService
                 if ($customer) {
                     if ($wanUser === '-' && !empty($customer->pppoe_username)) {
                         $wanUser = $customer->pppoe_username;
+                    }
+                    if ($onuType === '-' && !empty($customer->jenis_modem)) {
+                        $onuType = $customer->jenis_modem;
                     }
                 }
             } catch (\Throwable $e) {
@@ -567,6 +581,7 @@ class OltSnmpService
                 'vlan' => $wanVlan,
                 'status' => $wanStatus,
                 'distance' => $distance,
+                'onu_type' => $onuType,
             ],
             'stats' => $traffic,
             'rx_power' => $rxPower,
@@ -584,6 +599,7 @@ class OltSnmpService
             'output_rate' => '0 Bps',
             'input_total' => '0 Bytes',
             'output_total' => '0 Bytes',
+            'mac_session' => '-',
         ];
 
         // Ambil dari FreeRADIUS radacct jika wanUser tersedia (Super Cepat < 2ms)
@@ -593,7 +609,7 @@ class OltSnmpService
                     ->table('radacct')
                     ->where('username', $wanUser)
                     ->orderByDesc('radacctid')
-                    ->first(['acctinputoctets', 'acctoutputoctets']);
+                    ->first(['acctinputoctets', 'acctoutputoctets', 'callingstationid', 'acctsessionid']);
 
                 if ($session) {
                     if (!empty($session->acctinputoctets)) {
@@ -602,6 +618,7 @@ class OltSnmpService
                     if (!empty($session->acctoutputoctets)) {
                         $stats['output_total'] = $this->formatBytes($session->acctoutputoctets);
                     }
+                    $stats['mac_session'] = $session->callingstationid ?: ($session->acctsessionid ?? '-');
                 }
             } catch (\Throwable $e) {
                 // ignore

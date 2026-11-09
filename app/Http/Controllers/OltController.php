@@ -372,6 +372,9 @@ class OltController extends Controller
                 if ($customer->paket && !empty($customer->paket->vlan)) {
                     $wanInfo['vlan'] = (string) $customer->paket->vlan;
                 }
+                if (!empty($customer->jenis_modem)) {
+                    $wanInfo['onu_type'] = $customer->jenis_modem;
+                }
             }
         }
 
@@ -411,6 +414,9 @@ class OltController extends Controller
                         if (!empty($customer->pppoe_username)) {
                             $wanInfo['username'] = $customer->pppoe_username;
                         }
+                        if (!empty($customer->jenis_modem) && $wanInfo['onu_type'] === '-') {
+                            $wanInfo['onu_type'] = $customer->jenis_modem;
+                        }
                     }
                 }
             }
@@ -436,8 +442,39 @@ class OltController extends Controller
                 }
             }
 
-            // C. show pon power attenuation jika Rx Power belum ada
-            if ($rxPower === '-' || $rxPower === 'No Signal' || $rxPower === 'no signal') {
+            // C. show interface {$onuIndex} (Statistik Trafik & Rate)
+            $statsRaw = $this->oltService->execute("show interface {$onuIndex}");
+            if ($statsRaw) {
+                $rawLogs[] = "--- TELNET CLI (INTERFACE STATS) ---\n" . $statsRaw;
+                $ifStats = $this->parseInterfaceStats($statsRaw);
+                if (!empty($ifStats['input_rate']) && $ifStats['input_rate'] !== '0 Bps') {
+                    $stats['input_rate'] = $ifStats['input_rate'];
+                }
+                if (!empty($ifStats['output_rate']) && $ifStats['output_rate'] !== '0 Bps') {
+                    $stats['output_rate'] = $ifStats['output_rate'];
+                }
+                if (!empty($ifStats['input_total']) && $ifStats['input_total'] !== '0 Bytes') {
+                    $stats['input_total'] = $ifStats['input_total'];
+                }
+                if (!empty($ifStats['output_total']) && $ifStats['output_total'] !== '0 Bytes') {
+                    $stats['output_total'] = $ifStats['output_total'];
+                }
+            }
+
+            // D. show mac gpon onu {$onuIndex} (Ambil Physical MAC perangkat jika ada)
+            $macRaw = $this->oltService->execute("show mac gpon onu {$onuIndex}");
+            if ($macRaw) {
+                $rawLogs[] = "--- TELNET CLI (MAC ADDRESS) ---\n" . $macRaw;
+                if (preg_match('/([0-9a-fA-F]{4}\.[0-9a-fA-F]{4}\.[0-9a-fA-F]{4})/i', $macRaw, $mm)) {
+                    $cleanMac = strtolower(str_replace('.', '', $mm[1]));
+                    $stats['mac_session'] = strtoupper(implode(':', str_split($cleanMac, 2)));
+                } elseif (preg_match('/([0-9a-fA-F]{2}[:-][0-9a-fA-F]{2}[:-][0-9a-fA-F]{2}[:-][0-9a-fA-F]{2}[:-][0-9a-fA-F]{2}[:-][0-9a-fA-F]{2})/i', $macRaw, $mm)) {
+                    $stats['mac_session'] = strtoupper(str_replace('-', ':', $mm[1]));
+                }
+            }
+
+            // E. show pon power attenuation jika Rx Power belum ada
+            if ($rxPower === '-' || $rxPower === 'No Signal' || $rxPower === 'no signal' || $rxPower === '0 dBm') {
                 $powerRaw = $this->oltService->execute("show pon power attenuation {$onuIndex}");
                 if ($powerRaw) {
                     $rawLogs[] = "--- TELNET CLI (POWER ATTENUATION) ---\n" . $powerRaw;
@@ -473,7 +510,7 @@ class OltController extends Controller
                     if (!empty($activeSession->acctoutputoctets)) {
                         $stats['output_total'] = $this->formatBytes($activeSession->acctoutputoctets);
                     }
-                    $stats['mac_session'] = $activeSession->callingstationid ?: ($activeSession->acctsessionid ?? '-');
+                    $stats['mac_session'] = $activeSession->callingstationid ?: ($activeSession->acctsessionid ?? ($stats['mac_session'] !== '-' ? $stats['mac_session'] : '-'));
                 } else {
                     $lastSession = DB::connection('radius')
                         ->table('radacct')
@@ -491,11 +528,54 @@ class OltController extends Controller
                         if (!empty($lastSession->acctoutputoctets)) {
                             $stats['output_total'] = $this->formatBytes($lastSession->acctoutputoctets);
                         }
-                        $stats['mac_session'] = $lastSession->callingstationid ?: ($lastSession->acctsessionid ?? '-');
+                        $stats['mac_session'] = $lastSession->callingstationid ?: ($lastSession->acctsessionid ?? ($stats['mac_session'] !== '-' ? $stats['mac_session'] : '-'));
                     }
                 }
             } catch (\Throwable $e) {
                 // Ignore FreeRADIUS query error
+            }
+        } elseif ($stats['mac_session'] !== '-') {
+            // Fallback: Cari sesi FreeRADIUS berdasarkan MAC jika username belum terdeteksi
+            try {
+                $cleanMac = strtolower(preg_replace('/[^0-9a-fA-F]/', '', $stats['mac_session']));
+                $radSession = DB::connection('radius')
+                    ->table('radacct')
+                    ->where(function ($q) use ($stats, $cleanMac) {
+                        $q->where('callingstationid', $stats['mac_session'])
+                            ->orWhere('callingstationid', 'LIKE', "%{$cleanMac}%");
+                    })
+                    ->orderByDesc('radacctid')
+                    ->first();
+
+                if ($radSession) {
+                    if (!empty($radSession->username)) {
+                        $wanInfo['username'] = $radSession->username;
+                        if (!$customer) {
+                            $customer = \App\Models\Customer::where('pppoe_username', $radSession->username)->first();
+                            if ($customer) {
+                                $wanInfo['customer_name'] = $customer->nama_lengkap ?? '-';
+                                $wanInfo['customer_id'] = $customer->id_pelanggan ?? '-';
+                                if (!empty($customer->jenis_modem) && $wanInfo['onu_type'] === '-') {
+                                    $wanInfo['onu_type'] = $customer->jenis_modem;
+                                }
+                            }
+                        }
+                    }
+                    if (!empty($radSession->framedipaddress) && ($wanInfo['ip'] === '-' || $wanInfo['ip'] === '0.0.0.0')) {
+                        $wanInfo['ip'] = $radSession->framedipaddress . ($radSession->acctstoptime ? ' (Offline)' : '');
+                    }
+                    if (empty($radSession->acctstoptime)) {
+                        $wanInfo['status'] = 'CONNECTED';
+                    }
+                    if (!empty($radSession->acctinputoctets) && $stats['input_total'] === '0 Bytes') {
+                        $stats['input_total'] = $this->formatBytes($radSession->acctinputoctets);
+                    }
+                    if (!empty($radSession->acctoutputoctets) && $stats['output_total'] === '0 Bytes') {
+                        $stats['output_total'] = $this->formatBytes($radSession->acctoutputoctets);
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Ignore FreeRADIUS fallback query error
             }
         }
 
@@ -559,32 +639,41 @@ class OltController extends Controller
             'online_duration' => '-',
         ];
 
-        if (preg_match('/Name\s*:\s*([^\r\n]+)/i', $raw, $m)) $info['name'] = trim($m[1]);
-        if (preg_match('/Type\s*:\s*([^\r\n]+)/i', $raw, $m)) $info['type'] = trim($m[1]);
-        if (preg_match('/Description\s*:\s*([^\r\n]+)/i', $raw, $m)) $info['description'] = trim($m[1]);
-        if (preg_match('/ONU\s+Distance\s*:\s*([^\r\n]+)/i', $raw, $m)) $info['distance'] = trim($m[1]);
-        if (preg_match('/Phase\s+state\s*:\s*([^\r\n]+)/i', $raw, $m)) $info['phase_state'] = trim($m[1]);
-        if (preg_match('/Serial\s+number\s*:\s*([^\r\n]+)/i', $raw, $m)) $info['sn'] = trim($m[1]);
-        if (preg_match('/Online\s+Duration\s*:\s*([^\r\n]+)/i', $raw, $m)) $info['online_duration'] = trim($m[1]);
+        if (preg_match('/(?:^|\n|\r)\s*Name\s*:\s*([^\r\n]+)/i', $raw, $m)) $info['name'] = trim($m[1]);
+        if (preg_match('/(?:^|\n|\r)\s*(?:ONU\s+)?(?:Type|Model|Equipment-ID)\s*:\s*([^\r\n]+)/i', $raw, $m)) {
+            $parsedType = trim($m[1]);
+            if (!in_array(strtolower($parsedType), ['sn', 'password', 'hybrid', 'sn+password'])) {
+                $info['type'] = $parsedType;
+            }
+        }
+        if (preg_match('/(?:^|\n|\r)\s*Description\s*:\s*([^\r\n]+)/i', $raw, $m)) $info['description'] = trim($m[1]);
+        if (preg_match('/(?:^|\n|\r)\s*(?:ONU\s+)?Distance\s*:\s*([^\r\n]+)/i', $raw, $m)) $info['distance'] = trim($m[1]);
+        if (preg_match('/(?:^|\n|\r)\s*Phase\s+state\s*:\s*([^\r\n]+)/i', $raw, $m)) $info['phase_state'] = trim($m[1]);
+        if (preg_match('/(?:^|\n|\r)\s*(?:Serial\s+number|SN)\s*:\s*([^\r\n]+)/i', $raw, $m)) $info['sn'] = trim($m[1]);
+        if (preg_match('/(?:^|\n|\r)\s*Online\s+Duration\s*:\s*([^\r\n]+)/i', $raw, $m)) $info['online_duration'] = trim($m[1]);
 
         return $info;
     }
 
     private function parseAttenuationPower(string $raw): string
     {
-        // Format 1: "ONU Rx : -23.120(dbm)"
-        if (preg_match('/ONU\s+Rx\s*:\s*([\-\d\.]+)/i', $raw, $m)) {
+        if (preg_match('/no\s+signal/i', $raw)) {
+            return 'No Signal';
+        }
+
+        // Format 1: Explicit "ONU Rx : -23.120(dbm)" or "ONU Rx optical power: -23.120(dbm)"
+        if (preg_match('/ONU\s+Rx(?:\s+optical\s+power)?\s*:\s*([\-\d\.]+)/i', $raw, $m)) {
             return sprintf('%.2f dBm', (float) $m[1]);
         }
 
-        // Format 2: "OLT Rx : -21.564(dbm)"
+        // Format 2: ZTE Downstream row in "show pon power attenuation":
+        // "down       -                   -                   -23.120(dbm)        2.120(dbm)"
+        if (preg_match('/down\s+[\S]+\s+[\S]+\s+([\-\d\.]+)\s*(?:\(dbm\)|dbm)?/i', $raw, $m)) {
+            return sprintf('%.2f dBm', (float) $m[1]);
+        }
+
+        // Format 3: Explicit "OLT Rx : -21.564(dbm)"
         if (preg_match('/OLT\s+Rx\s*:\s*([\-\d\.]+)/i', $raw, $m)) {
-            return sprintf('%.2f dBm', (float) $m[1]);
-        }
-
-        // Format 3: Tabular "down -21.564(dbm) 2.450(dbm) -23.120(dbm) 2.120(dbm)"
-        // Columns: OLT Rx, OLT Tx, ONU Rx, ONU Tx
-        if (preg_match('/(?:down\s+)?[\-\d\.]+\(dbm\)\s+[\-\d\.]+\(dbm\)\s+([\-\d\.]+)\(dbm\)/i', $raw, $m)) {
             return sprintf('%.2f dBm', (float) $m[1]);
         }
 
@@ -619,7 +708,14 @@ class OltController extends Controller
         ];
 
         if (preg_match('/Username\s*:\s*([^\s\n\r]+)/i', $raw, $m)) $info['username'] = trim($m[1]);
-        if (preg_match('/Status\s*:\s*([^\s\n\r]+)/i', $raw, $m)) $info['status'] = strtoupper(trim($m[1]));
+        if (preg_match('/Status\s*:\s*([^\s\n\r]+)/i', $raw, $m)) {
+            $st = strtoupper(trim($m[1]));
+            if (in_array($st, ['CONNECTED', 'BOUND', 'UP', 'WORKING'])) {
+                $info['status'] = 'CONNECTED';
+            } else {
+                $info['status'] = $st;
+            }
+        }
         if (preg_match('/Current\s+IP\s*:\s*([^\s\n\r]+)/i', $raw, $m)) {
             $ipClean = trim($m[1]);
             if ($ipClean !== '0.0.0.0' && $ipClean !== '-') {
@@ -641,16 +737,30 @@ class OltController extends Controller
             'output_total' => '0 Bytes'
         ];
 
-        // Rate parsing (e.g. "Input rate : 1240 Bps")
-        if (preg_match('/Input\s+rate\s*:\s*([^\r\n,]+)/i', $raw, $m)) $stats['input_rate'] = trim($m[1]);
-        if (preg_match('/Output\s+rate\s*:\s*([^\r\n,]+)/i', $raw, $m)) $stats['output_rate'] = trim($m[1]);
+        // Rate parsing (e.g. "Input rate : 1411 Bps      9 pps")
+        if (preg_match('/Input\s+rate\s*:\s*([^\r\n,]+)/i', $raw, $m)) {
+            $val = trim($m[1]);
+            if (preg_match('/^([\d\.]+\s*(?:[KMGT]?bps|Bytes\/s|Bps))/i', $val, $rm)) {
+                $stats['input_rate'] = trim($rm[1]);
+            } else {
+                $stats['input_rate'] = trim(preg_replace('/\s+[\d\.]+\s*pps.*/i', '', $val));
+            }
+        }
+        if (preg_match('/Output\s+rate\s*:\s*([^\r\n,]+)/i', $raw, $m)) {
+            $val = trim($m[1]);
+            if (preg_match('/^([\d\.]+\s*(?:[KMGT]?bps|Bytes\/s|Bps))/i', $val, $rm)) {
+                $stats['output_rate'] = trim($rm[1]);
+            } else {
+                $stats['output_rate'] = trim(preg_replace('/\s+[\d\.]+\s*pps.*/i', '', $val));
+            }
+        }
         
         // Total Bytes parsing
-        if (preg_match('/Total statistic:\s+Input:\s+Bytes:(\d+)/is', $raw, $m) || preg_match('/Input:.*?Bytes:(\d+)/is', $raw, $m)) {
+        if (preg_match('/Total statistic:\s+Input:\s+Bytes:\s*(\d+)/is', $raw, $m) || preg_match('/Input:.*?Bytes:\s*(\d+)/is', $raw, $m)) {
             $stats['input_total'] = $this->formatBytes($m[1]);
         }
         
-        if (preg_match('/Total statistic:.*?Output:\s+Bytes:(\d+)/is', $raw, $m) || preg_match('/Output:.*?Bytes:(\d+)/is', $raw, $m)) {
+        if (preg_match('/Total statistic:.*?Output:\s+Bytes:\s*(\d+)/is', $raw, $m) || preg_match('/Output:.*?Bytes:\s*(\d+)/is', $raw, $m)) {
             $stats['output_total'] = $this->formatBytes($m[1]);
         }
 

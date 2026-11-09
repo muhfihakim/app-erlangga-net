@@ -451,11 +451,11 @@
                         <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 space-y-2">
                             <div class="flex justify-between items-center text-xs">
                                 <span class="text-slate-500 font-medium">Pelanggan</span>
-                                <span id="det_customer_name" class="font-bold text-slate-800 text-right truncate max-w-[140px]">-</span>
+                                <span id="det_customer_name" class="font-bold text-slate-800 text-right truncate max-w-[170px]">-</span>
                             </div>
                             <div class="flex justify-between items-center text-xs">
                                 <span class="text-slate-500 font-medium">Username PPPoE</span>
-                                <span id="det_wan_user" class="font-mono font-bold text-slate-800 text-right truncate max-w-[140px]">-</span>
+                                <span id="det_wan_user" class="font-mono font-bold text-slate-800 text-right truncate max-w-[170px]">-</span>
                             </div>
                             <div class="flex justify-between items-center text-xs">
                                 <span class="text-slate-500 font-medium">Current IP</span>
@@ -509,7 +509,7 @@
                             </div>
                             <div class="flex justify-between items-center text-xs border-t border-slate-200 pt-2 mt-1">
                                 <span class="text-slate-500 font-medium">MAC / Session</span>
-                                <span id="det_mac_session" class="font-mono text-[11px] font-semibold text-slate-600 truncate max-w-[130px]">-</span>
+                                <span id="det_mac_session" class="font-mono text-[11px] font-semibold text-slate-700 text-right truncate max-w-[170px]">-</span>
                             </div>
                         </div>
                     </div>
@@ -703,7 +703,7 @@ show gpon onu state gpon-olt_${port}`;
             }
 
             function checkOnuStatus(port, onuId, sn) {
-                // Reset placeholder modal dan buka modal langsung dengan visual loading instan
+                // Reset placeholder modal dan buka modal langsung dengan visual loading
                 $('#det_customer_name').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
                 $('#det_wan_user').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
                 $('#det_wan_ip').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
@@ -735,7 +735,15 @@ show gpon onu state gpon-olt_${port}`;
                             $('#det_wan_user').text(res.wan_info.username || '-');
                             $('#det_wan_ip').text(res.wan_info.ip || '-');
                             $('#det_wan_user_vlan').text(res.wan_info.vlan || '-');
-                            $('#det_rx_power').text(res.rx_power ? (res.rx_power.includes('dBm') ? res.rx_power : `${res.rx_power} dBm`) : '-');
+
+                            if (!res.rx_power || res.rx_power === '-' || res.rx_power === '0' || res.rx_power === '0 dBm') {
+                                $('#det_rx_power').text('-');
+                            } else if (res.rx_power.toLowerCase().includes('no signal')) {
+                                $('#det_rx_power').text('No Signal');
+                            } else {
+                                $('#det_rx_power').text(res.rx_power.includes('dBm') ? res.rx_power : `${res.rx_power} dBm`);
+                            }
+
                             $('#det_distance').text(res.wan_info.distance || '-');
 
                             const $status = $('#det_wan_status');
@@ -832,11 +840,11 @@ show gpon onu state gpon-olt_${port}`;
                 });
 
 
-                // Fungsi Muat Data Dashboard OLT (SNMP Instant Load)
+                // Fungsi Muat Data Dashboard OLT
                 window.loadDashboardData = function(force = false) {
                     const $btn = $('#btn_sync_global');
                     const originalHtml = $btn.html();
-                    $btn.html('<i class="fa-solid fa-spinner fa-spin mr-1"></i> MEMUAT SNMP...').prop('disabled', true);
+                    $btn.html('<i class="fa-solid fa-spinner fa-spin mr-1"></i> MEMUAT...').prop('disabled', true);
 
                     // Tampilkan indikator loading modern jika tabel masih kosong
                     if (!dashboardTable || $('#dashboard-onu-body tr').length <= 1) {
@@ -845,7 +853,7 @@ show gpon onu state gpon-olt_${port}`;
                                 <td colspan="6" style="text-align: center; padding: 3.5rem 1rem;">
                                     <div class="flex flex-col items-center justify-center gap-2.5">
                                         <i class="fa-solid fa-circle-notch fa-spin text-2xl text-sky-500"></i>
-                                        <span class="text-xs font-bold text-slate-700">Menghubungkan ke OLT via SNMP (Instan)...</span>
+                                        <span class="text-xs font-bold text-slate-700">Menghubungkan ke OLT...</span>
                                         <span class="text-[11px] text-slate-400">Mengambil status ONU, redaman optik (RX power), dan perangkat unconfigured</span>
                                     </div>
                                 </td>
@@ -858,10 +866,7 @@ show gpon onu state gpon-olt_${port}`;
                         type: 'GET',
                         success: function(res) {
                             if (res.success) {
-                                const driverBadge = res.driver === 'snmp'
-                                    ? ' <span class="badge text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 ml-1.5 font-bold"><i class="fa-solid fa-bolt text-emerald-600 mr-0.5"></i> SNMP Fast</span>'
-                                    : ' <span class="badge text-[10px] bg-slate-100 text-slate-600 border border-slate-200 ml-1.5 font-bold">Telnet</span>';
-                                $('#dashboard_table_title').html('Status Seluruh ONU OLT' + driverBadge);
+                                $('#dashboard_table_title').text('Status Seluruh ONU OLT');
 
                                 if (dashboardTable) {
                                     dashboardTable.destroy();
