@@ -265,7 +265,7 @@
 
             <form action="{{ route('broadcasts.store') }}" method="POST" id="formCreateBroadcast" onsubmit="return confirmSubmitBroadcast()">
                 @csrf
-                <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
                     <!-- Template Cepat -->
                     <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
                         <div class="flex items-center justify-between mb-2">
@@ -290,11 +290,11 @@
                     </div>
 
                     <!-- Kategori & Target -->
-                    <div class="space-y-3.5">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                            <div class="form-group !mb-0 space-y-1.5">
-                                <label class="form-label text-slate-700 font-semibold text-xs block mb-1">Kategori Pemberitahuan <span class="text-rose-500">*</span></label>
-                                <select name="type" id="input_type" class="form-input-custom !h-8.5 !text-xs w-full" required onchange="updatePreview()">
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="form-label text-slate-700 font-semibold text-xs block mb-1.5">Kategori Pemberitahuan <span class="text-rose-500">*</span></label>
+                                <select name="type" id="input_type" class="form-input-custom !h-9 !text-xs w-full" required onchange="updatePreview()">
                                     <option value="maintenance">Pemeliharaan (Maintenance)</option>
                                     <option value="announcement">Pengumuman Resmi</option>
                                     <option value="promo">Promo & Penawaran</option>
@@ -303,9 +303,9 @@
                                 </select>
                             </div>
 
-                            <div class="form-group !mb-0 space-y-1.5">
-                                <label class="form-label text-slate-700 font-semibold text-xs block mb-1">Target Penerima <span class="text-rose-500">*</span></label>
-                                <select name="target_type" id="input_target_type" class="form-input-custom !h-8.5 !text-xs w-full" required onchange="toggleTargetDropdown()">
+                            <div>
+                                <label class="form-label text-slate-700 font-semibold text-xs block mb-1.5">Target Penerima <span class="text-rose-500">*</span></label>
+                                <select name="target_type" id="input_target_type" class="form-input-custom !h-9 !text-xs w-full" required onchange="toggleTargetDropdown()">
                                     <option value="all">Semua Pelanggan (Broadcast)</option>
                                     <option value="package">Berdasarkan Paket Layanan Tertentu</option>
                                     <option value="customer">1 Pelanggan Tertentu</option>
@@ -314,9 +314,9 @@
                         </div>
 
                         <!-- Pilihan Target Dinamis -->
-                        <div id="target_package_wrap" class="hidden form-group !mb-0 space-y-1.5">
-                            <label class="form-label text-slate-700 font-semibold text-xs block mb-1">Pilih Paket Layanan <span class="text-rose-500">*</span></label>
-                            <select name="target_id" id="target_package_id" class="form-input-custom !h-8.5 !text-xs w-full" disabled>
+                        <div id="target_package_wrap" class="hidden">
+                            <label class="form-label text-slate-700 font-semibold text-xs block mb-1.5">Pilih Paket Layanan <span class="text-rose-500">*</span></label>
+                            <select name="target_id" id="target_package_id" class="form-input-custom !h-9 !text-xs w-full" disabled>
                                 <option value="">-- Pilih Paket Target --</option>
                                 @foreach ($pakets as $p)
                                     <option value="{{ $p->id }}">{{ $p->nama_paket }} ({{ $p->rate_limit ?? '-' }}) - Rp {{ number_format($p->harga, 0, ',', '.') }}</option>
@@ -324,9 +324,9 @@
                             </select>
                         </div>
 
-                        <div id="target_customer_wrap" class="hidden form-group !mb-0 space-y-1.5">
-                            <label class="form-label text-slate-700 font-semibold text-xs block mb-1">Pilih Pelanggan <span class="text-rose-500">*</span></label>
-                            <select name="target_id" id="target_customer_id" class="form-input-custom !h-8.5 !text-xs w-full" disabled>
+                        <div id="target_customer_wrap" class="hidden">
+                            <label class="form-label text-slate-700 font-semibold text-xs block mb-1.5">Pilih Pelanggan <span class="text-rose-500">*</span></label>
+                            <select name="target_id" id="target_customer_id" class="form-input-custom !h-9 !text-xs w-full" disabled>
                                 <option value="">-- Pilih Pelanggan Target --</option>
                                 @foreach ($customers as $c)
                                     <option value="{{ $c->id }}">
@@ -338,25 +338,25 @@
                     </div>
 
                     <!-- Judul Notifikasi -->
-                    <div class="form-group !mb-0 space-y-1.5">
-                        <label class="form-label text-slate-700 font-semibold text-xs block mb-1">Judul Pemberitahuan <span class="text-rose-500">*</span></label>
-                        <input type="text" name="title" id="input_title" class="form-input !h-8.5 !text-xs w-full" required
+                    <div>
+                        <label class="form-label text-slate-700 font-semibold text-xs block mb-1.5">Judul Pemberitahuan <span class="text-rose-500">*</span></label>
+                        <input type="text" name="title" id="input_title" class="form-input !h-9 !text-xs w-full" required
                             maxlength="150" placeholder="Contoh: Pemeliharaan Jaringan Terjadwal Area Timur" oninput="updatePreview()">
                     </div>
 
                     <!-- Isi Pesan -->
-                    <div class="form-group !mb-0 space-y-1.5">
-                        <div class="flex items-center justify-between mb-1">
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
                             <label class="form-label text-slate-700 font-semibold text-xs !mb-0">Isi Pesan Notifikasi <span class="text-rose-500">*</span></label>
-                            <span class="text-[10.5px] text-slate-400" id="char_counter">0 / 2000 karakter</span>
+                            <span class="text-[10.5px] text-slate-400 font-medium" id="char_counter">0 / 2000 karakter</span>
                         </div>
                         <textarea name="body" id="input_body" rows="4" class="form-input !text-xs leading-relaxed w-full" required
                             maxlength="2000" placeholder="Tuliskan detail pesan pengumuman secara jelas..." oninput="updatePreview()"></textarea>
                     </div>
 
                     <!-- Live Mobile Preview Card -->
-                    <div>
-                        <span class="text-[11px] font-bold text-slate-500 block mb-1.5 uppercase tracking-wider">
+                    <div class="pt-2 border-t border-slate-100">
+                        <span class="text-[11px] font-bold text-slate-500 block mb-2 uppercase tracking-wider">
                             <i class="fa-solid fa-mobile-screen mr-1 text-slate-400"></i> Preview Notifikasi di HP Pelanggan:
                         </span>
                         <div class="mobile-preview-box">
