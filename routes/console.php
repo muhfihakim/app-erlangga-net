@@ -23,6 +23,3 @@ Schedule::command('billing:process')->dailyAt('00:01')->withoutOverlapping();
 
 // 2. Pemeriksaan isolir tambahan pada siang hari (12:00)
 Schedule::command('billing:process --only-isolir')->dailyAt('12:00')->withoutOverlapping();
-
-// 3. Sinkronisasi background data OLT setiap 5 menit (SNMP/Telnet caching)
-Schedule::command('olt:sync')->everyFiveMinutes()->withoutOverlapping();

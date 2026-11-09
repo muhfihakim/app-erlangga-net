@@ -545,13 +545,6 @@
                 $(this).addClass('active');
                 $('.tab-content').removeClass('active');
                 $('#' + target).addClass('active');
-
-                // Otomatis muat data OLT via SNMP saat tab Dashboard OLT diklik
-                if (target === 'panel-dashboard') {
-                    if (!dashboardTable || $('#dashboard-onu-body tr').length <= 1) {
-                        loadDashboardData(false);
-                    }
-                }
             });
 
             let dashboardTable;
@@ -795,29 +788,15 @@ show gpon onu state gpon-olt_${port}`;
                 });
 
 
-                // Fungsi Muat Data Dashboard OLT
-                window.loadDashboardData = function(force = false) {
-                    const $btn = $('#btn_sync_global');
+                // Handle Sync Global (All ONUs)
+                $('#btn_sync_global').click(function() {
+                    const $btn = $(this);
                     const originalHtml = $btn.html();
-                    $btn.html('<i class="fa-solid fa-spinner fa-spin mr-1"></i> MEMUAT...').prop('disabled', true);
-
-                    // Tampilkan indikator loading modern jika tabel masih kosong
-                    if (!dashboardTable || $('#dashboard-onu-body tr').length <= 1) {
-                        $('#dashboard-onu-body').html(`
-                            <tr>
-                                <td colspan="6" style="text-align: center; padding: 3.5rem 1rem;">
-                                    <div class="flex flex-col items-center justify-center gap-2.5">
-                                        <i class="fa-solid fa-circle-notch fa-spin text-2xl text-sky-500"></i>
-                                        <span class="text-xs font-bold text-slate-700">Menghubungkan ke OLT...</span>
-                                        <span class="text-[11px] text-slate-400">Mengambil status ONU, redaman optik (RX power), dan perangkat unconfigured</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        `);
-                    }
+                    $btn.html('<i class="fa-solid fa-spinner fa-spin mr-1"></i> SYNCING...').prop('disabled',
+                        true);
 
                     $.ajax({
-                        url: force ? '/api/olt/dashboard-data?force=1' : '/api/olt/dashboard-data',
+                        url: '/api/olt/dashboard-data',
                         type: 'GET',
                         success: function(res) {
                             if (res.success) {
@@ -837,7 +816,7 @@ show gpon onu state gpon-olt_${port}`;
                                 };
 
                                 // 1. Add Unconfigured (Priority)
-                                (res.unconfigured || []).forEach((onu) => {
+                                res.unconfigured.forEach((onu) => {
                                     count++;
                                     stats.nosignal++;
                                     html += `
@@ -864,7 +843,7 @@ show gpon onu state gpon-olt_${port}`;
                                 });
 
                                 // 2. Add Configured
-                                (res.configured || []).forEach((onu) => {
+                                res.configured.forEach((onu) => {
                                     count++;
                                     let badgeColor = '#f1f5f9';
                                     let textColor = '#64748b';
@@ -881,27 +860,11 @@ show gpon onu state gpon-olt_${port}`;
                                         badgeColor = '#fffbeb';
                                         textColor = '#b45309';
                                         badgeIcon = '<i class="fa-solid fa-triangle-exclamation text-[9px] mr-1 text-amber-600"></i>';
-                                    } else if (onu.status === 'syncMib') {
-                                        badgeColor = '#eff6ff';
-                                        textColor = '#1d4ed8';
-                                        badgeIcon = '<i class="fa-solid fa-rotate text-[9px] mr-1 text-blue-600 fa-spin"></i>';
-                                    } else if (onu.status === 'OFFLINE') {
-                                        badgeColor = '#f8fafc';
-                                        textColor = '#64748b';
-                                        badgeIcon = '<i class="fa-solid fa-power-off text-[9px] mr-1 text-slate-400"></i>';
-                                    } else if (onu.status === 'authFailed') {
-                                        badgeColor = '#fdf2f8';
-                                        textColor = '#be185d';
-                                        badgeIcon = '<i class="fa-solid fa-lock text-[9px] mr-1 text-pink-600"></i>';
-                                    } else if (onu.status === 'logging') {
-                                        badgeColor = '#fefce8';
-                                        textColor = '#a16207';
-                                        badgeIcon = '<i class="fa-solid fa-hourglass-half text-[9px] mr-1 text-amber-600"></i>';
                                     }
 
                                     let powerColor = '#64748b';
-                                    let displayPower = '-';
-                                    if (onu.rx_power && onu.rx_power !== '-' && onu.rx_power.toLowerCase() !== 'no signal') {
+                                    if (onu.rx_power !== '-' && onu.rx_power !==
+                                        'no signal') {
                                         const pVal = parseFloat(onu.rx_power);
                                         if (pVal < -27) {
                                             powerColor = '#ef4444';
@@ -913,7 +876,6 @@ show gpon onu state gpon-olt_${port}`;
                                             powerColor = '#10b981';
                                             stats.good++;
                                         }
-                                        displayPower = onu.rx_power.includes('dBm') ? onu.rx_power : `${onu.rx_power} dBm`;
                                     } else {
                                         stats.nosignal++;
                                     }
@@ -927,7 +889,7 @@ show gpon onu state gpon-olt_${port}`;
                                             <span class="badge inline-flex items-center" style="background: ${badgeColor}; color: ${textColor}; font-size: 11px; padding: 2px 7px; border-radius: 6px; font-weight: 700;">${badgeIcon}${onu.status}</span>
                                         </td>
                                         <td style="text-align: center; font-weight: 700; color: ${powerColor}; font-size: 12px; font-family: monospace;">
-                                            ${displayPower}
+                                            ${onu.rx_power}
                                         </td>
                                         <td style="text-align: center;">
                                             <div class="flex items-center justify-center">
@@ -973,39 +935,22 @@ show gpon onu state gpon-olt_${port}`;
                                     }
                                 });
 
-                                if (res.driver === 'snmp') {
-                                    showToast(`Status seluruh OLT berhasil disinkronkan via SNMP (${res.elapsed_sec ?? '1'}s).`, 'success');
-                                } else if (res.fallback_reason) {
-                                    showToast(`Status OLT disinkronkan via Telnet (SNMP: ${res.fallback_reason})`, 'warning');
-                                } else {
-                                    showToast('Status seluruh OLT berhasil disinkronkan via Telnet.', 'success');
-                                }
+                                showToast('Status seluruh OLT berhasil disinkronkan.', 'success');
                                 $('#terminal_output').val(res.raw_output);
-                                $('#terminal_output').scrollTop($('#terminal_output')[0].scrollHeight);
+                                $('#terminal_output').scrollTop($('#terminal_output')[0]
+                                    .scrollHeight);
                             } else {
-                                showToast(res.error || 'Gagal mengambil data OLT.', 'error');
+                                showToast(res.error, 'error');
                             }
                         },
-                        error: function(xhr) {
-                            const errDetail = xhr.responseJSON?.message || xhr.responseJSON?.error || (xhr.status ? `HTTP ${xhr.status}: ${xhr.statusText}` : 'Koneksi OLT bermasalah / Timeout');
-                            showToast(`Gagal memuat data OLT: ${errDetail}`, 'error');
-                            console.error('OLT Dashboard Error:', xhr);
+                        error: function() {
+                            showToast('Koneksi OLT bermasalah.', 'error');
                         },
                         complete: function() {
                             $btn.html(originalHtml).prop('disabled', false);
                         }
                     });
-                };
-
-                // Handle Klik Tombol Sync Sekarang
-                $('#btn_sync_global').click(function() {
-                    loadDashboardData(true);
                 });
-
-                // Auto-load jika tab dashboard aktif saat halaman dimuat
-                if ($('#panel-dashboard').hasClass('active')) {
-                    loadDashboardData(false);
-                }
 
                 // Handle Live Search
                 $('#olt-livesearch').on('keyup', function() {

@@ -519,17 +519,17 @@
                 </span>
             </div>
 
-            <!-- Petunjuk Konfigurasi OLT -->
+            <!-- Petunjuk Konfigurasi Telnet OLT -->
             <div class="bg-sky-50/50 border border-sky-200/80 rounded-xl p-3.5 mb-4 text-xs text-slate-700">
                 <div class="flex items-start gap-2.5">
                     <i class="fa-solid fa-circle-info text-sky-600 mt-0.5 text-sm"></i>
                     <div>
-                        <span class="font-bold text-slate-800">Petunjuk Konfigurasi Monitoring SNMP & Telnet OLT:</span>
+                        <span class="font-bold text-slate-800">Petunjuk Konfigurasi Telnet OLT:</span>
                         <ol class="list-decimal ml-4 mt-1 space-y-1 text-slate-600">
-                            <li>Mode <strong>SNMP</strong> menggunakan community <code class="bg-white px-1 py-0.5 rounded border border-slate-200 text-sky-700 font-mono font-bold">radbooxro</code> (port UDP 161) untuk memonitor status ONU, redaman (RX Power), dan unconfigured secara instan (1–2 detik) tanpa membebani CPU OLT.</li>
-                            <li>Kredensial <strong>Telnet</strong> (port 23) tetap digunakan saat melakukan aktivasi ONU baru dan Interactive Terminal CLI.</li>
-                            <li>Pastikan jalur routing atau VPN antara server Laravel dan IP OLT telah terhubung dan port UDP 161 & TCP 23 diizinkan oleh firewall.</li>
-                            <li>Klik tombol <strong>Uji Koneksi</strong> untuk memverifikasi respons SNMP dan Telnet OLT sebelum menyimpan.</li>
+                            <li>Pastikan service <strong>Telnet</strong> (port 23) aktif pada perangkat OLT dan dapat dijangkau dari server aplikasi.</li>
+                            <li>Gunakan user kredensial administrator OLT yang memiliki izin membaca data ONU/ONT dan status redaman optik (RX Power).</li>
+                            <li>Untuk OLT ZTE, Fiberhome, atau HSGQ, pastikan jalur routing atau VPN antara server Laravel dan IP OLT telah terhubung.</li>
+                            <li>Klik tombol <strong>Uji Koneksi</strong> untuk memverifikasi handshake Telnet sebelum menyimpan konfigurasi.</li>
                         </ol>
                     </div>
                 </div>
@@ -539,20 +539,7 @@
                 @csrf
                 <input type="hidden" name="tab" value="olt">
 
-                <!-- Mode & Network Base -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 mb-3.5">
-                    <div class="form-group !mb-0">
-                        <label for="olt_mode" class="form-label font-bold text-slate-700">Mode Sinkronisasi Dashboard <span
-                                class="text-rose-500">*</span></label>
-                        <select name="olt_mode" id="olt_mode" class="form-input font-semibold text-sky-700">
-                            <option value="snmp" {{ old('olt_mode', $settings['olt']['mode'] ?? 'snmp') === 'snmp' ? 'selected' : '' }}>
-                                SNMP (Rekomendasi - Cepat & Ringan)
-                            </option>
-                            <option value="telnet" {{ old('olt_mode', $settings['olt']['mode'] ?? 'snmp') === 'telnet' ? 'selected' : '' }}>
-                                Telnet CLI (Tradisional / Lambat)
-                            </option>
-                        </select>
-                    </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 mb-3.5">
                     <div class="form-group !mb-0">
                         <label for="olt_host" class="form-label font-bold text-slate-700">Host / IP OLT <span
                                 class="text-rose-500">*</span></label>
@@ -561,61 +548,34 @@
                             required>
                     </div>
                     <div class="form-group !mb-0">
-                        <label for="olt_snmp_port" class="form-label font-bold text-slate-700">Port SNMP (UDP) <span
+                        <label for="olt_port" class="form-label font-bold text-slate-700">Port Telnet OLT <span
                                 class="text-rose-500">*</span></label>
-                        <input type="number" name="olt_snmp_port" id="olt_snmp_port" class="form-input"
-                            value="{{ old('olt_snmp_port', $settings['olt']['snmp_port'] ?? 161) }}" placeholder="161" required>
+                        <input type="number" name="olt_port" id="olt_port" class="form-input"
+                            value="{{ old('olt_port', $settings['olt']['port']) }}" placeholder="23" required>
                     </div>
                 </div>
 
-                <!-- SNMP Community Settings -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 mb-3.5">
                     <div class="form-group !mb-0">
-                        <label for="olt_snmp_community_ro" class="form-label font-bold text-slate-700">SNMP Community Read-Only (RO) <span
-                                class="text-rose-500">*</span></label>
-                        <input type="text" name="olt_snmp_community_ro" id="olt_snmp_community_ro" class="form-input font-mono"
-                            value="{{ old('olt_snmp_community_ro', $settings['olt']['snmp_community_ro'] ?? 'radbooxro') }}" placeholder="radbooxro"
+                        <label for="olt_username" class="form-label font-bold text-slate-700">Username Telnet OLT
+                            <span class="text-rose-500">*</span></label>
+                        <input type="text" name="olt_username" id="olt_username" class="form-input"
+                            value="{{ old('olt_username', $settings['olt']['username']) }}" placeholder="admin"
                             required>
-                        <span class="text-[10px] text-slate-400 mt-0.5 block">Sesuai config: snmp-server community radbooxro view AllView ro</span>
                     </div>
                     <div class="form-group !mb-0">
-                        <label for="olt_snmp_community_rw" class="form-label font-bold text-slate-700">SNMP Community Read-Write (RW)</label>
-                        <input type="text" name="olt_snmp_community_rw" id="olt_snmp_community_rw" class="form-input font-mono"
-                            value="{{ old('olt_snmp_community_rw', $settings['olt']['snmp_community_rw'] ?? 'radbooxrw') }}" placeholder="radbooxrw">
-                        <span class="text-[10px] text-slate-400 mt-0.5 block">Sesuai config: snmp-server community radbooxrw view AllView rw</span>
-                    </div>
-                </div>
-
-                <!-- Telnet Credentials (Untuk Aktivasi & Terminal) -->
-                <div class="border-t border-slate-100 pt-3 mt-3">
-                    <span class="text-xs font-bold text-slate-600 block mb-2 uppercase tracking-wider">Kredensial Telnet (Untuk Aktivasi & Terminal CLI)</span>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 mb-3.5">
-                        <div class="form-group !mb-0">
-                            <label for="olt_port" class="form-label font-bold text-slate-700">Port Telnet OLT <span
-                                    class="text-rose-500">*</span></label>
-                            <input type="number" name="olt_port" id="olt_port" class="form-input"
-                                value="{{ old('olt_port', $settings['olt']['port']) }}" placeholder="23" required>
-                        </div>
-                        <div class="form-group !mb-0">
-                            <label for="olt_username" class="form-label font-bold text-slate-700">Username Telnet OLT
-                                <span class="text-rose-500">*</span></label>
-                            <input type="text" name="olt_username" id="olt_username" class="form-input"
-                                value="{{ old('olt_username', $settings['olt']['username']) }}" placeholder="admin"
-                                required>
-                        </div>
-                        <div class="form-group !mb-0">
-                            <label for="olt_password" class="form-label font-bold text-slate-700">Password Telnet OLT</label>
-                            <div class="relative">
-                                <input type="password" name="olt_password" id="olt_password" class="form-input !pr-10"
-                                    value="{{ old('olt_password', $settings['olt']['password']) }}"
-                                    placeholder="Password OLT">
-                                <button type="button"
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
-                                    aria-label="Tampilkan atau sembunyikan password Telnet OLT" title="Tampilkan password"
-                                    onclick="togglePasswordVisibility('olt_password', this)">
-                                    <i class="fa-solid fa-eye" aria-hidden="true"></i>
-                                </button>
-                            </div>
+                        <label for="olt_password" class="form-label font-bold text-slate-700">Password Telnet
+                            OLT</label>
+                        <div class="relative">
+                            <input type="password" name="olt_password" id="olt_password" class="form-input !pr-10"
+                                value="{{ old('olt_password', $settings['olt']['password']) }}"
+                                placeholder="Password OLT">
+                            <button type="button"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
+                                aria-label="Tampilkan atau sembunyikan password Telnet OLT" title="Tampilkan password"
+                                onclick="togglePasswordVisibility('olt_password', this)">
+                                <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1453,8 +1413,6 @@ ${scriptIsolir}`;
                     payload.port = document.getElementById('olt_port')?.value || '';
                     payload.username = document.getElementById('olt_username')?.value || '';
                     payload.password = document.getElementById('olt_password')?.value || '';
-                    payload.snmp_community_ro = document.getElementById('olt_snmp_community_ro')?.value || '';
-                    payload.snmp_port = document.getElementById('olt_snmp_port')?.value || '';
                 } else if (type === 'radius') {
                     payload.host = document.getElementById('db_radius_host')?.value || '';
                     payload.port = document.getElementById('db_radius_port')?.value || '';
