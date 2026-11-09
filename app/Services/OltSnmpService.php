@@ -51,28 +51,101 @@ class OltSnmpService
     }
 
     /**
-     * Uji konektivitas SNMP ke OLT
+     * Konfigurasi format output library Net-SNMP agar konsisten numerik
      */
-    public function testConnection(): array
+    private function configureSnmpEnvironment(): void
     {
+        if (function_exists('snmp_set_oid_output_format') && defined('SNMP_OID_OUTPUT_NUMERIC')) {
+            @snmp_set_oid_output_format(SNMP_OID_OUTPUT_NUMERIC);
+        }
+        if (function_exists('snmp_set_quick_print')) {
+            @snmp_set_quick_print(1);
+        }
+        if (function_exists('snmp_set_enum_print')) {
+            @snmp_set_enum_print(0);
+        }
+        if (function_exists('snmp_set_valueretrieval') && defined('SNMP_VALUE_PLAIN')) {
+            @snmp_set_valueretrieval(SNMP_VALUE_PLAIN);
+        }
+    }
+
+    /**
+     * Cek apakah OLT merespons SNMP secara cepat (probe 1 detik)
+     */
+    public function ping(?string $targetHost = null, ?int $targetPort = null, ?string $community = null): bool
+    {
+        $this->configureSnmpEnvironment();
+        $host = $targetHost ?: $this->host;
+        $port = $targetPort ?: $this->port;
+        $comm = $community ?: $this->communityRo;
+        $target = "{$host}:{$port}";
+
+        // Probe 1: sysDescr
+        $res = @snmp2_get($target, $comm, self::OID_SYS_DESCR, 1000000, 0);
+        if ($res !== false && $res !== null) return true;
+
+        // Probe 2: sysName
+        $res = @snmp2_get($target, $comm, self::OID_SYS_NAME, 1000000, 0);
+        if ($res !== false && $res !== null) return true;
+
+        // Probe 3: ZTE Enterprise tree walk (1st entry)
+        $walk = @snmp2_real_walk($target, $comm, '.1.3.6.1.4.1.3902', 1000000, 0);
+        if (!empty($walk)) return true;
+
+        // Probe 4: Standard system tree walk
+        $walk = @snmp2_real_walk($target, $comm, '.1.3.6.1.2.1.1', 1000000, 0);
+        if (!empty($walk)) return true;
+
+        return false;
+    }
+
+    /**
+     * Uji konektivitas SNMP ke OLT (dapat menerima parameter form langsung)
+     */
+    public function testConnection(?string $targetHost = null, ?int $targetPort = null, ?string $community = null): array
+    {
+        $this->configureSnmpEnvironment();
+        $host = $targetHost ?: $this->host;
+        $port = $targetPort ?: $this->port;
+        $comm = $community ?: $this->communityRo;
+        $target = "{$host}:{$port}";
+
         $start = microtime(true);
         try {
-            $sysName = $this->get(self::OID_SYS_NAME);
-            $sysDescr = $this->get(self::OID_SYS_DESCR);
+            $sysName = @snmp2_get($target, $comm, self::OID_SYS_NAME, 1500000, 1);
+            $sysDescr = @snmp2_get($target, $comm, self::OID_SYS_DESCR, 1500000, 1);
+
+            if ($sysName === false && $sysDescr === false) {
+                // Coba ambil via real walk jika get scalar diblokir
+                $walk = @snmp2_real_walk($target, $comm, '.1.3.6.1.2.1.1', 1500000, 1);
+                if (!empty($walk)) {
+                    $sysDescr = reset($walk);
+                }
+            }
+
+            if ($sysName === false && $sysDescr === false) {
+                // Coba cek MIB ZTE langsung
+                $walk = @snmp2_real_walk($target, $comm, '.1.3.6.1.4.1.3902', 1500000, 1);
+                if (!empty($walk)) {
+                    $sysDescr = "ZTE Enterprise GPON Device";
+                }
+            }
+
             $elapsed = round((microtime(true) - $start) * 1000, 2);
 
-            if ($sysName !== null || $sysDescr !== null) {
-                $nameClean = trim(str_replace(['STRING:', '"'], '', (string) ($sysName ?: $sysDescr)));
+            if ($sysName !== false || $sysDescr !== false) {
+                $rawVal = (string) ($sysName ?: $sysDescr);
+                $nameClean = trim(str_replace(['STRING:', '"'], '', $rawVal)) ?: 'ZTE OLT';
                 return [
                     'success' => true,
-                    'message' => "SNMP OLT Aktif (Community: {$this->communityRo}) - {$nameClean} [{$elapsed}ms]",
+                    'message' => "SNMP OLT Aktif (Community: {$comm}) - {$nameClean} [{$elapsed}ms]",
                     'elapsed' => $elapsed,
                 ];
             }
 
             return [
                 'success' => false,
-                'message' => "Tidak ada respons SNMP dari OLT {$this->host}:{$this->port} (Community: {$this->communityRo}). Cek konfigurasi OLT atau firewall UDP 161.",
+                'message' => "Tidak ada respons SNMP dari OLT {$host}:{$port} (Community: {$comm}). Pastikan port UDP 161 terbuka di firewall/router.",
             ];
         } catch (\Throwable $e) {
             return [
@@ -88,6 +161,15 @@ class OltSnmpService
     public function getDashboardData(?string $targetPort = null): array
     {
         $startTime = microtime(true);
+        $this->configureSnmpEnvironment();
+
+        // 0. Cek cepat apakah perangkat merespons SNMP
+        if (!$this->ping()) {
+            return [
+                'success' => false,
+                'error' => "Perangkat OLT {$this->host}:{$this->port} tidak merespons SNMP (Community: {$this->communityRo}).",
+            ];
+        }
 
         // 1. Dapatkan mapping PON Port IfIndex -> Nama Port (e.g. 268501248 -> '1/2/8')
         $portMap = $this->getPortInterfaceMap();
@@ -126,27 +208,27 @@ class OltSnmpService
         // Susun State Map [ "ponIndex:onuId" => "WORKING" / "LOS" / dsb ]
         $stateMap = [];
         foreach ($stateWalk as $k => $v) {
-            $idx = $this->extractIndices($k, '3\.(?:28\.2\.1\.[34]|10\.2\.2\.2\.1\.4)');
+            $idx = $this->extractIndices((string) $k);
             if ($idx) {
                 $key = "{$idx['pon_index']}:{$idx['onu_id']}";
-                $stateMap[$key] = $this->parsePhaseState($v);
+                $stateMap[$key] = $this->parsePhaseState((string) $v);
             }
         }
 
         // Susun Power Map [ "ponIndex:onuId" => "-19.45" ]
         $powerMap = [];
         foreach ($powerWalk as $k => $v) {
-            $idx = $this->extractIndices($k, '(?:3\.50\.12\.1\.1\.10|500\.20\.2\.2\.2\.1\.10)');
+            $idx = $this->extractIndices((string) $k);
             if ($idx) {
                 $key = "{$idx['pon_index']}:{$idx['onu_id']}";
-                $powerMap[$key] = $this->parseRxPower($v);
+                $powerMap[$key] = $this->parseRxPower((string) $v);
             }
         }
 
         // Susun Configured ONU List
         $configured = [];
         foreach ($snWalk as $k => $v) {
-            $idx = $this->extractIndices($k, '(?:3\.28\.1\.1\.5|500\.10\.2\.2\.1\.5)');
+            $idx = $this->extractIndices((string) $k);
             if (!$idx) {
                 continue;
             }
@@ -156,13 +238,13 @@ class OltSnmpService
             $portName = $portMap[$ponIndex] ?? $this->decodeIfIndex($ponIndex);
 
             // Filter jika target port diminta (e.g. '1/2/8')
-            if ($targetPort && $portName !== $targetPort) {
+            if ($targetPort && $portName !== $targetPort && !str_ends_with($portName, $targetPort)) {
                 continue;
             }
 
             $key = "{$ponIndex}:{$onuId}";
-            $snClean = $this->parseZteSn($v);
-            $status = $stateMap[$key] ?? 'OFFLINE';
+            $snClean = $this->parseZteSn((string) $v);
+            $status = $stateMap[$key] ?? 'WORKING';
             $rxPower = $powerMap[$key] ?? '-';
 
             // Jika status LOS/OFFLINE, pastikan rxPower '-'
@@ -182,7 +264,7 @@ class OltSnmpService
         // Susun Unconfigured List
         $unconfigured = [];
         foreach ($uncfgWalk as $k => $v) {
-            $idx = $this->extractIndices($k, '(?:3\.28\.4\.1\.[35]|500\.10\.2\.2\.5\.1\.2)');
+            $idx = $this->extractIndices((string) $k);
             if (!$idx) {
                 continue;
             }
@@ -190,13 +272,13 @@ class OltSnmpService
             $ponIndex = $idx['pon_index'];
             $portName = $portMap[$ponIndex] ?? $this->decodeIfIndex($ponIndex);
 
-            if ($targetPort && $portName !== $targetPort) {
+            if ($targetPort && $portName !== $targetPort && !str_ends_with($portName, $targetPort)) {
                 continue;
             }
 
             $unconfigured[] = [
                 'port' => $portName,
-                'sn' => $this->parseZteSn($v),
+                'sn' => $this->parseZteSn((string) $v),
                 'status' => 'auto-find',
             ];
         }
@@ -237,7 +319,7 @@ class OltSnmpService
 
             foreach ($ifWalk as $k => $v) {
                 // Key format: .1.3.6.1.2.1.31.1.1.1.1.268501248
-                if (preg_match('/\.(\d+)$/', $k, $m)) {
+                if (preg_match('/\.(\d+)$/', (string) $k, $m)) {
                     $ifIndex = (int) $m[1];
                     $valClean = trim(str_replace(['STRING:', '"'], '', (string) $v));
 
@@ -272,24 +354,23 @@ class OltSnmpService
     /**
      * Ekstrak [ 'pon_index' => ..., 'onu_id' => ... ] dari suffix OID
      */
-    private function extractIndices(string $key, string $basePattern): ?array
+    private function extractIndices(string $key): ?array
     {
-        if (preg_match("/{$basePattern}\.(.*)$/", $key, $m)) {
-            $parts = explode('.', $m[1]);
-            if (count($parts) >= 2) {
-                return [
-                    'pon_index' => (int) $parts[0],
-                    'onu_id'    => (int) $parts[1],
-                    'sub_id'    => $parts[2] ?? null,
-                ];
-            }
-        }
-
-        // Fallback: ambil 2 angka terakhir dari string OID
-        if (preg_match('/\.(\d+)\.(\d+)(?:\.\d+)?$/', $key, $m)) {
+        // Format ZTE PON ifIndex biasanya 9 digit (>= 268435456) diikuti ONU ID (1-128)
+        if (preg_match('/\.(\d{6,12})\.(\d{1,3})(?:\.(\d+))?$/', $key, $m)) {
             return [
                 'pon_index' => (int) $m[1],
                 'onu_id'    => (int) $m[2],
+                'sub_id'    => isset($m[3]) ? (int) $m[3] : null,
+            ];
+        }
+
+        // Generic fallback: ambil 2 angka terakhir
+        if (preg_match('/\.(\d+)\.(\d+)(?:\.(\d+))?$/', $key, $m)) {
+            return [
+                'pon_index' => (int) $m[1],
+                'onu_id'    => (int) $m[2],
+                'sub_id'    => isset($m[3]) ? (int) $m[3] : null,
             ];
         }
 
@@ -385,37 +466,12 @@ class OltSnmpService
     }
 
     /**
-     * SNMP GET helper
-     */
-    private function get(string $oid): ?string
-    {
-        if (function_exists('snmp2_get')) {
-            $target = "{$this->host}:{$this->port}";
-            $res = @snmp2_get($target, $this->communityRo, $oid, $this->timeoutMicros, $this->retries);
-            if ($res !== false && $res !== null) {
-                return (string) $res;
-            }
-        }
-
-        // Fallback ke CLI snmpget
-        $cmd = sprintf(
-            'snmpget -v 2c -c %s -t %d -r %d %s:%d %s 2>/dev/null',
-            escapeshellarg($this->communityRo),
-            max(1, (int) ($this->timeoutMicros / 1000000)),
-            $this->retries,
-            escapeshellarg($this->host),
-            $this->port,
-            escapeshellarg($oid)
-        );
-        $output = @shell_exec($cmd);
-        return $output ? trim($output) : null;
-    }
-
-    /**
      * SNMP WALK helper
      */
     private function walk(string $oid): array
     {
+        $this->configureSnmpEnvironment();
+
         if (function_exists('snmp2_real_walk')) {
             $target = "{$this->host}:{$this->port}";
             $walk = @snmp2_real_walk($target, $this->communityRo, $oid, $this->timeoutMicros, $this->retries);
@@ -426,7 +482,7 @@ class OltSnmpService
 
         // Fallback ke CLI snmpwalk
         $cmd = sprintf(
-            'snmpwalk -v 2c -c %s -t %d -r %d %s:%d %s 2>/dev/null',
+            'snmpwalk -v 2c -c %s -O n -t %d -r %d %s:%d %s 2>/dev/null',
             escapeshellarg($this->communityRo),
             max(1, (int) ($this->timeoutMicros / 1000000)),
             $this->retries,

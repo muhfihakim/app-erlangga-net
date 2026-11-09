@@ -162,13 +162,17 @@ class OltController extends Controller
         // 1. Prioritaskan SNMP jika aktif (Rekomendasi - Cepat & Ringan)
         if ($driver === 'snmp') {
             try {
-                $cacheKey = $port ? "olt_snmp_port_{$port}" : 'olt_dashboard_data';
+                $cacheKey = $port ? "olt_snmp_port_{$port}" : 'olt_snmp_dashboard_data';
                 if (!$force && Cache::has($cacheKey)) {
-                    return response()->json(Cache::get($cacheKey));
+                    $cached = Cache::get($cacheKey);
+                    if (is_array($cached) && ($cached['driver'] ?? '') === 'snmp') {
+                        return response()->json($cached);
+                    }
+                    Cache::forget($cacheKey);
                 }
 
                 $snmpResult = $this->snmpService->getDashboardData($port);
-                if (!empty($snmpResult['success']) && (!empty($snmpResult['configured']) || !empty($snmpResult['unconfigured']))) {
+                if (!empty($snmpResult['success'])) {
                     Cache::put($cacheKey, $snmpResult, 300); // Cache 5 menit
                     return response()->json($snmpResult);
                 }
@@ -218,14 +222,19 @@ class OltController extends Controller
         $driver = Setting::get('olt_mode', config('olt.driver', 'snmp'));
 
         if ($driver === 'snmp') {
-            if (!$forceRefresh && Cache::has('olt_dashboard_data')) {
-                return Cache::get('olt_dashboard_data');
+            $cacheKey = 'olt_snmp_dashboard_data';
+            if (!$forceRefresh && Cache::has($cacheKey)) {
+                $cached = Cache::get($cacheKey);
+                if (is_array($cached) && ($cached['driver'] ?? '') === 'snmp') {
+                    return $cached;
+                }
+                Cache::forget($cacheKey);
             }
 
             try {
                 $snmpResult = $this->snmpService->getDashboardData();
-                if (!empty($snmpResult['success']) && (!empty($snmpResult['configured']) || !empty($snmpResult['unconfigured']))) {
-                    Cache::put('olt_dashboard_data', $snmpResult, 360);
+                if (!empty($snmpResult['success'])) {
+                    Cache::put($cacheKey, $snmpResult, 360);
                     return $snmpResult;
                 }
             } catch (\Throwable $e) {

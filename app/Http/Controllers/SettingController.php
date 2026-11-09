@@ -302,7 +302,7 @@ class SettingController extends Controller
                 $snmpOk = false;
                 try {
                     $snmpService = new \App\Services\OltSnmpService();
-                    $snmpTest = $snmpService->testConnection();
+                    $snmpTest = $snmpService->testConnection($host, $snmpPort, $snmpCommunity);
                     if (!empty($snmpTest['success'])) {
                         $snmpOk = true;
                         $results[] = "SNMP Aktif ({$snmpCommunity}) [{$snmpTest['elapsed']}ms]";
