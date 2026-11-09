@@ -442,16 +442,20 @@
             </div>
             <div class="modal-body !p-4 md:!p-5 bg-white space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                    <!-- WAN Info -->
+                    <!-- WAN & Customer Info -->
                     <div class="space-y-2">
                         <div class="flex items-center gap-1.5 text-xs font-bold text-slate-700">
                             <i class="fa-solid fa-network-wired text-sky-500 text-[11px]"></i>
-                            <span>Informasi WAN (PPPoE)</span>
+                            <span>Informasi Pelanggan & WAN</span>
                         </div>
                         <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 space-y-2">
                             <div class="flex justify-between items-center text-xs">
-                                <span class="text-slate-500 font-medium">Username</span>
-                                <span id="det_wan_user" class="font-mono font-bold text-slate-800 text-right truncate max-w-[130px]">-</span>
+                                <span class="text-slate-500 font-medium">Pelanggan</span>
+                                <span id="det_customer_name" class="font-bold text-slate-800 text-right truncate max-w-[140px]">-</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500 font-medium">Username PPPoE</span>
+                                <span id="det_wan_user" class="font-mono font-bold text-slate-800 text-right truncate max-w-[140px]">-</span>
                             </div>
                             <div class="flex justify-between items-center text-xs">
                                 <span class="text-slate-500 font-medium">Current IP</span>
@@ -465,6 +469,10 @@
                                 <span class="text-slate-500 font-medium">RX Power (Att)</span>
                                 <span id="det_rx_power" class="font-mono font-bold text-rose-600">-</span>
                             </div>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500 font-medium">Jarak (Distance)</span>
+                                <span id="det_distance" class="font-mono font-bold text-slate-800">-</span>
+                            </div>
                             <div class="flex justify-between items-center text-xs border-t border-slate-200 pt-2 mt-1">
                                 <span class="text-slate-500 font-medium">Status WAN</span>
                                 <span id="det_wan_status" class="badge !text-[10px] !py-0.5 !px-2 font-bold">-</span>
@@ -472,13 +480,17 @@
                         </div>
                     </div>
 
-                    <!-- Traffic Stats -->
+                    <!-- Traffic Stats & Device Info -->
                     <div class="space-y-2">
                         <div class="flex items-center gap-1.5 text-xs font-bold text-slate-700">
                             <i class="fa-solid fa-chart-simple text-emerald-500 text-[11px]"></i>
-                            <span>Statistik Trafik</span>
+                            <span>Statistik & Perangkat</span>
                         </div>
                         <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 space-y-2">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500 font-medium">Tipe ONT</span>
+                                <span id="det_onu_type" class="font-mono font-bold text-slate-800">-</span>
+                            </div>
                             <div class="flex justify-between items-center text-xs">
                                 <span class="text-slate-500 font-medium">Input Rate</span>
                                 <span id="det_stat_in_rate" class="font-mono font-bold text-emerald-600">-</span>
@@ -494,6 +506,10 @@
                             <div class="flex justify-between items-center text-xs">
                                 <span class="text-slate-500 font-medium">Total Upload</span>
                                 <span id="det_stat_out_total" class="font-mono font-bold text-slate-800">-</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs border-t border-slate-200 pt-2 mt-1">
+                                <span class="text-slate-500 font-medium">MAC / Session</span>
+                                <span id="det_mac_session" class="font-mono text-[11px] font-semibold text-slate-600 truncate max-w-[130px]">-</span>
                             </div>
                         </div>
                     </div>
@@ -688,16 +704,20 @@ show gpon onu state gpon-olt_${port}`;
 
             function checkOnuStatus(port, onuId, sn) {
                 // Reset placeholder modal dan buka modal langsung dengan visual loading instan
+                $('#det_customer_name').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
                 $('#det_wan_user').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
                 $('#det_wan_ip').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
                 $('#det_wan_user_vlan').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
                 $('#det_rx_power').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
+                $('#det_distance').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
                 $('#det_wan_status').text('MEMUAT...').removeClass('bg-emerald-100 text-emerald-700 bg-rose-100 text-rose-700').addClass('bg-slate-100 text-slate-600');
+                $('#det_onu_type').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
                 $('#det_stat_in_rate').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
                 $('#det_stat_out_rate').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
                 $('#det_stat_in_total').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
                 $('#det_stat_out_total').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
-                $('#terminal_output').val('Menghubungkan ke OLT via Telnet CLI untuk mengambil data detail gpon-onu_' + port + ':' + onuId + '...');
+                $('#det_mac_session').html('<i class="fa-solid fa-spinner fa-spin text-slate-400 text-xs"></i>');
+                $('#terminal_output').val('Menghubungkan ke OLT untuk mengambil data detail gpon-onu_' + port + ':' + onuId + '...');
                 openCustomModal('onuDetailModal');
 
                 $.ajax({
@@ -710,27 +730,31 @@ show gpon onu state gpon-olt_${port}`;
                     },
                     success: function(res) {
                         if (res.success) {
-                            // Fill WAN Info
+                            // Fill WAN & Customer Info
+                            $('#det_customer_name').text(res.wan_info.customer_name || '-');
                             $('#det_wan_user').text(res.wan_info.username || '-');
                             $('#det_wan_ip').text(res.wan_info.ip || '-');
                             $('#det_wan_user_vlan').text(res.wan_info.vlan || '-');
                             $('#det_rx_power').text(res.rx_power ? (res.rx_power.includes('dBm') ? res.rx_power : `${res.rx_power} dBm`) : '-');
+                            $('#det_distance').text(res.wan_info.distance || '-');
 
                             const $status = $('#det_wan_status');
                             const statusText = (res.wan_info.status || 'DISCONNECTED').toUpperCase();
                             $status.text(statusText);
                             $status.removeClass('bg-emerald-100 text-emerald-700 bg-rose-100 text-rose-700 bg-slate-100 text-slate-700');
-                            if (statusText === 'CONNECTED') {
+                            if (statusText === 'CONNECTED' || statusText === 'WORKING') {
                                 $status.addClass('bg-emerald-100 text-emerald-700');
                             } else {
                                 $status.addClass('bg-rose-100 text-rose-700');
                             }
 
-                            // Fill Traffic Stats
+                            // Fill Traffic & Device Stats
+                            $('#det_onu_type').text(res.wan_info.onu_type || '-');
                             $('#det_stat_in_rate').text(res.stats.input_rate || '0 Bps');
                             $('#det_stat_out_rate').text(res.stats.output_rate || '0 Bps');
                             $('#det_stat_in_total').text(res.stats.input_total || '0 Bytes');
                             $('#det_stat_out_total').text(res.stats.output_total || '0 Bytes');
+                            $('#det_mac_session').text(res.stats.mac_session || '-');
 
                             $('#terminal_output').val(res.raw_output);
                             $('#terminal_output').scrollTop($('#terminal_output')[0].scrollHeight);
@@ -897,6 +921,22 @@ show gpon onu state gpon-olt_${port}`;
                                         badgeColor = '#fffbeb';
                                         textColor = '#b45309';
                                         badgeIcon = '<i class="fa-solid fa-triangle-exclamation text-[9px] mr-1 text-amber-600"></i>';
+                                    } else if (onu.status === 'syncMib') {
+                                        badgeColor = '#eff6ff';
+                                        textColor = '#1d4ed8';
+                                        badgeIcon = '<i class="fa-solid fa-rotate text-[9px] mr-1 text-blue-600 fa-spin"></i>';
+                                    } else if (onu.status === 'OFFLINE') {
+                                        badgeColor = '#f8fafc';
+                                        textColor = '#64748b';
+                                        badgeIcon = '<i class="fa-solid fa-power-off text-[9px] mr-1 text-slate-400"></i>';
+                                    } else if (onu.status === 'authFailed') {
+                                        badgeColor = '#fdf2f8';
+                                        textColor = '#be185d';
+                                        badgeIcon = '<i class="fa-solid fa-lock text-[9px] mr-1 text-pink-600"></i>';
+                                    } else if (onu.status === 'logging') {
+                                        badgeColor = '#fefce8';
+                                        textColor = '#a16207';
+                                        badgeIcon = '<i class="fa-solid fa-hourglass-half text-[9px] mr-1 text-amber-600"></i>';
                                     }
 
                                     let powerColor = '#64748b';

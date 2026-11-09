@@ -316,43 +316,106 @@ class OltController extends Controller
         }
 
         $cacheKey = "olt_onu_detail_{$port}_{$onuId}";
-        if (Cache::has($cacheKey)) {
+        if (!$request->boolean('force') && Cache::has($cacheKey)) {
             return response()->json(Cache::get($cacheKey));
         }
 
         $onuIndex = "gpon-onu_{$port}:{$onuId}";
         $rawLogs = [];
 
-        // 1. Dapatkan data dasar via SNMP (Instant Rx Power, SN, Jarak, & Customer/Radius Mapping)
-        $snmpDetail = null;
-        try {
-            $snmpDetail = $this->snmpService->getOnuDetails($port, $onuId, $sn);
-            if (!empty($snmpDetail['raw_output'])) {
-                $rawLogs[] = $snmpDetail['raw_output'];
+        // 1. Dapatkan data awal dari Cache Dashboard (SNMP Fast)
+        $cachedDashboard = Cache::get('olt_snmp_dashboard_data') ?? Cache::get('olt_dashboard_data');
+        $dashboardStatus = 'WORKING';
+        $rxPower = '-';
+        if (is_array($cachedDashboard) && !empty($cachedDashboard['configured'])) {
+            foreach ($cachedDashboard['configured'] as $item) {
+                if (($item['port'] === $port || str_ends_with($item['port'], $port)) && (int)$item['onu_id'] === (int)$onuId) {
+                    if (empty($sn) || $sn === '-') {
+                        $sn = $item['sn'] ?? '';
+                    }
+                    $rxPower = $item['rx_power'] ?? '-';
+                    $dashboardStatus = $item['status'] ?? 'WORKING';
+                    break;
+                }
             }
-        } catch (\Throwable $e) {
-            Log::warning("SNMP detail query failed: " . $e->getMessage());
         }
 
         $wanInfo = [
-            'username' => $snmpDetail['wan_info']['username'] ?? '-',
-            'ip' => $snmpDetail['wan_info']['ip'] ?? '-',
-            'vlan' => $snmpDetail['wan_info']['vlan'] ?? '-',
-            'status' => $snmpDetail['wan_info']['status'] ?? 'DISCONNECTED',
-            'distance' => $snmpDetail['wan_info']['distance'] ?? '-',
+            'username' => '-',
+            'ip' => '-',
+            'vlan' => '-',
+            'status' => ($dashboardStatus === 'WORKING' ? 'CONNECTED' : 'DISCONNECTED'),
+            'distance' => '-',
+            'customer_name' => '-',
+            'customer_id' => '-',
+            'onu_type' => '-',
         ];
 
-        $stats = $snmpDetail['stats'] ?? [
+        $stats = [
             'input_rate' => '0 Bps',
             'output_rate' => '0 Bps',
             'input_total' => '0 Bytes',
             'output_total' => '0 Bytes',
+            'mac_session' => '-',
         ];
 
-        $rxPower = $snmpDetail['rx_power'] ?? '-';
+        // 2. Hubungkan dengan database Customer jika Serial Number tersedia
+        $customer = null;
+        if (!empty($sn) && $sn !== '-') {
+            $customer = $this->findCustomerBySn($sn);
+            if ($customer) {
+                $wanInfo['customer_name'] = $customer->nama_lengkap ?? '-';
+                $wanInfo['customer_id'] = $customer->id_pelanggan ?? '-';
+                if (!empty($customer->pppoe_username)) {
+                    $wanInfo['username'] = $customer->pppoe_username;
+                }
+                if ($customer->paket && !empty($customer->paket->vlan)) {
+                    $wanInfo['vlan'] = (string) $customer->paket->vlan;
+                }
+            }
+        }
 
-        // 2. HYBRID: Eksekusi 1 Telnet command cepat khusus WAN IP untuk ONU ini (< 1s)
+        // 3. HYBRID ON-DEMAND TELNET: Ambil rincian detail dari CLI OLT
         try {
+            // A. show gpon onu detail-info (Berlaku untuk semua tipe ONT, baik Bridge maupun Route)
+            $detailRaw = $this->oltService->execute("show gpon onu detail-info {$onuIndex}");
+            if ($detailRaw) {
+                $rawLogs[] = "--- TELNET CLI (DETAIL INFO) ---\n" . $detailRaw;
+                $telnetDetail = $this->parseOnuDetailInfo($detailRaw);
+
+                if (!empty($telnetDetail['distance']) && $telnetDetail['distance'] !== '-') {
+                    $wanInfo['distance'] = $telnetDetail['distance'];
+                }
+                if (!empty($telnetDetail['type']) && $telnetDetail['type'] !== '-') {
+                    $wanInfo['onu_type'] = $telnetDetail['type'];
+                }
+                if ($telnetDetail['phase_state'] !== '-') {
+                    $pState = strtoupper($telnetDetail['phase_state']);
+                    if (str_contains($pState, 'WORKING') || str_contains($pState, 'READY')) {
+                        $wanInfo['status'] = 'CONNECTED';
+                    }
+                }
+                if ((empty($sn) || $sn === '-') && !empty($telnetDetail['sn']) && $telnetDetail['sn'] !== '-') {
+                    $sn = $telnetDetail['sn'];
+                }
+
+                // Jika customer belum ditemukan, coba cocokkan dengan Name atau Description dari OLT
+                if (!$customer && (!empty($telnetDetail['name']) || !empty($telnetDetail['description']))) {
+                    $candidateId = trim($telnetDetail['name']);
+                    $customer = \App\Models\Customer::where('id_pelanggan', $candidateId)
+                        ->orWhere('pppoe_username', $candidateId)
+                        ->first();
+                    if ($customer) {
+                        $wanInfo['customer_name'] = $customer->nama_lengkap ?? '-';
+                        $wanInfo['customer_id'] = $customer->id_pelanggan ?? '-';
+                        if (!empty($customer->pppoe_username)) {
+                            $wanInfo['username'] = $customer->pppoe_username;
+                        }
+                    }
+                }
+            }
+
+            // B. show gpon remote-onu wan-ip (Untuk ONT dalam mode Route/PPPoE client)
             $wanRaw = $this->oltService->execute("show gpon remote-onu wan-ip {$onuIndex}");
             if ($wanRaw) {
                 $rawLogs[] = "--- TELNET CLI (WAN INFO) ---\n" . $wanRaw;
@@ -372,20 +435,67 @@ class OltController extends Controller
                     $wanInfo['status'] = 'CONNECTED';
                 }
             }
+
+            // C. show pon power attenuation jika Rx Power belum ada
+            if ($rxPower === '-' || $rxPower === 'No Signal' || $rxPower === 'no signal') {
+                $powerRaw = $this->oltService->execute("show pon power attenuation {$onuIndex}");
+                if ($powerRaw) {
+                    $rawLogs[] = "--- TELNET CLI (POWER ATTENUATION) ---\n" . $powerRaw;
+                    $parsedPower = $this->parseAttenuationPower($powerRaw);
+                    if ($parsedPower !== '-') {
+                        $rxPower = $parsedPower;
+                    }
+                }
+            }
         } catch (\Throwable $e) {
             Log::warning("Telnet hybrid detail error: " . $e->getMessage());
             $rawLogs[] = "--- TELNET NOTICE ---\n" . $e->getMessage();
         }
 
-        // 3. Fallback Customer Matching jika username belum ada
-        if ($wanInfo['username'] === '-' && !empty($sn)) {
+        // 4. Query FreeRADIUS radacct untuk Live IP, Session, & Total Traffic jika Username tersedia
+        if ($wanInfo['username'] !== '-') {
             try {
-                $customer = \App\Models\Customer::where('sn_perangkat', $sn)->first();
-                if ($customer && !empty($customer->pppoe_username)) {
-                    $wanInfo['username'] = $customer->pppoe_username;
+                $activeSession = DB::connection('radius')
+                    ->table('radacct')
+                    ->where('username', $wanInfo['username'])
+                    ->whereNull('acctstoptime')
+                    ->orderByDesc('radacctid')
+                    ->first();
+
+                if ($activeSession) {
+                    if (!empty($activeSession->framedipaddress)) {
+                        $wanInfo['ip'] = $activeSession->framedipaddress;
+                    }
+                    $wanInfo['status'] = 'CONNECTED';
+                    if (!empty($activeSession->acctinputoctets)) {
+                        $stats['input_total'] = $this->formatBytes($activeSession->acctinputoctets);
+                    }
+                    if (!empty($activeSession->acctoutputoctets)) {
+                        $stats['output_total'] = $this->formatBytes($activeSession->acctoutputoctets);
+                    }
+                    $stats['mac_session'] = $activeSession->callingstationid ?: ($activeSession->acctsessionid ?? '-');
+                } else {
+                    $lastSession = DB::connection('radius')
+                        ->table('radacct')
+                        ->where('username', $wanInfo['username'])
+                        ->orderByDesc('radacctid')
+                        ->first();
+
+                    if ($lastSession) {
+                        if ($wanInfo['ip'] === '-' && !empty($lastSession->framedipaddress)) {
+                            $wanInfo['ip'] = $lastSession->framedipaddress . ' (Offline)';
+                        }
+                        if (!empty($lastSession->acctinputoctets)) {
+                            $stats['input_total'] = $this->formatBytes($lastSession->acctinputoctets);
+                        }
+                        if (!empty($lastSession->acctoutputoctets)) {
+                            $stats['output_total'] = $this->formatBytes($lastSession->acctoutputoctets);
+                        }
+                        $stats['mac_session'] = $lastSession->callingstationid ?: ($lastSession->acctsessionid ?? '-');
+                    }
                 }
             } catch (\Throwable $e) {
-                // ignore
+                // Ignore FreeRADIUS query error
             }
         }
 
@@ -393,6 +503,7 @@ class OltController extends Controller
             'success' => true,
             'mode' => 'hybrid',
             'onu_index' => $onuIndex,
+            'sn' => $sn,
             'wan_info' => $wanInfo,
             'stats' => $stats,
             'rx_power' => $rxPower,
@@ -403,6 +514,81 @@ class OltController extends Controller
         Cache::put($cacheKey, $result, 60);
 
         return response()->json($result);
+    }
+
+    private function findCustomerBySn(?string $sn): ?\App\Models\Customer
+    {
+        if (empty($sn) || $sn === '-') return null;
+
+        $snClean = strtoupper(trim(preg_replace('/[^A-Za-z0-9]/', '', $sn)));
+        if (empty($snClean)) return null;
+
+        // 1. Exact or partial contains on sn_perangkat
+        $customer = \App\Models\Customer::where('sn_perangkat', $sn)
+            ->orWhere('sn_perangkat', $snClean)
+            ->orWhere('sn_perangkat', 'LIKE', "%{$snClean}%")
+            ->first();
+        if ($customer) return $customer;
+
+        // 2. Match last 8 characters (hex serial portion)
+        if (strlen($snClean) >= 8) {
+            $suffix8 = substr($snClean, -8);
+            $customer = \App\Models\Customer::where('sn_perangkat', 'LIKE', "%{$suffix8}%")->first();
+            if ($customer) return $customer;
+        }
+
+        // 3. Match last 6 characters
+        if (strlen($snClean) >= 6) {
+            $suffix6 = substr($snClean, -6);
+            $customer = \App\Models\Customer::where('sn_perangkat', 'LIKE', "%{$suffix6}%")->first();
+            if ($customer) return $customer;
+        }
+
+        return null;
+    }
+
+    private function parseOnuDetailInfo(string $raw): array
+    {
+        $info = [
+            'name' => '-',
+            'type' => '-',
+            'description' => '-',
+            'distance' => '-',
+            'phase_state' => '-',
+            'sn' => '-',
+            'online_duration' => '-',
+        ];
+
+        if (preg_match('/Name\s*:\s*([^\r\n]+)/i', $raw, $m)) $info['name'] = trim($m[1]);
+        if (preg_match('/Type\s*:\s*([^\r\n]+)/i', $raw, $m)) $info['type'] = trim($m[1]);
+        if (preg_match('/Description\s*:\s*([^\r\n]+)/i', $raw, $m)) $info['description'] = trim($m[1]);
+        if (preg_match('/ONU\s+Distance\s*:\s*([^\r\n]+)/i', $raw, $m)) $info['distance'] = trim($m[1]);
+        if (preg_match('/Phase\s+state\s*:\s*([^\r\n]+)/i', $raw, $m)) $info['phase_state'] = trim($m[1]);
+        if (preg_match('/Serial\s+number\s*:\s*([^\r\n]+)/i', $raw, $m)) $info['sn'] = trim($m[1]);
+        if (preg_match('/Online\s+Duration\s*:\s*([^\r\n]+)/i', $raw, $m)) $info['online_duration'] = trim($m[1]);
+
+        return $info;
+    }
+
+    private function parseAttenuationPower(string $raw): string
+    {
+        // Format 1: "ONU Rx : -23.120(dbm)"
+        if (preg_match('/ONU\s+Rx\s*:\s*([\-\d\.]+)/i', $raw, $m)) {
+            return sprintf('%.2f dBm', (float) $m[1]);
+        }
+
+        // Format 2: Tabular "down -21.564(dbm) 2.450(dbm) -23.120(dbm) 2.120(dbm)"
+        // Columns: OLT Rx, OLT Tx, ONU Rx, ONU Tx
+        if (preg_match('/(?:down\s+)?[\-\d\.]+\(dbm\)\s+[\-\d\.]+\(dbm\)\s+([\-\d\.]+)\(dbm\)/i', $raw, $m)) {
+            return sprintf('%.2f dBm', (float) $m[1]);
+        }
+
+        // Format 3: Generic fallback to first negative dBm
+        if (preg_match('/(-\d+\.\d+)\s*(?:\(dbm\)|dbm)/i', $raw, $m)) {
+            return sprintf('%.2f dBm', (float) $m[1]);
+        }
+
+        return '-';
     }
 
     private function parseOnuPower($output)

@@ -34,8 +34,9 @@ class OltSnmpService
     const OID_ONU_PHASE_STATE_V22 = '.1.3.6.1.4.1.3902.1082.500.10.2.2.2.1.4';
 
     // ONU Rx Optical Power
-    const OID_ONU_RX_POWER_V21 = '.1.3.6.1.4.1.3902.1012.3.50.12.1.1.10';
-    const OID_ONU_RX_POWER_V22 = '.1.3.6.1.4.1.3902.1082.500.20.2.2.2.1.10';
+    const OID_ONU_RX_POWER_V21_B = '.1.3.6.1.4.1.3902.1012.3.50.15.1.1.1.10';
+    const OID_ONU_RX_POWER_V21   = '.1.3.6.1.4.1.3902.1012.3.50.12.1.1.10';
+    const OID_ONU_RX_POWER_V22   = '.1.3.6.1.4.1.3902.1082.500.20.2.2.2.1.10';
 
     // Unconfigured ONU Table (Auto-Find)
     const OID_UNCFG_ONU_SN_V21 = '.1.3.6.1.4.1.3902.1012.3.28.4.1.3';
@@ -247,7 +248,10 @@ class OltSnmpService
         }
 
         // 4. Tarik RX Optical Power
-        $powerWalk = $this->walk(self::OID_ONU_RX_POWER_V21);
+        $powerWalk = $this->walk(self::OID_ONU_RX_POWER_V21_B);
+        if (empty($powerWalk)) {
+            $powerWalk = $this->walk(self::OID_ONU_RX_POWER_V21);
+        }
         if (empty($powerWalk)) {
             $powerWalk = $this->walk(self::OID_ONU_RX_POWER_V22);
         }
@@ -839,17 +843,31 @@ class OltSnmpService
             $raw = (int) $val;
         }
 
-        if ($raw === 65535 || $raw <= 0 || $raw >= 2147483647) {
+        // Invalid / No Signal markers
+        if ($raw === 65535 || $raw === 2147483647 || $raw === -2147483648 || $raw === 0) {
             return '-';
         }
 
-        if ($raw > 30000) {
+        // Format 1: Negative value (e.g. -21564 => -21.56 dBm or -215 => -21.5 dBm)
+        if ($raw < 0) {
+            if ($raw <= -1000) {
+                $power = $raw / 1000;
+            } elseif ($raw <= -100) {
+                $power = $raw / 10;
+            } else {
+                $power = (float) $raw;
+            }
+        }
+        // Format 2: Standard ZTE C300/C320 unsigned integer: dBm = (raw * 0.002) - 30
+        elseif ($raw > 0 && $raw < 30000) {
+            $power = ($raw * 0.002) - 30;
+        } elseif ($raw >= 30000 && $raw < 65535) {
             $power = (($raw - 65536) * 0.002) - 30;
         } else {
-            $power = ($raw * 0.002) - 30;
+            return '-';
         }
 
-        if ($power < -50 || $power > 0) {
+        if ($power < -50 || $power > 10) {
             return '-';
         }
 
@@ -858,25 +876,57 @@ class OltSnmpService
 
     /**
      * Parsing kode integer Phase State ke status deskriptif
+     * ZXGPON-SERVICE-MIB (0-indexed enum):
+     * 0 => logging
+     * 1 => los
+     * 2 => syncMib
+     * 3 => working
+     * 4 => dyinggasp
+     * 5 => authFailed
+     * 6 => offline
      */
     public function parsePhaseState(string $val): string
     {
-        if (preg_match('/(?:INTEGER:\s*)?(\d+)/i', $val, $m)) {
-            $code = (int) $m[1];
-        } else {
-            $code = (int) $val;
+        $valLower = strtolower(trim($val));
+
+        // Direct string contains check first
+        if (str_contains($valLower, 'working')) {
+            return 'WORKING';
+        }
+        if (str_contains($valLower, 'syncmib') || str_contains($valLower, 'sync-mib') || str_contains($valLower, 'sync mib')) {
+            return 'syncMib';
+        }
+        if (str_contains($valLower, 'los')) {
+            return 'LOS';
+        }
+        if (str_contains($valLower, 'dyinggasp') || str_contains($valLower, 'dying-gasp')) {
+            return 'DyingGasp';
+        }
+        if (str_contains($valLower, 'authfailed') || str_contains($valLower, 'auth-failed')) {
+            return 'authFailed';
+        }
+        if (str_contains($valLower, 'offline')) {
+            return 'OFFLINE';
+        }
+        if (str_contains($valLower, 'logging')) {
+            return 'logging';
         }
 
-        return match ($code) {
-            1 => 'logging',
-            2 => 'LOS',
-            3 => 'syncMib',
-            4 => 'WORKING',
-            5 => 'DyingGasp',
-            6 => 'authFailed',
-            7 => 'OFFLINE',
-            default => 'UNKNOWN',
-        };
+        if (preg_match('/(?:INTEGER:\s*)?(-?\d+)/i', $val, $m)) {
+            $code = (int) $m[1];
+            return match ($code) {
+                0 => 'logging',
+                1 => 'LOS',
+                2 => 'syncMib',
+                3 => 'WORKING',
+                4 => 'DyingGasp',
+                5 => 'authFailed',
+                6 => 'OFFLINE',
+                default => 'UNKNOWN',
+            };
+        }
+
+        return 'UNKNOWN';
     }
 
     /**
