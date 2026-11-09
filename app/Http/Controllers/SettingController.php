@@ -40,6 +40,10 @@ class SettingController extends Controller
                 'port' => Setting::get('olt_port', env('OLT_PORT', 23)),
                 'username' => Setting::get('olt_username', env('OLT_USERNAME', 'admin')),
                 'password' => Setting::get('olt_password', env('OLT_PASSWORD', '')),
+                'mode' => Setting::get('olt_mode', env('OLT_DRIVER', 'snmp')),
+                'snmp_community_ro' => Setting::get('olt_snmp_community_ro', env('OLT_SNMP_RO', 'radbooxro')),
+                'snmp_community_rw' => Setting::get('olt_snmp_community_rw', env('OLT_SNMP_RW', 'radbooxrw')),
+                'snmp_port' => Setting::get('olt_snmp_port', env('OLT_SNMP_PORT', 161)),
             ],
             'radius' => [
                 'host' => Setting::get('db_radius_host', env('DB_RADIUS_HOST', '127.0.0.1')),
@@ -134,18 +138,30 @@ class SettingController extends Controller
                 'olt_port' => 'required|numeric',
                 'olt_username' => 'required|string',
                 'olt_password' => 'nullable|string',
+                'olt_mode' => 'nullable|in:snmp,telnet',
+                'olt_snmp_community_ro' => 'nullable|string',
+                'olt_snmp_community_rw' => 'nullable|string',
+                'olt_snmp_port' => 'nullable|numeric',
             ]);
 
             Setting::set('olt_host', $request->olt_host, 'olt');
             Setting::set('olt_port', $request->olt_port, 'olt');
             Setting::set('olt_username', $request->olt_username, 'olt');
             Setting::set('olt_password', $request->olt_password ?? '', 'olt');
+            Setting::set('olt_mode', $request->olt_mode ?? 'snmp', 'olt');
+            Setting::set('olt_snmp_community_ro', $request->olt_snmp_community_ro ?: 'radbooxro', 'olt');
+            Setting::set('olt_snmp_community_rw', $request->olt_snmp_community_rw ?: 'radbooxrw', 'olt');
+            Setting::set('olt_snmp_port', $request->olt_snmp_port ?: 161, 'olt');
 
             config([
                 'olt.host' => $request->olt_host,
                 'olt.port' => (int) $request->olt_port,
                 'olt.username' => $request->olt_username,
                 'olt.password' => $request->olt_password ?? '',
+                'olt.driver' => $request->olt_mode ?? 'snmp',
+                'olt.snmp_ro' => $request->olt_snmp_community_ro ?: 'radbooxro',
+                'olt.snmp_rw' => $request->olt_snmp_community_rw ?: 'radbooxrw',
+                'olt.snmp_port' => (int) ($request->olt_snmp_port ?: 161),
             ]);
         } elseif ($tab === 'radius') {
             $request->validate([
@@ -277,22 +293,43 @@ class SettingController extends Controller
                 $port = (int) $request->input('port', Setting::get('olt_port', env('OLT_PORT', 23)));
                 $username = $request->input('username', Setting::get('olt_username', env('OLT_USERNAME', 'admin')));
                 $password = $request->input('password', Setting::get('olt_password', env('OLT_PASSWORD', '')));
+                $snmpCommunity = $request->input('snmp_community_ro', Setting::get('olt_snmp_community_ro', 'radbooxro'));
+                $snmpPort = (int) $request->input('snmp_port', Setting::get('olt_snmp_port', 161));
 
-                $fp = @fsockopen($host, $port, $errno, $errstr, 10);
-                if (!$fp) {
-                    throw new \Exception("Gagal membuka port telnet {$host}:{$port} - $errstr ($errno)");
+                $results = [];
+
+                // 1. Uji SNMP (Port 161)
+                $snmpOk = false;
+                try {
+                    $snmpService = new \App\Services\OltSnmpService();
+                    $snmpTest = $snmpService->testConnection();
+                    if (!empty($snmpTest['success'])) {
+                        $snmpOk = true;
+                        $results[] = "SNMP Aktif ({$snmpCommunity}) [{$snmpTest['elapsed']}ms]";
+                    }
+                } catch (\Throwable $e) {
+                    // Ignore
                 }
 
-                stream_set_timeout($fp, 5);
-                $banner = fread($fp, 2048);
-                fclose($fp);
+                // 2. Uji Port Telnet Socket (Port 23)
+                $telnetOk = false;
+                $fp = @fsockopen($host, $port, $errno, $errstr, 4);
+                if ($fp) {
+                    $telnetOk = true;
+                    fclose($fp);
+                    $results[] = "Telnet Port {$port} Aktif";
+                }
 
                 $elapsed = round((microtime(true) - $startTime) * 1000, 2);
 
-                return response()->json([
-                    'success' => true,
-                    'message' => "Port Telnet OLT {$host}:{$port} Aktif & Merespons [{$elapsed}ms]",
-                ]);
+                if ($snmpOk || $telnetOk) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => "OLT {$host} Terhubung: " . implode(' & ', $results) . " [Total: {$elapsed}ms]",
+                    ]);
+                }
+
+                throw new \Exception("Gagal menghubungi OLT {$host} via SNMP ({$snmpPort}) maupun Telnet ({$port}): $errstr ($errno)");
             }
 
             if ($type === 'radius') {

@@ -796,11 +796,14 @@ show gpon onu state gpon-olt_${port}`;
                         true);
 
                     $.ajax({
-                        url: '/api/olt/dashboard-data',
+                        url: '/api/olt/dashboard-data?force=1',
                         type: 'GET',
                         success: function(res) {
                             if (res.success) {
-                                $('#dashboard_table_title').text('Status Seluruh ONU OLT');
+                                const driverBadge = res.driver === 'snmp'
+                                    ? ' <span class="badge text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 ml-1.5 font-bold"><i class="fa-solid fa-bolt text-emerald-600 mr-0.5"></i> SNMP Fast</span>'
+                                    : ' <span class="badge text-[10px] bg-slate-100 text-slate-600 border border-slate-200 ml-1.5 font-bold">Telnet</span>';
+                                $('#dashboard_table_title').html('Status Seluruh ONU OLT' + driverBadge);
 
                                 if (dashboardTable) {
                                     dashboardTable.destroy();
@@ -935,7 +938,10 @@ show gpon onu state gpon-olt_${port}`;
                                     }
                                 });
 
-                                showToast('Status seluruh OLT berhasil disinkronkan.', 'success');
+                                const syncMsg = res.driver === 'snmp'
+                                    ? `Status seluruh OLT berhasil disinkronkan via SNMP (${res.elapsed_sec ?? '1'}s).`
+                                    : 'Status seluruh OLT berhasil disinkronkan via Telnet.';
+                                showToast(syncMsg, 'success');
                                 $('#terminal_output').val(res.raw_output);
                                 $('#terminal_output').scrollTop($('#terminal_output')[0]
                                     .scrollHeight);

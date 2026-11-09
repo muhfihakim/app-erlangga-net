@@ -34,6 +34,10 @@ class AppServiceProvider extends ServiceProvider
                 if ($oltPort = \App\Models\Setting::get('olt_port')) config(['olt.port' => (int) $oltPort]);
                 if ($oltUser = \App\Models\Setting::get('olt_username')) config(['olt.username' => $oltUser]);
                 if ($oltPass = \App\Models\Setting::get('olt_password')) config(['olt.password' => $oltPass]);
+                if ($oltDriver = \App\Models\Setting::get('olt_mode')) config(['olt.driver' => $oltDriver]);
+                if ($oltSnmpRo = \App\Models\Setting::get('olt_snmp_community_ro')) config(['olt.snmp_ro' => $oltSnmpRo]);
+                if ($oltSnmpRw = \App\Models\Setting::get('olt_snmp_community_rw')) config(['olt.snmp_rw' => $oltSnmpRw]);
+                if ($oltSnmpPort = \App\Models\Setting::get('olt_snmp_port')) config(['olt.snmp_port' => (int) $oltSnmpPort]);
 
                 // FreeRADIUS Database
                 $hasRadiusConfig = false;

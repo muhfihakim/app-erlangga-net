@@ -4,13 +4,17 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\OltTelnetService;
+use App\Services\OltSnmpService;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Exception;
 
 class OltController extends Controller
 {
     public function __construct(
-        private OltTelnetService $oltService
+        private OltTelnetService $oltService,
+        private OltSnmpService $snmpService
     ) {}
 
     public function index()
@@ -26,6 +30,42 @@ class OltController extends Controller
         $port = $request->input('olt_port');
         if (!$port) {
             return response()->json(['success' => false, 'error' => 'Port OLT harus diisi'], 400);
+        }
+
+        // Cek via SNMP jika mode SNMP aktif
+        $driver = Setting::get('olt_mode', config('olt.driver', 'snmp'));
+        if ($driver === 'snmp') {
+            try {
+                $snmpResult = $this->snmpService->getDashboardData($port);
+                if (!empty($snmpResult['success'])) {
+                    $usedIds = [];
+                    foreach ($snmpResult['configured'] as $onu) {
+                        if (($onu['port'] === $port || str_ends_with($onu['port'], $port)) && !empty($onu['onu_id'])) {
+                            $usedIds[] = (int) $onu['onu_id'];
+                        }
+                    }
+                    $usedIds = array_unique($usedIds);
+                    sort($usedIds);
+
+                    $nextId = 1;
+                    for ($i = 1; $i <= 128; $i++) {
+                        if (!in_array($i, $usedIds)) {
+                            $nextId = $i;
+                            break;
+                        }
+                    }
+
+                    return response()->json([
+                        'success' => true,
+                        'next_id' => $nextId,
+                        'used_ids' => $usedIds,
+                        'driver' => 'snmp',
+                        'raw_output' => $snmpResult['raw_output'] ?? 'SNMP Query',
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                Log::warning('SNMP checkNextOnuId failed, falling back to Telnet: ' . $e->getMessage());
+            }
         }
 
         try {
@@ -115,7 +155,31 @@ class OltController extends Controller
     {
         if (auth()->user()->jabatan === 'Sales') abort(403);
         $port = $request->query('port');
+        $force = filter_var($request->query('force', false), FILTER_VALIDATE_BOOLEAN);
 
+        $driver = Setting::get('olt_mode', config('olt.driver', 'snmp'));
+
+        // 1. Prioritaskan SNMP jika aktif (Rekomendasi - Cepat & Ringan)
+        if ($driver === 'snmp') {
+            try {
+                $cacheKey = $port ? "olt_snmp_port_{$port}" : 'olt_dashboard_data';
+                if (!$force && Cache::has($cacheKey)) {
+                    return response()->json(Cache::get($cacheKey));
+                }
+
+                $snmpResult = $this->snmpService->getDashboardData($port);
+                if (!empty($snmpResult['success']) && (!empty($snmpResult['configured']) || !empty($snmpResult['unconfigured']))) {
+                    Cache::put($cacheKey, $snmpResult, 300); // Cache 5 menit
+                    return response()->json($snmpResult);
+                }
+
+                Log::warning('OLT SNMP data empty or failed, falling back to Telnet: ' . ($snmpResult['error'] ?? 'No data'));
+            } catch (\Throwable $e) {
+                Log::warning('OLT SNMP exception, falling back to Telnet: ' . $e->getMessage());
+            }
+        }
+
+        // 2. Fallback Telnet (Jika driver telnet atau SNMP tidak merespons)
         try {
             if ($port) {
                 // 1. Specific Port Query
@@ -133,6 +197,7 @@ class OltController extends Controller
 
                 return response()->json([
                     'success' => true,
+                    'driver' => 'telnet',
                     'type' => 'configured',
                     'port' => $port,
                     'data' => $data,
@@ -140,7 +205,6 @@ class OltController extends Controller
                 ]);
             } else {
                 // 2. Deep Global Sync (using cache or background sync)
-                $force = $request->query('force', false);
                 $data = $this->syncGlobalData($force);
                 return response()->json($data);
             }
@@ -151,6 +215,24 @@ class OltController extends Controller
 
     public function syncGlobalData($forceRefresh = false)
     {
+        $driver = Setting::get('olt_mode', config('olt.driver', 'snmp'));
+
+        if ($driver === 'snmp') {
+            if (!$forceRefresh && Cache::has('olt_dashboard_data')) {
+                return Cache::get('olt_dashboard_data');
+            }
+
+            try {
+                $snmpResult = $this->snmpService->getDashboardData();
+                if (!empty($snmpResult['success']) && (!empty($snmpResult['configured']) || !empty($snmpResult['unconfigured']))) {
+                    Cache::put('olt_dashboard_data', $snmpResult, 360);
+                    return $snmpResult;
+                }
+            } catch (\Throwable $e) {
+                Log::warning('syncGlobalData SNMP error, fallback to Telnet: ' . $e->getMessage());
+            }
+        }
+
         if (!$forceRefresh && Cache::has('olt_dashboard_data')) {
             return Cache::get('olt_dashboard_data');
         }
