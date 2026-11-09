@@ -686,7 +686,7 @@ show gpon onu state gpon-olt_${port}`;
                 closeCustomModal('selectUncfgModal');
             }
 
-            function checkOnuStatus(port, onuId) {
+            function checkOnuStatus(port, onuId, sn) {
                 // Show loading state in modal or toast
                 showToast('Mengambil data detail ONU...', 'success');
 
@@ -695,41 +695,44 @@ show gpon onu state gpon-olt_${port}`;
                     type: 'GET',
                     data: {
                         port: port,
-                        onu_id: onuId
+                        onu_id: onuId,
+                        sn: sn || ''
                     },
                     success: function(res) {
                         if (res.success) {
                             // Fill WAN Info
-                            $('#det_wan_user').text(res.wan_info.username);
-                            $('#det_wan_ip').text(res.wan_info.ip);
-                            $('#det_wan_user_vlan').text(res.wan_info.vlan);
-                            $('#det_rx_power').text(res.rx_power);
+                            $('#det_wan_user').text(res.wan_info.username || '-');
+                            $('#det_wan_ip').text(res.wan_info.ip || '-');
+                            $('#det_wan_user_vlan').text(res.wan_info.vlan || '-');
+                            $('#det_rx_power').text(res.rx_power ? (res.rx_power.includes('dBm') ? res.rx_power : `${res.rx_power} dBm`) : '-');
 
                             const $status = $('#det_wan_status');
-                            $status.text(res.wan_info.status);
-                            $status.removeClass('bg-emerald-100 text-emerald-700 bg-rose-100 text-rose-700');
-                            if (res.wan_info.status === 'CONNECTED') {
+                            const statusText = (res.wan_info.status || 'DISCONNECTED').toUpperCase();
+                            $status.text(statusText);
+                            $status.removeClass('bg-emerald-100 text-emerald-700 bg-rose-100 text-rose-700 bg-slate-100 text-slate-700');
+                            if (statusText === 'CONNECTED') {
                                 $status.addClass('bg-emerald-100 text-emerald-700');
                             } else {
                                 $status.addClass('bg-rose-100 text-rose-700');
                             }
 
                             // Fill Traffic Stats
-                            $('#det_stat_in_rate').text(res.stats.input_rate);
-                            $('#det_stat_out_rate').text(res.stats.output_rate);
-                            $('#det_stat_in_total').text(res.stats.input_total);
-                            $('#det_stat_out_total').text(res.stats.output_total);
+                            $('#det_stat_in_rate').text(res.stats.input_rate || '0 Bps');
+                            $('#det_stat_out_rate').text(res.stats.output_rate || '0 Bps');
+                            $('#det_stat_in_total').text(res.stats.input_total || '0 Bytes');
+                            $('#det_stat_out_total').text(res.stats.output_total || '0 Bytes');
 
                             // Open Modal
                             openCustomModal('onuDetailModal');
                             $('#terminal_output').val(res.raw_output);
                             $('#terminal_output').scrollTop($('#terminal_output')[0].scrollHeight);
                         } else {
-                            showToast(res.error, 'error');
+                            showToast(res.error || 'Gagal mengambil detail ONU.', 'error');
                         }
                     },
-                    error: function() {
-                        showToast('Gagal menghubungi OLT.', 'error');
+                    error: function(xhr) {
+                        const err = xhr.responseJSON?.error || 'Gagal menghubungi OLT.';
+                        showToast(err, 'error');
                     }
                 });
             }
@@ -916,7 +919,7 @@ show gpon onu state gpon-olt_${port}`;
                                         </td>
                                         <td style="text-align: center;">
                                             <div class="flex items-center justify-center">
-                                                <button type="button" onclick="checkOnuStatus('${onu.port}', '${onu.onu_id}')" 
+                                                <button type="button" onclick="checkOnuStatus('${onu.port}', '${onu.onu_id}', '${onu.sn}')" 
                                                     class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                                     title="Detail Status ONU">
                                                     <i class="fa-solid fa-circle-info text-slate-500"></i>

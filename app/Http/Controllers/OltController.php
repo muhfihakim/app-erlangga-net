@@ -309,13 +309,51 @@ class OltController extends Controller
         if (auth()->user()->jabatan === 'Sales') abort(403);
         $port = $request->query('port');
         $onuId = $request->query('onu_id');
+        $sn = $request->query('sn');
 
         if (!$port || !$onuId) {
             return response()->json(['success' => false, 'error' => 'Port dan ONU ID harus diisi'], 400);
         }
 
         $onuIndex = "gpon-onu_{$port}:{$onuId}";
+        $driver = Setting::get('olt_mode', config('olt.driver', 'snmp'));
 
+        // 1. Prioritaskan SNMP (Cepat, Ringan & Lengkap)
+        if ($driver === 'snmp') {
+            try {
+                $detail = $this->snmpService->getOnuDetails($port, $onuId, $sn);
+                if (!empty($detail['success'])) {
+                    // Jika WAN IP atau Username belum ditemukan di SNMP, coba bantu fallback Telnet
+                    if (($detail['wan_info']['ip'] === '-' || $detail['wan_info']['username'] === '-') && config('olt.host')) {
+                        try {
+                            $wanRaw = $this->oltService->execute("show gpon remote-onu wan-ip {$onuIndex}");
+                            $parsedWan = $this->parseWanInfo($wanRaw);
+                            if ($parsedWan['ip'] !== '-' || $parsedWan['username'] !== '-') {
+                                if ($detail['wan_info']['username'] === '-' && $parsedWan['username'] !== '-') {
+                                    $detail['wan_info']['username'] = $parsedWan['username'];
+                                }
+                                if ($detail['wan_info']['ip'] === '-' && $parsedWan['ip'] !== '-') {
+                                    $detail['wan_info']['ip'] = $parsedWan['ip'];
+                                    $detail['wan_info']['status'] = 'CONNECTED';
+                                }
+                                if ($detail['wan_info']['vlan'] === '-' && $parsedWan['vlan'] !== '-') {
+                                    $detail['wan_info']['vlan'] = $parsedWan['vlan'];
+                                }
+                                $detail['raw_output'] .= "\n\n--- TELNET WAN INFO ---\n" . $wanRaw;
+                            }
+                        } catch (\Throwable $e) {
+                            // ignore telnet error
+                        }
+                    }
+
+                    return response()->json($detail);
+                }
+            } catch (\Throwable $e) {
+                Log::warning("SNMP getOnuDetails error: " . $e->getMessage());
+            }
+        }
+
+        // 2. Fallback Telnet
         try {
             // 1. Get WAN IP & PPPoE Info
             $wanRaw = $this->oltService->execute("show gpon remote-onu wan-ip {$onuIndex}");

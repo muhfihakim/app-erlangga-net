@@ -5,8 +5,10 @@ namespace App\Services;
 use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\Setting;
+use App\Models\Customer;
 
 class OltSnmpService
 {
@@ -39,6 +41,29 @@ class OltSnmpService
     const OID_UNCFG_ONU_SN_V21 = '.1.3.6.1.4.1.3902.1012.3.28.4.1.3';
     const OID_UNCFG_ONU_SN_ALT = '.1.3.6.1.4.1.3902.1012.3.28.4.1.5';
     const OID_UNCFG_ONU_SN_V22 = '.1.3.6.1.4.1.3902.1082.500.10.2.2.5.1.2';
+
+    // Remote ONU WAN IP Host Table (zxGponIPHostConfigDataTable - V2.1)
+    const OID_WAN_IP_HOST_IP   = '.1.3.6.1.4.1.3902.1012.3.50.16.1.1.5';
+    const OID_WAN_IP_HOST_MASK = '.1.3.6.1.4.1.3902.1012.3.50.16.1.1.6';
+    const OID_WAN_IP_HOST_GW   = '.1.3.6.1.4.1.3902.1012.3.50.16.1.1.7';
+    const OID_WAN_IP_HOST_NAME = '.1.3.6.1.4.1.3902.1012.3.50.16.1.1.4';
+
+    // Remote ONU WAN Configuration Table (zxAnGponRmWanIpConfTable - V2.2)
+    const OID_RM_WAN_IP_MODE     = '.1.3.6.1.4.1.3902.1082.500.20.2.17.2.1.2';
+    const OID_RM_WAN_IP_ADDR     = '.1.3.6.1.4.1.3902.1082.500.20.2.17.2.1.5';
+    const OID_RM_WAN_CVLAN       = '.1.3.6.1.4.1.3902.1082.500.20.2.17.2.1.6';
+    const OID_RM_WAN_PPPOE_USER  = '.1.3.6.1.4.1.3902.1082.500.20.2.17.2.1.10';
+
+    // ONU Name, Description & Distance
+    const OID_ONU_NAME     = '.1.3.6.1.4.1.3902.1012.3.28.1.1.2';
+    const OID_ONU_DESC     = '.1.3.6.1.4.1.3902.1012.3.28.1.1.3';
+    const OID_ONU_DISTANCE = '.1.3.6.1.4.1.3902.1012.3.28.2.1.8';
+
+    // IF-MIB Traffic Counters
+    const OID_IF_HC_IN_OCTETS  = '.1.3.6.1.2.1.31.1.1.1.6';
+    const OID_IF_HC_OUT_OCTETS = '.1.3.6.1.2.1.31.1.1.1.10';
+    const OID_IF_IN_OCTETS     = '.1.3.6.1.2.1.2.2.1.10';
+    const OID_IF_OUT_OCTETS    = '.1.3.6.1.2.1.2.2.1.16';
 
     public function __construct()
     {
@@ -336,6 +361,391 @@ class OltSnmpService
             'raw_output' => $rawOutput,
             'elapsed_sec' => $elapsed,
         ];
+    }
+
+    /**
+     * Ambil rincian detail ONU spesifik (WAN IP, PPPoE User, CVLAN, RX Power, Trafik) via SNMP
+     */
+    public function getOnuDetails(string $port, int|string $onuId, ?string $hintSn = null): array
+    {
+        $this->configureSnmpEnvironment();
+        $onuId = (int) $onuId;
+        $portMap = $this->getPortInterfaceMap();
+
+        // 1. Dapatkan ponIndex dari port map
+        $ponIndex = array_search($port, $portMap);
+        if ($ponIndex === false) {
+            foreach ($portMap as $idx => $pName) {
+                if ($pName === $port || str_ends_with($pName, $port)) {
+                    $ponIndex = $idx;
+                    break;
+                }
+            }
+        }
+
+        $wanUser = '-';
+        $wanIp = '-';
+        $wanVlan = '-';
+        $wanStatus = 'DISCONNECTED';
+        $rxPower = '-';
+        $distance = '-';
+        $onuSn = $hintSn ?: '-';
+
+        // 2. Ambil dari cache dashboard (instan & akurat)
+        $cachedDashboard = Cache::get('olt_snmp_dashboard_data');
+        if (is_array($cachedDashboard) && !empty($cachedDashboard['configured'])) {
+            foreach ($cachedDashboard['configured'] as $item) {
+                if (($item['port'] === $port || str_ends_with($item['port'], $port)) && (int) $item['onu_id'] === $onuId) {
+                    if ($onuSn === '-' && !empty($item['sn'])) {
+                        $onuSn = $item['sn'];
+                    }
+                    $rxPower = $item['rx_power'] ?? '-';
+                    $phaseState = $item['status'] ?? 'OFFLINE';
+                    if ($phaseState === 'WORKING') {
+                        $wanStatus = 'CONNECTED';
+                    }
+                    break;
+                }
+            }
+        }
+
+        // 3. Query OID SNMP ZTE jika ponIndex tersedia
+        if ($ponIndex !== false) {
+            $prefixSuffix = ".{$ponIndex}.{$onuId}";
+
+            // Optical Rx Power jika belum ada di cache
+            if ($rxPower === '-' || $rxPower === 'No Signal') {
+                $rawPower = $this->getScalar(self::OID_ONU_RX_POWER_V21 . $prefixSuffix)
+                    ?: $this->getScalar(self::OID_ONU_RX_POWER_V22 . $prefixSuffix);
+                if ($rawPower) {
+                    $rxPower = $this->parseRxPower($rawPower);
+                }
+            }
+
+            // Serial Number jika belum ada
+            if ($onuSn === '-') {
+                $rawSn = $this->getScalar(self::OID_ONU_SN_V21 . $prefixSuffix)
+                    ?: $this->getScalar(self::OID_ONU_SN_V22 . $prefixSuffix);
+                if ($rawSn) {
+                    $onuSn = $this->parseZteSn($rawSn);
+                }
+            }
+
+            // WAN IP (zxGponIPHostConfigDataTable / zxAnGponRmWanIpAddr)
+            $rawIp = $this->getScalar(self::OID_WAN_IP_HOST_IP . $prefixSuffix)
+                ?: $this->getScalar(self::OID_RM_WAN_IP_ADDR . $prefixSuffix);
+            if ($rawIp) {
+                $parsedIp = $this->cleanIp($rawIp);
+                if ($parsedIp) {
+                    $wanIp = $parsedIp;
+                }
+            }
+
+            // PPPoE Username / Host Name / ONU Name
+            $rawUser = $this->getScalar(self::OID_RM_WAN_PPPOE_USER . $prefixSuffix)
+                ?: $this->getScalar(self::OID_WAN_IP_HOST_NAME . $prefixSuffix);
+            if (!$rawUser || str_starts_with($rawUser, '0.0.0.0')) {
+                $rawUser = $this->getScalar(self::OID_ONU_NAME . $prefixSuffix)
+                    ?: $this->getScalar(self::OID_ONU_DESC . $prefixSuffix);
+            }
+            if ($rawUser) {
+                $cleaned = $this->cleanString($rawUser);
+                if ($cleaned !== '-' && !str_starts_with($cleaned, '0.0.0.0')) {
+                    $wanUser = $cleaned;
+                }
+            }
+
+            // CVLAN
+            $rawVlan = $this->getScalar(self::OID_RM_WAN_CVLAN . $prefixSuffix)
+                ?: $this->getScalar(self::OID_WAN_CVLAN_V21 . $prefixSuffix);
+            if ($rawVlan) {
+                $vlanId = $this->cleanVlan($rawVlan);
+                if ($vlanId > 0) {
+                    $wanVlan = (string) $vlanId;
+                }
+            }
+
+            // Jarak ONU (Distance)
+            $rawDist = $this->getScalar(self::OID_ONU_DISTANCE . $prefixSuffix);
+            if ($rawDist) {
+                $distVal = (int) preg_replace('/\D/', '', $rawDist);
+                if ($distVal > 0) {
+                    $distance = $distVal . ' m';
+                }
+            }
+        }
+
+        // 4. Smart Matching dengan Database Customer & FreeRADIUS
+        if (($wanUser === '-' || $wanIp === '-') && $onuSn !== '-') {
+            try {
+                $customer = Customer::where('sn_perangkat', $onuSn)
+                    ->orWhere('sn_perangkat', 'like', "%{$onuSn}%")
+                    ->first();
+
+                if ($customer) {
+                    if ($wanUser === '-' && !empty($customer->pppoe_username)) {
+                        $wanUser = $customer->pppoe_username;
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Ignore DB error
+            }
+        }
+
+        // Jika ada Username, cari Framed-IP-Address aktif di FreeRADIUS radacct
+        if ($wanUser !== '-' && ($wanIp === '-' || $wanIp === '0.0.0.0')) {
+            try {
+                $activeSession = DB::connection('radius')
+                    ->table('radacct')
+                    ->where('username', $wanUser)
+                    ->whereNull('acctstoptime')
+                    ->orderByDesc('radacctid')
+                    ->first(['framedipaddress']);
+
+                if ($activeSession && !empty($activeSession->framedipaddress)) {
+                    $wanIp = $activeSession->framedipaddress;
+                    $wanStatus = 'CONNECTED';
+                }
+            } catch (\Throwable $e) {
+                // Ignore radius fallback
+            }
+        }
+
+        if ($wanIp !== '-' && $wanIp !== '0.0.0.0') {
+            $wanStatus = 'CONNECTED';
+        }
+
+        // 5. Statistik Trafik
+        $traffic = $this->getOnuTrafficStats($port, $onuId, $wanUser);
+
+        $rawOutput = "--- SNMP ONU DETAIL (ZTE GPON) ---\n" .
+            "Interface: gpon-onu_{$port}:{$onuId}\n" .
+            "Serial Number: {$onuSn}\n" .
+            "RX Power: {$rxPower} dBm\n" .
+            "PPPoE Username: {$wanUser}\n" .
+            "Current IP: {$wanIp}\n" .
+            "CVLAN: {$wanVlan}\n" .
+            "WAN Status: {$wanStatus}\n" .
+            "Distance: {$distance}\n" .
+            "Total In (Download): {$traffic['input_total']}\n" .
+            "Total Out (Upload): {$traffic['output_total']}";
+
+        return [
+            'success' => true,
+            'driver' => 'snmp',
+            'onu_index' => "gpon-onu_{$port}:{$onuId}",
+            'wan_info' => [
+                'username' => $wanUser,
+                'ip' => $wanIp,
+                'vlan' => $wanVlan,
+                'status' => $wanStatus,
+                'distance' => $distance,
+            ],
+            'stats' => $traffic,
+            'rx_power' => $rxPower,
+            'raw_output' => $rawOutput,
+        ];
+    }
+
+    /**
+     * Dapatkan statistik trafik ONU (FreeRADIUS radacct & SNMP IF-MIB)
+     */
+    public function getOnuTrafficStats(string $port, int $onuId, ?string $wanUser = null): array
+    {
+        $stats = [
+            'input_rate' => '0 Bps',
+            'output_rate' => '0 Bps',
+            'input_total' => '0 Bytes',
+            'output_total' => '0 Bytes',
+        ];
+
+        // 1. Ambil dari FreeRADIUS radacct jika wanUser tersedia
+        if ($wanUser && $wanUser !== '-') {
+            try {
+                $session = DB::connection('radius')
+                    ->table('radacct')
+                    ->where('username', $wanUser)
+                    ->orderByDesc('radacctid')
+                    ->first(['acctinputoctets', 'acctoutputoctets']);
+
+                if ($session) {
+                    if (!empty($session->acctinputoctets)) {
+                        $stats['input_total'] = $this->formatBytes($session->acctinputoctets);
+                    }
+                    if (!empty($session->acctoutputoctets)) {
+                        $stats['output_total'] = $this->formatBytes($session->acctoutputoctets);
+                    }
+                }
+            } catch (\Throwable $e) {
+                // ignore
+            }
+        }
+
+        // 2. Cek apakah ada data IF-MIB untuk port ONU ini
+        try {
+            $targetIfName = "gpon-onu_{$port}:{$onuId}";
+            $onuIfIndex = Cache::remember("olt_snmp_ifidx_" . md5($targetIfName), 1800, function () use ($targetIfName) {
+                $target = "{$this->host}:{$this->port}";
+                $walk = @snmp2_real_walk($target, $this->communityRo, self::OID_IF_NAME, 2000000, 1);
+                if (is_array($walk)) {
+                    foreach ($walk as $k => $v) {
+                        $clean = trim(str_replace(['STRING:', '"'], '', (string) $v));
+                        if ($clean === $targetIfName) {
+                            if (preg_match('/\.(\d+)$/', (string) $k, $m)) {
+                                return (int) $m[1];
+                            }
+                        }
+                    }
+                }
+                return null;
+            });
+
+            if ($onuIfIndex) {
+                $inOctets = $this->getScalar(self::OID_IF_HC_IN_OCTETS . ".{$onuIfIndex}")
+                    ?: $this->getScalar(self::OID_IF_IN_OCTETS . ".{$onuIfIndex}");
+                $outOctets = $this->getScalar(self::OID_IF_HC_OUT_OCTETS . ".{$onuIfIndex}")
+                    ?: $this->getScalar(self::OID_IF_OUT_OCTETS . ".{$onuIfIndex}");
+
+                if ($inOctets) {
+                    $rawIn = (float) preg_replace('/\D/', '', $inOctets);
+                    if ($rawIn > 0 && $stats['input_total'] === '0 Bytes') {
+                        $stats['input_total'] = $this->formatBytes($rawIn);
+                    }
+                }
+                if ($outOctets) {
+                    $rawOut = (float) preg_replace('/\D/', '', $outOctets);
+                    if ($rawOut > 0 && $stats['output_total'] === '0 Bytes') {
+                        $stats['output_total'] = $this->formatBytes($rawOut);
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // ignore
+        }
+
+        return $stats;
+    }
+
+    /**
+     * SNMP GET single scalar helper
+     */
+    public function getScalar(string $oid): ?string
+    {
+        $this->configureSnmpEnvironment();
+        if (!$this->isExtensionLoaded()) {
+            return null;
+        }
+
+        $target = "{$this->host}:{$this->port}";
+        try {
+            $val = @snmp2_get($target, $this->communityRo, $oid, $this->timeoutMicros, 1);
+            if ($val !== false && $val !== null) {
+                return trim((string) $val);
+            }
+        } catch (\Throwable $e) {
+            // ignore
+        }
+
+        // Coba walk 1 level jika OID butuh sub-index .1
+        try {
+            $walk = @snmp2_real_walk($target, $this->communityRo, $oid, $this->timeoutMicros, 1);
+            if (is_array($walk) && !empty($walk)) {
+                return trim((string) reset($walk));
+            }
+        } catch (\Throwable $e) {
+            // ignore
+        }
+
+        return null;
+    }
+
+    /**
+     * Sanitasi string output SNMP
+     */
+    public function cleanString(?string $val): string
+    {
+        if (!$val) return '-';
+        $val = trim($val);
+        $val = trim($val, "\"'\t\n\r\0\x0B ");
+
+        if (stripos($val, 'Hex-STRING:') === 0) {
+            $hex = preg_replace('/[^0-9a-fA-F]/', '', substr($val, 11));
+            $bin = @hex2bin($hex);
+            if ($bin && ctype_print($bin)) {
+                return trim($bin);
+            }
+        } elseif (stripos($val, 'STRING:') === 0) {
+            $val = trim(substr($val, 7));
+            $val = trim($val, "\"'\t\n\r\0\x0B ");
+        }
+
+        if (mb_check_encoding($val, 'UTF-8') && preg_match('/^[\x20-\x7E]+$/', $val)) {
+            return $val ?: '-';
+        }
+
+        return '-';
+    }
+
+    /**
+     * Bersihkan alamat IP dari respon SNMP
+     */
+    public function cleanIp(?string $val): ?string
+    {
+        if (!$val) return null;
+        $val = trim($val, "\"'\t\n\r\0\x0B ");
+
+        // Format 1: Teks IP standard "100.64.15.89"
+        if (preg_match('/\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b/', $val, $m)) {
+            if ($m[1] !== '0.0.0.0') {
+                return $m[1];
+            }
+        }
+
+        // Format 2: Heksadesimal "64 40 0F 59"
+        $valClean = str_ireplace(['Hex-STRING:', 'STRING:', 'IpAddress:'], '', $val);
+        $hex = preg_replace('/[^0-9a-fA-F]/', '', $valClean);
+        if (strlen($hex) === 8) {
+            $parts = [
+                hexdec(substr($hex, 0, 2)),
+                hexdec(substr($hex, 2, 2)),
+                hexdec(substr($hex, 4, 2)),
+                hexdec(substr($hex, 6, 2)),
+            ];
+            $ip = implode('.', $parts);
+            if ($ip !== '0.0.0.0') {
+                return $ip;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Parsing integer VLAN ID
+     */
+    public function cleanVlan(?string $val): int
+    {
+        if (!$val) return 0;
+        if (preg_match('/(?:INTEGER:\s*)?(\d+)/i', $val, $m)) {
+            $v = (int) $m[1];
+            if ($v > 0 && $v < 4095) {
+                return $v;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Format byte ke string terbaca
+     */
+    public function formatBytes(float|int $bytes): string
+    {
+        $bytes = (float) $bytes;
+        if ($bytes >= 1099511627776) return number_format($bytes / 1099511627776, 2) . ' TB';
+        if ($bytes >= 1073741824) return number_format($bytes / 1073741824, 2) . ' GB';
+        if ($bytes >= 1048576) return number_format($bytes / 1048576, 2) . ' MB';
+        if ($bytes >= 1024) return number_format($bytes / 1024, 2) . ' KB';
+        return $bytes . ' Bytes';
     }
 
     /**
