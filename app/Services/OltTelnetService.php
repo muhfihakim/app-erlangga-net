@@ -44,6 +44,10 @@ class OltTelnetService
             // 3. Wait for Command Prompt
             $this->readUntil(['>', '#']);
 
+            // 4. Nonaktifkan paginasi agar output tidak terpotong di --More--
+            $this->write('terminal length 0');
+            $this->readUntil(['>', '#']);
+
             return true;
         } catch (Exception $e) {
             Log::error("OLT Connection Error: " . $e->getMessage());

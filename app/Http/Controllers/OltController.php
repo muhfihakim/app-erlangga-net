@@ -316,70 +316,119 @@ class OltController extends Controller
         }
 
         $onuIndex = "gpon-onu_{$port}:{$onuId}";
-        $driver = Setting::get('olt_mode', config('olt.driver', 'snmp'));
+        $rawLogs = [];
 
-        // 1. Prioritaskan SNMP (Cepat, Ringan & Lengkap)
-        if ($driver === 'snmp') {
-            try {
-                $detail = $this->snmpService->getOnuDetails($port, $onuId, $sn);
-                if (!empty($detail['success'])) {
-                    // Jika WAN IP atau Username belum ditemukan di SNMP, coba bantu fallback Telnet
-                    if (($detail['wan_info']['ip'] === '-' || $detail['wan_info']['username'] === '-') && config('olt.host')) {
-                        try {
-                            $wanRaw = $this->oltService->execute("show gpon remote-onu wan-ip {$onuIndex}");
-                            $parsedWan = $this->parseWanInfo($wanRaw);
-                            if ($parsedWan['ip'] !== '-' || $parsedWan['username'] !== '-') {
-                                if ($detail['wan_info']['username'] === '-' && $parsedWan['username'] !== '-') {
-                                    $detail['wan_info']['username'] = $parsedWan['username'];
-                                }
-                                if ($detail['wan_info']['ip'] === '-' && $parsedWan['ip'] !== '-') {
-                                    $detail['wan_info']['ip'] = $parsedWan['ip'];
-                                    $detail['wan_info']['status'] = 'CONNECTED';
-                                }
-                                if ($detail['wan_info']['vlan'] === '-' && $parsedWan['vlan'] !== '-') {
-                                    $detail['wan_info']['vlan'] = $parsedWan['vlan'];
-                                }
-                                $detail['raw_output'] .= "\n\n--- TELNET WAN INFO ---\n" . $wanRaw;
-                            }
-                        } catch (\Throwable $e) {
-                            // ignore telnet error
-                        }
+        // 1. Dapatkan data dasar via SNMP (Instant Rx Power, SN, Jarak, & Customer/Radius Mapping)
+        $snmpDetail = null;
+        try {
+            $snmpDetail = $this->snmpService->getOnuDetails($port, $onuId, $sn);
+            if (!empty($snmpDetail['raw_output'])) {
+                $rawLogs[] = $snmpDetail['raw_output'];
+            }
+        } catch (\Throwable $e) {
+            Log::warning("SNMP detail query failed: " . $e->getMessage());
+        }
+
+        $wanInfo = [
+            'username' => $snmpDetail['wan_info']['username'] ?? '-',
+            'ip' => $snmpDetail['wan_info']['ip'] ?? '-',
+            'vlan' => $snmpDetail['wan_info']['vlan'] ?? '-',
+            'status' => $snmpDetail['wan_info']['status'] ?? 'DISCONNECTED',
+            'distance' => $snmpDetail['wan_info']['distance'] ?? '-',
+        ];
+
+        $stats = $snmpDetail['stats'] ?? [
+            'input_rate' => '0 Bps',
+            'output_rate' => '0 Bps',
+            'input_total' => '0 Bytes',
+            'output_total' => '0 Bytes',
+        ];
+
+        $rxPower = $snmpDetail['rx_power'] ?? '-';
+
+        // 2. HYBRID: Eksekusi Telnet CLI khusus 1 ONU ini (Sangat cepat < 1 detik)
+        // Telnet memberikan rincian live interface WAN dan counter traffic resmi ZTE
+        try {
+            // A. Ambil WAN IP & PPPoE Info via Telnet CLI
+            $wanRaw = $this->oltService->execute("show gpon remote-onu wan-ip {$onuIndex}");
+            if ($wanRaw) {
+                $rawLogs[] = "--- TELNET CLI (WAN INFO) ---\n" . $wanRaw;
+                $telnetWan = $this->parseWanInfo($wanRaw);
+
+                if ($telnetWan['username'] !== '-') {
+                    $wanInfo['username'] = $telnetWan['username'];
+                }
+                if ($telnetWan['ip'] !== '-' && $telnetWan['ip'] !== '0.0.0.0') {
+                    $wanInfo['ip'] = $telnetWan['ip'];
+                    $wanInfo['status'] = 'CONNECTED';
+                }
+                if ($telnetWan['vlan'] !== '-') {
+                    $wanInfo['vlan'] = $telnetWan['vlan'];
+                }
+                if ($telnetWan['status'] === 'CONNECTED') {
+                    $wanInfo['status'] = 'CONNECTED';
+                }
+            }
+
+            usleep(100000); // 100ms jeda buffer
+
+            // B. Ambil Traffic Statistics via Telnet CLI
+            $statsRaw = $this->oltService->execute("show interface {$onuIndex}");
+            if ($statsRaw) {
+                $rawLogs[] = "--- TELNET CLI (INTERFACE STATS) ---\n" . $statsRaw;
+                $telnetStats = $this->parseInterfaceStats($statsRaw);
+
+                if ($telnetStats['input_rate'] !== '0 Bps') {
+                    $stats['input_rate'] = $telnetStats['input_rate'];
+                }
+                if ($telnetStats['output_rate'] !== '0 Bps') {
+                    $stats['output_rate'] = $telnetStats['output_rate'];
+                }
+                if ($telnetStats['input_total'] !== '0 Bytes') {
+                    $stats['input_total'] = $telnetStats['input_total'];
+                }
+                if ($telnetStats['output_total'] !== '0 Bytes') {
+                    $stats['output_total'] = $telnetStats['output_total'];
+                }
+            }
+
+            // C. Ambil Rx Power via Telnet jika belum didapatkan
+            if ($rxPower === '-' || $rxPower === 'No Signal') {
+                $powerRaw = $this->oltService->execute("show pon power olt-rx {$onuIndex}");
+                if ($powerRaw) {
+                    $rawLogs[] = "--- TELNET CLI (OPTICAL POWER) ---\n" . $powerRaw;
+                    $powerMap = $this->parseOnuPower($powerRaw);
+                    if (!empty($powerMap[$port . ":" . $onuId])) {
+                        $rxPower = $powerMap[$port . ":" . $onuId];
                     }
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning("Telnet hybrid detail error: " . $e->getMessage());
+            $rawLogs[] = "--- TELNET NOTICE ---\n" . $e->getMessage();
+        }
 
-                    return response()->json($detail);
+        // 3. Fallback Customer Matching jika username belum ada
+        if ($wanInfo['username'] === '-' && !empty($sn)) {
+            try {
+                $customer = \App\Models\Customer::where('sn_perangkat', $sn)->first();
+                if ($customer && !empty($customer->pppoe_username)) {
+                    $wanInfo['username'] = $customer->pppoe_username;
                 }
             } catch (\Throwable $e) {
-                Log::warning("SNMP getOnuDetails error: " . $e->getMessage());
+                // ignore
             }
         }
 
-        // 2. Fallback Telnet
-        try {
-            // 1. Get WAN IP & PPPoE Info
-            $wanRaw = $this->oltService->execute("show gpon remote-onu wan-ip {$onuIndex}");
-            
-            usleep(150000); // 150ms
-
-            // 2. Get Traffic Statistics
-            $statsRaw = $this->oltService->execute("show interface {$onuIndex}");
-
-            usleep(150000); // 150ms
-            
-            // 3. Get Power Info specifically for this ONU
-            $powerRaw = $this->oltService->execute("show pon power olt-rx {$onuIndex}");
-            $powerMap = $this->parseOnuPower($powerRaw);
-
-            return response()->json([
-                'success' => true,
-                'onu_index' => $onuIndex,
-                'wan_info' => $this->parseWanInfo($wanRaw),
-                'stats' => $this->parseInterfaceStats($statsRaw),
-                'rx_power' => $powerMap[$port . ":" . $onuId] ?? 'No Signal',
-                'raw_output' => "--- WAN INFO ---\n" . $wanRaw . "\n\n--- STATISTICS ---\n" . $statsRaw . "\n\n--- POWER ---\n" . $powerRaw
-            ]);
-        } catch (Exception $e) {
-            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
-        }
+        return response()->json([
+            'success' => true,
+            'mode' => 'hybrid',
+            'onu_index' => $onuIndex,
+            'wan_info' => $wanInfo,
+            'stats' => $stats,
+            'rx_power' => $rxPower,
+            'raw_output' => implode("\n\n", $rawLogs)
+        ]);
     }
 
     private function parseOnuPower($output)
@@ -399,15 +448,21 @@ class OltController extends Controller
     {
         $info = [
             'username' => '-',
-            'status' => 'disconnected',
+            'status' => 'DISCONNECTED',
             'ip' => '-',
             'vlan' => '-'
         ];
 
-        if (preg_match('/Username:\s+([^\s\n]+)/i', $raw, $m)) $info['username'] = $m[1];
-        if (preg_match('/Status:\s+([^\s\n]+)/i', $raw, $m)) $info['status'] = strtoupper($m[1]);
-        if (preg_match('/Current IP:\s+([^\s\n]+)/i', $raw, $m)) $info['ip'] = $m[1];
-        if (preg_match('/CVLAN:\s+(\d+)/i', $raw, $m)) $info['vlan'] = $m[1];
+        if (preg_match('/Username\s*:\s*([^\s\n\r]+)/i', $raw, $m)) $info['username'] = trim($m[1]);
+        if (preg_match('/Status\s*:\s*([^\s\n\r]+)/i', $raw, $m)) $info['status'] = strtoupper(trim($m[1]));
+        if (preg_match('/Current\s+IP\s*:\s*([^\s\n\r]+)/i', $raw, $m)) {
+            $ipClean = trim($m[1]);
+            if ($ipClean !== '0.0.0.0' && $ipClean !== '-') {
+                $info['ip'] = $ipClean;
+                $info['status'] = 'CONNECTED';
+            }
+        }
+        if (preg_match('/(?:CVLAN|VLAN)\s*:\s*(\d+)/i', $raw, $m)) $info['vlan'] = trim($m[1]);
 
         return $info;
     }
@@ -421,18 +476,16 @@ class OltController extends Controller
             'output_total' => '0 Bytes'
         ];
 
-        // Rate parsing - specific for ZTE "Number Bps" format
-        if (preg_match('/Input rate\s*:\s*(\d+\s*Bps)/i', $raw, $m)) $stats['input_rate'] = $m[1];
-        if (preg_match('/Output rate\s*:\s*(\d+\s*Bps)/i', $raw, $m)) $stats['output_rate'] = $m[1];
+        // Rate parsing (e.g. "Input rate : 1240 Bps")
+        if (preg_match('/Input\s+rate\s*:\s*([^\r\n,]+)/i', $raw, $m)) $stats['input_rate'] = trim($m[1]);
+        if (preg_match('/Output\s+rate\s*:\s*([^\r\n,]+)/i', $raw, $m)) $stats['output_rate'] = trim($m[1]);
         
-        // Total Bytes parsing - look for sections under Total statistic
-        // Input section
-        if (preg_match('/Total statistic:\s+Input:\s+Bytes:(\d+)/is', $raw, $m)) {
+        // Total Bytes parsing
+        if (preg_match('/Total statistic:\s+Input:\s+Bytes:(\d+)/is', $raw, $m) || preg_match('/Input:.*?Bytes:(\d+)/is', $raw, $m)) {
             $stats['input_total'] = $this->formatBytes($m[1]);
         }
         
-        // Output section
-        if (preg_match('/Total statistic:.*?Output:\s+Bytes:(\d+)/is', $raw, $m)) {
+        if (preg_match('/Total statistic:.*?Output:\s+Bytes:(\d+)/is', $raw, $m) || preg_match('/Output:.*?Bytes:(\d+)/is', $raw, $m)) {
             $stats['output_total'] = $this->formatBytes($m[1]);
         }
 
