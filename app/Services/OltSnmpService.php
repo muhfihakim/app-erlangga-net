@@ -34,9 +34,9 @@ class OltSnmpService
     const OID_ONU_PHASE_STATE_V22 = '.1.3.6.1.4.1.3902.1082.500.10.2.2.2.1.4';
 
     // ONU Rx Optical Power
-    const OID_ONU_RX_POWER_V21_B = '.1.3.6.1.4.1.3902.1012.3.50.15.1.1.1.10';
-    const OID_ONU_RX_POWER_V21   = '.1.3.6.1.4.1.3902.1012.3.50.12.1.1.10';
-    const OID_ONU_RX_POWER_V22   = '.1.3.6.1.4.1.3902.1082.500.20.2.2.2.1.10';
+    const OID_ONU_RX_POWER_V21 = '.1.3.6.1.4.1.3902.1012.3.50.12.1.1.10'; // ZTE C300/C320 GPON ONT Rx (zxGponPonRxOpticalLevel)
+    const OID_ONU_RX_POWER_OLT = '.1.3.6.1.4.1.3902.1015.1010.11.2.1.2';  // ZTE OLT Transceiver Rx (zxAnOLTRxOpticalPower)
+    const OID_ONU_RX_POWER_V22 = '.1.3.6.1.4.1.3902.1082.500.20.2.2.2.1.10'; // ZTE Titan C600 (zxAnGponRmAniRxOptLevel)
 
     // Unconfigured ONU Table (Auto-Find)
     const OID_UNCFG_ONU_SN_V21 = '.1.3.6.1.4.1.3902.1012.3.28.4.1.3';
@@ -248,11 +248,14 @@ class OltSnmpService
         }
 
         // 4. Tarik RX Optical Power
-        $powerWalk = $this->walk(self::OID_ONU_RX_POWER_V21_B);
+        // Prioritas 1: ZTE C300/C320 GPON ONT Rx Optical Power (zxGponTransceiverInfoTable)
+        $powerWalk = $this->walk(self::OID_ONU_RX_POWER_V21);
         if (empty($powerWalk)) {
-            $powerWalk = $this->walk(self::OID_ONU_RX_POWER_V21);
+            // Prioritas 2: ZTE OLT-side Rx Optical Power (zxAnOLTRxOpticalPower)
+            $powerWalk = $this->walk(self::OID_ONU_RX_POWER_OLT);
         }
         if (empty($powerWalk)) {
+            // Prioritas 3: ZTE Titan C600 (zxAnGponRmAniRxOptLevel)
             $powerWalk = $this->walk(self::OID_ONU_RX_POWER_V22);
         }
 
@@ -277,11 +280,30 @@ class OltSnmpService
 
         // Susun Power Map [ "ponIndex:onuId" => "-19.45" ]
         $powerMap = [];
+        $validPowerCount = 0;
         foreach ($powerWalk as $k => $v) {
             $idx = $this->extractIndices((string) $k);
             if ($idx) {
                 $key = "{$idx['pon_index']}:{$idx['onu_id']}";
-                $powerMap[$key] = $this->parseRxPower((string) $v);
+                $parsed = $this->parseRxPower((string) $v);
+                $powerMap[$key] = $parsed;
+                if ($parsed !== '-') {
+                    $validPowerCount++;
+                }
+            }
+        }
+
+        // Fallback: Jika OID_ONU_RX_POWER_V21 tidak mengembalikan data valid (misal OMCI belum ter-trigger), coba OID_ONU_RX_POWER_OLT
+        if ($validPowerCount === 0) {
+            $powerWalkOlt = $this->walk(self::OID_ONU_RX_POWER_OLT);
+            if (!empty($powerWalkOlt)) {
+                foreach ($powerWalkOlt as $k => $v) {
+                    $idx = $this->extractIndices((string) $k);
+                    if ($idx) {
+                        $key = "{$idx['pon_index']}:{$idx['onu_id']}";
+                        $powerMap[$key] = $this->parseRxPower((string) $v);
+                    }
+                }
             }
         }
 
@@ -307,8 +329,8 @@ class OltSnmpService
             $status = $stateMap[$key] ?? 'WORKING';
             $rxPower = $powerMap[$key] ?? '-';
 
-            // Jika status LOS/OFFLINE, pastikan rxPower '-'
-            if ($status !== 'WORKING' && $rxPower === '-') {
+            // Jika status LOS/OFFLINE/authFailed, pastikan rxPower '-'
+            if (in_array($status, ['LOS', 'OFFLINE', 'authFailed'])) {
                 $rxPower = '-';
             }
 
@@ -418,8 +440,9 @@ class OltSnmpService
             $prefixSuffix = ".{$ponIndex}.{$onuId}";
 
             // Optical Rx Power jika belum ada di cache
-            if ($rxPower === '-' || $rxPower === 'No Signal') {
+            if ($rxPower === '-' || $rxPower === 'No Signal' || $rxPower === 'no signal') {
                 $rawPower = $this->getScalar(self::OID_ONU_RX_POWER_V21 . $prefixSuffix)
+                    ?: $this->getScalar(self::OID_ONU_RX_POWER_OLT . $prefixSuffix)
                     ?: $this->getScalar(self::OID_ONU_RX_POWER_V22 . $prefixSuffix);
                 if ($rawPower) {
                     $rxPower = $this->parseRxPower($rawPower);
@@ -840,20 +863,30 @@ class OltSnmpService
         if (preg_match('/(?:INTEGER:\s*)?(-?\d+)/i', $val, $m)) {
             $raw = (int) $m[1];
         } else {
-            $raw = (int) $val;
+            $raw = (int) preg_replace('/[^\d\-]/', '', $val);
         }
 
-        // Invalid / No Signal markers
-        if ($raw === 65535 || $raw === 2147483647 || $raw === -2147483648 || $raw === 0) {
+        // Invalid / Down / No Signal markers
+        if (
+            $raw === 65535 ||
+            $raw === 65535000 ||
+            $raw === -80000 ||
+            $raw === 2147483647 ||
+            $raw === -2147483648 ||
+            $raw === 0
+        ) {
             return '-';
         }
 
-        // Format 1: Negative value (e.g. -21564 => -21.56 dBm or -215 => -21.5 dBm)
+        // Format 1: Negative value (e.g. -14396 => -14.40 dBm from OLT Rx, or -2150 => -21.50 dBm from Titan)
         if ($raw < 0) {
+            if ($raw <= -70000) {
+                return '-';
+            }
             if ($raw <= -1000) {
                 $power = $raw / 1000;
             } elseif ($raw <= -100) {
-                $power = $raw / 10;
+                $power = $raw / 100;
             } else {
                 $power = (float) $raw;
             }
@@ -867,7 +900,7 @@ class OltSnmpService
             return '-';
         }
 
-        if ($power < -50 || $power > 10) {
+        if ($power < -45 || $power > 5) {
             return '-';
         }
 

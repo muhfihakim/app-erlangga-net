@@ -577,13 +577,18 @@ class OltController extends Controller
             return sprintf('%.2f dBm', (float) $m[1]);
         }
 
-        // Format 2: Tabular "down -21.564(dbm) 2.450(dbm) -23.120(dbm) 2.120(dbm)"
+        // Format 2: "OLT Rx : -21.564(dbm)"
+        if (preg_match('/OLT\s+Rx\s*:\s*([\-\d\.]+)/i', $raw, $m)) {
+            return sprintf('%.2f dBm', (float) $m[1]);
+        }
+
+        // Format 3: Tabular "down -21.564(dbm) 2.450(dbm) -23.120(dbm) 2.120(dbm)"
         // Columns: OLT Rx, OLT Tx, ONU Rx, ONU Tx
         if (preg_match('/(?:down\s+)?[\-\d\.]+\(dbm\)\s+[\-\d\.]+\(dbm\)\s+([\-\d\.]+)\(dbm\)/i', $raw, $m)) {
             return sprintf('%.2f dBm', (float) $m[1]);
         }
 
-        // Format 3: Generic fallback to first negative dBm
+        // Format 4: Generic fallback to first negative dBm
         if (preg_match('/(-\d+\.\d+)\s*(?:\(dbm\)|dbm)/i', $raw, $m)) {
             return sprintf('%.2f dBm', (float) $m[1]);
         }

@@ -940,7 +940,8 @@ show gpon onu state gpon-olt_${port}`;
                                     }
 
                                     let powerColor = '#64748b';
-                                    if (onu.rx_power !== '-' && onu.rx_power !== 'no signal') {
+                                    let displayPower = '-';
+                                    if (onu.rx_power && onu.rx_power !== '-' && onu.rx_power.toLowerCase() !== 'no signal') {
                                         const pVal = parseFloat(onu.rx_power);
                                         if (pVal < -27) {
                                             powerColor = '#ef4444';
@@ -952,6 +953,7 @@ show gpon onu state gpon-olt_${port}`;
                                             powerColor = '#10b981';
                                             stats.good++;
                                         }
+                                        displayPower = onu.rx_power.includes('dBm') ? onu.rx_power : `${onu.rx_power} dBm`;
                                     } else {
                                         stats.nosignal++;
                                     }
@@ -965,7 +967,7 @@ show gpon onu state gpon-olt_${port}`;
                                             <span class="badge inline-flex items-center" style="background: ${badgeColor}; color: ${textColor}; font-size: 11px; padding: 2px 7px; border-radius: 6px; font-weight: 700;">${badgeIcon}${onu.status}</span>
                                         </td>
                                         <td style="text-align: center; font-weight: 700; color: ${powerColor}; font-size: 12px; font-family: monospace;">
-                                            ${onu.rx_power}
+                                            ${displayPower}
                                         </td>
                                         <td style="text-align: center;">
                                             <div class="flex items-center justify-center">
