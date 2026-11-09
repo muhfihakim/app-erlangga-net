@@ -158,6 +158,7 @@ class OltController extends Controller
         $force = filter_var($request->query('force', false), FILTER_VALIDATE_BOOLEAN);
 
         $driver = Setting::get('olt_mode', config('olt.driver', 'snmp'));
+        $snmpFallbackReason = null;
 
         // 1. Prioritaskan SNMP jika aktif (Rekomendasi - Cepat & Ringan)
         if ($driver === 'snmp') {
@@ -177,8 +178,10 @@ class OltController extends Controller
                     return response()->json($snmpResult);
                 }
 
-                Log::warning('OLT SNMP data empty or failed, falling back to Telnet: ' . ($snmpResult['error'] ?? 'No data'));
+                $snmpFallbackReason = $snmpResult['error'] ?? 'SNMP tidak merespons';
+                Log::warning('OLT SNMP data empty or failed, falling back to Telnet: ' . $snmpFallbackReason);
             } catch (\Throwable $e) {
+                $snmpFallbackReason = $e->getMessage();
                 Log::warning('OLT SNMP exception, falling back to Telnet: ' . $e->getMessage());
             }
         }
@@ -202,6 +205,7 @@ class OltController extends Controller
                 return response()->json([
                     'success' => true,
                     'driver' => 'telnet',
+                    'fallback_reason' => $snmpFallbackReason,
                     'type' => 'configured',
                     'port' => $port,
                     'data' => $data,
@@ -210,6 +214,9 @@ class OltController extends Controller
             } else {
                 // 2. Deep Global Sync (using cache or background sync)
                 $data = $this->syncGlobalData($force);
+                if ($snmpFallbackReason && is_array($data)) {
+                    $data['fallback_reason'] = $snmpFallbackReason;
+                }
                 return response()->json($data);
             }
         } catch (Exception $e) {

@@ -306,9 +306,11 @@ class SettingController extends Controller
                     if (!empty($snmpTest['success'])) {
                         $snmpOk = true;
                         $results[] = "SNMP Aktif ({$snmpCommunity}) [{$snmpTest['elapsed']}ms]";
+                    } else {
+                        $results[] = "SNMP Tidak Merespons: " . ($snmpTest['message'] ?? 'Timeout');
                     }
                 } catch (\Throwable $e) {
-                    // Ignore
+                    $results[] = "SNMP Error: " . $e->getMessage();
                 }
 
                 // 2. Uji Port Telnet Socket (Port 23)
@@ -318,18 +320,16 @@ class SettingController extends Controller
                     $telnetOk = true;
                     fclose($fp);
                     $results[] = "Telnet Port {$port} Aktif";
+                } else {
+                    $results[] = "Telnet Port {$port} Gagal ($errstr)";
                 }
 
                 $elapsed = round((microtime(true) - $startTime) * 1000, 2);
 
-                if ($snmpOk || $telnetOk) {
-                    return response()->json([
-                        'success' => true,
-                        'message' => "OLT {$host} Terhubung: " . implode(' & ', $results) . " [Total: {$elapsed}ms]",
-                    ]);
-                }
-
-                throw new \Exception("Gagal menghubungi OLT {$host} via SNMP ({$snmpPort}) maupun Telnet ({$port}): $errstr ($errno)");
+                return response()->json([
+                    'success' => $snmpOk || $telnetOk,
+                    'message' => "Hasil Uji Koneksi OLT ({$host}) [{$elapsed}ms]:\n• " . implode("\n• ", $results),
+                ]);
             }
 
             if ($type === 'radius') {

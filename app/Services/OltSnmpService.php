@@ -70,30 +70,47 @@ class OltSnmpService
     }
 
     /**
-     * Cek apakah OLT merespons SNMP secara cepat (probe 1 detik)
+     * Cek apakah ekstensi PHP SNMP terpasang
+     */
+    public function isExtensionLoaded(): bool
+    {
+        return extension_loaded('snmp') || function_exists('snmp2_real_walk') || function_exists('snmp2_get');
+    }
+
+    /**
+     * Cek apakah OLT merespons SNMP secara cepat
      */
     public function ping(?string $targetHost = null, ?int $targetPort = null, ?string $community = null): bool
     {
+        if (!$this->isExtensionLoaded()) {
+            return false;
+        }
+
         $this->configureSnmpEnvironment();
         $host = $targetHost ?: $this->host;
         $port = $targetPort ?: $this->port;
         $comm = $community ?: $this->communityRo;
         $target = "{$host}:{$port}";
+        $timeout = $this->timeoutMicros ?: 2000000;
 
         // Probe 1: sysDescr
-        $res = @snmp2_get($target, $comm, self::OID_SYS_DESCR, 1000000, 0);
+        $res = @snmp2_get($target, $comm, self::OID_SYS_DESCR, $timeout, 1);
         if ($res !== false && $res !== null) return true;
 
         // Probe 2: sysName
-        $res = @snmp2_get($target, $comm, self::OID_SYS_NAME, 1000000, 0);
+        $res = @snmp2_get($target, $comm, self::OID_SYS_NAME, $timeout, 1);
         if ($res !== false && $res !== null) return true;
 
         // Probe 3: ZTE Enterprise tree walk (1st entry)
-        $walk = @snmp2_real_walk($target, $comm, '.1.3.6.1.4.1.3902', 1000000, 0);
+        $walk = @snmp2_real_walk($target, $comm, '.1.3.6.1.4.1.3902', $timeout, 1);
         if (!empty($walk)) return true;
 
-        // Probe 4: Standard system tree walk
-        $walk = @snmp2_real_walk($target, $comm, '.1.3.6.1.2.1.1', 1000000, 0);
+        // Probe 4: Standard ifName tree walk
+        $walk = @snmp2_real_walk($target, $comm, self::OID_IF_NAME, $timeout, 1);
+        if (!empty($walk)) return true;
+
+        // Probe 5: Standard system tree walk
+        $walk = @snmp2_real_walk($target, $comm, '.1.3.6.1.2.1.1', $timeout, 1);
         if (!empty($walk)) return true;
 
         return false;
@@ -104,6 +121,12 @@ class OltSnmpService
      */
     public function testConnection(?string $targetHost = null, ?int $targetPort = null, ?string $community = null): array
     {
+        if (!$this->isExtensionLoaded()) {
+            return [
+                'success' => false,
+                'message' => "Ekstensi PHP 'snmp' belum terpasang di aaPanel. Silakan pasang paket 'php-snmp' di aaPanel.",
+            ];
+        }
         $this->configureSnmpEnvironment();
         $host = $targetHost ?: $this->host;
         $port = $targetPort ?: $this->port;
@@ -163,11 +186,19 @@ class OltSnmpService
         $startTime = microtime(true);
         $this->configureSnmpEnvironment();
 
-        // 0. Cek cepat apakah perangkat merespons SNMP
+        // 0. Cek ketersediaan ekstensi PHP SNMP
+        if (!$this->isExtensionLoaded()) {
+            return [
+                'success' => false,
+                'error' => "Ekstensi PHP 'snmp' belum terpasang di aaPanel. Silakan pasang paket 'php-snmp' di aaPanel.",
+            ];
+        }
+
+        // 1. Cek cepat apakah perangkat merespons SNMP
         if (!$this->ping()) {
             return [
                 'success' => false,
-                'error' => "Perangkat OLT {$this->host}:{$this->port} tidak merespons SNMP (Community: {$this->communityRo}).",
+                'error' => "OLT {$this->host}:{$this->port} tidak merespons SNMP (Community: {$this->communityRo}). Pastikan port UDP 161 terbuka di firewall/router.",
             ];
         }
 

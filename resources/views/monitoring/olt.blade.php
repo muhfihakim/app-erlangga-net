@@ -958,10 +958,13 @@ show gpon onu state gpon-olt_${port}`;
                                     }
                                 });
 
-                                const syncMsg = res.driver === 'snmp'
-                                    ? `Status seluruh OLT berhasil disinkronkan via SNMP (${res.elapsed_sec ?? '1'}s).`
-                                    : 'Status seluruh OLT berhasil disinkronkan via Telnet.';
-                                showToast(syncMsg, 'success');
+                                if (res.driver === 'snmp') {
+                                    showToast(`Status seluruh OLT berhasil disinkronkan via SNMP (${res.elapsed_sec ?? '1'}s).`, 'success');
+                                } else if (res.fallback_reason) {
+                                    showToast(`Status OLT disinkronkan via Telnet (SNMP: ${res.fallback_reason})`, 'warning');
+                                } else {
+                                    showToast('Status seluruh OLT berhasil disinkronkan via Telnet.', 'success');
+                                }
                                 $('#terminal_output').val(res.raw_output);
                                 $('#terminal_output').scrollTop($('#terminal_output')[0].scrollHeight);
                             } else {
