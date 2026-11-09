@@ -13,7 +13,7 @@ class OltTelnetService
     private $port;
     private $username;
     private $password;
-    private $timeout = 15;
+    private $timeout = 30; // Original timeout
 
     public function __construct()
     {
@@ -42,10 +42,6 @@ class OltTelnetService
             $this->write($this->password);
 
             // 3. Wait for Command Prompt
-            $this->readUntil(['>', '#']);
-
-            // 4. Nonaktifkan paginasi agar output tidak terpotong di --More--
-            $this->write('terminal length 0');
             $this->readUntil(['>', '#']);
 
             return true;
