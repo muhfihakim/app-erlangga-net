@@ -37,7 +37,7 @@ Authorization: Bearer <TOKEN_HASIL_LOGIN>
 | **3** | **Tab 3: Notifikasi Screen** | `GET` | `/api/notifications`<br>`/api/screens/notifications` | Protected | `NotificationCard`, `NotificationDetailScreen`<br>Feed notifikasi tagihan, payment, & info |
 | | **Action Notifikasi** | `POST` | `/api/notifications/{id}/read` | Protected | Tandai 1 notifikasi tertentu telah dibaca |
 | | | `POST` | `/api/notifications/read-all` | Protected | Tandai seluruh notifikasi telah dibaca |
-| **4** | **Tab 4: Profil Screen** | `GET` | `/api/profile`<br>`/api/screens/profile` | Protected | `ProfileAccordionCard`, `ProfileDetailRow`<br>Detail identitas pelanggan, teknis & kontak CS |
+| **4** | **Tab 4: Profil Screen** | `GET` | `/api/profile`<br>`/api/screens/profile` | Protected | `ProfileAccordionCard`, `ProfileDetailRow`<br>Detail identitas pelanggan, sesi aktif real-time (ID Sesi, IP, MAC, Unggah, Unduh, Uptime), & paket langganan |
 | **5** | **Direct Checkout / Bayar** | `POST` | `/api/pay` | Protected | `TagihanSection`, `BillingDetailScreen`<br>Generate URL pembayaran Xendit |
 
 ### B. Modular API (Fine-Grained Endpoints)
@@ -514,9 +514,84 @@ Dipanggil setelah pelanggan selesai membayar di WebView / In-App Browser untuk m
 
 ---
 
-## 3️⃣ Modul Informasi Akun & Penggunaan (Account & Usage)
+## 3️⃣ Modul Informasi Akun, Profil Screen & Sesi Aktif
 
-### 3.1 Informasi Profil Akun & Paket Langganan
+### 3.0 Data Profil Lengkap & Sesi Aktif (Screen 4: `/api/profile`)
+Endpoint utama 1 Screen 1 URL untuk **Tab Profil** (`profile_screen.dart`). Menyajikan identitas pelanggan, detail paket, kontak CS, serta **Sesi Aktif real-time** dari FreeRADIUS (`radacct`) dengan informasi 8 parameter: **ID Sesi, Sesi Dimulai, Pembaruan Terakhir, Alamat IP, Alamat MAC, Unggah, Unduh, dan Durasi Aktif**.
+
+- **Method**: `GET`
+- **URL**: `https://stage.erlangga.net/api/profile` *(Alias: `/api/screens/profile`)*
+- **Headers**:
+  ```http
+  Accept: application/json
+  Authorization: Bearer <TOKEN_PELANGGAN>
+  ```
+- **Response `200 OK`**:
+  ```json
+  {
+    "success": true,
+    "message": "Data profil pelanggan berhasil dimuat.",
+    "data": {
+      "id": 1,
+      "id_pelanggan": "23114957687",
+      "nama_lengkap": "Nurul Adhira",
+      "no_whatsapp": "082191285271",
+      "email": "nuruladhira@gmail.com",
+      "alamat_lengkap": "Blok Tegal Kalapa RT. 14 RW 10 Dangdeur Subang",
+      "pppoe_username": "nurul_tegal",
+      "sn_perangkat": "ZTEGC1234567",
+      "jenis_modem": "EPON",
+      "tanggal_aktif": "2026-09-20",
+      "status_akun": "aktif",
+      "status_akun_badge": "Aktif",
+
+      "sesi_aktif": {
+        "is_online": true,
+        "status": "Online",
+        "id_sesi": "82a1bc40",
+        "sesi_dimulai": "09 November 2026, 08:15:30 WIB",
+        "pembaruan_terakhir": "09 November 2026, 18:25:00 WIB",
+        "alamat_ip": "10.10.20.45",
+        "alamat_mac": "AA:BB:CC:DD:EE:FF",
+        "unggah": "145,20 MB",
+        "unduh": "1,85 GB",
+        "durasi_aktif": "10j 9m",
+        "session_id": "82a1bc40",
+        "start_time": "2026-11-09 08:15:30",
+        "last_update": "2026-11-09 18:25:00",
+        "ip_address": "10.10.20.45",
+        "mac_address": "AA:BB:CC:DD:EE:FF",
+        "upload": "145,20 MB",
+        "download": "1,85 GB",
+        "upload_bytes": 152253440,
+        "download_bytes": 1986422374,
+        "total_bytes": 2138675814,
+        "total_traffic": "1,99 GB",
+        "uptime_seconds": 36570,
+        "uptime": "10j 9m"
+      },
+
+      "id_sesi": "82a1bc40",
+      "sesi_dimulai": "09 November 2026, 08:15:30 WIB",
+      "pembaruan_terakhir": "09 November 2026, 18:25:00 WIB",
+      "alamat_ip": "10.10.20.45",
+      "alamat_mac": "AA:BB:CC:DD:EE:FF",
+      "unggah": "145,20 MB",
+      "unduh": "1,85 GB",
+      "durasi_aktif": "10j 9m",
+      "status_koneksi": "Online",
+
+      "nama_paket": "Paket Home 20 Mbps",
+      "kecepatan": "20 Mbps",
+      "harga": 150000,
+      "total_harga": 166500
+    }
+  }
+  ```
+
+---
+
+### 3.1 Informasi Profil Akun & Paket Langganan (Granular)
 Mengambil data detail pelanggan, paket internet aktif, IP address, router gateway, dan rincian teknis.
 
 - **Method**: `GET`

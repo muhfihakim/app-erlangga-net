@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\CustomerNotification;
 use App\Models\Invoice;
+use App\Models\Radacct;
 use App\Models\Setting;
 use App\Services\GenieAcsService;
 use Carbon\Carbon;
@@ -522,10 +523,126 @@ class ScreenController extends Controller
         $statusAkun = $isIsolir ? 'isolir' : ($customer->trashed() ? 'non_aktif' : 'aktif');
         $statusAkunBadge = $isIsolir ? 'Terisolir' : ($customer->trashed() ? 'Non-Aktif' : 'Aktif');
 
-        // Kontak Customer Service & Support
-        $waAdmin = Setting::get('support_whatsapp', env('SUPPORT_WHATSAPP', '6282191285271'));
-        $emailAdmin = Setting::get('support_email', env('SUPPORT_EMAIL', 'Hersapms@erlangga.net'));
-        $waTemplate = "Halo Admin, saya mengalami kendala lupa kata sandi/akun Aplikasi Erlangga Network (" . ($customer->id_pelanggan ?? $customer->nama_lengkap) . ").";
+        // 1. Data Sesi Aktif dari FreeRADIUS (radacct)
+        $sessionData = [
+            'is_online'          => false,
+            'status'             => 'Offline',
+            'id_sesi'            => '-',
+            'sesi_dimulai'       => '-',
+            'pembaruan_terakhir' => '-',
+            'alamat_ip'          => $pppoe?->ip_address ?: '-',
+            'alamat_mac'         => '-',
+            'unggah'             => '0 B',
+            'unduh'              => '0 B',
+            'durasi_aktif'       => '-',
+
+            // Field teknis tambahan untuk integrasi mobile
+            'session_id'         => '-',
+            'start_time'         => null,
+            'last_update'        => null,
+            'ip_address'         => $pppoe?->ip_address ?: '-',
+            'mac_address'        => '-',
+            'upload'             => '0 B',
+            'download'           => '0 B',
+            'upload_bytes'       => 0,
+            'download_bytes'     => 0,
+            'total_bytes'        => 0,
+            'total_traffic'      => '0 B',
+            'uptime_seconds'     => 0,
+            'uptime'             => '-',
+        ];
+
+        $usernames = array_filter(array_unique([
+            $customer->pppoe_username,
+            $pppoe?->username,
+            $customer->pppoe_username ? explode('@', $customer->pppoe_username)[0] : null,
+            $pppoe?->username ? explode('@', $pppoe->username)[0] : null,
+        ]));
+
+        if (!empty($usernames)) {
+            try {
+                // 1. Prioritaskan sesi yang sedang aktif / online saat ini (acctstoptime IS NULL)
+                $activeSession = Radacct::whereIn('username', $usernames)
+                    ->whereNull('acctstoptime')
+                    ->orderByDesc('radacctid')
+                    ->first();
+
+                // 2. Fallback ke sesi historis terakhir jika sedang offline
+                if (!$activeSession) {
+                    $activeSession = Radacct::whereIn('username', $usernames)
+                        ->orderByDesc('radacctid')
+                        ->first();
+                }
+
+                if ($activeSession) {
+                    $isOnline = $activeSession->is_online;
+                    $uploadBytes = (int) ($activeSession->acctinputoctets ?? 0);
+                    $downloadBytes = (int) ($activeSession->acctoutputoctets ?? 0);
+                    $totalBytes = $uploadBytes + $downloadBytes;
+                    $uptimeSecs = (int) ($activeSession->acctsessiontime ?? 0);
+
+                    $tz = config('app.timezone', 'Asia/Jakarta');
+                    $startDt = $activeSession->acctstarttime ? Carbon::parse($activeSession->acctstarttime)->setTimezone($tz) : null;
+                    $updateDt = $activeSession->acctupdatetime ? Carbon::parse($activeSession->acctupdatetime)->setTimezone($tz) : null;
+                    $stopDt = $activeSession->acctstoptime ? Carbon::parse($activeSession->acctstoptime)->setTimezone($tz) : null;
+
+                    $lastActivityDt = $isOnline ? ($updateDt ?: $startDt) : ($stopDt ?: ($updateDt ?: $startDt));
+
+                    $durasiAktif = $activeSession->formatted_session_time;
+                    if (empty($durasiAktif) && $uptimeSecs > 0) {
+                        $durasiAktif = $this->formatDuration($uptimeSecs);
+                    } elseif (empty($durasiAktif)) {
+                        $durasiAktif = $isOnline ? 'Baru saja' : '-';
+                    }
+
+                    $ipAddr = $activeSession->framedipaddress ?: ($pppoe?->ip_address ?: '-');
+                    $macAddr = $activeSession->callingstationid ?: '-';
+
+                    $sessionData = [
+                        'is_online'          => $isOnline,
+                        'status'             => $isOnline ? 'Online' : 'Offline',
+                        'id_sesi'            => (string) ($activeSession->acctsessionid ?: ($activeSession->radacctid ? (string)$activeSession->radacctid : '-')),
+                        'sesi_dimulai'       => $startDt ? $startDt->translatedFormat('d F Y, H:i:s') . ' WIB' : '-',
+                        'pembaruan_terakhir' => $lastActivityDt ? $lastActivityDt->translatedFormat('d F Y, H:i:s') . ' WIB' : '-',
+                        'alamat_ip'          => (string) $ipAddr,
+                        'alamat_mac'         => (string) $macAddr,
+                        'unggah'             => Radacct::formatBytes($uploadBytes),
+                        'unduh'              => Radacct::formatBytes($downloadBytes),
+                        'durasi_aktif'       => (string) $durasiAktif,
+
+                        // Field teknis tambahan untuk kemudahan parsing Flutter
+                        'session_id'         => (string) ($activeSession->acctsessionid ?: ($activeSession->radacctid ? (string)$activeSession->radacctid : '-')),
+                        'start_time'         => $startDt ? $startDt->format('Y-m-d H:i:s') : null,
+                        'last_update'        => $lastActivityDt ? $lastActivityDt->format('Y-m-d H:i:s') : null,
+                        'ip_address'         => (string) $ipAddr,
+                        'mac_address'        => (string) $macAddr,
+                        'upload'             => Radacct::formatBytes($uploadBytes),
+                        'download'           => Radacct::formatBytes($downloadBytes),
+                        'upload_bytes'       => $uploadBytes,
+                        'download_bytes'     => $downloadBytes,
+                        'total_bytes'        => $totalBytes,
+                        'total_traffic'      => Radacct::formatBytes($totalBytes),
+                        'uptime_seconds'     => $uptimeSecs,
+                        'uptime'             => (string) $durasiAktif,
+                    ];
+                }
+            } catch (\Throwable $e) {
+                Log::warning("Gagal mengambil sesi aktif untuk customer {$customer->id}: " . $e->getMessage());
+            }
+        }
+
+        // 2. Fallback MAC dari GenieACS jika belum terisi dari RADIUS
+        if ($sessionData['alamat_mac'] === '-' && $this->acsService) {
+            try {
+                $device = $this->acsService->findDeviceForCustomer($customer);
+                if (!empty($device['mac_address'])) {
+                    $sessionData['alamat_mac'] = (string) $device['mac_address'];
+                    $sessionData['mac_address'] = (string) $device['mac_address'];
+                }
+            } catch (\Throwable $e) {
+                // ACS bypass
+            }
+        }
 
         return response()->json([
             'success' => true,
@@ -545,21 +662,27 @@ class ScreenController extends Controller
                 'jenis_modem'    => (string) ($customer->jenis_modem ?? '-'),
                 'tanggal_aktif'  => $tanggalAktifStr,
                 'status_akun'    => $statusAkun,
+                'status_akun_badge' => $statusAkunBadge,
+
+                // Sesi Aktif (Objek Terstruktur sesuai spesifikasi Screen Profil)
+                'sesi_aktif'     => $sessionData,
+
+                // Field Sesi Aktif Flat (Direct access untuk widget/UI mobile)
+                'id_sesi'            => $sessionData['id_sesi'],
+                'sesi_dimulai'       => $sessionData['sesi_dimulai'],
+                'pembaruan_terakhir' => $sessionData['pembaruan_terakhir'],
+                'alamat_ip'          => $sessionData['alamat_ip'],
+                'alamat_mac'         => $sessionData['alamat_mac'],
+                'unggah'             => $sessionData['unggah'],
+                'unduh'              => $sessionData['unduh'],
+                'durasi_aktif'       => $sessionData['durasi_aktif'],
+                'status_koneksi'     => $sessionData['status'],
 
                 // Field paket langganan
                 'nama_paket'     => (string) ($paket->nama_paket ?? 'Paket Internet Unlimited'),
                 'kecepatan'      => (string) ($paket->kecepatan ?? '-'),
                 'harga'          => (float) ($paket->harga ?? 0),
                 'total_harga'    => (float) ($paket->total_harga ?? $paket->harga ?? 0),
-
-                // Kontak Bantuan (Intent WA & Mailto)
-                'support'        => [
-                    'whatsapp'         => $waAdmin,
-                    'whatsapp_message' => $waTemplate,
-                    'whatsapp_url'     => 'https://wa.me/' . preg_replace('/[^0-9]/', '', $waAdmin) . '?text=' . rawurlencode($waTemplate),
-                    'email'            => $emailAdmin,
-                    'email_subject'    => 'Bantuan Layanan Internet - ' . ($customer->id_pelanggan ?? $customer->nama_lengkap),
-                ],
             ],
         ]);
     }
