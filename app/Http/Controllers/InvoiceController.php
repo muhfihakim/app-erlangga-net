@@ -242,6 +242,20 @@ class InvoiceController extends Controller
 
         $dueDate = $request->filled('due_date') ? Carbon::parse($request->due_date) : Carbon::now()->addDays(7);
         $billingPeriod = $request->filled('billing_period') ? $request->billing_period : $dueDate->format('Y-m');
+
+        // Cegah pembuatan faktur ganda (anti double-click dan proteksi duplikasi periode berjalan)
+        $existingUnpaid = Invoice::where('pppoe_id', $pppoe->id)
+            ->where('status', 'unpaid')
+            ->where(function ($q) use ($billingPeriod) {
+                $q->where('billing_period', $billingPeriod)
+                  ->orWhere('created_at', '>=', now()->subMinutes(1));
+            })
+            ->first();
+
+        if ($existingUnpaid) {
+            return redirect()->back()->with('error', "Gagal: Tagihan belum lunas untuk periode {$billingPeriod} sudah diterbitkan sebelumnya (#{$existingUnpaid->invoice_number}). Sistem memblokir penerbitan tagihan ganda.");
+        }
+
         $invoiceNumber = 'INV-' . date('Ymd') . '-' . str_pad($pppoe->id, 4, '0', STR_PAD_LEFT) . '-' . rand(100, 999);
 
         $invoiceData = [

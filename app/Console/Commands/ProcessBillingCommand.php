@@ -91,7 +91,8 @@ class ProcessBillingCommand extends Command
                             return Carbon::parse($inv->created_at)->diffInDays(now()) < 20;
                         })->isNotEmpty();
 
-                        if ($isForce || (!$hasUnpaid && !$hasRecentInvoice)) {
+                        // Tidak pernah membuat tagihan baru jika masih ada tagihan unpaid atau sudah ada tagihan untuk periode ini
+                        if (!$hasUnpaid && !$hasRecentInvoice) {
                             $shouldGenerate = true;
                         }
                     }
@@ -105,7 +106,10 @@ class ProcessBillingCommand extends Command
                             return Carbon::parse($inv->created_at)->isCurrentMonth();
                         })->isNotEmpty();
 
-                        if (!$hasCurrentMonthInvoice) {
+                        $hasUnpaid = $pppoe->invoices->where('status', 'unpaid')->isNotEmpty();
+
+                        // Untuk pascabayar: pastikan belum ada faktur bulan berjalan dan tidak ada tunggakan unpaid
+                        if (!$hasCurrentMonthInvoice && !$hasUnpaid) {
                             $shouldGenerate = true;
                             $day20 = now()->copy()->setDay(min(20, now()->daysInMonth));
                             $dueDate = ($day20->diffInDays(now(), false) <= -7) ? $day20 : now()->addDays(7);
