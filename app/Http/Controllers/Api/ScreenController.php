@@ -238,6 +238,7 @@ class ScreenController extends Controller
                 'penyesuaian'           => (float) ($earliestUnpaid?->penyesuaian ?? 0),
                 'catatan_penyesuaian'   => $earliestUnpaid?->catatan_penyesuaian ?? null,
                 'invoice_url'           => ($earliestUnpaid && !$isEarliestExpired) ? (string) ($earliestUnpaid->xendit_invoice_url ?? '') : '',
+                'invoice_export'        => $earliestUnpaid?->id ? (string) url('/api/invoices/' . $earliestUnpaid->id . '/export.pdf') : '',
             ],
         ];
 
@@ -278,10 +279,31 @@ class ScreenController extends Controller
             ]);
         }
 
-        $invoices = Invoice::with('transactions')
+        $query = Invoice::with('transactions')
             ->where('pppoe_id', $pppoe->id)
-            ->latest('id')
-            ->get();
+            ->latest('id');
+
+        $statusFilter = strtolower((string) $request->query('status', 'all'));
+        if (!empty($statusFilter) && $statusFilter !== 'all') {
+            if ($statusFilter === 'paid') {
+                $query->where('status', 'paid');
+            } elseif ($statusFilter === 'unpaid') {
+                $query->where('status', 'unpaid');
+            } elseif ($statusFilter === 'expired') {
+                $query->where(function ($q) {
+                    $q->where('status', 'expired')
+                      ->orWhere(function ($sub) {
+                          $sub->where('status', '!=', 'paid')
+                              ->whereNotNull('due_date')
+                              ->whereDate('due_date', '<', now()->toDateString());
+                      });
+                });
+            } elseif (in_array($statusFilter, ['failed', 'pending'])) {
+                $query->where('status', $statusFilter);
+            }
+        }
+
+        $invoices = $query->get();
 
         $snPerangkat = (string) ($customer->sn_perangkat ?? '-');
 
@@ -295,6 +317,7 @@ class ScreenController extends Controller
             $isExpired = $inv->isExpired();
             $statusInvoice = ($inv->status === 'paid') ? 'paid' : ($isExpired ? 'expired' : 'unpaid');
             $statusBadge = ($inv->status === 'paid') ? 'Lunas' : ($isExpired ? 'Kedaluwarsa' : 'Belum Bayar');
+            $exportUrl = $inv->id ? (string) url('/api/invoices/' . $inv->id . '/export.pdf') : '';
 
             return [
                 'id'               => $inv->id,
@@ -314,6 +337,7 @@ class ScreenController extends Controller
                 'total_harga'      => (float) $inv->total,
                 'total'            => (float) $inv->total,
                 'invoice_url'      => $isExpired ? '' : (string) ($inv->xendit_invoice_url ?? ''),
+                'invoice_export'   => !empty($exportUrl) ? (string) $exportUrl : '',
                 'invoice_duration' => 86400, // Valid 24 jam checkout link
                 'due_date'         => $inv->due_date ? Carbon::parse($inv->due_date)->format('Y-m-d') : null,
                 'created_at'       => $inv->created_at->format('Y-m-d H:i:s'),

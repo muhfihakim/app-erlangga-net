@@ -9,6 +9,7 @@ use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PaymentController extends Controller
 {
@@ -76,6 +77,7 @@ class PaymentController extends Controller
         }
 
         $isEarliestExpired = $earliestUnpaid ? $earliestUnpaid->isExpired() : false;
+        $exportUrl = $earliestUnpaid?->id ? (string) url('/api/invoices/' . $earliestUnpaid->id . '/export.pdf') : '';
 
         return response()->json([
             'success' => true,
@@ -101,6 +103,7 @@ class PaymentController extends Controller
                     'due_date'           => $earliestUnpaid->due_date,
                     'xendit_invoice_url' => ($isEarliestExpired || empty($earliestUnpaid->xendit_invoice_url)) ? '' : (string) $earliestUnpaid->xendit_invoice_url,
                     'invoice_url'        => ($isEarliestExpired || empty($earliestUnpaid->xendit_invoice_url)) ? '' : (string) $earliestUnpaid->xendit_invoice_url,
+                    'invoice_export'     => !empty($exportUrl) ? (string) $exportUrl : '',
                 ] : null,
             ]
         ]);
@@ -135,6 +138,7 @@ class PaymentController extends Controller
             $isExpired = $inv->isExpired();
             $status = ($inv->status === 'paid') ? 'paid' : ($isExpired ? 'expired' : $inv->status);
             $statusBadge = ($inv->status === 'paid') ? 'Lunas' : ($isExpired ? 'Kedaluwarsa' : 'Belum Bayar');
+            $exportUrl = $inv->id ? (string) url('/api/invoices/' . $inv->id . '/export.pdf') : '';
             return [
                 'id'                 => $inv->id,
                 'invoice_number'     => $inv->invoice_number,
@@ -151,6 +155,7 @@ class PaymentController extends Controller
                 'payment_method'     => $inv->payment_method ?? ($lastTx ? $lastTx->payment_method : null),
                 'xendit_invoice_url' => ($isExpired || empty($inv->xendit_invoice_url)) ? '' : (string) $inv->xendit_invoice_url,
                 'invoice_url'        => ($isExpired || empty($inv->xendit_invoice_url)) ? '' : (string) $inv->xendit_invoice_url,
+                'invoice_export'     => !empty($exportUrl) ? (string) $exportUrl : '',
                 'paid_at'            => ($inv->status === 'paid' && $lastTx) ? $lastTx->payment_date : ($inv->status === 'paid' ? $inv->updated_at->format('Y-m-d H:i:s') : null),
                 'created_at'         => $inv->created_at->format('Y-m-d H:i:s'),
             ];
@@ -188,6 +193,7 @@ class PaymentController extends Controller
         $status = ($invoice->status === 'paid') ? 'paid' : ($isExpired ? 'expired' : $invoice->status);
         $statusBadge = ($invoice->status === 'paid') ? 'Lunas' : ($isExpired ? 'Kedaluwarsa' : 'Belum Bayar');
         $invoiceUrl = ($isExpired || empty($invoice->xendit_invoice_url)) ? '' : (string) $invoice->xendit_invoice_url;
+        $exportUrl = $invoice->id ? (string) url('/api/invoices/' . $invoice->id . '/export.pdf') : '';
 
         return response()->json([
             'success' => true,
@@ -208,6 +214,7 @@ class PaymentController extends Controller
                 'payment_method'     => $invoice->payment_method,
                 'xendit_invoice_url' => $invoiceUrl,
                 'invoice_url'        => $invoiceUrl,
+                'invoice_export'     => !empty($exportUrl) ? (string) $exportUrl : '',
                 'created_at'         => $invoice->created_at->format('Y-m-d H:i:s'),
                 'transactions'       => $invoice->transactions->map(function ($tx) {
                     return [
@@ -473,6 +480,57 @@ class PaymentController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal sinkronisasi status: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Unduh / stream faktur invoice dalam format PDF
+     * Endpoint: GET /api/invoices/{id}/export.pdf
+     */
+    public function exportPdf(Request $request, $id)
+    {
+        $invoice = Invoice::with(['pppoe.preOrder', 'pppoe.paket', 'transactions'])
+            ->where('id', $id)
+            ->orWhere('invoice_number', $id)
+            ->first();
+
+        if (!$invoice) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Faktur invoice tidak ditemukan.'
+            ], 404);
+        }
+
+        // Jika request membawa token customer, pastikan invoice milik customer tersebut
+        $user = auth('sanctum')->user() ?? $request->user();
+        if ($user instanceof Customer && $user->pppoe_id) {
+            if ($invoice->pppoe_id != $user->pppoe_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak memiliki hak akses untuk faktur ini.'
+                ], 403);
+            }
+        }
+
+        try {
+            $pdf = Pdf::loadView('invoices.pdf', compact('invoice'));
+            $fileName = ($invoice->invoice_number ?: ('invoice-' . $invoice->id)) . '.pdf';
+
+            if ($request->query('view') === '1' || $request->query('stream') === '1') {
+                return $pdf->stream($fileName);
+            }
+
+            return $pdf->download($fileName);
+        } catch (\Throwable $e) {
+            Log::error('Gagal export invoice PDF: ' . $e->getMessage(), [
+                'invoice_id' => $id,
+                'trace'      => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membuat dokumen PDF: ' . $e->getMessage()
             ], 500);
         }
     }

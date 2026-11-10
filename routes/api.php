@@ -58,6 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/status', [PaymentController::class, 'status']);                     // Ringkasan status & tagihan aktif
         Route::get('/invoices', [PaymentController::class, 'invoices']);                 // Daftar seluruh faktur / riwayat bayar
         Route::get('/invoices/{id}', [PaymentController::class, 'show']);                // Detail faktur tertentu
+        Route::get('/invoices/{id}/export-pdf', [PaymentController::class, 'exportPdf']); // Unduh PDF Faktur
         Route::post('/pay', [PaymentController::class, 'pay']);                          // Melakukan pembayaran (Xendit URL)
         Route::match(['GET', 'POST'], '/invoices/{id}/check-status', [PaymentController::class, 'checkStatus']); // Cek/sinkronisasi status real-time
     });
@@ -81,3 +82,9 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::post('/webhooks/xendit', [XenditWebhookController::class, 'handleInvoice']);
 Route::post('/webhooks/xendit/disbursements', [XenditWebhookController::class, 'handleDisbursement']);
 Route::match(['GET', 'POST'], '/webhooks/whatsapp', [\App\Http\Controllers\WhatsAppController::class, 'handleWebhook']);
+
+// --- 5. Invoice PDF Export (Mobile App & Browser Direct Download) ---
+Route::get('/invoices/{invoice}/export.pdf', [PaymentController::class, 'exportPdf'])->name('api.invoices.export_pdf');
+Route::get('/invoices/{invoice}/export-pdf', [PaymentController::class, 'exportPdf']);
+Route::get('/invoices/{invoice}/pdf', [PaymentController::class, 'exportPdf']);
+
