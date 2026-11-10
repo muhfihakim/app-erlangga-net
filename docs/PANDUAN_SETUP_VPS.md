@@ -221,6 +221,10 @@ Uji kesiapan sistem dan konfigurasi FreeRADIUS dengan mode simulasi (dry-run):
 ```
 *Jika output menampilkan `PROSES SELESAI`, berarti database Laravel dan koneksi FreeRADIUS sudah 100% tersambung sempurna!*
 
+> [!NOTE]
+> **Migrasi Data Pelanggan dari Radboox / Sistem Lama:**  
+> Jika Anda sedang memindahkan data dari Radboox (pelanggan, akun PPPoE, invoice, dan riwayat transaksi), silakan ikuti panduan khusus di **[PANDUAN_MIGRASI_RADBOOX.md](file:///Users/bbs/Documents/Project/app-erlangga-net/docs/PANDUAN_MIGRASI_RADBOOX.md)**. Panduan tersebut menjelaskan alur import via Web GUI (`/migration`) maupun via Terminal CLI aaPanel.
+
 ---
 
 ## 7. Langkah 7: Konfigurasi Nginx (Running Dir, URL Rewrite, Timeout)
