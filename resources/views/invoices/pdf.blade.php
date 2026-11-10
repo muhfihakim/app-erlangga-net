@@ -323,10 +323,10 @@
         // ====== DATA KOP PERUSAHAAN (silakan sesuaikan) ======
         $companyName = 'Erlangga Net';
         $companyTagline = 'High Speed Internet Service Provider';
-        $companyAddress = 'Alamat lengkap perusahaan Anda di sini';
-        $companyPhone = '0812-0000-0000';
-        $companyEmail = 'cs@erlanggank.net';
-        $companyWebsite = 'www.erlanggank.net';
+        $companyAddress = 'Kab. Subang - Jawa Barat, Indonesia 41272';
+        $companyPhone = '0851-1742-4407';
+        $companyEmail = 'office@erlangga.net';
+        $companyWebsite = 'www.erlangga.net';
     @endphp
 
     <!-- ================= KOP PERUSAHAAN ================= -->
@@ -438,9 +438,6 @@
                 <td>
                     <div class="item-name">Langganan Internet -
                         {{ $invoice->pppoe->paket->nama_paket ?? 'Paket Broadband' }}</div>
-                    @if (!empty($invoice->pppoe->paket->rate_limit))
-                        <div class="item-desc">Kecepatan Akses: {{ $invoice->pppoe->paket->rate_limit }}</div>
-                    @endif
                 </td>
                 <td class="text-center">{{ $invoice->created_at->translatedFormat('F Y') }}</td>
                 <td class="text-right" style="font-weight: bold;">
