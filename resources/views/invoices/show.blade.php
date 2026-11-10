@@ -606,15 +606,6 @@
                         </div>
                     </div>
                 </div>
-                        <div>
-                            <span class="text-[10px] font-bold text-sky-800 uppercase tracking-wider block">Total Tagihan Diterbitkan</span>
-                            <span class="text-xs text-sky-600 block mt-0.5">Pokok + Penyesuaian + Pajak - Diskon</span>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-lg font-black text-sky-700 font-mono block" id="genModalTotal">Rp 0</span>
-                        </div>
-                    </div>
-                </div>
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2">
                     <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                         onclick="closeCustomModal('generateSingleModal')"><i class="fa-solid fa-xmark"></i> Batal</button>
