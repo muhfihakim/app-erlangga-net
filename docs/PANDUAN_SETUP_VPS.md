@@ -118,6 +118,10 @@ npm run build
 # 9. Atur kepemilikan hak akses (User aaPanel adalah www:www)
 chown -R www:www /www/wwwroot/stage.erlangga.net
 chmod -R 775 storage bootstrap/cache
+
+# 10. Kunci hak akses file .env demi keamanan maksimal
+chmod 640 .env
+chown www:www .env
 ```
 
 ---
@@ -193,6 +197,12 @@ XENDIT_WEBHOOK_TOKEN=token_webhook_anda
 ```
 
 Klik **Save** untuk menyimpan perubahan `.env`.
+
+> [!TIP]
+> **Arsitektur Keamanan Kredensial (.env vs Pengaturan Database):**
+> 1. **Kredensial Keuangan (Xendit Secret Key & Token):** Sangat disarankan diisi di file `.env`. Sistem secara otomatis memprioritaskan `.env` dan mengunci input di web GUI sehingga kunci rahasia transaksi tidak pernah disimpan di database MySQL (mencegah kebocoran saat backup/dump database).
+> 2. **Perangkat Jaringan (MikroTik, OLT, FreeRADIUS, GenieACS, WhatsApp):** Dapat diatur melalui `.env` atau langsung via menu web GUI **Pengaturan Sistem**. Semua password yang disimpan ke database otomatis dienkripsi dengan standar **AES-256-CBC** (`Crypt::encryptString`) sehingga tidak tersimpan dalam bentuk teks terbuka (plain-text).
+> 3. **Proteksi File:** Pastikan permission `.env` adalah `chmod 640 .env` dengan kepemilikan `chown www:www .env` agar tidak dapat diintip oleh user lain di server.
 
 ---
 

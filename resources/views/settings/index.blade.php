@@ -134,7 +134,7 @@
                         <div class="relative">
                             <input type="password" name="mikrotik_pass" id="mikrotik_pass" class="form-input !pr-10"
                                 value="{{ old('mikrotik_pass', $settings['mikrotik']['pass']) }}"
-                                placeholder="Kosongkan jika tanpa password">
+                                placeholder="Kosongkan jika tidak ingin mengubah password">
                             <button type="button"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
                                 aria-label="Tampilkan atau sembunyikan password API MikroTik"
@@ -569,7 +569,7 @@
                         <div class="relative">
                             <input type="password" name="olt_password" id="olt_password" class="form-input !pr-10"
                                 value="{{ old('olt_password', $settings['olt']['password']) }}"
-                                placeholder="Password OLT">
+                                placeholder="Kosongkan jika tidak ingin mengubah password">
                             <button type="button"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
                                 aria-label="Tampilkan atau sembunyikan password Telnet OLT" title="Tampilkan password"
@@ -671,7 +671,7 @@
                             <input type="password" name="db_radius_password" id="db_radius_password"
                                 class="form-input !pr-10"
                                 value="{{ old('db_radius_password', $settings['radius']['password']) }}"
-                                placeholder="Password database">
+                                placeholder="Kosongkan jika tidak ingin mengubah password">
                             <button type="button"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
                                 aria-label="Tampilkan atau sembunyikan password database RADIUS"
@@ -709,11 +709,30 @@
                     <p class="text-xs text-slate-500 mt-1">Digunakan untuk pembuatan link pembayaran invoice otomatis
                         (VA BCA, Mandiri, BRI, QRIS, OVO, dll).</p>
                 </div>
-                <span
-                    class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100">
-                    API v7 Ready
-                </span>
+                <div class="flex items-center gap-2">
+                    @if(!empty($settings['xendit']['is_env_locked']))
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <i class="fa-solid fa-shield-halved mr-1.5 text-emerald-600"></i> Terkonfigurasi Aman (.env)
+                        </span>
+                    @endif
+                    <span
+                        class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100">
+                        API v7 Ready
+                    </span>
+                </div>
             </div>
+
+            @if(!empty($settings['xendit']['is_env_locked']))
+            <div class="bg-emerald-50/70 border border-emerald-200 rounded-xl p-3.5 mb-4 text-xs text-slate-700">
+                <div class="flex items-start gap-2.5">
+                    <i class="fa-solid fa-shield-halved text-emerald-600 mt-0.5 text-sm"></i>
+                    <div>
+                        <span class="font-bold text-slate-800">Kredensial Keuangan Terkunci di .env:</span>
+                        <p class="text-slate-600 mt-0.5">Xendit Secret Key dimuat langsung dari file konfigurasi server <code>.env</code> untuk proteksi maksimal. Kolom terkunci secara otomatis agar tidak terekspos di database.</p>
+                    </div>
+                </div>
+            </div>
+            @endif
 
             <!-- Petunjuk Konfigurasi Xendit -->
             <div class="bg-amber-50/50 border border-amber-200/80 rounded-xl p-3.5 mb-4 text-xs text-slate-700">
@@ -741,9 +760,10 @@
                         Key</label>
                     <div class="relative">
                         <input type="password" name="xendit_secret_key" id="xendit_secret_key"
-                            class="form-input !pr-10 font-mono"
+                            class="form-input !pr-10 font-mono {{ !empty($settings['xendit']['is_env_locked']) ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : '' }}"
                             value="{{ old('xendit_secret_key', $settings['xendit']['secret_key']) }}"
-                            placeholder="xnd_development_... atau xnd_production_...">
+                            placeholder="xnd_development_... atau xnd_production_..."
+                            {{ !empty($settings['xendit']['is_env_locked']) ? 'readonly' : '' }}>
                         <button type="button"
                             class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
                             aria-label="Tampilkan atau sembunyikan secret API key Xendit" title="Tampilkan secret key"
@@ -751,8 +771,13 @@
                             <i class="fa-solid fa-eye" aria-hidden="true"></i>
                         </button>
                     </div>
-                    <small class="text-slate-500 text-xs mt-1 block">Dapatkan dari Dashboard Xendit -> Settings ->
-                        Developers -> API Keys (Secret Key).</small>
+                    <small class="text-slate-500 text-xs mt-1 block">
+                        @if(!empty($settings['xendit']['is_env_locked']))
+                            <i class="fa-solid fa-lock text-emerald-600 mr-1"></i> Nilai dimuat dari <code>XENDIT_SECRET_KEY</code> pada file .env server VPS.
+                        @else
+                            Dapatkan dari Dashboard Xendit -> Settings -> Developers -> API Keys (Secret Key). Kosongkan jika tidak ingin mengubah.
+                        @endif
+                    </small>
                 </div>
 
                 <div class="form-group mb-3.5">
@@ -762,7 +787,7 @@
                         <input type="password" name="xendit_webhook_token" id="xendit_webhook_token"
                             class="form-input !pr-10 font-mono"
                             value="{{ old('xendit_webhook_token', $settings['xendit']['webhook_token']) }}"
-                            placeholder="Token verifikasi webhook dari dashboard Xendit">
+                            placeholder="Kosongkan jika tidak ingin mengubah token">
                         <button type="button"
                             class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
                             aria-label="Tampilkan atau sembunyikan webhook verification token Xendit"
@@ -864,7 +889,7 @@
                         <input type="password" name="whatsapp_api_key" id="whatsapp_api_key"
                             class="form-input !pr-10 font-mono"
                             value="{{ old('whatsapp_api_key', $settings['whatsapp']['api_key']) }}"
-                            placeholder="Bearer Token API dari api.co.id">
+                            placeholder="Kosongkan jika tidak ingin mengubah API key">
                         <button type="button"
                             class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
                             aria-label="Tampilkan atau sembunyikan API key WhatsApp" title="Tampilkan API key"
@@ -978,7 +1003,7 @@
                             <input type="password" name="genieacs_password" id="genieacs_password"
                                 class="form-input !pr-10 font-mono"
                                 value="{{ old('genieacs_password', $settings['genieacs']['password']) }}"
-                                placeholder="Password GenieACS">
+                                placeholder="Kosongkan jika tidak ingin mengubah password">
                             <button type="button"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
                                 aria-label="Tampilkan atau sembunyikan password GenieACS" title="Tampilkan password"

@@ -46,9 +46,17 @@ class AppServiceProvider extends ServiceProvider
                     \Illuminate\Support\Facades\DB::purge('radius');
                 }
 
-                // Xendit Payment Gateway
-                if ($xenKey = \App\Models\Setting::get('xendit_secret_key')) config(['services.xendit.secret_key' => $xenKey]);
-                if ($xenToken = \App\Models\Setting::get('xendit_webhook_token')) config(['services.xendit.webhook_token' => $xenToken]);
+                // Xendit Payment Gateway: Utamakan konfigurasi .env jika diset, fallback ke database setting
+                if (!config('services.xendit.secret_key')) {
+                    if ($xenKey = \App\Models\Setting::get('xendit_secret_key')) {
+                        config(['services.xendit.secret_key' => $xenKey]);
+                    }
+                }
+                if (!config('services.xendit.webhook_token')) {
+                    if ($xenToken = \App\Models\Setting::get('xendit_webhook_token')) {
+                        config(['services.xendit.webhook_token' => $xenToken]);
+                    }
+                }
             }
         } catch (\Throwable $e) {
             // Silently fallback if DB is not ready

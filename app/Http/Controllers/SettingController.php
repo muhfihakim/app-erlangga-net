@@ -49,9 +49,10 @@ class SettingController extends Controller
                 'password' => Setting::get('db_radius_password', env('DB_RADIUS_PASSWORD', '')),
             ],
             'xendit' => [
-                'secret_key' => Setting::get('xendit_secret_key', env('XENDIT_SECRET_KEY', '')),
-                'webhook_token' => Setting::get('xendit_webhook_token', env('XENDIT_WEBHOOK_TOKEN', '')),
+                'secret_key' => env('XENDIT_SECRET_KEY') ?: Setting::get('xendit_secret_key', ''),
+                'webhook_token' => env('XENDIT_WEBHOOK_TOKEN') ?: Setting::get('xendit_webhook_token', ''),
                 'webhook_url' => url('/api/webhooks/xendit'),
+                'is_env_locked' => !empty(env('XENDIT_SECRET_KEY')),
             ],
             'whatsapp' => [
                 'api_url' => Setting::get('whatsapp_api_url', env('WHATSAPP_API_URL', '')),
@@ -103,13 +104,17 @@ class SettingController extends Controller
             Setting::set('mikrotik_host', $request->mikrotik_host, 'mikrotik');
             Setting::set('mikrotik_port', $request->mikrotik_port, 'mikrotik');
             Setting::set('mikrotik_user', $request->mikrotik_user, 'mikrotik');
-            Setting::set('mikrotik_pass', $request->mikrotik_pass ?? '', 'mikrotik');
+            if ($request->filled('mikrotik_pass')) {
+                Setting::set('mikrotik_pass', $request->mikrotik_pass, 'mikrotik');
+            }
             Setting::set('mikrotik_interface', $request->mikrotik_interface ?? 'ether1', 'mikrotik');
             Setting::set('mikrotik_timeout', $request->mikrotik_timeout ?? 10, 'mikrotik');
 
             // Save IP Pool & RADIUS settings
             Setting::set('radius_server_ip', $request->radius_server_ip ?? '192.168.21.202', 'mikrotik');
-            Setting::set('radius_secret', $request->radius_secret ?? 'testing123', 'mikrotik');
+            if ($request->filled('radius_secret')) {
+                Setting::set('radius_secret', $request->radius_secret, 'mikrotik');
+            }
             Setting::set('pool_normal_name', $request->pool_normal_name ?? 'pool-normal', 'mikrotik');
             Setting::set('pool_normal_range', $request->pool_normal_range ?? '10.10.0.2-10.10.15.254', 'mikrotik');
             Setting::set('pool_normal_gateway', $request->pool_normal_gateway ?? '10.10.0.1', 'mikrotik');
@@ -124,7 +129,7 @@ class SettingController extends Controller
                 'mikrotik.host' => $request->mikrotik_host,
                 'mikrotik.port' => (int) $request->mikrotik_port,
                 'mikrotik.username' => $request->mikrotik_user,
-                'mikrotik.password' => $request->mikrotik_pass ?? '',
+                'mikrotik.password' => Setting::get('mikrotik_pass', ''),
                 'mikrotik.interface' => $request->mikrotik_interface ?? 'ether1',
                 'mikrotik.timeout' => (int) ($request->mikrotik_timeout ?? 10),
             ]);
@@ -139,13 +144,15 @@ class SettingController extends Controller
             Setting::set('olt_host', $request->olt_host, 'olt');
             Setting::set('olt_port', $request->olt_port, 'olt');
             Setting::set('olt_username', $request->olt_username, 'olt');
-            Setting::set('olt_password', $request->olt_password ?? '', 'olt');
+            if ($request->filled('olt_password')) {
+                Setting::set('olt_password', $request->olt_password, 'olt');
+            }
 
             config([
                 'olt.host' => $request->olt_host,
                 'olt.port' => (int) $request->olt_port,
                 'olt.username' => $request->olt_username,
-                'olt.password' => $request->olt_password ?? '',
+                'olt.password' => Setting::get('olt_password', ''),
             ]);
         } elseif ($tab === 'radius') {
             $request->validate([
@@ -160,27 +167,35 @@ class SettingController extends Controller
             Setting::set('db_radius_port', $request->db_radius_port, 'radius');
             Setting::set('db_radius_database', $request->db_radius_database, 'radius');
             Setting::set('db_radius_username', $request->db_radius_username, 'radius');
-            Setting::set('db_radius_password', $request->db_radius_password ?? '', 'radius');
+            if ($request->filled('db_radius_password')) {
+                Setting::set('db_radius_password', $request->db_radius_password, 'radius');
+            }
 
             config([
                 'database.connections.radius.host' => $request->db_radius_host,
                 'database.connections.radius.port' => $request->db_radius_port,
                 'database.connections.radius.database' => $request->db_radius_database,
                 'database.connections.radius.username' => $request->db_radius_username,
-                'database.connections.radius.password' => $request->db_radius_password ?? '',
+                'database.connections.radius.password' => Setting::get('db_radius_password', ''),
             ]);
         } elseif ($tab === 'xendit') {
+            $isEnvLocked = !empty(env('XENDIT_SECRET_KEY'));
+
             $request->validate([
                 'xendit_secret_key' => 'nullable|string',
                 'xendit_webhook_token' => 'nullable|string',
             ]);
 
-            Setting::set('xendit_secret_key', $request->xendit_secret_key ?? '', 'xendit');
-            Setting::set('xendit_webhook_token', $request->xendit_webhook_token ?? '', 'xendit');
+            if (!$isEnvLocked && $request->filled('xendit_secret_key')) {
+                Setting::set('xendit_secret_key', $request->xendit_secret_key, 'xendit');
+            }
+            if ($request->filled('xendit_webhook_token')) {
+                Setting::set('xendit_webhook_token', $request->xendit_webhook_token, 'xendit');
+            }
 
             config([
-                'services.xendit.secret_key' => $request->xendit_secret_key ?? '',
-                'services.xendit.webhook_token' => $request->xendit_webhook_token ?? '',
+                'services.xendit.secret_key' => env('XENDIT_SECRET_KEY') ?: Setting::get('xendit_secret_key', ''),
+                'services.xendit.webhook_token' => env('XENDIT_WEBHOOK_TOKEN') ?: Setting::get('xendit_webhook_token', ''),
             ]);
         } elseif ($tab === 'whatsapp') {
             $request->validate([
@@ -190,7 +205,9 @@ class SettingController extends Controller
             ]);
 
             Setting::set('whatsapp_api_url', $request->whatsapp_api_url, 'whatsapp');
-            Setting::set('whatsapp_api_key', $request->whatsapp_api_key ?? '', 'whatsapp');
+            if ($request->filled('whatsapp_api_key')) {
+                Setting::set('whatsapp_api_key', $request->whatsapp_api_key, 'whatsapp');
+            }
             Setting::set('whatsapp_sender', $request->whatsapp_sender ?? '', 'whatsapp');
         } elseif ($tab === 'genieacs') {
             $request->validate([
@@ -202,7 +219,9 @@ class SettingController extends Controller
 
             Setting::set('genieacs_url', $request->genieacs_url, 'genieacs');
             Setting::set('genieacs_username', $request->genieacs_username, 'genieacs');
-            Setting::set('genieacs_password', $request->genieacs_password ?? '', 'genieacs');
+            if ($request->filled('genieacs_password')) {
+                Setting::set('genieacs_password', $request->genieacs_password, 'genieacs');
+            }
             Setting::set('genieacs_timeout', $request->genieacs_timeout ?? 10, 'genieacs');
         } elseif ($tab === 'firebase') {
             $request->validate([
@@ -233,7 +252,9 @@ class SettingController extends Controller
 
             Setting::set('firebase_project_id', $projectId, 'firebase');
             Setting::set('firebase_service_account', $serviceAccount, 'firebase');
-            Setting::set('firebase_server_key', trim($request->input('firebase_server_key') ?? ''), 'firebase');
+            if ($request->filled('firebase_server_key')) {
+                Setting::set('firebase_server_key', trim($request->input('firebase_server_key')), 'firebase');
+            }
 
             // Hapus cache token access OAuth2 agar regenerate kredensial baru
             \Illuminate\Support\Facades\Cache::forget('fcm_oauth2_access_token');
@@ -252,7 +273,7 @@ class SettingController extends Controller
                 $host = $request->input('host', Setting::get('mikrotik_host', env('MIKROTIK_HOST', '192.168.10.1')));
                 $port = (int) $request->input('port', Setting::get('mikrotik_port', env('MIKROTIK_PORT', 8728)));
                 $user = $request->input('user', Setting::get('mikrotik_user', env('MIKROTIK_USER', 'admin')));
-                $pass = $request->input('pass', Setting::get('mikrotik_pass', env('MIKROTIK_PASS', '')));
+                $pass = $request->filled('pass') ? $request->input('pass') : Setting::get('mikrotik_pass', env('MIKROTIK_PASS', ''));
 
                 $client = new \ZillEAli\MikrotikLaravel\Connections\RouterosClient($host, $port, $user, $pass);
                 $client->connect();
@@ -276,7 +297,7 @@ class SettingController extends Controller
                 $host = $request->input('host', Setting::get('olt_host', env('OLT_HOST', '10.10.10.2')));
                 $port = (int) $request->input('port', Setting::get('olt_port', env('OLT_PORT', 23)));
                 $username = $request->input('username', Setting::get('olt_username', env('OLT_USERNAME', 'admin')));
-                $password = $request->input('password', Setting::get('olt_password', env('OLT_PASSWORD', '')));
+                $password = $request->filled('password') ? $request->input('password') : Setting::get('olt_password', env('OLT_PASSWORD', ''));
 
                 $fp = @fsockopen($host, $port, $errno, $errstr, 10);
                 if (!$fp) {
@@ -300,7 +321,7 @@ class SettingController extends Controller
                 $port = $request->input('port', Setting::get('db_radius_port', env('DB_RADIUS_PORT', 3306)));
                 $database = $request->input('database', Setting::get('db_radius_database', env('DB_RADIUS_DATABASE', 'radius')));
                 $username = $request->input('username', Setting::get('db_radius_username', env('DB_RADIUS_USERNAME', 'root')));
-                $password = $request->input('password', Setting::get('db_radius_password', env('DB_RADIUS_PASSWORD', '')));
+                $password = $request->filled('password') ? $request->input('password') : Setting::get('db_radius_password', env('DB_RADIUS_PASSWORD', ''));
 
                 // Test dynamic PDO connection
                 $dsn = "mysql:host={$host};port={$port};dbname={$database};charset=utf8mb4";
@@ -321,7 +342,9 @@ class SettingController extends Controller
             }
 
             if ($type === 'xendit') {
-                $secretKey = $request->input('secret_key', Setting::get('xendit_secret_key', env('XENDIT_SECRET_KEY')));
+                $secretKey = $request->filled('secret_key') 
+                    ? $request->input('secret_key') 
+                    : (config('services.xendit.secret_key') ?: Setting::get('xendit_secret_key', env('XENDIT_SECRET_KEY')));
                 if (!$secretKey) {
                     throw new \Exception("Secret Key Xendit belum diisi.");
                 }
@@ -363,13 +386,11 @@ class SettingController extends Controller
 
             if ($type === 'genieacs') {
                 $acs = app(\App\Services\GenieAcsService::class);
-                if ($request->filled('url')) {
-                    $acs->setConfig(
-                        $request->input('url'),
-                        $request->input('username', 'admin'),
-                        $request->input('password', 'admin')
-                    );
-                }
+                $url = $request->input('url', Setting::get('genieacs_url', env('GENIEACS_URL', 'http://127.0.0.1:3000')));
+                $username = $request->input('username', Setting::get('genieacs_username', env('GENIEACS_USERNAME', 'admin')));
+                $password = $request->filled('password') ? $request->input('password') : Setting::get('genieacs_password', env('GENIEACS_PASSWORD', 'admin'));
+                
+                $acs->setConfig($url, $username, $password);
                 $res = $acs->testConnection();
                 if ($res['success']) {
                     return response()->json($res);
