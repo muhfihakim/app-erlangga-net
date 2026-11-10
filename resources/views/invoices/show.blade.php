@@ -447,8 +447,8 @@
                         </div>
                     </div>
 
-                    <div class="form-group mb-0">
-                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Metode Pembayaran Penerimaan <span class="text-rose-500">*</span></label>
+                    <div class="space-y-1.5">
+                        <label class="form-label text-slate-700 font-medium text-xs block !mb-0">Metode Pembayaran Penerimaan <span class="text-rose-500">*</span></label>
                         <select name="payment_method" class="form-input-custom !h-10 !font-normal w-full bg-white text-slate-800 border-slate-300 text-xs" required>
                             <option value="cash">Cash / Tunai (Diterima Kasir/Teknisi)</option>
                             <option value="cashless">Cashless (Transfer Bank Manual / QRIS)</option>
@@ -535,7 +535,8 @@
             </div>
             <form action="{{ route('invoices.generate_single', $pppoe->id) }}" method="POST" class="m-0" novalidate>
                 @csrf
-                <div class="modal-body p-6 bg-white space-y-4">
+                <input type="hidden" name="amount" id="genAmount" value="{{ (float)($pppoe->paket->harga ?? 0) }}" oninput="updateGenTotal()">
+                <div class="modal-body p-6 bg-white space-y-4.5">
                     <!-- Paket Langganan Info Card -->
                     <div class="p-3.5 rounded-xl border border-sky-200 bg-sky-50/70 flex items-center justify-between">
                         <div>
@@ -549,45 +550,44 @@
                         </div>
                     </div>
 
-                    <input type="hidden" name="amount" id="genAmount" value="{{ (float)($pppoe->paket->harga ?? 0) }}" oninput="updateGenTotal()">
-
-                    <!-- Row Penyesuaian & Jatuh Tempo (2 Kolom Lega) -->
+                    <!-- Row Penyesuaian & Jatuh Tempo (2 Kolom) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="form-group mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Penyesuaian Tagihan (Rp)</label>
+                        <div class="space-y-1.5">
+                            <label class="form-label text-slate-700 font-medium text-xs block !mb-0">Penyesuaian Tagihan (Rp)</label>
                             <input type="number" step="any" name="penyesuaian" id="genPenyesuaian"
                                 value="{{ (float)($pppoe->penyesuaian_tagihan ?? 0) }}"
                                 oninput="updateGenTotal()"
                                 class="form-input !h-9 text-xs w-full font-mono bg-white text-slate-800 border-slate-300"
                                 placeholder="0">
                         </div>
-                        <div class="form-group mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Tanggal Jatuh Tempo</label>
+                        <div class="space-y-1.5">
+                            <label class="form-label text-slate-700 font-medium text-xs block !mb-0">Tanggal Jatuh Tempo <span class="text-rose-500">*</span></label>
                             <input type="date" name="due_date" id="genDueDate"
                                 value="{{ now()->addDays(7)->format('Y-m-d') }}"
                                 class="form-input !h-9 text-xs w-full bg-white text-slate-800 border-slate-300" required>
                         </div>
                     </div>
 
-                    <div class="form-group mb-0">
-                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Keterangan Penyesuaian</label>
+                    <!-- Row Keterangan Penyesuaian -->
+                    <div class="space-y-1.5">
+                        <label class="form-label text-slate-700 font-medium text-xs block !mb-0">Keterangan Penyesuaian</label>
                         <input type="text" name="catatan_penyesuaian" id="genCatatan"
                             value="{{ $pppoe->keterangan_penyesuaian ?? '' }}"
                             class="form-input !h-9 text-xs w-full bg-white text-slate-800 border-slate-300"
                             placeholder="Misal: Penyesuaian biaya, penambahan layanan, dsb.">
                     </div>
 
-                    <!-- Row Pajak & Diskon (2 Kolom Lega) -->
+                    <!-- Row Pajak & Diskon (2 Kolom) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="form-group mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Pajak (Rp)</label>
+                        <div class="space-y-1.5">
+                            <label class="form-label text-slate-700 font-medium text-xs block !mb-0">Pajak (Rp)</label>
                             <input type="number" step="any" name="tax" id="genTax"
                                 value="{{ (float)($pppoe->pajak ?? ($pppoe->paket->pajak ?? 0)) }}"
                                 oninput="updateGenTotal()"
                                 class="form-input !h-9 text-xs w-full font-mono bg-white text-slate-800 border-slate-300">
                         </div>
-                        <div class="form-group mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Diskon (Rp)</label>
+                        <div class="space-y-1.5">
+                            <label class="form-label text-slate-700 font-medium text-xs block !mb-0">Diskon (Rp)</label>
                             <input type="number" step="any" name="discount" id="genDiscount"
                                 value="{{ (float)($pppoe->diskon ?? ($pppoe->paket->diskon ?? 0)) }}"
                                 oninput="updateGenTotal()"
@@ -597,6 +597,15 @@
 
                     <!-- Live Total Card -->
                     <div class="p-3.5 rounded-xl border border-sky-300 bg-sky-50 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-sky-800 uppercase tracking-wider block">Total Tagihan Diterbitkan</span>
+                            <span class="text-xs text-sky-600 block mt-0.5">Pokok + Penyesuaian + Pajak - Diskon</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-lg font-black text-sky-700 font-mono block" id="genModalTotal">Rp 0</span>
+                        </div>
+                    </div>
+                </div>
                         <div>
                             <span class="text-[10px] font-bold text-sky-800 uppercase tracking-wider block">Total Tagihan Diterbitkan</span>
                             <span class="text-xs text-sky-600 block mt-0.5">Pokok + Penyesuaian + Pajak - Diskon</span>
@@ -636,16 +645,16 @@
             </div>
             <form id="adjustInvoiceForm" method="POST" class="m-0" novalidate>
                 @csrf
-                <div class="modal-body p-6 bg-white space-y-4">
+                <div class="modal-body p-6 bg-white space-y-4.5">
                     <!-- Row 1: Harga Pokok & Jatuh Tempo (2 Kolom Lega) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="form-group mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Harga Pokok (Rp)</label>
+                        <div class="space-y-1.5">
+                            <label class="form-label text-slate-700 font-medium text-xs block !mb-0">Harga Pokok (Rp) <span class="text-rose-500">*</span></label>
                             <input type="number" step="any" name="amount" id="adjustAmount" oninput="updateAdjustTotal()"
                                 class="form-input !h-9 text-xs w-full font-mono bg-white text-slate-800 border-slate-300" required>
                         </div>
-                        <div class="form-group mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Tanggal Jatuh Tempo</label>
+                        <div class="space-y-1.5">
+                            <label class="form-label text-slate-700 font-medium text-xs block !mb-0">Tanggal Jatuh Tempo</label>
                             <input type="date" name="due_date" id="adjustDueDate"
                                 class="form-input !h-9 text-xs w-full bg-white text-slate-800 border-slate-300">
                         </div>
@@ -653,13 +662,13 @@
 
                     <!-- Row 2: Penyesuaian & Keterangan (2 Kolom Lega) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="form-group mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Penyesuaian Tagihan (Rp)</label>
+                        <div class="space-y-1.5">
+                            <label class="form-label text-slate-700 font-medium text-xs block !mb-0">Penyesuaian Tagihan (Rp)</label>
                             <input type="number" step="any" name="penyesuaian" id="adjustPenyesuaian" oninput="updateAdjustTotal()"
                                 class="form-input !h-9 text-xs w-full font-mono bg-white text-slate-800 border-slate-300" placeholder="0">
                         </div>
-                        <div class="form-group mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Keterangan Penyesuaian</label>
+                        <div class="space-y-1.5">
+                            <label class="form-label text-slate-700 font-medium text-xs block !mb-0">Keterangan Penyesuaian</label>
                             <input type="text" name="catatan_penyesuaian" id="adjustCatatan"
                                 class="form-input !h-9 text-xs w-full bg-white text-slate-800 border-slate-300"
                                 placeholder="Misal: Penyesuaian biaya, penambahan layanan, dsb.">
@@ -668,13 +677,13 @@
 
                     <!-- Row 3: Pajak & Diskon (2 Kolom Lega) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="form-group mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Pajak (Rp)</label>
+                        <div class="space-y-1.5">
+                            <label class="form-label text-slate-700 font-medium text-xs block !mb-0">Pajak (Rp)</label>
                             <input type="number" step="any" name="tax" id="adjustTax" oninput="updateAdjustTotal()"
                                 class="form-input !h-9 text-xs w-full font-mono bg-white text-slate-800 border-slate-300">
                         </div>
-                        <div class="form-group mb-0">
-                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Diskon (Rp)</label>
+                        <div class="space-y-1.5">
+                            <label class="form-label text-slate-700 font-medium text-xs block !mb-0">Diskon (Rp)</label>
                             <input type="number" step="any" name="discount" id="adjustDiscount" oninput="updateAdjustTotal()"
                                 class="form-input !h-9 text-xs w-full font-mono bg-white text-slate-800 border-slate-300">
                         </div>
@@ -725,7 +734,7 @@
             </div>
             <form action="{{ route('invoices.set_next_adjustment', $pppoe->id) }}" method="POST" class="m-0" novalidate>
                 @csrf
-                <div class="modal-body p-6 bg-white space-y-4">
+                <div class="modal-body p-6 bg-white space-y-4.5">
                     <div class="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between">
                         <div>
                             <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Pelanggan</span>
@@ -737,28 +746,28 @@
                         </div>
                     </div>
 
-                    <div class="form-group mb-0">
-                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
+                    <div class="space-y-1.5">
+                        <label class="form-label text-slate-700 font-medium text-xs block !mb-0">
                             Nominal Penyesuaian (Rp) <span class="text-rose-500">*</span>
                         </label>
                         <input type="number" step="any" name="penyesuaian_tagihan"
                             value="{{ (float)($pppoe->penyesuaian_tagihan ?? 0) }}"
                             class="form-input !h-9 text-xs w-full font-mono bg-white text-slate-800 border-slate-300"
                             placeholder="Misal: 50000" required>
-                        <span class="text-[11px] text-slate-400 mt-1 block">Masukkan angka positif untuk penambahan biaya, atau angka negatif untuk potongan.</span>
+                        <span class="text-[11px] text-slate-400 mt-0.5 block">Masukkan angka positif untuk penambahan biaya, atau angka negatif untuk potongan.</span>
                     </div>
 
-                    <div class="form-group mb-0">
-                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Keterangan Penyesuaian</label>
+                    <div class="space-y-1.5">
+                        <label class="form-label text-slate-700 font-medium text-xs block !mb-0">Keterangan Penyesuaian</label>
                         <input type="text" name="keterangan_penyesuaian"
                             value="{{ $pppoe->keterangan_penyesuaian ?? '' }}"
                             class="form-input !h-9 text-xs w-full bg-white text-slate-800 border-slate-300"
                             placeholder="Misal: Penyesuaian biaya, penambahan layanan, dsb.">
                     </div>
 
-                    <div class="form-group mb-0">
-                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">Masa Berlaku Penyesuaian <span class="text-rose-500">*</span></label>
-                        <div class="space-y-2">
+                    <div class="space-y-1.5">
+                        <label class="form-label text-slate-700 font-medium text-xs block !mb-0">Masa Berlaku Penyesuaian <span class="text-rose-500">*</span></label>
+                        <div class="space-y-2 pt-0.5">
                             <label class="flex items-start gap-2.5 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer text-xs">
                                 <input type="radio" name="penyesuaian_tipe" value="sekali" {{ ($pppoe->penyesuaian_tipe ?? 'sekali') === 'sekali' ? 'checked' : '' }} class="mt-0.5 text-sky-600 focus:ring-sky-500">
                                 <div>
