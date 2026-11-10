@@ -237,7 +237,42 @@ class GenieAcsService
 
 
     /**
-     * Find single device detail belonging to a specific Customer
+     * Query devices directly via GenieACS API MongoDB filter query
+     */
+    public function queryDevices(array $query, string $projection = '_id'): array
+    {
+        $token = $this->getToken();
+        if (!$token) {
+            return [];
+        }
+
+        try {
+            $queryString = urlencode(json_encode($query));
+            $url = "{$this->url}/api/devices/?query={$queryString}&projection=" . urlencode($projection);
+            $response = Http::withToken($token)
+                ->timeout($this->timeout)
+                ->get($url);
+
+            if ($response->status() === 403) {
+                $token = $this->getToken(true);
+                $response = Http::withToken($token)
+                    ->timeout($this->timeout)
+                    ->get($url);
+            }
+
+            if ($response->successful()) {
+                $data = $response->json();
+                return is_array($data) ? $data : [];
+            }
+        } catch (\Throwable $e) {
+            Log::warning("GenieACS queryDevices error: " . $e->getMessage());
+        }
+
+        return [];
+    }
+
+    /**
+     * Find single device detail belonging to a specific Customer (Optimized with direct API query & per-customer cache)
      */
     public function findDeviceForCustomer(\App\Models\Customer $customer, bool $forceRefresh = false): ?array
     {
@@ -248,26 +283,68 @@ class GenieAcsService
             return null;
         }
 
+        $cacheKey = 'genieacs_customer_device_' . $customer->id . '_' . md5($sn . '|' . $pppoeUsername);
+        if (!$forceRefresh) {
+            $cached = Cache::get($cacheKey);
+            if ($cached !== null) {
+                return $cached === 'none' ? null : $cached;
+            }
+        }
+
+        // 1. Coba pencarian langsung (targeted direct API query) ke GenieACS tanpa mendownload seluruh armada perangkat
+        if (!empty($sn)) {
+            $matched = $this->queryDevices(['DeviceID.SerialNumber' => $sn], '_id');
+            if (empty($matched)) {
+                $matched = $this->queryDevices(['_id' => ['$regex' => $sn]], '_id');
+            }
+            if (!empty($matched) && isset($matched[0]['_id'])) {
+                $device = $this->getDevice($matched[0]['_id']);
+                if ($device) {
+                    Cache::put($cacheKey, $device, now()->addSeconds(60));
+                    return $device;
+                }
+            }
+        }
+
+        if (!empty($pppoeUsername)) {
+            $matched = $this->queryDevices(['VirtualParameters.pppoeUsername' => $pppoeUsername], '_id');
+            if (!empty($matched) && isset($matched[0]['_id'])) {
+                $device = $this->getDevice($matched[0]['_id']);
+                if ($device) {
+                    Cache::put($cacheKey, $device, now()->addSeconds(60));
+                    return $device;
+                }
+            }
+        }
+
+        // 2. Fallback aman ke daftar cache global jika direct query tidak membuahkan hasil
         $allDevices = $this->getAllDevices($forceRefresh);
 
-        // 1. Prioritas cari berdasarkan SN Perangkat
         if (!empty($sn)) {
             foreach ($allDevices as $dev) {
                 if (!empty($dev['serial_number']) && (strcasecmp($dev['serial_number'], $sn) === 0 || str_contains(strtolower($dev['id']), strtolower($sn)))) {
-                    return $this->getDevice($dev['id']);
+                    $device = $this->getDevice($dev['id']);
+                    if ($device) {
+                        Cache::put($cacheKey, $device, now()->addSeconds(60));
+                        return $device;
+                    }
                 }
             }
         }
 
-        // 2. Fallback cari berdasarkan Akun PPPoE
         if (!empty($pppoeUsername)) {
             foreach ($allDevices as $dev) {
                 if (!empty($dev['pppoe_username']) && strcasecmp($dev['pppoe_username'], $pppoeUsername) === 0) {
-                    return $this->getDevice($dev['id']);
+                    $device = $this->getDevice($dev['id']);
+                    if ($device) {
+                        Cache::put($cacheKey, $device, now()->addSeconds(60));
+                        return $device;
+                    }
                 }
             }
         }
 
+        Cache::put($cacheKey, 'none', now()->addSeconds(30));
         return null;
     }
 

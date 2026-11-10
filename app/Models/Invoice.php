@@ -17,6 +17,7 @@ class Invoice extends Model
         'total',
         'status',
         'due_date',
+        'billing_period',
         'payment_method',
         'xendit_invoice_id',
         'xendit_invoice_url',
@@ -38,6 +39,26 @@ class Invoice extends Model
     public function transactions()
     {
         return $this->hasMany(Transaction::class, 'invoice_id');
+    }
+
+    /**
+     * Tampilkan periode tagihan dalam format teks ramah pengguna (contoh: "November 2026")
+     */
+    public function getFormattedBillingPeriodAttribute(): string
+    {
+        if (!empty($this->billing_period)) {
+            try {
+                if (preg_match('/^\d{4}-\d{2}$/', $this->billing_period)) {
+                    return \Carbon\Carbon::createFromFormat('Y-m', $this->billing_period)->translatedFormat('F Y');
+                }
+                return $this->billing_period;
+            } catch (\Throwable $e) {
+                return $this->billing_period;
+            }
+        }
+
+        // Fallback untuk invoice lama: gunakan bulan dan tahun created_at
+        return $this->created_at ? $this->created_at->translatedFormat('F Y') : '-';
     }
 
     /**

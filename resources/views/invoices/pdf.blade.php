@@ -439,7 +439,7 @@
                     <div class="item-name">Langganan Internet -
                         {{ $invoice->pppoe->paket->nama_paket ?? 'Paket Broadband' }}</div>
                 </td>
-                <td class="text-center">{{ $invoice->created_at->translatedFormat('F Y') }}</td>
+                <td class="text-center">{{ $invoice->formatted_billing_period }}</td>
                 <td class="text-right" style="font-weight: bold;">
                     Rp {{ number_format($invoice->amount, 0, ',', '.') }}
                 </td>
@@ -452,7 +452,7 @@
                         <div class="item-desc">
                             {{ $invoice->catatan_penyesuaian ?: 'Penyesuaian Layanan / Biaya Tagihan' }}</div>
                     </td>
-                    <td class="text-center">{{ $invoice->created_at->translatedFormat('F Y') }}</td>
+                    <td class="text-center">{{ $invoice->formatted_billing_period }}</td>
                     <td class="text-right"
                         style="font-weight: bold; color: {{ $invoice->penyesuaian > 0 ? '#111827' : '#166534' }};">
                         {{ $invoice->penyesuaian > 0 ? '+ ' : '- ' }}Rp

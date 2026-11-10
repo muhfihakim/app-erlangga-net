@@ -214,7 +214,7 @@ class InvoiceController extends Controller
      */
     protected function ensurePenyesuaianColumnsExist(): void
     {
-        if (!Schema::hasColumn('invoices', 'penyesuaian') || !Schema::hasColumn('pppoes', 'penyesuaian_tagihan')) {
+        if (!Schema::hasColumn('invoices', 'penyesuaian') || !Schema::hasColumn('pppoes', 'penyesuaian_tagihan') || !Schema::hasColumn('invoices', 'billing_period')) {
             try {
                 Artisan::call('migrate', ['--force' => true]);
             } catch (\Throwable $e) {
@@ -241,6 +241,7 @@ class InvoiceController extends Controller
         $total = max(0, $amount + $penyesuaian + $tax - $discount);
 
         $dueDate = $request->filled('due_date') ? Carbon::parse($request->due_date) : Carbon::now()->addDays(7);
+        $billingPeriod = $request->filled('billing_period') ? $request->billing_period : $dueDate->format('Y-m');
         $invoiceNumber = 'INV-' . date('Ymd') . '-' . str_pad($pppoe->id, 4, '0', STR_PAD_LEFT) . '-' . rand(100, 999);
 
         $invoiceData = [
@@ -252,6 +253,7 @@ class InvoiceController extends Controller
             'total' => $total,
             'status' => 'unpaid',
             'due_date' => $dueDate->format('Y-m-d'),
+            'billing_period' => $billingPeriod,
         ];
 
         if (Schema::hasColumn('invoices', 'penyesuaian')) {

@@ -293,7 +293,12 @@
                     @forelse($pppoe->invoices as $invoice)
                         <tr>
                             <td class="text-center font-bold text-slate-400">{{ $loop->iteration }}</td>
-                            <td class="text-left font-mono font-bold text-slate-800 text-xs">{{ $invoice->invoice_number }}</td>
+                            <td class="text-left font-mono font-bold text-slate-800 text-xs">
+                                <div>{{ $invoice->invoice_number }}</div>
+                                <div class="text-[10.5px] text-slate-500 font-sans font-normal mt-0.5">
+                                    <i class="fa-regular fa-calendar-days text-[9.5px] mr-1 text-slate-400"></i>{{ $invoice->formatted_billing_period }}
+                                </div>
+                            </td>
                             <td class="text-right font-mono font-bold text-slate-900 text-xs">
                                 <div>Rp {{ number_format($invoice->total, 0, ',', '.') }}</div>
                                 @if((float)($invoice->penyesuaian ?? 0) != 0)
@@ -550,7 +555,23 @@
                         </div>
                     </div>
 
-                    <!-- Row Penyesuaian & Jatuh Tempo (2 Kolom) -->
+                    <!-- Row Periode Tagihan & Jatuh Tempo (2 Kolom) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="form-label text-slate-700 font-medium text-xs block !mb-0">Periode Tagihan</label>
+                            <input type="month" name="billing_period" id="genBillingPeriod"
+                                value="{{ now()->format('Y-m') }}"
+                                class="form-input !h-9 text-xs w-full bg-white text-slate-800 border-slate-300">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="form-label text-slate-700 font-medium text-xs block !mb-0">Tanggal Jatuh Tempo <span class="text-rose-500">*</span></label>
+                            <input type="date" name="due_date" id="genDueDate"
+                                value="{{ now()->addDays(7)->format('Y-m-d') }}"
+                                class="form-input !h-9 text-xs w-full bg-white text-slate-800 border-slate-300" required>
+                        </div>
+                    </div>
+
+                    <!-- Row Penyesuaian & Keterangan (2 Kolom) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="space-y-1.5">
                             <label class="form-label text-slate-700 font-medium text-xs block !mb-0">Penyesuaian Tagihan (Rp)</label>
@@ -561,20 +582,12 @@
                                 placeholder="0">
                         </div>
                         <div class="space-y-1.5">
-                            <label class="form-label text-slate-700 font-medium text-xs block !mb-0">Tanggal Jatuh Tempo <span class="text-rose-500">*</span></label>
-                            <input type="date" name="due_date" id="genDueDate"
-                                value="{{ now()->addDays(7)->format('Y-m-d') }}"
-                                class="form-input !h-9 text-xs w-full bg-white text-slate-800 border-slate-300" required>
+                            <label class="form-label text-slate-700 font-medium text-xs block !mb-0">Keterangan Penyesuaian</label>
+                            <input type="text" name="catatan_penyesuaian" id="genCatatan"
+                                value="{{ $pppoe->keterangan_penyesuaian ?? '' }}"
+                                class="form-input !h-9 text-xs w-full bg-white text-slate-800 border-slate-300"
+                                placeholder="Misal: Penyesuaian biaya, dsb.">
                         </div>
-                    </div>
-
-                    <!-- Row Keterangan Penyesuaian -->
-                    <div class="space-y-1.5">
-                        <label class="form-label text-slate-700 font-medium text-xs block !mb-0">Keterangan Penyesuaian</label>
-                        <input type="text" name="catatan_penyesuaian" id="genCatatan"
-                            value="{{ $pppoe->keterangan_penyesuaian ?? '' }}"
-                            class="form-input !h-9 text-xs w-full bg-white text-slate-800 border-slate-300"
-                            placeholder="Misal: Penyesuaian biaya, penambahan layanan, dsb.">
                     </div>
 
                     <!-- Row Pajak & Diskon (2 Kolom) -->

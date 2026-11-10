@@ -387,6 +387,7 @@ class PppoeAccountController extends Controller
 
         $oldStatusInvoice = $pppoe->status_invoice;
         $oldUsername = $pppoe->username;
+        $oldPaketId = $pppoe->paket_id;
 
         $pppoe->update($validated);
 
@@ -472,6 +473,19 @@ class PppoeAccountController extends Controller
             ]);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning("Radius sync warning on PPPoE update ({$pppoe->username}): " . $e->getMessage());
+        }
+
+        // Reconnect sesi aktif MikroTik jika paket atau username diubah agar profil baru langsung berlaku
+        if ($oldUsername !== $pppoe->username || $oldPaketId !== (int) $pppoe->paket_id) {
+            try {
+                $mikrotik = app(\App\Services\MikroTikService::class);
+                if ($oldUsername && $oldUsername !== $pppoe->username) {
+                    $mikrotik->kickPppoeUser($oldUsername);
+                }
+                $mikrotik->kickPppoeUser($pppoe->username);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning("Kick user after PPPoE update warning ({$pppoe->username}): " . $e->getMessage());
+            }
         }
 
         return redirect()->back()->with('success', 'Data PPPoE berhasil diperbarui & Tersinkronisasi.');

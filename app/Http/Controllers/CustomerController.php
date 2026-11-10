@@ -877,6 +877,10 @@ class CustomerController extends Controller
                 Radusergroup::where('username', $oldUsername)->delete();
                 Radreply::where('username', $oldUsername)->delete();
                 Userinfo::where('username', $oldUsername)->delete();
+
+                try {
+                    app(MikroTikService::class)->kickPppoeUser($oldUsername);
+                } catch (\Throwable $e) {}
             }
 
             Radcheck::updateOrCreate(

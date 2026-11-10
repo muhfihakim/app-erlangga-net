@@ -73,24 +73,34 @@ class ProcessBillingCommand extends Command
                 $tipe = strtolower($pppoe->tipe_pembayaran ?? 'prepaid');
                 $shouldGenerate = false;
                 $dueDate = now()->addDays(7);
+                $billingPeriod = now()->format('Y-m');
 
                 if ($tipe === 'prepaid') {
                     $tanggalAktif = $pppoe->tanggal_aktif ? Carbon::parse($pppoe->tanggal_aktif) : now();
                     if ($isForce || $tanggalAktif->diffInDays(now(), false) >= -7) {
+                        $dueDate = $tanggalAktif->isFuture() ? $tanggalAktif : now()->addDays(3);
+                        $billingPeriod = $dueDate->format('Y-m');
+
                         $hasUnpaid = $pppoe->invoices->where('status', 'unpaid')->isNotEmpty();
-                        // Cegah looping faktur ganda: jangan generate jika sudah ada faktur yang diterbitkan dalam 20 hari terakhir
-                        $hasRecentInvoice = $pppoe->invoices->filter(function ($inv) {
+                        // Cegah looping faktur ganda: periksa billing_period atau jeda 20 hari
+                        $hasRecentInvoice = $pppoe->invoices->filter(function ($inv) use ($billingPeriod) {
+                            if (!empty($inv->billing_period)) {
+                                return $inv->billing_period === $billingPeriod;
+                            }
                             return Carbon::parse($inv->created_at)->diffInDays(now()) < 20;
                         })->isNotEmpty();
 
                         if ($isForce || (!$hasUnpaid && !$hasRecentInvoice)) {
                             $shouldGenerate = true;
-                            $dueDate = $tanggalAktif->isFuture() ? $tanggalAktif : now()->addDays(3);
                         }
                     }
                 } else {
+                    $billingPeriod = now()->format('Y-m');
                     if ($isForce || now()->day === 1) {
-                        $hasCurrentMonthInvoice = $pppoe->invoices->filter(function ($inv) {
+                        $hasCurrentMonthInvoice = $pppoe->invoices->filter(function ($inv) use ($billingPeriod) {
+                            if (!empty($inv->billing_period)) {
+                                return $inv->billing_period === $billingPeriod;
+                            }
                             return Carbon::parse($inv->created_at)->isCurrentMonth();
                         })->isNotEmpty();
 
@@ -122,6 +132,7 @@ class ProcessBillingCommand extends Command
                             'discount' => $discount,
                             'total' => $total,
                             'due_date' => $dueDate->format('Y-m-d'),
+                            'billing_period' => $billingPeriod,
                             'status' => 'unpaid',
                         ]);
 
