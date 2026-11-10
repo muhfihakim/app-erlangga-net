@@ -35,8 +35,15 @@ class BroadcastNotificationController extends Controller
                 });
             }
 
-            $pakets = Paket::all()->keyBy('id');
-            $customers = Customer::all()->keyBy('id');
+            $pakets = Paket::all(['id', 'nama_paket'])->keyBy('id');
+            $customerCache = [];
+            $getCustomer = function ($id) use (&$customerCache) {
+                if (!$id) return null;
+                if (!array_key_exists($id, $customerCache)) {
+                    $customerCache[$id] = Customer::select(['id', 'nama_lengkap'])->find($id);
+                }
+                return $customerCache[$id];
+            };
 
             return DataTables::eloquent($query)
                 ->addColumn('no', function () {
@@ -76,13 +83,13 @@ class BroadcastNotificationController extends Controller
                     $body = '<div class="text-slate-500 text-[11px] line-clamp-1 leading-snug" title="' . e($b->body) . '">' . e(\Illuminate\Support\Str::limit($b->body, 90)) . '</div>';
                     return $title . $body;
                 })
-                ->addColumn('target', function ($b) use ($pakets, $customers) {
+                ->addColumn('target', function ($b) use ($pakets, $getCustomer) {
                     if ($b->target_type === 'package') {
                         $pkg = $pakets->get($b->target_id);
                         $label = 'Paket: ' . ($pkg ? $pkg->nama_paket : '#' . $b->target_id);
                         $icon = 'fa-box text-indigo-500';
                     } elseif ($b->target_type === 'customer') {
-                        $cust = $customers->get($b->target_id);
+                        $cust = $getCustomer($b->target_id);
                         $label = 'Pelanggan: ' . ($cust ? $cust->nama_lengkap : '#' . $b->target_id);
                         $icon = 'fa-user text-amber-500';
                     } else {
@@ -97,10 +104,10 @@ class BroadcastNotificationController extends Controller
                 ->addColumn('creator', function ($b) {
                     return '<span class="text-xs text-slate-600 font-medium whitespace-nowrap">' . e($b->creator->name ?? 'Sistem') . '</span>';
                 })
-                ->addColumn('opsi', function ($b) use ($pakets, $customers) {
+                ->addColumn('opsi', function ($b) use ($pakets, $getCustomer) {
                     $targetLabel = match ($b->target_type) {
                         'package' => 'Paket: ' . ($pakets->get($b->target_id)->nama_paket ?? '#' . $b->target_id),
-                        'customer' => 'Pelanggan: ' . ($customers->get($b->target_id)->nama_lengkap ?? '#' . $b->target_id),
+                        'customer' => 'Pelanggan: ' . ($getCustomer($b->target_id)->nama_lengkap ?? '#' . $b->target_id),
                         default => 'Semua Pelanggan',
                     };
 

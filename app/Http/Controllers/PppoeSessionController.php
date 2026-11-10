@@ -24,19 +24,24 @@ class PppoeSessionController extends Controller
         if ($request->ajax()) {
             // Ambil session online dari FreeRADIUS (cache 30 detik untuk performa)
             $onlineSessions = Cache::remember('radius_online_sessions_map', 30, function () {
-                return Radacct::whereNull('acctstoptime')
-                    ->select(
-                        'radacctid',
-                        'username',
-                        'framedipaddress',
-                        'callingstationid',
-                        'acctstarttime',
-                        'acctsessiontime',
-                        'acctoutputoctets',
-                        'acctinputoctets'
-                    )
-                    ->get()
-                    ->keyBy('username');
+                try {
+                    return Radacct::whereNull('acctstoptime')
+                        ->select(
+                            'radacctid',
+                            'username',
+                            'framedipaddress',
+                            'callingstationid',
+                            'acctstarttime',
+                            'acctsessiontime',
+                            'acctoutputoctets',
+                            'acctinputoctets'
+                        )
+                        ->get()
+                        ->keyBy('username');
+                } catch (\Throwable $e) {
+                    Log::warning('Gagal memuat sesi aktif dari database RADIUS: ' . $e->getMessage());
+                    return collect();
+                }
             });
 
             $onlineUsernames = $onlineSessions->keys()->all();
@@ -157,13 +162,23 @@ class PppoeSessionController extends Controller
         });
 
         $onlineSessionsCount = Cache::remember('radius_online_count', 30, function () {
-            return Radacct::whereNull('acctstoptime')->count();
+            try {
+                return Radacct::whereNull('acctstoptime')->count();
+            } catch (\Throwable $e) {
+                Log::warning('Gagal menghitung online sessions RADIUS: ' . $e->getMessage());
+                return 0;
+            }
         });
 
         $active24h = Cache::remember('radacct_active_24h_count', 60, function () {
-            return Radacct::where('acctupdatetime', '>=', now()->subHours(24))
-                ->orWhere('acctstarttime', '>=', now()->subHours(24))
-                ->count();
+            try {
+                return Radacct::where('acctupdatetime', '>=', now()->subHours(24))
+                    ->orWhere('acctstarttime', '>=', now()->subHours(24))
+                    ->count();
+            } catch (\Throwable $e) {
+                Log::warning('Gagal menghitung active 24h RADIUS: ' . $e->getMessage());
+                return 0;
+            }
         });
 
         $pakets = Paket::orderBy('nama_paket')->get();
@@ -198,11 +213,16 @@ class PppoeSessionController extends Controller
             ->with(['paket', 'customer'])
             ->first();
 
-        $sessions = Radacct::where('username', $username)
-            ->orWhere('username', $cleanUsername)
-            ->orderByDesc('radacctid')
-            ->take(50)
-            ->get();
+        try {
+            $sessions = Radacct::where('username', $username)
+                ->orWhere('username', $cleanUsername)
+                ->orderByDesc('radacctid')
+                ->take(50)
+                ->get();
+        } catch (\Throwable $e) {
+            Log::warning("Gagal query riwayat sesi RADIUS untuk user {$username}: " . $e->getMessage());
+            $sessions = collect();
+        }
 
         $latestSession = $sessions->first();
         $latestData = null;
@@ -300,7 +320,14 @@ class PppoeSessionController extends Controller
      */
     public function show($id)
     {
-        $session = Radacct::findOrFail($id);
+        try {
+            $session = Radacct::findOrFail($id);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Detail sesi tidak ditemukan atau koneksi database RADIUS terputus: ' . $e->getMessage()
+            ], 404);
+        }
 
         $cleanUsername = explode('@', $session->username)[0];
         $customer = Customer::where('pppoe_username', $session->username)

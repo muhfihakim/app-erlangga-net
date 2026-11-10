@@ -345,6 +345,8 @@ class FcmService
         ?int $targetId = null,
         ?int $createdBy = null
     ): array {
+        @set_time_limit(180);
+
         $customersQuery = Customer::query()->whereNull('deleted_at');
 
         if ($targetType === 'package' && $targetId) {
@@ -368,32 +370,53 @@ class FcmService
             'created_by'     => $createdBy,
         ]);
 
+        // 1. Bulk insert notifikasi in-app dalam chunk (mencegah bottleneck ratusan query SQL)
+        $now = now();
+        $notificationData = json_encode([
+            'broadcast_id' => $broadcast->id,
+            'type'         => $type,
+        ]);
+
+        $inAppChunks = [];
         foreach ($customers as $cust) {
-            // Simpan ke notifikasi in-app
-            CustomerNotification::create([
+            $inAppChunks[] = [
                 'customer_id' => $cust->id,
                 'title'       => $title,
                 'body'        => $body,
                 'type'        => $type,
-                'data'        => [
-                    'broadcast_id' => $broadcast->id,
-                    'type'         => $type,
-                ],
-                'is_read'     => false,
-            ]);
+                'data'        => $notificationData,
+                'is_read'     => 0,
+                'created_at'  => $now,
+                'updated_at'  => $now,
+            ];
 
-            // Kirim push notification FCM jika ada token
-            if (!empty($cust->fcm_token)) {
+            if (count($inAppChunks) >= 200) {
+                CustomerNotification::insert($inAppChunks);
+                $inAppChunks = [];
+            }
+        }
+        if (!empty($inAppChunks)) {
+            CustomerNotification::insert($inAppChunks);
+        }
+
+        // 2. Kirim push notification FCM hanya untuk pelanggan yang memiliki token aktif
+        $customersWithToken = $customers->filter(fn($c) => !empty(trim((string)$c->fcm_token)));
+
+        foreach ($customersWithToken as $cust) {
+            try {
                 $push = $this->sendToToken($cust->fcm_token, $title, $body, [
                     'type'         => $type,
                     'broadcast_id' => $broadcast->id,
                 ]);
 
-                if ($push['success']) {
+                if (!empty($push['success'])) {
                     $totalSent++;
                 } else {
                     $totalFailed++;
                 }
+            } catch (\Throwable $e) {
+                $totalFailed++;
+                Log::warning("Gagal push FCM broadcast ke customer #{$cust->id}: " . $e->getMessage());
             }
         }
 

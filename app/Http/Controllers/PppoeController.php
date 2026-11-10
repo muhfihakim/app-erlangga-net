@@ -73,6 +73,22 @@ class PppoeController extends Controller
             return Customer::with('sales')->whereNotNull('pppoe_username')->get()->keyBy('pppoe_username');
         });
 
+        // Ambil prefix pool isolir dinamis dari pengaturan & daftar akun terisolir di database
+        $isolirPrefix = Cache::remember('isolir_ip_prefix', 120, function () {
+            $gw = \App\Models\Setting::get('pool_isolir_gateway', '172.30.0.1');
+            $range = \App\Models\Setting::get('pool_isolir_range', '172.30.0.2-172.30.255.254');
+            if (!empty($gw) && preg_match('/^(\d+\.\d+)\./', $gw, $m)) {
+                return $m[1] . '.';
+            } elseif (!empty($range) && preg_match('/^(\d+\.\d+)\./', $range, $m)) {
+                return $m[1] . '.';
+            }
+            return '172.30.';
+        });
+
+        $pppoeIsolirMap = Cache::remember('pppoe_isolir_usernames_map', 30, function () {
+            return Pppoe::where('is_isolir', true)->pluck('username')->flip()->all();
+        });
+
         // Hitung total status global
         $totalIsolir = 0;
         $processedData = [];
@@ -80,7 +96,9 @@ class PppoeController extends Controller
         foreach ($rawData as $item) {
             $name = $item['name'] ?? '';
             $address = $item['address'] ?? '';
-            $isIsolir = str_starts_with($address, '172.30.');
+            $isIsolir = str_starts_with($address, $isolirPrefix)
+                || str_starts_with($address, '172.30.')
+                || isset($pppoeIsolirMap[$name]);
             if ($isIsolir) {
                 $totalIsolir++;
             }
