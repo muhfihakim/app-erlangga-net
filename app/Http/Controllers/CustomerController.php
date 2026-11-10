@@ -890,6 +890,12 @@ class CustomerController extends Controller
                     ['username' => $customer->pppoe_username],
                     ['groupname' => $paket->nama_paket, 'priority' => 1]
                 );
+                // Jika profil paket diubah, kick sesi aktif agar profil bandwidth baru segera berlaku di MikroTik
+                try {
+                    app(MikroTikService::class)->kickPppoeUser($customer->pppoe_username);
+                } catch (\Throwable $e) {
+                    Log::warning("Kick user after package upgrade warning ({$customer->pppoe_username}): " . $e->getMessage());
+                }
             }
 
             Userinfo::updateOrCreate(
@@ -986,6 +992,7 @@ class CustomerController extends Controller
         try {
             if ($username) {
                 Radcheck::where('username', $username)->delete();
+                Radusergroup::where('username', $username)->delete();
                 app(MikroTikService::class)->kickPppoeUser($username);
             }
         } catch (\Throwable $e) {
@@ -1022,7 +1029,9 @@ class CustomerController extends Controller
         try {
             if ($username) {
                 Radcheck::where('username', $username)->delete();
+                Radreply::where('username', $username)->delete();
                 Radusergroup::where('username', $username)->delete();
+                Userinfo::where('username', $username)->delete();
                 app(MikroTikService::class)->kickPppoeUser($username);
             }
         } catch (\Throwable $e) {

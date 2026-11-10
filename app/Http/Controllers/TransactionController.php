@@ -17,7 +17,7 @@ class TransactionController extends Controller
         $filterDateTo = $request->input('date_to', '');
 
         if ($request->ajax()) {
-            $query = Transaction::with(['invoice.pppoe.preOrder', 'invoice.pppoe.paket'])
+            $query = Transaction::with(['invoice.pppoe.preOrder', 'invoice.pppoe.customer', 'invoice.pppoe.paket'])
                 ->latest('payment_date')
                 ->select('transactions.*');
 
@@ -47,8 +47,13 @@ class TransactionController extends Controller
                     return '<div style="text-align: center; color: #1e293b; font-size: 12px; font-weight: 600;">' . $dt->format('d/m/Y') . '<br><span style="color:#64748b; font-size: 11px; font-weight: 500;">' . $dt->format('H:i') . ' WIB</span></div>';
                 })
                 ->addColumn('pelanggan', function ($tx) {
-                    $name = $tx->invoice->pppoe->preOrder->nama_lengkap ?? '-';
-                    $user = $tx->invoice->pppoe->username ?? '';
+                    $pppoe = $tx->invoice->pppoe ?? null;
+                    $name = $pppoe?->customer?->nama_lengkap
+                        ?? $pppoe?->preOrder?->nama_lengkap
+                        ?? $pppoe?->keterangan
+                        ?? $pppoe?->username
+                        ?? '-';
+                    $user = $pppoe->username ?? '';
                     return '<div><div style="font-weight: 700; color: #0f172a; font-size: 13px;">' . htmlspecialchars($name) . '</div>' . ($user ? '<span style="font-size: 11px; color: #64748b; font-weight: 500;">' . htmlspecialchars($user) . '</span>' : '') . '</div>';
                 })
                 ->addColumn('invoice_number', function ($tx) {

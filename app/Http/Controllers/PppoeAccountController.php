@@ -486,6 +486,7 @@ class PppoeAccountController extends Controller
             \App\Models\Radreply::where('username', $username)->delete();
             \App\Models\Radusergroup::where('username', $username)->delete();
             \App\Models\Userinfo::where('username', $username)->delete();
+            app(\App\Services\MikroTikService::class)->kickPppoeUser($username);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning("Radius delete warning on PPPoE destroy ({$username}): " . $e->getMessage());
         }

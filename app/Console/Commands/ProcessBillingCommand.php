@@ -78,7 +78,12 @@ class ProcessBillingCommand extends Command
                     $tanggalAktif = $pppoe->tanggal_aktif ? Carbon::parse($pppoe->tanggal_aktif) : now();
                     if ($isForce || $tanggalAktif->diffInDays(now(), false) >= -7) {
                         $hasUnpaid = $pppoe->invoices->where('status', 'unpaid')->isNotEmpty();
-                        if (!$hasUnpaid) {
+                        // Cegah looping faktur ganda: jangan generate jika sudah ada faktur yang diterbitkan dalam 20 hari terakhir
+                        $hasRecentInvoice = $pppoe->invoices->filter(function ($inv) {
+                            return Carbon::parse($inv->created_at)->diffInDays(now()) < 20;
+                        })->isNotEmpty();
+
+                        if ($isForce || (!$hasUnpaid && !$hasRecentInvoice)) {
                             $shouldGenerate = true;
                             $dueDate = $tanggalAktif->isFuture() ? $tanggalAktif : now()->addDays(3);
                         }

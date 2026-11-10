@@ -130,9 +130,10 @@ class IsolirController extends Controller
             \Xendit\Configuration::setXenditKey(Setting::get('xendit_secret_key', config('services.xendit.secret_key')));
             $apiInstance = new \Xendit\Invoice\InvoiceApi();
 
-            $invoice->load(['pppoe.preOrder', 'pppoe.paket']);
+            $invoice->load(['pppoe.preOrder', 'pppoe.customer', 'pppoe.paket']);
             $pppoe = $invoice->pppoe;
             $preOrder = $pppoe ? $pppoe->preOrder : null;
+            $customer = $pppoe ? $pppoe->customer : null;
             $payerEmail = ($preOrder && !empty($preOrder->alamat_email) && filter_var($preOrder->alamat_email, FILTER_VALIDATE_EMAIL))
                 ? $preOrder->alamat_email
                 : 'billing@erlangga.net';
@@ -141,6 +142,9 @@ class IsolirController extends Controller
             $dueDate = $invoice->due_date ? Carbon::parse($invoice->due_date)->endOfDay() : now()->addDays(7);
             $durationSeconds = max(86400, $dueDate->diffInSeconds(now()));
 
+            $isRevised = (!empty($invoice->xendit_invoice_id) || $invoice->isExpired() || (float)($invoice->penyesuaian ?? 0) != 0);
+            $externalId = $isRevised ? ($invoice->invoice_number . '-R' . time()) : $invoice->invoice_number;
+
             $items = [];
             $items[] = [
                 'name' => 'Paket Internet ' . ($pppoe && $pppoe->paket ? $pppoe->paket->nama_paket : ''),
@@ -148,6 +152,16 @@ class IsolirController extends Controller
                 'price' => (float) $invoice->amount,
                 'category' => 'INTERNET_SERVICE',
             ];
+
+            if (!empty($invoice->penyesuaian) && (float)$invoice->penyesuaian != 0) {
+                $penyesuaianVal = (float)$invoice->penyesuaian;
+                $items[] = [
+                    'name'     => !empty($invoice->catatan_penyesuaian) ? ('Penyesuaian: ' . $invoice->catatan_penyesuaian) : 'Penyesuaian Tagihan',
+                    'quantity' => 1,
+                    'price'    => $penyesuaianVal,
+                    'category' => $penyesuaianVal < 0 ? 'DISCOUNT' : 'OTHER',
+                ];
+            }
 
             if ($invoice->tax > 0) {
                 $items[] = [
@@ -167,8 +181,8 @@ class IsolirController extends Controller
                 ];
             }
 
-            $customerName = $preOrder ? ($preOrder->nama_lengkap ?? $pppoe->username) : ($pppoe->username ?? 'Pelanggan');
-            $customerPhone = $preOrder && !empty($preOrder->no_whatsapp) ? $preOrder->no_whatsapp : null;
+            $customerName = $customer->nama_lengkap ?? ($preOrder->nama_lengkap ?? ($pppoe->username ?? 'Pelanggan'));
+            $customerPhone = $customer->no_whatsapp ?? ($preOrder->no_whatsapp ?? null);
 
             $redirectUrl = route('isolir.index', [
                 'q' => $pppoe ? $pppoe->username : $invoice->invoice_number,
@@ -176,7 +190,7 @@ class IsolirController extends Controller
             ]);
 
             $createInvoiceRequest = new \Xendit\Invoice\CreateInvoiceRequest([
-                'external_id' => $invoice->invoice_number,
+                'external_id' => $externalId,
                 'amount' => (float) $invoice->total,
                 'payer_email' => $payerEmail,
                 'description' => 'Pembayaran Tagihan ' . $invoice->invoice_number . ' - ' . ($pppoe ? $pppoe->username : ''),

@@ -243,6 +243,8 @@ class MaintenanceController extends Controller
 
         $partnerNames = $request->has('partner_ids') ? User::whereIn('id', $request->partner_ids)->pluck('nama_lengkap')->implode(', ') : "";
 
+        $snLama = $customer->sn_perangkat;
+
         // Jika kategori ONT, update SN di tabel customer
         if ($request->kategori_kendala === 'ONT') {
             $customer->update([
@@ -256,7 +258,7 @@ class MaintenanceController extends Controller
             'partner' => $partnerNames,
             'kategori_kendala' => $request->kategori_kendala,
             'sn_baru' => $request->sn_baru,
-            'sn_lama' => $customer->getOriginal('sn_perangkat'),
+            'sn_lama' => $snLama,
             'solusi_kendala' => $request->solusi_kendala,
             'foto_sebelum_perbaikan' => $request->file('foto_sebelum')->store('maintenances/before', 's3'),
             'foto_setelah_perbaikan' => $request->file('foto_sesudah')->store('maintenances/after', 's3'),
