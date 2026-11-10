@@ -713,6 +713,7 @@ class CustomerController extends Controller
                             'discount' => $discount,
                             'total' => $total,
                             'due_date' => $dueDate->format('Y-m-d'),
+                            'billing_period' => $dueDate->format('Y-m'),
                             'status' => $isPaid ? 'paid' : 'unpaid',
                             'payment_method' => $isPaid ? 'cash' : null,
                         ]);

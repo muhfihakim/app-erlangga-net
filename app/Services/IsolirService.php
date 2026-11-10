@@ -128,6 +128,16 @@ class IsolirService
 
         Cache::forget('mikrotik_pppoe_active');
 
+        // Kirim Notifikasi Push FCM & In-App ke Pelanggan bahwa layanan diisolir
+        if (!$wasAlreadyIsolated && $pppoe) {
+            try {
+                $latestOverdue = \App\Models\Invoice::where('pppoe_id', $pppoe->id)->where('status', 'unpaid')->latest('due_date')->first();
+                app(\App\Services\FcmService::class)->sendCustomerIsolatedNotification($pppoe, $latestOverdue);
+            } catch (\Throwable $e) {
+                Log::warning("IsolirService: Gagal kirim FCM isolir ({$username}): " . $e->getMessage());
+            }
+        }
+
         Log::info("IsolirService: Akun PPPoE {$username} berhasil diisolir. Alasan: {$reason}. Sesi terputus: " . ($kicked ? 'Ya' : 'Tidak'));
 
         return [
@@ -198,6 +208,15 @@ class IsolirService
         }
 
         Cache::forget('mikrotik_pppoe_active');
+
+        // Kirim Notifikasi Push FCM & In-App ke Pelanggan bahwa layanan telah aktif kembali
+        if ($pppoe) {
+            try {
+                app(\App\Services\FcmService::class)->sendCustomerUnisolatedNotification($pppoe);
+            } catch (\Throwable $e) {
+                Log::warning("IsolirService: Gagal kirim FCM unisolir ({$username}): " . $e->getMessage());
+            }
+        }
 
         Log::info("IsolirService: Isolir akun {$username} dibuka kembali. Paket: {$targetGroup}. Sesi terputus: " . ($kicked ? 'Ya' : 'Tidak'));
 

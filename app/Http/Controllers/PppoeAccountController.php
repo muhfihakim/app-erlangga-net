@@ -318,7 +318,7 @@ class PppoeAccountController extends Controller
                 $total = max(0, $amount + $tax - $discount);
                 $isPaid = ($pppoe->status_invoice === 'terbayar');
                 $status = $isPaid ? 'paid' : 'unpaid';
-                $dueDate = $pppoe->tanggal_aktif ? \Carbon\Carbon::parse($pppoe->tanggal_aktif)->addDays(7) : \Carbon\Carbon::now()->addDays(7);
+                $dueDate = ($pppoe->tanggal_aktif && \Carbon\Carbon::parse($pppoe->tanggal_aktif)->isFuture()) ? \Carbon\Carbon::parse($pppoe->tanggal_aktif) : \Carbon\Carbon::now()->addDays(7);
                 
                 $invoice = \App\Models\Invoice::create([
                     'pppoe_id' => $pppoe->id,
@@ -328,6 +328,7 @@ class PppoeAccountController extends Controller
                     'discount' => $discount,
                     'total' => $total,
                     'due_date' => $dueDate->format('Y-m-d'),
+                    'billing_period' => $dueDate->format('Y-m'),
                     'status' => $status,
                     'payment_method' => $isPaid ? 'cash' : null,
                 ]);

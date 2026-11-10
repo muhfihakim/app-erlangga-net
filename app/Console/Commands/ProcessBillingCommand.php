@@ -78,7 +78,8 @@ class ProcessBillingCommand extends Command
                 if ($tipe === 'prepaid') {
                     $tanggalAktif = $pppoe->tanggal_aktif ? Carbon::parse($pppoe->tanggal_aktif) : now();
                     if ($isForce || $tanggalAktif->diffInDays(now(), false) >= -7) {
-                        $dueDate = $tanggalAktif->isFuture() ? $tanggalAktif : now()->addDays(3);
+                        // Pastikan jatuh tempo selalu minimal 7 hari ke depan
+                        $dueDate = ($tanggalAktif->isFuture() && $tanggalAktif->diffInDays(now()) >= 7) ? $tanggalAktif : now()->addDays(7);
                         $billingPeriod = $dueDate->format('Y-m');
 
                         $hasUnpaid = $pppoe->invoices->where('status', 'unpaid')->isNotEmpty();
@@ -106,7 +107,8 @@ class ProcessBillingCommand extends Command
 
                         if (!$hasCurrentMonthInvoice) {
                             $shouldGenerate = true;
-                            $dueDate = now()->copy()->setDay(min(20, now()->daysInMonth));
+                            $day20 = now()->copy()->setDay(min(20, now()->daysInMonth));
+                            $dueDate = ($day20->diffInDays(now(), false) <= -7) ? $day20 : now()->addDays(7);
                         }
                     }
                 }
@@ -180,8 +182,23 @@ class ProcessBillingCommand extends Command
                     continue;
                 }
 
+                // 1. Akun non-billing atau generate_invoice dinonaktifkan tidak boleh diisolir otomatis
+                if (!$pppoe->generate_invoice || $pppoe->status_invoice === 'non_billing') {
+                    continue;
+                }
+
+                // 2. Akun prepaid yang masa aktifnya (tanggal_aktif) masih berlaku tidak boleh diisolir
+                if ($pppoe->tipe_pembayaran === 'prepaid' && $pppoe->tanggal_aktif && Carbon::parse($pppoe->tanggal_aktif)->startOfDay()->isFuture()) {
+                    continue;
+                }
+
+                // 3. Akun yang status tagihannya sudah 'terbayar' tidak boleh diisolir
+                if ($pppoe->status_invoice === 'terbayar') {
+                    continue;
+                }
+
                 $processedUsers[$pppoe->username] = true;
-                $reason = "Auto-Isolir: Tagihan jatuh tempo ({$inv->due_date})";
+                $reason = "Auto-Isolir: Tagihan #{$inv->invoice_number} jatuh tempo ({$inv->due_date})";
 
                 if ($pppoe->is_isolir) {
                     $alreadyIsolatedCount++;

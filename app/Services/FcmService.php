@@ -335,6 +335,54 @@ class FcmService
     }
 
     /**
+     * Kirim notifikasi peringatan layanan diisolir karena melewati jatuh tempo.
+     */
+    public function sendCustomerIsolatedNotification(\App\Models\Pppoe $pppoe, ?Invoice $invoice = null): array
+    {
+        $pppoe->loadMissing(['customer']);
+        $customer = $pppoe->customer;
+
+        if (!$customer) {
+            return ['success' => false, 'message' => 'Pelanggan tidak ditemukan untuk akun ini.'];
+        }
+
+        $invText = $invoice ? " (#{$invoice->invoice_number})" : "";
+        $totalText = ($invoice && (float)$invoice->total > 0) ? " sebesar Rp " . number_format($invoice->total, 0, ',', '.') : "";
+        $title = 'Layanan Internet Diisolir Sementara';
+        $body = "Layanan internet akun {$pppoe->username} saat ini diisolir sementara karena tagihan{$invText}{$totalText} telah melewati tanggal jatuh tempo. Silakan lakukan pembayaran agar akses internet Anda segera aktif kembali.";
+
+        return $this->sendToCustomer($customer, $title, $body, [
+            'type'        => 'isolir',
+            'pppoe_user'  => $pppoe->username,
+            'invoice_id'  => $invoice?->id,
+            'action_url'  => '/riwayat',
+        ], 'isolir');
+    }
+
+    /**
+     * Kirim notifikasi konfirmasi pemulihan layanan internet (isolir dibuka).
+     */
+    public function sendCustomerUnisolatedNotification(\App\Models\Pppoe $pppoe): array
+    {
+        $pppoe->loadMissing(['customer', 'paket']);
+        $customer = $pppoe->customer;
+
+        if (!$customer) {
+            return ['success' => false, 'message' => 'Pelanggan tidak ditemukan untuk akun ini.'];
+        }
+
+        $paketName = $pppoe->paket?->nama_paket ?? 'Broadband';
+        $title = 'Layanan Internet Aktif Kembali';
+        $body = "Kabar baik! Layanan internet akun {$pppoe->username} (Paket {$paketName}) telah aktif dan normal kembali. Selamat menikmati koneksi internet Erlangga Net.";
+
+        return $this->sendToCustomer($customer, $title, $body, [
+            'type'        => 'unisolir',
+            'pppoe_user'  => $pppoe->username,
+            'action_url'  => '/riwayat',
+        ], 'general');
+    }
+
+    /**
      * Kirim broadcast pemberitahuan dari Admin (Pemeliharaan/Maintenance, Pengumuman, Promo).
      */
     public function broadcast(
