@@ -69,6 +69,10 @@ Pastikan server Anda memenuhi persyaratan berikut sebelum melakukan instalasi:
 - **`active_list.blade.php`** - Halaman utama interaktif yang memuat ringkasan statistik, peta penyebaran pelanggan, dan tabel server-side.
 - **Mikrotik Cache** - Aplikasi ini menggunakan caching Laravel untuk menyimpan status dari Mikrotik agar load halaman tetap ringan.
 
+## 📚 Dokumentasi Lengkap
+- 📖 [Panduan Instalasi & Konfigurasi Server VPS](file:///Users/bbs/Documents/Project/app-erlangga-net/docs/PANDUAN_SETUP_VPS.md) - Panduan langkah demi langkah setup Nginx, FreeRADIUS, MikroTik, OLT, GenieACS, Cron Job, dan Supervisor di VPS.
+- 📱 [Dokumentasi API Mobile Pelanggan](file:///Users/bbs/Documents/Project/app-erlangga-net/docs/API_MOBILE_PELANGGAN.md) - Dokumentasi lengkap REST API Mobile, autentikasi Bearer Token Sanctum, dan integrasi Postman.
+
 ## 📄 Lisensi
 
 Aplikasi ini bersifat tertutup (proprietary) dan dirancang khusus untuk kebutuhan internal **Erlangga Net**.
