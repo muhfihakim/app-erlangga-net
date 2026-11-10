@@ -343,7 +343,7 @@
             </div>
 
             <!-- Petunjuk Menjalankan Script Terminal MikroTik -->
-            <div class="bg-indigo-50/50 border border-indigo-200/80 rounded-xl p-3.5 mb-4 text-xs text-slate-700">
+            <div class="bg-indigo-50/50 border border-indigo-200/80 rounded-xl p-3.5 mb-3 text-xs text-slate-700">
                 <div class="flex items-start gap-2.5">
                     <i class="fa-solid fa-circle-info text-indigo-600 mt-0.5 text-sm"></i>
                     <div>
@@ -352,10 +352,23 @@
                             <li>Script di bawah otomatis mengompilasi parameter dari tab <strong>MikroTik RouterOS</strong> dan paket layanan aktif.</li>
                             <li>Buka aplikasi <strong>Winbox</strong> lalu login ke router MikroTik Anda.</li>
                             <li>Buka menu <strong>New Terminal</strong> pada panel sebelah kiri Winbox.</li>
-                            <li>Pilih tab <strong>5. Script Lengkap (All-in-One)</strong> (atau bagian yang dibutuhkan) di bawah, lalu klik tombol <strong>Salin Semua Script PNP</strong>.</li>
-                            <li>Klik kanan di jendela terminal Winbox &gt; pilih <strong>Paste</strong>, lalu tekan <strong>Enter</strong>. Seluruh konfigurasi otomatis aktif!</li>
+                            <li>Pilih tab <strong>5. Script Lengkap (All-in-One)</strong> (atau bagian yang dibutuhkan) di bawah, lalu klik tombol <strong>Salin Script</strong> atau <strong>Unduh .rsc</strong>.</li>
+                            <li>Jika menyalin: Klik kanan di jendela terminal Winbox &gt; pilih <strong>Paste</strong>, lalu tekan <strong>Enter</strong>. Jika mengunduh: Drag file <code>.rsc</code> ke menu <strong>Files</strong> di Winbox, lalu ketik <code>/import namafile.rsc</code> di terminal.</li>
                         </ol>
                     </div>
+                </div>
+            </div>
+
+            <!-- Penjelasan Hirarki IP Pool -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 mb-4 text-xs text-slate-700 flex items-start gap-2.5">
+                <i class="fa-solid fa-circle-question text-indigo-500 mt-0.5 text-sm"></i>
+                <div class="space-y-1">
+                    <span class="font-bold text-slate-800">Penjelasan Hirarki IP Pool (Normal vs Per-Paket vs Isolir):</span>
+                    <ul class="list-disc ml-4 space-y-1 text-slate-600">
+                        <li><strong>Pool Per-Paket (misal: <code>pool-10m</code>, <code>pool-20m</code>):</strong> Alokasi IP utama untuk tiap paket langganan aktif. Pelanggan PPPoE otomatis mendapatkan IP dari segmen paketnya masing-masing.</li>
+                        <li><strong>Pool Normal (<code>pool-normal</code>):</strong> Berfungsi sebagai <em>Default Fallback Pool</em> untuk profile <code>default</code> pada PPPoE Server MikroTik. Digunakan jika ada akun/paket baru tanpa segmen IP khusus atau untuk akun pengujian teknisi.</li>
+                        <li><strong>Pool Isolir (<code>pool-isolir</code>):</strong> Alokasi IP khusus bagi pelanggan jatuh tempo/menunggak (kecepatan dicekik 128k dan otomatis di-redirect ke portal tagihan/isolir).</li>
+                    </ul>
                 </div>
             </div>
 
@@ -396,105 +409,145 @@
             <!-- Script 1: IP Pool, Profile & PPPoE Server -->
             <div class="script-panel active" id="script-section-pool" role="tabpanel"
                 aria-labelledby="tab-btn-script-pool" tabindex="0">
-                <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 shadow-inner">
-                    <div class="flex items-center justify-between mb-3 border-b border-slate-800/80 pb-2.5">
+                <div class="relative bg-slate-950 rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-inner">
+                    <div class="flex flex-wrap items-center justify-between mb-3 border-b border-slate-800/80 pb-2.5 gap-2">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-terminal text-emerald-400 text-xs" aria-hidden="true"></i>
-                            <span class="text-slate-400 text-xs font-mono ml-1">mikrotik-terminal ~
-                                pool-pppoe.rsc</span>
+                            <span class="text-slate-400 text-xs font-mono ml-1">mikrotik-terminal ~ pool-pppoe.rsc</span>
                         </div>
-                        <button type="button" onclick="copyScriptToClipboard('code-script-pool')"
-                            aria-label="Salin script IP Pool ke clipboard"
-                            class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow">
-                            <i class="fa-solid fa-copy" aria-hidden="true"></i> Salin Script
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="toggleWrapScript('code-script-pool', this)"
+                                class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all">
+                                <i class="fa-solid fa-align-left"></i> <span>Wrap Teks</span>
+                            </button>
+                            <button type="button" onclick="downloadScriptFile('code-script-pool', 'pool-pppoe.rsc')"
+                                class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all">
+                                <i class="fa-solid fa-download"></i> Unduh .rsc
+                            </button>
+                            <button type="button" onclick="copyScriptToClipboard('code-script-pool', this)"
+                                aria-label="Salin script IP Pool ke clipboard"
+                                class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow">
+                                <i class="fa-solid fa-copy" aria-hidden="true"></i> <span>Salin Script</span>
+                            </button>
+                        </div>
                     </div>
-                    <pre
-                        class="overflow-x-auto text-emerald-400 font-mono text-xs leading-relaxed min-h-[160px] max-h-96 selection:bg-rose-500 selection:text-white"><code id="code-script-pool"></code></pre>
+                    <pre class="overflow-auto text-emerald-400 font-mono text-xs leading-relaxed min-h-[180px] max-h-[500px] p-2 selection:bg-rose-500 selection:text-white whitespace-pre rounded-lg border border-slate-800/60 bg-slate-950/80"><code id="code-script-pool"></code></pre>
                 </div>
             </div>
 
             <!-- Script 2: Server RADIUS & CoA -->
             <div class="script-panel hidden" id="script-section-radius" role="tabpanel"
                 aria-labelledby="tab-btn-script-radius" tabindex="0">
-                <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 shadow-inner">
-                    <div class="flex items-center justify-between mb-3 border-b border-slate-800/80 pb-2.5">
+                <div class="relative bg-slate-950 rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-inner">
+                    <div class="flex flex-wrap items-center justify-between mb-3 border-b border-slate-800/80 pb-2.5 gap-2">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-terminal text-emerald-400 text-xs" aria-hidden="true"></i>
-                            <span class="text-slate-400 text-xs font-mono ml-1">mikrotik-terminal ~
-                                radius-coa.rsc</span>
+                            <span class="text-slate-400 text-xs font-mono ml-1">mikrotik-terminal ~ radius-coa.rsc</span>
                         </div>
-                        <button type="button" onclick="copyScriptToClipboard('code-script-radius')"
-                            aria-label="Salin script RADIUS CoA ke clipboard"
-                            class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow">
-                            <i class="fa-solid fa-copy" aria-hidden="true"></i> Salin Script
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="toggleWrapScript('code-script-radius', this)"
+                                class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all">
+                                <i class="fa-solid fa-align-left"></i> <span>Wrap Teks</span>
+                            </button>
+                            <button type="button" onclick="downloadScriptFile('code-script-radius', 'radius-coa.rsc')"
+                                class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all">
+                                <i class="fa-solid fa-download"></i> Unduh .rsc
+                            </button>
+                            <button type="button" onclick="copyScriptToClipboard('code-script-radius', this)"
+                                aria-label="Salin script RADIUS CoA ke clipboard"
+                                class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow">
+                                <i class="fa-solid fa-copy" aria-hidden="true"></i> <span>Salin Script</span>
+                            </button>
+                        </div>
                     </div>
-                    <pre
-                        class="overflow-x-auto text-emerald-400 font-mono text-xs leading-relaxed min-h-[160px] max-h-96 selection:bg-rose-500 selection:text-white"><code id="code-script-radius"></code></pre>
+                    <pre class="overflow-auto text-emerald-400 font-mono text-xs leading-relaxed min-h-[180px] max-h-[500px] p-2 selection:bg-rose-500 selection:text-white whitespace-pre rounded-lg border border-slate-800/60 bg-slate-950/80"><code id="code-script-radius"></code></pre>
                 </div>
             </div>
 
             <!-- Script 3: API Service & User -->
             <div class="script-panel hidden" id="script-section-api" role="tabpanel"
                 aria-labelledby="tab-btn-script-api" tabindex="0">
-                <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 shadow-inner">
-                    <div class="flex items-center justify-between mb-3 border-b border-slate-800/80 pb-2.5">
+                <div class="relative bg-slate-950 rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-inner">
+                    <div class="flex flex-wrap items-center justify-between mb-3 border-b border-slate-800/80 pb-2.5 gap-2">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-terminal text-emerald-400 text-xs" aria-hidden="true"></i>
-                            <span class="text-slate-400 text-xs font-mono ml-1">mikrotik-terminal ~
-                                api-setup.rsc</span>
+                            <span class="text-slate-400 text-xs font-mono ml-1">mikrotik-terminal ~ api-setup.rsc</span>
                         </div>
-                        <button type="button" onclick="copyScriptToClipboard('code-script-api')"
-                            aria-label="Salin script API Service ke clipboard"
-                            class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow">
-                            <i class="fa-solid fa-copy" aria-hidden="true"></i> Salin Script
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="toggleWrapScript('code-script-api', this)"
+                                class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all">
+                                <i class="fa-solid fa-align-left"></i> <span>Wrap Teks</span>
+                            </button>
+                            <button type="button" onclick="downloadScriptFile('code-script-api', 'api-setup.rsc')"
+                                class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all">
+                                <i class="fa-solid fa-download"></i> Unduh .rsc
+                            </button>
+                            <button type="button" onclick="copyScriptToClipboard('code-script-api', this)"
+                                aria-label="Salin script API Service ke clipboard"
+                                class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow">
+                                <i class="fa-solid fa-copy" aria-hidden="true"></i> <span>Salin Script</span>
+                            </button>
+                        </div>
                     </div>
-                    <pre
-                        class="overflow-x-auto text-emerald-400 font-mono text-xs leading-relaxed min-h-[160px] max-h-96 selection:bg-rose-500 selection:text-white"><code id="code-script-api"></code></pre>
+                    <pre class="overflow-auto text-emerald-400 font-mono text-xs leading-relaxed min-h-[180px] max-h-[500px] p-2 selection:bg-rose-500 selection:text-white whitespace-pre rounded-lg border border-slate-800/60 bg-slate-950/80"><code id="code-script-api"></code></pre>
                 </div>
             </div>
 
             <!-- Script 4: Firewall Filter & NAT Isolir -->
             <div class="script-panel hidden" id="script-section-isolir" role="tabpanel"
                 aria-labelledby="tab-btn-script-isolir" tabindex="0">
-                <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 shadow-inner">
-                    <div class="flex items-center justify-between mb-3 border-b border-slate-800/80 pb-2.5">
+                <div class="relative bg-slate-950 rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-inner">
+                    <div class="flex flex-wrap items-center justify-between mb-3 border-b border-slate-800/80 pb-2.5 gap-2">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-terminal text-emerald-400 text-xs" aria-hidden="true"></i>
-                            <span class="text-slate-400 text-xs font-mono ml-1">mikrotik-terminal ~
-                                firewall-isolir.rsc</span>
+                            <span class="text-slate-400 text-xs font-mono ml-1">mikrotik-terminal ~ firewall-isolir.rsc</span>
                         </div>
-                        <button type="button" onclick="copyScriptToClipboard('code-script-isolir')"
-                            aria-label="Salin script Firewall Isolir ke clipboard"
-                            class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow">
-                            <i class="fa-solid fa-copy" aria-hidden="true"></i> Salin Script
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="toggleWrapScript('code-script-isolir', this)"
+                                class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all">
+                                <i class="fa-solid fa-align-left"></i> <span>Wrap Teks</span>
+                            </button>
+                            <button type="button" onclick="downloadScriptFile('code-script-isolir', 'firewall-isolir.rsc')"
+                                class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all">
+                                <i class="fa-solid fa-download"></i> Unduh .rsc
+                            </button>
+                            <button type="button" onclick="copyScriptToClipboard('code-script-isolir', this)"
+                                aria-label="Salin script Firewall Isolir ke clipboard"
+                                class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow">
+                                <i class="fa-solid fa-copy" aria-hidden="true"></i> <span>Salin Script</span>
+                            </button>
+                        </div>
                     </div>
-                    <pre
-                        class="overflow-x-auto text-emerald-400 font-mono text-xs leading-relaxed min-h-[160px] max-h-96 selection:bg-rose-500 selection:text-white"><code id="code-script-isolir"></code></pre>
+                    <pre class="overflow-auto text-emerald-400 font-mono text-xs leading-relaxed min-h-[180px] max-h-[500px] p-2 selection:bg-rose-500 selection:text-white whitespace-pre rounded-lg border border-slate-800/60 bg-slate-950/80"><code id="code-script-isolir"></code></pre>
                 </div>
             </div>
 
             <!-- Script 5: All-in-One Full Script PNP -->
             <div class="script-panel hidden" id="script-section-all" role="tabpanel"
                 aria-labelledby="tab-btn-script-all" tabindex="0">
-                <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 shadow-inner">
-                    <div class="flex items-center justify-between mb-3 border-b border-slate-800/80 pb-2.5">
+                <div class="relative bg-slate-950 rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-inner">
+                    <div class="flex flex-wrap items-center justify-between mb-3 border-b border-slate-800/80 pb-2.5 gap-2">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-terminal text-emerald-400 text-xs" aria-hidden="true"></i>
-                            <span class="text-slate-400 text-xs font-mono ml-1">mikrotik-terminal ~
-                                full-setup-pnp.rsc</span>
+                            <span class="text-slate-400 text-xs font-mono ml-1">mikrotik-terminal ~ full-setup-pnp.rsc</span>
                         </div>
-                        <button type="button" onclick="copyScriptToClipboard('code-script-all')"
-                            aria-label="Salin semua script PNP ke clipboard"
-                            class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow">
-                            <i class="fa-solid fa-copy" aria-hidden="true"></i> Salin Semua Script PNP
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="toggleWrapScript('code-script-all', this)"
+                                class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all">
+                                <i class="fa-solid fa-align-left"></i> <span>Wrap Teks</span>
+                            </button>
+                            <button type="button" onclick="downloadScriptFile('code-script-all', 'full-setup-pnp.rsc')"
+                                class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all">
+                                <i class="fa-solid fa-download"></i> Unduh .rsc
+                            </button>
+                            <button type="button" onclick="copyScriptToClipboard('code-script-all', this)"
+                                aria-label="Salin semua script PNP ke clipboard"
+                                class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow">
+                                <i class="fa-solid fa-copy" aria-hidden="true"></i> <span>Salin Semua Script PNP</span>
+                            </button>
+                        </div>
                     </div>
-                    <pre
-                        class="overflow-x-auto text-emerald-400 font-mono text-xs leading-relaxed min-h-[160px] max-h-96 selection:bg-rose-500 selection:text-white"><code id="code-script-all"></code></pre>
+                    <pre class="overflow-auto text-emerald-400 font-mono text-xs leading-relaxed min-h-[180px] max-h-[500px] p-2 selection:bg-rose-500 selection:text-white whitespace-pre rounded-lg border border-slate-800/60 bg-slate-950/80"><code id="code-script-all"></code></pre>
                 </div>
             </div>
         </div>
@@ -1211,18 +1264,79 @@
                 }
             }
 
-            // Copy terminal script to clipboard
-            function copyScriptToClipboard(elementId) {
-                const text = document.getElementById(elementId)?.innerText || '';
-                if (!text) return;
+            // Copy terminal script to clipboard with button feedback
+            function copyScriptToClipboard(elementId, btn) {
+                const text = document.getElementById(elementId)?.textContent || '';
+                if (!text) {
+                    showToast('Konten script kosong atau belum siap.', 'warning');
+                    return;
+                }
+
+                const originalHtml = btn ? btn.innerHTML : '';
+                const onCopied = () => {
+                    showToast('Script MikroTik berhasil disalin ke clipboard!', 'success');
+                    if (btn) {
+                        btn.innerHTML = '<i class="fa-solid fa-check text-emerald-300"></i> <span>Tersalin!</span>';
+                        btn.classList.add('!bg-emerald-600');
+                        setTimeout(() => {
+                            btn.innerHTML = originalHtml;
+                            btn.classList.remove('!bg-emerald-600');
+                        }, 2000);
+                    }
+                };
+
                 if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(text).then(() => {
-                        showToast('Script MikroTik berhasil disalin ke clipboard!', 'success');
-                    }).catch(() => {
+                    navigator.clipboard.writeText(text).then(onCopied).catch(() => {
                         legacyCopyToClipboard(text, 'Script MikroTik berhasil disalin!');
+                        if (btn) {
+                            btn.innerHTML = '<i class="fa-solid fa-check text-emerald-300"></i> <span>Tersalin!</span>';
+                            setTimeout(() => { btn.innerHTML = originalHtml; }, 2000);
+                        }
                     });
                 } else {
                     legacyCopyToClipboard(text, 'Script MikroTik berhasil disalin!');
+                    if (btn) {
+                        btn.innerHTML = '<i class="fa-solid fa-check text-emerald-300"></i> <span>Tersalin!</span>';
+                        setTimeout(() => { btn.innerHTML = originalHtml; }, 2000);
+                    }
+                }
+            }
+
+            // Download terminal script as .rsc file (for direct import into MikroTik Winbox)
+            function downloadScriptFile(elementId, filename) {
+                const text = document.getElementById(elementId)?.textContent || '';
+                if (!text) {
+                    showToast('Konten script belum siap.', 'warning');
+                    return;
+                }
+                const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename || 'mikrotik-script.rsc';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('File ' + filename + ' berhasil diunduh! Siap di-import ke Winbox.', 'success');
+            }
+
+            // Toggle word wrap inside terminal pre
+            function toggleWrapScript(elementId, btn) {
+                const codeEl = document.getElementById(elementId);
+                const pre = codeEl ? codeEl.closest('pre') : null;
+                if (!pre) return;
+
+                if (pre.classList.contains('whitespace-pre-wrap')) {
+                    pre.classList.remove('whitespace-pre-wrap');
+                    pre.classList.add('whitespace-pre');
+                    btn.innerHTML = '<i class="fa-solid fa-align-left"></i> <span>Wrap Teks</span>';
+                    btn.classList.remove('!bg-slate-700', 'text-indigo-300');
+                } else {
+                    pre.classList.remove('whitespace-pre');
+                    pre.classList.add('whitespace-pre-wrap');
+                    btn.innerHTML = '<i class="fa-solid fa-bars"></i> <span>No-Wrap</span>';
+                    btn.classList.add('!bg-slate-700', 'text-indigo-300');
                 }
             }
 
@@ -1292,6 +1406,8 @@
                             isolirSubnet = `${parts[0]}.${parts[1]}.0.0/16`;
                         } else if (parts[0] === '10') {
                             isolirSubnet = `${parts[0]}.${parts[1]}.${parts[2]}.0/24`;
+                        } else if (parts[0] === '192') {
+                            isolirSubnet = `${parts[0]}.${parts[1]}.${parts[2]}.0/24`;
                         }
                     }
                 }
@@ -1335,8 +1451,7 @@ ${paketProfilesScript}
                 const scriptRadius = `# ================================================================
 # 1. TAMBAHKAN SERVER RADIUS CLIENT (RADIUS)
 # ================================================================
-/radius add service=ppp address=${radiusServerIp} secret="${radiusSecret}" \\
-    authentication-port=1812 accounting-port=1813 timeout=3000ms comment="RADIUS Server App"
+/radius add service=ppp address=${radiusServerIp} secret="${radiusSecret}" authentication-port=1812 accounting-port=1813 timeout=3000ms comment="RADIUS Server App"
 
 # ================================================================
 # 2. AKTIFKAN RADIUS PADA PPPOE SERVER (AAA)
@@ -1362,10 +1477,11 @@ ${paketProfilesScript}
                 // 4. Script Firewall Filter & NAT Isolir
                 const scriptIsolir =
                     `# ================================================================
-# 1. FIREWALL FILTER: IZINKAN DNS ISOLIR
+# 1. FIREWALL FILTER: IZINKAN AKSES KE DNS & WEB PORTAL ISOLIR
 # ================================================================
 /ip firewall filter add chain=forward src-address=${isolirSubnet} protocol=udp dst-port=53 action=accept comment="Allow DNS UDP Isolir"
 /ip firewall filter add chain=forward src-address=${isolirSubnet} protocol=tcp dst-port=53 action=accept comment="Allow DNS TCP Isolir"
+/ip firewall filter add chain=forward src-address=${isolirSubnet} dst-address=${webPortalIp} action=accept comment="Allow Isolir ke Web Portal"
 
 # ================================================================
 # 2. FIREWALL FILTER: BLOKIR SELURUH INTERNET LAIN PELANGGAN ISOLIR
