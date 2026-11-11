@@ -10,6 +10,96 @@
         </div>
     </div>
 
+    @if ($user->isAdmin())
+        <!-- Executive Billing & Network Stats Grid (Super Admin & Admin) -->
+        <div style="margin-bottom: 2rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 0.85rem; border-left: 4px solid #3b82f6; padding-left: 12px; flex-wrap: wrap;">
+                <div>
+                    <h3 style="font-size: 13.5px; font-weight: 800; color: #334155; margin: 0; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-chart-pie text-blue-500"></i> Ringkasan Tagihan & Jaringan
+                    </h3>
+                    <p style="font-size: 11px; color: #64748b; margin: 2px 0 0;">Status penagihan periode {{ \Carbon\Carbon::now()->translatedFormat('F Y') }} dan status koneksi pelanggan</p>
+                </div>
+            </div>
+
+            <div class="stats-grid mb-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-bottom: 0;">
+                <!-- 1. Invoice Lunas Bulan Ini -->
+                <a href="{{ route('invoices.index', ['status_tagihan' => 'paid']) }}" class="stat-card" style="text-decoration: none; color: inherit; padding: 1rem 1.15rem; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px; transition: all 0.2s ease;">
+                    <div class="stat-icon" style="background:#dcfce7; color:#15803d; width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0;">
+                        <i class="fa-solid fa-file-circle-check"></i>
+                    </div>
+                    <div style="min-width: 0; flex: 1;">
+                        <div class="stat-lbl" style="font-size: 10.5px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.03em;">Lunas (Bulan Ini)</div>
+                        <div class="stat-val" style="font-size: 21px; font-weight: 800; color: #15803d; margin: 1px 0; line-height: 1.2;">{{ number_format($totalInvoiceLunasBulanIni, 0, ',', '.') }}</div>
+                        <div style="font-size: 11px; font-weight: 700; color: #16a34a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Rp {{ number_format($nominalInvoiceLunasBulanIni, 0, ',', '.') }}">
+                            Rp {{ number_format($nominalInvoiceLunasBulanIni, 0, ',', '.') }}
+                        </div>
+                    </div>
+                </a>
+
+                <!-- 2. Invoice Belum Lunas Bulan Ini -->
+                <a href="{{ route('invoices.index', ['status_tagihan' => 'unpaid']) }}" class="stat-card" style="text-decoration: none; color: inherit; padding: 1rem 1.15rem; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px; transition: all 0.2s ease;">
+                    <div class="stat-icon" style="background:#fee2e2; color:#b91c1c; width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0;">
+                        <i class="fa-solid fa-file-circle-exclamation"></i>
+                    </div>
+                    <div style="min-width: 0; flex: 1;">
+                        <div class="stat-lbl" style="font-size: 10.5px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.03em;">Belum Lunas</div>
+                        <div class="stat-val" style="font-size: 21px; font-weight: 800; color: #b91c1c; margin: 1px 0; line-height: 1.2;">{{ number_format($totalInvoiceBelumLunasBulanIni, 0, ',', '.') }}</div>
+                        <div style="font-size: 11px; font-weight: 700; color: #dc2626; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Rp {{ number_format($nominalInvoiceBelumLunasBulanIni, 0, ',', '.') }}">
+                            Rp {{ number_format($nominalInvoiceBelumLunasBulanIni, 0, ',', '.') }}
+                            @if ($totalInvoiceBelumLunasBulanIni == 0 && $totalAllUnpaid > 0)
+                                <span style="font-size: 9.5px; font-weight: 600; color: #94a3b8;" title="Total tunggakan seluruh periode">({{ $totalAllUnpaid }} tunggakan)</span>
+                            @endif
+                        </div>
+                    </div>
+                </a>
+
+                <!-- 3. Total Aktif -->
+                <a href="{{ route('customers.active_list') }}" class="stat-card" style="text-decoration: none; color: inherit; padding: 1rem 1.15rem; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px; transition: all 0.2s ease;">
+                    <div class="stat-icon" style="background:#e0f2fe; color:#0284c7; width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0;">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div style="min-width: 0; flex: 1;">
+                        <div class="stat-lbl" style="font-size: 10.5px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.03em;">Total Aktif</div>
+                        <div class="stat-val" style="font-size: 21px; font-weight: 800; color: #0284c7; margin: 1px 0; line-height: 1.2;">{{ number_format($totalPelangganAktif, 0, ',', '.') }}</div>
+                        <div style="font-size: 11px; font-weight: 700; color: #0369a1; display: flex; align-items: center; gap: 5px;">
+                            <span style="display:inline-block; width:6.5px; height:6.5px; border-radius:50%; background:#10b981;"></span>
+                            {{ number_format($totalOnlineAll, 0, ',', '.') }} Online
+                        </div>
+                    </div>
+                </a>
+
+                <!-- 4. Total Isolir -->
+                <a href="{{ route('customers.active_list', ['status' => 'isolir']) }}" class="stat-card" style="text-decoration: none; color: inherit; padding: 1rem 1.15rem; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px; transition: all 0.2s ease;">
+                    <div class="stat-icon" style="background:#fef3c7; color:#d97706; width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0;">
+                        <i class="fa-solid fa-ban"></i>
+                    </div>
+                    <div style="min-width: 0; flex: 1;">
+                        <div class="stat-lbl" style="font-size: 10.5px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.03em;">Total Isolir</div>
+                        <div class="stat-val" style="font-size: 21px; font-weight: 800; color: #d97706; margin: 1px 0; line-height: 1.2;">{{ number_format($totalIsolirAll, 0, ',', '.') }}</div>
+                        <div style="font-size: 11px; font-weight: 700; color: #b45309;">
+                            Akun Terisolir
+                        </div>
+                    </div>
+                </a>
+
+                <!-- 5. Total Offline -->
+                <a href="{{ route('customers.active_list', ['status' => 'offline']) }}" class="stat-card" style="text-decoration: none; color: inherit; padding: 1rem 1.15rem; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px; transition: all 0.2s ease;">
+                    <div class="stat-icon" style="background:#f1f5f9; color:#475569; width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0;">
+                        <i class="fa-solid fa-power-off"></i>
+                    </div>
+                    <div style="min-width: 0; flex: 1;">
+                        <div class="stat-lbl" style="font-size: 10.5px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.03em;">Total Offline</div>
+                        <div class="stat-val" style="font-size: 21px; font-weight: 800; color: #475569; margin: 1px 0; line-height: 1.2;">{{ number_format($totalOfflineAll, 0, ',', '.') }}</div>
+                        <div style="font-size: 11px; font-weight: 700; color: #64748b;">
+                            Tidak Terhubung
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    @endif
+
     @if ($user->jabatan !== 'Teknisi')
         <!-- Global Performance Stats -->
         <div style="margin-bottom: 2rem;">

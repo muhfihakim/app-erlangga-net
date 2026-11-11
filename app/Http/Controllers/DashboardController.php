@@ -81,7 +81,19 @@ class DashboardController extends Controller
             ->whereBetween('completed_at', [$startOfMonth, $endOfMonth])
             ->count();
 
-        // 5. Inisialisasi Variabel Chart
+        // 5. Inisialisasi Ringkasan Tagihan & Status Jaringan (Super Admin & Admin)
+        $totalInvoiceLunasBulanIni = 0;
+        $nominalInvoiceLunasBulanIni = 0;
+        $totalInvoiceBelumLunasBulanIni = 0;
+        $nominalInvoiceBelumLunasBulanIni = 0;
+        $totalAllUnpaid = 0;
+        $nominalAllUnpaid = 0;
+        $totalPelangganAktif = 0;
+        $totalOnlineAll = 0;
+        $totalOfflineAll = 0;
+        $totalIsolirAll = 0;
+
+        // 5.1 Inisialisasi Variabel Chart
         $mChartLabels = []; $mChartValues = []; $mDonutLabels = []; $mDonutValues = [];
         $aChartLabels = []; $aChartValues = []; $aDonutLabels = []; $aDonutValues = [];
         $sChartLabels = []; $sChartActivated = []; $sChartPending = [];
@@ -90,6 +102,82 @@ class DashboardController extends Controller
         if ($user->isAdmin()) {
             $thisMonth = Carbon::now()->month;
             $thisYear = Carbon::now()->year;
+            $currentPeriod = Carbon::now()->format('Y-m');
+
+            // --- STATS RINGKASAN TAGIHAN & JARINGAN (ADMIN) ---
+            // 1. Invoice Lunas Bulan Ini
+            $lunasQuery = \App\Models\Invoice::where('status', 'paid')
+                ->where(function ($q) use ($currentPeriod, $thisMonth, $thisYear) {
+                    $q->where('billing_period', $currentPeriod)
+                      ->orWhere(function ($sq) use ($thisMonth, $thisYear) {
+                          $sq->whereMonth('created_at', $thisMonth)
+                             ->whereYear('created_at', $thisYear);
+                      })
+                      ->orWhere(function ($sq) use ($thisMonth, $thisYear) {
+                          $sq->whereMonth('updated_at', $thisMonth)
+                             ->whereYear('updated_at', $thisYear);
+                      })
+                      ->orWhereHas('transactions', function ($tq) use ($thisMonth, $thisYear) {
+                          $tq->where('status', 'success')
+                             ->whereMonth('payment_date', $thisMonth)
+                             ->whereYear('payment_date', $thisYear);
+                      });
+                });
+            $totalInvoiceLunasBulanIni = $lunasQuery->count();
+            $nominalInvoiceLunasBulanIni = (float) $lunasQuery->sum('total');
+
+            // 2. Invoice Belum Lunas Bulan Ini
+            $belumLunasQuery = \App\Models\Invoice::where('status', 'unpaid')
+                ->where(function ($q) use ($currentPeriod, $thisMonth, $thisYear) {
+                    $q->where('billing_period', $currentPeriod)
+                      ->orWhere(function ($sq) use ($thisMonth, $thisYear) {
+                          $sq->whereMonth('created_at', $thisMonth)
+                             ->whereYear('created_at', $thisYear);
+                      })
+                      ->orWhere(function ($sq) use ($thisMonth, $thisYear) {
+                          $sq->whereMonth('due_date', $thisMonth)
+                             ->whereYear('due_date', $thisYear);
+                      });
+                });
+            $totalInvoiceBelumLunasBulanIni = $belumLunasQuery->count();
+            $nominalInvoiceBelumLunasBulanIni = (float) $belumLunasQuery->sum('total');
+
+            $totalAllUnpaid = \App\Models\Invoice::where('status', 'unpaid')->count();
+            $nominalAllUnpaid = (float) \App\Models\Invoice::where('status', 'unpaid')->sum('total');
+
+            // 3. Status Pelanggan: Aktif, Online, Isolir, Offline
+            $totalPelangganAktif = Customer::withoutTrashed()->count();
+
+            // Cek MikroTik Active Connections dari Cache (di-update background daemon tanpa membebani web request)
+            $pppoeData = Cache::get('mikrotik_pppoe_active');
+
+            $activeUsernames = ($pppoeData && isset($pppoeData['success']) && $pppoeData['success'])
+                ? collect($pppoeData['data'])->pluck('name')->toArray()
+                : [];
+
+            $mikrotikIsolirUsernames = [];
+            if (!empty($pppoeData['data'])) {
+                $mikrotikIsolirUsernames = collect($pppoeData['data'])
+                    ->filter(fn($item) => str_starts_with($item['address'] ?? '', '172.30.'))
+                    ->pluck('name')
+                    ->toArray();
+            }
+
+            $dbIsolirUsernames = \App\Models\Pppoe::where('is_isolir', true)->pluck('username')->toArray();
+            $allIsolirUsernames = array_unique(array_merge($dbIsolirUsernames, $mikrotikIsolirUsernames));
+
+            $totalIsolirAll = Customer::withoutTrashed()->whereIn('pppoe_username', $allIsolirUsernames)->count();
+            if ($totalIsolirAll === 0 && !empty($allIsolirUsernames)) {
+                $totalIsolirAll = count($allIsolirUsernames);
+            }
+            $totalIsolirAll = max($totalIsolirAll, \App\Models\Pppoe::where('is_isolir', true)->count());
+
+            if (!empty($activeUsernames)) {
+                $totalOnlineAll = Customer::withoutTrashed()->whereIn('pppoe_username', $activeUsernames)->count();
+            } else {
+                $totalOnlineAll = 0;
+            }
+            $totalOfflineAll = max(0, $totalPelangganAktif - $totalOnlineAll);
 
             // Tren Aktivasi Mingguan (Sabtu - Jumat)
             $mostRecentFriday = Carbon::now()->isFriday() ? Carbon::now() : Carbon::now()->previous(Carbon::FRIDAY);
@@ -332,7 +420,17 @@ class DashboardController extends Controller
             'mDonutLabels',
             'mDonutValues',
             'totalKasbonSalesBulanIni',
-            'totalKasbonTeknisiMingguIni'
+            'totalKasbonTeknisiMingguIni',
+            'totalInvoiceLunasBulanIni',
+            'nominalInvoiceLunasBulanIni',
+            'totalInvoiceBelumLunasBulanIni',
+            'nominalInvoiceBelumLunasBulanIni',
+            'totalAllUnpaid',
+            'nominalAllUnpaid',
+            'totalPelangganAktif',
+            'totalOnlineAll',
+            'totalOfflineAll',
+            'totalIsolirAll'
         ));
     }
 }
