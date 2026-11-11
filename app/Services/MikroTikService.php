@@ -38,11 +38,14 @@ class MikroTikService
             $user = \App\Models\Setting::get('mikrotik_user', Config::get('mikrotik.username', 'admin'));
             $pass = \App\Models\Setting::get('mikrotik_pass', Config::get('mikrotik.password', ''));
 
+            $timeout = (int) \App\Models\Setting::get('mikrotik_timeout', 4);
+
             $this->client = new \ZillEAli\MikrotikLaravel\Connections\RouterosClient(
                 $host,
                 $port,
                 $user,
-                $pass
+                $pass,
+                $timeout
             );
             $this->client->connect();
         }

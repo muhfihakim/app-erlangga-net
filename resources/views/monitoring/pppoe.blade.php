@@ -292,7 +292,14 @@
                                 $('#stat-total-normal').text(new Intl.NumberFormat('id-ID').format(json.totalNormal));
                                 $('#stat-total-isolir').text(new Intl.NumberFormat('id-ID').format(json.totalIsolir));
                             }
+                            if (json.error) {
+                                console.warn('Router info:', json.error);
+                            }
                             return json.data || [];
+                        },
+                        error: function(xhr, error, thrown) {
+                            forceRefresh = false;
+                            console.error('PPPoE Monitoring Data Error:', error, thrown);
                         }
                     },
                     columns: [

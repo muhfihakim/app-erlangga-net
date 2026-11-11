@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Nas;
+use App\Models\Pppoe;
 use App\Models\Setting;
 use App\Services\MikroTikService;
 use Illuminate\Http\JsonResponse;
