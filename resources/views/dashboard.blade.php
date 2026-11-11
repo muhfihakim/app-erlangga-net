@@ -103,11 +103,13 @@
     @if ($user->jabatan !== 'Teknisi')
         <!-- Global Performance Stats -->
         <div style="margin-bottom: 2rem;">
-            <div
-                style="display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; border-left: 4px solid #0ea5e9; padding-left: 12px;">
-                <h3
-                    style="font-size: 14px; font-weight: 800; color: #475569; margin: 0; text-transform: uppercase; letter-spacing: 0.05em;">
-                    Performa Penjualan & Aktivasi</h3>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 0.85rem; border-left: 4px solid #0ea5e9; padding-left: 12px; flex-wrap: wrap;">
+                <div>
+                    <h3 style="font-size: 13.5px; font-weight: 800; color: #334155; margin: 0; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-chart-simple text-sky-500"></i> Performa Penjualan & Aktivasi
+                    </h3>
+                    <p style="font-size: 11px; color: #64748b; margin: 2px 0 0;">Ringkasan perolehan Pre-Order (PO), aktivasi selesai, dan antrean pending periode berjalan</p>
+                </div>
             </div>
             <div class="stats-grid">
                 <div class="stat-card">
@@ -317,9 +319,14 @@
     @if ($user->isAdmin())
         <!-- Performa Aktivasi -->
         <div style="margin-top: 2rem;">
-            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 1rem;">
-                <i class="fa-solid fa-rocket text-success mr-2"></i> Performa Aktivasi
-            </h3>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 0.85rem; border-left: 4px solid #10b981; padding-left: 12px; flex-wrap: wrap;">
+                <div>
+                    <h3 style="font-size: 13.5px; font-weight: 800; color: #334155; margin: 0; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-rocket text-emerald-500"></i> Performa Aktivasi
+                    </h3>
+                    <p style="font-size: 11px; color: #64748b; margin: 2px 0 0;">Statistik tren aktivasi mingguan tim teknisi dan kontributor instalasi terbanyak</p>
+                </div>
+            </div>
 
             <div
                 style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
@@ -356,9 +363,14 @@
 
         <!-- Performa Sales -->
         <div style="margin-top: 2rem;">
-            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 1rem;">
-                <i class="fa-solid fa-users-viewfinder text-indigo-500 mr-2"></i> Performa Sales
-            </h3>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 0.85rem; border-left: 4px solid #6366f1; padding-left: 12px; flex-wrap: wrap;">
+                <div>
+                    <h3 style="font-size: 13.5px; font-weight: 800; color: #334155; margin: 0; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-users-viewfinder text-indigo-500"></i> Performa Sales
+                    </h3>
+                    <p style="font-size: 11px; color: #64748b; margin: 2px 0 0;">Peringkat produktivitas sales dalam perolehan PO teraktivasi dan status prospek pelanggan</p>
+                </div>
+            </div>
 
             <div class="table-card p-6">
                 <h4
@@ -380,9 +392,14 @@
 
         <!-- Maintenance & Dismantle Insights -->
         <div style="margin-top: 2rem;">
-            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 1rem;">
-                <i class="fa-solid fa-chart-pie text-primary mr-2"></i> Analisis & Performa Operasional
-            </h3>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 0.85rem; border-left: 4px solid #0284c7; padding-left: 12px; flex-wrap: wrap;">
+                <div>
+                    <h3 style="font-size: 13.5px; font-weight: 800; color: #334155; margin: 0; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-screwdriver-wrench text-sky-600"></i> Analisis & Performa Operasional
+                    </h3>
+                    <p style="font-size: 11px; color: #64748b; margin: 2px 0 0;">Pemantauan tren tiket gangguan pemeliharaan (maintenance) serta kinerja teknisi lapangan</p>
+                </div>
+            </div>
 
             <!-- Maintenance Stats -->
             <div
@@ -422,9 +439,14 @@
 
     @if ($user->isAdmin())
         <div style="margin-top: 2rem;">
-            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 1rem;">
-                <i class="fa-solid fa-person-walking text-indigo-500 mr-2"></i> Aktivitas Terbaru
-            </h3>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 0.85rem; border-left: 4px solid #8b5cf6; padding-left: 12px; flex-wrap: wrap;">
+                <div>
+                    <h3 style="font-size: 13.5px; font-weight: 800; color: #334155; margin: 0; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-clock-rotate-left text-violet-500"></i> Aktivitas Terbaru
+                    </h3>
+                    <p style="font-size: 11px; color: #64748b; margin: 2px 0 0;">Catatan riwayat tindakan, perubahan data pelanggan, dan log audit sistem oleh pengguna</p>
+                </div>
+            </div>
 
             <!-- Custom Toolbar -->
             <div class="table-toolbar">
