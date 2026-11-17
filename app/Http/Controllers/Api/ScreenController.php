@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\CustomerNotification;
 use App\Models\Invoice;
+use App\Models\Paket;
 use App\Models\Radacct;
 use App\Models\Setting;
 use App\Services\GenieAcsService;
@@ -65,13 +66,24 @@ class ScreenController extends Controller
         $customer->load(['paket', 'preOrder']);
         $pppoe = $customer->pppoe;
 
-        // 1. Data Paket
+        // 1. Data Paket Saat Ini & Daftar Paket yang Tersedia
         $paket = $customer->paket;
         $namaPaket = $paket->nama_paket ?? 'Paket Internet Unlimited';
         $kecepatan = $paket->kecepatan ?? '-';
         $harga = (float) ($paket->harga ?? 0);
         $totalHargaPaket = (float) ($paket->total_harga ?? $harga);
-        $deskripsiPaket = $paket->keterangan ?? ($paket->deskripsi ?? 'Akses internet unlimited 24 jam tanpa FUP.');
+
+        // Daftar paket yang tersedia untuk kebutuhan tampilan & upgrade di mobile
+        $paketTersedia = Paket::orderBy('harga', 'asc')->get()->map(function ($p) use ($paket) {
+            return [
+                'id'          => $p->id,
+                'nama_paket'  => $p->nama_paket,
+                'kecepatan'   => $p->kecepatan ?? ($p->rate_limit ?? '-'),
+                'harga'       => (float) $p->harga,
+                'total_harga' => (float) $p->total_harga,
+                'is_current'  => (bool) ($paket && $paket->id === $p->id),
+            ];
+        })->values();
 
         // 2. Data Tagihan & Faktur Berjalan
         $unpaidInvoices = collect();
@@ -220,8 +232,9 @@ class ScreenController extends Controller
                 'kecepatan'   => $kecepatan,
                 'harga'       => $harga,
                 'total_harga' => $totalHargaPaket,
-                'deskripsi'   => $deskripsiPaket,
             ],
+            'paket_tersedia'     => $paketTersedia,
+            'available_packages' => $paketTersedia,
             'tagihan' => [
                 'status_akun'           => $statusAkun,
                 'status_invoice'        => $statusInvoice,
