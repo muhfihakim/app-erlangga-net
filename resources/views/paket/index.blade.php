@@ -311,9 +311,9 @@
                     </button>
                 </div>
 
-                <div class="modal-body p-6 bg-white space-y-4">
+                <div class="modal-body p-6 bg-white">
                     <!-- Notice Box -->
-                    <div class="p-3.5 rounded-xl border border-amber-200 bg-amber-50/70 text-amber-900 text-xs flex gap-2.5 items-start">
+                    <div class="p-3.5 rounded-xl border border-amber-200 bg-amber-50/70 text-amber-900 text-xs flex gap-2.5 items-start mb-4">
                         <i class="fa-solid fa-circle-exclamation text-amber-600 text-sm mt-0.5 shrink-0"></i>
                         <div class="leading-relaxed">
                             Aksi ini akan mengalihkan <strong>seluruh Pelanggan & Akun PPPoE</strong> dari Paket Asal ke Paket Tujuan, memperbarui group limitasi di <strong>FreeRADIUS</strong>, serta dapat menyesuaikan nilai tagihan invoice <em>unpaid</em> secara otomatis.
@@ -321,11 +321,11 @@
                     </div>
 
                     <!-- Paket Asal -->
-                    <div class="form-group mb-0">
-                        <label class="form-label text-slate-700 font-semibold text-xs mb-1.5 block">
+                    <div class="form-group mb-4">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
                             Paket Asal (Yang Ingin Dialihkan) <span class="text-rose-500">*</span>
                         </label>
-                        <select name="source_paket_id" id="migrate_source_paket_id" class="form-select text-xs font-medium text-slate-800 border-slate-300 w-full" required onchange="onSourcePaketChanged()">
+                        <select name="source_paket_id" id="migrate_source_paket_id" class="form-input-custom !bg-white text-xs text-slate-800 w-full cursor-pointer" required onchange="onSourcePaketChanged()">
                             <option value="">-- Pilih Paket Asal --</option>
                             @foreach($pakets as $p)
                                 <option value="{{ $p->id }}" 
@@ -345,19 +345,12 @@
                         </div>
                     </div>
 
-                    <!-- Divider Icon -->
-                    <div class="flex items-center justify-center my-0.5">
-                        <div class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs border border-slate-200 shadow-xs">
-                            <i class="fa-solid fa-arrow-down"></i>
-                        </div>
-                    </div>
-
                     <!-- Paket Tujuan -->
-                    <div class="form-group mb-0">
-                        <label class="form-label text-slate-700 font-semibold text-xs mb-1.5 block">
+                    <div class="form-group mb-4">
+                        <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
                             Paket Tujuan (Paket Baru) <span class="text-rose-500">*</span>
                         </label>
-                        <select name="target_paket_id" id="migrate_target_paket_id" class="form-select text-xs font-medium text-slate-800 border-slate-300 w-full" required>
+                        <select name="target_paket_id" id="migrate_target_paket_id" class="form-input-custom !bg-white text-xs text-slate-800 w-full cursor-pointer" required>
                             <option value="">-- Pilih Paket Tujuan --</option>
                             @foreach($pakets as $p)
                                 <option value="{{ $p->id }}" 
@@ -371,7 +364,7 @@
                     </div>
 
                     <!-- Options Checkbox Card -->
-                    <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 space-y-3">
+                    <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 space-y-3 mb-0">
                         <div class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Opsi Penyesuaian Sistem</div>
                         
                         <!-- Checkbox Sync Invoices -->
