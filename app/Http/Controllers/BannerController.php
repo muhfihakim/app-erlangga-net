@@ -43,7 +43,7 @@ class BannerController extends Controller
             $query->where('is_active', false);
         }
 
-        $banners = $query->paginate(15)->withQueryString();
+        $banners = $query->get();
 
         // Statistik Ringkasan Kartu
         $allBanners = Banner::all();
@@ -54,10 +54,7 @@ class BannerController extends Controller
             'clicks'    => (int) $allBanners->sum('klik_count'),
         ];
 
-        // Ambil default WhatsApp CS untuk generator link WA
-        $defaultWa = Setting::get('support_whatsapp', env('SUPPORT_WHATSAPP', '6282191285271'));
-
-        return view('banners.index', compact('banners', 'stats', 'statusFilter', 'defaultWa'));
+        return view('banners.index', compact('banners', 'stats', 'statusFilter'));
     }
 
     /**
@@ -294,8 +291,8 @@ class BannerController extends Controller
                 'gambar_url'      => (string) $b->gambar_url,
                 'link_url'        => (string) ($b->link_url ?: ''),
                 'urutan'          => (int) $b->urutan,
-                'tanggal_mulai'   => $b->tanggal_mulai ? $b->tanggal_mulai->format('Y-m-d') : null,
-                'tanggal_selesai' => $b->tanggal_selesai ? $b->tanggal_selesai->format('Y-m-d') : null,
+                'tanggal_mulai'   => $b->tanggal_mulai ? $b->tanggal_mulai->format('Y-m-d') : '',
+                'tanggal_selesai' => $b->tanggal_selesai ? $b->tanggal_selesai->format('Y-m-d') : '',
                 'is_active'       => (bool) $b->is_active,
             ];
         });

@@ -1010,6 +1010,9 @@ Endpoint untuk menampilkan carousel slider / slide show banner promosi pada bera
   ```http
   Accept: application/json
   ```
+- **Catatan Parameter**:
+  - `tanggal_mulai` & `tanggal_selesai`: Format `YYYY-MM-DD`. Jika tidak dibatasi/kosong, nilainya berupa string kosong `""` (bukan `null`).
+  - `link_url`: Berisi URL tujuan (web atau `https://wa.me/...`). Jika tanpa link, bernilai `""`.
 - **Response `200 OK`**:
   ```json
   {

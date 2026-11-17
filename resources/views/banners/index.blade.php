@@ -71,7 +71,7 @@
         </div>
         <div class="stat-card">
             <div class="stat-icon" style="background:#fef3c7;color:#b45309;">
-                <i class="fa-solid fa-calendar-clock"></i>
+                <i class="fa-solid fa-calendar-days"></i>
             </div>
             <div>
                 <div class="stat-val text-amber-700">{{ number_format($stats['scheduled'], 0, ',', '.') }}</div>
@@ -89,10 +89,14 @@
         </div>
     </div>
 
-    <!-- Filter & Toolbar -->
-    <div class="table-toolbar mb-4 flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200">
-        <div class="flex items-center gap-2 flex-wrap">
-            <label class="text-xs font-semibold text-slate-600">Filter Status:</label>
+    <!-- Toolbar -->
+    <div class="table-toolbar">
+        <div class="search-wrap">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="search" class="search-input" id="custom-search" placeholder="Cari judul promosi, link, atau pembuat..."
+                autocomplete="off" />
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
             <div class="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-50 text-xs">
                 <a href="{{ route('banners.index') }}" class="px-2.5 py-1 rounded-md font-medium transition {{ empty($statusFilter) ? 'bg-white shadow-xs text-sky-700 font-semibold' : 'text-slate-600 hover:text-slate-900' }}">
                     Semua ({{ $stats['total'] }})
@@ -113,51 +117,49 @@
         </div>
     </div>
 
-    <!-- Table Section -->
-    <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs border-collapse">
+    <!-- Table Card -->
+    <div class="table-card">
+        <div class="table-responsive">
+            <table id="banners-table" class="admin-table">
                 <thead>
-                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
-                        <th class="py-3 px-3.5 text-center w-14">Urutan</th>
-                        <th class="py-3 px-3.5 w-32">Banner</th>
-                        <th class="py-3 px-3.5">Judul & Promosi</th>
-                        <th class="py-3 px-3.5 w-48">Tanggal Penayangan</th>
-                        <th class="py-3 px-3.5">Tindakan / Link Tujuan</th>
-                        <th class="py-3 px-3 text-center w-20">Klik</th>
-                        <th class="py-3 px-3.5 text-center w-24">Status</th>
-                        <th class="py-3 px-3.5 text-center w-24">Aksi</th>
+                    <tr>
+                        <th style="text-align: center; width: 50px;">#</th>
+                        <th style="text-align: left; width: 130px;">Banner</th>
+                        <th style="text-align: left;">Judul & Promosi</th>
+                        <th style="text-align: left; width: 190px;">Tanggal Penayangan</th>
+                        <th style="text-align: left;">Tindakan / Link Tujuan</th>
+                        <th style="text-align: center; width: 80px;">Klik</th>
+                        <th style="text-align: center; width: 90px;">Status</th>
+                        <th style="text-align: center; width: 90px;">Opsi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 text-slate-700">
-                    @forelse ($banners as $b)
-                        <tr class="hover:bg-slate-50/70 transition">
-                            <td class="py-3 px-3.5 text-center font-bold text-slate-800">
-                                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 border border-slate-200 text-slate-700 font-semibold text-xs">
-                                    {{ $b->urutan }}
-                                </span>
+                <tbody>
+                    @foreach ($banners as $b)
+                        <tr>
+                            <td style="text-align: center; color: #94a3b8; font-weight: 700;">
+                                {{ $b->urutan }}
                             </td>
-                            <td class="py-3 px-3.5">
+                            <td style="text-align: left;">
                                 <a href="{{ $b->gambar_url }}" target="_blank" title="Klik untuk memperbesar">
                                     <img src="{{ $b->gambar_url }}" alt="{{ $b->judul }}" class="table-banner-thumb">
                                 </a>
                             </td>
-                            <td class="py-3 px-3.5">
-                                <div class="font-bold text-slate-900 text-xs">{{ $b->judul }}</div>
+                            <td style="text-align: left;">
+                                <div style="font-weight: 700; color: #0f172a; font-size: 13px;">{{ $b->judul }}</div>
                                 @if ($b->deskripsi)
-                                    <div class="text-[11px] text-slate-500 line-clamp-1 mt-0.5">{{ $b->deskripsi }}</div>
+                                    <div style="font-size: 11px; color: #64748b; margin-top: 2px;" class="line-clamp-1">{{ $b->deskripsi }}</div>
                                 @endif
-                                <div class="text-[10px] text-slate-400 mt-0.5">
-                                    Dibuat oleh: <span class="font-medium text-slate-600">{{ $b->creator?->nama_lengkap ?? 'Administrator' }}</span>
+                                <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">
+                                    Dibuat oleh: <span style="font-weight: 600; color: #475569;">{{ $b->creator?->nama_lengkap ?? 'Administrator' }}</span>
                                 </div>
                             </td>
-                            <td class="py-3 px-3.5">
+                            <td style="text-align: left;">
                                 <div class="mb-1">{!! $b->status_badge_html !!}</div>
-                                <div class="text-[11px] text-slate-600 font-medium">
+                                <div style="font-size: 11px; color: #475569; font-weight: 500;">
                                     {{ $b->tanggal_mulai ? $b->tanggal_mulai->translatedFormat('d M Y') : '-' }} s/d {{ $b->tanggal_selesai ? $b->tanggal_selesai->translatedFormat('d M Y') : 'Permanen' }}
                                 </div>
                             </td>
-                            <td class="py-3 px-3.5">
+                            <td style="text-align: left;">
                                 @if ($b->link_url)
                                     @if ($b->is_whatsapp)
                                         <a href="{{ $b->link_url }}" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition text-[11px] font-medium max-w-[240px] truncate" title="{{ $b->link_url }}">
@@ -174,16 +176,16 @@
                                     <span class="text-slate-400 italic text-[11px]">Hanya Tampilan (Tanpa Link)</span>
                                 @endif
                             </td>
-                            <td class="py-3 px-3 text-center">
+                            <td style="text-align: center;">
                                 <span class="font-bold text-slate-700">{{ number_format($b->klik_count, 0, ',', '.') }}</span>
                             </td>
-                            <td class="py-3 px-3.5 text-center">
+                            <td style="text-align: center;">
                                 <button type="button" onclick="toggleBannerStatus({{ $b->id }}, this)" 
                                     class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold transition cursor-pointer {{ $b->is_active ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-slate-200 text-slate-600 hover:bg-slate-300' }}">
                                     {{ $b->is_active ? 'Aktif' : 'Nonaktif' }}
                                 </button>
                             </td>
-                            <td class="py-3 px-3.5 text-center">
+                            <td style="text-align: center;">
                                 <div class="flex items-center justify-center gap-1.5">
                                     <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                         title="Edit Promosi" onclick='openEditModal(@json($b))'>
@@ -196,26 +198,10 @@
                                 </div>
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="8" class="py-12 text-center text-slate-400">
-                                <div class="flex flex-col items-center justify-center">
-                                    <i class="fa-regular fa-images text-4xl mb-3 text-slate-300"></i>
-                                    <p class="font-medium text-slate-600 text-sm">Belum ada banner promosi.</p>
-                                    <p class="text-xs text-slate-400 mt-1">Klik tombol <b>Tambah Promosi</b> di atas untuk menambahkan banner slide show mobile.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
-
-        @if ($banners->hasPages())
-            <div class="p-3 border-t border-slate-200 bg-slate-50">
-                {{ $banners->links() }}
-            </div>
-        @endif
     </div>
 
     <!-- ========================================================================= -->
@@ -502,10 +488,31 @@
     </div>
 
     @section('Scripts')
+        <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
         <script>
             let pendingDeleteId = null;
 
             $(document).ready(function() {
+                const table = $('#banners-table').DataTable({
+                    "pageLength": 10,
+                    "lengthChange": false,
+                    "ordering": false,
+                    "info": false,
+                    "responsive": true,
+                    "dom": 'tpir',
+                    "language": {
+                        "zeroRecords": "Data tidak ditemukan",
+                        "paginate": {
+                            "previous": '<i class="fa-solid fa-chevron-left"></i>',
+                            "next": '<i class="fa-solid fa-chevron-right"></i>'
+                        }
+                    }
+                });
+
+                $('#custom-search').on('keyup input', function() {
+                    table.search(this.value).draw();
+                });
+
                 const flashToast = sessionStorage.getItem('flash_toast');
                 if (flashToast) {
                     try {
