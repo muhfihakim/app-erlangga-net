@@ -233,8 +233,7 @@ class ScreenController extends Controller
                 'harga'       => $harga,
                 'total_harga' => $totalHargaPaket,
             ],
-            'paket_tersedia'     => $paketTersedia,
-            'available_packages' => $paketTersedia,
+            'paket_tersedia' => $paketTersedia,
             'tagihan' => [
                 'status_akun'           => $statusAkun,
                 'status_invoice'        => $statusInvoice,
