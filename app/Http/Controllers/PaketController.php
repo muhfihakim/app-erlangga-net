@@ -3,7 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Paket;
+use App\Models\Customer;
+use App\Models\Pppoe;
+use App\Models\PreOrder;
+use App\Models\Invoice;
+use App\Models\Radusergroup;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Services\MikroTikService;
 
 class PaketController extends Controller
@@ -17,7 +25,7 @@ class PaketController extends Controller
 
     public function index()
     {
-        $pakets = Paket::withCount('customers')->latest()->get();
+        $pakets = Paket::withCount(['customers', 'pppoes'])->latest()->get();
         return view('paket.index', compact('pakets'));
     }
 
@@ -243,6 +251,152 @@ class PaketController extends Controller
         }
 
         return redirect()->route('pakets.index')->with('success', 'Paket berhasil diperbarui, tagihan belum lunas disinkronkan, & data tersinkronisasi ke Radius.');
+    }
+
+    /**
+     * Migrasi / Pindahkan seluruh pelanggan dan akun PPPoE secara massal dari satu paket ke paket lain.
+     */
+    public function migrateCustomers(Request $request)
+    {
+        $validated = $request->validate([
+            'source_paket_id' => 'required|exists:pakets,id',
+            'target_paket_id' => 'required|exists:pakets,id|different:source_paket_id',
+            'sync_unpaid_invoices' => 'nullable',
+            'kick_sessions' => 'nullable',
+        ], [
+            'source_paket_id.required' => 'Pilih paket asal yang ingin dialihkan.',
+            'source_paket_id.exists' => 'Paket asal tidak ditemukan.',
+            'target_paket_id.required' => 'Pilih paket tujuan baru.',
+            'target_paket_id.exists' => 'Paket tujuan tidak ditemukan.',
+            'target_paket_id.different' => 'Paket tujuan tidak boleh sama dengan paket asal.',
+        ]);
+
+        $sourcePaket = Paket::findOrFail($validated['source_paket_id']);
+        $targetPaket = Paket::findOrFail($validated['target_paket_id']);
+        $syncUnpaid = $request->boolean('sync_unpaid_invoices', true);
+        $kickSessions = $request->boolean('kick_sessions', false);
+
+        DB::beginTransaction();
+        try {
+            // Ambil semua customer dan pppoe dari paket asal
+            $customers = Customer::where('paket_id', $sourcePaket->id)->get();
+            $pppoes = Pppoe::where('paket_id', $sourcePaket->id)->get();
+
+            $affectedCustomerCount = $customers->count();
+            $affectedPppoeCount = $pppoes->count();
+
+            if ($affectedCustomerCount === 0 && $affectedPppoeCount === 0) {
+                DB::rollBack();
+                return redirect()->route('pakets.index')->with('warning', "Tidak ada pelanggan atau akun PPPoE yang terdaftar pada paket '{$sourcePaket->nama_paket}'.");
+            }
+
+            // Kumpulkan daftar username PPPoE yang terdampak
+            $pppoeUsernames = $pppoes->pluck('username')->filter()->unique()->values()->all();
+            $customerUsernames = $customers->pluck('pppoe_username')->filter()->unique()->values()->all();
+            $allUsernames = array_values(array_unique(array_filter(array_merge($pppoeUsernames, $customerUsernames))));
+
+            // 1. Update Customers
+            Customer::where('paket_id', $sourcePaket->id)->update([
+                'paket_id' => $targetPaket->id
+            ]);
+
+            // 2. Update PPPoE
+            Pppoe::where('paket_id', $sourcePaket->id)->update([
+                'paket_id' => $targetPaket->id
+            ]);
+
+            // Jika ada PPPoE yang terkait dengan username customer terdampak tapi belum terupdate
+            if (!empty($allUsernames)) {
+                Pppoe::whereIn('username', $allUsernames)
+                    ->where('paket_id', $sourcePaket->id)
+                    ->update(['paket_id' => $targetPaket->id]);
+            }
+
+            // 3. Update PreOrders jika ada yang masih berstatus paket asal
+            PreOrder::where('paket_id', $sourcePaket->id)->update([
+                'paket_id' => $targetPaket->id
+            ]);
+
+            // 4. Update FreeRADIUS radusergroup (kecuali user yang saat ini sedang ISOLIR)
+            if (!empty($allUsernames)) {
+                Radusergroup::whereIn('username', $allUsernames)
+                    ->where('groupname', '!=', 'ISOLIR')
+                    ->update(['groupname' => $targetPaket->nama_paket]);
+            }
+
+            // 5. Sinkronisasi tagihan invoice unpaid jika dicentang
+            $updatedInvoicesCount = 0;
+            if ($syncUnpaid) {
+                $pppoeIds = Pppoe::where('paket_id', $targetPaket->id)
+                    ->whereIn('username', $allUsernames)
+                    ->pluck('id');
+
+                if ($pppoeIds->isNotEmpty()) {
+                    $unpaidInvoices = Invoice::whereIn('pppoe_id', $pppoeIds)
+                        ->where('status', 'unpaid')
+                        ->with('pppoe')
+                        ->get();
+
+                    foreach ($unpaidInvoices as $inv) {
+                        $tax = ($inv->pppoe && $inv->pppoe->pajak !== null && (float)$inv->pppoe->pajak > 0)
+                            ? (float)$inv->pppoe->pajak
+                            : (float)($targetPaket->pajak ?? 0);
+                        $discount = ($inv->pppoe && $inv->pppoe->diskon !== null && (float)$inv->pppoe->diskon > 0)
+                            ? (float)$inv->pppoe->diskon
+                            : (float)($targetPaket->diskon ?? 0);
+                        $amount = (float) $targetPaket->harga;
+                        $total = max(0, $amount + $tax - $discount);
+
+                        $inv->update([
+                            'amount' => $amount,
+                            'tax' => $tax,
+                            'discount' => $discount,
+                            'total' => $total,
+                        ]);
+                        $updatedInvoicesCount++;
+                    }
+                }
+            }
+
+            // 6. Catat log aktivitas
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'activity_type' => 'paket_migration',
+                'description' => "Migrasi massal pelanggan dari '{$sourcePaket->nama_paket}' ke '{$targetPaket->nama_paket}'. Berhasil mengalihkan {$affectedCustomerCount} pelanggan, {$affectedPppoeCount} akun PPPoE, dan menyinkronkan {$updatedInvoicesCount} invoice unpaid.",
+                'logged_at' => now(),
+            ]);
+
+            DB::commit();
+
+            // 7. Kick active sessions di MikroTik jika dicentang (dilakukan setelah DB commit)
+            $kickedCount = 0;
+            if ($kickSessions && !empty($allUsernames)) {
+                foreach ($allUsernames as $usr) {
+                    try {
+                        if ($this->mikrotikService->kickPppoeUser($usr)) {
+                            $kickedCount++;
+                        }
+                    } catch (\Throwable $e) {
+                        // ignore router kick failure
+                    }
+                }
+            }
+
+            $feedback = "Berhasil memindahkan {$affectedCustomerCount} pelanggan dan {$affectedPppoeCount} akun PPPoE dari '{$sourcePaket->nama_paket}' ke '{$targetPaket->nama_paket}'.";
+            if ($updatedInvoicesCount > 0) {
+                $feedback .= " Sebanyak {$updatedInvoicesCount} invoice unpaid telah disesuaikan dengan tarif baru.";
+            }
+            if ($kickSessions) {
+                $feedback .= " {$kickedCount} sesi aktif MikroTik diputus untuk pembaruan profil rate limit.";
+            }
+
+            return redirect()->route('pakets.index')->with('success', $feedback);
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error('Paket Migration Failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return redirect()->route('pakets.index')->with('error', 'Gagal memindahkan paket: ' . $e->getMessage());
+        }
     }
 
     public function destroy(Paket $paket)

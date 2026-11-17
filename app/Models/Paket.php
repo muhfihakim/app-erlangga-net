@@ -35,4 +35,14 @@ class Paket extends Model
     {
         return $this->hasMany(Customer::class, 'paket_id');
     }
+
+    public function pppoes()
+    {
+        return $this->hasMany(Pppoe::class, 'paket_id');
+    }
+
+    public function preOrders()
+    {
+        return $this->hasMany(PreOrder::class, 'paket_id');
+    }
 }

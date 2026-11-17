@@ -47,6 +47,12 @@
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola data paket layanan yang tersedia.</p>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <!-- Tombol Migrasi / Pindahkan Paket Massal -->
+            <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !bg-amber-600 hover:!bg-amber-700 flex items-center gap-1.5"
+                onclick="openMigrateModal()">
+                <i class="fa-solid fa-arrow-right-arrow-left"></i> Pindahkan Paket
+            </button>
+
             <!-- Tombol Sync / Kirim ke MikroTik -->
             <form action="{{ route('pakets.sync_to_mikrotik') }}" method="POST" style="margin:0;">
                 @csrf
@@ -142,12 +148,15 @@
                                 @endif
                             </td>
                             <td style="text-align: center;">
-                                <span class="badge text-[10px] font-bold py-0.5 px-2" style="background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;">
+                                <span class="badge text-[10px] font-bold py-0.5 px-2" style="background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;" title="{{ $paket->customers_count }} Pelanggan, {{ $paket->pppoes_count ?? 0 }} Akun PPPoE">
                                     {{ number_format($paket->customers_count) }}
                                 </span>
                             </td>
                             <td style="text-align: center;">
                                 <div class="flex items-center justify-center gap-1.5">
+                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
+                                        onclick="openMigrateModal({{ $paket->id }}, @js($paket->nama_paket), {{ $paket->customers_count }}, {{ $paket->pppoes_count ?? 0 }})"
+                                        title="Pindahkan Pelanggan ke Paket Lain"><i class="fa-solid fa-arrow-right-arrow-left text-slate-500 hover:text-indigo-600"></i></button>
                                     <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                         onclick="editPaketModal({{ $paket->id }}, @js($paket->nama_paket), @js($paket->harga), @js($paket->pajak ?? 0), @js($paket->diskon ?? 0), @js($paket->rate_limit), @js($paket->keterangan), @js($paket->local_address), @js($paket->ip_pool), @js($paket->pool_range))"
                                         title="Edit"><i class="fa-solid fa-pen-to-square text-slate-500 hover:text-amber-600"></i></button>
@@ -281,6 +290,127 @@
         </div>
     </div>
 
+    <!-- Modal Migrasi Paket Massal -->
+    <div class="modal-overlay" id="migratePaketModal">
+        <div class="modal-box max-w-xl bg-white border border-slate-300 shadow-2xl">
+            <form id="formMigratePaket" method="POST" action="{{ route('pakets.migrate') }}" onsubmit="return confirmMigrateSubmit()">
+                @csrf
+                
+                <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-sm border border-amber-200 shrink-0">
+                            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-800 m-0">Pindahkan Pelanggan Massal</h3>
+                            <p class="text-[11px] text-slate-500 font-normal m-0 mt-0.5">Alihkan seluruh pengguna dari paket lama ke paket baru secara instan</p>
+                        </div>
+                    </div>
+                    <button type="button" class="modal-close" onclick="closeCustomModal('migratePaketModal')">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="modal-body p-6 bg-white space-y-4">
+                    <!-- Notice Box -->
+                    <div class="p-3.5 rounded-xl border border-amber-200 bg-amber-50/70 text-amber-900 text-xs flex gap-2.5 items-start">
+                        <i class="fa-solid fa-circle-exclamation text-amber-600 text-sm mt-0.5 shrink-0"></i>
+                        <div class="leading-relaxed">
+                            Aksi ini akan mengalihkan <strong>seluruh Pelanggan & Akun PPPoE</strong> dari Paket Asal ke Paket Tujuan, memperbarui group limitasi di <strong>FreeRADIUS</strong>, serta dapat menyesuaikan nilai tagihan invoice <em>unpaid</em> secara otomatis.
+                        </div>
+                    </div>
+
+                    <!-- Paket Asal -->
+                    <div class="form-group mb-0">
+                        <label class="form-label text-slate-700 font-semibold text-xs mb-1.5 block">
+                            Paket Asal (Yang Ingin Dialihkan) <span class="text-rose-500">*</span>
+                        </label>
+                        <select name="source_paket_id" id="migrate_source_paket_id" class="form-select text-xs font-medium text-slate-800 border-slate-300 w-full" required onchange="onSourcePaketChanged()">
+                            <option value="">-- Pilih Paket Asal --</option>
+                            @foreach($pakets as $p)
+                                <option value="{{ $p->id }}" 
+                                    data-nama="{{ $p->nama_paket }}" 
+                                    data-customers="{{ $p->customers_count }}" 
+                                    data-pppoes="{{ $p->pppoes_count ?? 0 }}"
+                                    data-total="{{ number_format($p->total_harga, 0, ',', '.') }}">
+                                    {{ $p->nama_paket }} ({{ $p->customers_count }} Pelanggan / {{ $p->pppoes_count ?? 0 }} PPPoE) - Rp {{ number_format($p->total_harga, 0, ',', '.') }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <div id="sourcePaketStats" class="mt-2 hidden">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                <i class="fa-solid fa-users text-indigo-500"></i>
+                                <span id="sourceStatsText">0 Pelanggan terdaftar</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Divider Icon -->
+                    <div class="flex items-center justify-center my-0.5">
+                        <div class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs border border-slate-200 shadow-xs">
+                            <i class="fa-solid fa-arrow-down"></i>
+                        </div>
+                    </div>
+
+                    <!-- Paket Tujuan -->
+                    <div class="form-group mb-0">
+                        <label class="form-label text-slate-700 font-semibold text-xs mb-1.5 block">
+                            Paket Tujuan (Paket Baru) <span class="text-rose-500">*</span>
+                        </label>
+                        <select name="target_paket_id" id="migrate_target_paket_id" class="form-select text-xs font-medium text-slate-800 border-slate-300 w-full" required>
+                            <option value="">-- Pilih Paket Tujuan --</option>
+                            @foreach($pakets as $p)
+                                <option value="{{ $p->id }}" 
+                                    data-nama="{{ $p->nama_paket }}" 
+                                    data-rate="{{ $p->rate_limit ?? '-' }}"
+                                    data-total="{{ number_format($p->total_harga, 0, ',', '.') }}">
+                                    {{ $p->nama_paket }} [Limit: {{ $p->rate_limit ?? '-' }}] - Rp {{ number_format($p->total_harga, 0, ',', '.') }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Options Checkbox Card -->
+                    <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 space-y-3">
+                        <div class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Opsi Penyesuaian Sistem</div>
+                        
+                        <!-- Checkbox Sync Invoices -->
+                        <label class="flex items-start gap-2.5 cursor-pointer">
+                            <input type="checkbox" name="sync_unpaid_invoices" value="1" checked class="mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                            <div>
+                                <span class="text-xs font-semibold text-slate-800 block">Sesuaikan tagihan belum lunas (unpaid)</span>
+                                <span class="text-[11px] text-slate-500 block leading-tight mt-0.5">
+                                    Otomatis perbarui nominal tagihan invoice 'unpaid' milik pelanggan yang dialihkan sesuai harga dan tarif paket baru.
+                                </span>
+                            </div>
+                        </label>
+
+                        <!-- Checkbox Kick MikroTik Sessions -->
+                        <label class="flex items-start gap-2.5 cursor-pointer pt-2 border-t border-slate-200">
+                            <input type="checkbox" name="kick_sessions" value="1" class="mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                            <div>
+                                <span class="text-xs font-semibold text-slate-800 block">Putuskan (Kick) sesi aktif MikroTik saat ini</span>
+                                <span class="text-[11px] text-slate-500 block leading-tight mt-0.5">
+                                    Putuskan sesi PPPoE aktif di router MikroTik agar pelanggan reconnect dan langsung menerapkan batas bandwidth baru tanpa restart router.
+                                </span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between gap-2.5">
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
+                        onclick="closeCustomModal('migratePaketModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
+                    </button>
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold !bg-amber-600 hover:!bg-amber-700 shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrow-right-arrow-left"></i> Pindahkan Pelanggan Massal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     @section('Scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
@@ -366,6 +496,82 @@
                     modal.classList.remove('open');
                     document.body.style.overflow = '';
                 }
+            }
+
+            function openMigrateModal(sourceId, sourceName, customerCount, pppoeCount) {
+                const modal = document.getElementById('migratePaketModal');
+                if (!modal) return;
+
+                if (sourceId) {
+                    $('#migrate_source_paket_id').val(sourceId);
+                    onSourcePaketChanged();
+                } else {
+                    $('#migrate_source_paket_id').val('');
+                    $('#sourcePaketStats').addClass('hidden');
+                }
+
+                $('#migrate_target_paket_id').val('');
+                updateTargetOptions();
+
+                modal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function onSourcePaketChanged() {
+                const sourceSelect = document.getElementById('migrate_source_paket_id');
+                const selectedOption = sourceSelect.options[sourceSelect.selectedIndex];
+                
+                if (selectedOption && selectedOption.value) {
+                    const custCount = selectedOption.getAttribute('data-customers') || 0;
+                    const pppoeCount = selectedOption.getAttribute('data-pppoes') || 0;
+                    $('#sourceStatsText').text(`${custCount} Pelanggan & ${pppoeCount} Akun PPPoE akan dipindahkan`);
+                    $('#sourcePaketStats').removeClass('hidden');
+                } else {
+                    $('#sourcePaketStats').addClass('hidden');
+                }
+
+                updateTargetOptions();
+            }
+
+            function updateTargetOptions() {
+                const sourceId = $('#migrate_source_paket_id').val();
+                $('#migrate_target_paket_id option').each(function() {
+                    const val = $(this).val();
+                    if (val && val === sourceId) {
+                        $(this).prop('disabled', true).hide();
+                    } else {
+                        $(this).prop('disabled', false).show();
+                    }
+                });
+
+                if ($('#migrate_target_paket_id').val() === sourceId) {
+                    $('#migrate_target_paket_id').val('');
+                }
+            }
+
+            function confirmMigrateSubmit() {
+                const sourceId = $('#migrate_source_paket_id').val();
+                const targetId = $('#migrate_target_paket_id').val();
+
+                if (!sourceId) {
+                    alert('Silakan pilih Paket Asal terlebih dahulu.');
+                    return false;
+                }
+
+                if (!targetId) {
+                    alert('Silakan pilih Paket Tujuan terlebih dahulu.');
+                    return false;
+                }
+
+                if (sourceId === targetId) {
+                    alert('Paket Asal dan Paket Tujuan tidak boleh sama.');
+                    return false;
+                }
+
+                const sourceText = $('#migrate_source_paket_id option:selected').text().trim();
+                const targetText = $('#migrate_target_paket_id option:selected').text().trim();
+
+                return confirm(`PERINGATAN MIGRASI PAKET:\n\nApakah Anda yakin ingin memindahkan seluruh pengguna dari:\n"${sourceText}"\n\nMenjadi:\n"${targetText}"?\n\nPerubahan ini akan diterapkan langsung ke database, FreeRADIUS, dan tagihan invoice yang belum lunas.`);
             }
         </script>
     @endsection

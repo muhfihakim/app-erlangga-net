@@ -104,6 +104,7 @@ Route::middleware(['auth.custom'])->group(function () {
         // Manage Paket
         Route::get('/pakets', [\App\Http\Controllers\PaketController::class, 'index'])->name('pakets.index');
         Route::post('/pakets', [\App\Http\Controllers\PaketController::class, 'store'])->name('pakets.store');
+        Route::post('/pakets/migrate', [\App\Http\Controllers\PaketController::class, 'migrateCustomers'])->name('pakets.migrate');
         Route::put('/pakets/{paket}', [\App\Http\Controllers\PaketController::class, 'update'])->name('pakets.update');
         Route::delete('/pakets/{paket}', [\App\Http\Controllers\PaketController::class, 'destroy'])->name('pakets.destroy');
         Route::post('/pakets/sync-to-mikrotik', [\App\Http\Controllers\PaketController::class, 'syncToMikrotik'])->name('pakets.sync_to_mikrotik');
