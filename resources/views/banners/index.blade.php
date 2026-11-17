@@ -1,4 +1,4 @@
-<x-layouts.app title="Promosi & Informasi (Banner Mobile)">
+<x-layouts.app title="Promosi & Informasi">
     @section('Css')
         <style>
             .banner-preview-box {
@@ -37,9 +37,7 @@
     <!-- Header Section -->
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
-            <h1 style="font-size:22px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
-                <i class="fa-solid fa-bullhorn text-sky-600"></i> Promosi & Informasi
-            </h1>
+            <h1 style="font-size:22px;font-weight:900;margin:0;">Promosi & Informasi</h1>
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">
                 Kelola banner slide show & promosi mobile apps, atur periode tayang, urutan, serta link tindakan WhatsApp / Web.
             </p>
@@ -221,290 +219,265 @@
     <!-- ========================================================================= -->
     <!-- MODAL 1: TAMBAH PROMOSI / BANNER                                          -->
     <!-- ========================================================================= -->
-    <div id="createBannerModal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" onclick="closeCustomModal('createBannerModal')"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+    <div class="modal-overlay" id="createBannerModal">
+        <div class="modal-box max-w-xl bg-white border border-slate-300 shadow-2xl">
+            <form id="createBannerForm" action="{{ route('banners.store') }}" method="POST" enctype="multipart/form-data" onsubmit="handleCreateSubmit(event)">
+                @csrf
+                <!-- Header Modal -->
+                <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Tambah Promosi & Informasi</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Unggah banner untuk slider mobile app.</p>
+                    </div>
+                    <button type="button" class="modal-close" onclick="closeCustomModal('createBannerModal')">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
 
-            <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border border-slate-100">
-                <form id="createBannerForm" action="{{ route('banners.store') }}" method="POST" enctype="multipart/form-data" onsubmit="handleCreateSubmit(event)">
-                    @csrf
-                    <!-- Header Modal -->
-                    <div class="bg-gradient-to-r from-sky-600 to-sky-700 px-6 py-4 flex items-center justify-between text-white">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-white">
-                                <i class="fa-solid fa-plus text-sm"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-base font-bold leading-none">Tambah Banner Promosi & Informasi</h3>
-                                <p class="text-sky-100 text-xs mt-1">Unggah banner untuk slider mobile app.</p>
-                            </div>
-                        </div>
-                        <button type="button" onclick="closeCustomModal('createBannerModal')" class="text-white/80 hover:text-white transition">
-                            <i class="fa-solid fa-xmark text-lg"></i>
-                        </button>
+                <!-- Body Modal -->
+                <div class="modal-body p-6 space-y-4 text-xs bg-white">
+                    <!-- Judul Promosi -->
+                    <div>
+                        <label class="font-semibold text-slate-700 block mb-1">Judul Promosi / Pengumuman <span class="text-rose-500">*</span></label>
+                        <input type="text" name="judul" required maxlength="150" placeholder="Contoh: Promo Spesial Paket Gamer 50 Mbps" 
+                            class="form-input !h-9 !text-xs w-full border-slate-300 rounded-lg focus:ring-sky-500 focus:border-sky-500">
                     </div>
 
-                    <!-- Body Modal -->
-                    <div class="p-6 space-y-4 text-xs">
-                        <!-- Judul Promosi -->
+                    <!-- Upload Banner Image & Live Preview -->
+                    <div>
+                        <label class="font-semibold text-slate-700 block mb-1">Gambar Banner <span class="text-rose-500">*</span></label>
+                        <div class="flex flex-col sm:flex-row items-center gap-4">
+                            <div class="banner-preview-box" id="create_preview_wrap">
+                                <span class="text-slate-400 text-center text-[11px] p-2" id="create_preview_placeholder">
+                                    <i class="fa-regular fa-image text-2xl block mb-1 text-slate-300"></i>
+                                    Preview Banner
+                                </span>
+                                <img id="create_preview_img" src="" alt="Preview Banner" class="hidden">
+                            </div>
+                            <div class="flex-1 w-full">
+                                <input type="file" name="banner_image" id="create_banner_file" required accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                                    onchange="handleImagePreview(event, 'create_preview_img', 'create_preview_placeholder')"
+                                    class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 cursor-pointer border border-slate-200 rounded-lg">
+                                <p class="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
+                                    Format: <b>JPG, PNG, WEBP</b>. Ukuran proporsional <b>320 x 100 px</b> agar tampilan slider di layar HP rapi tanpa terpotong.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Urutan Penayangan -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="font-semibold text-slate-700 block mb-1">Judul Promosi / Pengumuman <span class="text-rose-500">*</span></label>
-                            <input type="text" name="judul" required maxlength="150" placeholder="Contoh: Promo Spesial Paket Gamer 50 Mbps" 
-                                class="form-input !h-9 !text-xs w-full border-slate-300 rounded-lg focus:ring-sky-500 focus:border-sky-500">
-                        </div>
-
-                        <!-- Upload Banner Image & Live Preview -->
-                        <div>
-                            <label class="font-semibold text-slate-700 block mb-1">Gambar Banner <span class="text-rose-500">*</span></label>
-                            <div class="flex flex-col sm:flex-row items-center gap-4">
-                                <div class="banner-preview-box" id="create_preview_wrap">
-                                    <span class="text-slate-400 text-center text-[11px] p-2" id="create_preview_placeholder">
-                                        <i class="fa-regular fa-image text-2xl block mb-1 text-slate-300"></i>
-                                        Preview Banner
-                                    </span>
-                                    <img id="create_preview_img" src="" alt="Preview Banner" class="hidden">
-                                </div>
-                                <div class="flex-1 w-full">
-                                    <input type="file" name="banner_image" id="create_banner_file" required accept="image/jpeg,image/png,image/webp,image/svg+xml"
-                                        onchange="handleImagePreview(event, 'create_preview_img', 'create_preview_placeholder')"
-                                        class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 cursor-pointer border border-slate-200 rounded-lg">
-                                    <p class="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
-                                        Format: <b>JPG, PNG, WEBP</b>. Ukuran proporsional <b>320 x 100 px</b> agar tampilan slider di layar HP rapi tanpa terpotong.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Urutan Penayangan -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="font-semibold text-slate-700 block mb-1">Urutan Slide (Sorting)</label>
-                                <input type="number" name="urutan" value="1" min="1" max="999" 
-                                    class="form-input !h-9 !text-xs w-full border-slate-300 rounded-lg">
-                                <span class="text-[10px] text-slate-400">Angka 1 akan tayang di urutan slide pertama.</span>
-                            </div>
-                            <div>
-                                <label class="font-semibold text-slate-700 block mb-1">Status Banner</label>
-                                <div class="mt-2 flex items-center gap-2">
-                                    <input type="checkbox" name="is_active" id="create_is_active" value="1" checked class="w-4 h-4 text-sky-600 rounded border-slate-300 focus:ring-sky-500">
-                                    <label for="create_is_active" class="text-xs font-medium text-slate-700 cursor-pointer">Langsung Aktifkan Penayangan</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Tanggal Penayangan (Tanggal Mulai & Selesai) -->
-                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
-                            <div class="flex items-center justify-between mb-2">
-                                <label class="font-bold text-slate-700 text-xs">Tanggal Penayangan Banner (Mulai & Selesai)</label>
-                                <label class="inline-flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-600">
-                                    <input type="checkbox" id="create_no_end_date" onchange="toggleEndDate('create', this.checked)" class="rounded text-sky-600 w-3.5 h-3.5">
-                                    <span>Tanpa Batas Waktu (Permanen)</span>
-                                </label>
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <span class="text-[11px] text-slate-500 block mb-1">Mulai Tayang:</span>
-                                    <input type="date" name="tanggal_mulai" id="create_tanggal_mulai" value="{{ date('Y-m-d') }}"
-                                        class="form-input !h-8.5 !text-xs w-full border-slate-300 rounded-lg">
-                                </div>
-                                <div id="create_end_date_wrap">
-                                    <span class="text-[11px] text-slate-500 block mb-1">Berakhir Tayang:</span>
-                                    <input type="date" name="tanggal_selesai" id="create_tanggal_selesai"
-                                        class="form-input !h-8.5 !text-xs w-full border-slate-300 rounded-lg">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Tindakan / Link Tujuan (Web / WhatsApp) -->
-                        <div>
-                            <div class="flex items-center justify-between mb-1">
-                                <label class="font-semibold text-slate-700 block">Tindakan Saat Banner Diklik (Link / WhatsApp)</label>
-                                <button type="button" onclick="fillWaTemplate('create')" class="text-emerald-600 hover:text-emerald-700 font-semibold text-[11px] flex items-center gap-1">
-                                    <i class="fa-brands fa-whatsapp"></i> Gunakan WhatsApp CS
-                                </button>
-                            </div>
-                            <input type="text" name="link_url" id="create_link_url" placeholder="Contoh: https://wa.me/{{ $defaultWa }}?text=Halo%20Admin%20saya%20tertarik%20promo" 
+                            <label class="font-semibold text-slate-700 block mb-1">Urutan Slide (Sorting)</label>
+                            <input type="number" name="urutan" value="1" min="1" max="999" 
                                 class="form-input !h-9 !text-xs w-full border-slate-300 rounded-lg">
-                            <span class="text-[10px] text-slate-400 block mt-1">Kosongkan jika banner hanya untuk dilihat dan tidak bisa diklik.</span>
+                            <span class="text-[10px] text-slate-400">Angka 1 akan tayang di urutan slide pertama.</span>
                         </div>
-
-                        <!-- Deskripsi Singkat (Internal Note) -->
                         <div>
-                            <label class="font-semibold text-slate-700 block mb-1">Catatan / Deskripsi (Opsional)</label>
-                            <textarea name="deskripsi" rows="2" placeholder="Catatan internal mengenai banner atau promosi ini..." 
-                                class="form-input !text-xs w-full border-slate-300 rounded-lg"></textarea>
+                            <label class="font-semibold text-slate-700 block mb-1">Status Banner</label>
+                            <div class="mt-2 flex items-center gap-2">
+                                <input type="checkbox" name="is_active" id="create_is_active" value="1" checked class="w-4 h-4 text-sky-600 rounded border-slate-300 focus:ring-sky-500">
+                                <label for="create_is_active" class="text-xs font-medium text-slate-700 cursor-pointer">Langsung Aktifkan Penayangan</label>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Footer Modal -->
-                    <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-200 flex items-center justify-end gap-2">
-                        <button type="button" onclick="closeCustomModal('createBannerModal')" class="btn-secondary !h-8.5 !px-4 text-xs font-semibold">
-                            Batal
-                        </button>
-                        <button type="submit" id="btnSubmitCreate" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
-                            <i class="fa-solid fa-cloud-arrow-up"></i> Simpan Banner
-                        </button>
+                    <!-- Tanggal Penayangan (Tanggal Mulai & Selesai) -->
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="font-bold text-slate-700 text-xs">Tanggal Penayangan Banner (Mulai & Selesai)</label>
+                            <label class="inline-flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-600">
+                                <input type="checkbox" id="create_no_end_date" onchange="toggleEndDate('create', this.checked)" class="rounded text-sky-600 w-3.5 h-3.5">
+                                <span>Tanpa Batas Waktu (Permanen)</span>
+                            </label>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <span class="text-[11px] text-slate-500 block mb-1">Mulai Tayang:</span>
+                                <input type="date" name="tanggal_mulai" id="create_tanggal_mulai" value="{{ date('Y-m-d') }}"
+                                    class="form-input !h-8.5 !text-xs w-full border-slate-300 rounded-lg">
+                            </div>
+                            <div id="create_end_date_wrap">
+                                <span class="text-[11px] text-slate-500 block mb-1">Berakhir Tayang:</span>
+                                <input type="date" name="tanggal_selesai" id="create_tanggal_selesai"
+                                    class="form-input !h-8.5 !text-xs w-full border-slate-300 rounded-lg">
+                            </div>
+                        </div>
                     </div>
-                </form>
-            </div>
+
+                    <!-- Tindakan / Link Tujuan (Web / WhatsApp) -->
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="font-semibold text-slate-700 block">Tindakan Saat Banner Diklik (Link / WhatsApp)</label>
+                            <button type="button" onclick="fillWaTemplate('create')" class="text-emerald-600 hover:text-emerald-700 font-semibold text-[11px] flex items-center gap-1">
+                                <i class="fa-brands fa-whatsapp"></i> Gunakan WhatsApp CS
+                            </button>
+                        </div>
+                        <input type="text" name="link_url" id="create_link_url" placeholder="Contoh: https://wa.me/{{ $defaultWa }}?text=Halo%20Admin%20saya%20tertarik%20promo" 
+                            class="form-input !h-9 !text-xs w-full border-slate-300 rounded-lg">
+                        <span class="text-[10px] text-slate-400 block mt-1">Kosongkan jika banner hanya untuk dilihat dan tidak bisa diklik.</span>
+                    </div>
+
+                    <!-- Deskripsi Singkat (Internal Note) -->
+                    <div>
+                        <label class="font-semibold text-slate-700 block mb-1">Catatan / Deskripsi (Opsional)</label>
+                        <textarea name="deskripsi" rows="2" placeholder="Catatan internal mengenai banner atau promosi ini..." 
+                            class="form-input !text-xs w-full border-slate-300 rounded-lg"></textarea>
+                    </div>
+                </div>
+
+                <!-- Footer Modal -->
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3.5 flex items-center justify-end gap-2">
+                    <button type="button" onclick="closeCustomModal('createBannerModal')" class="btn-secondary !h-8.5 !px-4 text-xs font-semibold">
+                        Batal
+                    </button>
+                    <button type="submit" id="btnSubmitCreate" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Simpan Banner
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
     <!-- ========================================================================= -->
     <!-- MODAL 2: EDIT PROMOSI / BANNER                                            -->
     <!-- ========================================================================= -->
-    <div id="editBannerModal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" onclick="closeCustomModal('editBannerModal')"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+    <div class="modal-overlay" id="editBannerModal">
+        <div class="modal-box max-w-xl bg-white border border-slate-300 shadow-2xl">
+            <form id="editBannerForm" method="POST" enctype="multipart/form-data" onsubmit="handleEditSubmit(event)">
+                @csrf
+                @method('PUT')
+                <!-- Header Modal -->
+                <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Edit Promosi & Informasi</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Perbarui detail banner atau ganti gambar promosi.</p>
+                    </div>
+                    <button type="button" class="modal-close" onclick="closeCustomModal('editBannerModal')">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
 
-            <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full border border-slate-100">
-                <form id="editBannerForm" method="POST" enctype="multipart/form-data" onsubmit="handleEditSubmit(event)">
-                    @csrf
-                    @method('PUT')
-                    <!-- Header Modal -->
-                    <div class="bg-gradient-to-r from-amber-600 to-amber-700 px-6 py-4 flex items-center justify-between text-white">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-white">
-                                <i class="fa-solid fa-pen-to-square text-sm"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-base font-bold leading-none">Edit Banner Promosi & Informasi</h3>
-                                <p class="text-amber-100 text-xs mt-1">Perbarui detail banner atau ganti gambar promosi.</p>
-                            </div>
-                        </div>
-                        <button type="button" onclick="closeCustomModal('editBannerModal')" class="text-white/80 hover:text-white transition">
-                            <i class="fa-solid fa-xmark text-lg"></i>
-                        </button>
+                <!-- Body Modal -->
+                <div class="modal-body p-6 space-y-4 text-xs bg-white">
+                    <!-- Judul Promosi -->
+                    <div>
+                        <label class="font-semibold text-slate-700 block mb-1">Judul Promosi / Pengumuman <span class="text-rose-500">*</span></label>
+                        <input type="text" name="judul" id="edit_judul" required maxlength="150" 
+                            class="form-input !h-9 !text-xs w-full border-slate-300 rounded-lg focus:ring-sky-500 focus:border-sky-500">
                     </div>
 
-                    <!-- Body Modal -->
-                    <div class="p-6 space-y-4 text-xs">
-                        <!-- Judul Promosi -->
+                    <!-- Upload Banner Image & Live Preview -->
+                    <div>
+                        <label class="font-semibold text-slate-700 block mb-1">Ganti Gambar Banner (Biarkan kosong jika tidak ingin mengganti)</label>
+                        <div class="flex flex-col sm:flex-row items-center gap-4">
+                            <div class="banner-preview-box" id="edit_preview_wrap">
+                                <img id="edit_preview_img" src="" alt="Preview Banner" class="w-full h-full object-cover">
+                            </div>
+                            <div class="flex-1 w-full">
+                                <input type="file" name="banner_image" id="edit_banner_file" accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                                    onchange="handleImagePreview(event, 'edit_preview_img', null)"
+                                    class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 cursor-pointer border border-slate-200 rounded-lg">
+                                <p class="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
+                                    Format: <b>JPG, PNG, WEBP</b>. Ukuran proporsional <b>320 x 100 px</b>. File baru akan menggantikan gambar banner lama.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Urutan Penayangan -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="font-semibold text-slate-700 block mb-1">Judul Promosi / Pengumuman <span class="text-rose-500">*</span></label>
-                            <input type="text" name="judul" id="edit_judul" required maxlength="150" 
-                                class="form-input !h-9 !text-xs w-full border-slate-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
-                        </div>
-
-                        <!-- Upload Banner Image & Live Preview -->
-                        <div>
-                            <label class="font-semibold text-slate-700 block mb-1">Ganti Gambar Banner (Biarkan kosong jika tidak ingin mengganti)</label>
-                            <div class="flex flex-col sm:flex-row items-center gap-4">
-                                <div class="banner-preview-box" id="edit_preview_wrap">
-                                    <img id="edit_preview_img" src="" alt="Preview Banner" class="w-full h-full object-cover">
-                                </div>
-                                <div class="flex-1 w-full">
-                                    <input type="file" name="banner_image" id="edit_banner_file" accept="image/jpeg,image/png,image/webp,image/svg+xml"
-                                        onchange="handleImagePreview(event, 'edit_preview_img', null)"
-                                        class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 cursor-pointer border border-slate-200 rounded-lg">
-                                    <p class="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
-                                        Rekomendasi rasio: <b>320 x 100 px</b>. File baru akan menggantikan gambar banner lama.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Urutan Penayangan -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="font-semibold text-slate-700 block mb-1">Urutan Slide (Sorting)</label>
-                                <input type="number" name="urutan" id="edit_urutan" min="1" max="999" 
-                                    class="form-input !h-9 !text-xs w-full border-slate-300 rounded-lg">
-                            </div>
-                            <div>
-                                <label class="font-semibold text-slate-700 block mb-1">Status Banner</label>
-                                <div class="mt-2 flex items-center gap-2">
-                                    <input type="checkbox" name="is_active" id="edit_is_active" value="1" class="w-4 h-4 text-amber-600 rounded border-slate-300 focus:ring-amber-500">
-                                    <label for="edit_is_active" class="text-xs font-medium text-slate-700 cursor-pointer">Aktifkan Penayangan</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Tanggal Penayangan (Tanggal Mulai & Selesai) -->
-                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
-                            <div class="flex items-center justify-between mb-2">
-                                <label class="font-bold text-slate-700 text-xs">Tanggal Penayangan Banner (Mulai & Selesai)</label>
-                                <label class="inline-flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-600">
-                                    <input type="checkbox" id="edit_no_end_date" onchange="toggleEndDate('edit', this.checked)" class="rounded text-amber-600 w-3.5 h-3.5">
-                                    <span>Tanpa Batas Waktu (Permanen)</span>
-                                </label>
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <span class="text-[11px] text-slate-500 block mb-1">Mulai Tayang:</span>
-                                    <input type="date" name="tanggal_mulai" id="edit_tanggal_mulai" 
-                                        class="form-input !h-8.5 !text-xs w-full border-slate-300 rounded-lg">
-                                </div>
-                                <div id="edit_end_date_wrap">
-                                    <span class="text-[11px] text-slate-500 block mb-1">Berakhir Tayang:</span>
-                                    <input type="date" name="tanggal_selesai" id="edit_tanggal_selesai" 
-                                        class="form-input !h-8.5 !text-xs w-full border-slate-300 rounded-lg">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Tindakan / Link Tujuan -->
-                        <div>
-                            <div class="flex items-center justify-between mb-1">
-                                <label class="font-semibold text-slate-700 block">Tindakan Saat Banner Diklik (Link / WhatsApp)</label>
-                                <button type="button" onclick="fillWaTemplate('edit')" class="text-emerald-600 hover:text-emerald-700 font-semibold text-[11px] flex items-center gap-1">
-                                    <i class="fa-brands fa-whatsapp"></i> Gunakan WhatsApp CS
-                                </button>
-                            </div>
-                            <input type="text" name="link_url" id="edit_link_url" 
+                            <label class="font-semibold text-slate-700 block mb-1">Urutan Slide (Sorting)</label>
+                            <input type="number" name="urutan" id="edit_urutan" min="1" max="999" 
                                 class="form-input !h-9 !text-xs w-full border-slate-300 rounded-lg">
                         </div>
-
-                        <!-- Deskripsi Singkat -->
                         <div>
-                            <label class="font-semibold text-slate-700 block mb-1">Catatan / Deskripsi (Opsional)</label>
-                            <textarea name="deskripsi" id="edit_deskripsi" rows="2" 
-                                class="form-input !text-xs w-full border-slate-300 rounded-lg"></textarea>
+                            <label class="font-semibold text-slate-700 block mb-1">Status Banner</label>
+                            <div class="mt-2 flex items-center gap-2">
+                                <input type="checkbox" name="is_active" id="edit_is_active" value="1" class="w-4 h-4 text-sky-600 rounded border-slate-300 focus:ring-sky-500">
+                                <label for="edit_is_active" class="text-xs font-medium text-slate-700 cursor-pointer">Aktifkan Penayangan</label>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Footer Modal -->
-                    <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-200 flex items-center justify-end gap-2">
-                        <button type="button" onclick="closeCustomModal('editBannerModal')" class="btn-secondary !h-8.5 !px-4 text-xs font-semibold">
-                            Batal
-                        </button>
-                        <button type="submit" id="btnSubmitEdit" class="btn-primary-admin !bg-amber-600 hover:!bg-amber-700 !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
-                            <i class="fa-solid fa-check"></i> Perbarui Banner
-                        </button>
+                    <!-- Tanggal Penayangan (Tanggal Mulai & Selesai) -->
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="font-bold text-slate-700 text-xs">Tanggal Penayangan Banner (Mulai & Selesai)</label>
+                            <label class="inline-flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-600">
+                                <input type="checkbox" id="edit_no_end_date" onchange="toggleEndDate('edit', this.checked)" class="rounded text-sky-600 w-3.5 h-3.5">
+                                <span>Tanpa Batas Waktu (Permanen)</span>
+                            </label>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <span class="text-[11px] text-slate-500 block mb-1">Mulai Tayang:</span>
+                                <input type="date" name="tanggal_mulai" id="edit_tanggal_mulai" 
+                                    class="form-input !h-8.5 !text-xs w-full border-slate-300 rounded-lg">
+                            </div>
+                            <div id="edit_end_date_wrap">
+                                <span class="text-[11px] text-slate-500 block mb-1">Berakhir Tayang:</span>
+                                <input type="date" name="tanggal_selesai" id="edit_tanggal_selesai" 
+                                    class="form-input !h-8.5 !text-xs w-full border-slate-300 rounded-lg">
+                            </div>
+                        </div>
                     </div>
-                </form>
-            </div>
+
+                    <!-- Tindakan / Link Tujuan -->
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="font-semibold text-slate-700 block">Tindakan Saat Banner Diklik (Link / WhatsApp)</label>
+                            <button type="button" onclick="fillWaTemplate('edit')" class="text-emerald-600 hover:text-emerald-700 font-semibold text-[11px] flex items-center gap-1">
+                                <i class="fa-brands fa-whatsapp"></i> Gunakan WhatsApp CS
+                            </button>
+                        </div>
+                        <input type="text" name="link_url" id="edit_link_url" 
+                            class="form-input !h-9 !text-xs w-full border-slate-300 rounded-lg">
+                    </div>
+
+                    <!-- Deskripsi Singkat -->
+                    <div>
+                        <label class="font-semibold text-slate-700 block mb-1">Catatan / Deskripsi (Opsional)</label>
+                        <textarea name="deskripsi" id="edit_deskripsi" rows="2" 
+                            class="form-input !text-xs w-full border-slate-300 rounded-lg"></textarea>
+                    </div>
+                </div>
+
+                <!-- Footer Modal -->
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3.5 flex items-center justify-end gap-2">
+                    <button type="button" onclick="closeCustomModal('editBannerModal')" class="btn-secondary !h-8.5 !px-4 text-xs font-semibold">
+                        Batal
+                    </button>
+                    <button type="submit" id="btnSubmitEdit" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-check"></i> Perbarui Banner
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
     <!-- ========================================================================= -->
     <!-- MODAL 3: KONFIRMASI HAPUS BANNER                                          -->
     <!-- ========================================================================= -->
-    <div id="deleteBannerModal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" onclick="closeCustomModal('deleteBannerModal')"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-            <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-slate-100 p-6">
-                <div class="text-center">
-                    <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-3">
-                        <i class="fa-solid fa-trash-can text-lg"></i>
-                    </div>
-                    <h3 class="text-base font-bold text-slate-800">Hapus Banner Promosi?</h3>
-                    <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">
-                        Banner <b id="delete_banner_title" class="text-slate-800"></b> akan dihapus permanen dari sistem dan aplikasi mobile pelanggan.
-                    </p>
+    <div class="modal-overlay modal-centered" id="deleteBannerModal">
+        <div class="modal-box max-w-sm bg-white border border-slate-300 shadow-2xl p-6">
+            <div class="text-center">
+                <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-3">
+                    <i class="fa-solid fa-trash-can text-lg"></i>
                 </div>
-                <div class="mt-6 flex items-center justify-center gap-2">
-                    <button type="button" onclick="closeCustomModal('deleteBannerModal')" class="btn-secondary !h-8.5 !px-4 text-xs font-semibold">
-                        Batal
-                    </button>
-                    <button type="button" id="btnConfirmDelete" onclick="executeDeleteBanner()" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
-                        <i class="fa-solid fa-trash"></i> Hapus Sekarang
-                    </button>
-                </div>
+                <h3 class="text-base font-bold text-slate-800 m-0">Hapus Promosi & Informasi</h3>
+                <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                    Banner <b id="delete_banner_title" class="text-slate-800"></b> akan dihapus permanen dari sistem dan aplikasi mobile pelanggan.
+                </p>
+            </div>
+            <div class="mt-6 flex items-center justify-center gap-2">
+                <button type="button" onclick="closeCustomModal('deleteBannerModal')" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold">
+                    Batal
+                </button>
+                <button type="button" id="btnConfirmDelete" onclick="executeDeleteBanner()" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <i class="fa-solid fa-trash"></i> Hapus Sekarang
+                </button>
             </div>
         </div>
     </div>
@@ -514,10 +487,15 @@
             const defaultSupportWa = "{{ $defaultWa }}";
             let pendingDeleteId = null;
 
+            $(document).ready(function() {
+                $('.modal-overlay').on('click', function(e) {
+                    if (e.target === this) closeCustomModal(this.id);
+                });
+            });
+
             function openCustomModal(modalId) {
                 const modal = document.getElementById(modalId);
                 if (modal) {
-                    modal.classList.remove('hidden');
                     modal.classList.add('open');
                     document.body.style.overflow = 'hidden';
                 }
@@ -526,9 +504,8 @@
             function closeCustomModal(modalId) {
                 const modal = document.getElementById(modalId);
                 if (modal) {
-                    modal.classList.add('hidden');
                     modal.classList.remove('open');
-                    if (!document.querySelector('.open:not(.hidden)')) {
+                    if (!document.querySelector('.modal-overlay.open')) {
                         document.body.style.overflow = '';
                     }
                 }
