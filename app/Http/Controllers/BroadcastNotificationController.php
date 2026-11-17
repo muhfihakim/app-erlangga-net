@@ -205,7 +205,7 @@ class BroadcastNotificationController extends Controller
     }
 
     /**
-     * Hapus riwayat log broadcast
+     * Hapus riwayat log broadcast dan bersihkan notifikasi in-app pada aplikasi mobile pelanggan
      */
     public function destroy(Request $request, $broadcast = null)
     {
@@ -222,15 +222,27 @@ class BroadcastNotificationController extends Controller
         }
 
         if ($id) {
+            // 1. Hapus riwayat log broadcast utama di dashboard
             BroadcastNotification::where('id', $id)->delete();
+
+            // 2. Hapus seluruh notifikasi in-app pada aplikasi mobile pelanggan terkait broadcast ini
+            try {
+                \App\Models\CustomerNotification::where('data->broadcast_id', (int) $id)
+                    ->orWhere('data->broadcast_id', (string) $id)
+                    ->orWhere('data', 'like', '%"broadcast_id":' . (int) $id . '%')
+                    ->orWhere('data', 'like', '%"broadcast_id": ' . (int) $id . '%')
+                    ->delete();
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning("Gagal membersihkan customer_notifications untuk broadcast #{$id}: " . $e->getMessage());
+            }
         }
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Riwayat pemberitahuan berhasil dihapus.'
+                'message' => 'Riwayat pemberitahuan dan notifikasi aplikasi mobile berhasil dihapus.'
             ]);
         }
-        return redirect()->route('broadcasts.index')->with('success', 'Riwayat pemberitahuan berhasil dihapus.');
+        return redirect()->route('broadcasts.index')->with('success', 'Riwayat pemberitahuan dan notifikasi aplikasi mobile berhasil dihapus.');
     }
 }

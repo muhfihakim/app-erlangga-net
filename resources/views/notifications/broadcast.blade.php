@@ -463,7 +463,7 @@
                     <i class="fa-solid fa-triangle-exclamation"></i>
                 </div>
                 <h3 class="text-base font-bold text-slate-900 m-0">Hapus Riwayat Pemberitahuan?</h3>
-                <p class="text-xs text-slate-500 m-0">Log pengiriman ini akan dihapus permanen dari sistem. Tindakan ini tidak dapat dibatalkan.</p>
+                <p class="text-xs text-slate-500 m-0">Log pengiriman ini dan pesan terkait di kotak masuk aplikasi mobile pelanggan akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.</p>
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between items-center gap-2">
                 <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
@@ -737,17 +737,21 @@
                 btn.innerHTML = "<i class='fa-solid fa-circle-notch fa-spin'></i> Menghapus...";
                 btn.disabled = true;
 
-                const targetUrl = `{{ url('broadcasts') }}/${pendingDeleteId}`;
+                // Gunakan URL relatif agar kompatibel dengan SSL/HTTPS dan tidak memicu mixed-content
+                const targetUrl = `/broadcasts/${pendingDeleteId}`;
 
                 fetch(targetUrl, {
-                    method: 'DELETE',
+                    method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-HTTP-Method-Override': 'DELETE',
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
                         _method: 'DELETE',
+                        _token: '{{ csrf_token() }}',
                         id: pendingDeleteId
                     })
                 })
