@@ -192,7 +192,7 @@
                                         <i class="fa-solid fa-pen-to-square text-slate-500 hover:text-amber-600"></i>
                                     </button>
                                     <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
-                                        title="Hapus Promosi" onclick="confirmDeleteBanner({{ $b->id }}, '{{ addslashes($b->judul) }}')">
+                                        title="Hapus Promosi" onclick="confirmGlobalDelete('{{ route('banners.destroy', $b->id) }}', '{{ addslashes($b->judul) }}')">
                                         <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i>
                                     </button>
                                 </div>
@@ -262,9 +262,10 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="font-semibold text-slate-700 block mb-1">Urutan Slide (Sorting)</label>
-                            <input type="number" name="urutan" value="1" min="1" max="999" 
-                                class="form-input !h-9 !text-xs w-full border-slate-300 rounded-lg">
-                            <span class="text-[10px] text-slate-400">Angka 1 akan tayang di urutan slide pertama.</span>
+                            <select name="urutan" id="create_urutan" 
+                                class="form-input !h-9 !text-xs w-full bg-white border-slate-300 rounded-lg">
+                            </select>
+                            <span class="text-[10px] text-slate-400">Urutan slide yang tersedia untuk mobile apps.</span>
                         </div>
                         <div>
                             <label class="font-semibold text-slate-700 block mb-1">Status Banner</label>
@@ -383,8 +384,10 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="font-semibold text-slate-700 block mb-1">Urutan Slide (Sorting)</label>
-                            <input type="number" name="urutan" id="edit_urutan" min="1" max="999" 
-                                class="form-input !h-9 !text-xs w-full border-slate-300 rounded-lg">
+                            <select name="urutan" id="edit_urutan" 
+                                class="form-input !h-9 !text-xs w-full bg-white border-slate-300 rounded-lg">
+                            </select>
+                            <span class="text-[10px] text-slate-400">Pilih urutan penayangan banner ini.</span>
                         </div>
                         <div>
                             <label class="font-semibold text-slate-700 block mb-1">Status Banner</label>
@@ -447,50 +450,59 @@
         </div>
     </div>
 
-    <!-- ========================================================================= -->
-    <!-- MODAL 3: KONFIRMASI HAPUS BANNER                                          -->
-    <!-- ========================================================================= -->
-    <div class="modal-overlay modal-centered" id="deleteBannerModal">
-        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
-            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-sm border border-rose-100 shrink-0">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-base font-bold text-slate-900 m-0">Hapus Promosi & Informasi</h3>
-                        <p class="text-xs text-slate-500 m-0 mt-0.5">Konfirmasi penghapusan banner promosi.</p>
-                    </div>
-                </div>
-                <button type="button" class="modal-close" onclick="closeCustomModal('deleteBannerModal')">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <div class="modal-body p-6 bg-white">
-                <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 space-y-1">
-                    <div class="font-bold flex items-center gap-1.5 text-rose-900">
-                        <i class="fa-solid fa-triangle-exclamation"></i> Peringatan:
-                    </div>
-                    <p class="m-0 leading-relaxed text-slate-700">
-                        Apakah Anda yakin ingin menghapus banner <strong class="text-rose-700 font-bold" id="delete_banner_title"></strong>? Tindakan ini akan menghapus banner secara permanen dari sistem dan aplikasi mobile pelanggan.
-                    </p>
-                </div>
-            </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
-                <button type="button" onclick="closeCustomModal('deleteBannerModal')" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5">
-                    <i class="fa-solid fa-xmark"></i> Batal
-                </button>
-                <button type="button" id="btnConfirmDelete" onclick="executeDeleteBanner()" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
-                    <i class="fa-solid fa-trash"></i> Hapus
-                </button>
-            </div>
-        </div>
-    </div>
-
     @section('Scripts')
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
         <script>
-            let pendingDeleteId = null;
+            // Ambil daftar nomor urutan yang sudah tersimpan
+            const savedUrutans = @json($banners->pluck('urutan')->map(fn($u) => (int)$u)->values());
+
+            function getAvailableUrutans(currentUrutan = null) {
+                const currentNum = (currentUrutan !== null && currentUrutan !== '') ? Number(currentUrutan) : null;
+                const taken = new Set(
+                    savedUrutans.filter(u => currentNum === null || u !== currentNum)
+                );
+
+                const maxTaken = taken.size > 0 ? Math.max(...taken) : 0;
+                const maxOption = Math.max(maxTaken + 10, 15);
+
+                const available = [];
+                for (let i = 1; i <= maxOption; i++) {
+                    if (!taken.has(i)) {
+                        available.push(i);
+                    }
+                }
+                return available;
+            }
+
+            function renderUrutanSelect(elementId, selectedUrutan = null) {
+                const select = document.getElementById(elementId);
+                if (!select) return;
+
+                const currentNum = (selectedUrutan !== null && selectedUrutan !== '') ? Number(selectedUrutan) : null;
+                const available = getAvailableUrutans(currentNum);
+
+                if (currentNum !== null && !available.includes(currentNum)) {
+                    available.push(currentNum);
+                    available.sort((a, b) => a - b);
+                }
+
+                select.innerHTML = '';
+                available.forEach(num => {
+                    const opt = document.createElement('option');
+                    opt.value = num;
+                    if (currentNum !== null && num === currentNum) {
+                        opt.textContent = `Slide ${num} (Urutan ${num}) - Saat Ini`;
+                        opt.selected = true;
+                    } else {
+                        opt.textContent = `Slide ${num} (Urutan ${num})`;
+                    }
+                    select.appendChild(opt);
+                });
+
+                if (currentNum === null && available.length > 0) {
+                    select.value = available[0];
+                }
+            }
 
             $(document).ready(function() {
                 const table = $('#banners-table').DataTable({
@@ -512,6 +524,9 @@
                 $('#custom-search').on('keyup input', function() {
                     table.search(this.value).draw();
                 });
+
+                // Inisialisasi awal dropdown urutan di create form
+                renderUrutanSelect('create_urutan', null);
 
                 const flashToast = sessionStorage.getItem('flash_toast');
                 if (flashToast) {
@@ -553,6 +568,7 @@
                 document.getElementById('create_preview_img').classList.add('hidden');
                 document.getElementById('create_preview_placeholder').classList.remove('hidden');
                 toggleEndDate('create', false);
+                renderUrutanSelect('create_urutan', null);
                 openCustomModal('createBannerModal');
             }
 
@@ -561,7 +577,7 @@
                 form.action = `/banners/${banner.id}`;
 
                 document.getElementById('edit_judul').value = banner.judul || '';
-                document.getElementById('edit_urutan').value = banner.urutan || 1;
+                renderUrutanSelect('edit_urutan', banner.urutan);
                 document.getElementById('edit_is_active').checked = !!banner.is_active;
                 document.getElementById('edit_link_url').value = banner.link_url || '';
                 document.getElementById('edit_deskripsi').value = banner.deskripsi || '';
@@ -738,51 +754,6 @@
                 });
             }
 
-            function confirmDeleteBanner(id, title) {
-                pendingDeleteId = id;
-                document.getElementById('delete_banner_title').textContent = `"${title}"`;
-                openCustomModal('deleteBannerModal');
-            }
-
-            function executeDeleteBanner() {
-                if (!pendingDeleteId) return;
-
-                const btn = document.getElementById('btnConfirmDelete');
-                const origHtml = btn.innerHTML;
-                btn.disabled = true;
-                btn.innerHTML = "<i class='fa-solid fa-circle-notch fa-spin'></i> Menghapus...";
-
-                fetch(`/banners/${pendingDeleteId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(r => r.json().then(data => ({ ok: r.ok, data })))
-                .then(res => {
-                    if (res.ok && res.data.success) {
-                        closeCustomModal('deleteBannerModal');
-                        sessionStorage.setItem('flash_toast', JSON.stringify({ message: res.data.message, type: 'success' }));
-                        window.location.reload();
-                    } else {
-                        btn.disabled = false;
-                        btn.innerHTML = origHtml;
-                        if (typeof showToast === 'function') {
-                            showToast(res.data.message || 'Gagal menghapus banner.', 'error');
-                        }
-                    }
-                })
-                .catch(() => {
-                    btn.disabled = false;
-                    btn.innerHTML = origHtml;
-                    if (typeof showToast === 'function') {
-                        showToast('Gagal menghapus banner: kesalahan jaringan.', 'error');
-                    }
-                });
-            }
-
             // Daftarkan fungsi ke window scope agar selalu dapat diakses oleh onclick
             window.openCustomModal = openCustomModal;
             window.closeCustomModal = closeCustomModal;
@@ -793,8 +764,6 @@
             window.handleCreateSubmit = handleCreateSubmit;
             window.handleEditSubmit = handleEditSubmit;
             window.toggleBannerStatus = toggleBannerStatus;
-            window.confirmDeleteBanner = confirmDeleteBanner;
-            window.executeDeleteBanner = executeDeleteBanner;
         </script>
     @endsection
 </x-layouts.app>

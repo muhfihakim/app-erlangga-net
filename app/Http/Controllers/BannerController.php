@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class BannerController extends Controller
 {
@@ -65,18 +66,25 @@ class BannerController extends Controller
         $validator = Validator::make($request->all(), [
             'judul'           => 'required|string|max:150',
             'banner_image'    => 'required|image|mimes:jpeg,png,jpg,webp,svg|max:5120',
-            'urutan'          => 'nullable|integer|min:1|max:999',
+            'urutan'          => [
+                'nullable',
+                'integer',
+                'min:1',
+                'max:999',
+                Rule::unique('banners', 'urutan'),
+            ],
             'tanggal_mulai'   => 'nullable|date',
             'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
             'link_url'        => 'nullable|string|max:500',
             'deskripsi'       => 'nullable|string|max:500',
             'is_active'       => 'nullable',
         ], [
-            'judul.required'              => 'Judul promosi / banner wajib diisi.',
-            'banner_image.required'       => 'File gambar banner wajib diunggah.',
-            'banner_image.image'          => 'File yang diunggah harus berformat gambar.',
-            'banner_image.mimes'          => 'Format gambar yang didukung: JPG, PNG, WEBP, SVG.',
-            'banner_image.max'            => 'Ukuran gambar maksimal 5 MB.',
+            'judul.required'                 => 'Judul promosi / banner wajib diisi.',
+            'banner_image.required'          => 'File gambar banner wajib diunggah.',
+            'banner_image.image'             => 'File yang diunggah harus berformat gambar.',
+            'banner_image.mimes'             => 'Format gambar yang didukung: JPG, PNG, WEBP, SVG.',
+            'banner_image.max'               => 'Ukuran gambar maksimal 5 MB.',
+            'urutan.unique'                  => 'Urutan slide tersebut sudah digunakan oleh banner lain.',
             'tanggal_selesai.after_or_equal' => 'Tanggal berakhir penayangan tidak boleh sebelum tanggal mulai.',
         ]);
 
@@ -104,12 +112,24 @@ class BannerController extends Controller
                 $tindakanTipe = 'none';
             }
 
+            // Tentukan urutan slide berikutnya jika kosong
+            $urutan = $request->input('urutan');
+            if (empty($urutan)) {
+                $usedUrutans = Banner::pluck('urutan')->toArray();
+                $urutan = 1;
+                while (in_array($urutan, $usedUrutans)) {
+                    $urutan++;
+                }
+            } else {
+                $urutan = (int) $urutan;
+            }
+
             $banner = Banner::create([
                 'judul'           => $request->input('judul'),
                 'gambar'          => $imagePath,
                 'tanggal_mulai'   => $request->filled('tanggal_mulai') ? $request->input('tanggal_mulai') : Carbon::today()->toDateString(),
                 'tanggal_selesai' => $request->filled('tanggal_selesai') ? $request->input('tanggal_selesai') : null,
-                'urutan'          => $request->input('urutan', 1) ?: 1,
+                'urutan'          => $urutan,
                 'link_url'        => $linkUrl ?: null,
                 'tindakan_tipe'   => $tindakanTipe,
                 'deskripsi'       => $request->input('deskripsi'),
@@ -147,17 +167,24 @@ class BannerController extends Controller
         $validator = Validator::make($request->all(), [
             'judul'           => 'required|string|max:150',
             'banner_image'    => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:5120',
-            'urutan'          => 'nullable|integer|min:1|max:999',
+            'urutan'          => [
+                'nullable',
+                'integer',
+                'min:1',
+                'max:999',
+                Rule::unique('banners', 'urutan')->ignore($banner->id),
+            ],
             'tanggal_mulai'   => 'nullable|date',
             'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
             'link_url'        => 'nullable|string|max:500',
             'deskripsi'       => 'nullable|string|max:500',
             'is_active'       => 'nullable',
         ], [
-            'judul.required'              => 'Judul promosi / banner wajib diisi.',
-            'banner_image.image'          => 'File yang diunggah harus berformat gambar.',
-            'banner_image.mimes'          => 'Format gambar yang didukung: JPG, PNG, WEBP, SVG.',
-            'banner_image.max'            => 'Ukuran gambar maksimal 5 MB.',
+            'judul.required'                 => 'Judul promosi / banner wajib diisi.',
+            'banner_image.image'             => 'File yang diunggah harus berformat gambar.',
+            'banner_image.mimes'             => 'Format gambar yang didukung: JPG, PNG, WEBP, SVG.',
+            'banner_image.max'               => 'Ukuran gambar maksimal 5 MB.',
+            'urutan.unique'                  => 'Urutan slide tersebut sudah digunakan oleh banner lain.',
             'tanggal_selesai.after_or_equal' => 'Tanggal berakhir penayangan tidak boleh sebelum tanggal mulai.',
         ]);
 
@@ -177,7 +204,7 @@ class BannerController extends Controller
                 'judul'           => $request->input('judul'),
                 'tanggal_mulai'   => $request->filled('tanggal_mulai') ? $request->input('tanggal_mulai') : null,
                 'tanggal_selesai' => $request->filled('tanggal_selesai') ? $request->input('tanggal_selesai') : null,
-                'urutan'          => $request->input('urutan', 1) ?: 1,
+                'urutan'          => $request->filled('urutan') ? (int) $request->input('urutan') : $banner->urutan,
                 'deskripsi'       => $request->input('deskripsi'),
                 'is_active'       => $request->has('is_active') ? (bool) $request->input('is_active') : false,
             ];
@@ -248,7 +275,7 @@ class BannerController extends Controller
     /**
      * Hapus Banner Promosi
      */
-    public function destroy(Banner $banner)
+    public function destroy(Request $request, Banner $banner)
     {
         try {
             $imagePath = $banner->gambar;
@@ -261,16 +288,23 @@ class BannerController extends Controller
 
             $banner->delete();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Banner promosi berhasil dihapus.'
-            ]);
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Banner promosi berhasil dihapus.'
+                ]);
+            }
+
+            return redirect()->route('banners.index')->with('success', 'Banner promosi berhasil dihapus.');
         } catch (\Throwable $e) {
             Log::error('Gagal menghapus banner: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menghapus banner: ' . $e->getMessage()
-            ], 500);
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menghapus banner: ' . $e->getMessage()
+                ], 500);
+            }
+            return redirect()->route('banners.index')->with('error', 'Gagal menghapus banner: ' . $e->getMessage());
         }
     }
 
