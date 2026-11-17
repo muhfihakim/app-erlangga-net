@@ -519,7 +519,7 @@ Dipanggil setelah pelanggan selesai membayar di WebView / In-App Browser untuk m
 ### 3.0 Data Profil Lengkap & Sesi Aktif (Screen 4: `/api/profile`)
 Endpoint utama 1 Screen 1 URL untuk **Tab Profil** (`profile_screen.dart`), terstruktur khusus sesuai tampilan 3 card UI mobile:
 1. **Card Profil Saya**: `nama_lengkap`, `nomor_telepon`, `alamat`, `alamat_email`, `status_akun`
-2. **Card Akun Internet**: `nama_pengguna`, `tanggal_aktif`, `paket_layanan`
+2. **Card Akun Internet**: `nama_pengguna`, `password_pengguna`, `tanggal_aktif`, `paket_layanan`
 3. **Card Sesi Aktif**: `id_sesi`, `sesi_dimulai`, `pembaruan_terakhir`, `alamat_ip`, `alamat_mac`, `unggah`, `unduh`, `durasi_aktif`
 
 - **Method**: `GET`
@@ -544,6 +544,7 @@ Endpoint utama 1 Screen 1 URL untuk **Tab Profil** (`profile_screen.dart`), ters
       },
       "akun_internet": {
         "nama_pengguna": "nurul_tegal",
+        "password_pengguna": "123456",
         "tanggal_aktif": "20 September 2026",
         "paket_layanan": "Paket Home 20 Mbps"
       },
@@ -565,6 +566,7 @@ Endpoint utama 1 Screen 1 URL untuk **Tab Profil** (`profile_screen.dart`), ters
       "alamat_email": "nuruladhira@gmail.com",
       "status_akun": "Aktif",
       "nama_pengguna": "nurul_tegal",
+      "password_pengguna": "123456",
       "tanggal_aktif": "20 September 2026",
       "paket_layanan": "Paket Home 20 Mbps",
       "id_sesi": "82a1bc40",

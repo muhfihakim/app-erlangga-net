@@ -8,6 +8,7 @@ use App\Models\CustomerNotification;
 use App\Models\Invoice;
 use App\Models\Paket;
 use App\Models\Radacct;
+use App\Models\Radcheck;
 use App\Models\Setting;
 use App\Services\GenieAcsService;
 use Carbon\Carbon;
@@ -688,6 +689,25 @@ class ScreenController extends Controller
         $statusAkun = $statusAkunBadge;
 
         $namaPengguna = (string) ($customer->pppoe_username ?: ($pppoe?->username ?: '-'));
+        $passwordPengguna = (string) ($customer->pppoe_password ?: ($pppoe?->password ?: ''));
+
+        if (empty($passwordPengguna) && !empty($usernames)) {
+            try {
+                $radcheck = Radcheck::whereIn('username', $usernames)
+                    ->where('attribute', 'Cleartext-Password')
+                    ->first();
+                if ($radcheck && !empty($radcheck->value)) {
+                    $passwordPengguna = (string) $radcheck->value;
+                }
+            } catch (\Throwable $e) {
+                // Radcheck bypass
+            }
+        }
+
+        if (empty($passwordPengguna) || $passwordPengguna === '-') {
+            $passwordPengguna = '123';
+        }
+
         $tanggalAktif = ($pppoe && $pppoe->tanggal_aktif)
             ? Carbon::parse($pppoe->tanggal_aktif)->translatedFormat('d F Y')
             : ($customer->created_at ? $customer->created_at->translatedFormat('d F Y') : '-');
@@ -708,9 +728,10 @@ class ScreenController extends Controller
 
                 // Card 2: Akun Internet (Sesuai image.png)
                 'akun_internet' => [
-                    'nama_pengguna' => $namaPengguna,
-                    'tanggal_aktif' => $tanggalAktif,
-                    'paket_layanan' => $paketLayanan,
+                    'nama_pengguna'     => $namaPengguna,
+                    'password_pengguna' => $passwordPengguna,
+                    'tanggal_aktif'     => $tanggalAktif,
+                    'paket_layanan'     => $paketLayanan,
                 ],
 
                 // Card 3: Sesi Aktif (Sesuai image.png)
@@ -739,6 +760,7 @@ class ScreenController extends Controller
                 'status_akun_badge'  => $statusAkun,
 
                 'nama_pengguna'      => $namaPengguna,
+                'password_pengguna'  => $passwordPengguna,
                 'pppoe_username'     => $namaPengguna,
                 'tanggal_aktif'      => $tanggalAktif,
                 'paket_layanan'      => $paketLayanan,
