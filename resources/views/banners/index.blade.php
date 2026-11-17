@@ -225,9 +225,14 @@
                 @csrf
                 <!-- Header Modal -->
                 <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-900 m-0">Tambah Promosi & Informasi</h3>
-                        <p class="text-xs text-slate-500 m-0 mt-0.5">Unggah banner untuk slider mobile app.</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center text-sm border border-slate-200 shrink-0">
+                            <i class="fa-solid fa-bullhorn"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900 m-0">Tambah Promosi & Informasi</h3>
+                            <p class="text-xs text-slate-500 m-0 mt-0.5">Unggah banner untuk slider mobile app.</p>
+                        </div>
                     </div>
                     <button type="button" class="modal-close" onclick="closeCustomModal('createBannerModal')">
                         <i class="fa-solid fa-xmark"></i>
@@ -327,12 +332,13 @@
                 </div>
 
                 <!-- Footer Modal -->
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3.5 flex items-center justify-end gap-2">
-                    <button type="button" onclick="closeCustomModal('createBannerModal')" class="btn-secondary !h-8.5 !px-4 text-xs font-semibold">
-                        Batal
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
+                    <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
+                        onclick="closeCustomModal('createBannerModal')">
+                        <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" id="btnSubmitCreate" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
-                        <i class="fa-solid fa-cloud-arrow-up"></i> Simpan Banner
+                    <button type="submit" id="btnSubmitCreate" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>
@@ -349,9 +355,14 @@
                 @method('PUT')
                 <!-- Header Modal -->
                 <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-900 m-0">Edit Promosi & Informasi</h3>
-                        <p class="text-xs text-slate-500 m-0 mt-0.5">Perbarui detail banner atau ganti gambar promosi.</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center text-sm border border-slate-200 shrink-0">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900 m-0">Edit Promosi & Informasi</h3>
+                            <p class="text-xs text-slate-500 m-0 mt-0.5">Perbarui detail banner atau ganti gambar promosi.</p>
+                        </div>
                     </div>
                     <button type="button" class="modal-close" onclick="closeCustomModal('editBannerModal')">
                         <i class="fa-solid fa-xmark"></i>
@@ -445,12 +456,12 @@
                 </div>
 
                 <!-- Footer Modal -->
-                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3.5 flex items-center justify-end gap-2">
-                    <button type="button" onclick="closeCustomModal('editBannerModal')" class="btn-secondary !h-8.5 !px-4 text-xs font-semibold">
-                        Batal
+                <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
+                    <button type="button" onclick="closeCustomModal('editBannerModal')" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" id="btnSubmitEdit" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
-                        <i class="fa-solid fa-check"></i> Perbarui Banner
+                    <button type="submit" id="btnSubmitEdit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
             </form>
@@ -461,22 +472,37 @@
     <!-- MODAL 3: KONFIRMASI HAPUS BANNER                                          -->
     <!-- ========================================================================= -->
     <div class="modal-overlay modal-centered" id="deleteBannerModal">
-        <div class="modal-box max-w-sm bg-white border border-slate-300 shadow-2xl p-6">
-            <div class="text-center">
-                <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-3">
-                    <i class="fa-solid fa-trash-can text-lg"></i>
+        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
+            <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-sm border border-rose-100 shrink-0">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 m-0">Hapus Promosi & Informasi</h3>
+                        <p class="text-xs text-slate-500 m-0 mt-0.5">Konfirmasi penghapusan banner promosi.</p>
+                    </div>
                 </div>
-                <h3 class="text-base font-bold text-slate-800 m-0">Hapus Promosi & Informasi</h3>
-                <p class="text-xs text-slate-500 mt-2 leading-relaxed">
-                    Banner <b id="delete_banner_title" class="text-slate-800"></b> akan dihapus permanen dari sistem dan aplikasi mobile pelanggan.
-                </p>
+                <button type="button" class="modal-close" onclick="closeCustomModal('deleteBannerModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
-            <div class="mt-6 flex items-center justify-center gap-2">
-                <button type="button" onclick="closeCustomModal('deleteBannerModal')" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold">
-                    Batal
+            <div class="modal-body p-6 bg-white">
+                <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 space-y-1">
+                    <div class="font-bold flex items-center gap-1.5 text-rose-900">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Peringatan:
+                    </div>
+                    <p class="m-0 leading-relaxed text-slate-700">
+                        Apakah Anda yakin ingin menghapus banner <strong class="text-rose-700 font-bold" id="delete_banner_title"></strong>? Tindakan ini akan menghapus banner secara permanen dari sistem dan aplikasi mobile pelanggan.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-between">
+                <button type="button" onclick="closeCustomModal('deleteBannerModal')" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5">
+                    <i class="fa-solid fa-xmark"></i> Batal
                 </button>
                 <button type="button" id="btnConfirmDelete" onclick="executeDeleteBanner()" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
-                    <i class="fa-solid fa-trash"></i> Hapus Sekarang
+                    <i class="fa-solid fa-trash"></i> Hapus
                 </button>
             </div>
         </div>
