@@ -944,6 +944,90 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "6. Promosi & Banner Slider",
+      "item": [
+        {
+          "name": "6.1 Daftar Banner Promosi Aktif",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/banner/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "banner",
+                ""
+              ]
+            },
+            "description": "Menampilkan daftar banner slider promosi aktif (ukuran 320x100 px) untuk slide show pada mobile app pelanggan. Setiap item banner berisi gambar_url, judul, link_url tindakan (misal link WhatsApp CS atau Web Promo)."
+          },
+          "response": [
+            {
+              "name": "200 OK - Daftar Banner Promosi",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Data banner promosi berhasil dimuat.\",\n  \"total\": 1,\n  \"data\": [\n    {\n      \"id\": 1,\n      \"judul\": \"Promo Upgrade Kecepatan 50 Mbps\",\n      \"gambar_url\": \"https://s3.ap-southeast-1.amazonaws.com/erlangga-storage/banners/sample-promo.webp\",\n      \"link_url\": \"https://wa.me/6282191285271?text=Halo%20Admin%20saya%20tertarik%20promo\",\n      \"urutan\": 1,\n      \"tanggal_mulai\": \"2026-11-17\",\n      \"tanggal_selesai\": \"2026-12-31\",\n      \"is_active\": true\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "6.2 Track Klik Banner",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/banner/1/click",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "banner",
+                "1",
+                "click"
+              ]
+            },
+            "description": "Mencatat statistik interaksi klik pelanggan pada banner promosi tertentu."
+          },
+          "response": [
+            {
+              "name": "200 OK - Klik Tercatat",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Klik banner berhasil dicatat.\",\n  \"data\": {\n    \"id\": 1,\n    \"judul\": \"Promo Upgrade Kecepatan 50 Mbps\",\n    \"link_url\": \"https://wa.me/6282191285271?text=Halo%20Admin%20saya%20tertarik%20promo\",\n    \"tindakan\": \"https://wa.me/6282191285271?text=Halo%20Admin%20saya%20tertarik%20promo\",\n    \"klik_count\": 1\n  }\n}"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

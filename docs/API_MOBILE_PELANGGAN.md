@@ -61,6 +61,8 @@ Authorization: Bearer <TOKEN_HASIL_LOGIN>
 | **5** | **Notifikasi & FCM** | `GET` | `https://stage.erlangga.net/api/notifications` | Protected | Feed riwayat notifikasi tagihan, bayar, & pemeliharaan |
 | | | `POST` | `https://stage.erlangga.net/api/notifications/{id}/read` | Protected | Tandai 1 notifikasi tertentu sebagai telah dibaca |
 | | | `POST` | `https://stage.erlangga.net/api/notifications/read-all` | Protected | Tandai semua notifikasi pelanggan sebagai telah dibaca |
+| **6** | **Promosi & Banner Slider** | `GET` | `https://stage.erlangga.net/api/banner/` | Public / Protected | Banner slide show / slider promosi ukuran 320x100 px & tindakan klik |
+| | | `POST` | `https://stage.erlangga.net/api/banner/{id}/click` | Public / Protected | Catat interaksi klik pelanggan pada banner promosi |
 
 ---
 
@@ -996,7 +998,61 @@ Menandai seluruh notifikasi pelanggan yang belum dibaca menjadi sudah dibaca.
 
 ---
 
-## 6️⃣ Contoh Perintah Pengujian (cURL)
+## 6️⃣ Modul Promosi & Banner Iklan Slider (Mobile App)
+
+### 6.1 Daftar Banner Promosi Aktif (`/api/banner/`)
+Endpoint untuk menampilkan carousel slider / slide show banner promosi pada beranda mobile app Flutter.
+- **Rekomendasi Rasio Gambar**: `320 x 100 px` (Rasio 3.2 : 1)
+- **Method**: `GET`
+- **URL**: `https://stage.erlangga.net/api/banner/` *(Alias: `/api/banner`, `/api/banners`)*
+- **Akses**: Public / Protected (bisa dipanggil dengan atau tanpa Bearer Token)
+- **Headers**:
+  ```http
+  Accept: application/json
+  ```
+- **Response `200 OK`**:
+  ```json
+  {
+    "success": true,
+    "message": "Data banner promosi berhasil dimuat.",
+    "total": 1,
+    "data": [
+      {
+        "id": 1,
+        "judul": "Promo Spesial Paket Gamer 50 Mbps",
+        "gambar_url": "https://s3.ap-southeast-1.amazonaws.com/erlangga-storage/banners/gamer-promo.webp",
+        "link_url": "https://wa.me/6282191285271?text=Halo%20Admin%20saya%20tertarik%20promo%20paket%20gamer",
+        "urutan": 1,
+        "tanggal_mulai": "2026-11-17",
+        "tanggal_selesai": "2026-12-31",
+        "is_active": true
+      }
+    ]
+  }
+  ```
+
+### 6.2 Track Klik Banner Promosi (`/api/banner/{id}/click`)
+Mencatat statistik klik banner promosi dari interaksi pengguna di aplikasi mobile.
+- **Method**: `POST` atau `GET`
+- **URL**: `https://stage.erlangga.net/api/banner/{id}/click`
+- **Response `200 OK`**:
+  ```json
+  {
+    "success": true,
+    "message": "Klik banner berhasil dicatat.",
+    "data": {
+      "id": 1,
+      "judul": "Promo Spesial Paket Gamer 50 Mbps",
+      "link_url": "https://wa.me/6282191285271?text=Halo%20Admin%20saya%20tertarik%20promo%20paket%20gamer",
+      "tindakan": "https://wa.me/6282191285271?text=Halo%20Admin%20saya%20tertarik%20promo%20paket%20gamer",
+      "klik_count": 142
+    }
+  }
+  ```
+
+---
+
+## 7️⃣ Contoh Perintah Pengujian (cURL)
 
 Berikut cURL template cepat untuk pengujian di terminal atau diimpor ke Postman / Bruno / Insomnia:
 

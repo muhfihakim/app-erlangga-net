@@ -10,7 +10,7 @@
         Request::is('olt*') ||
         Request::is('odp*') ||
         Request::is('genieacs*');
-    $isCustActive = Request::is('pre-orders*') || Request::is('customers*') || Request::is('maintenances*') || Request::is('broadcasts*');
+    $isCustActive = Request::is('pre-orders*') || Request::is('customers*') || Request::is('maintenances*') || Request::is('broadcasts*') || Request::is('banners*');
     $isFinActive =
         Request::is('invoices*') ||
         Request::is('transactions*') ||
@@ -137,6 +137,11 @@
                         href="{{ route('broadcasts.index') }}">
                         <i class="fa-solid fa-circle-dot"></i>
                         <span>Broadcast & Pengumuman</span>
+                    </a>
+                    <a class="sidebar-sublink {{ Request::is('banners*') ? 'active' : '' }}"
+                        href="{{ route('banners.index') }}">
+                        <i class="fa-solid fa-circle-dot"></i>
+                        <span>Promosi & Informasi</span>
                     </a>
                 @endif
             </div>

@@ -88,3 +88,10 @@ Route::get('/invoices/{invoice}/export.pdf', [PaymentController::class, 'exportP
 Route::get('/invoices/{invoice}/export-pdf', [PaymentController::class, 'exportPdf']);
 Route::get('/invoices/{invoice}/pdf', [PaymentController::class, 'exportPdf']);
 
+// --- 6. Banner Promosi & Informasi Mobile Slider (Ukuran 320x100 px) ---
+Route::get('/banner', [\App\Http\Controllers\BannerController::class, 'apiIndex']);
+Route::get('/banner/', [\App\Http\Controllers\BannerController::class, 'apiIndex']);
+Route::get('/banners', [\App\Http\Controllers\BannerController::class, 'apiIndex']);
+Route::match(['GET', 'POST'], '/banner/{id}/click', [\App\Http\Controllers\BannerController::class, 'apiClick']);
+
+

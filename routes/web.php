@@ -165,6 +165,10 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::match(['delete', 'post'], 'broadcasts/{broadcast}', [\App\Http\Controllers\BroadcastNotificationController::class, 'destroy'])->name('broadcasts.destroy');
         Route::match(['delete', 'post'], 'broadcasts', [\App\Http\Controllers\BroadcastNotificationController::class, 'destroy'])->name('broadcasts.destroy.direct');
         Route::resource('broadcasts', \App\Http\Controllers\BroadcastNotificationController::class)->only(['index', 'store']);
+
+        // Promosi & Banner Iklan Mobile (Layanan Pelanggan)
+        Route::post('/banners/{banner}/toggle-status', [\App\Http\Controllers\BannerController::class, 'toggleStatus'])->name('banners.toggle_status');
+        Route::resource('banners', \App\Http\Controllers\BannerController::class)->except(['create', 'show', 'edit']);
     });
 
     // Keuangan Teknisi

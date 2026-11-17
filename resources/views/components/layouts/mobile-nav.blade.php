@@ -151,6 +151,12 @@
                     <span>Pemeliharaan</span>
                 </a>
             @endif
+            @if ($isAdmin)
+                <a class="mobile-grid-item {{ Request::is('banners*') ? 'active' : '' }}" href="{{ route('banners.index') }}">
+                    <i class="fa-solid fa-rectangle-ad"></i>
+                    <span>Promosi</span>
+                </a>
+            @endif
         </div>
 
         {{-- 3. Gudang & Aset --}}
