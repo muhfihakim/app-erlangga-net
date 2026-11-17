@@ -153,7 +153,7 @@
             @endif
             @if ($isAdmin)
                 <a class="mobile-grid-item {{ Request::is('banners*') ? 'active' : '' }}" href="{{ route('banners.index') }}">
-                    <i class="fa-solid fa-rectangle-ad"></i>
+                    <i class="fa-solid fa-bullhorn"></i>
                     <span>Promosi</span>
                 </a>
             @endif

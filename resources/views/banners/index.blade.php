@@ -38,10 +38,10 @@
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
         <div>
             <h1 style="font-size:22px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
-                <i class="fa-solid fa-rectangle-ad text-sky-600"></i> Promosi & Informasi (Banner Iklan)
+                <i class="fa-solid fa-bullhorn text-sky-600"></i> Promosi & Informasi
             </h1>
             <p style="font-size:13px;color:#64748b;margin:3px 0 0;">
-                Kelola banner slide show & promosi mobile apps (ukuran 320x100 px), atur periode tayang, urutan, serta link tindakan WhatsApp / Web.
+                Kelola banner slide show & promosi mobile apps, atur periode tayang, urutan, serta link tindakan WhatsApp / Web.
             </p>
         </div>
         <div class="flex items-center gap-2">
@@ -113,12 +113,6 @@
                 </a>
             </div>
         </div>
-
-        <div class="flex items-center gap-2 text-xs text-slate-500">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 rounded-md font-medium text-slate-600">
-                <i class="fa-solid fa-mobile-screen text-sky-600"></i> Rasio Ideal Mobile: 320 x 100 px (3.2 : 1)
-            </span>
-        </div>
     </div>
 
     <!-- Table Section -->
@@ -128,7 +122,7 @@
                 <thead>
                     <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
                         <th class="py-3 px-3.5 text-center w-14">Urutan</th>
-                        <th class="py-3 px-3.5 w-32">Banner (320x100)</th>
+                        <th class="py-3 px-3.5 w-32">Banner</th>
                         <th class="py-3 px-3.5">Judul & Promosi</th>
                         <th class="py-3 px-3.5 w-48">Tanggal Penayangan</th>
                         <th class="py-3 px-3.5">Tindakan / Link Tujuan</th>
@@ -243,7 +237,7 @@
                             </div>
                             <div>
                                 <h3 class="text-base font-bold leading-none">Tambah Banner Promosi & Informasi</h3>
-                                <p class="text-sky-100 text-xs mt-1">Unggah banner berukuran 320 x 100 px untuk slider mobile app.</p>
+                                <p class="text-sky-100 text-xs mt-1">Unggah banner untuk slider mobile app.</p>
                             </div>
                         </div>
                         <button type="button" onclick="closeCustomModal('createBannerModal')" class="text-white/80 hover:text-white transition">
@@ -262,12 +256,12 @@
 
                         <!-- Upload Banner Image & Live Preview -->
                         <div>
-                            <label class="font-semibold text-slate-700 block mb-1">Gambar Banner (Rasio 3.2 : 1 / Ukuran 320x100 px) <span class="text-rose-500">*</span></label>
+                            <label class="font-semibold text-slate-700 block mb-1">Gambar Banner <span class="text-rose-500">*</span></label>
                             <div class="flex flex-col sm:flex-row items-center gap-4">
                                 <div class="banner-preview-box" id="create_preview_wrap">
                                     <span class="text-slate-400 text-center text-[11px] p-2" id="create_preview_placeholder">
                                         <i class="fa-regular fa-image text-2xl block mb-1 text-slate-300"></i>
-                                        Preview Banner (320 x 100 px)
+                                        Preview Banner
                                     </span>
                                     <img id="create_preview_img" src="" alt="Preview Banner" class="hidden">
                                 </div>
@@ -515,10 +509,30 @@
         </div>
     </div>
 
-    @section('Js')
+    @section('Scripts')
         <script>
             const defaultSupportWa = "{{ $defaultWa }}";
             let pendingDeleteId = null;
+
+            function openCustomModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('open');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            function closeCustomModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('open');
+                    if (!document.querySelector('.open:not(.hidden)')) {
+                        document.body.style.overflow = '';
+                    }
+                }
+            }
 
             function openCreateModal() {
                 document.getElementById('createBannerForm').reset();
@@ -780,6 +794,20 @@
                     alert('Gagal menghapus banner.');
                 });
             }
+
+            // Daftarkan fungsi ke window scope agar selalu dapat diakses oleh onclick
+            window.openCustomModal = openCustomModal;
+            window.closeCustomModal = closeCustomModal;
+            window.openCreateModal = openCreateModal;
+            window.openEditModal = openEditModal;
+            window.handleImagePreview = handleImagePreview;
+            window.toggleEndDate = toggleEndDate;
+            window.fillWaTemplate = fillWaTemplate;
+            window.handleCreateSubmit = handleCreateSubmit;
+            window.handleEditSubmit = handleEditSubmit;
+            window.toggleBannerStatus = toggleBannerStatus;
+            window.confirmDeleteBanner = confirmDeleteBanner;
+            window.executeDeleteBanner = executeDeleteBanner;
         </script>
     @endsection
 </x-layouts.app>
