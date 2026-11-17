@@ -185,11 +185,13 @@
                             </td>
                             <td class="py-3 px-3.5 text-center">
                                 <div class="flex items-center justify-center gap-1.5">
-                                    <button type="button" onclick='openEditModal(@json($b))' class="w-7 h-7 rounded-md bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-100 flex items-center justify-center transition" title="Edit Promosi">
-                                        <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
+                                        title="Edit Promosi" onclick='openEditModal(@json($b))'>
+                                        <i class="fa-solid fa-pen-to-square text-slate-500 hover:text-amber-600"></i>
                                     </button>
-                                    <button type="button" onclick="confirmDeleteBanner({{ $b->id }}, '{{ addslashes($b->judul) }}')" class="w-7 h-7 rounded-md bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 flex items-center justify-center transition" title="Hapus Promosi">
-                                        <i class="fa-solid fa-trash text-xs"></i>
+                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
+                                        title="Hapus Promosi" onclick="confirmDeleteBanner({{ $b->id }}, '{{ addslashes($b->judul) }}')">
+                                        <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i>
                                     </button>
                                 </div>
                             </td>
@@ -312,13 +314,8 @@
 
                     <!-- Tindakan / Link Tujuan (Web / WhatsApp) -->
                     <div>
-                        <div class="flex items-center justify-between mb-1">
-                            <label class="font-semibold text-slate-700 block">Tindakan Saat Banner Diklik (Link / WhatsApp)</label>
-                            <button type="button" onclick="fillWaTemplate('create')" class="text-emerald-600 hover:text-emerald-700 font-semibold text-[11px] flex items-center gap-1">
-                                <i class="fa-brands fa-whatsapp"></i> Gunakan WhatsApp CS
-                            </button>
-                        </div>
-                        <input type="text" name="link_url" id="create_link_url" placeholder="Contoh: https://wa.me/{{ $defaultWa }}?text=Halo%20Admin%20saya%20tertarik%20promo" 
+                        <label class="font-semibold text-slate-700 block mb-1">Tindakan Saat Banner Diklik (Link URL / WhatsApp)</label>
+                        <input type="text" name="link_url" id="create_link_url" placeholder="Contoh: https://erlangga.net/promo atau https://wa.me/628..." 
                             class="form-input !h-9 !text-xs w-full border-slate-300 rounded-lg">
                         <span class="text-[10px] text-slate-400 block mt-1">Kosongkan jika banner hanya untuk dilihat dan tidak bisa diklik.</span>
                     </div>
@@ -437,14 +434,10 @@
 
                     <!-- Tindakan / Link Tujuan -->
                     <div>
-                        <div class="flex items-center justify-between mb-1">
-                            <label class="font-semibold text-slate-700 block">Tindakan Saat Banner Diklik (Link / WhatsApp)</label>
-                            <button type="button" onclick="fillWaTemplate('edit')" class="text-emerald-600 hover:text-emerald-700 font-semibold text-[11px] flex items-center gap-1">
-                                <i class="fa-brands fa-whatsapp"></i> Gunakan WhatsApp CS
-                            </button>
-                        </div>
-                        <input type="text" name="link_url" id="edit_link_url" 
+                        <label class="font-semibold text-slate-700 block mb-1">Tindakan Saat Banner Diklik (Link URL / WhatsApp)</label>
+                        <input type="text" name="link_url" id="edit_link_url" placeholder="Contoh: https://erlangga.net/promo atau https://wa.me/628..." 
                             class="form-input !h-9 !text-xs w-full border-slate-300 rounded-lg">
+                        <span class="text-[10px] text-slate-400 block mt-1">Kosongkan jika banner hanya untuk dilihat dan tidak bisa diklik.</span>
                     </div>
 
                     <!-- Deskripsi Singkat -->
@@ -510,10 +503,20 @@
 
     @section('Scripts')
         <script>
-            const defaultSupportWa = "{{ $defaultWa }}";
             let pendingDeleteId = null;
 
             $(document).ready(function() {
+                const flashToast = sessionStorage.getItem('flash_toast');
+                if (flashToast) {
+                    try {
+                        const parsed = JSON.parse(flashToast);
+                        if (typeof showToast === 'function' && parsed.message) {
+                            showToast(parsed.message, parsed.type || 'success');
+                        }
+                    } catch (e) {}
+                    sessionStorage.removeItem('flash_toast');
+                }
+
                 $('.modal-overlay').on('click', function(e) {
                     if (e.target === this) closeCustomModal(this.id);
                 });
@@ -600,12 +603,6 @@
                 }
             }
 
-            function fillWaTemplate(prefix) {
-                const judul = document.getElementById(`${prefix}_judul`).value.trim() || 'Paket Internet';
-                const text = encodeURIComponent(`Halo Admin Erlangga Net, saya tertarik dengan promo: "${judul}". Boleh info detailnya?`);
-                document.getElementById(`${prefix}_link_url`).value = `https://wa.me/${defaultSupportWa}?text=${text}`;
-            }
-
             function handleCreateSubmit(e) {
                 e.preventDefault();
                 const form = document.getElementById('createBannerForm');
@@ -625,36 +622,26 @@
                         'Accept': 'application/json'
                     }
                 })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success) {
+                .then(r => r.json().then(data => ({ ok: r.ok, data })))
+                .then(res => {
+                    if (res.ok && res.data.success) {
                         closeCustomModal('createBannerModal');
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: data.message,
-                                timer: 1500,
-                                showConfirmButton: false
-                            }).then(() => window.location.reload());
-                        } else {
-                            alert(data.message);
-                            window.location.reload();
-                        }
+                        sessionStorage.setItem('flash_toast', JSON.stringify({ message: res.data.message, type: 'success' }));
+                        window.location.reload();
                     } else {
                         btn.disabled = false;
                         btn.innerHTML = origHtml;
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || 'Periksa kembali formulir.' });
-                        } else {
-                            alert(data.message || 'Periksa kembali formulir.');
+                        if (typeof showToast === 'function') {
+                            showToast(res.data.message || 'Periksa kembali formulir.', 'error');
                         }
                     }
                 })
                 .catch(err => {
                     btn.disabled = false;
                     btn.innerHTML = origHtml;
-                    alert('Terjadi kesalahan jaringan.');
+                    if (typeof showToast === 'function') {
+                        showToast('Terjadi kesalahan jaringan.', 'error');
+                    }
                 });
             }
 
@@ -677,36 +664,26 @@
                         'Accept': 'application/json'
                     }
                 })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success) {
+                .then(r => r.json().then(data => ({ ok: r.ok, data })))
+                .then(res => {
+                    if (res.ok && res.data.success) {
                         closeCustomModal('editBannerModal');
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: data.message,
-                                timer: 1500,
-                                showConfirmButton: false
-                            }).then(() => window.location.reload());
-                        } else {
-                            alert(data.message);
-                            window.location.reload();
-                        }
+                        sessionStorage.setItem('flash_toast', JSON.stringify({ message: res.data.message, type: 'success' }));
+                        window.location.reload();
                     } else {
                         btn.disabled = false;
                         btn.innerHTML = origHtml;
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || 'Periksa kembali formulir.' });
-                        } else {
-                            alert(data.message || 'Periksa kembali formulir.');
+                        if (typeof showToast === 'function') {
+                            showToast(res.data.message || 'Periksa kembali formulir.', 'error');
                         }
                     }
                 })
                 .catch(err => {
                     btn.disabled = false;
                     btn.innerHTML = origHtml;
-                    alert('Terjadi kesalahan jaringan.');
+                    if (typeof showToast === 'function') {
+                        showToast('Terjadi kesalahan jaringan.', 'error');
+                    }
                 });
             }
 
@@ -740,11 +717,17 @@
                         }
                     } else {
                         btn.textContent = origText;
+                        if (typeof showToast === 'function') {
+                            showToast(data.message || 'Gagal mengubah status banner.', 'error');
+                        }
                     }
                 })
                 .catch(() => {
                     btn.disabled = false;
                     btn.textContent = origText;
+                    if (typeof showToast === 'function') {
+                        showToast('Gagal mengubah status banner: kesalahan jaringan.', 'error');
+                    }
                 });
             }
 
@@ -770,31 +753,26 @@
                         'Accept': 'application/json'
                     }
                 })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success) {
+                .then(r => r.json().then(data => ({ ok: r.ok, data })))
+                .then(res => {
+                    if (res.ok && res.data.success) {
                         closeCustomModal('deleteBannerModal');
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Dihapus!',
-                                text: data.message,
-                                timer: 1200,
-                                showConfirmButton: false
-                            }).then(() => window.location.reload());
-                        } else {
-                            window.location.reload();
-                        }
+                        sessionStorage.setItem('flash_toast', JSON.stringify({ message: res.data.message, type: 'success' }));
+                        window.location.reload();
                     } else {
                         btn.disabled = false;
                         btn.innerHTML = origHtml;
-                        alert(data.message || 'Gagal menghapus.');
+                        if (typeof showToast === 'function') {
+                            showToast(res.data.message || 'Gagal menghapus banner.', 'error');
+                        }
                     }
                 })
                 .catch(() => {
                     btn.disabled = false;
                     btn.innerHTML = origHtml;
-                    alert('Gagal menghapus banner.');
+                    if (typeof showToast === 'function') {
+                        showToast('Gagal menghapus banner: kesalahan jaringan.', 'error');
+                    }
                 });
             }
 
@@ -805,7 +783,6 @@
             window.openEditModal = openEditModal;
             window.handleImagePreview = handleImagePreview;
             window.toggleEndDate = toggleEndDate;
-            window.fillWaTemplate = fillWaTemplate;
             window.handleCreateSubmit = handleCreateSubmit;
             window.handleEditSubmit = handleEditSubmit;
             window.toggleBannerStatus = toggleBannerStatus;
