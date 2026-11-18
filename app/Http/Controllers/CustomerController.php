@@ -19,6 +19,7 @@ use App\Services\MikroTikService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
@@ -114,30 +115,40 @@ class CustomerController extends Controller
 
         // --- 2. DATATABLES SERVER SIDE (LIGHTWEIGHT & FAST) ---
         if ($request->ajax()) {
+            $hasStatusPelangganCol = Schema::hasColumn('customers', 'status_pelanggan');
+            $hasAlasanNonaktifCol  = Schema::hasColumn('customers', 'alasan_nonaktif');
+
+            $selectCols = [
+                'customers.id',
+                'customers.pre_order_id',
+                'customers.id_pelanggan',
+                'customers.nama_lengkap',
+                'customers.no_whatsapp',
+                'customers.pppoe_username',
+                'customers.pppoe_password',
+                'customers.jenis_modem',
+                'customers.sn_perangkat',
+                'customers.pembayaran',
+                'customers.keterangan',
+                'customers.foto_petugas',
+                'customers.foto_terpasang',
+                'customers.foto_speedtest',
+                'customers.id_teknisi',
+                'customers.id_sales',
+                'customers.paket_id',
+                'customers.created_at',
+                'customers.deleted_at'
+            ];
+
+            if ($hasStatusPelangganCol) {
+                $selectCols[] = 'customers.status_pelanggan';
+            }
+            if ($hasAlasanNonaktifCol) {
+                $selectCols[] = 'customers.alasan_nonaktif';
+            }
+
             $query = Customer::withTrashed()
-                ->select([
-                    'customers.id',
-                    'customers.pre_order_id',
-                    'customers.id_pelanggan',
-                    'customers.nama_lengkap',
-                    'customers.no_whatsapp',
-                    'customers.pppoe_username',
-                    'customers.pppoe_password',
-                    'customers.jenis_modem',
-                    'customers.sn_perangkat',
-                    'customers.pembayaran',
-                    'customers.keterangan',
-                    'customers.foto_petugas',
-                    'customers.foto_terpasang',
-                    'customers.foto_speedtest',
-                    'customers.id_teknisi',
-                    'customers.id_sales',
-                    'customers.paket_id',
-                    'customers.status_pelanggan',
-                    'customers.alasan_nonaktif',
-                    'customers.created_at',
-                    'customers.deleted_at'
-                ])
+                ->select($selectCols)
                 ->with([
                     'teknisiUtama:id,nama_lengkap',
                     'sales:id,nama_lengkap',
@@ -153,23 +164,39 @@ class CustomerController extends Controller
             if ($request->filled('status_filter')) {
                 $statusFilter = $request->status_filter;
                 if ($statusFilter === 'aktif') {
-                    $query->whereNull('customers.deleted_at')->where(function($q) {
-                        $q->whereNull('customers.status_pelanggan')->orWhere('customers.status_pelanggan', 'aktif');
-                    });
+                    $query->whereNull('customers.deleted_at');
+                    if ($hasStatusPelangganCol) {
+                        $query->where(function($q) {
+                            $q->whereNull('customers.status_pelanggan')->orWhere('customers.status_pelanggan', 'aktif');
+                        });
+                    }
                 } elseif ($statusFilter === 'non_aktif') {
-                    $query->where(function($q) {
-                        $q->onlyTrashed()->orWhere('customers.status_pelanggan', 'non_aktif');
+                    $query->where(function($q) use ($hasStatusPelangganCol) {
+                        $q->onlyTrashed();
+                        if ($hasStatusPelangganCol) {
+                            $q->orWhere('customers.status_pelanggan', 'non_aktif');
+                        }
                     });
                 } elseif ($statusFilter === 'non_aktif_berhenti') {
-                    $query->where(function($q) {
-                        $q->onlyTrashed()->orWhere('customers.status_pelanggan', 'non_aktif');
-                    })->where(function($q) {
-                        $q->where('customers.alasan_nonaktif', 'tidak_berlangganan')->orWhereNull('customers.alasan_nonaktif');
+                    $query->where(function($q) use ($hasStatusPelangganCol) {
+                        $q->onlyTrashed();
+                        if ($hasStatusPelangganCol) {
+                            $q->orWhere('customers.status_pelanggan', 'non_aktif');
+                        }
                     });
+                    if ($hasAlasanNonaktifCol) {
+                        $query->where(function($q) {
+                            $q->where('customers.alasan_nonaktif', 'tidak_berlangganan')->orWhereNull('customers.alasan_nonaktif');
+                        });
+                    }
                 } elseif ($statusFilter === 'non_aktif_isolir3bln') {
-                    $query->where(function($q) {
-                        $q->onlyTrashed()->orWhere('customers.status_pelanggan', 'non_aktif');
-                    })->where('customers.alasan_nonaktif', 'isolir_3_bulan');
+                    if ($hasStatusPelangganCol && $hasAlasanNonaktifCol) {
+                        $query->where(function($q) {
+                            $q->onlyTrashed()->orWhere('customers.status_pelanggan', 'non_aktif');
+                        })->where('customers.alasan_nonaktif', 'isolir_3_bulan');
+                    } else {
+                        $query->whereRaw('0 = 1');
+                    }
                 } elseif ($statusFilter === 'isolir') {
                     $isolirUsernames = \App\Models\Pppoe::where('is_isolir', 1)->pluck('username')->toArray();
                     $query->whereNull('customers.deleted_at')->whereIn('customers.pppoe_username', $isolirUsernames);
@@ -236,8 +263,8 @@ class CustomerController extends Controller
                     $isIsolir = (bool)$pIsolir;
 
                     // Subtle neutral status badge (similar to /pre-orders)
-                    if ($customer->trashed() || $customer->status_pelanggan === 'non_aktif') {
-                        if ($customer->alasan_nonaktif === 'isolir_3_bulan') {
+                    if ($customer->trashed() || (($customer->status_pelanggan ?? null) === 'non_aktif')) {
+                        if (($customer->alasan_nonaktif ?? null) === 'isolir_3_bulan') {
                             $badgeStatus = '<span class="badge text-[10px] font-semibold py-0.5 px-2 bg-amber-50 text-amber-800 border border-amber-200" title="Non-Aktif: 3 Bulan Isolir Tanpa Pembayaran">Non-Aktif (3 Bln Isolir)</span>';
                         } else {
                             $badgeStatus = '<span class="badge text-[10px] font-semibold py-0.5 px-2 bg-slate-100 text-slate-600 border border-slate-200" title="Non-Aktif: Sudah Tidak Berlangganan">Non-Aktif (Berhenti)</span>';
