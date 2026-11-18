@@ -33,13 +33,42 @@ class Customer extends Model
         'foto_speedtest',
         'fcm_token',
         'fcm_updated_at',
+        'status_pelanggan',
+        'alasan_nonaktif',
+        'nonaktif_at',
     ];
 
     protected $casts = [
         'partner_ids'    => 'array',
         'deleted_at'     => 'datetime',
         'fcm_updated_at' => 'datetime',
+        'nonaktif_at'    => 'datetime',
     ];
+
+    /**
+     * Cek apakah pelanggan berstatus non-aktif
+     */
+    public function isNonAktif(): bool
+    {
+        return $this->trashed() || $this->status_pelanggan === 'non_aktif';
+    }
+
+    /**
+     * Cek apakah pelanggan berstatus isolir
+     */
+    public function isIsolir(): bool
+    {
+        if ($this->isNonAktif()) return false;
+        return $this->status_pelanggan === 'isolir' || (bool) $this->pppoe?->is_isolir;
+    }
+
+    /**
+     * Cek apakah pelanggan berstatus aktif
+     */
+    public function isAktif(): bool
+    {
+        return !$this->isNonAktif() && !$this->isIsolir();
+    }
 
     public function notifications()
     {

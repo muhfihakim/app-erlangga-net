@@ -133,6 +133,8 @@ class CustomerController extends Controller
                     'customers.id_teknisi',
                     'customers.id_sales',
                     'customers.paket_id',
+                    'customers.status_pelanggan',
+                    'customers.alasan_nonaktif',
                     'customers.created_at',
                     'customers.deleted_at'
                 ])
@@ -151,9 +153,23 @@ class CustomerController extends Controller
             if ($request->filled('status_filter')) {
                 $statusFilter = $request->status_filter;
                 if ($statusFilter === 'aktif') {
-                    $query->whereNull('customers.deleted_at');
+                    $query->whereNull('customers.deleted_at')->where(function($q) {
+                        $q->whereNull('customers.status_pelanggan')->orWhere('customers.status_pelanggan', 'aktif');
+                    });
                 } elseif ($statusFilter === 'non_aktif') {
-                    $query->onlyTrashed();
+                    $query->where(function($q) {
+                        $q->onlyTrashed()->orWhere('customers.status_pelanggan', 'non_aktif');
+                    });
+                } elseif ($statusFilter === 'non_aktif_berhenti') {
+                    $query->where(function($q) {
+                        $q->onlyTrashed()->orWhere('customers.status_pelanggan', 'non_aktif');
+                    })->where(function($q) {
+                        $q->where('customers.alasan_nonaktif', 'tidak_berlangganan')->orWhereNull('customers.alasan_nonaktif');
+                    });
+                } elseif ($statusFilter === 'non_aktif_isolir3bln') {
+                    $query->where(function($q) {
+                        $q->onlyTrashed()->orWhere('customers.status_pelanggan', 'non_aktif');
+                    })->where('customers.alasan_nonaktif', 'isolir_3_bulan');
                 } elseif ($statusFilter === 'isolir') {
                     $isolirUsernames = \App\Models\Pppoe::where('is_isolir', 1)->pluck('username')->toArray();
                     $query->whereNull('customers.deleted_at')->whereIn('customers.pppoe_username', $isolirUsernames);
@@ -220,8 +236,12 @@ class CustomerController extends Controller
                     $isIsolir = (bool)$pIsolir;
 
                     // Subtle neutral status badge (similar to /pre-orders)
-                    if ($customer->trashed()) {
-                        $badgeStatus = '<span class="badge text-[10px] font-semibold py-0.5 px-2 bg-slate-100 text-slate-500 border border-slate-200">Non-Aktif</span>';
+                    if ($customer->trashed() || $customer->status_pelanggan === 'non_aktif') {
+                        if ($customer->alasan_nonaktif === 'isolir_3_bulan') {
+                            $badgeStatus = '<span class="badge text-[10px] font-semibold py-0.5 px-2 bg-amber-50 text-amber-800 border border-amber-200" title="Non-Aktif: 3 Bulan Isolir Tanpa Pembayaran">Non-Aktif (3 Bln Isolir)</span>';
+                        } else {
+                            $badgeStatus = '<span class="badge text-[10px] font-semibold py-0.5 px-2 bg-slate-100 text-slate-600 border border-slate-200" title="Non-Aktif: Sudah Tidak Berlangganan">Non-Aktif (Berhenti)</span>';
+                        }
                     } elseif ($isIsolir) {
                         $badgeStatus = '<span class="badge text-[10px] font-semibold py-0.5 px-2 bg-rose-50 text-rose-700 border border-rose-200">Isolir</span>';
                     } elseif ($isOnline) {
@@ -932,6 +952,11 @@ class CustomerController extends Controller
     {
         $customer = Customer::onlyTrashed()->findOrFail($id);
         $customer->restore(); 
+        $customer->update([
+            'status_pelanggan' => 'aktif',
+            'alasan_nonaktif'  => null,
+            'nonaktif_at'      => null,
+        ]);
 
         $username = $customer->pppoe_username;
         $pppoe = Pppoe::where('username', $username)
@@ -975,10 +1000,15 @@ class CustomerController extends Controller
         return redirect()->back()->with('success', "Pelanggan berhasil diaktifkan kembali dan kredensial RADIUS dipulihkan.");
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $customer = Customer::findOrFail($id);
         $username = $customer->pppoe_username;
+        $alasan = $request->input('alasan_nonaktif', 'tidak_berlangganan');
+
+        $alasanLabel = ($alasan === 'isolir_3_bulan')
+            ? 'Non-Aktif: Tenggat 3 bulan isolir tanpa pembayaran'
+            : 'Non-Aktif: Sudah Tidak Berlangganan (Arsip)';
 
         // Nonaktifkan akun PPPoE
         $pppoe = Pppoe::where('username', $username)
@@ -988,7 +1018,7 @@ class CustomerController extends Controller
         if ($pppoe) {
             $pppoe->update([
                 'is_isolir' => true,
-                'isolir_reason' => 'Pelanggan Dinonaktifkan (Arsip)',
+                'isolir_reason' => $alasanLabel,
                 'isolir_at' => now(),
             ]);
         }
@@ -1004,16 +1034,21 @@ class CustomerController extends Controller
             Log::warning("Radius disconnect error on Customer delete ({$username}): " . $e->getMessage());
         }
 
+        $customer->update([
+            'status_pelanggan' => 'non_aktif',
+            'alasan_nonaktif'  => $alasan,
+            'nonaktif_at'      => now(),
+        ]);
         $customer->delete(); 
 
         ActivityLog::create([
             'user_id' => auth()->id(),
             'activity_type' => 'customer_delete',
-            'description' => "Menonaktifkan pelanggan: " . $customer->nama_lengkap,
+            'description' => "Menonaktifkan pelanggan: {$customer->nama_lengkap} ({$alasanLabel})",
             'logged_at' => now(),
         ]);
 
-        return redirect()->back()->with('success', "Pelanggan {$customer->nama_lengkap} berhasil dinonaktifkan (arsip) dan koneksi internet diputus.");
+        return redirect()->back()->with('success', "Pelanggan {$customer->nama_lengkap} berhasil dinonaktifkan ({$alasanLabel}) dan koneksi internet diputus.");
     }
 
     public function forceDelete($id)

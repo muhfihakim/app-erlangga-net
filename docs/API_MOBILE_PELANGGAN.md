@@ -267,6 +267,145 @@ Digunakan oleh aplikasi mobile (Android / iOS) untuk mendaftarkan atau memperbar
 
 ---
 
+### 1.5 Home Screen & Dashboard API (Screen 1: `/api/dashboard`)
+Endpoint utama 1 Screen 1 URL untuk **Tab Beranda / Home Screen** (`home_screen.dart`), menggabungkan status akun, informasi popup, status koneksi internet, paket aktif, dan ringkasan tagihan.
+
+- **Method**: `GET`
+- **URL**: `https://stage.erlangga.net/api/dashboard` *(Alias: `/api/screens/home`)*
+- **Headers**:
+  ```http
+  Accept: application/json
+  Authorization: Bearer <TOKEN_PELANGGAN>
+  ```
+
+#### 🛡️ Spesifikasi Status Akun & Popup Mobile App:
+| Status Akun (`status_akun`) | Alasan (`alasan_nonaktif`) | Popup (`show_popup`) | Judul Popup | Pesan / Deskripsi Status (`status_akun_deskripsi`) | Action Button |
+|---|---|:---:|---|---|---|
+| **`aktif`** | `null` | `false` | *Layanan Aktif* | Layanan internet Anda aktif dan dapat digunakan dengan normal. | - |
+| **`isolir`** | `null` | `true` | *Layanan Terisolir* | Layanan internet Anda saat ini terisolir karena terdapat tagihan yang belum dibayar. Silakan lakukan pembayaran tagihan untuk mengaktifkan kembali koneksi internet Anda. | Bayar Tagihan (`bayar_tagihan`) |
+| **`non_aktif`** | **`isolir_3_bulan`** | `true` | *Layanan Dinonaktifkan* | Layanan anda di nonaktifkan silahkan hubungi admin untuk informasi lebih lanjutt | Hubungi Admin (`hubungi_admin`) |
+| **`non_aktif`** | **`tidak_berlangganan`** | `true` | *Layanan Non-Aktif* | Layanan Anda saat ini berstatus Non-Aktif (Sudah Tidak Berlangganan). Silakan hubungi admin untuk informasi lebih lanjut. | Hubungi Admin (`hubungi_admin`) |
+
+- **Response `200 OK` (Contoh Akun Non-Aktif karena 3 Bulan Isolir)**:
+  ```json
+  {
+    "success": true,
+    "message": "Data Home Screen / Dashboard berhasil dimuat.",
+    "data": {
+      "id": 1,
+      "id_pelanggan": "23114957687",
+      "nama_lengkap": "Sofi Setiawan",
+      "pppoe_username": "Sofisetpgl@erlangga.net",
+      "alamat_lengkap": "Blok Tegal RT. 02 RW. 03 Subang",
+      "sn_perangkat": "ZTEGC1234567",
+      "tanggal_aktif": "2026-09-29",
+      "nama_paket": "Paket Bronze 112K",
+      "kecepatan": "100M/22M",
+      "harga": 112000,
+      "total_harga": 336000,
+      "status": "Offline",
+      "status_akun": "non_aktif",
+      "status_akun_label": "Non-Aktif",
+      "status_akun_badge": "Non-Aktif",
+      "alasan_nonaktif": "isolir_3_bulan",
+      "status_akun_deskripsi": "Layanan anda di nonaktifkan silahkan hubungi admin untuk informasi lebih lanjutt",
+      "deskripsi_status": "Layanan anda di nonaktifkan silahkan hubungi admin untuk informasi lebih lanjutt",
+      "popup": {
+        "show": true,
+        "show_popup": true,
+        "status": "non_aktif",
+        "status_label": "Non-Aktif",
+        "alasan": "isolir_3_bulan",
+        "title": "Layanan Dinonaktifkan",
+        "judul": "Layanan Dinonaktifkan",
+        "message": "Layanan anda di nonaktifkan silahkan hubungi admin untuk informasi lebih lanjutt",
+        "pesan": "Layanan anda di nonaktifkan silahkan hubungi admin untuk informasi lebih lanjutt",
+        "action_type": "hubungi_admin",
+        "action_label": "Hubungi Admin",
+        "admin_contact": "6281234567890"
+      },
+      "popup_status": {
+        "show": true,
+        "show_popup": true,
+        "status": "non_aktif",
+        "status_label": "Non-Aktif",
+        "alasan": "isolir_3_bulan",
+        "title": "Layanan Dinonaktifkan",
+        "judul": "Layanan Dinonaktifkan",
+        "message": "Layanan anda di nonaktifkan silahkan hubungi admin untuk informasi lebih lanjutt",
+        "pesan": "Layanan anda di nonaktifkan silahkan hubungi admin untuk informasi lebih lanjutt",
+        "action_type": "hubungi_admin",
+        "action_label": "Hubungi Admin",
+        "admin_contact": "6281234567890"
+      },
+      "status_invoice": "belum_bayar",
+      "has_unpaid_bill": true,
+      "unpaid_invoices_count": 3,
+      "customer": {
+        "id": 1,
+        "id_pelanggan": "23114957687",
+        "nama_lengkap": "Sofi Setiawan",
+        "no_whatsapp": "082191285271",
+        "alamat_lengkap": "Blok Tegal RT. 02 RW. 03 Subang",
+        "sn_perangkat": "ZTEGC1234567",
+        "jenis_modem": "EPON",
+        "status_akun": "non_aktif",
+        "status_akun_label": "Non-Aktif",
+        "alasan_nonaktif": "isolir_3_bulan",
+        "status_akun_deskripsi": "Layanan anda di nonaktifkan silahkan hubungi admin untuk informasi lebih lanjutt"
+      },
+      "koneksi": {
+        "pppoe_username": "Sofisetpgl@erlangga.net",
+        "status": "Offline",
+        "is_online": false,
+        "ip_address": "10.10.20.45",
+        "uptime": "-",
+        "rx_power": null
+      },
+      "paket": {
+        "id": 1,
+        "nama_paket": "Paket Bronze 112K",
+        "kecepatan": "100M/22M",
+        "harga": 112000,
+        "total_harga": 112000
+      },
+      "paket_tersedia": [
+        {
+          "id": 1,
+          "nama_paket": "Paket Bronze 112K",
+          "kecepatan": "100M/22M",
+          "harga": 112000,
+          "total_harga": 112000,
+          "is_current": true
+        }
+      ],
+      "tagihan": {
+        "status_akun": "non_aktif",
+        "status_akun_label": "Non-Aktif",
+        "alasan_nonaktif": "isolir_3_bulan",
+        "status_akun_deskripsi": "Layanan anda di nonaktifkan silahkan hubungi admin untuk informasi lebih lanjutt",
+        "status_invoice": "belum_bayar",
+        "status": "expired",
+        "status_badge": "Kedaluwarsa",
+        "is_expired": true,
+        "has_unpaid_bill": true,
+        "unpaid_invoices_count": 3,
+        "total_harga": 336000,
+        "external_id": "INV-202609-0001",
+        "invoice_id": 45,
+        "periode": "Tagihan September 2026",
+        "due_date": "2026-09-05",
+        "penyesuaian": 0,
+        "catatan_penyesuaian": null,
+        "invoice_url": "",
+        "invoice_export": "https://stage.erlangga.net/api/invoices/45/export.pdf"
+      }
+    }
+  }
+  ```
+
+---
+
 ## 2️⃣ Modul Pembayaran & Payment Gateway
 
 ### 💡 Panduan Siklus Status Tagihan & Link Pembayaran (Mobile Best Practice)

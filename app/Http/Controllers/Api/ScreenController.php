@@ -176,13 +176,73 @@ class ScreenController extends Controller
 
         $statusKoneksi = $isOnline ? 'Online' : 'Offline';
 
-        // 4. Status Akun Pelanggan (aktif / isolir / non_aktif)
+        // 4. Status Akun Pelanggan (aktif / isolir / non_aktif) & Metadata Popup
         $isIsolir = (bool) ($pppoe && $pppoe->is_isolir);
         if ($hasUnpaidBill && $isEarliestExpired) {
             $isIsolir = true;
         }
 
-        $statusAkun = $isIsolir ? 'isolir' : ($customer->trashed() ? 'non_aktif' : 'aktif');
+        if ($customer->trashed() || $customer->status_pelanggan === 'non_aktif') {
+            $statusAkun = 'non_aktif';
+        } elseif ($isIsolir || $customer->status_pelanggan === 'isolir') {
+            $statusAkun = 'isolir';
+        } else {
+            $statusAkun = 'aktif';
+        }
+
+        // Alasan jika Non-Aktif (tidak_berlangganan / isolir_3_bulan)
+        $alasanNonaktif = null;
+        if ($statusAkun === 'non_aktif') {
+            $alasanNonaktif = $customer->alasan_nonaktif ?: 'tidak_berlangganan';
+        }
+
+        // Kontak admin / CS untuk aksi popup
+        $adminContact = Setting::get('company_phone', Setting::get('cs_whatsapp', '6281234567890'));
+
+        $showPopup = false;
+        $popupTitle = 'Status Layanan';
+        $popupAction = null;
+        $popupActionLabel = null;
+        $statusAkunLabel = 'Aktif';
+        $statusAkunDeskripsi = 'Layanan internet Anda aktif dan dapat digunakan dengan normal.';
+
+        if ($statusAkun === 'non_aktif') {
+            $statusAkunLabel = 'Non-Aktif';
+            $showPopup = true;
+            if ($alasanNonaktif === 'isolir_3_bulan') {
+                $popupTitle = 'Layanan Dinonaktifkan';
+                $statusAkunDeskripsi = 'Layanan anda di nonaktifkan silahkan hubungi admin untuk informasi lebih lanjutt';
+                $popupAction = 'hubungi_admin';
+                $popupActionLabel = 'Hubungi Admin';
+            } else {
+                $popupTitle = 'Layanan Non-Aktif';
+                $statusAkunDeskripsi = 'Layanan Anda saat ini berstatus Non-Aktif (Sudah Tidak Berlangganan). Silakan hubungi admin untuk informasi lebih lanjut.';
+                $popupAction = 'hubungi_admin';
+                $popupActionLabel = 'Hubungi Admin';
+            }
+        } elseif ($statusAkun === 'isolir') {
+            $statusAkunLabel = 'Terisolir';
+            $showPopup = true;
+            $popupTitle = 'Layanan Terisolir';
+            $statusAkunDeskripsi = 'Layanan internet Anda saat ini terisolir karena terdapat tagihan yang belum dibayar. Silakan lakukan pembayaran tagihan untuk mengaktifkan kembali koneksi internet Anda.';
+            $popupAction = 'bayar_tagihan';
+            $popupActionLabel = 'Bayar Tagihan';
+        }
+
+        $popupData = [
+            'show'          => $showPopup,
+            'show_popup'    => $showPopup,
+            'status'        => $statusAkun,
+            'status_label'  => $statusAkunLabel,
+            'alasan'        => $alasanNonaktif,
+            'title'         => $popupTitle,
+            'judul'         => $popupTitle,
+            'message'       => $statusAkunDeskripsi,
+            'pesan'         => $statusAkunDeskripsi,
+            'action_type'   => $popupAction,
+            'action_label'  => $popupActionLabel,
+            'admin_contact' => $adminContact,
+        ];
 
         $tanggalAktifStr = ($pppoe && $pppoe->tanggal_aktif)
             ? ($pppoe->tanggal_aktif instanceof \DateTimeInterface ? $pppoe->tanggal_aktif->format('Y-m-d') : substr((string)$pppoe->tanggal_aktif, 0, 10))
@@ -204,20 +264,30 @@ class ScreenController extends Controller
             'total_harga'           => $hasUnpaidBill ? $totalTunggakan : $totalHargaPaket,
             'status'                => $statusKoneksi,
             'status_akun'           => $statusAkun,
+            'status_akun_label'     => $statusAkunLabel,
+            'status_akun_badge'     => $statusAkunLabel,
+            'alasan_nonaktif'       => $alasanNonaktif,
+            'status_akun_deskripsi' => $statusAkunDeskripsi,
+            'deskripsi_status'      => $statusAkunDeskripsi,
+            'popup'                 => $popupData,
+            'popup_status'          => $popupData,
             'status_invoice'        => $statusInvoice,
             'has_unpaid_bill'       => $hasUnpaidBill,
             'unpaid_invoices_count' => $unpaidCount,
 
             // Nested categories untuk widget modular (StatusSection, InfoPaketSection, TagihanSection)
             'customer' => [
-                'id'             => $customer->id,
-                'id_pelanggan'   => $customer->id_pelanggan,
-                'nama_lengkap'   => $customer->nama_lengkap,
-                'no_whatsapp'    => $customer->no_whatsapp,
-                'alamat_lengkap' => $customer->alamat_lengkap,
-                'sn_perangkat'   => $customer->sn_perangkat,
-                'jenis_modem'    => $customer->jenis_modem,
-                'status_akun'    => $statusAkun,
+                'id'                    => $customer->id,
+                'id_pelanggan'          => $customer->id_pelanggan,
+                'nama_lengkap'          => $customer->nama_lengkap,
+                'no_whatsapp'           => $customer->no_whatsapp,
+                'alamat_lengkap'        => $customer->alamat_lengkap,
+                'sn_perangkat'          => $customer->sn_perangkat,
+                'jenis_modem'           => $customer->jenis_modem,
+                'status_akun'           => $statusAkun,
+                'status_akun_label'     => $statusAkunLabel,
+                'alasan_nonaktif'       => $alasanNonaktif,
+                'status_akun_deskripsi' => $statusAkunDeskripsi,
             ],
             'koneksi' => [
                 'pppoe_username' => $customer->pppoe_username,
@@ -237,6 +307,9 @@ class ScreenController extends Controller
             'paket_tersedia' => $paketTersedia,
             'tagihan' => [
                 'status_akun'           => $statusAkun,
+                'status_akun_label'     => $statusAkunLabel,
+                'alasan_nonaktif'       => $alasanNonaktif,
+                'status_akun_deskripsi' => $statusAkunDeskripsi,
                 'status_invoice'        => $statusInvoice,
                 'status'                => $hasUnpaidBill ? ($isEarliestExpired ? 'expired' : ($earliestUnpaid?->status ?? 'unpaid')) : 'paid',
                 'status_badge'          => $hasUnpaidBill ? ($isEarliestExpired ? 'Kedaluwarsa' : 'Belum Bayar') : 'Lunas',
@@ -557,8 +630,19 @@ class ScreenController extends Controller
             : ($customer->created_at ? $customer->created_at->format('Y-m-d') : null);
 
         $isIsolir = (bool) ($pppoe && $pppoe->is_isolir);
-        $statusAkun = $isIsolir ? 'isolir' : ($customer->trashed() ? 'non_aktif' : 'aktif');
-        $statusAkunBadge = $isIsolir ? 'Terisolir' : ($customer->trashed() ? 'Non-Aktif' : 'Aktif');
+        if ($customer->trashed() || $customer->status_pelanggan === 'non_aktif') {
+            $statusAkun = 'non_aktif';
+            $statusAkunBadge = 'Non-Aktif';
+            $alasanNonaktif = $customer->alasan_nonaktif ?: 'tidak_berlangganan';
+        } elseif ($isIsolir || $customer->status_pelanggan === 'isolir') {
+            $statusAkun = 'isolir';
+            $statusAkunBadge = 'Terisolir';
+            $alasanNonaktif = null;
+        } else {
+            $statusAkun = 'aktif';
+            $statusAkunBadge = 'Aktif';
+            $alasanNonaktif = null;
+        }
 
         // 1. Data Sesi Aktif dari FreeRADIUS (radacct)
         $sessionData = [
@@ -719,11 +803,12 @@ class ScreenController extends Controller
             'data'    => [
                 // Card 1: Profil Saya (Sesuai image.png)
                 'profil_saya' => [
-                    'nama_lengkap'  => $namaLengkap,
-                    'nomor_telepon' => $nomorTelepon,
-                    'alamat'        => $alamat,
-                    'alamat_email'  => $alamatEmail,
-                    'status_akun'   => $statusAkun,
+                    'nama_lengkap'    => $namaLengkap,
+                    'nomor_telepon'   => $nomorTelepon,
+                    'alamat'          => $alamat,
+                    'alamat_email'    => $alamatEmail,
+                    'status_akun'     => $statusAkun,
+                    'alasan_nonaktif' => $alasanNonaktif,
                 ],
 
                 // Card 2: Akun Internet (Sesuai image.png)
@@ -757,7 +842,8 @@ class ScreenController extends Controller
                 'alamat_email'       => $alamatEmail,
                 'email'              => $alamatEmail,
                 'status_akun'        => $statusAkun,
-                'status_akun_badge'  => $statusAkun,
+                'status_akun_badge'  => $statusAkunBadge,
+                'alasan_nonaktif'    => $alasanNonaktif,
 
                 'nama_pengguna'      => $namaPengguna,
                 'password_pengguna'  => $passwordPengguna,

@@ -19,6 +19,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Gunakan model PersonalAccessToken kustom agar mendukung soft-deleted Customer
+        \Laravel\Sanctum\Sanctum::usePersonalAccessTokenModel(\App\Models\PersonalAccessToken::class);
+
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('settings')) {
                 // MikroTik

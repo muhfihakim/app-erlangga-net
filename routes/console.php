@@ -23,3 +23,6 @@ Schedule::command('billing:process')->dailyAt('00:01')->withoutOverlapping();
 
 // 2. Pemeriksaan isolir tambahan pada siang hari (12:00)
 Schedule::command('billing:process --only-isolir')->dailyAt('12:00')->withoutOverlapping();
+
+// 3. Pemeriksaan otomatis pelanggan isolir 3 bulan tanpa pembayaran -> Non-Aktif (setiap hari jam 01:00)
+Schedule::command('customer:check-overdue-isolir')->dailyAt('01:00')->withoutOverlapping();

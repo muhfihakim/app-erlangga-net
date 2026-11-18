@@ -233,7 +233,9 @@
                     <option value="online">Online</option>
                     <option value="offline">Offline</option>
                     <option value="isolir">Terisolir</option>
-                    <option value="non_aktif">Non-Aktif (Arsip)</option>
+                    <option value="non_aktif">Semua Non-Aktif</option>
+                    <option value="non_aktif_berhenti">Non-Aktif (Berhenti)</option>
+                    <option value="non_aktif_isolir3bln">Non-Aktif (3 Bln Isolir)</option>
                 </select>
             </div>
         </div>
@@ -1030,6 +1032,15 @@
                                 Apakah Anda yakin ingin menonaktifkan pelanggan <strong id="deactivateCustomerName" class="text-slate-900 font-bold"></strong>?
                             </p>
                         </div>
+                        <div class="form-group mb-0">
+                            <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
+                                Alasan Penonaktifan <span class="text-rose-500">*</span>
+                            </label>
+                            <select name="alasan_nonaktif" id="deactivate_alasan_nonaktif" class="form-input-custom !bg-white text-xs text-slate-800 w-full" required>
+                                <option value="tidak_berlangganan">Sudah Tidak Berlangganan (Permintaan Berhenti)</option>
+                                <option value="isolir_3_bulan">Tenggat 3 Bulan Isolir Tanpa Pembayaran</option>
+                            </select>
+                        </div>
                         <div class="text-xs text-slate-600 space-y-1.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
                             <div class="font-semibold text-slate-800 mb-1">Keterangan arsip & jaringan:</div>
                             <div class="flex items-start gap-2">
@@ -1370,6 +1381,10 @@
                 if (form && nameEl) {
                     form.action = url;
                     nameEl.innerText = name;
+                    const alasanSelect = document.getElementById('deactivate_alasan_nonaktif');
+                    if (alasanSelect) {
+                        alasanSelect.value = 'tidak_berlangganan';
+                    }
                     openCustomModal('deactivateCustomerModal');
                 }
             }

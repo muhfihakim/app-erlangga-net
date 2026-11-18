@@ -52,8 +52,9 @@ class AuthController extends Controller
         $password = (string) $request->input('password');
         $deviceName = $request->input('device_name', 'Mobile App');
 
-        // Cari pelanggan berdasarkan id_pelanggan ATAU pppoe_username
-        $customer = Customer::with(['paket', 'preOrder'])
+        // Cari pelanggan berdasarkan id_pelanggan ATAU pppoe_username (termasuk yang non-aktif/arsip agar tetap dapat login dan melihat status)
+        $customer = Customer::withTrashed()
+            ->with(['paket', 'preOrder'])
             ->where(function ($q) use ($identifier) {
                 $q->where('id_pelanggan', $identifier)
                   ->orWhere('pppoe_username', $identifier);
@@ -164,9 +165,10 @@ class AuthController extends Controller
                     'harga'       => (float) $customer->paket->harga,
                     'total_harga' => (float) $customer->paket->total_harga,
                 ] : null,
-                'pppoe_username' => $customer->pppoe_username,
-                'status_akun'    => ($pppoe && $pppoe->is_isolir) ? 'isolir' : 'aktif',
-                'tanggal_aktif'  => ($pppoe && $pppoe->tanggal_aktif) ? ($pppoe->tanggal_aktif instanceof \DateTimeInterface ? $pppoe->tanggal_aktif->format('Y-m-d') : substr((string)$pppoe->tanggal_aktif, 0, 10)) : ($customer->created_at ? $customer->created_at->format('Y-m-d') : null),
+                'pppoe_username'  => $customer->pppoe_username,
+                'status_akun'     => ($customer->trashed() || $customer->status_pelanggan === 'non_aktif') ? 'non_aktif' : (($pppoe && $pppoe->is_isolir) ? 'isolir' : 'aktif'),
+                'alasan_nonaktif' => ($customer->trashed() || $customer->status_pelanggan === 'non_aktif') ? ($customer->alasan_nonaktif ?: 'tidak_berlangganan') : null,
+                'tanggal_aktif'   => ($pppoe && $pppoe->tanggal_aktif) ? ($pppoe->tanggal_aktif instanceof \DateTimeInterface ? $pppoe->tanggal_aktif->format('Y-m-d') : substr((string)$pppoe->tanggal_aktif, 0, 10)) : ($customer->created_at ? $customer->created_at->format('Y-m-d') : null),
             ]
         ], 200);
     }
