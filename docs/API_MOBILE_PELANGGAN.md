@@ -279,12 +279,16 @@ Endpoint utama 1 Screen 1 URL untuk **Tab Beranda / Home Screen** (`home_screen.
   ```
 
 #### 🛡️ Spesifikasi Status Akun & Popup Mobile App:
-| Status Akun (`status_akun`) | Alasan (`alasan_nonaktif`) | Popup (`show_popup`) | Judul Popup | Pesan / Deskripsi Status (`status_akun_deskripsi`) | Action Button |
-|---|---|:---:|---|---|---|
-| **`aktif`** | `null` | `false` | *Layanan Aktif* | Layanan internet Anda aktif dan dapat digunakan dengan normal. | - |
-| **`isolir`** | `null` | `true` | *Layanan Terisolir* | Layanan internet Anda saat ini terisolir karena terdapat tagihan yang belum dibayar. Silakan lakukan pembayaran tagihan untuk mengaktifkan kembali koneksi internet Anda. | Bayar Tagihan (`bayar_tagihan`) |
-| **`non_aktif`** | **`isolir_3_bulan`** | `true` | *Layanan Dinonaktifkan* | Layanan anda di nonaktifkan silahkan hubungi admin untuk informasi lebih lanjutt | Hubungi Admin (`hubungi_admin`) |
-| **`non_aktif`** | **`tidak_berlangganan`** | `true` | *Layanan Non-Aktif* | Layanan Anda saat ini berstatus Non-Aktif (Sudah Tidak Berlangganan). Silakan hubungi admin untuk informasi lebih lanjut. | Hubungi Admin (`hubungi_admin`) |
+> **Catatan Penting**:
+> - Atribut `status_akun_deskripsi` dan `deskripsi` **hanya berlaku dan terisi pada akun berstatus `non_aktif`**. Untuk status `aktif` dan `isolir`, nilainya adalah `null`.
+> - Objek `popup` otomatis bernilai `show: true` hanya ketika akun berstatus `non_aktif`. Tombol aksi (action button) ditangani langsung di sisi aplikasi mobile pelanggan.
+
+| Status Akun (`status_akun`) | Alasan (`alasan_nonaktif`) | Popup (`show` / `show_popup`) | Judul Popup (`title`) | Deskripsi Status (`status_akun_deskripsi` / `message`) |
+|---|---|:---:|---|---|
+| **`aktif`** | `null` | `false` | `null` | `null` |
+| **`isolir`** | `null` | `false` | `null` | `null` |
+| **`non_aktif`** | **`isolir_3_bulan`** | `true` | *Layanan Dinonaktifkan* | *Layanan Anda saat ini telah dinonaktifkan karena telah melewati batas masa isolir (3 bulan). Silakan hubungi admin untuk informasi lebih lanjut.* |
+| **`non_aktif`** | **`tidak_berlangganan`** | `true` | *Layanan Non-Aktif* | *Layanan Anda saat ini berstatus Non-Aktif (Sudah Tidak Berlangganan). Silakan hubungi admin untuk informasi lebih lanjut.* |
 
 - **Response `200 OK` (Contoh Akun Non-Aktif karena 3 Bulan Isolir)**:
   ```json
@@ -305,38 +309,33 @@ Endpoint utama 1 Screen 1 URL untuk **Tab Beranda / Home Screen** (`home_screen.
       "total_harga": 336000,
       "status": "Offline",
       "status_akun": "non_aktif",
-      "status_akun_label": "Non-Aktif",
-      "status_akun_badge": "Non-Aktif",
+      "status_akun_label": "Non-Aktif (3 Bln Isolir)",
+      "status_akun_badge": "Non-Aktif (3 Bln Isolir)",
       "alasan_nonaktif": "isolir_3_bulan",
-      "status_akun_deskripsi": "Layanan anda di nonaktifkan silahkan hubungi admin untuk informasi lebih lanjutt",
-      "deskripsi_status": "Layanan anda di nonaktifkan silahkan hubungi admin untuk informasi lebih lanjutt",
+      "status_akun_deskripsi": "Layanan Anda saat ini telah dinonaktifkan karena telah melewati batas masa isolir (3 bulan). Silakan hubungi admin untuk informasi lebih lanjut.",
+      "deskripsi": "Layanan Anda saat ini telah dinonaktifkan karena telah melewati batas masa isolir (3 bulan). Silakan hubungi admin untuk informasi lebih lanjut.",
+      "deskripsi_status": "Layanan Anda saat ini telah dinonaktifkan karena telah melewati batas masa isolir (3 bulan). Silakan hubungi admin untuk informasi lebih lanjut.",
       "popup": {
         "show": true,
         "show_popup": true,
         "status": "non_aktif",
-        "status_label": "Non-Aktif",
-        "alasan": "isolir_3_bulan",
+        "status_label": "Non-Aktif (3 Bln Isolir)",
         "title": "Layanan Dinonaktifkan",
         "judul": "Layanan Dinonaktifkan",
-        "message": "Layanan anda di nonaktifkan silahkan hubungi admin untuk informasi lebih lanjutt",
-        "pesan": "Layanan anda di nonaktifkan silahkan hubungi admin untuk informasi lebih lanjutt",
-        "action_type": "hubungi_admin",
-        "action_label": "Hubungi Admin",
-        "admin_contact": "6281234567890"
+        "message": "Layanan Anda saat ini telah dinonaktifkan karena telah melewati batas masa isolir (3 bulan). Silakan hubungi admin untuk informasi lebih lanjut.",
+        "pesan": "Layanan Anda saat ini telah dinonaktifkan karena telah melewati batas masa isolir (3 bulan). Silakan hubungi admin untuk informasi lebih lanjut.",
+        "alasan_nonaktif": "isolir_3_bulan"
       },
       "popup_status": {
         "show": true,
         "show_popup": true,
         "status": "non_aktif",
-        "status_label": "Non-Aktif",
-        "alasan": "isolir_3_bulan",
+        "status_label": "Non-Aktif (3 Bln Isolir)",
         "title": "Layanan Dinonaktifkan",
         "judul": "Layanan Dinonaktifkan",
-        "message": "Layanan anda di nonaktifkan silahkan hubungi admin untuk informasi lebih lanjutt",
-        "pesan": "Layanan anda di nonaktifkan silahkan hubungi admin untuk informasi lebih lanjutt",
-        "action_type": "hubungi_admin",
-        "action_label": "Hubungi Admin",
-        "admin_contact": "6281234567890"
+        "message": "Layanan Anda saat ini telah dinonaktifkan karena telah melewati batas masa isolir (3 bulan). Silakan hubungi admin untuk informasi lebih lanjut.",
+        "pesan": "Layanan Anda saat ini telah dinonaktifkan karena telah melewati batas masa isolir (3 bulan). Silakan hubungi admin untuk informasi lebih lanjut.",
+        "alasan_nonaktif": "isolir_3_bulan"
       },
       "status_invoice": "belum_bayar",
       "has_unpaid_bill": true,
@@ -350,9 +349,10 @@ Endpoint utama 1 Screen 1 URL untuk **Tab Beranda / Home Screen** (`home_screen.
         "sn_perangkat": "ZTEGC1234567",
         "jenis_modem": "EPON",
         "status_akun": "non_aktif",
-        "status_akun_label": "Non-Aktif",
+        "status_akun_label": "Non-Aktif (3 Bln Isolir)",
         "alasan_nonaktif": "isolir_3_bulan",
-        "status_akun_deskripsi": "Layanan anda di nonaktifkan silahkan hubungi admin untuk informasi lebih lanjutt"
+        "status_akun_deskripsi": "Layanan Anda saat ini telah dinonaktifkan karena telah melewati batas masa isolir (3 bulan). Silakan hubungi admin untuk informasi lebih lanjut.",
+        "deskripsi": "Layanan Anda saat ini telah dinonaktifkan karena telah melewati batas masa isolir (3 bulan). Silakan hubungi admin untuk informasi lebih lanjut."
       },
       "koneksi": {
         "pppoe_username": "Sofisetpgl@erlangga.net",

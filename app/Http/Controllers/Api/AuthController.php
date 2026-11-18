@@ -151,6 +151,17 @@ class AuthController extends Controller
         $customer->load(['paket', 'preOrder']);
         $pppoe = $customer->pppoe;
 
+        $statusAkun = ($customer->trashed() || $customer->status_pelanggan === 'non_aktif') ? 'non_aktif' : (($pppoe && $pppoe->is_isolir) ? 'isolir' : 'aktif');
+        $alasanNonaktif = null;
+        $statusAkunDeskripsi = null;
+
+        if ($statusAkun === 'non_aktif') {
+            $alasanNonaktif = $customer->alasan_nonaktif ?: 'tidak_berlangganan';
+            $statusAkunDeskripsi = ($alasanNonaktif === 'isolir_3_bulan')
+                ? 'Layanan Anda saat ini telah dinonaktifkan karena telah melewati batas masa isolir (3 bulan). Silakan hubungi admin untuk informasi lebih lanjut.'
+                : 'Layanan Anda saat ini berstatus Non-Aktif (Sudah Tidak Berlangganan). Silakan hubungi admin untuk informasi lebih lanjut.';
+        }
+
         return response()->json([
             'success' => true,
             'data'    => [
@@ -165,10 +176,12 @@ class AuthController extends Controller
                     'harga'       => (float) $customer->paket->harga,
                     'total_harga' => (float) $customer->paket->total_harga,
                 ] : null,
-                'pppoe_username'  => $customer->pppoe_username,
-                'status_akun'     => ($customer->trashed() || $customer->status_pelanggan === 'non_aktif') ? 'non_aktif' : (($pppoe && $pppoe->is_isolir) ? 'isolir' : 'aktif'),
-                'alasan_nonaktif' => ($customer->trashed() || $customer->status_pelanggan === 'non_aktif') ? ($customer->alasan_nonaktif ?: 'tidak_berlangganan') : null,
-                'tanggal_aktif'   => ($pppoe && $pppoe->tanggal_aktif) ? ($pppoe->tanggal_aktif instanceof \DateTimeInterface ? $pppoe->tanggal_aktif->format('Y-m-d') : substr((string)$pppoe->tanggal_aktif, 0, 10)) : ($customer->created_at ? $customer->created_at->format('Y-m-d') : null),
+                'pppoe_username'        => $customer->pppoe_username,
+                'status_akun'           => $statusAkun,
+                'alasan_nonaktif'       => $alasanNonaktif,
+                'status_akun_deskripsi' => $statusAkunDeskripsi,
+                'deskripsi'             => $statusAkunDeskripsi,
+                'tanggal_aktif'         => ($pppoe && $pppoe->tanggal_aktif) ? ($pppoe->tanggal_aktif instanceof \DateTimeInterface ? $pppoe->tanggal_aktif->format('Y-m-d') : substr((string)$pppoe->tanggal_aktif, 0, 10)) : ($customer->created_at ? $customer->created_at->format('Y-m-d') : null),
             ]
         ], 200);
     }
