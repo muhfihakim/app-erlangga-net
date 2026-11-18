@@ -152,12 +152,11 @@ class AuthController extends Controller
         $pppoe = $customer->pppoe;
 
         $statusAkun = ($customer->trashed() || $customer->status_pelanggan === 'non_aktif') ? 'non_aktif' : (($pppoe && $pppoe->is_isolir) ? 'isolir' : 'aktif');
-        $alasanNonaktif = null;
-        $statusAkunDeskripsi = null;
+        $deskripsi = '';
 
         if ($statusAkun === 'non_aktif') {
-            $alasanNonaktif = $customer->alasan_nonaktif ?: 'tidak_berlangganan';
-            $statusAkunDeskripsi = ($alasanNonaktif === 'isolir_3_bulan')
+            $alasan = $customer->alasan_nonaktif ?: 'tidak_berlangganan';
+            $deskripsi = ($alasan === 'isolir_3_bulan')
                 ? 'Layanan Anda saat ini telah dinonaktifkan karena telah melewati batas masa isolir (3 bulan). Silakan hubungi admin untuk informasi lebih lanjut.'
                 : 'Layanan Anda saat ini berstatus Non-Aktif (Sudah Tidak Berlangganan). Silakan hubungi admin untuk informasi lebih lanjut.';
         }
@@ -168,20 +167,18 @@ class AuthController extends Controller
                 'id'             => $customer->id,
                 'id_pelanggan'   => $customer->id_pelanggan,
                 'nama_lengkap'   => $customer->nama_lengkap,
-                'no_whatsapp'    => $customer->no_whatsapp,
-                'alamat_lengkap' => $customer->alamat_lengkap,
+                'no_whatsapp'    => (string) ($customer->no_whatsapp ?? ''),
+                'alamat_lengkap' => (string) ($customer->alamat_lengkap ?? ''),
                 'paket'          => $customer->paket ? [
                     'nama_paket'  => $customer->paket->nama_paket,
                     'kecepatan'   => $customer->paket->kecepatan,
                     'harga'       => (float) $customer->paket->harga,
                     'total_harga' => (float) $customer->paket->total_harga,
                 ] : null,
-                'pppoe_username'        => $customer->pppoe_username,
-                'status_akun'           => $statusAkun,
-                'alasan_nonaktif'       => $alasanNonaktif,
-                'status_akun_deskripsi' => $statusAkunDeskripsi,
-                'deskripsi'             => $statusAkunDeskripsi,
-                'tanggal_aktif'         => ($pppoe && $pppoe->tanggal_aktif) ? ($pppoe->tanggal_aktif instanceof \DateTimeInterface ? $pppoe->tanggal_aktif->format('Y-m-d') : substr((string)$pppoe->tanggal_aktif, 0, 10)) : ($customer->created_at ? $customer->created_at->format('Y-m-d') : null),
+                'pppoe_username' => (string) ($customer->pppoe_username ?? ''),
+                'status_akun'    => $statusAkun,
+                'deskripsi'      => $deskripsi,
+                'tanggal_aktif'  => ($pppoe && $pppoe->tanggal_aktif) ? ($pppoe->tanggal_aktif instanceof \DateTimeInterface ? $pppoe->tanggal_aktif->format('Y-m-d') : substr((string)$pppoe->tanggal_aktif, 0, 10)) : ($customer->created_at ? $customer->created_at->format('Y-m-d') : ''),
             ]
         ], 200);
     }
