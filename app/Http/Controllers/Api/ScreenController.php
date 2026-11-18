@@ -714,7 +714,6 @@ class ScreenController extends Controller
         $nomorTelepon = (string) ($customer->no_whatsapp ?: ($customer->preOrder?->nomor_telepon ?: '-'));
         $alamat = (string) ($customer->alamat_lengkap ?: ($customer->preOrder?->alamat_pemasangan ?: '-'));
         $alamatEmail = (string) ($customer->preOrder?->alamat_email ?: ($customer->email ?: '-'));
-        $statusAkun = $statusAkunBadge;
 
         $namaPengguna = (string) ($customer->pppoe_username ?: ($pppoe?->username ?: '-'));
         $passwordPengguna = (string) ($customer->pppoe_password ?: ($pppoe?->password ?: ''));
