@@ -170,8 +170,8 @@
                                         </button>
                                         <button type="button"
                                             onclick="confirmGlobalDelete('{{ route('assets.destroy', $asset->id) }}', '{{ addslashes($asset->name) }}')"
-                                            class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50" title="Hapus">
-                                            <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i>
+                                            class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 hover:!text-rose-600" title="Hapus">
+                                            <i class="fa-solid fa-trash text-slate-500"></i>
                                         </button>
                                     @endif
                                 </div>
@@ -241,7 +241,7 @@
                             onclick="closeCustomModal('addAssetModal')">
                             <i class="fa-solid fa-xmark"></i> Batal
                         </button>
-                        <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                             <i class="fa-solid fa-floppy-disk"></i> Simpan
                         </button>
                     </div>
@@ -303,7 +303,7 @@
                             onclick="closeCustomModal('editAssetModal')">
                             <i class="fa-solid fa-xmark"></i> Batal
                         </button>
-                        <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                             <i class="fa-solid fa-floppy-disk"></i> Simpan
                         </button>
                     </div>
@@ -396,7 +396,7 @@
                         onclick="closeCustomModal('transactionModal')">
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>

@@ -227,10 +227,10 @@
                                             data-foto="{{ $odp->foto_odp ? Storage::url($odp->foto_odp) : '' }}">
                                             <i class="fa-solid fa-pen-to-square text-slate-500"></i>
                                         </button>
-                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50"
+                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 hover:!text-rose-600 inline-flex items-center justify-center"
                                             title="Hapus"
                                             onclick="confirmGlobalDelete('{{ route('odp.destroy', $odp->id) }}', 'ODP {{ addslashes($odp->lokasi_odp) }}')">
-                                            <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i>
+                                            <i class="fa-solid fa-trash text-slate-500"></i>
                                         </button>
                                     @endif
                                 </div>
@@ -298,7 +298,7 @@
                         <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('addOdpModal')">
                             <i class="fa-solid fa-xmark"></i> Batal
                         </button>
-                        <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold flex items-center gap-1.5">
+                        <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold flex items-center justify-center gap-1.5">
                             <i class="fa-solid fa-floppy-disk"></i> Simpan
                         </button>
                     </div>
@@ -364,7 +364,7 @@
                         <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('editOdpModal')">
                             <i class="fa-solid fa-xmark"></i> Batal
                         </button>
-                        <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold !bg-amber-500 hover:!bg-amber-600 flex items-center gap-1.5">
+                        <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold !bg-amber-500 hover:!bg-amber-600 flex items-center justify-center gap-1.5">
                             <i class="fa-solid fa-floppy-disk"></i> Simpan
                         </button>
                     </div>

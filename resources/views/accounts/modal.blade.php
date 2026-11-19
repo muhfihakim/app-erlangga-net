@@ -71,7 +71,7 @@
                 <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('addUserModal')">
                     <i class="fa-solid fa-xmark"></i> Batal
                 </button>
-                <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-floppy-disk"></i> Simpan
                 </button>
             </div>
@@ -152,7 +152,7 @@
                 <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('editModal')">
                     <i class="fa-solid fa-xmark"></i> Batal
                 </button>
-                <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-floppy-disk"></i> Simpan
                 </button>
             </div>
@@ -192,7 +192,7 @@
             <form id="deleteForm" method="POST" class="m-0">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5"><i class="fa-solid fa-trash"></i> Hapus</button>
+                <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5"><i class="fa-solid fa-trash"></i> Hapus</button>
             </form>
         </div>
     </div>
@@ -257,7 +257,7 @@
             <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('reset2FAModal')"><i class="fa-solid fa-xmark"></i> Batal</button>
             <form id="reset2FAForm" method="POST" class="m-0">
                 @csrf
-                <button type="submit" class="btn-primary-admin !bg-amber-600 hover:!bg-amber-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5"><i class="fa-solid fa-rotate-left"></i> Ya, Reset</button>
+                <button type="submit" class="btn-primary-admin !bg-amber-600 hover:!bg-amber-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5"><i class="fa-solid fa-rotate-left"></i> Ya, Reset</button>
             </form>
         </div>
     </div>
@@ -291,7 +291,7 @@
             <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('toggleStatusModal')"><i class="fa-solid fa-xmark"></i> Batal</button>
             <form id="toggleStatusForm" method="POST" class="m-0">
                 @csrf
-                <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5" id="toggle-status-btn-submit"><i class="fa-solid fa-check"></i> Ya, Lanjutkan</button>
+                <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5" id="toggle-status-btn-submit"><i class="fa-solid fa-check"></i> Ya, Lanjutkan</button>
             </form>
         </div>
     </div>

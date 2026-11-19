@@ -65,7 +65,7 @@
                 <form id="globalDeleteForm" method="POST" class="m-0">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-trash"></i> Hapus
                     </button>
                 </form>
@@ -320,13 +320,14 @@
                         if (originalWidth > 0) {
                             submitBtn.css('min-width', originalWidth + 'px');
                         }
-                        submitBtn.css('pointer-events', 'none').css('opacity', '0.8');
+                        submitBtn.css('pointer-events', 'none').css('opacity', '0.85').css('justify-content', 'center').css('text-align', 'center');
+                        submitBtn.addClass('!inline-flex !items-center !justify-center text-center');
                         
                         let hasText = submitBtn.text().trim().length > 0;
                         if (hasText) {
-                            submitBtn.html('<i class="fa-solid fa-spinner fa-spin"></i> Memproses...');
+                            submitBtn.html('<span class="inline-flex items-center justify-center gap-2 w-full text-center leading-none"><i class="fa-solid fa-circle-notch fa-spin text-xs"></i> <span>Memproses...</span></span>');
                         } else {
-                            submitBtn.html('<i class="fa-solid fa-spinner fa-spin"></i>');
+                            submitBtn.html('<span class="inline-flex items-center justify-center w-full text-center"><i class="fa-solid fa-circle-notch fa-spin text-xs"></i></span>');
                         }
                     }
                 }

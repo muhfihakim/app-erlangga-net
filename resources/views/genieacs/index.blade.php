@@ -272,7 +272,7 @@
                     <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('quickWifiModal')">
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold !bg-sky-600 hover:!bg-sky-700 shadow-xs flex items-center gap-1.5" id="btn-submit-quick-wifi">
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold !bg-sky-600 hover:!bg-sky-700 shadow-xs flex items-center justify-center gap-1.5" id="btn-submit-quick-wifi">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
@@ -311,7 +311,7 @@
                 <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('rebootModal')">
                     <i class="fa-solid fa-xmark"></i> Batal
                 </button>
-                <button type="button" onclick="executeReboot()" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5" id="btn-submit-reboot">
+                <button type="button" onclick="executeReboot()" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5" id="btn-submit-reboot">
                     <i class="fa-solid fa-power-off"></i> Reboot
                 </button>
             </div>
@@ -440,7 +440,7 @@
                     const btn = $('#btn-submit-quick-wifi');
                     const origHtml = btn.html();
 
-                    btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengirim ke ONT...');
+                    btn.prop('disabled', true).html('<span class="inline-flex items-center justify-center gap-2 w-full text-center leading-none"><i class="fa-solid fa-circle-notch fa-spin text-xs"></i> <span>Mengirim ke ONT...</span></span>');
 
                     $.ajax({
                         url: `/genieacs/${encodeURIComponent(deviceId)}/wifi`,
@@ -470,7 +470,7 @@
 
                     const btn = $(this);
                     const origHtml = btn.html();
-                    btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengirim...');
+                    btn.prop('disabled', true).html('<span class="inline-flex items-center justify-center gap-2 w-full text-center leading-none"><i class="fa-solid fa-circle-notch fa-spin text-xs"></i> <span>Mengirim...</span></span>');
 
                     $.ajax({
                         url: `/genieacs/${encodeURIComponent(currentRebootDeviceId)}/reboot`,

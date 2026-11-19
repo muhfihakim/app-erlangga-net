@@ -381,7 +381,7 @@
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
                     <button type="submit" id="btnSubmitBroadcast"
-                        class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-paper-plane"></i> Kirim Broadcast
                     </button>
                 </div>
@@ -471,7 +471,7 @@
                     <i class="fa-solid fa-xmark"></i> Batal
                 </button>
                 <button type="button" id="btnConfirmDelete" onclick="executeDeleteBroadcast()"
-                    class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-trash"></i> Hapus
                 </button>
             </div>
@@ -734,7 +734,7 @@
 
                 const btn = document.getElementById('btnConfirmDelete');
                 const origHtml = btn.innerHTML;
-                btn.innerHTML = "<i class='fa-solid fa-circle-notch fa-spin'></i> Menghapus...";
+                btn.innerHTML = "<span class='inline-flex items-center justify-center gap-2 w-full text-center leading-none'><i class='fa-solid fa-circle-notch fa-spin text-xs'></i> <span>Menghapus...</span></span>";
                 btn.disabled = true;
 
                 // Gunakan URL relatif agar kompatibel dengan SSL/HTTPS dan tidak memicu mixed-content

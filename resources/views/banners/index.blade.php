@@ -191,9 +191,9 @@
                                         title="Edit Promosi" onclick='openEditModal(@json($b))'>
                                         <i class="fa-solid fa-pen-to-square text-slate-500 hover:text-amber-600"></i>
                                     </button>
-                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
+                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 hover:!text-rose-600"
                                         title="Hapus Promosi" onclick="confirmGlobalDelete('{{ route('banners.destroy', $b->id) }}', '{{ addslashes($b->judul) }}')">
-                                        <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i>
+                                        <i class="fa-solid fa-trash text-slate-500"></i>
                                     </button>
                                 </div>
                             </td>
@@ -321,7 +321,7 @@
                         onclick="closeCustomModal('createBannerModal')">
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" id="btnSubmitCreate" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" id="btnSubmitCreate" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
@@ -442,7 +442,7 @@
                     <button type="button" onclick="closeCustomModal('editBannerModal')" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5">
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" id="btnSubmitEdit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" id="btnSubmitEdit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
@@ -633,7 +633,7 @@
                 const origHtml = btn.innerHTML;
 
                 btn.disabled = true;
-                btn.innerHTML = "<i class='fa-solid fa-circle-notch fa-spin'></i> Menyimpan...";
+                btn.innerHTML = "<span class='inline-flex items-center justify-center gap-2 w-full text-center leading-none'><i class='fa-solid fa-circle-notch fa-spin text-xs'></i> <span>Menyimpan...</span></span>";
 
                 const formData = new FormData(form);
 
@@ -675,7 +675,7 @@
                 const origHtml = btn.innerHTML;
 
                 btn.disabled = true;
-                btn.innerHTML = "<i class='fa-solid fa-circle-notch fa-spin'></i> Menyimpan...";
+                btn.innerHTML = "<span class='inline-flex items-center justify-center gap-2 w-full text-center leading-none'><i class='fa-solid fa-circle-notch fa-spin text-xs'></i> <span>Menyimpan...</span></span>";
 
                 const formData = new FormData(form);
 

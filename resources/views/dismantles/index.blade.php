@@ -162,17 +162,17 @@
                                         </button>
                                         @if ($d->status === 'Selesai')
                                             @if (!$isTrashed)
-                                                <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50"
+                                                <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 hover:!text-rose-600"
                                                     title="Hapus Pelanggan Permanen"
                                                     onclick="confirmGlobalDelete('{{ route('dismantles.deleteCustomer', $d->customer_id) }}', '{{ $d->customer->nama_lengkap }}')">
-                                                    <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i>
+                                                    <i class="fa-solid fa-trash text-slate-500"></i>
                                                 </button>
                                             @endif
                                         @else
-                                            <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50"
+                                            <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 hover:!text-rose-600"
                                                 title="Hapus Tugas Pencabutan"
                                                 onclick="confirmGlobalDelete('{{ route('dismantles.destroy', $d->id) }}', '{{ $d->customer->nama_lengkap ?? 'N/A' }}')">
-                                                <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i>
+                                                <i class="fa-solid fa-trash text-slate-500"></i>
                                             </button>
                                         @endif
                                     </div>
@@ -333,7 +333,7 @@
                         onclick="closeCustomModal('addDismantleModal')">
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
@@ -428,7 +428,7 @@
                         onclick="closeCustomModal('completeDismantleModal')">
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>

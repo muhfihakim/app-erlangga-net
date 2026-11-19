@@ -325,8 +325,8 @@
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
-                                                class="topbar-icon-btn !w-7 !h-7 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50" title="Hapus">
-                                                <i class="fa-solid fa-trash text-[11px] text-slate-500 hover:text-rose-600"></i>
+                                                class="topbar-icon-btn !w-7 !h-7 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 hover:!text-rose-600" title="Hapus">
+                                                <i class="fa-solid fa-trash text-[11px]"></i>
                                             </button>
                                         </form>
                                     </div>
@@ -540,7 +540,7 @@
                         onclick="closeAddBankModal()">
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
@@ -634,7 +634,7 @@
                         onclick="closeEditBankModal()">
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
@@ -708,7 +708,7 @@
                     <i class="fa-solid fa-xmark"></i> Batal
                 </button>
                 <button type="button" id="btnConfirmWithdrawal" onclick="executeWithdrawal()"
-                    class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-circle-check"></i> Konfirmasi Penarikan
                 </button>
             </div>
@@ -817,7 +817,7 @@
                 const btn = document.getElementById('btnInitiateWithdrawal');
                 const originalText = btn.innerHTML;
                 btn.disabled = true;
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Mengirim Kode OTP...';
+                btn.innerHTML = '<span class="inline-flex items-center justify-center gap-2 w-full text-center leading-none"><i class="fa-solid fa-circle-notch fa-spin text-xs"></i> <span>Mengirim Kode OTP...</span></span>';
 
                 fetch('{{ route('withdrawals.send_otp') }}', {
                         method: 'POST',
@@ -868,7 +868,7 @@
                 const btn = document.getElementById('btnConfirmWithdrawal');
                 const originalText = btn.innerHTML;
                 btn.disabled = true;
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Memproses Payout...';
+                btn.innerHTML = '<span class="inline-flex items-center justify-center gap-2 w-full text-center leading-none"><i class="fa-solid fa-circle-notch fa-spin text-xs"></i> <span>Memproses Payout...</span></span>';
 
                 const finalPayload = {
                     ...currentPayload,

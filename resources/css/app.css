@@ -371,11 +371,53 @@
     .badge-archived  { background: #f1f5f9; color: #64748b; }
 
     .btn-primary-admin {
-        @apply inline-flex items-center gap-2 bg-primary text-white font-bold text-[13px] px-[18px] py-[9px] rounded-[10px] border-none transition-all duration-250 cursor-pointer whitespace-nowrap;
+        @apply inline-flex items-center justify-center gap-2 bg-primary text-white font-bold text-[13px] px-[18px] py-[9px] rounded-[10px] border-none transition-all duration-250 cursor-pointer whitespace-nowrap text-center;
         background: linear-gradient(135deg, #0ea5e9, #0369a1);
         box-shadow: 0 4px 12px rgba(14,165,233,.35);
+        justify-content: center;
+        text-align: center;
     }
     .btn-primary-admin:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(14,165,233,.45); }
+
+    /* Seragamkan Hover Danger / Hapus untuk Icon Button (Outline + Background Fill Merah) */
+    .topbar-icon-btn[title*="Hapus"],
+    .topbar-icon-btn[title*="hapus"],
+    .topbar-icon-btn[title*="Delete"],
+    .topbar-icon-btn[title*="delete"],
+    .topbar-icon-btn[title*="Batalkan"],
+    .topbar-icon-btn[title*="batalkan"],
+    .topbar-icon-btn:has(i.fa-trash),
+    .topbar-icon-btn:has(i.fa-trash-can),
+    .topbar-icon-btn.btn-delete,
+    .topbar-icon-btn-danger {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .topbar-icon-btn[title*="Hapus"]:hover,
+    .topbar-icon-btn[title*="hapus"]:hover,
+    .topbar-icon-btn[title*="Delete"]:hover,
+    .topbar-icon-btn[title*="delete"]:hover,
+    .topbar-icon-btn[title*="Batalkan"]:hover,
+    .topbar-icon-btn[title*="batalkan"]:hover,
+    .topbar-icon-btn:has(i.fa-trash):hover,
+    .topbar-icon-btn:has(i.fa-trash-can):hover,
+    .topbar-icon-btn.btn-delete:hover,
+    .topbar-icon-btn-danger:hover {
+        border-color: #fda4af !important; /* rose-300 */
+        background-color: #fff1f2 !important; /* rose-50 */
+        color: #e11d48 !important; /* rose-600 */
+    }
+    .topbar-icon-btn[title*="Hapus"]:hover i,
+    .topbar-icon-btn[title*="hapus"]:hover i,
+    .topbar-icon-btn[title*="Delete"]:hover i,
+    .topbar-icon-btn[title*="delete"]:hover i,
+    .topbar-icon-btn[title*="Batalkan"]:hover i,
+    .topbar-icon-btn[title*="batalkan"]:hover i,
+    .topbar-icon-btn:has(i.fa-trash):hover i,
+    .topbar-icon-btn:has(i.fa-trash-can):hover i,
+    .topbar-icon-btn.btn-delete:hover i,
+    .topbar-icon-btn-danger:hover i {
+        color: #e11d48 !important; /* rose-600 */
+    }
 
     /* Custom Glow Buttons */
     .btn-glow-primary {
@@ -496,11 +538,11 @@
     }
     .btn-cancel:hover { background: #e2e8f0; }
     .btn-save {
-        display: inline-flex; align-items: center; gap: 7px;
+        display: inline-flex; align-items: center; justify-content: center; gap: 7px;
         padding: 9px 22px; border-radius: 10px;
         background: linear-gradient(135deg, #0ea5e9, #0369a1);
         color: #fff; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 13px;
-        border: none; cursor: pointer;
+        border: none; cursor: pointer; text-align: center;
         box-shadow: 0 4px 12px rgba(14,165,233,.35); transition: all .25s;
     }
     .btn-save:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(14,165,233,.45); }

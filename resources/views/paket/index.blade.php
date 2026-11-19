@@ -56,7 +56,7 @@
             <!-- Tombol Sync / Kirim ke MikroTik -->
             <form action="{{ route('pakets.sync_to_mikrotik') }}" method="POST" style="margin:0;">
                 @csrf
-                <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !bg-indigo-600 hover:!bg-indigo-700 flex items-center gap-1.5" 
+                <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !bg-indigo-600 hover:!bg-indigo-700 flex items-center justify-center gap-1.5" 
                     onclick="return confirm('Kirim dan sinkronkan seluruh paket layanan dari database ke MikroTik (PPP Profile, IP Pool & RADIUS)?')">
                     <i class="fa-solid fa-cloud-arrow-up"></i> Sync ke MikroTik
                 </button>
@@ -65,7 +65,7 @@
             <!-- Tombol Tarik Profile dari MikroTik -->
             <form action="{{ route('paket.sync') }}" method="POST" style="margin:0;">
                 @csrf
-                <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700 flex items-center gap-1.5" 
+                <button type="submit" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700 flex items-center justify-center gap-1.5" 
                     onclick="return confirm('Tarik semua Profile dari MikroTik dan masukkan ke database lokal?')">
                     <i class="fa-solid fa-cloud-arrow-down"></i> Tarik dari MikroTik
                 </button>
@@ -160,9 +160,9 @@
                                     <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                         onclick="editPaketModal({{ $paket->id }}, @js($paket->nama_paket), @js($paket->harga), @js($paket->pajak ?? 0), @js($paket->diskon ?? 0), @js($paket->rate_limit), @js($paket->keterangan), @js($paket->local_address), @js($paket->ip_pool), @js($paket->pool_range))"
                                         title="Edit"><i class="fa-solid fa-pen-to-square text-slate-500 hover:text-amber-600"></i></button>
-                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
+                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 hover:!text-rose-600"
                                         onclick="confirmGlobalDelete('{{ route('pakets.destroy', $paket->id) }}', 'Paket {{ $paket->nama_paket }}')"
-                                        title="Hapus"><i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i></button>
+                                        title="Hapus"><i class="fa-solid fa-trash text-slate-500"></i></button>
                                 </div>
                             </td>
                         </tr>
@@ -282,7 +282,7 @@
                         onclick="closeCustomModal('formPaketModal')">
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
@@ -396,7 +396,7 @@
                         onclick="closeCustomModal('migratePaketModal')">
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold !bg-amber-600 hover:!bg-amber-700 shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold !bg-amber-600 hover:!bg-amber-700 shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-arrow-right-arrow-left"></i> Pindahkan Pelanggan Massal
                     </button>
                 </div>

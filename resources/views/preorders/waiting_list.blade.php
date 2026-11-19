@@ -126,7 +126,7 @@
                             autocomplete="off" onkeydown="return event.key != 'Enter';" />
                     </div>
                 </div>
-                <button type="submit" class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5 shadow-xs">
+                <button type="submit" class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs">
                     <i class="fa-solid fa-filter"></i> Filter
                 </button>
             </div>
@@ -262,10 +262,10 @@
 
                                     {{-- Delete Button --}}
                                     @if (Auth::user()->isAdmin() || (auth()->user()->jabatan === 'Sales' && $po->id_sales == auth()->id()))
-                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50"
+                                        <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 hover:!text-rose-600 inline-flex items-center justify-center"
                                             onclick="confirmGlobalDelete('{{ route('pre_orders.destroy', $po->id) }}', '{{ addslashes($po->nama_lengkap) }}')"
                                             title="Hapus">
-                                            <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i>
+                                            <i class="fa-solid fa-trash text-slate-500"></i>
                                         </button>
                                     @endif
                                 </div>

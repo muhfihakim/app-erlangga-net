@@ -32,10 +32,10 @@
 
         <!-- Quick Control Buttons -->
         <div class="flex items-center gap-2">
-            <button type="button" onclick="refreshOntData()" class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-8.5 !px-3.5 text-xs font-semibold shadow-xs flex items-center gap-1.5" id="btn-refresh-ont">
+            <button type="button" onclick="refreshOntData()" class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-8.5 !px-3.5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5" id="btn-refresh-ont">
                 <i class="fa-solid fa-rotate"></i> <span>Refresh Parameter</span>
             </button>
-            <button type="button" onclick="rebootOnt()" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !h-8.5 !px-3.5 text-xs font-semibold shadow-xs flex items-center gap-1.5" id="btn-reboot-ont">
+            <button type="button" onclick="rebootOnt()" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !h-8.5 !px-3.5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5" id="btn-reboot-ont">
                 <i class="fa-solid fa-power-off"></i> <span>Reboot ONT</span>
             </button>
         </div>
@@ -233,7 +233,7 @@
                         </div>
 
                         <div class="pt-3 border-t border-slate-100 flex justify-end">
-                            <button type="submit" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5" id="btn-save-wifi-1">
+                            <button type="submit" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5" id="btn-save-wifi-1">
                                 <i class="fa-solid fa-floppy-disk"></i> Terapkan Wi-Fi 2.4 GHz
                             </button>
                         </div>
@@ -269,7 +269,7 @@
                             </div>
 
                             <div class="pt-3 border-t border-slate-100 flex justify-end">
-                                <button type="submit" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5" id="btn-save-wifi-5">
+                                <button type="submit" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5" id="btn-save-wifi-5">
                                     <i class="fa-solid fa-floppy-disk"></i> Terapkan Wi-Fi 5 GHz
                                 </button>
                             </div>
@@ -392,7 +392,7 @@
                 const origText = btn.innerHTML;
 
                 btn.disabled = true;
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengirim ke ONT via TR-069...';
+                btn.innerHTML = '<span class="inline-flex items-center justify-center gap-1.5 w-full text-center leading-none"><i class="fa-solid fa-circle-notch fa-spin text-xs"></i> <span>Mengirim ke ONT via TR-069...</span></span>';
 
                 fetch(`/genieacs/${encodeURIComponent(deviceId)}/wifi`, {
                     method: 'POST',
@@ -429,7 +429,7 @@
                 const btn = document.getElementById('btn-reboot-ont');
                 const origText = btn.innerHTML;
                 btn.disabled = true;
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengirim Reboot...';
+                btn.innerHTML = '<span class="inline-flex items-center justify-center gap-1.5 w-full text-center leading-none"><i class="fa-solid fa-circle-notch fa-spin text-xs"></i> <span>Mengirim Reboot...</span></span>';
 
                 fetch(`/genieacs/${encodeURIComponent(deviceId)}/reboot`, {
                     method: 'POST',
@@ -460,7 +460,7 @@
                 const btn = document.getElementById('btn-refresh-ont');
                 const origText = btn.innerHTML;
                 btn.disabled = true;
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Meminta Refresh...';
+                btn.innerHTML = '<span class="inline-flex items-center justify-center gap-1.5 w-full text-center leading-none"><i class="fa-solid fa-circle-notch fa-spin text-xs"></i> <span>Meminta Refresh...</span></span>';
 
                 fetch(`/genieacs/${encodeURIComponent(deviceId)}/refresh`, {
                     method: 'POST',

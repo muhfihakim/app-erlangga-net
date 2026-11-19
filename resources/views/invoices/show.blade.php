@@ -199,7 +199,7 @@
                 </button>
                 <form action="{{ route('invoices.clear_next_adjustment', $pppoe->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan penyesuaian tagihan berikutnya?');" class="m-0 p-0">
                     @csrf
-                    <button type="submit" class="topbar-icon-btn !w-8 !h-8 text-xs font-semibold text-rose-600 hover:bg-rose-50 border border-rose-200 !rounded-lg" title="Hapus Penyesuaian">
+                    <button type="submit" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 hover:!text-rose-600 inline-flex items-center justify-center" title="Hapus Penyesuaian">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 </form>
@@ -462,7 +462,7 @@
                 </div>
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2">
                     <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closePayModal()"><i class="fa-solid fa-xmark"></i> Batal</button>
-                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-emerald-600 hover:!bg-emerald-700">
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5 !bg-emerald-600 hover:!bg-emerald-700">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
@@ -538,7 +538,7 @@
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <form action="{{ route('invoices.generate_single', $pppoe->id) }}" method="POST" class="m-0" novalidate onsubmit="const btn = this.querySelector('button[type=submit]'); if (btn) { btn.disabled = true; btn.innerHTML = '<i class=\'fa-solid fa-spinner fa-spin\'></i> Menyimpan...'; }">
+            <form action="{{ route('invoices.generate_single', $pppoe->id) }}" method="POST" class="m-0" novalidate onsubmit="const btn = this.querySelector('button[type=submit]'); if (btn) { btn.disabled = true; btn.innerHTML = '<span class=\'inline-flex items-center justify-center gap-2 w-full text-center leading-none\'><i class=\'fa-solid fa-circle-notch fa-spin text-xs\'></i> <span>Menyimpan...</span></span>'; }">
                 @csrf
                 <input type="hidden" name="amount" id="genAmount" value="{{ (float)($pppoe->paket->harga ?? 0) }}" oninput="updateGenTotal()">
                 <div class="modal-body p-6 bg-white space-y-4.5">
@@ -622,7 +622,7 @@
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2">
                     <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                         onclick="closeCustomModal('generateSingleModal')"><i class="fa-solid fa-xmark"></i> Batal</button>
-                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-sky-600 hover:!bg-sky-700">
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5 !bg-sky-600 hover:!bg-sky-700">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
@@ -711,7 +711,7 @@
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2">
                     <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                         onclick="closeCustomModal('adjustInvoiceModal')"><i class="fa-solid fa-xmark"></i> Batal</button>
-                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-sky-600 hover:!bg-sky-700">
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5 !bg-sky-600 hover:!bg-sky-700">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
@@ -792,7 +792,7 @@
                 <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2">
                     <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                         onclick="closeCustomModal('nextAdjustmentModal')"><i class="fa-solid fa-xmark"></i> Batal</button>
-                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-sky-600 hover:!bg-sky-700">
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5 !bg-sky-600 hover:!bg-sky-700">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>

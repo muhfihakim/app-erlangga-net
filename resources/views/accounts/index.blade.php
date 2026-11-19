@@ -153,9 +153,9 @@
                                         <i class="fa-solid fa-shield-halved text-slate-500 hover:text-amber-600"></i>
                                     </button>
 
-                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
+                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 hover:!text-rose-600"
                                         title="Hapus" onclick="confirmGlobalDelete('{{ route('accounts.destroy', $user->id) }}', '{{ $user->nama_lengkap }}')">
-                                        <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i>
+                                        <i class="fa-solid fa-trash text-slate-500"></i>
                                     </button>
 
                                     @if(auth()->id() !== $user->id)

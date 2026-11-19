@@ -133,8 +133,8 @@ class BroadcastNotificationController extends Controller
                         'creator' => $b->creator->name ?? 'Sistem',
                     ]), ENT_QUOTES, 'UTF-8');
 
-                    $btnView = '<button type="button" class="btn-cancel !p-1 !h-7 !w-7 text-xs text-slate-500 hover:text-sky-600 hover:bg-sky-50 shadow-none border-slate-200" title="Lihat Detail Pesan" onclick=\'showDetailModal(' . $dataJson . ')\'><i class="fa-solid fa-eye"></i></button>';
-                    $btnDel = '<button type="button" class="btn-cancel !p-1 !h-7 !w-7 text-xs text-slate-400 hover:text-rose-600 hover:bg-rose-50 shadow-none border-slate-200" title="Hapus Riwayat" onclick="confirmDeleteBroadcast(' . $b->id . ')"><i class="fa-solid fa-trash-can"></i></button>';
+                    $btnView = '<button type="button" class="topbar-icon-btn !w-7 !h-7 !rounded-lg text-slate-500 hover:text-sky-600 hover:!border-sky-300 hover:!bg-sky-50 inline-flex items-center justify-center" title="Lihat Detail Pesan" onclick=\'showDetailModal(' . $dataJson . ')\'><i class="fa-solid fa-eye"></i></button>';
+                    $btnDel = '<button type="button" class="topbar-icon-btn !w-7 !h-7 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 hover:!text-rose-600 text-slate-500 inline-flex items-center justify-center" title="Hapus Riwayat" onclick="confirmDeleteBroadcast(' . $b->id . ')"><i class="fa-solid fa-trash-can"></i></button>';
 
                     return '<div class="flex items-center justify-center gap-1.5">' . $btnView . $btnDel . '</div>';
                 })

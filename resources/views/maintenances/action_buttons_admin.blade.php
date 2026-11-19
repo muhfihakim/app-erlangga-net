@@ -28,8 +28,8 @@
             <i class="fa-solid fa-file-circle-check text-emerald-600"></i>
         </button>
     @endif
-    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50" title="Hapus"
+    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 hover:!text-rose-600 inline-flex items-center justify-center" title="Hapus"
         onclick="confirmGlobalDelete('{{ route('maintenances.destroy', $m->id) }}', '{{ $m->customer->nama_lengkap ?? 'N/A' }}')">
-        <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i>
+        <i class="fa-solid fa-trash text-slate-500"></i>
     </button>
 </div>

@@ -310,7 +310,7 @@
                         class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5">
                         <i class="fa-solid fa-bolt"></i> <span id="btn-test-mikrotik-text">Uji Koneksi</span>
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
@@ -638,7 +638,7 @@
                         class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5">
                         <i class="fa-solid fa-bolt"></i> <span id="btn-test-olt-text">Uji Koneksi</span>
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
@@ -741,7 +741,7 @@
                         class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5">
                         <i class="fa-solid fa-bolt"></i> <span id="btn-test-radius-text">Uji Koneksi</span>
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
@@ -877,7 +877,7 @@
                         class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5">
                         <i class="fa-solid fa-bolt"></i> <span id="btn-test-xendit-text">Uji Koneksi</span>
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
@@ -968,7 +968,7 @@
                         class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5">
                         <i class="fa-solid fa-bolt"></i> <span id="btn-test-whatsapp-text">Uji Koneksi</span>
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
@@ -1073,7 +1073,7 @@
                         class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5">
                         <i class="fa-solid fa-bolt"></i> <span id="btn-test-genieacs-text">Uji Koneksi</span>
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
@@ -1172,7 +1172,7 @@
                         class="btn-primary-admin !bg-slate-700 hover:!bg-slate-800 !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5">
                         <i class="fa-solid fa-bolt"></i> <span id="btn-test-firebase-text">Uji Koneksi</span>
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>

@@ -296,7 +296,7 @@
                             @endforeach
                         </select>
                     @endif
-                    <button type="submit" class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold !bg-rose-600 hover:!bg-rose-700 !text-white flex items-center gap-1.5 shadow-sm">
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold !bg-rose-600 hover:!bg-rose-700 !text-white flex items-center justify-center gap-1.5 shadow-sm">
                         <i class="fa-solid fa-file-pdf"></i> Export PDF
                     </button>
                 </form>
@@ -698,7 +698,7 @@
                         <i class="fa-solid fa-xmark"></i> Batal Edit
                     </button>
                     <button type="submit"
-                        class="edit-only btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        class="edit-only btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 @endif
@@ -953,7 +953,7 @@
                     <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('isolirCustomerModal')">
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-ban"></i> Isolir Sekarang
                     </button>
                 </div>
@@ -994,7 +994,7 @@
                     <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('bukaIsolirCustomerModal')">
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-unlock-keyhole"></i> Buka Isolir Sekarang
                     </button>
                 </div>
@@ -1057,7 +1057,7 @@
                         <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('deactivateCustomerModal')">
                             <i class="fa-solid fa-xmark"></i> Batal
                         </button>
-                        <button type="submit" class="btn-primary-admin !bg-amber-600 hover:!bg-amber-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <button type="submit" class="btn-primary-admin !bg-amber-600 hover:!bg-amber-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                             <i class="fa-solid fa-box-archive"></i> Non-aktifkan (Arsipkan)
                         </button>
                     </div>
@@ -1101,7 +1101,7 @@
                         <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('restoreCustomerModal')">
                             <i class="fa-solid fa-xmark"></i> Batal
                         </button>
-                        <button type="submit" class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <button type="submit" class="btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                             <i class="fa-solid fa-rotate-left"></i> Aktifkan Kembali
                         </button>
                     </div>
@@ -1146,7 +1146,7 @@
                         <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('forceDeleteCustomerModal')">
                             <i class="fa-solid fa-xmark"></i> Batal
                         </button>
-                        <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                        <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                             <i class="fa-solid fa-trash"></i> Hapus
                         </button>
                     </div>

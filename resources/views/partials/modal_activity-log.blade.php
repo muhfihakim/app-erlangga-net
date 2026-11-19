@@ -37,7 +37,7 @@
                 <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('exportLogModal')">
                     <i class="fa-solid fa-xmark"></i> Batal
                 </button>
-                <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-file-pdf"></i> Unduh PDF
                 </button>
             </div>

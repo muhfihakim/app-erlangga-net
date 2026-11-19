@@ -741,7 +741,7 @@
             <div class="modal-footer border-t border-slate-200 bg-slate-50 px-5 py-2.5 flex items-center justify-between rounded-b-xl">
                 <button type="button" class="btn-cancel !h-8 !px-3 text-xs font-semibold" onclick="closeInvoiceModal()">Batal</button>
                 <div class="flex items-center gap-2">
-                    <button type="button" id="btnSendInvoiceApi" class="btn-primary-admin !h-8 !px-4 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700 flex items-center gap-1" onclick="sendInvoiceApi()">
+                    <button type="button" id="btnSendInvoiceApi" class="btn-primary-admin !h-8 !px-4 text-xs font-semibold !bg-emerald-600 hover:!bg-emerald-700 flex items-center justify-center gap-1" onclick="sendInvoiceApi()">
                         <i class="fa-solid fa-paper-plane text-xs"></i> Kirim Tagihan
                     </button>
                 </div>
@@ -783,7 +783,7 @@
             </div>
             <div class="modal-footer border-t border-slate-200 bg-slate-50 px-4 py-2 flex items-center justify-end gap-2 rounded-b-xl">
                 <button type="button" class="btn-cancel !h-7.5 !px-3 text-xs font-semibold" onclick="closeDeleteModal()">Batal</button>
-                <button type="button" id="btnConfirmDelete" class="btn-primary-admin !h-7.5 !px-3 text-xs font-semibold !bg-rose-600 hover:!bg-rose-700" onclick="confirmDeleteMessage()">
+                <button type="button" id="btnConfirmDelete" class="btn-primary-admin !h-7.5 !px-3 text-xs font-semibold !bg-rose-600 hover:!bg-rose-700 flex items-center justify-center gap-1" onclick="confirmDeleteMessage()">
                     Hapus
                 </button>
             </div>
@@ -1334,7 +1334,9 @@
                 if (!pendingDeleteId) return;
 
                 const btn = document.getElementById('btnConfirmDelete');
+                const origHtml = btn.innerHTML;
                 btn.disabled = true;
+                btn.innerHTML = '<span class="inline-flex items-center justify-center gap-1.5 w-full text-center leading-none"><i class="fa-solid fa-circle-notch fa-spin text-xs"></i> <span>Menghapus...</span></span>';
 
                 fetch(`{{ url('whatsapp/messages') }}/${pendingDeleteId}`, {
                     method: 'DELETE',
@@ -1347,6 +1349,7 @@
                 .then(res => res.json())
                 .then(data => {
                     btn.disabled = false;
+                    btn.innerHTML = origHtml;
                     closeDeleteModal();
                     if (data.success) {
                         if (activePhone) loadConversation(activePhone);
@@ -1544,7 +1547,9 @@
 
                 const msg = document.getElementById('invoiceMessagePreview').value;
                 const btn = document.getElementById('btnSendInvoiceApi');
+                const origHtml = btn.innerHTML;
                 btn.disabled = true;
+                btn.innerHTML = '<span class="inline-flex items-center justify-center gap-1.5 w-full text-center leading-none"><i class="fa-solid fa-circle-notch fa-spin text-xs"></i> <span>Mengirim...</span></span>';
 
                 fetch(`{{ route('whatsapp.send_invoice') }}`, {
                     method: 'POST',
@@ -1561,6 +1566,7 @@
                 .then(res => res.json())
                 .then(data => {
                     btn.disabled = false;
+                    btn.innerHTML = origHtml;
                     if (data.success) {
                         closeInvoiceModal();
                         loadConversation(activeContact.normalized_phone);

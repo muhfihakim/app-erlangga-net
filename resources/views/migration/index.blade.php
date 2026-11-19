@@ -375,7 +375,7 @@
                 <form id="formDeleteBackup" action="" method="POST" class="m-0">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-trash"></i> Hapus
                     </button>
                 </form>
@@ -410,7 +410,7 @@
                 <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('confirmImportModal')">
                     <i class="fa-solid fa-xmark"></i> Batal
                 </button>
-                <button type="button" id="btnExecuteImport" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5" onclick="proceedImport()">
+                <button type="button" id="btnExecuteImport" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5" onclick="proceedImport()">
                     <i class="fa-solid fa-file-import"></i> Mulai Import
                 </button>
             </div>
@@ -443,7 +443,7 @@
                 </button>
                 <form action="{{ route('migration.reset') }}" method="POST" class="m-0">
                     @csrf
-                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-trash"></i> Kosongkan Data
                     </button>
                 </form>
@@ -490,7 +490,7 @@
                     $('#confirm-import-box').attr('class', 'bg-emerald-50/70 p-3.5 rounded-xl border border-emerald-100 text-center');
                     $('#confirm-import-msg').html('Apakah Anda yakin ingin mengimpor akun PPPoE dari file <span class="text-emerald-700 font-bold">' + fileName + '</span>?');
                     $('#confirm-import-filename').attr('class', 'mt-2 text-xs font-semibold text-emerald-700 font-mono bg-white py-1.5 px-3 rounded-lg border border-emerald-200 inline-block max-w-full truncate shadow-xs').text(fileName);
-                    $('#btnExecuteImport').attr('class', 'btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !h-8 !px-4 text-xs font-semibold').text('Mulai Import');
+                    $('#btnExecuteImport').attr('class', 'btn-primary-admin !bg-emerald-600 hover:!bg-emerald-700 !h-8 !px-4 text-xs font-semibold inline-flex items-center justify-center gap-1.5').html('<i class="fa-solid fa-file-import"></i> Mulai Import');
 
                     $('#loadingTitle').text('Sedang Mengimpor Akun PPPoE...');
                     $('#loadingSubtitle').text('Sistem sedang membaca file Excel dan menyinkronkan data PPPoE ke Database RADIUS.');
@@ -511,7 +511,7 @@
                     $('#confirm-import-box').attr('class', 'bg-indigo-50/70 p-3.5 rounded-xl border border-indigo-100 text-center');
                     $('#confirm-import-msg').html('Apakah Anda yakin ingin memulihkan seluruh Paket, PPPoE, Faktur, dan Transaksi dari file <span class="text-indigo-700 font-bold">' + fileName + '</span>?');
                     $('#confirm-import-filename').attr('class', 'mt-2 text-xs font-semibold text-indigo-700 font-mono bg-white py-1.5 px-3 rounded-lg border border-indigo-200 inline-block max-w-full truncate shadow-xs').text(fileName);
-                    $('#btnExecuteImport').attr('class', 'btn-primary-admin !bg-indigo-600 hover:!bg-indigo-700 !h-8 !px-4 text-xs font-semibold').text('Mulai Import');
+                    $('#btnExecuteImport').attr('class', 'btn-primary-admin !bg-indigo-600 hover:!bg-indigo-700 !h-8 !px-4 text-xs font-semibold inline-flex items-center justify-center gap-1.5').html('<i class="fa-solid fa-file-import"></i> Mulai Import');
 
                     $('#loadingTitle').text('Sedang Memproses Full Backup...');
                     $('#loadingSubtitle').text('Sistem sedang mengimpor paket, akun PPPoE, faktur invoice, dan riwayat transaksi.');

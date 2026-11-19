@@ -66,9 +66,9 @@
                                     <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
                                         onclick="editNasModal({{ $router->id }}, '{{ $router->shortname }}', '{{ $router->nasname }}', '{{ $router->secret }}', '{{ $router->description }}')"
                                         title="Edit"><i class="fa-solid fa-pen-to-square text-slate-500 hover:text-amber-600"></i></button>
-                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg"
+                                    <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 hover:!text-rose-600"
                                         onclick="confirmGlobalDelete('{{ route('nas.destroy', $router->id) }}', 'Router {{ $router->shortname }}')"
-                                        title="Hapus"><i class="fa-solid fa-trash text-slate-500 hover:text-rose-600"></i></button>
+                                        title="Hapus"><i class="fa-solid fa-trash text-slate-500"></i></button>
                                 </div>
                             </td>
                         </tr>
@@ -125,7 +125,7 @@
                     <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('formNasModal')">
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="btn-primary-admin !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan
                     </button>
                 </div>

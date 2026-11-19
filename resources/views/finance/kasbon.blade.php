@@ -468,10 +468,10 @@
                                         </button>
 
                                         <!-- Tombol Hapus Kasbon -->
-                                        <button type="button" class="topbar-icon-btn !w-7 !h-7 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50"
+                                        <button type="button" class="topbar-icon-btn !w-7 !h-7 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 hover:!text-rose-600 inline-flex items-center justify-center"
                                             title="Hapus Kasbon"
                                             onclick="confirmGlobalDelete('{{ route('kasbons.destroy', $k->id) }}', 'Kasbon {{ addslashes($applicant->nama_lengkap ?? '') }} (Rp {{ $nominalFormatted }})')">
-                                            <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600 text-xs"></i>
+                                            <i class="fa-solid fa-trash text-slate-500 text-xs"></i>
                                         </button>
 
                                     @else
@@ -486,10 +486,10 @@
                                             </button>
 
                                             <!-- Tombol Batalkan Pengajuan -->
-                                            <button type="button" class="topbar-icon-btn !w-7 !h-7 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50"
+                                            <button type="button" class="topbar-icon-btn !w-7 !h-7 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 hover:!text-rose-600 inline-flex items-center justify-center"
                                                 title="Batalkan Pengajuan"
                                                 onclick="confirmGlobalDelete('{{ route('kasbons.destroy', $k->id) }}', 'Pengajuan kasbon Rp {{ $nominalFormatted }}')">
-                                                <i class="fa-solid fa-trash text-slate-500 hover:text-rose-600 text-xs"></i>
+                                                <i class="fa-solid fa-trash text-slate-500 text-xs"></i>
                                             </button>
                                         @else
                                             <span class="text-slate-300 text-xs font-semibold">-</span>
@@ -601,7 +601,7 @@
                         onclick="closeCustomModal('kasbonModal')">
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-8 !px-4 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="btn-primary-admin !h-8 !px-4 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid {{ $isAdmin ? 'fa-floppy-disk' : 'fa-paper-plane' }}"></i>
                         {{ $isAdmin ? 'Simpan Kasbon' : 'Kirim Pengajuan' }}
                     </button>
@@ -678,7 +678,7 @@
                         onclick="closeCustomModal('editKasbonModal')">
                         <i class="fa-solid fa-xmark"></i> Batal
                     </button>
-                    <button type="submit" class="btn-primary-admin !h-8 !px-4 text-xs font-semibold shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="btn-primary-admin !h-8 !px-4 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan
                     </button>
                 </div>
@@ -737,7 +737,7 @@
                             onclick="closeCustomModal('accModal')">
                             <i class="fa-solid fa-xmark"></i> Batal
                         </button>
-                        <button type="submit" class="btn-primary-admin !h-8 !px-4 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-emerald-600 hover:!bg-emerald-700">
+                        <button type="submit" class="btn-primary-admin !h-8 !px-4 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5 !bg-emerald-600 hover:!bg-emerald-700">
                             <i class="fa-solid fa-check"></i> Setujui (ACC)
                         </button>
                     </div>
@@ -787,7 +787,7 @@
                             onclick="closeCustomModal('rejectModal')">
                             <i class="fa-solid fa-xmark"></i> Batal
                         </button>
-                        <button type="submit" class="btn-primary-admin !h-8 !px-4 text-xs font-semibold shadow-xs flex items-center gap-1.5 !bg-rose-600 hover:!bg-rose-700">
+                        <button type="submit" class="btn-primary-admin !h-8 !px-4 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5 !bg-rose-600 hover:!bg-rose-700">
                             <i class="fa-solid fa-ban"></i> Tolak Pengajuan
                         </button>
                     </div>
