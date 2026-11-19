@@ -445,7 +445,7 @@
             <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between items-center">
                 <button type="button" class="btn-cancel !h-8.5 !px-3.5 text-xs font-semibold !text-rose-600 hover:!bg-rose-50 border-rose-200 flex items-center gap-1.5"
                     onclick="deleteFromDetail()">
-                    <i class="fa-solid fa-trash-can"></i> Hapus Riwayat
+                    <i class="fa-solid fa-trash"></i> Hapus Riwayat
                 </button>
                 <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
                     onclick="closeCustomModal('detailBroadcastModal')">

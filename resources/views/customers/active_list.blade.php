@@ -1023,7 +1023,7 @@
                 <form id="deactivateCustomerForm" method="POST" action="">
                     @csrf
                     @method('DELETE')
-                    <div class="p-5 space-y-3.5">
+                    <div class="p-5 sm:p-6 space-y-4">
                         <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 space-y-1">
                             <div class="font-bold flex items-center gap-1.5 text-amber-900">
                                 <i class="fa-solid fa-triangle-exclamation"></i> Konfirmasi Penonaktifan:
@@ -1032,7 +1032,7 @@
                                 Apakah Anda yakin ingin menonaktifkan pelanggan <strong id="deactivateCustomerName" class="text-slate-900 font-bold"></strong>?
                             </p>
                         </div>
-                        <div class="form-group mb-0">
+                        <div class="pt-0.5">
                             <label class="form-label text-slate-700 font-medium text-xs mb-1.5 block">
                                 Alasan Penonaktifan <span class="text-rose-500">*</span>
                             </label>
@@ -1041,7 +1041,7 @@
                                 <option value="isolir_3_bulan">Tenggat 3 Bulan Isolir Tanpa Pembayaran</option>
                             </select>
                         </div>
-                        <div class="text-xs text-slate-600 space-y-1.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                        <div class="text-xs text-slate-600 space-y-1.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200 !mt-4.5">
                             <div class="font-semibold text-slate-800 mb-1">Keterangan arsip & jaringan:</div>
                             <div class="flex items-start gap-2">
                                 <i class="fa-solid fa-circle-check text-emerald-600 mt-0.5"></i>
