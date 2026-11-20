@@ -36,7 +36,7 @@
             <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-sm border border-rose-100 shrink-0">
-                        <i class="fa-solid fa-trash-can"></i>
+                        <i class="fa-solid fa-trash"></i>
                     </div>
                     <div>
                         <h3 class="text-base font-bold text-slate-900 m-0">Hapus Data</h3>

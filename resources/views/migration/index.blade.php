@@ -342,47 +342,6 @@
         </div>
     </div>
 
-    <!-- Confirm Delete Backup Modal -->
-    <div class="modal-overlay" id="deleteBackupModal">
-        <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
-            <div class="modal-header border-b border-slate-200 bg-white px-5 py-3.5 flex items-center justify-between">
-                <div>
-                    <h3 class="text-sm font-bold text-slate-900 m-0">Hapus File Backup</h3>
-                    <p class="text-[11px] text-slate-500 m-0 mt-0.5">Konfirmasi penghapusan arsip cadangan.</p>
-                </div>
-                <button type="button" class="modal-close" onclick="closeCustomModal('deleteBackupModal')">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <div class="modal-body p-4 bg-white">
-                <div class="bg-rose-50 p-3.5 rounded-xl border border-rose-200 text-center">
-                    <p class="text-xs font-bold text-slate-800 leading-relaxed mb-2">
-                        Apakah Anda yakin ingin menghapus arsip file backup ini dari server?
-                    </p>
-                    <div class="text-xs font-semibold text-rose-700 font-mono bg-white py-1.5 px-3 rounded-lg border border-rose-200 inline-block max-w-full truncate shadow-xs mb-2"
-                        id="deleteBackupFilename">
-                        -
-                    </div>
-                    <p class="text-[11px] text-slate-500 m-0">
-                        File .CSV yang tersimpan di server akan dihapus secara permanen beserta catatan riwayatnya.
-                    </p>
-                </div>
-            </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-5 py-3 flex items-center justify-between gap-2">
-                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('deleteBackupModal')">
-                    <i class="fa-solid fa-xmark"></i> Batal
-                </button>
-                <form id="formDeleteBackup" action="" method="POST" class="m-0">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
-                        <i class="fa-solid fa-trash"></i> Hapus
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <!-- Confirm Import Modal -->
     <div class="modal-overlay" id="confirmImportModal">
         <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
@@ -530,12 +489,6 @@
                 if (form) {
                     form.submit();
                 }
-            }
-
-            function confirmDeleteBackup(id, filename) {
-                $('#deleteBackupFilename').text(filename);
-                $('#formDeleteBackup').attr('action', '/migration/backup/' + id);
-                openCustomModal('deleteBackupModal');
             }
 
             $(document).ready(function() {

@@ -197,12 +197,9 @@
                 <button type="button" onclick="openNextAdjustmentModal()" class="topbar-icon-btn !h-8 !px-3 text-xs font-semibold bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 !w-auto !rounded-lg" title="Edit Penyesuaian">
                     <i class="fa-solid fa-pen-to-square mr-1"></i> Ubah
                 </button>
-                <form action="{{ route('invoices.clear_next_adjustment', $pppoe->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan penyesuaian tagihan berikutnya?');" class="m-0 p-0">
-                    @csrf
-                    <button type="submit" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 hover:!text-rose-600 inline-flex items-center justify-center" title="Hapus Penyesuaian">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </button>
-                </form>
+                <button type="button" onclick="confirmGlobalDelete('{{ route('invoices.clear_next_adjustment', $pppoe->id) }}', 'Penyesuaian Tagihan PPPoE {{ addslashes($pppoe->username) }}')" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 hover:!text-rose-600 inline-flex items-center justify-center" title="Hapus Penyesuaian">
+                    <i class="fa-solid fa-trash text-slate-500"></i>
+                </button>
             </div>
         </div>
     @endif

@@ -320,15 +320,11 @@
                                             class="topbar-icon-btn !w-7 !h-7 !rounded-lg" title="Edit">
                                             <i class="fa-solid fa-pen text-[11px] text-slate-500"></i>
                                         </button>
-                                        <form action="{{ route('bank_accounts.destroy', $acc->id) }}" method="POST" class="inline"
-                                            onsubmit="return confirm('Hapus rekening bank ini dari daftar tersimpan?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                class="topbar-icon-btn !w-7 !h-7 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 hover:!text-rose-600" title="Hapus">
-                                                <i class="fa-solid fa-trash text-[11px]"></i>
-                                            </button>
-                                        </form>
+                                        <button type="button"
+                                            onclick="confirmGlobalDelete('{{ route('bank_accounts.destroy', $acc->id) }}', 'Rekening {{ addslashes($acc->bank_name) }} ({{ $acc->account_number }})')"
+                                            class="topbar-icon-btn !w-7 !h-7 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 hover:!text-rose-600 inline-flex items-center justify-center" title="Hapus">
+                                            <i class="fa-solid fa-trash text-[11px]"></i>
+                                        </button>
                                     </div>
                                 </div>
                             </div>

@@ -160,44 +160,6 @@
     </div>
 </div>
 
-{{-- Modal Hapus --}}
-<div class="modal-overlay" id="deleteModal">
-    <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
-        <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-sm border border-rose-100 shrink-0">
-                    <i class="fa-solid fa-trash-can"></i>
-                </div>
-                <div>
-                    <h3 class="text-sm font-bold text-slate-900 m-0">Hapus Akun</h3>
-                    <p class="text-[11px] text-slate-500 m-0 mt-0.5">Konfirmasi penghapusan pengguna.</p>
-                </div>
-            </div>
-            <button type="button" class="modal-close" onclick="closeCustomModal('deleteModal')">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </div>
-        <div class="modal-body p-5 bg-white">
-            <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 space-y-1">
-                <div class="font-bold flex items-center gap-1.5 text-rose-900">
-                    <i class="fa-solid fa-triangle-exclamation"></i> Peringatan:
-                </div>
-                <p class="m-0 leading-relaxed text-slate-700">
-                    Apakah Anda yakin ingin menghapus akun <strong class="text-rose-700 font-bold" id="delete_user_name"></strong>? Tindakan ini tidak dapat dibatalkan.
-                </p>
-            </div>
-        </div>
-        <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex items-center justify-end gap-2.5">
-            <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('deleteModal')"><i class="fa-solid fa-xmark"></i> Batal</button>
-            <form id="deleteForm" method="POST" class="m-0">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5"><i class="fa-solid fa-trash"></i> Hapus</button>
-            </form>
-        </div>
-    </div>
-</div>
-
 {{-- Modal QR Code 2FA --}}
 <div class="modal-overlay" id="qrModal">
     <div class="modal-box max-w-sm bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden text-center">

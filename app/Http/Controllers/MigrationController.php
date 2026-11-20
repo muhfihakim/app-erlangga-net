@@ -86,7 +86,7 @@ class MigrationController extends Controller
                         <a href="' . $downloadUrl . '" target="_blank" class="topbar-icon-btn !w-8 !h-8 !rounded-lg text-slate-500 hover:text-slate-800" title="Unduh File Backup">
                             <i class="fa-solid fa-download"></i>
                         </a>
-                        <button type="button" onclick="confirmDeleteBackup(' . $log->id . ', \'' . $safeFileName . '\')" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 hover:!text-rose-600 text-slate-500 inline-flex items-center justify-center" title="Hapus File Backup">
+                        <button type="button" onclick="confirmGlobalDelete(\'' . route('migration.backup.delete', $log->id) . '\', \'File Backup ' . $safeFileName . '\')" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 hover:!text-rose-600 text-slate-500 inline-flex items-center justify-center" title="Hapus File Backup">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>';

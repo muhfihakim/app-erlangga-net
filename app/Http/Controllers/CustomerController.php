@@ -368,7 +368,7 @@ class CustomerController extends Controller
                                     <i class="fa-solid fa-rotate-left text-emerald-600"></i>
                                 </button>
                                 <button type="button" class="topbar-icon-btn !w-8 !h-8 !rounded-lg hover:!border-rose-300 hover:!bg-rose-50 hover:!text-rose-600 inline-flex items-center justify-center" title="Hapus Permanen"
-                                    onclick="openForceDeleteCustomerModal(\'' . route('customers.force_delete', $customer->id) . '\', \'' . htmlspecialchars(addslashes($customer->nama_lengkap), ENT_QUOTES) . '\')">
+                                    onclick="confirmGlobalDelete(\'' . route('customers.force_delete', $customer->id) . '\', \'Pelanggan ' . htmlspecialchars(addslashes($customer->nama_lengkap), ENT_QUOTES) . '\')">
                                     <i class="fa-solid fa-trash text-slate-500"></i>
                                 </button>
                             ';

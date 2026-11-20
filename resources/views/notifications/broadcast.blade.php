@@ -455,34 +455,10 @@
         </div>
     </div>
 
-    <!-- MODAL: Konfirmasi Hapus (Seragam modal-overlay) -->
-    <div class="modal-overlay" id="deleteBroadcastModal">
-        <div class="modal-box max-w-sm bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
-            <div class="p-6 text-center space-y-3">
-                <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-xl mx-auto">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                </div>
-                <h3 class="text-base font-bold text-slate-900 m-0">Hapus Riwayat Pemberitahuan?</h3>
-                <p class="text-xs text-slate-500 m-0">Log pengiriman ini dan pesan terkait di kotak masuk aplikasi mobile pelanggan akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.</p>
-            </div>
-            <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between items-center gap-2">
-                <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5"
-                    onclick="closeCustomModal('deleteBroadcastModal')">
-                    <i class="fa-solid fa-xmark"></i> Batal
-                </button>
-                <button type="button" id="btnConfirmDelete" onclick="executeDeleteBroadcast()"
-                    class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
-                    <i class="fa-solid fa-trash"></i> Hapus
-                </button>
-            </div>
-        </div>
-    </div>
-
     @section('Scripts')
         <script src="{{ asset('dist/js/jquery.dataTables.min.js') }}"></script>
         <script>
             let broadcastTable;
-            let pendingDeleteId = null;
 
             $(document).ready(function() {
                 broadcastTable = $('#broadcast-table').DataTable({
@@ -692,9 +668,11 @@
             }
 
             let currentDetailId = null;
+            let currentDetailTitle = '';
 
             function showDetailModal(item) {
                 currentDetailId = item.id;
+                currentDetailTitle = item.title;
                 document.getElementById('detail_title').textContent = item.title;
                 document.getElementById('detail_body').textContent = item.body;
                 
@@ -717,75 +695,9 @@
             function deleteFromDetail() {
                 if (!currentDetailId) return;
                 const idToDelete = currentDetailId;
+                const titleToDelete = currentDetailTitle || 'Riwayat Pemberitahuan';
                 closeCustomModal('detailBroadcastModal');
-                confirmDeleteBroadcast(idToDelete);
-            }
-
-            function confirmDeleteBroadcast(id) {
-                pendingDeleteId = id;
-                openCustomModal('deleteBroadcastModal');
-            }
-
-            function executeDeleteBroadcast() {
-                if (!pendingDeleteId) {
-                    showToast('Pilih riwayat pemberitahuan yang ingin dihapus.', 'error');
-                    return;
-                }
-
-                const btn = document.getElementById('btnConfirmDelete');
-                const origHtml = btn.innerHTML;
-                btn.innerHTML = "<span class='inline-flex items-center justify-center gap-2 w-full text-center leading-none'><i class='fa-solid fa-circle-notch fa-spin text-xs'></i> <span>Menghapus...</span></span>";
-                btn.disabled = true;
-
-                // Gunakan URL relatif agar kompatibel dengan SSL/HTTPS dan tidak memicu mixed-content
-                const targetUrl = `/broadcasts/${pendingDeleteId}`;
-
-                fetch(targetUrl, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-HTTP-Method-Override': 'DELETE',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        _method: 'DELETE',
-                        _token: '{{ csrf_token() }}',
-                        id: pendingDeleteId
-                    })
-                })
-                .then(res => {
-                    return res.json().then(data => {
-                        if (!res.ok) {
-                            throw new Error(data.message || `Gagal menghapus (HTTP ${res.status})`);
-                        }
-                        return data;
-                    }).catch(e => {
-                        if (!res.ok) throw new Error(`HTTP ${res.status}: Gagal memproses permintaan`);
-                        return { success: true, message: 'Riwayat pemberitahuan berhasil dihapus.' };
-                    });
-                })
-                .then(data => {
-                    btn.innerHTML = origHtml;
-                    btn.disabled = false;
-                    closeCustomModal('deleteBroadcastModal');
-
-                    if (data.success) {
-                        showToast(data.message || 'Riwayat pemberitahuan berhasil dihapus.', 'success');
-                        pendingDeleteId = null;
-                        currentDetailId = null;
-                        reloadTable();
-                    } else {
-                        showToast(data.message || 'Gagal menghapus riwayat pemberitahuan.', 'error');
-                    }
-                })
-                .catch(err => {
-                    btn.innerHTML = origHtml;
-                    btn.disabled = false;
-                    closeCustomModal('deleteBroadcastModal');
-                    showToast(err.message || 'Terjadi kesalahan jaringan.', 'error');
-                });
+                confirmGlobalDelete('/broadcasts/' + idToDelete, 'Pemberitahuan: ' + titleToDelete);
             }
         </script>
     @endsection

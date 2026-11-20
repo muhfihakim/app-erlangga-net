@@ -1108,51 +1108,6 @@
                 </form>
             </div>
         </div>
-
-        <!-- Modal Hapus Permanen Pelanggan (Force Delete) -->
-        <div class="modal-overlay" id="forceDeleteCustomerModal">
-            <div class="modal-box max-w-md bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
-                <div class="modal-header border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-sm border border-rose-100 shrink-0">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-base font-bold text-slate-900 m-0">Hapus Permanen Pelanggan</h3>
-                            <p class="text-xs text-rose-600 font-semibold m-0 mt-0.5">Tindakan ini tidak dapat dibatalkan!</p>
-                        </div>
-                    </div>
-                    <button type="button" class="modal-close" onclick="closeCustomModal('forceDeleteCustomerModal')">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-                <form id="forceDeleteCustomerForm" method="POST" action="">
-                    @csrf
-                    @method('DELETE')
-                    <div class="p-5 space-y-3.5">
-                        <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 space-y-1">
-                            <div class="font-bold flex items-center gap-1.5 text-rose-900">
-                                <i class="fa-solid fa-trash-can"></i> Peringatan Penghapusan Permanen:
-                            </div>
-                            <p class="m-0 leading-relaxed">
-                                Data pelanggan <strong id="forceDeleteCustomerName" class="text-slate-900 font-bold"></strong> beserta akun PPPoE dan file dokumentasi akan <strong>dihapus selamanya dari database</strong>.
-                            </p>
-                        </div>
-                        <p class="text-xs text-slate-500 m-0">
-                            Gunakan fitur ini hanya jika data benar-benar tidak diperlukan lagi atau terjadi duplikasi data.
-                        </p>
-                    </div>
-                    <div class="modal-footer border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-between gap-2">
-                        <button type="button" class="btn-cancel !h-8.5 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="closeCustomModal('forceDeleteCustomerModal')">
-                            <i class="fa-solid fa-xmark"></i> Batal
-                        </button>
-                        <button type="submit" class="btn-primary-admin !bg-rose-600 hover:!bg-rose-700 !text-white !h-8.5 !px-5 text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-trash"></i> Hapus
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
     @endif
 
     @section('Scripts')
@@ -1396,16 +1351,6 @@
                     form.action = url;
                     nameEl.innerText = name;
                     openCustomModal('restoreCustomerModal');
-                }
-            }
-
-            function openForceDeleteCustomerModal(url, name) {
-                const form = document.getElementById('forceDeleteCustomerForm');
-                const nameEl = document.getElementById('forceDeleteCustomerName');
-                if (form && nameEl) {
-                    form.action = url;
-                    nameEl.innerText = name;
-                    openCustomModal('forceDeleteCustomerModal');
                 }
             }
 
