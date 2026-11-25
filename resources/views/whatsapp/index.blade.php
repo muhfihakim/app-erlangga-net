@@ -750,8 +750,8 @@
     </div>
 
     <!-- Modal Rincian Akun Pelanggan -->
-    <div class="modal-overlay hidden" id="customerInfoModal">
-        <div class="modal-box max-w-sm bg-white border border-slate-300 shadow-xl rounded-xl">
+    <div class="modal-overlay" id="customerInfoModal">
+        <div class="modal-box max-w-sm bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
             <div class="modal-header border-b border-slate-200 px-4 py-3 flex items-center justify-between">
                 <h3 class="text-xs font-bold text-slate-900 m-0">Rincian Pelanggan</h3>
                 <button type="button" class="modal-close" onclick="toggleCustomerInfo()">
@@ -768,8 +768,8 @@
     </div>
 
     <!-- Modal Konfirmasi Hapus Pesan -->
-    <div class="modal-overlay hidden" id="deleteMsgModal">
-        <div class="modal-box max-w-xs bg-white border border-slate-300 shadow-xl rounded-xl">
+    <div class="modal-overlay" id="deleteMsgModal">
+        <div class="modal-box max-w-xs bg-white border border-slate-300 shadow-2xl rounded-2xl overflow-hidden">
             <div class="modal-header border-b border-slate-200 px-4 py-3 flex items-center justify-between">
                 <h3 class="text-xs font-bold text-rose-700 m-0 flex items-center gap-1.5">
                     <i class="fa-regular fa-trash-can"></i> Hapus Pesan
@@ -1322,12 +1322,12 @@
                 menu.classList.add('hidden');
 
                 pendingDeleteId = activeMenuMsg.id;
-                document.getElementById('deleteMsgModal').classList.remove('hidden');
+                openCustomModal('deleteMsgModal');
             }
 
             function closeDeleteModal() {
                 pendingDeleteId = null;
-                document.getElementById('deleteMsgModal').classList.add('hidden');
+                closeCustomModal('deleteMsgModal');
             }
 
             function confirmDeleteMessage() {
@@ -1582,9 +1582,12 @@
 
             function toggleCustomerInfo() {
                 const modal = document.getElementById('customerInfoModal');
-                modal.classList.toggle('hidden');
+                if (modal.classList.contains('open')) {
+                    closeCustomModal('customerInfoModal');
+                    return;
+                }
 
-                if (!modal.classList.contains('hidden') && activeContact) {
+                if (activeContact) {
                     const body = document.getElementById('customerInfoBody');
                     body.innerHTML = `
                         <div class="p-2.5 bg-slate-50 border border-slate-200 rounded">
@@ -1615,6 +1618,7 @@
                         </div>
                     `;
                 }
+                openCustomModal('customerInfoModal');
             }
 
             function getInitials(name) {

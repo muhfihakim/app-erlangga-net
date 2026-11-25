@@ -25,6 +25,10 @@ class OltTelnetService
 
     public function connect()
     {
+        if (empty($this->host) || empty($this->username) || empty($this->password)) {
+            throw new Exception("Konfigurasi OLT belum lengkap. Harap atur Host, Username, dan Password OLT pada menu Pengaturan.");
+        }
+
         try {
             $this->connection = @fsockopen($this->host, $this->port, $errno, $errstr, $this->timeout);
             if (!$this->connection) {
@@ -126,9 +130,9 @@ class OltTelnetService
         }
     }
 
-    private function write(string $data)
+    private function write(?string $data)
     {
-        fputs($this->connection, $data . "\r\n");
+        fputs($this->connection, (string) ($data ?? '') . "\r\n");
     }
 
     private function readUntil(array $prompts)

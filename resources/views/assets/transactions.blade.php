@@ -1,64 +1,8 @@
 <x-layouts.app>
-    @section('Css')
-        <style>
-            /* Hakatech DataTables Customization */
-            .dataTables_wrapper {
-                padding: 0;
-            }
-
-            .dataTables_filter {
-                display: none;
-            }
-
-            .dataTables_paginate {
-                display: flex;
-                justify-content: flex-end;
-                padding: 1.25rem 1.5rem;
-                gap: 4px;
-                border-top: 1px solid #f1f5f9;
-            }
-
-            .paginate_button {
-                width: 34px;
-                height: 34px;
-                border-radius: 8px;
-                border: 1.5px solid #e2e8f0;
-                background: #fff;
-                color: #64748b !important;
-                font-size: 13px;
-                font-weight: 600;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-            }
-
-            .paginate_button.current {
-                background: #0ea5e9;
-                border-color: #0ea5e9;
-                color: #fff !important;
-            }
-
-            #transactionTable td {
-                padding: 10px 14px;
-                font-size: 13px;
-            }
-
-            #transactionTable th {
-                padding: 11px 14px;
-                font-size: 12px;
-                font-weight: 700;
-                color: #64748b;
-                letter-spacing: 0.05em;
-                text-transform: uppercase !important;
-            }
-        </style>
-    @endsection
-
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+    <div class="page-header">
         <div>
-            <h1 style="font-size:22px;font-weight:900;margin:0;">Riwayat Mutasi Barang</h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Log lengkap arus keluar dan masuk inventaris gudang.</p>
+            <h1 class="page-title">Riwayat Mutasi Barang</h1>
+            <p class="page-subtitle">Log lengkap arus keluar dan masuk inventaris gudang.</p>
         </div>
         <div style="display:flex; gap:10px;">
             <a href="{{ route('assets.index') }}" class="btn-cancel !bg-white !border-slate-200 !text-slate-600 !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-2">

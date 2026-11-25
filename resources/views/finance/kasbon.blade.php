@@ -1,105 +1,11 @@
 <x-layouts.app>
-    @section('styles')
-        <style>
-            #kasbon-table th {
-                padding: 8px 10px !important;
-                font-size: 11px !important;
-                font-weight: 700 !important;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-                color: #64748b;
-                background-color: #f8fafc;
-                border-bottom: 1px solid #e2e8f0;
-                vertical-align: middle !important;
-                white-space: nowrap;
-            }
-
-            #kasbon-table td {
-                padding: 7px 10px !important;
-                font-size: 12px;
-                vertical-align: middle !important;
-                white-space: nowrap;
-            }
-
-            .badge-status-pending {
-                display: inline-flex;
-                align-items: center;
-                gap: 4px;
-                padding: 2px 7px;
-                border-radius: 9999px;
-                font-size: 10px;
-                font-weight: 700;
-                background-color: #fef3c7;
-                color: #b45309;
-                border: 1px solid #fde68a;
-            }
-
-            .badge-status-approved {
-                display: inline-flex;
-                align-items: center;
-                gap: 4px;
-                padding: 2px 7px;
-                border-radius: 9999px;
-                font-size: 10px;
-                font-weight: 700;
-                background-color: #dcfce7;
-                color: #15803d;
-                border: 1px solid #bbf7d0;
-            }
-
-            .badge-status-rejected {
-                display: inline-flex;
-                align-items: center;
-                gap: 4px;
-                padding: 2px 7px;
-                border-radius: 9999px;
-                font-size: 10px;
-                font-weight: 700;
-                background-color: #fee2e2;
-                color: #b91c1c;
-                border: 1px solid #fecaca;
-            }
-
-            .dataTables_paginate {
-                display: flex !important;
-                align-items: center;
-                justify-content: flex-end;
-                gap: 4px;
-                padding: 10px 14px !important;
-            }
-
-            .paginate_button {
-                border: 1px solid #e2e8f0 !important;
-                background: #fff !important;
-                border-radius: 6px !important;
-                color: #64748b !important;
-                font-size: 11px !important;
-                font-weight: 600 !important;
-                min-width: 28px;
-                height: 28px;
-                display: inline-flex !important;
-                align-items: center;
-                justify-content: center;
-                padding: 0 5px !important;
-                cursor: pointer;
-                transition: all 0.15s ease;
-            }
-
-            .paginate_button.current {
-                background: #0ea5e9 !important;
-                border-color: #0ea5e9 !important;
-                color: #fff !important;
-            }
-        </style>
-    @endsection
-
     <!-- Page Header (Compact) -->
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+    <div class="page-header">
         <div>
-            <h1 style="font-size:20px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <h1 class="page-title flex items-center gap-2">
                 Kasbon
             </h1>
-            <p style="font-size:12px;color:#64748b;margin:2px 0 0;">
+            <p class="page-subtitle">
                 @if ($isAdmin)
                     Pengelolaan, persetujuan (ACC), dan pencatatan kasbon operasional teknisi dan sales.
                 @elseif ($isTeknisi)

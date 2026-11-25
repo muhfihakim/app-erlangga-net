@@ -1,132 +1,16 @@
 <x-layouts.app>
-    @section('Css')
-        <style>
-            #aktivasi-table td,
-            .admin-table td {
-                padding: 10px 14px;
-                font-size: 13px;
-                vertical-align: middle;
-            }
-
-            #aktivasi-table th,
-            .admin-table th {
-                padding: 11px 14px;
-                font-size: 12px;
-                font-weight: 700;
-                color: #64748b;
-                letter-spacing: 0.05em;
-                text-transform: uppercase !important;
-                vertical-align: middle;
-            }
-
-            .stats-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-                gap: 0.75rem;
-                margin-bottom: 1.25rem;
-            }
-
-            .stat-card {
-                background: #fff;
-                border-radius: 12px;
-                padding: 0.75rem 1rem;
-                border: 1px solid #e2e8f0;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                min-height: 72px;
-                transition: all 0.2s;
-            }
-
-            .stat-card:hover {
-                border-color: #cbd5e1;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            }
-
-            .stat-icon {
-                width: 40px;
-                height: 40px;
-                min-width: 40px;
-                border-radius: 10px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 16px;
-                flex-shrink: 0;
-            }
-
-            .stat-val {
-                font-size: 17px;
-                font-weight: 800;
-                color: #0f172a;
-                line-height: 1.25;
-                display: flex;
-                align-items: baseline;
-                gap: 5px;
-                flex-wrap: wrap;
-            }
-
-            .stat-lbl {
-                font-size: 12px;
-                font-weight: 600;
-                color: #64748b;
-                margin-top: 2px;
-            }
-
-            .dataTables_wrapper {
-                position: relative;
-                min-height: 200px;
-                padding: 0;
-            }
-
-            .dataTables_filter {
-                display: none;
-            }
-
-            .dataTables_paginate {
-                display: flex;
-                justify-content: flex-end;
-                padding: 1.25rem 1.5rem;
-                gap: 4px;
-                border-top: 1px solid #f1f5f9;
-            }
-
-            .paginate_button {
-                width: 34px;
-                height: 34px;
-                border-radius: 8px;
-                border: 1.5px solid #e2e8f0;
-                background: #fff;
-                color: #64748b !important;
-                font-size: 13px;
-                font-weight: 600;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-            }
-
-            .paginate_button.current {
-                background: #0ea5e9 !important;
-                border-color: #0ea5e9 !important;
-                color: #fff !important;
-            }
-        </style>
-    @endsection
-
     <!-- Page Header -->
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+    <div class="page-header">
         <div>
-            <h1 style="font-size:22px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <h1 class="page-title flex items-center gap-2">
                 Laporan Aktivasi (Sales)
             </h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Data pemasangan baru dan kontribusi penjualan sales.</p>
+            <p class="page-subtitle">Data pemasangan baru dan kontribusi penjualan sales.</p>
         </div>
-        <div style="display:flex; gap:10px;">
+        <div class="flex items-center gap-2">
             @if ($isFiltered)
                 <a href="{{ route('activitylog.aktivasi_sales.export', ['start_date' => $start, 'end_date' => $end, 'sales_id' => $salesId]) }}"
-                    class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-1.5 !bg-rose-600 hover:!bg-rose-700 shadow-sm" target="_blank">
+                    class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-1.5 !bg-rose-600 hover:!bg-rose-700 shadow-sm" target="_blank">
                     <i class="fa-solid fa-file-pdf"></i> Export PDF
                 </a>
             @endif

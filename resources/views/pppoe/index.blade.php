@@ -1,82 +1,18 @@
 <x-layouts.app>
     @section('Css')
         <style>
-            #pppoe-table thead th {
-                text-transform: uppercase !important;
-                font-weight: 600;
-                font-size: 12px;
-            }
-
-            #pppoe-table tbody td {
-                font-size: 12px;
-            }
-
             .pppoe-username-val {
                 text-transform: none !important;
-            }
-
-            .dataTables_wrapper {
-                position: relative;
-                min-height: 200px;
-                padding: 0;
-            }
-
-            .dataTables_wrapper .dataTables_processing {
-                position: absolute !important;
-                top: 50% !important;
-                left: 50% !important;
-                transform: translate(-50%, -50%) !important;
-                background: rgba(255, 255, 255, 0.95) !important;
-                padding: 15px 25px !important;
-                border-radius: 12px !important;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
-                z-index: 50 !important;
-                margin: 0 !important;
-                border: 1px solid #e2e8f0 !important;
-                width: auto !important;
-                height: auto !important;
-                text-align: center;
-            }
-
-            .dataTables_paginate {
-                display: flex;
-                justify-content: flex-end;
-                padding: 1.25rem 1.5rem;
-                gap: 4px;
-                border-top: 1px solid #f1f5f9;
-            }
-
-            .paginate_button {
-                width: 34px;
-                height: 34px;
-                border-radius: 8px;
-                border: 1.5px solid #e2e8f0;
-                background: #fff;
-                color: #64748b !important;
-                font-size: 13px;
-                font-weight: 600;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-            }
-
-            .paginate_button.current {
-                background: #0ea5e9 !important;
-                border-color: #0ea5e9 !important;
-                color: #fff !important;
             }
         </style>
     @endsection
 
-    <div
-        style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+    <div class="page-header">
         <div>
-            <h1 style="font-size:22px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <h1 class="page-title flex items-center gap-2">
                 Manajemen PPPoE
             </h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola data akun PPPoE pelanggan, IP Address, router,
-                dan status billing.</p>
+            <p class="page-subtitle">Kelola data akun PPPoE pelanggan, IP Address, router, dan status billing.</p>
         </div>
         <div class="flex items-center gap-2">
             <button type="button" onclick="openCreateModal()" class="btn-primary-admin !bg-sky-600 hover:!bg-sky-700 !h-8.5 !px-3.5 text-xs font-semibold shadow-xs flex items-center gap-1.5">

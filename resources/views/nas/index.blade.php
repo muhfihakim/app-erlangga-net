@@ -1,24 +1,8 @@
 <x-layouts.app title="Manajemen Router (NAS)">
-    @section('Css')
-        <style>
-            .dataTables_wrapper { padding: 0; }
-            .dataTables_filter { display: none; }
-            .dataTables_paginate {
-                display: flex; justify-content: flex-end; padding: 1rem 1.25rem; gap: 4px; border-top: 1px solid #f1f5f9;
-            }
-            .paginate_button {
-                width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid #e2e8f0; background: #fff;
-                color: #64748b !important; font-size: 12px; font-weight: 600; display: inline-flex;
-                align-items: center; justify-content: center; cursor: pointer;
-            }
-            .paginate_button.current { background: #0ea5e9; border-color: #0ea5e9; color: #fff !important; }
-        </style>
-    @endsection
-
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+    <div class="page-header">
         <div>
-            <h1 style="font-size:22px;font-weight:900;margin:0;">Manajemen Router (NAS)</h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola data Router / Server Akses untuk Radius.</p>
+            <h1 class="page-title">Manajemen Router (NAS)</h1>
+            <p class="page-subtitle">Kelola data Router / Server Akses untuk Radius.</p>
         </div>
         <div style="display:flex; gap:8px;">
             <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold flex items-center gap-1.5" onclick="openNasModal()">

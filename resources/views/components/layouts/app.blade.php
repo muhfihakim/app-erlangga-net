@@ -201,14 +201,14 @@
         // Handle Session Toasts
         $(document).ready(function() {
             @if(session('success'))
-                showToast('{{ session('success') }}', 'success');
+                showToast({!! json_encode(session('success')) !!}, 'success');
             @endif
             @if(session('error'))
-                showToast('{{ session('error') }}', 'error');
+                showToast({!! json_encode(session('error')) !!}, 'error');
             @endif
-            @if($errors->any())
+            @if(isset($errors) && $errors->any())
                 @foreach($errors->all() as $error)
-                    showToast('{{ str_replace("'", "\'", $error) }}', 'error');
+                    showToast({!! json_encode($error) !!}, 'error');
                 @endforeach
             @endif
             @if(session('api_token'))

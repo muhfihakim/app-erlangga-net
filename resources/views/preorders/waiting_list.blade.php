@@ -1,57 +1,12 @@
 <x-layouts.app>
     @section('Css')
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-        <style>
-            #waiting-list-table td {
-                padding: 10px 12px;
-                font-size: 12px;
-                vertical-align: middle;
-            }
-            .dataTables_wrapper {
-                padding: 0;
-            }
-            .dataTables_filter {
-                display: none;
-            }
-            .dataTables_paginate {
-                display: flex;
-                align-items: center;
-                gap: 4px;
-                padding: 0.75rem 1rem;
-                border-top: 1px solid #f1f5f9;
-                justify-content: flex-end;
-            }
-            .paginate_button {
-                height: 30px;
-                padding: 0 10px;
-                border-radius: 6px;
-                border: 1px solid #e2e8f0;
-                background: #fff;
-                color: #475569 !important;
-                font-size: 11px;
-                font-weight: 600;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                text-decoration: none;
-            }
-            .paginate_button.current {
-                background: #4f46e5;
-                border-color: #4f46e5;
-                color: #fff !important;
-            }
-            .paginate_button.disabled {
-                opacity: 0.5;
-                cursor: not-allowed;
-            }
-        </style>
     @endsection
 
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+    <div class="page-header">
         <div>
-            <h1 style="font-size:22px;font-weight:900;margin:0;">Prospek Tunggu (Waiting List Ekspansi)</h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Daftar calon pelanggan ditangguhkan (Unspek) yang menunggu perluasan jaringan, tiang baru, atau penambahan kapasitas ODP.</p>
+            <h1 class="page-title">Prospek Tunggu (Waiting List Ekspansi)</h1>
+            <p class="page-subtitle">Daftar calon pelanggan ditangguhkan (Unspek) yang menunggu perluasan jaringan, tiang baru, atau penambahan kapasitas ODP.</p>
         </div>
     </div>
 

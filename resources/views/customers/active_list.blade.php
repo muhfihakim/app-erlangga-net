@@ -1,49 +1,6 @@
 <x-layouts.app>
     @section('Css')
         <style>
-            /* Hakatech DataTables Customization */
-            .dataTables_wrapper {
-                padding: 0;
-            }
-
-            .dataTables_filter {
-                display: none;
-            }
-
-            .dataTables_paginate {
-                display: flex;
-                justify-content: flex-end;
-                padding: 1.25rem 1.5rem;
-                gap: 4px;
-                border-top: 1px solid #f1f5f9;
-            }
-
-            .paginate_button {
-                width: 34px;
-                height: 34px;
-                border-radius: 8px;
-                border: 1.5px solid #e2e8f0;
-                background: #fff;
-                color: #64748b !important;
-                font-size: 13px;
-                font-weight: 600;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-            }
-
-            .paginate_button.current {
-                background: #0ea5e9;
-                border-color: #0ea5e9;
-                color: #fff !important;
-            }
-
-            #customer-table td, #isolir-table td {
-                padding: 10px 14px;
-                font-size: 13px;
-            }
-
             /* Map Customizations */
             #customer-map {
                 height: 250px;
@@ -92,12 +49,10 @@
 
     @php $is_admin = Auth::user()->isAdmin(); @endphp
 
-    <div
-        style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+    <div class="page-header">
         <div>
-            <h1 style="font-size:22px;font-weight:900;margin:0;">Data Pelanggan</h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Kelola data pelanggan yang sudah aktif dan monitoring
-                isolir.</p>
+            <h1 class="page-title">Data Pelanggan</h1>
+            <p class="page-subtitle">Kelola data pelanggan yang sudah aktif dan monitoring isolir.</p>
         </div>
     </div>
 

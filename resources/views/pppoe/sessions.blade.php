@@ -16,70 +16,6 @@
                 text-transform: none !important;
             }
 
-            .dataTables_wrapper {
-                position: relative;
-                min-height: 200px;
-                padding: 0;
-            }
-
-            .dataTables_wrapper .dataTables_processing {
-                position: absolute !important;
-                top: 50% !important;
-                left: 50% !important;
-                transform: translate(-50%, -50%) !important;
-                background: rgba(255, 255, 255, 0.95) !important;
-                padding: 15px 25px !important;
-                border-radius: 12px !important;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
-                z-index: 50 !important;
-                margin: 0 !important;
-                border: 1px solid #e2e8f0 !important;
-                width: auto !important;
-                height: auto !important;
-                text-align: center;
-            }
-
-            .dataTables_paginate {
-                display: flex;
-                justify-content: flex-end;
-                padding: 1.25rem 1.5rem;
-                gap: 4px;
-                border-top: 1px solid #f1f5f9;
-            }
-
-            .paginate_button {
-                width: 34px;
-                height: 34px;
-                border-radius: 8px;
-                border: 1.5px solid #e2e8f0;
-                background: #fff;
-                color: #64748b !important;
-                font-size: 13px;
-                font-weight: 600;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                text-decoration: none !important;
-            }
-
-            .paginate_button:hover:not(.disabled) {
-                background: #f8fafc;
-                border-color: #cbd5e1;
-                color: #0f172a !important;
-            }
-
-            .paginate_button.current {
-                background: #0ea5e9 !important;
-                border-color: #0ea5e9 !important;
-                color: #fff !important;
-            }
-
-            .paginate_button.disabled {
-                opacity: 0.4;
-                cursor: not-allowed;
-            }
-
             .modal-scrollable-table {
                 overflow-x: auto !important;
                 -webkit-overflow-scrolling: touch;
@@ -90,12 +26,12 @@
     @endsection
 
     <!-- Header Section -->
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+    <div class="page-header">
         <div>
-            <h1 style="font-size:22px;font-weight:900;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <h1 class="page-title">
                 Monitoring Sesi PPPoE
             </h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">
+            <p class="page-subtitle">
                 Status online/offline real-time dan riwayat koneksi sesi akun PPPoE.
             </p>
         </div>

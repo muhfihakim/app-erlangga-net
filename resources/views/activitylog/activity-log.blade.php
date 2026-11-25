@@ -1,51 +1,12 @@
 <x-layouts.app>
-    @section('Css')
-        <style>
-            /* Hakatech DataTables Customization */
-            .dataTables_wrapper { padding: 0; }
-            .dataTables_filter { display: none; }
-            .dataTables_paginate {
-                display: flex; justify-content: flex-end; padding: 1rem 1.25rem; gap: 4px; border-top: 1px solid #f1f5f9;
-            }
-            .paginate_button {
-                width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid #e2e8f0;
-                background: #fff; color: #64748b !important; font-size: 12px; font-weight: 600;
-                display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
-            }
-            .paginate_button.current { background: #0ea5e9; border-color: #0ea5e9; color: #fff !important; }
-
-            .dataTables_wrapper {
-                position: relative;
-                min-height: 200px;
-            }
-            .dataTables_wrapper .dataTables_processing {
-                position: absolute !important;
-                top: 50% !important;
-                left: 50% !important;
-                transform: translate(-50%, -50%) !important;
-                background: rgba(255, 255, 255, 0.95) !important;
-                padding: 12px 20px !important;
-                border-radius: 12px !important;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
-                z-index: 50 !important;
-                margin: 0 !important;
-                border: 1px solid #e2e8f0 !important;
-                width: auto !important;
-                height: auto !important;
-                text-align: center;
-            }
-        </style>
-    @endsection
-
     <!-- Page header -->
-    <div
-        style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+    <div class="page-header">
         <div>
-            <h1 style="font-size:22px;font-weight:900;margin:0;">Log Aktivitas Sistem</h1>
-            <p style="font-size:13px;color:#64748b;margin:3px 0 0;">Riwayat tindakan pengguna dan perubahan sistem.</p>
+            <h1 class="page-title">Log Aktivitas Sistem</h1>
+            <p class="page-subtitle">Riwayat tindakan pengguna dan perubahan sistem.</p>
         </div>
-        <div style="display:flex; gap:8px;">
-            <button type="button" class="btn-primary-admin !h-9 !px-4 text-xs font-semibold !flex !items-center !justify-center gap-1.5 !bg-rose-600 hover:!bg-rose-700 shadow-sm"
+        <div class="flex items-center gap-2">
+            <button type="button" class="btn-primary-admin !h-8.5 !px-4 text-xs font-semibold !bg-rose-600 hover:!bg-rose-700 shadow-sm"
                 onclick="openCustomModal('exportLogModal')">
                 <i class="fa-solid fa-file-pdf"></i> Export PDF
             </button>

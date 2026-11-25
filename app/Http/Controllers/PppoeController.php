@@ -252,6 +252,60 @@ class PppoeController extends Controller
     }
 
     /**
+     * Get real-time traffic for configured interface or specific PPPoE user
+     */
+    public function traffic(Request $request, MikroTikService $mikrotikService): JsonResponse
+    {
+        $interface = $request->query('interface') ?? $request->query('name');
+
+        if ($interface) {
+            $ifaceName = str_starts_with($interface, '<pppoe-')
+                ? $interface
+                : (str_contains($interface, '@') ? "<pppoe-{$interface}>" : $interface);
+
+            $traffic = $mikrotikService->getPppoeTraffic([$ifaceName]);
+            if (!empty($traffic[$ifaceName])) {
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'interface' => $ifaceName,
+                        'rx_rate' => $traffic[$ifaceName]['rx_rate'] ?? 0,
+                        'tx_rate' => $traffic[$ifaceName]['tx_rate'] ?? 0,
+                        'timestamp' => now()->toIso8601String(),
+                    ]
+                ]);
+            }
+        }
+
+        // Default configured interface traffic
+        $traffic = $mikrotikService->getTraffic();
+        if ($traffic && isset($traffic['success']) && $traffic['success']) {
+            return response()->json($traffic);
+        }
+
+        // Cached fallback from daemon
+        $cached = Cache::get('mikrotik_traffic_data_all');
+        if ($cached && !empty($cached)) {
+            return response()->json([
+                'success' => true,
+                'data' => $cached
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'error' => $traffic['error'] ?? 'Gagal mengambil data realtime traffic dari MikroTik',
+            'data' => [
+                'rx_bytes' => 0,
+                'tx_bytes' => 0,
+                'rx_rate' => 0,
+                'tx_rate' => 0,
+                'timestamp' => now()->toIso8601String(),
+            ]
+        ]);
+    }
+
+    /**
      * Create temporary remote tunnel for ONT/ONU using Mikrotik dst-nat
      */
     public function remoteTunnel(Request $request)

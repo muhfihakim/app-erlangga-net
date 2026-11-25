@@ -244,6 +244,28 @@
         background: #ef4444; border: 1.5px solid #fff;
     }
 
+    /* ── Page Header Standard ── */
+    .page-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
+    }
+    .page-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0;
+        line-height: 1.2;
+    }
+    .page-subtitle {
+        font-size: 12.5px;
+        color: #64748b;
+        margin: 3px 0 0;
+    }
+
     /* ── Page body ── */
     .page-body { 
         @apply p-6 md:p-10 lg:p-12;
@@ -311,7 +333,7 @@
     }
     .admin-table th:hover { color: #0ea5e9; }
     .admin-table td { 
-        padding: 18px 14px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #374151;
+        padding: 10px 14px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #374151; font-size: 13px;
     }
     .admin-table tr:last-child td { border-bottom: none; }
     .admin-table tr:hover td { background: #fafcff; }
@@ -319,17 +341,37 @@
     /* =====================================================================
        DATATABLES GLOBAL (Hakatech Style)
        ===================================================================== */
-    .dataTables_wrapper { padding: 0; }
+    .dataTables_wrapper { padding: 0; position: relative; min-height: 160px; }
     .dataTables_filter { display: none; } /* Use custom search input */
 
+    .dataTables_wrapper .dataTables_processing {
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        background: rgba(255, 255, 255, 0.96) !important;
+        padding: 12px 22px !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+        z-index: 50 !important;
+        margin: 0 !important;
+        border: 1px solid #e2e8f0 !important;
+        width: auto !important;
+        height: auto !important;
+        text-align: center;
+        font-weight: 700;
+        font-size: 12.5px;
+        color: #0ea5e9;
+    }
+
     .dataTables_paginate { 
-        @apply flex justify-end items-center gap-[16px] p-5 border-t border-slate-100;
+        @apply flex justify-end items-center gap-[6px] p-4 border-t border-slate-100;
         transition: border-color 0.3s ease; 
     }
     
     .paginate_button {
-        width: 36px; height: 36px; border-radius: 10px;
-        @apply border border-slate-200 bg-white text-slate-500 font-semibold text-sm transition-all duration-200 inline-flex items-center justify-center cursor-pointer no-underline mx-1;
+        width: 34px; height: 34px; border-radius: 8px;
+        @apply border border-slate-200 bg-white text-slate-500 font-semibold text-xs transition-all duration-200 inline-flex items-center justify-center cursor-pointer no-underline mx-0.5;
     }
     .paginate_button:hover:not(.disabled):not(.current) {
         @apply border-primary text-primary bg-sky-50/50;
@@ -364,11 +406,13 @@
     .badge {
         display: inline-flex; align-items: center; gap: 4px;
         font-size: 11px; font-weight: 700;
-        padding: 3px 9px; border-radius: 20px; white-space: nowrap;
+        padding: 2.5px 8px; border-radius: 6px; white-space: nowrap;
     }
-    .badge-published { background: #dcfce7; color: #15803d; }
-    .badge-draft     { background: #fef3c7; color: #d97706; }
-    .badge-archived  { background: #f1f5f9; color: #64748b; }
+    .badge-published, .badge-success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+    .badge-draft, .badge-warning     { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+    .badge-archived, .badge-neutral  { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+    .badge-danger                    { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+    .badge-info                      { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
 
     .btn-primary-admin {
         @apply inline-flex items-center justify-center gap-2 bg-primary text-white font-bold text-[13px] px-[18px] py-[9px] rounded-[10px] border-none transition-all duration-250 cursor-pointer whitespace-nowrap text-center;

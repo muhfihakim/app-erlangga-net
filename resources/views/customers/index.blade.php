@@ -1,44 +1,6 @@
 <x-layouts.app>
     @section('Css')
         <style>
-            /* Hakatech DataTables Customization */
-            .dataTables_wrapper {
-                padding: 0;
-            }
-
-            .dataTables_filter {
-                display: none;
-            }
-
-            .dataTables_paginate {
-                display: flex;
-                justify-content: flex-end;
-                padding: 1.25rem 1.5rem;
-                gap: 4px;
-                border-top: 1px solid #f1f5f9;
-            }
-
-            .paginate_button {
-                width: 34px;
-                height: 34px;
-                border-radius: 8px;
-                border: 1.5px solid #e2e8f0;
-                background: #fff;
-                color: #64748b !important;
-                font-size: 13px;
-                font-weight: 600;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-            }
-
-            .paginate_button.current {
-                background: #0ea5e9;
-                border-color: #0ea5e9;
-                color: #fff !important;
-            }
-
             /* Full Capitalization for Table */
             #customer-table thead th,
             #customer-table tbody td,

@@ -1,10 +1,9 @@
 <x-layouts.app>
     <!-- Page header -->
-    <div
-        style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+    <div class="page-header mb-6">
         <div>
-            <h1 style="font-size:22px;font-weight:900;margin:0;">Dashboard Overview</h1>
-            <p style="font-size:13px;color: #64748b;margin:3px 0 0;">Selamat datang kembali,
+            <h1 class="page-title text-2xl font-black text-slate-900">Dashboard Overview</h1>
+            <p class="page-subtitle text-xs text-slate-500 mt-1">Selamat datang kembali,
                 <strong>{{ Auth::user()->nama_lengkap }}</strong>. Berikut ringkasan performa Anda.
             </p>
         </div>

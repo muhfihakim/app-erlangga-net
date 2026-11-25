@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ActivityLog;
-use App\Models\Dismantle;
 use App\Models\Maintenance;
 use App\Models\Customer;
 use App\Models\PreOrder;
@@ -418,72 +417,5 @@ class ActivityLogController extends Controller
         ]);
 
         return $pdf->download("laporan-preorder-{$request->start_date}.pdf");
-    }
-
-    public function laporanDismantle(Request $request)
-    {
-        $teknisiId = $request->input('teknisi_id');
-        $start = $request->input('start_date');
-        $end = $request->input('end_date');
-
-        // Check if user manually applied a filter
-        $isFiltered = $request->filled('start_date') && $request->filled('end_date');
-
-        $query = Dismantle::with(['customer', 'teknisiEksekutor'])
-            ->where('status', 'Selesai');
-
-        if ($teknisiId) {
-            $query->where('id_teknisi_eksekutor', $teknisiId);
-        }
-
-        if ($isFiltered) {
-            if ($start) $query->whereDate('completed_at', '>=', $start);
-            if ($end) $query->whereDate('completed_at', '<=', $end);
-            $dismantles = $query->orderBy('completed_at', 'desc')->get();
-        } else {
-            $dismantles = collect();
-        }
-
-        $teknisis = User::where('jabatan', 'Teknisi')->orderBy('nama_lengkap', 'asc')->get();
-
-        $stats = [
-            'total_filtered' => $dismantles->count(),
-            'total_all' => Dismantle::where('status', 'Selesai')->count(),
-            'this_month' => Dismantle::where('status', 'Selesai')->whereMonth('completed_at', Carbon::now()->month)->whereYear('completed_at', Carbon::now()->year)->count(),
-            'today' => Dismantle::where('status', 'Selesai')->whereDate('completed_at', Carbon::today())->count(),
-        ];
-
-        return view('activitylog.dismantle-log', compact('dismantles', 'teknisis', 'teknisiId', 'start', 'end', 'stats', 'isFiltered'));
-    }
-
-    public function exportDismantle(Request $request)
-    {
-        $request->validate([
-            'start_date' => 'required|date',
-            'end_date' => 'required|date'
-        ]);
-
-        $query = Dismantle::with(['customer', 'teknisiEksekutor'])
-            ->where('status', 'Selesai')
-            ->whereBetween('completed_at', [
-                Carbon::parse($request->start_date)->startOfDay(),
-                Carbon::parse($request->end_date)->endOfDay()
-            ]);
-
-        if ($request->teknisi_id) {
-            $query->where('id_teknisi_eksekutor', $request->teknisi_id);
-        }
-
-        $dismantles = $query->orderBy('completed_at', 'asc')->get();
-
-        $pdf = PDF::loadView('dismantles.export', [
-            'dismantles' => $dismantles,
-            'start' => $request->start_date,
-            'end' => $request->end_date,
-            'teknisi' => User::find($request->teknisi_id),
-            'total' => $dismantles->count()
-        ]);
-
-        return $pdf->download("laporan-pencabutan-{$request->start_date}-ke-{$request->end_date}.pdf");
     }
 }
