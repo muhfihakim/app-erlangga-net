@@ -19,7 +19,8 @@ class PppoeLabCommand extends Command
     protected $signature = 'pppoe:lab 
                             {action : check/status (cek kesiapan lab) | sync (sinkronkan ke FreeRADIUS) | export (buat file script dial MikroTik)}
                             {--interface=ether2 : Nama interface tester pada MikroTik Client}
-                            {--output=dial_all.rsc : Nama file output script MikroTik}';
+                            {--output=dial_all.rsc : Nama file output script MikroTik}
+                            {--limit= : Batasi jumlah akun yang diexport (contoh: --limit=50)}';
 
     /**
      * The console command description.
@@ -186,11 +187,16 @@ class PppoeLabCommand extends Command
     {
         $interface = $this->option('interface');
         $fileName = $this->option('output');
+        $limit = $this->option('limit');
         $outputPath = base_path($fileName);
 
         $this->info("Menyiapkan script dial MikroTik untuk interface [{$interface}]...");
 
-        $pppoes = Pppoe::all();
+        $query = Pppoe::query();
+        if (!empty($limit) && is_numeric($limit)) {
+            $query->take((int) $limit);
+        }
+        $pppoes = $query->get();
         $total = $pppoes->count();
 
         $lines = [];
