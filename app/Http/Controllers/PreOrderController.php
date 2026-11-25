@@ -29,9 +29,23 @@ class PreOrderController extends Controller
                 ->whereNotNull('pre_order_id')
                 ->pluck('pre_order_id')
                 ->toArray();
+            $installedNames = \App\Models\Customer::withTrashed()
+                ->whereNotNull('nama_lengkap')
+                ->pluck('nama_lengkap')
+                ->filter()
+                ->unique()
+                ->toArray();
+            $installedWhatsapps = \App\Models\Customer::withTrashed()
+                ->whereNotNull('no_whatsapp')
+                ->pluck('no_whatsapp')
+                ->filter()
+                ->unique()
+                ->toArray();
 
-            // 2. Query PreOrder yang murni PO (belum terpasang)
+            // 2. Query PreOrder yang murni PO (belum terpasang dan bukan duplikat pelanggan aktif)
             $query = PreOrder::whereNotIn('id', $installedPOIds)
+                ->whereNotIn('nama_lengkap', $installedNames)
+                ->whereNotIn('no_whatsapp', $installedWhatsapps)
                 ->with(['pppoe', 'paket', 'sales']);
 
             if ($user->isAdmin()) {
@@ -107,7 +121,9 @@ class PreOrderController extends Controller
             $thisMonth = Carbon::now()->month;
             $thisYear = Carbon::now()->year;
 
-            $statsQuery = PreOrder::whereNotIn('id', $installedPOIds);
+            $statsQuery = PreOrder::whereNotIn('id', $installedPOIds)
+                ->whereNotIn('nama_lengkap', $installedNames)
+                ->whereNotIn('no_whatsapp', $installedWhatsapps);
             if ($user->jabatan === 'Sales') {
                 $statsQuery->where('id_sales', $user->id);
             }
@@ -242,6 +258,19 @@ class PreOrderController extends Controller
                 'alamat_email.email' => 'Format alamat email tidak valid.',
             ]);
 
+            // Cegah duplikasi Pre-Order jika calon pelanggan sudah terdaftar aktif sebagai pelanggan
+            $cleanWa = preg_replace('/[^0-9]/', '', $validatedData['no_whatsapp'] ?? '');
+            $existingActiveCustomer = \App\Models\Customer::where(function ($q) use ($validatedData, $cleanWa) {
+                $q->where('nama_lengkap', $validatedData['nama_lengkap']);
+                if (strlen($cleanWa) >= 8) {
+                    $q->orWhere('no_whatsapp', 'LIKE', '%' . substr($cleanWa, -8));
+                }
+            })->first();
+
+            if ($existingActiveCustomer) {
+                return redirect()->back()->withInput()->with('error', 'Pelanggan dengan nama "' . $existingActiveCustomer->nama_lengkap . '" (ID: ' . $existingActiveCustomer->id_pelanggan . ') sudah aktif berlangganan di sistem.');
+            }
+
             if ($request->hasFile('foto_ktp')) {
                 $fotoKtpPath = $request->file('foto_ktp')->store('pre_orders/ktp', 's3');
                 $validatedData['foto_ktp'] = $fotoKtpPath;
@@ -298,6 +327,19 @@ class PreOrderController extends Controller
             // Pisahkan data file dari data teks
             $updateData = collect($validatedData)->except(['foto_ktp', 'foto_rumah'])->toArray();
             $preOrder->fill($updateData);
+
+            // Cegah duplikasi Pre-Order jika calon pelanggan sudah terdaftar aktif sebagai pelanggan
+            $cleanWa = preg_replace('/[^0-9]/', '', $validatedData['no_whatsapp'] ?? '');
+            $existingActiveCustomer = \App\Models\Customer::where(function ($q) use ($validatedData, $cleanWa) {
+                $q->where('nama_lengkap', $validatedData['nama_lengkap']);
+                if (strlen($cleanWa) >= 8) {
+                    $q->orWhere('no_whatsapp', 'LIKE', '%' . substr($cleanWa, -8));
+                }
+            })->first();
+
+            if ($existingActiveCustomer) {
+                return redirect()->back()->withInput()->with('error', 'Pelanggan dengan nama "' . $existingActiveCustomer->nama_lengkap . '" (ID: ' . $existingActiveCustomer->id_pelanggan . ') sudah aktif berlangganan di sistem.');
+            }
 
             if ($request->hasFile('foto_ktp')) {
                 if ($preOrder->getOriginal('foto_ktp')) {

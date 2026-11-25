@@ -36,24 +36,30 @@ class CustomerController extends Controller
         /** * PENTING: Menggunakan withTrashed()
          * Ini memastikan PO yang sudah pernah diaktivasi (walaupun pelanggannya sudah dihapus/dismantle)
          * tidak akan muncul kembali di daftar tugas teknisi.
+         * Juga menyaring Pre-Order duplikat di mana pelanggan dengan nama atau no WA yang sama
+         * sudah terdaftar aktif sebagai pelanggan.
          */
-        $activatedPOIds = Customer::withTrashed()->pluck('pre_order_id');
+        $activatedPOIds = Customer::withTrashed()->whereNotNull('pre_order_id')->pluck('pre_order_id')->toArray();
+        $activatedNames = Customer::withTrashed()->whereNotNull('nama_lengkap')->pluck('nama_lengkap')->filter()->unique()->toArray();
+        $activatedWhatsapps = Customer::withTrashed()->whereNotNull('no_whatsapp')->pluck('no_whatsapp')->filter()->unique()->toArray();
 
         // Daftar teknisi untuk dropdown Partner
         $teknisiUsers = User::where('jabatan', 'Teknisi')->get();
         $baseQuery = PreOrder::whereNotIn('id', $activatedPOIds)
             ->where('is_unspek_approved', false)
+            ->whereNotIn('nama_lengkap', $activatedNames)
+            ->whereNotIn('no_whatsapp', $activatedWhatsapps)
             ->with(['pppoe', 'paket', 'sales']);
 
         $thisMonth = Carbon::now()->month;
         $thisYear = Carbon::now()->year;
         
-        $totalThisMonth = PreOrder::whereNotIn('id', $activatedPOIds)
+        $totalThisMonth = (clone $baseQuery)
             ->whereMonth('created_at', $thisMonth)
             ->whereYear('created_at', $thisYear)
             ->count();
             
-        $totalThisWeek = PreOrder::whereNotIn('id', $activatedPOIds)
+        $totalThisWeek = (clone $baseQuery)
             ->whereBetween('created_at', [
                 Carbon::now()->startOfWeek(),
                 Carbon::now()->endOfWeek()
@@ -647,6 +653,23 @@ class CustomerController extends Controller
                 'foto_terpasang' => $fotoTerpasangPath,
                 'foto_speedtest' => $fotoSpeedtestPath,
             ]);
+
+            // Bersihkan PreOrder duplikat lain yang memiliki nomor WA atau nama yang sama persis jika ada
+            try {
+                PreOrder::where('id', '!=', $po->id)
+                    ->where(function ($q) use ($po) {
+                        if (!empty($po->no_whatsapp)) {
+                            $q->where('no_whatsapp', $po->no_whatsapp);
+                        }
+                        if (!empty($po->nama_lengkap)) {
+                            $q->orWhere('nama_lengkap', $po->nama_lengkap);
+                        }
+                    })
+                    ->whereNotIn('id', Customer::withTrashed()->whereNotNull('pre_order_id')->pluck('pre_order_id'))
+                    ->delete();
+            } catch (\Throwable $e) {
+                Log::info("Duplicate PreOrder cleanup on activation: " . $e->getMessage());
+            }
 
             // Sinkronkan ke Akun PPPoE & FreeRADIUS
             $isPaid = ($validatedData['pembayaran'] === 'Cash');
